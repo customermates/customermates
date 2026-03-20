@@ -1,0 +1,154 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:08:56.164Z",
+    "id": "1402215b-1ac1-45a4-9b8f-8f6082e1a891",
+    "name": "KPMG",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:12:50.479Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:48:14.556Z",
+    "id": "171e394a-827b-406e-818c-4cf579950828",
+    "name": "Bundesagentur für Arbeit",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:41:53.093Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:54:58.484Z",
+    "id": "30733426-b99c-432d-9619-313cfe1c051a",
+    "name": "Volkswagen",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:32.029Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:55:10.883Z",
+    "id": "319c0c9e-030c-4218-a38f-b39441317bba",
+    "name": "Deutsche Post",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:08.229Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:06:56.394Z",
+    "id": "439870ba-9e16-4478-a66c-52ad65cd5fe7",
+    "name": "Wavestone",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:13:40.238Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:08:38.746Z",
+    "id": "59bf04b6-01c3-49f9-a05f-dd03550b543e",
+    "name": "PWC",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:13:03.903Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:01:26.247Z",
+    "id": "64df181e-6089-4302-86d1-658e41e28587",
+    "name": "TUI",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:27.941Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:10:34.677Z",
+    "id": "7853db7b-cc06-4ea2-8109-9b52f262004a",
+    "name": "McKinsey & Company",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:12:57.856Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:56:55.148Z",
+    "id": "7e26ffdc-3288-494a-bda2-3ce0d805dfec",
+    "name": "NRW Bank",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:18.740Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:56:00.506Z",
+    "id": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "name": "Continental",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:41:57.966Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:05:48.600Z",
+    "id": "87d6497e-80c4-4b68-9bfb-14b0947bbad1",
+    "name": "SThree",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:13:32.441Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:55:25.702Z",
+    "id": "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+    "name": "BMW",
+    "notes": null,
+    "updatedAt": "2026-01-26T12:22:29.749Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:56:17.501Z",
+    "id": "acb116da-3161-42b3-b87f-6d498dc1e3e5",
+    "name": "SAP",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:13:24.592Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:50:45.412Z",
+    "id": "cc3743ff-149e-455b-bf8a-12525ba1c5b6",
+    "name": "Siemens",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:23.066Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:03:50.891Z",
+    "id": "d91bc708-e987-4f0c-b4c2-98b19871c4ec",
+    "name": "Hays",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:12:44.987Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:59:40.025Z",
+    "id": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+    "name": "Bayer",
+    "notes": null,
+    "updatedAt": "2026-01-26T12:22:04.348Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:08:12.361Z",
+    "id": "e87ea132-788c-44ca-a9db-597e69d88b4e",
+    "name": "Deloitte",
+    "notes": null,
+    "updatedAt": "2025-08-10T19:12:38.234Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:47:51.937Z",
+    "id": "f1bcd101-e86f-4b5b-88b8-0bf0b5b7ad0e",
+    "name": "Deutsche Telekom\t",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:12.733Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:45:31.898Z",
+    "id": "f6108f29-f759-432c-9a86-cac06e526887",
+    "name": "Deutsche Bahn",
+    "notes": null,
+    "updatedAt": "2025-08-11T07:42:03.074Z"
+  }
+]

@@ -1,0 +1,72 @@
+---
+title: Self-Hosting Get Started
+description: Betreibe Customermates self-hosted in deiner eigenen Infrastruktur mit Docker Compose, PostgreSQL und einem produktionsreifen Next.js-App-Container.
+---
+
+## Customermates self-hosted mit Docker Compose starten
+
+Diese Seite zeigt, wie du eine self-hosted Customermates-Installation mit Docker Compose und PostgreSQL aufsetzt.
+Wenn du noch zwischen Deployment-Modellen vergleichst, gehe zuerst zu [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).
+
+Self-hosted Deployments laufen standardmäßig in der Community Edition. Die kostenpflichtigen Enterprise-Features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) sind in self-hosted Deployments nicht aktiv.
+
+## Voraussetzungen
+
+Vor dem Deployment solltest du Folgendes bereit haben:
+
+- ein VPS mit installiertem Docker Engine und Docker Compose
+- eine Domain, die du auf deinen Server zeigen lassen kannst
+- Zugriff zum Anlegen von DNS-Eintraegen
+- Zugriff, um dieses Repository auf dem Server zu klonen
+
+Fuer produktive Nutzung solltest du einen Reverse Proxy mit HTTPS-Terminierung vor den App-Container setzen.
+
+## Installationsablauf
+
+Im Projektverzeichnis auf deinem Server:
+
+```bash
+cp .env.selfhost.template .env
+chmod +x scripts/selfhost-setup.sh
+./scripts/selfhost-setup.sh
+```
+
+Das Setup-Skript:
+
+1. erforderliche Inputs und Umgebungswerte validieren
+2. das App-Image bauen und PostgreSQL starten
+3. den App-Container mit Docker Compose starten
+4. `prisma migrate deploy` ausfuehren
+
+Wenn du Konfigurationswerte anpassen musst, aktualisiere deine `.env` und fuehre das Setup-Skript erneut aus.
+
+## Initiale Startup-Checks
+
+Nach dem Setup pruefst du, ob die Container laufen:
+
+```bash
+docker compose ps
+```
+
+Danach kannst du die App-Logs verfolgen, bis die Anwendung als bereit gemeldet wird:
+
+```bash
+docker compose logs -f app
+```
+
+Fuer Datenbank-Diagnosen:
+
+```bash
+docker compose logs -f postgres
+```
+
+## Erster Login und Signup
+
+Sobald die App im Browser erreichbar ist:
+
+1. Oeffne deine konfigurierte Domain.
+2. Erstelle dein erstes Konto oder melde dich an.
+3. Schließe Onboarding und initiales Company-Setup ab.
+
+Nach dem ersten Login geht es weiter mit [Installation verwalten](/docs/managing-your-installation) fuer Updates, Restarts und Troubleshooting.
+Fuer die operativen Unterschiede zwischen den Deployment-Modellen siehe auch [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).

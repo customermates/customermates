@@ -1,0 +1,62 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:45:27.747Z",
+    "id": "21260099-c310-4a57-9876-15cd14883d74",
+    "name": "Follow up with John Doe from Acme Corp after demo",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2025-12-18T08:45:27.747Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:46:12.636Z",
+    "id": "7371526c-7816-49e1-a769-4ae5deb2f1a0",
+    "name": "Prepare and send a proposal for Contoso",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2025-12-18T08:46:12.636Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:45:40.012Z",
+    "id": "8d9060ef-1f0a-4cf4-9225-5b7114dccbf7",
+    "name": "Schedule discovery call with Contoso",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2025-12-18T08:45:40.012Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T19:17:38.880Z",
+    "id": "b09766c4-31b0-4bf6-b909-20b9fde2b6d2",
+    "name": "User Pending Authorization (julia.weber@customermates.com)",
+    "notes": null,
+    "relatedUserId": "1aa83c25-7869-4a52-8e8a-adfb843dcf6b",
+    "type": "userPendingAuthorization",
+    "updatedAt": "2026-01-29T19:23:32.944Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:47:15.520Z",
+    "id": "b13ab345-0fdd-4351-ac4b-0a67f4c68fa2",
+    "name": "Review inbound lead from website and assign qualification score",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2025-12-18T08:47:15.520Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:47:42.330Z",
+    "id": "e00ed867-fe44-4e73-9132-49da07db9326",
+    "name": "Follow up with legal on contract approval for Globex",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-01-28T07:40:56.272Z"
+  }
+]

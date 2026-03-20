@@ -1,0 +1,15 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-23T13:29:07.493Z",
+    "currentPeriodEnd": null,
+    "id": "6702c920-45a3-4c4d-a5d0-705d353e5f94",
+    "lemonSqueezyId": null,
+    "lemonSqueezyVariantId": null,
+    "plan": "pro",
+    "quantity": null,
+    "status": "trial",
+    "trialEndDate": null,
+    "updatedAt": "2026-01-23T13:29:07.493Z"
+  }
+]

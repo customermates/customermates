@@ -1,0 +1,17 @@
+.git
+.gitignore
+.cursor
+.vscode
+.idea
+node_modules
+.next
+out
+coverage
+dist
+build
+*.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+dumps

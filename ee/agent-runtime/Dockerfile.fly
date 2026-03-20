@@ -1,0 +1,25 @@
+FROM --platform=linux/amd64 ghcr.io/openclaw/openclaw:2026.3.13-1-slim
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git gettext-base sudo && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install -g mcporter@0.7.3 --no-audit --no-fund && \
+    npm install -g @orth/cli --no-audit --no-fund && \
+    npm cache clean --force
+
+COPY ee/agent-runtime/router.cjs ee/agent-runtime/openclaw.json ee/agent-runtime/avatar.svg ee/agent-runtime/entrypoint.sh /app/
+COPY ee/agent-runtime/skills/ /app/skills/
+COPY ee/agent-runtime/templates/ /app/templates/
+
+RUN mkdir -p /opt/deps && cd /opt/deps && npm init -y && npm install http-proxy --omit=dev --no-audit --no-fund && \
+    npm cache clean --force && \
+    chmod +x /app/entrypoint.sh && mkdir -p /data
+
+ENV HOME=/data
+ENV NODE_PATH=/opt/deps/node_modules
+
+EXPOSE 3000
+
+CMD ["/app/entrypoint.sh"]

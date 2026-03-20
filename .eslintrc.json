@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc.json",
+  "env": {
+    "browser": false,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:@next/next/recommended"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.mjs", "**/*.cjs"],
+      "parser": "espree",
+      "parserOptions": {
+        "ecmaVersion": 12,
+        "project": null,
+        "sourceType": "module"
+      }
+    },
+    {
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/strict",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "files": ["**/*.ts", "**/*.tsx"],
+      "rules": {
+        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "args": "after-used",
+            "argsIgnorePattern": "^_.*?$",
+            "ignoreRestSiblings": false
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.json", "**/*.jsonc", "**/*.json5"],
+      "parser": "jsonc-eslint-parser",
+      "plugins": ["jsonc"],
+      "rules": {
+        "jsonc/sort-keys": [
+          "warn",
+          {
+            "order": { "caseSensitive": false, "natural": true, "type": "asc" },
+            "pathPattern": "^$"
+          },
+          {
+            "order": { "caseSensitive": false, "natural": true, "type": "asc" },
+            "pathPattern": ".*"
+          }
+        ]
+      }
+    }
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "project": "./tsconfig.json",
+    "sourceType": "module",
+    "tsconfigRootDir": "."
+  },
+  "plugins": ["react", "unused-imports", "import", "@typescript-eslint", "jsx-a11y", "prettier"],
+  "rules": {
+    "curly": ["warn", "multi-or-nest"],
+    "func-style": ["warn", "declaration"],
+    "import/order": [
+      "warn",
+      {
+        "groups": ["type", "builtin", "object", "external", "internal", "parent", "sibling", "index"],
+        "newlines-between": "always",
+        "pathGroups": [
+          {
+            "group": "external",
+            "pattern": "~/**",
+            "position": "after"
+          },
+          {
+            "group": "internal",
+            "pattern": "@/generated/prisma"
+          }
+        ]
+      }
+    ],
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/interactive-supports-focus": "warn",
+    "jsx-a11y/no-autofocus": "off",
+    "no-console": "off",
+    "no-implicit-coercion": ["error", { "boolean": true }],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "message": "Import from specific @heroui subfolders instead (e.g., @heroui/tabs, @heroui/toast)",
+            "name": "@heroui/react"
+          }
+        ]
+      }
+    ],
+    "no-unused-vars": "off",
+    "prettier/prettier": [
+      "warn",
+      {
+        "printWidth": 120
+      }
+    ],
+    "react/jsx-newline": ["warn", { "prevent": false }],
+    "react/jsx-sort-props": [
+      "warn",
+      {
+        "callbacksLast": true,
+        "noSortAlphabetically": false,
+        "reservedFirst": true,
+        "shorthandFirst": true
+      }
+    ],
+    "react/jsx-uses-react": "off",
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/self-closing-comp": "warn",
+    "react-hooks/exhaustive-deps": "off",
+    "unused-imports/no-unused-imports": "warn",
+    "unused-imports/no-unused-vars": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

@@ -1,0 +1,143 @@
+# Cursor Rules
+
+## Project Context
+
+Next.js 16 application with TypeScript, Prisma, and internationalization.
+
+- Next.js 16 with App Router and Turbopack
+- TypeScript (strict mode)
+- Prisma for database management
+- better-auth for authentication
+- Tailwind CSS + HeroUI for styling
+- MobX for client-side state management
+- next-intl for internationalization (de, en)
+- InversifyJS for dependency injection
+- Resend for transactional emails
+- Sentry for error monitoring (cloud only)
+- Docker + Docker Compose for self-hosting
+
+## Code Style
+
+- Do not write comments. The code should be self-explanatory.
+- Prefer async/await over .then() chains
+- Strictly type enums by their type and do not use strings
+- Repositories do not define the return types of the methods of their extending interfaces
+- Follow ESLint rules defined in .eslintrc.json
+- Use functional components with hooks
+
+## Naming Conventions
+
+- PascalCase for components and interfaces
+- camelCase for functions and variables
+- kebab-case for file names
+- UPPER_SNAKE_CASE for constants
+
+## File Naming Conventions
+
+- Components: `kebab-case.tsx`
+- Stores: `kebab-case.store.ts`
+- Modals: `kebab-case-modal.tsx`
+- Modal stores: `kebab-case-modal.store.ts`
+- Actions: `actions.ts` (singular, feature-specific)
+- Interactors: `kebab-case.interactor.ts`
+- Repositories: `prisma-kebab-case.repository.ts`
+
+## Backend Architecture (Clean Architecture)
+
+- Clean Architecture with clear separation of concerns
+- Dependency Injection with InversifyJS via `core/dependency-injection/container.ts`
+- Frontend calls backend through `actions.ts` files using `"use server"` directive
+- Interface Segregation Principle: each interactor defines its own repository interface
+- **Always register new interactors, repositories, and backend classes in `core/dependency-injection/container.ts` immediately after creation**
+
+## Interactors
+
+- Each business operation is encapsulated in an Interactor class
+- Use `@TentantInteractor` decorator for tenant-scoped interactors with RBAC
+- Use `@TenantScoped` for services that need tenant context without RBAC
+- Use `@TenantAgnostic` for services that operate across tenants
+- Interactors define their own repository interfaces (e.g., `UpdateCompanyDetailsRepo`)
+- Interactors dispatch domain events through `EventService`
+- All interactors extend `UserAccessor` for current user access
+
+## Validation
+
+- Use `@Validate` decorator for forms that update data — returns validation errors to frontend
+- Use `@Enforce` decorator for internal operations — throws error on invalid data
+- Define Zod schemas with `z.object()` for type safety
+- Use `Data<T>` type utility to extract TypeScript types from Zod schemas
+- Use `Validated<T>` type for methods that return validation results
+
+## Repositories
+
+- Implement repository interfaces defined by interactors
+- Use Prisma for database operations
+- One repository class can implement multiple interfaces
+- Keep database queries in repository classes, not in interactors
+- Prefer upsert methods over separate insert and update methods
+- Create migrations only when explicitly requested by the user
+- Run the seed file only when explicitly requested by the user
+
+## Error Handling
+
+- **Let errors propagate.** Do not add try/catch unless there is a specific recovery action.
+- Sentry auto-captures unhandled errors via `onRequestError` in `instrumentation.ts` — no manual `Sentry.captureException` needed.
+- The only try/catch patterns that are justified:
+  - `handleError` in `core/api/interactor-handler.ts`: translates known errors (auth, permission, demo) to HTTP status codes for the public REST API. Unknown errors are rethrown for auto-capture.
+  - Webhook delivery in `webhook.service.ts`: records failed deliveries when `fetch` throws on user-configured URLs. This is error handling, not suppression.
+  - Boolean probes like `machineExists` / `checkHealth`: network failure means `false`.
+  - Retry logic (e.g., `destroyVolume`).
+- `@Transaction` ensures rollback on error — do not swallow errors inside transactional interactors.
+
+## Domain Events
+
+- Events are dispatched through `EventService.publish()` inside interactors
+- `EventBusWorker.dispatch()` executes listeners — errors propagate and trigger `@Transaction` rollback
+- Task creation and audit logging run inside the transaction (awaited)
+- Webhook delivery runs outside the transaction (`transactionStorage.exit`) and is fire-and-forget (`void`)
+- Webhook delivery failures are recorded as failed deliveries, not thrown
+
+## Public REST API
+
+- Lives under `app/api/v1/`
+- Each route uses try/catch with `handleError` for HTTP status code translation
+- `handleError` returns proper 401/403 for known errors, rethrows unknown errors
+- OpenAPI schemas are auto-generated via `scripts/generate-openapi.ts`
+
+## Frontend Architecture
+
+- MobX for state management with `observer()` wrapper
+- Feature-based organization: `app/[locale]/feature/`
+- Each feature contains: `components/`, `application/`, `actions.ts`, `page.tsx`
+- Form stores extend `BaseFormStore`, table stores extend `BaseTableStore`, modal stores extend `BaseModalStore`
+- All stores are centralized in `RootStore`
+- Server components by default, client components (`"use client"`) when needed
+
+## Environment Variables
+
+- Shared behavior flags and settings live in `constants/env.ts` (`IS_PRODUCTION`, `IS_CLOUD_HOSTED`, `BASE_URL`, etc.)
+- Service-specific secrets (API keys, tokens) stay local to their service file
+- `IS_CLOUD_HOSTED` controls cloud-only features (Sentry, subscription card, email footer)
+- Self-hosting is the default; cloud deployment sets `CLOUD_HOSTED=true`
+
+## Self-Hosting
+
+- Dockerfile: multi-stage build with `node:22-bookworm-slim`
+- `docker-compose.yml`: Postgres + app services
+- Scripts: `scripts/selfhost-setup.sh`, `scripts/selfhost-update.sh`, `scripts/selfhost-restart.sh`
+- `.env.selfhost.template`: example env file for self-hosted deployments
+- Self-hosted users get `SubscriptionPlan.basic` / `SubscriptionStatus.active` automatically (no trial)
+
+## Authentication
+
+- Use better-auth for all authentication flows
+- Social providers (Google, Microsoft) are conditionally enabled based on env vars
+- Role-based access control via `@TentantInteractor` resource/action checks
+- `RouteGuardService` enforces access on protected pages
+
+## Internationalization
+
+- Use next-intl for all user-facing text
+- Keep translation keys organized by feature
+- Support both German (de) and English (en) locales
+- Keep translation keys in `en.json` and `de.json` sorted alphanumerically

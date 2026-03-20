@@ -1,0 +1,1221 @@
+{
+  "AiAgent": {
+    "addEnvironmentVariable": "Add Environment Variable",
+    "agentSetup": {
+      "anthropic": "Anthropic API Key",
+      "openai": "OpenAI API Key",
+      "provisioningHint": "By continuing, you agree to the Privacy Policy and Terms of Service. You can also add additional API providers manually later in the OpenClaw Control UI.",
+      "skip": "Configure other provider later",
+      "submit": "Save and continue",
+      "title": "Connect Your AI Providers"
+    },
+    "environmentVariable": {
+      "key": "Key",
+      "restartHint": "Adding or changing environment variables restarts the container. This usually takes about 3-5 minutes.",
+      "title": "Add Environment Variable",
+      "value": "Value",
+      "valuePlaceholder": "Variable value"
+    },
+    "openControlUi": "Open Chat",
+    "provision": "Provision Agent",
+    "provisionPending": "Provisioning has started in the background and usually takes 3-5 minutes. Please try opening the AI Agent again after that.",
+    "reset": "Reset Agent",
+    "resetConfirmMessage": "This will permanently erase all chat history, memory, and learned skills. The agent will start fresh. This cannot be undone.",
+    "resetConfirmTitle": "Reset Agent"
+  },
+  "ApiKeyModal": {
+    "created": "Created",
+    "expires": "Expires",
+    "keyCreated": "API key created successfully",
+    "keyWarning": "Make sure to copy this key now. You won't be able to see it again. The key should only be used with caution because others could impersonate you if the key gets lost.",
+    "lastUsed": "Last used",
+    "title": "Create API Key"
+  },
+  "ApiKeysCard": {
+    "title": "API Keys",
+    "unnamed": "Unnamed"
+  },
+  "AuditLogModal": {
+    "createdAt": "Created At",
+    "entity": "Element",
+    "entityId": "Element ID",
+    "event": "Event",
+    "eventData": "Event Data",
+    "title": "Audit Log Details",
+    "userId": "User"
+  },
+  "AuditLogsCard": {
+    "searchTooltip": "Search by element id",
+    "title": "Audit Logs"
+  },
+  "BlogPostPage": {
+    "relatedArticles": "Related Articles"
+  },
+  "Common": {
+    "actions": {
+      "add": "Add",
+      "addCustomField": "Add Field",
+      "approve": "Approve",
+      "back": "Back",
+      "cancel": "Cancel",
+      "close": "Close",
+      "collapse": "Collapse",
+      "continue": "Continue",
+      "copy": "Copy to clipboard",
+      "create": "Create",
+      "delete": "Delete",
+      "deleteCustomFields": "Delete Field",
+      "discard": "Discard",
+      "edit": "Edit",
+      "editCustomFields": "Edit Field",
+      "expand": "Expand",
+      "readMore": "See more",
+      "refresh": "Refresh",
+      "reset": "Reset",
+      "save": "Save",
+      "scheduleDemo": "Schedule Demo",
+      "showMasterData": "Show data",
+      "showNotes": "Show notes",
+      "showSideBySide": "Show both",
+      "signIn": "Login",
+      "submit": "Submit",
+      "update": "Update",
+      "view": "View"
+    },
+    "ariaLabels": {
+      "close": "Close",
+      "closeMenu": "Close menu",
+      "dataTable": "Data table",
+      "dragToMove": "Drag to move",
+      "footer": "Footer",
+      "mainContent": "Main content",
+      "navigation": "Navigation",
+      "nothingFound": "Nothing found",
+      "openMenu": "Open menu",
+      "profileActions": "Profile Actions",
+      "profileAndActions": "Profile & Actions",
+      "selectOption": "Select an option",
+      "switchToCardView": "Switch to card view",
+      "switchToTableView": "Switch to table view",
+      "themeSwitcher": "Theme switcher",
+      "tooltipAdd": "Add",
+      "tooltipFields": "Appearance",
+      "tooltipFilters": "Filters",
+      "tooltipGroupBy": "Group by",
+      "tooltipSearch": "Search",
+      "tooltipSort": "Sort"
+    },
+    "assigneeGuard": {
+      "message": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
+      "title": "Missing Assignment"
+    },
+    "avatarUrl": "Profile Picture",
+    "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
+    "backToProdCta": "Back to Homepage",
+    "benjamin": {
+      "name": "Benjamin Wagner",
+      "title": "Founder @ Customermates"
+    },
+    "city": "City",
+    "colors": {
+      "danger": "Red",
+      "default": "Gray",
+      "primary": "Blue",
+      "secondary": "Cyan",
+      "success": "Green",
+      "warning": "Yellow"
+    },
+    "company": "Company",
+    "country": "Country",
+    "currencies": {
+      "aud": "Australian Dollar",
+      "brl": "Brazilian Real",
+      "cad": "Canadian Dollar",
+      "chf": "Swiss Franc",
+      "cny": "Chinese Yuan",
+      "eur": "Euro",
+      "gbp": "British Pound",
+      "inr": "Indian Rupee",
+      "jpy": "Japanese Yen",
+      "usd": "US Dollar"
+    },
+    "currency": "Currency",
+    "customColumn": {
+      "deleteMessage": "Are you sure you want to delete this column? This action cannot be undone.",
+      "deleteTitle": "Delete Column"
+    },
+    "customColumnTypes": {
+      "currency": "Currency",
+      "date": "Date",
+      "dateTime": "Date & Time",
+      "email": "Email",
+      "link": "Link",
+      "phone": "Phone",
+      "plain": "Text",
+      "singleSelect": "Single Select"
+    },
+    "dark": "Dark",
+    "de": "Deutsch",
+    "default": "Default",
+    "defaultColor": "Default Color",
+    "defaultData": {
+      "contact": {
+        "firstName": "John",
+        "lastName": "Doe"
+      },
+      "deal": {
+        "name": "First Project"
+      },
+      "organization": {
+        "name": "Example Inc."
+      },
+      "service": {
+        "name": "Consulting Service"
+      },
+      "todo": {
+        "columnLabel": "Status",
+        "name": "My first task",
+        "states": {
+          "archived": "Archived",
+          "blocked": "Blocked",
+          "done": "Done",
+          "inProgress": "In Progress",
+          "onHold": "On Hold",
+          "open": "Open"
+        }
+      }
+    },
+    "deleteConfirmation": {
+      "message": "Are you sure you want to delete this item? This action cannot be undone.",
+      "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "title": "Confirm Deletion"
+    },
+    "email": "E-Mail",
+    "en": "English",
+    "errors": {
+      "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days",
+      "contactNotFound": "Contact ID not found or not accessible.",
+      "customColumnNotFound": "Custom column ID not found or not accessible. Available columns: {validValues}.",
+      "customFieldInvalidCurrency": "The currency value is invalid. Must be a valid number.",
+      "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 datetime format (e.g., 2024-01-15T10:30:00Z).",
+      "customFieldInvalidEmail": "The email value is invalid. Must be a valid email address format (e.g., user@example.com). For multiple emails, separate by comma (e.g., user1@example.com, user2@example.com).",
+      "customFieldInvalidPhone": "The phone value is invalid. Must be in E.164 format (e.g., +491234567890). For multiple phone numbers, separate by comma (e.g., +491234567890, +499876543210).",
+      "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
+      "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
+      "dealNotFound": "Deal ID not found or not accessible.",
+      "emailAlreadyExists": "An account with this email already exists",
+      "emailMismatch": "Email addresses must match",
+      "emailNotVerified": "Email not verified",
+      "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
+      "generic": "An error occurred",
+      "invalidCredentials": "Invalid email or password",
+      "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
+      "invalidSortField": "Sort field not found or not accessible.",
+      "llmApiKeyInvalid": "Invalid API key. Please check your key and try again.",
+      "notesExceedsMaxLength": "Notes content exceeds maximum length",
+      "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text",
+      "organizationNotFound": "Organization ID not found or not accessible.",
+      "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+      "passwordMismatch": "Passwords must match",
+      "roleSystemRequired": "At least one user must be a system administrator",
+      "serviceNotFound": "Service ID not found or not accessible.",
+      "taskNameCannotBeChangedForSystemTasks": "Name cannot be changed for system tasks",
+      "taskNotFound": "Task ID not found or not accessible.",
+      "taskOnlyCustomTasksCanBeDeleted": "Only custom tasks can be deleted",
+      "termsNotAgreed": "You must agree to the terms and conditions",
+      "urlInvalidProtocol": "The URL value is invalid. Please check the format.",
+      "userNotFound": "User ID not found or not accessible.",
+      "widgetDealAggregationNotAllowedForTask": "Deal aggregation types are not allowed for Task element type",
+      "widgetDealFiltersNotAllowedForDealEntityType": "Deal filters are not allowed when element type is Deal",
+      "widgetDealQuantityOnlyForService": "Deal quantity aggregation is only allowed for Service element type",
+      "widgetGroupByCustomColumnIdRequired": "Custom column ID is required when grouping by custom column",
+      "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count",
+      "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type",
+      "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types"
+    },
+    "events": {
+      "company": {
+        "updated": "Company Updated"
+      },
+      "contact": {
+        "created": "Contact Created",
+        "deleted": "Contact Deleted",
+        "updated": "Contact Updated"
+      },
+      "custom_column": {
+        "created": "Custom Column Created",
+        "deleted": "Custom Column Deleted",
+        "updated": "Custom Column Updated"
+      },
+      "deal": {
+        "created": "Deal Created",
+        "deleted": "Deal Deleted",
+        "updated": "Deal Updated"
+      },
+      "organization": {
+        "created": "Organization Created",
+        "deleted": "Organization Deleted",
+        "updated": "Organization Updated"
+      },
+      "role": {
+        "created": "Role Created",
+        "deleted": "Role Deleted",
+        "updated": "Role Updated"
+      },
+      "service": {
+        "created": "Service Created",
+        "deleted": "Service Deleted",
+        "updated": "Service Updated"
+      },
+      "task": {
+        "created": "Task Created",
+        "deleted": "Task Deleted",
+        "updated": "Task Updated"
+      },
+      "user": {
+        "registered": "User Registered",
+        "updated": "User Updated"
+      },
+      "webhook": {
+        "created": "Webhook Created",
+        "deleted": "Webhook Deleted",
+        "updated": "Webhook Updated"
+      }
+    },
+    "filters": {
+      "activeFilters": "Active Filters",
+      "apply": "Apply",
+      "clearAll": "Clear All",
+      "closeFilters": "Close Filters",
+      "editCurrent": "Edit filters",
+      "fields": {
+        "assignedUserId": "Assigned",
+        "contactIds": "Contact",
+        "createdAt": "Created at",
+        "dealIds": "Deal",
+        "event": "Event",
+        "organizationIds": "Organization",
+        "serviceIds": "Service",
+        "status": "Status",
+        "updatedAt": "Updated at",
+        "userIds": "Assigned"
+      },
+      "filterBy": "Filter by {field}",
+      "filterCount": "{count} filter{count, plural, =1 {} other {s}}",
+      "noFilters": "No filters applied",
+      "openFilters": "Open Filters",
+      "operators": {
+        "between": "between",
+        "contains": "contains",
+        "equals": "=",
+        "gt": ">",
+        "gte": "≥",
+        "hasNone": "has none",
+        "hasSome": "has some",
+        "in": "in",
+        "isNotNull": "is not empty",
+        "isNull": "is empty",
+        "lt": "<",
+        "lte": "≤",
+        "notIn": "not in"
+      },
+      "presets": {
+        "add": "Add preset",
+        "cancelEditing": "Cancel",
+        "clearPreset": "Clear preset",
+        "createOrUpdate": "Create or update preset",
+        "deleteConfirm": "Are you sure you want to delete this saved filter?",
+        "new": "+ Create new filter",
+        "select": "Saved filters"
+      },
+      "title": "Filters"
+    },
+    "firstName": "First name",
+    "imageAlt": {
+      "avatar": "Profile picture of {name}",
+      "background": "Background pattern",
+      "countryFlag": "Flag of {country}",
+      "feature": "Feature illustration for {feature}",
+      "hero": "Hero image for {page}",
+      "logo": "Customermates logo",
+      "mission": "Mission illustration for {mission}",
+      "providerIcon": "{provider} sign-in icon"
+    },
+    "inputs": {
+      "add": "Add",
+      "address": "Address",
+      "aggregationType": "Metric",
+      "agreeToTerms": "I agree to the terms and conditions",
+      "amount": "Amount",
+      "apiKey": "API Key",
+      "assignedUserId": "Assigned User",
+      "avatarUrl": "Avatar URL",
+      "city": "City",
+      "company": "Company",
+      "confirmEmail": "Confirm Email",
+      "confirmPassword": "Confirm Password",
+      "contactIds": "Contacts",
+      "country": "Country",
+      "currency": "Currency",
+      "customFieldValues": "Custom Fields",
+      "dealIds": "Deals",
+      "description": "Description",
+      "displayLanguage": "Display Language",
+      "displayOptions": {
+        "barColors": "Bar Colors",
+        "displayType": "Display Type",
+        "groupBy": "Group By",
+        "horizontal": "Show horizontally",
+        "reverseXAxis": "Reverse X-axis",
+        "reverseYAxis": "Reverse Y-axis",
+        "vertical": "Show vertically"
+      },
+      "displayType": "Display Type",
+      "email": "Email",
+      "emails": "Email",
+      "emptyContent": "No results found",
+      "endDate": "End Date",
+      "entityType": "Element",
+      "events": "Events",
+      "expiresIn": "Expires at",
+      "feedback": "Feedback",
+      "firstName": "First Name",
+      "formattingLocale": "Formatting Locale",
+      "groupByValue": "Grouping",
+      "inviteLink": "Invitation Link",
+      "isTemplate": "Share as template for other users of your organization",
+      "label": "Label",
+      "lastName": "Last Name",
+      "marketingEmails": "I want to receive news and offers by email",
+      "name": "Name",
+      "options": {
+        "allowMultiple": "Allow Multiple",
+        "color": "Color",
+        "currency": "Currency",
+        "displayFormat": "Format"
+      },
+      "organizationId": "Organization",
+      "organizationIds": "Organizations",
+      "pageSize": "Page Size",
+      "password": "Password",
+      "permissions": {
+        "aiAgent": {
+          "canManage": "Manage rights"
+        },
+        "api": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "auditLog": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "company": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "contacts": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "deals": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "organizations": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "services": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "tasks": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "users": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        },
+        "widgets": {
+          "canManage": "Manage rights",
+          "readAccess": "Read rights"
+        }
+      },
+      "phone": "Phone",
+      "phones": "Phone",
+      "postalCode": "Postal Code",
+      "presetId": "Saved filters",
+      "provider": "Provider",
+      "rememberMe": "Remember me",
+      "roleId": "Role",
+      "secret": "Secret",
+      "services": "Services",
+      "startDate": "Start Date",
+      "state": "State",
+      "status": "Status",
+      "street": "Street",
+      "template": "Template",
+      "theme": "Theme",
+      "title": "Title",
+      "type": "Type",
+      "url": "URL",
+      "userIds": "Assigned"
+    },
+    "label": "Label",
+    "language": "Language",
+    "lastName": "Last name",
+    "light": "Light",
+    "locales": {
+      "de": "German",
+      "en": "English",
+      "system": "System"
+    },
+    "multiple": "Multiple",
+    "name": "Name",
+    "navigationGuard": {
+      "message": "You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.",
+      "title": "Unsaved Changes"
+    },
+    "notifications": {
+      "copiedToClipboard": "{value} copied to clipboard",
+      "copyFailed": "Failed to copy to clipboard",
+      "error": "Error"
+    },
+    "options": "Options",
+    "postalCode": "Postal Code",
+    "role": "Role",
+    "single": "Single",
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "direction": "Direction",
+      "field": "Sort by"
+    },
+    "state": "State",
+    "status": "Status",
+    "street": "Street",
+    "systemTasks": {
+      "companyOnboarding": {
+        "alert": "This is a system task that cannot be manually deleted. Please complete the company profile in <link>company settings</link> to resolve this task.",
+        "description": "Your company is currently in onboarding process. Please fill out the information in the company profile to complete the process.",
+        "title": "Complete Company Profile"
+      },
+      "userPendingAuthorization": {
+        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
+        "description": "A user has accepted your invitation. Please approve the user to accept the invitation.",
+        "title": "Approve User"
+      }
+    },
+    "table": {
+      "ariaLabel": "Data table",
+      "columns": {
+        "age": "Age",
+        "amount": "Amount",
+        "assignedUser": "Assigned",
+        "contacts": "Contacts",
+        "created": "Created at",
+        "createdAt": "Created at",
+        "deals": "Deals",
+        "description": "Description",
+        "email": "E-Mail",
+        "emails": "E-Mail",
+        "enabled": "Enabled",
+        "endDate": "End Date",
+        "entity": "Element",
+        "entityId": "Element ID",
+        "event": "Event",
+        "events": "Events",
+        "expiresAt": "Expires at",
+        "id": "id",
+        "lastRequest": "Last used",
+        "name": "Name",
+        "organization": "Organization",
+        "organizations": "Organizations",
+        "phones": "Phone",
+        "role": "Role",
+        "selectLabel": "Table Columns",
+        "services": "Services",
+        "startDate": "Start Date",
+        "status": "Status",
+        "statusCode": "Status Code",
+        "team": "Team",
+        "title": "Title",
+        "total": "Total",
+        "totalQuantity": "Service Quantity",
+        "totalValue": "Deal Value",
+        "type": "Type",
+        "updatedAt": "Updated at",
+        "url": "URL",
+        "user": "User",
+        "users": "Assigned"
+      },
+      "emptyContent": "No entries found",
+      "groupBy": "Group By",
+      "pageSize": "Page size",
+      "paginationRange": "{from} - {to} of {total}",
+      "search": "Search...",
+      "ungrouped": "Ungrouped"
+    },
+    "theme": "Theme",
+    "themes": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    },
+    "type": "Type",
+    "types": {
+      "array": "array",
+      "bigint": "bigint",
+      "boolean": "boolean",
+      "date": "date",
+      "float": "float",
+      "function": "function",
+      "integer": "integer",
+      "map": "map",
+      "nan": "nan",
+      "never": "never",
+      "null": "null",
+      "number": "number",
+      "object": "object",
+      "promise": "promise",
+      "set": "set",
+      "string": "string",
+      "symbol": "symbol",
+      "undefined": "undefined",
+      "unknown": "unknown",
+      "void": "void"
+    },
+    "username": "Username",
+    "userRoles": {
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "userStatuses": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "onboarding": "Onboarding",
+      "pendingAuthorization": "Waiting for approval"
+    },
+    "validations": {
+      "cuid": "cuid",
+      "datetime": "datetime",
+      "email": "email",
+      "regex": "regex",
+      "url": "url",
+      "uuid": "uuid"
+    }
+  },
+  "CompanyDetailsCard": {
+    "title": "Company Profile"
+  },
+  "CompanyInviteModal": {
+    "copyLink": "Copy link",
+    "description": "Share this link with users you want to invite to your company.",
+    "disabled": "Your company is currently undergoing the onboarding process. Please complete the company profile information before inviting additional users.",
+    "expiresAt": "Expires on {date}.",
+    "generating": "Generating link...",
+    "label": "Invitation link",
+    "notAvailable": "Not available",
+    "title": "Invite User"
+  },
+  "CompanyUserModal": {
+    "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>."
+  },
+  "ContactModal": {
+    "emailsLabel": "Email",
+    "phonesLabel": "Phone",
+    "title": "Contact"
+  },
+  "ContactsCard": {
+    "title": "Contacts"
+  },
+  "ContactsPage": {
+    "contactsTab": "Contacts",
+    "organizationsTab": "Organizations"
+  },
+  "CTAButtons": {
+    "startFree": "Start free",
+    "viewLiveDemo": "View live demo"
+  },
+  "Dashboard": {
+    "addCard": "Add Chart",
+    "aggregationType": "Aggregation Type",
+    "aggregationTypes": {
+      "count": "Count {entities}",
+      "dealQuantity": "Number of Services in Deals",
+      "dealValue": "Deal Value related to {entity}",
+      "field": "Field"
+    },
+    "barColors": "Bar Colors",
+    "displayType": "Display Type",
+    "displayTypes": {
+      "doughnutChart": "Doughnut Chart",
+      "horizontalBarChart": "Horizontal Bar Chart",
+      "horizontalBarChartWithLabels": "Horizontal Bar Chart with Labels",
+      "radarChart": "Radar Chart",
+      "verticalBarChart": "Vertical Bar Chart",
+      "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
+    },
+    "endDate": "End Date",
+    "entityType": "Element",
+    "entityTypes": {
+      "contact": "Contact",
+      "deal": "Deal",
+      "organization": "Organization",
+      "service": "Service",
+      "task": "Task"
+    },
+    "groupBy": "Group By",
+    "groupBys": {
+      "contact": "Contact",
+      "deal": "Deal",
+      "none": "No Grouping",
+      "organization": "Organization",
+      "service": "Service"
+    },
+    "horizontal": "Show horizontally",
+    "isTemplate": "Share as template for other users of your organization",
+    "limit": "Max. number of entries",
+    "reverseXAxis": "Reverse X-axis",
+    "reverseYAxis": "Reverse Y-axis",
+    "selectWidgetTemplate": "Chart Template",
+    "selectWidgetTemplateDescription": "You can select existing charts from members of your organizations and use them as a template for your new chart.",
+    "startDate": "Start Date",
+    "tabs": {
+      "config": "Configuration",
+      "dealFilters": "Deal Filters",
+      "display": "Display",
+      "filters": "{entityType} Filters"
+    },
+    "ungrouped": "Ungrouped",
+    "widget": "Chart",
+    "widgetTitle": "Title",
+    "widgetType": "Type",
+    "widgetTypes": {
+      "quantity": {
+        "description": "Shows the total quantity of services assigned to deals per period. Quantities are aggregated by your Group by selection to compare segments.",
+        "short": "Service quantity over time"
+      },
+      "value": {
+        "description": "Shows the total monetary value of deal-related services per period. Values are aggregated by your Group by selection (e.g., organization, contact, service, or custom column).",
+        "short": "Deal value over time"
+      }
+    }
+  },
+  "DataManagementFeatures": {
+    "features": {
+      "auditLog": {
+        "description": "Traceable history of changes.",
+        "title": "Audit Log"
+      },
+      "export": {
+        "description": "Export of CRM data for backups or external use.",
+        "title": "Export"
+      },
+      "import": {
+        "description": "CSV import for contacts, organizations, and deals.",
+        "title": "Import"
+      }
+    },
+    "subtitle": "Data import, export, transparency",
+    "title": "Data Management"
+  },
+  "DealModal": {
+    "clearDates": "Clear Dates",
+    "contactsLabel": "Contact",
+    "currencyLabel": "Currency",
+    "dateRangeLabel": "Period",
+    "endDateLabel": "End Date",
+    "noServicesAdded": "No services added yet",
+    "organizationsLabel": "Organizations",
+    "quantity": "Quantity",
+    "quantityLabel": "Quantity",
+    "sameYearValidation": "Start and end dates must be within the same year",
+    "serviceLabel": "Service",
+    "servicesLabel": "Services",
+    "startDateLabel": "Start Date",
+    "statusLabel": "Status",
+    "title": "Deal",
+    "valueLabel": "Value"
+  },
+  "DealsCard": {
+    "title": "Deals"
+  },
+  "Diagrams": {
+    "noData": "No data available",
+    "noGroup": "Unassigned",
+    "quantity": "Quantity",
+    "sortBy": {
+      "count": "Count",
+      "value": "Value"
+    },
+    "value": "Value"
+  },
+  "DocsPage": {
+    "copyMarkdown": "Copy Markdown",
+    "englishOnlyAlert": "The technical API endpoint documentation is only available in English. This is because API documentation requires precise technical terminology and consistency with industry standards.",
+    "liveDataAlert": "Performing operations in the API playground will affect your live data.",
+    "markdownCopied": "Markdown copied to clipboard.",
+    "markdownCopyFailed": "Failed to copy markdown.",
+    "open": "Open",
+    "openInChatGPT": "Open in ChatGPT",
+    "openInClaude": "Open in Claude",
+    "openMarkdown": "Open Markdown"
+  },
+  "DocsSidebar": {
+    "accountSettings": "Account Settings",
+    "architectureSecurity": "Architecture & Security",
+    "companySettings": "Company Settings",
+    "comparison": "Comparison",
+    "customColumns": "Custom Columns",
+    "dashboardWidgets": "Dashboard & Widgets",
+    "entitiesRelationships": "Entities & Relationships",
+    "featureGuides": "Feature Guides",
+    "getStarted": "Get Started",
+    "goBack": "Go back",
+    "integrations": "Integrations",
+    "introduction": "Introduction",
+    "invitingUsers": "Inviting Users",
+    "managingYourInstallation": "Managing Your Installation",
+    "mcp": "MCP",
+    "n8n": "N8N",
+    "openapi": "OpenAPI 3.1.0",
+    "openClawAiAgents": "OpenClaw & AI Agents",
+    "organizationSettings": "Organization Settings",
+    "rolesPermissions": "Roles & Permissions",
+    "selfHosting": "Self-Hosting",
+    "selfHostVsCloud": "Self-Hosted vs Cloud",
+    "settings": "Settings",
+    "skills": "Skills",
+    "webhooksEvents": "Webhooks & Events"
+  },
+  "Editor": {
+    "blockQuote": "Block Quote",
+    "bold": "Bold",
+    "bulletList": "Bullet List",
+    "divider": "Divider",
+    "heading1": "Heading 1",
+    "heading2": "Heading 2",
+    "italic": "Italic",
+    "link": "Link",
+    "normalText": "Normal Text",
+    "numberedList": "Numbered List",
+    "placeholder": "Type '/' for commands...",
+    "removeLink": "Remove Link",
+    "strikethrough": "Strikethrough",
+    "taskList": "Task List",
+    "underline": "Underline",
+    "urlPlaceholder": "Enter URL...",
+    "urlPrompt": "URL"
+  },
+  "ErrorCard": {
+    "contactSupport": "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
+    "ctaLabel": "Back to home",
+    "demoModeError": "Saving, deleting and changing data is not available in demo mode. <link>Start for free now</link> to access all features.",
+    "inactiveUser": "Your account is currently inactive. Please contact your administrator to reactivate your account.",
+    "invalidInviteLink": "The invitation link you used is not valid or may have been altered. Please reach out to your administrator to request a new, valid invitation link so you can proceed with your registration.",
+    "inviteLinkExpired": "The invitation link you tried to use has expired and can no longer be used. Please contact your administrator and ask them to generate a fresh invitation link for you to complete your account setup.",
+    "subtitle": "Oops! Something went wrong",
+    "title": "Well, that's awkward",
+    "unexpectedError": "An unexpected error occurred. Don't worry though, we've been notified and are on it!"
+  },
+  "ErrorTestPage": {
+    "clientSideErrors": {
+      "description": "Should trigger UnexpectedErrorToaster and be captured by Sentry",
+      "title": "Client-Side Errors",
+      "triggerAsyncClientError": "Trigger Async Client Error",
+      "triggerClientError": "Trigger Client Error"
+    },
+    "serverSideError": {
+      "description": "Should be captured by Sentry and redirect to error page",
+      "title": "Server-Side Error",
+      "triggerServerError": "Trigger Server Error"
+    },
+    "subtitle": "Breaking things on purpose, for science!",
+    "title": "Error Testing"
+  },
+  "FeaturesCTA": {
+    "description": "Start with Customermates today and manage your customer relationships efficiently",
+    "noCreditCard": "No credit card required • Cancel anytime • First 3 days free",
+    "title": "Ready to get started?"
+  },
+  "FeaturesHero": {
+    "description": "Overview of all Customermates features: Contacts, Deals, Services, Tasks, Team features, and n8n automation. GDPR-compliant, quick to start, and ideal for small businesses.",
+    "title": "All features a CRM for small businesses needs"
+  },
+  "FeaturesPage": {
+    "metadataDescription": "All features a CRM for small businesses needs",
+    "metadataTitle": "Customermates | Features"
+  },
+  "feedback": {
+    "general": {
+      "description": "Your feedback helps us improve. Share ideas, report issues, or tell us what's working well so we can build a better product for you",
+      "title": "Share Your Feedback"
+    },
+    "success": "Feedback received. You're officially part of the build crew."
+  },
+  "Footer": {
+    "blog": "Blog",
+    "copyright": "@ Customermates",
+    "copyrightText": "© {year} Customermates. All rights reserved.",
+    "helpAndFeedback": "Help",
+    "imprint": "Imprint",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "product": "Product",
+    "resources": "Resources",
+    "terms": "Terms",
+    "vsHubSpot": "vs HubSpot",
+    "vsPipedrive": "vs Pipedrive"
+  },
+  "ForgotPasswordCard": {
+    "backToSignIn": "Remember your password? <backToSignInLink>Sign in</backToSignInLink>",
+    "confirmEmailLabel": "Confirm E-Mail",
+    "emailLabel": "E-Mail",
+    "resetLinkInvalid": "The reset link has expired. Please request a new link.",
+    "resetLinkSent": "Reset link sent to your email.",
+    "sendCta": "Send reset link",
+    "subtitle": "We'll send you a reset link.",
+    "title": "Forgot password"
+  },
+  "GlobalSearch": {
+    "loading": "Searching...",
+    "noResults": "No results found",
+    "placeholder": "Search for contacts, organizations, deals, and services..."
+  },
+  "Loading": {
+    "text": "Loading..."
+  },
+  "NavigationBar": {
+    "addContact": "Add contact",
+    "addDeal": "Add deal",
+    "addOrganization": "Add organization",
+    "addService": "Add service",
+    "addTask": "Add task",
+    "affiliate": "Affiliate Program",
+    "aiAgent": "AI Agent",
+    "apiDocs": "API Documentation",
+    "automation": "Automation",
+    "blog": "Blog",
+    "contacts": "Contacts",
+    "dashboard": "Dashboard",
+    "deals": "Deals",
+    "docs": "Documentation",
+    "faq": "FAQ",
+    "features": "Features",
+    "mission": "Mission",
+    "organizations": "Organizations",
+    "pricing": "Pricing",
+    "search": "Search",
+    "services": "Services",
+    "skills": "Skills",
+    "tasks": "Tasks",
+    "webhooks": "Webhooks"
+  },
+  "NotFoundPage": {
+    "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
+    "ctaLabel": "Back to home",
+    "subtitle": "This page went on vacation without telling us 🏖️",
+    "title": "Oops! You've entered the void"
+  },
+  "OnboardingCard": {
+    "agreeToTerms": "I agree to the <dataPrivacyLink>Privacy Policy</dataPrivacyLink> and the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink>",
+    "subtitle": "Complete your profile to get started.",
+    "title": "Onboarding"
+  },
+  "OrganizationCard": {
+    "title": "Organizations"
+  },
+  "OrganizationModal": {
+    "contactsLabel": "Contacts",
+    "title": "Organization"
+  },
+  "PendingCard": {
+    "body": "You'll be notified once your account has been approved.",
+    "subtitle": "Your account is pending authorization",
+    "title": "Waiting for approval"
+  },
+  "PendingPage": {
+    "body": "Your account is currently pending authorization. Please contact your administrator to approve your account.",
+    "title": "Waiting for approval"
+  },
+  "PricingPage": {
+    "metadataDescription": "Simple pricing for small businesses",
+    "metadataTitle": "Customermates | Pricing"
+  },
+  "ResetPassword": {
+    "fallback": "If the button above does not work, please copy and paste the following link into your browser's address bar: ",
+    "intro": "Click the button below to reset your password.",
+    "securityNotice": "If you did not request a password reset, you may safely ignore and delete this message.",
+    "subject": "Reset your password"
+  },
+  "ResetPasswordCard": {
+    "backToSignIn": "Remember your password? <backToSignInLink>Sign in</backToSignInLink>",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordLabel": "Password",
+    "resetPasswordCta": "Reset",
+    "subtitle": "Enter your new password.",
+    "title": "Reset your password"
+  },
+  "RoleModal": {
+    "descriptionLabel": "Description",
+    "manageAccess": "Manage Access",
+    "nameLabel": "Name",
+    "no": "No",
+    "readAccess": "Read Access",
+    "readAll": "All",
+    "readNone": "None",
+    "readOwn": "Assigned",
+    "resources": {
+      "aiAgent": "AI Agent",
+      "api": "API & Webhooks",
+      "auditLog": "Audit Log",
+      "company": "Company",
+      "contacts": "Contacts",
+      "deals": "Deals",
+      "organizations": "Organizations",
+      "services": "Services",
+      "tasks": "Tasks",
+      "users": "Users & Roles",
+      "widgets": "Dashboard & Charts"
+    },
+    "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
+    "systemName": "Admin",
+    "title": "Role",
+    "yes": "Yes"
+  },
+  "RolesCard": {
+    "custom": "Custom",
+    "system": "System",
+    "title": "Roles"
+  },
+  "ServiceModal": {
+    "amount": "Amount",
+    "assignedUser": "Assigned User",
+    "currency": "Currency",
+    "deals": "Deals",
+    "name": "Name",
+    "quantity": "Quantity",
+    "title": "Service",
+    "total": "Total"
+  },
+  "ServicesCard": {
+    "title": "Services"
+  },
+  "SignInCard": {
+    "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "buttonLabel": "Continue with {provider}",
+    "emailLabel": "Email Address",
+    "forgotPassword": "Forgot password?",
+    "or": "OR",
+    "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "signInCta": "Sign In",
+    "signInTitle": "Sign in to your account",
+    "subtitle": "to continue to Customermates",
+    "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
+  },
+  "SignUpCard": {
+    "acceptInviteCta": "Accept invitation",
+    "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "buttonLabel": "Register with {provider}",
+    "emailConfirmLabel": "Confirm E-Mail",
+    "emailLabel": "E-Mail",
+    "inviteSubtitle": "You have been invited to join <bold>{company}</bold>. Choose your sign-in method to accept the invitation.",
+    "inviteTitle": "Accept Company Invitation",
+    "newCompanySubtitle": "Register a new company and test Customermates for free for 3 days. No credit card required.",
+    "or": "OR",
+    "passwordConfirmLabel": "Confirm Password",
+    "passwordLabel": "Password",
+    "signUpCta": "Create account",
+    "subtitleSanatize": "Create your account to get started.",
+    "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
+    "title": "Create a Customermates Account"
+  },
+  "SkillsPage": {
+    "agentSetupCommand": "Install this skill: {url}",
+    "agentSetupTitle": "Copy this instruction and paste it into your AI agent:",
+    "agentSetupToast": "Copied. Paste this into your AI agent to add the skill.",
+    "copy": "Copy skill",
+    "searchEmpty": "No skills match your search.",
+    "searchPlaceholder": "Search by title, description, or tag..."
+  },
+  "SkillTags": {
+    "advanced": "Advanced",
+    "automation": "Automation",
+    "beginner": "Beginner",
+    "email": "Email",
+    "intermediate": "Intermediate",
+    "lead-enrichment": "Lead Enrichment",
+    "lead-finding": "Lead Finding",
+    "native": "Native",
+    "orthogonal": "Orthogonal",
+    "outreach": "Outreach",
+    "phone": "Phone",
+    "research": "Research",
+    "social": "Social"
+  },
+  "subscription": {
+    "currentPeriodEnd": "Current period ends",
+    "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
+    "plan": "Plan",
+    "prorationSubtitle": "Proration of active seats will be added to your next invoice",
+    "quantity": "Active seats",
+    "refreshSuccess": "Subscription refreshed successfully",
+    "status": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "pastDue": "Past Due",
+      "trial": "Trial",
+      "trialExpired": "Trial Expired",
+      "unPaid": "Unpaid"
+    },
+    "subscribeWithLemonSqueezy": "Subscribe with Lemon Squeezy",
+    "title": "Current Subscription",
+    "trialEnds": "Trial ends"
+  },
+  "SubscriptionExpiredCard": {
+    "contactSupportCta": "Contact Support",
+    "description": "Your trial period has ended and your company is not currently subscribed. Please subscribe to continue using Customermates, or contact our support team if you have any questions.",
+    "subscribeCta": "Subscribe",
+    "subtitle": "Your trial has expired",
+    "supportEmailSubject": "Subscription Inquiry",
+    "title": "Subscription Required"
+  },
+  "SubscriptionInactivationNotice": {
+    "body": "Your account is now inactive because your subscription has been unpaid or expired for more than 3 days. If you want to continue, I can help you restore access quickly.",
+    "dismiss": "If this email reached you at a busy time, just reply when you're ready and we'll help with the next steps.",
+    "greeting": "Hi {firstName},",
+    "signoff": "Best regards,\nBen",
+    "subject": "Your account is inactive - we can help you restore access",
+    "title": "Subscription Inactivated"
+  },
+  "TaskModal": {
+    "title": "Task"
+  },
+  "TasksCard": {
+    "systemTaskTooltip": "This is a system task that cannot be manually deleted. Open the task for more information.",
+    "title": "Tasks"
+  },
+  "TodoCard": {
+    "submitter": {
+      "label": "Enter todo"
+    }
+  },
+  "TrialExpiredOffer": {
+    "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
+    "greeting": "Hi {firstName},",
+    "scheduleFallback": "If you'd like to book a demo, you can use this link: ",
+    "signoff": "Best regards,\nBen",
+    "subject": "Need more time? Let's continue together",
+    "title": "Trial Extension Offer"
+  },
+  "TrialInactivationNotice": {
+    "body": "Your account is now inactive because your trial ended more than 6 days ago. If you still want to continue, I can help you reactivate quickly and guide you through the next steps.",
+    "dismiss": "If this email reached you at a busy time, no problem. You can come back anytime and we will help personally.",
+    "greeting": "Hi {firstName},",
+    "signoff": "Best regards,\nBen",
+    "subject": "Your account is inactive - we can help you restart",
+    "title": "Account Inactivated"
+  },
+  "TrialInactivationReminder": {
+    "body": "Your trial ended a few days ago, and your account will become inactive in 3 days. If you want, I can quickly help you finish setup and keep everything active.",
+    "dismiss": "If you no longer need your account, no action is required.",
+    "greeting": "Hi {firstName},",
+    "signoff": "Best regards,\nBen",
+    "subject": "3 days left before your account becomes inactive",
+    "title": "Trial Inactivation Reminder"
+  },
+  "TrialWelcome": {
+    "body": "Great to have you here. I'd love to help you get started quickly and make your first setup steps easy.",
+    "dismiss": "I'm Ben, founder of Customermates. If you have any questions or would like a personal walkthrough, just reply to this email.",
+    "greeting": "Hi {firstName},",
+    "scheduleFallback": "If you'd like to book a demo, you can use this link: ",
+    "signoff": "Best regards,\nBen",
+    "subject": "Welcome to Customermates",
+    "title": "Welcome to Your Trial"
+  },
+  "UserAvatar": {
+    "company": "My Company",
+    "documentation": "Documentation",
+    "home": "Home",
+    "profile": "My Profile",
+    "signOut": "Sign Out",
+    "tasks": "Tasks",
+    "theme": "Theme"
+  },
+  "UserInterfaceFeatures": {
+    "features": {
+      "instantUse": {
+        "description": "Direct start without setup or training.",
+        "title": "Instant Use"
+      },
+      "mobileOptimization": {
+        "description": "Optimized display on smartphones.",
+        "title": "Mobile Optimization"
+      },
+      "userInterface": {
+        "description": "Reduced, clearly structured navigation.",
+        "title": "User Interface"
+      }
+    },
+    "subtitle": "Usability, structure, consistency",
+    "title": "User Interface"
+  },
+  "UsersCard": {
+    "statusSelect": "User status select",
+    "title": "User Administration"
+  },
+  "UserSettingsCard": {
+    "displayLanguage": "Display Language",
+    "displayLanguageHint": "Controls the UI language — labels, buttons, etc.",
+    "emailSubscription": "Email Subscriptions",
+    "formattingLocale": "Formatting Locale",
+    "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted.",
+    "marketingEmails": "I want to receive news and offers by email",
+    "title": "Settings"
+  },
+  "VerifyEmail": {
+    "fallback": "If the button above does not work, please copy and paste the following link into your browser's address bar: ",
+    "intro": "Confirm your email to continue.",
+    "securityNotice": "If you did not initiate this request or do not wish to verify your email, you may safely disregard and delete this message.",
+    "subject": "Verify your email"
+  },
+  "VerifyEmailCard": {
+    "body": "We've sent you a verification email. Please check your inbox and click the link to verify your email address.",
+    "ctaLabel": "Resend verification email",
+    "resendSuccess": "Verification email sent successfully.",
+    "subtitle": "Verify your email address to continue.",
+    "title": "Email Verification"
+  },
+  "WebhookDeliveriesCard": {
+    "title": "Recent Deliveries"
+  },
+  "WebhookDeliveryModal": {
+    "createdAt": "Created At",
+    "entity": "Element",
+    "event": "Event",
+    "failed": "Failed",
+    "requestBody": "Request Body",
+    "resend": "Resend",
+    "responseMessage": "Response Message",
+    "statusCode": "Status Code",
+    "success": "Success",
+    "title": "Event Details",
+    "url": "URL"
+  },
+  "WebhookModal": {
+    "disabled": "Disabled",
+    "enabled": "Enabled",
+    "eventsLabel": "Events",
+    "secretDescription": "Optional secret used to generate an HMAC-SHA256 signature sent in the X-Webhook-Signature header. To verify, hash the request body with this secret using HMAC-SHA256 and compare it with the header value.",
+    "title": "Webhook",
+    "urlDescription": "The endpoint URL where webhook events will be sent via POST requests."
+  },
+  "WebhooksCard": {
+    "title": "Webhooks"
+  }
+}

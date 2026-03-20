@@ -1,0 +1,389 @@
+[
+  {
+    "amount": 9200,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:04.223Z",
+    "id": "065c9658-4d06-4a14-bc45-0c0c6f1aff6d",
+    "name": "Core Network Switch (48-port)",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:46:45.346Z"
+  },
+  {
+    "amount": 15000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:59:43.485Z",
+    "id": "0b78b44d-51e0-43f0-863c-79d20dde94fc",
+    "name": "Go-Live Support",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:20:31.144Z"
+  },
+  {
+    "amount": 7000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:05:54.273Z",
+    "id": "0fb2911e-7a5a-4901-93c0-c7e4d071e4b1",
+    "name": "Automation Development",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:34:12.270Z"
+  },
+  {
+    "amount": 2000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:24.034Z",
+    "id": "0fe6e01a-dab5-442a-9c83-58ae1f4bb3fd",
+    "name": "Extended Hardware Warranty (3y)",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:54:09.067Z"
+  },
+  {
+    "amount": 16000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:03:36.886Z",
+    "id": "12b5aa15-694e-4887-8e0b-def8307507d0",
+    "name": "CI/CD Pipeline Setup",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:05:05.267Z"
+  },
+  {
+    "amount": 22000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:15:52.903Z",
+    "id": "1d5e6d30-07b0-4c82-b8c5-602bd36e028d",
+    "name": "Documentation & Knowledge Transfer",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:16:56.698Z"
+  },
+  {
+    "amount": 21700,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:19.000Z",
+    "id": "20992a64-4c01-4050-ac74-918727ef8105",
+    "name": "Hardware Installation & Testing",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:53:56.014Z"
+  },
+  {
+    "amount": 2500,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:59:30.100Z",
+    "id": "238f0a6d-30c2-4ef4-b9c6-743002c5d59e",
+    "name": "User Training Session",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:56:08.038Z"
+  },
+  {
+    "amount": 15000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:08:32.779Z",
+    "id": "2a280bc2-06bc-4bcd-9792-66df3600fe59",
+    "name": "HR System Audit",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:20:44.237Z"
+  },
+  {
+    "amount": 14000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:15:37.976Z",
+    "id": "2e5545ad-e162-4144-8a62-9ec6115f5a3d",
+    "name": "System Integrations",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:16:37.421Z"
+  },
+  {
+    "amount": 5000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:03:45.170Z",
+    "id": "3070dae5-c67b-4d0e-91c0-120631b106b3",
+    "name": "Post-Migration Support",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:20:16.071Z"
+  },
+  {
+    "amount": 18500,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:11.139Z",
+    "id": "3b4e256b-b4a6-47b4-a853-fc6d0df8e69e",
+    "name": "Rack Server",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:53:27.623Z"
+  },
+  {
+    "amount": 32000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:15:35.338Z",
+    "id": "3c7a4bc6-3c3c-44a3-8749-bf757fa10f92",
+    "name": "Integration Architecture Design",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:16:22.592Z"
+  },
+  {
+    "amount": 64000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:00.879Z",
+    "id": "3faa9280-ee6b-40cb-aabe-8eca449531d5",
+    "name": "SAN Storage Array",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:53:03.638Z"
+  },
+  {
+    "amount": 3500,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:05:49.801Z",
+    "id": "4936d672-f6b4-425b-83e2-0d6537e0fe84",
+    "name": "Process Analysis Workshop",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:19:21.332Z"
+  },
+  {
+    "amount": 10000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:08:40.800Z",
+    "id": "4d422642-7e8b-49a8-836c-a29056e71db1",
+    "name": "Reporting & Dashboards",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:10:24.466Z"
+  },
+  {
+    "amount": 12000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:18.270Z",
+    "id": "548cdc64-7995-4984-9d11-992e9101eaf5",
+    "name": "Installation & Configuration",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:47:49.954Z"
+  },
+  {
+    "amount": 120,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:48:33.028Z",
+    "id": "54a0be77-7d08-49aa-9d9b-24a4dfbc8051",
+    "name": "Docking Station",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:50:32.773Z"
+  },
+  {
+    "amount": 950,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:14.455Z",
+    "id": "5f6fe608-dd5d-40f9-a761-233ee0d8bc25",
+    "name": "Network Interface Card",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:53:38.735Z"
+  },
+  {
+    "amount": 45000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:59:20.291Z",
+    "id": "608d46aa-03e7-465e-8035-9f5a15d0029f",
+    "name": "CRM Setup & Configuration",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:00:02.650Z"
+  },
+  {
+    "amount": 25000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:59:25.047Z",
+    "id": "6eb1c95d-7d3b-418b-a647-8958e4dcd8a4",
+    "name": "Data Migration",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:00:19.904Z"
+  },
+  {
+    "amount": 18000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:43:59.161Z",
+    "id": "70fd8623-70ed-464f-a44f-43334b49446b",
+    "name": "Network Architecture Design",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:46:20.449Z"
+  },
+  {
+    "amount": 1000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:01:57.055Z",
+    "id": "734a2118-0f61-40ee-ba7b-6ff078cebd52",
+    "name": "Backend API Development",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:34:00.539Z"
+  },
+  {
+    "amount": 6000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:59:37.993Z",
+    "id": "8031f19e-8906-4184-aed6-2a21f3b8606a",
+    "name": "Custom Integrations",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:00:41.151Z"
+  },
+  {
+    "amount": 12500,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:03.337Z",
+    "id": "876d14c8-05cb-4fc6-adf1-323fe3e86a86",
+    "name": "Security Review & Hardening",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:02:48.614Z"
+  },
+  {
+    "amount": 11600,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:13.546Z",
+    "id": "90dbc3d0-3636-4839-b809-7b43ba1037b7",
+    "name": "Firewall Appliance",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:47:24.595Z"
+  },
+  {
+    "amount": 30,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:48:44.706Z",
+    "id": "92cf09a5-857c-4be9-9a94-3a5d9387f4ac",
+    "name": "Device Provisioning & Imaging",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:50:44.747Z"
+  },
+  {
+    "amount": 850,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:48:29.195Z",
+    "id": "99d8ffd0-e7dd-47b0-9181-112d628f8a0b",
+    "name": "Laptop (Business Class)",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:51:11.019Z"
+  },
+  {
+    "amount": 1100,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:08:36.003Z",
+    "id": "9c8bfd54-5c67-4ffc-9aae-31c5a3eb8075",
+    "name": "Configuration Improvements",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:10:16.729Z"
+  },
+  {
+    "amount": 12000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:11:40.552Z",
+    "id": "9d4553cd-ce33-441d-b999-ba10e8cd9460",
+    "name": "Analytics Use Case Development",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:12:54.159Z"
+  },
+  {
+    "amount": 900,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:01:51.455Z",
+    "id": "a23c8bbc-3d54-4e45-a517-c122eed11f4d",
+    "name": "Frontend Development",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:33:04.095Z"
+  },
+  {
+    "amount": 4800,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:08.831Z",
+    "id": "a8b51239-19f0-4abd-b48c-7c74d786a7a5",
+    "name": "Edge Network Switch (24-port)",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:47:07.404Z"
+  },
+  {
+    "amount": 75000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:11:34.598Z",
+    "id": "a9d9b428-49d5-41a2-abb4-a31e87a9d497",
+    "name": "Data Warehouse Implementation",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:12:48.549Z"
+  },
+  {
+    "amount": 1200,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:05:59.649Z",
+    "id": "b1166338-3ae7-4cee-a58f-b89d34995d20",
+    "name": "Change Management Support",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:33:10.316Z"
+  },
+  {
+    "amount": 18000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:03:26.537Z",
+    "id": "b1ffc24c-e6b0-4c9d-ba12-d6bcfa6ced2b",
+    "name": "Cloud Readiness Assessment",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:04:37.311Z"
+  },
+  {
+    "amount": 35000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:01:43.943Z",
+    "id": "c2134bbc-c0f7-4f9f-97e4-93a6e844fc98",
+    "name": "Platform Architecture Design",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:02:21.505Z"
+  },
+  {
+    "amount": 40000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:11:26.274Z",
+    "id": "d3a267c0-69b6-4008-b765-04010848039a",
+    "name": "Data Strategy Definition",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:12:39.955Z"
+  },
+  {
+    "amount": 280,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:48:37.360Z",
+    "id": "d580d047-2488-468d-90bb-03b1b54cbf72",
+    "name": "Monitor 27”",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:50:54.876Z"
+  },
+  {
+    "amount": 10000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:11:47.001Z",
+    "id": "e53209c0-3c16-463a-85a6-bdbee5743e42",
+    "name": "Executive Enablement Workshop",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:13:05.660Z"
+  },
+  {
+    "amount": 18000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:15:41.811Z",
+    "id": "e9d384be-de3e-4494-9ca8-9ab36709303d",
+    "name": "Performance Testing",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:16:47.962Z"
+  },
+  {
+    "amount": 4000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:03:31.018Z",
+    "id": "ea91b9cb-d4e9-4df6-84fd-2b396a967d51",
+    "name": "Infrastructure Migration",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:04:57.170Z"
+  },
+  {
+    "amount": 5000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:08:45.580Z",
+    "id": "efdcef37-da01-4c49-99eb-de8a9c9d933d",
+    "name": "Admin Training",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:20:07.897Z"
+  },
+  {
+    "amount": 14000,
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:06:05.510Z",
+    "id": "fbb3e1fc-8edb-4904-8364-37a5a7fea0c1",
+    "name": "Hypercare Support",
+    "notes": null,
+    "updatedAt": "2026-01-29T18:20:35.334Z"
+  }
+]

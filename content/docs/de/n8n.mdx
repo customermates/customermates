@@ -1,0 +1,29 @@
+---
+title: n8n-Integration für CRM-Workflows mit KI-Agenten
+description: Baue n8n-Workflows für Customermates mit webhookbasierten und zeitgesteuerten CRM-Automationen.
+---
+
+## Wann du n8n für CRM-Automation verwenden solltest
+
+n8n ist die richtige Wahl, wenn du stabile, wiederholbare, eventbasierte oder zeitgesteuerte Workflows brauchst. Besonders stark ist es bei Integrationen, die jedes Mal gleich funktionieren sollen, zum Beispiel bei Datensynchronisation, Follow-up-Automationen oder der Verbindung von Customermates mit externen Systemen.
+
+## Wann du stattdessen den AI-Agenten nutzen solltest
+
+Den KI-Agenten solltest du dann nutzen, wenn der Ablauf Interpretation, Abwägung oder flexible Entscheidungen braucht. Das ist der bessere Weg, wenn das System Nutzerabsichten verstehen, mit unvollständigem Kontext arbeiten oder dynamisch den nächsten sinnvollen Schritt bestimmen soll. In der Praxis ist [MCP](/docs/mcp) die bessere Wahl für CRM-Workflows mit KI-Agenten, während n8n für deterministische Orchestrierung gedacht ist.
+
+## Setup und Zugangsdaten
+
+Für Setup und Installation nutze das Customermates-n8n-Node-Repository: [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm).
+
+> Die Community-Node wird aktuell noch von n8n verifiziert. Du kannst sie bereits normal verwenden, es kann beim Setup aber noch ein Warnhinweis erscheinen, bis dieser Verifizierungsprozess vollständig abgeschlossen ist.
+
+Bevor du produktive Workflows baust, erstellst du den benötigten API-Key in den [Kontoeinstellungen](/docs/account-settings), gehst die breitere Übersicht zu [CRM-Integrationen](/docs/integrations-intro) durch und nutzt [OpenAPI 3.1.0](/docs/openapi), wenn du exakte Endpoint- und Payload-Details brauchst.
+
+## Typische n8n-Workflows
+
+- Datensynchronisation zwischen Customermates und anderen Systemen
+- Webhook-basierte Follow-up-Workflows
+- Zeitgesteuerte Enrichment- oder Cleanup-Jobs
+- Operative Abläufe, die deterministisch laufen sollen
+
+Wenn deine Workflows auf Änderungen an Datensätzen reagieren sollen, kombiniere n8n mit [Webhooks & Events](/docs/feature-guide-webhooks-events), damit die Automationen möglichst auf verlässlichen CRM-Events statt auf Polling aufbauen.

@@ -1,0 +1,102 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:06:25.121Z",
+    "id": "2df02878-f1c4-4c83-9108-422a07ec49c4",
+    "name": "Process Automation Program",
+    "notes": null,
+    "totalQuantity": 43,
+    "totalValue": 120000,
+    "updatedAt": "2026-01-30T14:16:04.588Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:49:34.019Z",
+    "id": "37d2a9dd-eccd-4fc7-a776-7bd024399f49",
+    "name": "Workplace Hardware Rollout",
+    "notes": null,
+    "totalQuantity": 1050,
+    "totalValue": 342000,
+    "updatedAt": "2026-01-29T18:51:11.029Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:11.610Z",
+    "id": "69fe0678-12e0-4880-8c17-f5a52981d8f8",
+    "name": "Digital Customer Platform",
+    "notes": null,
+    "totalQuantity": 162,
+    "totalValue": 198500,
+    "updatedAt": "2026-01-29T18:34:45.389Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:12:28.014Z",
+    "id": "a1395380-9b6f-4b97-a10c-c6e65494f518",
+    "name": "Data & Analytics Transformation",
+    "notes": null,
+    "totalQuantity": 8,
+    "totalValue": 185000,
+    "updatedAt": "2026-01-29T18:34:52.020Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:09:13.900Z",
+    "id": "a925b133-2bad-4d31-a22e-6fa5a3c0e08b",
+    "name": " HR Systems Optimization",
+    "notes": null,
+    "totalQuantity": 30,
+    "totalValue": 67500,
+    "updatedAt": "2026-01-30T14:16:03.818Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:34.260Z",
+    "id": "aa49bce0-d893-449c-b099-f7a687db5626",
+    "name": "Data Center Refresh",
+    "notes": null,
+    "totalQuantity": 51,
+    "totalValue": 418500,
+    "updatedAt": "2026-01-30T14:15:59.630Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T17:58:02.298Z",
+    "id": "b57b538e-fbda-40af-956a-ae3928edeaa2",
+    "name": "CRM Rollout & Sales Enablement",
+    "notes": null,
+    "totalQuantity": 13,
+    "totalValue": 124000,
+    "updatedAt": "2026-01-30T14:15:58.851Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:04:05.379Z",
+    "id": "b8ef061f-de74-4f48-b43f-79b47de6e647",
+    "name": "Cloud Infrastructure Migration",
+    "notes": null,
+    "totalQuantity": 28,
+    "totalValue": 142000,
+    "updatedAt": "2026-01-30T14:16:06.877Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:09.717Z",
+    "id": "beb33fd7-806f-41ba-9917-364e04a943fa",
+    "name": "Enterprise Integration Program",
+    "notes": null,
+    "totalQuantity": 13,
+    "totalValue": 212000,
+    "updatedAt": "2026-01-30T14:16:08.113Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:26.156Z",
+    "id": "d3ad1a66-0d50-40c4-ac31-9322deabd7df",
+    "name": "Network Infrastructure Upgrade",
+    "notes": null,
+    "totalQuantity": 20,
+    "totalValue": 156400,
+    "updatedAt": "2026-01-30T14:16:00.721Z"
+  }
+]

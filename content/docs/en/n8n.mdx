@@ -1,0 +1,29 @@
+---
+title: n8n integration for agentic CRM workflows
+description: Build n8n workflows for Customermates with webhook-driven and scheduled CRM automation.
+---
+
+## When to use n8n for CRM automation
+
+n8n is the right choice when you want stable, repeatable, event-based or scheduled workflows. It works especially well for integrations that should behave the same way every time, such as syncing records, triggering follow-up steps, or connecting Customermates to external systems.
+
+## When to use the AI agent instead
+
+Use the AI agent when the workflow needs interpretation, reasoning, or flexible decision-making. That is the better path when the system should understand user intent, work with incomplete context, or decide dynamically which next action makes sense. In practice, [MCP](/docs/mcp) is the better fit for agent-native CRM workflows, while n8n is better for deterministic orchestration.
+
+## Setup and credentials
+
+For setup and installation, use the Customermates n8n node repository: [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm).
+
+> The community node is currently being verified by n8n. You can still use it normally, but you may see a warning during setup until that verification process is fully completed.
+
+Before you build production workflows, create the required API key in [Account Settings](/docs/account-settings), review the broader [CRM Integrations](/docs/integrations-intro) overview, and use [OpenAPI 3.1.0](/docs/openapi) when you need exact endpoint and payload details.
+
+## Typical n8n workflow use cases
+
+- Record sync between Customermates and other systems
+- Webhook-driven follow-up flows
+- Scheduled enrichment or cleanup jobs
+- Operational workflows that should run deterministically
+
+If your flows react to record changes, pair n8n with [Webhooks & Events](/docs/feature-guide-webhooks-events) so the workflow starts from reliable CRM events instead of polling wherever possible.

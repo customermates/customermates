@@ -1,0 +1,330 @@
+[
+  {
+    "columnOrder": ["name", "type", "description"],
+    "columnWidths": {},
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-30T11:01:20.358Z",
+    "filters": [],
+    "groupingColumnId": null,
+    "hiddenColumns": [],
+    "id": "0fd72622-2984-43cc-86de-51df00d024d7",
+    "p13nId": "roles-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 5
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "asc",
+      "field": "type"
+    },
+    "updatedAt": "2026-03-04T10:16:07.601Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [],
+    "columnWidths": {},
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-30T11:01:20.334Z",
+    "filters": [],
+    "groupingColumnId": null,
+    "hiddenColumns": ["email"],
+    "id": "355f84aa-3a34-4329-8060-dca23615e7fb",
+    "p13nId": "users-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "asc",
+      "field": "name"
+    },
+    "updatedAt": "2026-03-04T10:16:07.599Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [
+      "contacts",
+      "deals",
+      "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+      "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+      "users",
+      "updatedAt",
+      "createdAt"
+    ],
+    "columnWidths": {
+      "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa": 189,
+      "3d1e44c5-15cd-4317-a24d-a0c9fff2f964": 160,
+      "createdAt": 146,
+      "deals": 258,
+      "name": 206,
+      "updatedAt": 160
+    },
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-07T20:44:21.974Z",
+    "filters": [
+      {
+        "field": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+        "operator": "in",
+        "value": ["e4d0e816-10d3-4ef9-a0d0-edd40dc29497", "25d7e436-03fc-4eaf-8bdc-60fb32d0b8e0"]
+      }
+    ],
+    "groupingColumnId": null,
+    "hiddenColumns": ["users"],
+    "id": "3980a52f-6b29-4282-9350-bab9287ac1ab",
+    "p13nId": "organizations-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": "",
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "updatedAt"
+    },
+    "updatedAt": "2026-02-01T20:33:58.639Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [],
+    "columnWidths": {
+      "entity": 232,
+      "entityId": 213,
+      "name": 216,
+      "user": 80
+    },
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-28T07:41:08.052Z",
+    "filters": [],
+    "groupingColumnId": null,
+    "hiddenColumns": [],
+    "id": "4408f3fe-cf0a-40da-9ebf-b95ff936e72f",
+    "p13nId": "audit-logs-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 10
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "createdAt"
+    },
+    "updatedAt": "2026-03-04T10:16:07.602Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [],
+    "columnWidths": {},
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-07T20:47:48.870Z",
+    "filters": [],
+    "groupingColumnId": "c1c6bbc7-3bca-42a4-8d49-507d73554434",
+    "hiddenColumns": ["c1c6bbc7-3bca-42a4-8d49-507d73554434"],
+    "id": "6b134e10-6b74-40d6-9bcc-0d7569a9ae3a",
+    "p13nId": "tasks-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "createdAt"
+    },
+    "updatedAt": "2026-02-01T20:34:22.575Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "card"
+  },
+  {
+    "columnOrder": [
+      "4c6ab6a0-b232-4386-8201-3176757e5281",
+      "organizations",
+      "deals",
+      "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+      "90586806-b7b8-4bb8-9010-faa8c54290b2",
+      "users",
+      "updatedAt",
+      "createdAt"
+    ],
+    "columnWidths": {
+      "4c6ab6a0-b232-4386-8201-3176757e5281": 170,
+      "90586806-b7b8-4bb8-9010-faa8c54290b2": 160,
+      "deals": 140,
+      "f51bd97a-a1ed-468e-8d9e-d21d2b18576a": 241,
+      "name": 186,
+      "organizations": 215
+    },
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-07T20:45:36.014Z",
+    "filters": [
+      {
+        "field": "organizationIds",
+        "operator": "notIn",
+        "value": [
+          "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+          "e87ea132-788c-44ca-a9db-597e69d88b4e",
+          "d91bc708-e987-4f0c-b4c2-98b19871c4ec"
+        ]
+      },
+      {
+        "field": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+        "operator": "isNotNull"
+      }
+    ],
+    "groupingColumnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+    "hiddenColumns": ["deals", "users"],
+    "id": "7a90bf23-e974-461a-b94e-47963462f05c",
+    "p13nId": "contacts-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": "",
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "name"
+    },
+    "updatedAt": "2026-02-01T20:33:54.000Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [],
+    "columnWidths": {},
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-24T12:40:57.933Z",
+    "filters": [],
+    "groupingColumnId": null,
+    "hiddenColumns": [],
+    "id": "9f39e221-338a-44af-a44b-4487f2936477",
+    "p13nId": "webhooks-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "asc",
+      "field": "name"
+    },
+    "updatedAt": "2026-03-04T10:16:07.604Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [
+      "05899962-9370-4976-97b2-42b67337ea83",
+      "amount",
+      "90d05d1c-a258-40b0-a330-41b69fc081b3",
+      "deals",
+      "updatedAt",
+      "createdAt",
+      "users"
+    ],
+    "columnWidths": {
+      "05899962-9370-4976-97b2-42b67337ea83": 174,
+      "90d05d1c-a258-40b0-a330-41b69fc081b3": 125,
+      "amount": 122,
+      "createdAt": 162,
+      "deals": 228,
+      "name": 230,
+      "updatedAt": 164,
+      "users": 98
+    },
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-07T20:47:24.205Z",
+    "filters": [],
+    "groupingColumnId": "90d05d1c-a258-40b0-a330-41b69fc081b3",
+    "hiddenColumns": [],
+    "id": "bfc2eae9-ce6c-4555-aa51-7144ed62a677",
+    "p13nId": "services-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 1000
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "name"
+    },
+    "updatedAt": "2026-02-01T20:34:10.941Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  },
+  {
+    "columnOrder": [
+      "totalValue",
+      "totalQuantity",
+      "contacts",
+      "organizations",
+      "services",
+      "d316aec1-1f10-49f7-9127-d6f94b032c99",
+      "fd4d90a5-a149-4f33-b645-d29f9ff5dc55",
+      "c016d831-4411-45b3-bf58-e9fb58a9ed05",
+      "users",
+      "updatedAt",
+      "createdAt"
+    ],
+    "columnWidths": {},
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-30T14:14:46.369Z",
+    "filters": [],
+    "groupingColumnId": "d316aec1-1f10-49f7-9127-d6f94b032c99",
+    "hiddenColumns": ["contacts", "d316aec1-1f10-49f7-9127-d6f94b032c99", "updatedAt", "createdAt"],
+    "id": "e3c21860-46fd-4d9c-874a-036a09c58f63",
+    "p13nId": "deals-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 100
+    },
+    "savedFilterPresets": {},
+    "searchTerm": "",
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "updatedAt"
+    },
+    "updatedAt": "2026-02-01T20:34:08.283Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "card"
+  },
+  {
+    "columnOrder": [],
+    "columnWidths": {
+      "name": 193,
+      "statusCode": 85
+    },
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:19:58.962Z",
+    "filters": [],
+    "groupingColumnId": null,
+    "hiddenColumns": [],
+    "id": "f4bb1b3d-44f5-4c1f-89cc-cd56193b2866",
+    "p13nId": "webhook-deliveries-card-store",
+    "pagination": {
+      "page": 1,
+      "pageSize": 25
+    },
+    "savedFilterPresets": {},
+    "searchTerm": null,
+    "sortDescriptor": {
+      "direction": "desc",
+      "field": "createdAt"
+    },
+    "updatedAt": "2026-03-04T10:16:07.611Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "viewMode": "table"
+  }
+]

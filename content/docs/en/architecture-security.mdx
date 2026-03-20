@@ -1,0 +1,40 @@
+---
+title: Architecture & Security
+description: Learn how Customermates CRM is structured and how data isolation, runtime separation, and AI execution security are handled.
+---
+
+## A simple overview
+
+Customermates is built so non-technical teams can use it confidently while technical teams still get a robust foundation.  
+You can think of the platform as three clear layers: the application experience, the secure data core, and the isolated AI runtime. This is the right page when you need a high-level view of CRM architecture, data isolation, and how AI execution is separated from the shared application layer.
+
+## How your data and AI runtime are handled
+
+Your CRM data is managed in the core platform with strict access boundaries.  
+For AI workflows, each user gets a secure, managed, sandboxed Docker-based VPS with their own AI agent. That agent can be called either directly or through the Customermates API. This means agent execution is isolated per user and does not run in a shared process with other users.
+
+That design gives you practical protection in daily operations: stronger isolation, clearer control boundaries, and predictable behavior even when many agents are active at the same time.
+
+## Architecture diagram
+
+<Mermaid
+  chart="
+flowchart LR
+  UA[User A]
+  UB[User B]
+  C[Customermates CRM]
+  RA[Sandboxed OpenClaw Agent A]
+  RB[Sandboxed OpenClaw Agent B]
+
+  UA <--> C
+  UB <--> C
+  UA <--> RA
+  UB <--> RB
+  RA <--> C
+  RB <--> C
+"
+/>
+
+## Why this matters for your team
+
+You get a setup that feels simple from the outside, but is designed for trust and control underneath. Business teams can focus on workflows and customer work, while technical stakeholders can rely on clear isolation and managed infrastructure for AI execution. For the integration surfaces built on top of that foundation, continue with [CRM Integrations](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), or [Webhooks & Events](/docs/feature-guide-webhooks-events).

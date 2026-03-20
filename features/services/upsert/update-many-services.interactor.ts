@@ -1,0 +1,103 @@
+import { z } from "zod";
+
+import { Resource, Action, EntityType } from "@/generated/prisma";
+
+import { FindCustomColumnRepo } from "../../custom-column/find-custom-column.repo";
+import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
+import { validateNotes } from "../../../core/validation/validate-notes";
+import { FindUsersByIdsRepo } from "../../user/find-users-by-ids.repo";
+import { validateUserIds } from "../../../core/validation/validate-user-ids";
+import { FindDealsByIdsRepo } from "../../deals/find-deals-by-ids.repo";
+import { validateDealIds } from "../../../core/validation/validate-deal-ids";
+import { FindServicesByIdsRepo } from "../find-services-by-ids.repo";
+import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import { type ServiceDto } from "../service.schema";
+
+import { BaseUpdateServiceSchema } from "./update-service-base.schema";
+import { UpdateServiceRepo } from "./update-service.repo";
+
+import { DomainEvent } from "@/features/event/domain-events";
+import { EventService } from "@/features/event/event.service";
+import { WidgetService } from "@/features/widget/widget.service";
+import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { Data, type Validated } from "@/core/validation/validation.utils";
+import { calculateChanges } from "@/core/utils/calculate-changes";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { preserveTenantContext } from "@/core/decorators/tenant-context";
+
+export const UpdateManyServicesSchema = z
+  .object({
+    services: z.array(BaseUpdateServiceSchema).min(1).max(10),
+  })
+  .superRefine(async (data, ctx) => {
+    const { di } = await import("@/core/dependency-injection/container");
+
+    const userSet = new Set<string>();
+    const dealSet = new Set<string>();
+    const serviceSet = new Set<string>();
+
+    for (const service of data.services) {
+      serviceSet.add(service.id);
+      service.userIds?.forEach((id) => userSet.add(id));
+      service.dealIds?.forEach((id) => dealSet.add(id));
+    }
+
+    const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, allColumns] = await preserveTenantContext(async () => {
+      return await Promise.all([
+        di.get(FindUsersByIdsRepo).findIds(userSet),
+        di.get(FindDealsByIdsRepo).findIds(dealSet),
+        di.get(FindServicesByIdsRepo).findIds(serviceSet),
+        di.get(FindCustomColumnRepo).findByEntityType(EntityType.service),
+      ]);
+    });
+
+    for (let i = 0; i < data.services.length; i++) {
+      const service = data.services[i];
+      validateServiceIds(service.id, validServiceIdsSet, ctx, ["services", i, "id"]);
+      validateUserIds(service.userIds, validUserIdsSet, ctx, ["services", i, "userIds"]);
+      validateDealIds(service.dealIds, validDealIdsSet, ctx, ["services", i, "dealIds"]);
+      validateCustomFieldValues(service.customFieldValues, allColumns, ctx, ["services", i, "customFieldValues"]);
+      service.notes = validateNotes(service.notes, ctx, ["services", i, "notes"]);
+    }
+  });
+export type UpdateManyServicesData = Data<typeof UpdateManyServicesSchema>;
+
+@TentantInteractor({
+  resource: Resource.services,
+  action: Action.update,
+})
+export class UpdateManyServicesInteractor {
+  constructor(
+    private repo: UpdateServiceRepo,
+    private eventService: EventService,
+    private widgetService: WidgetService,
+  ) {}
+
+  @Validate(UpdateManyServicesSchema)
+  @Transaction
+  async invoke(data: UpdateManyServicesData): Validated<ServiceDto[], UpdateManyServicesData> {
+    const previousServices = await Promise.all(data.services.map((s) => this.repo.getServiceByIdOrThrow(s.id)));
+    const services = await Promise.all(data.services.map((serviceData) => this.repo.updateServiceOrThrow(serviceData)));
+
+    const previousServicesMap = new Map(previousServices.map((s) => [s.id, s]));
+
+    await Promise.all([
+      ...services.map((service) => {
+        const previousService = previousServicesMap.get(service.id);
+        const changes = previousService ? calculateChanges(previousService, service) : {};
+
+        return this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
+          entityId: service.id,
+          payload: {
+            service,
+            changes,
+          },
+        });
+      }),
+      this.widgetService.recalculateUserWidgets(),
+    ]);
+
+    return { ok: true, data: services };
+  }
+}

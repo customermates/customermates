@@ -1,0 +1,234 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "aff3526f-f9b3-4230-a63d-8b1e38ec51d8",
+    "createdAt": "2026-01-26T12:22:29.754Z",
+    "id": "052b54d8-f3f6-43d2-8e95-2c86c9b2f6e8",
+    "organizationId": "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+    "updatedAt": "2026-01-26T12:22:29.754Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "3d67b0d9-dd47-4d74-9cea-5b1ee6924f07",
+    "createdAt": "2025-12-11T07:17:34.190Z",
+    "id": "10c570df-2fc1-41c3-b2f4-64fe027419e8",
+    "organizationId": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "updatedAt": "2025-12-11T07:17:34.190Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "9a02c736-c40c-482b-9690-2ffefc0a88ac",
+    "createdAt": "2025-12-11T07:17:46.684Z",
+    "id": "1d0a8075-9828-4a5a-a04c-5ca4f9c09a5d",
+    "organizationId": "d91bc708-e987-4f0c-b4c2-98b19871c4ec",
+    "updatedAt": "2025-12-11T07:17:46.684Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "c66c9e33-0a6b-4dd8-ba35-1abbba45bbc8",
+    "createdAt": "2025-08-10T19:40:37.891Z",
+    "id": "2fc387d8-1cdd-4544-8ac2-8dba488df639",
+    "organizationId": "1402215b-1ac1-45a4-9b8f-8f6082e1a891",
+    "updatedAt": "2025-08-10T19:40:37.891Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "d54a27dd-79b8-474b-aa22-87f1149678d1",
+    "createdAt": "2025-08-10T19:41:44.356Z",
+    "id": "31019f97-1bbc-4568-8122-58d88ffa8196",
+    "organizationId": "acb116da-3161-42b3-b87f-6d498dc1e3e5",
+    "updatedAt": "2025-08-10T19:41:44.356Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "f2a4efcd-3ce6-4cc8-8191-bc9b9765b239",
+    "createdAt": "2025-08-10T19:41:26.403Z",
+    "id": "3bf36af0-3fba-4a67-b5f5-05442af72468",
+    "organizationId": "59bf04b6-01c3-49f9-a05f-dd03550b543e",
+    "updatedAt": "2025-08-10T19:41:26.403Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "a9fcf42d-8bf7-41d4-a1e3-c67e805a7047",
+    "createdAt": "2025-08-10T19:27:44.803Z",
+    "id": "3e49cf99-1ec9-4483-b226-6d7307d75064",
+    "organizationId": "f6108f29-f759-432c-9a86-cac06e526887",
+    "updatedAt": "2025-08-11T07:42:03.133Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "d4b37674-a05d-4759-a26f-6aa44d874ac8",
+    "createdAt": "2026-01-26T12:22:04.354Z",
+    "id": "3f9c8efd-883b-45e1-87d1-7630008fd325",
+    "organizationId": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+    "updatedAt": "2026-01-26T12:22:04.354Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "99e0ab19-ab25-496c-b92b-ba6f3d405b93",
+    "createdAt": "2025-08-10T19:24:14.602Z",
+    "id": "4764105c-3a8e-4011-81c2-33d9f18300c7",
+    "organizationId": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "updatedAt": "2025-08-11T07:41:58.022Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "f601684b-7758-4af1-adc8-bbf8834edea5",
+    "createdAt": "2025-08-10T19:28:41.948Z",
+    "id": "551e5227-e551-4b4b-b415-04f067e58f70",
+    "organizationId": "f6108f29-f759-432c-9a86-cac06e526887",
+    "updatedAt": "2025-08-11T07:42:03.133Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "7c7da974-a8a6-430f-a11e-cb2a62dd374c",
+    "createdAt": "2025-08-10T19:45:20.872Z",
+    "id": "570b1cf8-6609-4f0e-add9-b6024f7011b2",
+    "organizationId": "7853db7b-cc06-4ea2-8109-9b52f262004a",
+    "updatedAt": "2025-08-10T19:45:20.872Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "37b5c1e2-2b37-4735-b4fa-dc64d3f068fe",
+    "createdAt": "2025-12-30T16:10:03.580Z",
+    "id": "64f27326-cab4-4597-8673-9922593d7241",
+    "organizationId": "64df181e-6089-4302-86d1-658e41e28587",
+    "updatedAt": "2025-12-30T16:10:03.580Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "61999f8c-8696-4911-8287-ebcfcd0628fd",
+    "createdAt": "2025-08-10T19:39:47.592Z",
+    "id": "8420657a-ea5f-4020-80cb-26a4119b50e9",
+    "organizationId": "e87ea132-788c-44ca-a9db-597e69d88b4e",
+    "updatedAt": "2025-08-10T19:39:47.592Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "24b2ea27-6b04-444b-ba07-d7c88e3943c3",
+    "createdAt": "2025-08-10T19:42:29.328Z",
+    "id": "8f51860f-ab0c-4918-b2c8-137839b896ad",
+    "organizationId": "439870ba-9e16-4478-a66c-52ad65cd5fe7",
+    "updatedAt": "2025-08-10T19:42:29.328Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "391dbbf9-668d-4461-9ddc-9cf44001079a",
+    "createdAt": "2025-08-10T19:31:42.656Z",
+    "id": "9360b94c-3259-4cb3-b324-ece5583a8eb7",
+    "organizationId": "7e26ffdc-3288-494a-bda2-3ce0d805dfec",
+    "updatedAt": "2025-08-11T07:42:18.797Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "88a7d502-97c1-496c-9b3a-b96976cbc998",
+    "createdAt": "2025-12-11T07:17:38.290Z",
+    "id": "9861cd29-dd5e-4e00-9fc2-cfad377d30d9",
+    "organizationId": "439870ba-9e16-4478-a66c-52ad65cd5fe7",
+    "updatedAt": "2025-12-11T07:17:38.290Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "3754aaa5-0990-4f13-b3bd-6916b7b75f8e",
+    "createdAt": "2025-12-11T07:17:30.407Z",
+    "id": "9b51b30d-49ff-41af-a313-ec13cd2e0852",
+    "organizationId": "f6108f29-f759-432c-9a86-cac06e526887",
+    "updatedAt": "2025-12-11T07:17:30.407Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "ef788d3a-1e6c-4aeb-8d5b-e6e05f205f84",
+    "createdAt": "2025-08-10T19:23:02.253Z",
+    "id": "a08f49c8-d9ca-43e7-9f5a-25cf5893c2ca",
+    "organizationId": "171e394a-827b-406e-818c-4cf579950828",
+    "updatedAt": "2025-08-11T07:41:53.150Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "38724054-9607-4b6f-b51a-7c8a882fa4d7",
+    "createdAt": "2025-08-10T19:30:15.305Z",
+    "id": "a61ee498-8643-4758-a2e6-4ecbc1314842",
+    "organizationId": "f1bcd101-e86f-4b5b-88b8-0bf0b5b7ad0e",
+    "updatedAt": "2025-08-11T07:42:12.793Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "3357c5a6-d850-4bb7-a887-84252350be1d",
+    "createdAt": "2026-01-26T12:22:29.754Z",
+    "id": "b1a52c3f-c322-4771-b394-e0624c0e05a1",
+    "organizationId": "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+    "updatedAt": "2026-01-26T12:22:29.754Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "ef4a7625-7e64-4fb9-801e-8fec84961319",
+    "createdAt": "2025-12-11T07:17:26.266Z",
+    "id": "b945cb12-3afa-4b23-b548-09582b995200",
+    "organizationId": "cc3743ff-149e-455b-bf8a-12525ba1c5b6",
+    "updatedAt": "2025-12-11T07:17:26.266Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "5f9dff8d-0168-466e-8fb8-f6a76ff223b3",
+    "createdAt": "2025-08-10T19:41:02.782Z",
+    "id": "c07c3320-8949-4d4a-ad8d-1933562f3ac0",
+    "organizationId": "7853db7b-cc06-4ea2-8109-9b52f262004a",
+    "updatedAt": "2025-08-10T19:41:02.782Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "5642d1a1-dbba-4241-9353-0f433f31d259",
+    "createdAt": "2026-01-28T07:39:23.240Z",
+    "id": "cbabdc05-e641-4d1b-a78e-21a9250b85f7",
+    "organizationId": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+    "updatedAt": "2026-01-28T07:39:23.240Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "a9ca33a6-6bf4-4ef5-9459-19cbd7d8ff45",
+    "createdAt": "2025-08-10T19:22:24.683Z",
+    "id": "e3158391-98f6-4e17-bebe-1a4eb0bbd5a4",
+    "organizationId": "171e394a-827b-406e-818c-4cf579950828",
+    "updatedAt": "2025-08-11T07:41:53.150Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "51fbd250-9a94-4fd3-993e-68d3b51e5313",
+    "createdAt": "2025-08-10T19:42:13.048Z",
+    "id": "e54a5e92-5d32-4589-bd87-d51a3f0bf958",
+    "organizationId": "87d6497e-80c4-4b68-9bfb-14b0947bbad1",
+    "updatedAt": "2025-08-10T19:42:13.048Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "011f59cf-1354-42ed-aecc-65c9728d4bcc",
+    "createdAt": "2025-08-10T19:24:37.924Z",
+    "id": "e711e38e-d817-47e9-92b2-0d35dee90644",
+    "organizationId": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "updatedAt": "2025-08-11T07:41:58.022Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "c77b0c9a-4583-4b50-bc8c-6cb32b8c1a97",
+    "createdAt": "2026-01-26T12:22:04.354Z",
+    "id": "f24b0d4a-41e2-4632-9338-de8cc8b7a728",
+    "organizationId": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+    "updatedAt": "2026-01-26T12:22:04.354Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "4f38834b-45a5-4ddf-951f-e2098c6b19e8",
+    "createdAt": "2025-08-10T19:43:36.642Z",
+    "id": "fa99bdb0-3d2a-481e-8830-d645a6718014",
+    "organizationId": "d91bc708-e987-4f0c-b4c2-98b19871c4ec",
+    "updatedAt": "2025-08-10T19:43:36.642Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "contactId": "c9aea420-5fe0-4a14-9543-45b700574241",
+    "createdAt": "2025-08-10T19:29:35.308Z",
+    "id": "ff1c7bfd-e853-4cdc-b334-4bc7abad417a",
+    "organizationId": "319c0c9e-030c-4218-a38f-b39441317bba",
+    "updatedAt": "2025-08-11T07:42:08.289Z"
+  }
+]

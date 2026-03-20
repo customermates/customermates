@@ -1,0 +1,66 @@
+---
+title: OpenClaw and Other AI Agents
+description: Learn how the Pro plan provides a preconfigured sandboxed OpenClaw container with user-scoped CRM access and built-in container controls.
+---
+
+## OpenClaw on the Pro plan
+
+On the Pro plan, Customermates does not expect every team to wire an AI agent setup from scratch. Instead, the product provisions a preconfigured, sandboxed OpenClaw container for each user, so the agent runtime is already prepared for CRM-oriented usage.
+
+That gives you an agent environment that is ready to be connected to your own provider keys and CRM workflows, while still keeping execution isolated per user instead of running a shared agent process across the workspace.
+
+## How the setup works
+
+The OpenClaw container is prepared by Customermates as a managed runtime. Access to CRM data remains user-scoped, which means the agent works with the permissions of the user it belongs to instead of receiving broad workspace-wide access by default.
+
+In practice, the setup looks like this:
+
+1. The user is on the Pro plan.
+2. Customermates provisions a sandboxed OpenClaw container for that user.
+3. The user adds their own provider credentials such as OpenAI or Anthropic keys.
+4. The agent works against Customermates with user-scoped permissions.
+
+> The important model is not just "AI agent connected to CRM", but "one sandboxed agent runtime per user with user-scoped access". That gives stronger isolation, clearer responsibility boundaries, and a safer default for live CRM work.
+
+## Why MCP still matters
+
+Even though the OpenClaw container is preconfigured by Customermates, the integration approach still follows the [Model Context Protocol (MCP)](/docs/mcp). That gives the agent a tool-native way to discover CRM capabilities, execute actions, and recover from validation issues without forcing the runtime to operate against the full raw API surface.
+
+Use [OpenAPI 3.1.0](/docs/openapi) alongside it only when you need exact endpoint payloads, schema details, or lower-level transport validation.
+
+## Available container actions
+
+Once the container exists, Customermates exposes three practical actions for managing it:
+
+- **Open Control UI** to open the agent control interface in a separate window
+- **Add Environment Variable** to add or update runtime configuration for the container
+- **Reset Agent** to fully reset the agent state when you want a clean start
+
+> Resetting the agent is destructive. It removes chat history, memory, and learned skills so the container starts fresh again.
+
+## What users typically configure
+
+After provisioning, the most common next step is to add provider credentials such as OpenAI or Anthropic keys. From there, teams usually add environment variables only when they need additional runtime configuration for prompts, tools, or external services.
+
+That means the user does not start by assembling the full container architecture themselves. The core runtime is already there, and they mainly supply credentials and environment-specific configuration.
+
+## Skills and Orthogonal
+
+Once the container is provisioned, the next practical step is usually the [Skills](/docs/skills) page. That is where users can browse reusable capabilities that can be added to the agent for more specific workflows.
+
+Some of those skills come from **Orthogonal**. In this context, Orthogonal is an external skill source that provides reusable agent capabilities which can be installed into the OpenClaw runtime and then combined with Customermates workflows.
+
+> The skills page is still being extended. It already shows the direction of the skill system, but more skills, examples, and packaged workflows will be added over time.
+
+## Security and runtime boundaries
+
+The key design principle stays the same throughout the setup: CRM access remains user-scoped and the OpenClaw runtime stays sandboxed. That separation matters because it keeps agent execution isolated per user while still allowing the agent to work with live CRM context.
+
+For the broader runtime model behind that setup, continue with [Architecture & Security](/docs/architecture-security). For event-driven follow-up flows after agent actions, pair this with [Webhooks & Events](/docs/feature-guide-webhooks-events).
+
+## OpenClaw setup in the product
+
+<DocsImage
+  alt="OpenClaw setup view showing the provisioned agent container and the available actions Open Control UI, Add Environment Variable, and Reset Agent"
+  src="docs-openclaw-agent-setup.png"
+/>

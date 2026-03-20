@@ -1,0 +1,717 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:22:04.449Z",
+    "event": "organization.updated",
+    "id": "095af417-cc80-41b0-a314-798123b9a41f",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "contacts": {
+              "current": [],
+              "previous": [
+                {
+                  "firstName": "Lukas",
+                  "id": "a54d7c82-b4fa-49cc-b3d5-c70bcf0a28ce",
+                  "lastName": "Fischer"
+                }
+              ]
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:22:04.348Z",
+              "previous": "2025-08-11T07:41:20.289Z"
+            }
+          },
+          "organization": {
+            "contacts": [
+              {
+                "firstName": "Mia",
+                "id": "d4b37674-a05d-4759-a26f-6aa44d874ac8",
+                "lastName": "Schneider"
+              },
+              {
+                "firstName": "Anna",
+                "id": "c77b0c9a-4583-4b50-bc8c-6cb32b8c1a97",
+                "lastName": "Müller"
+              }
+            ],
+            "createdAt": "2025-08-10T18:59:40.025Z",
+            "customFieldValues": [
+              {
+                "columnId": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+                "value": "e4d0e816-10d3-4ef9-a0d0-edd40dc29497"
+              },
+              {
+                "columnId": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+                "value": "https://bayer.com"
+              }
+            ],
+            "deals": [
+              {
+                "id": "19725145-12a2-4bc8-a0f5-dd978e847af4",
+                "name": "Bayer - 2025/01"
+              }
+            ],
+            "id": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+            "name": "Bayer",
+            "updatedAt": "2026-01-26T12:22:04.348Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "organization.updated",
+      "timestamp": "2026-01-26T12:22:04.396Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:21:36.745Z",
+    "event": "contact.deleted",
+    "id": "62a4a1bf-09ee-471b-a5e0-6b08be7912b9",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "createdAt": "2025-08-10T19:39:03.772Z",
+          "customFieldValues": [
+            {
+              "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+              "value": "+491538765432"
+            },
+            {
+              "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+              "value": "54cab74f-4bf9-4ad5-8bb1-eca862f4ad3a"
+            },
+            {
+              "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+              "value": "javier.morales@volkswagen.de"
+            }
+          ],
+          "deals": [],
+          "firstName": "Javier",
+          "id": "08e1d9f7-2a7f-4b31-a35d-9f267c7fa217",
+          "lastName": "Morales",
+          "organizations": [
+            {
+              "id": "30733426-b99c-432d-9619-313cfe1c051a",
+              "name": "Volkswagen"
+            }
+          ],
+          "updatedAt": "2025-08-11T07:42:32.087Z",
+          "users": []
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.deleted",
+      "timestamp": "2026-01-26T12:21:36.688Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:21:48.224Z",
+    "event": "contact.updated",
+    "id": "793b4e20-32a7-4a1d-9568-9adabc0c7efe",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "customFieldValues": {
+              "current": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "cdf4bf06-f465-4a6f-bb57-77a9851a7e14"
+                }
+              ],
+              "previous": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "24a105aa-5a81-4b58-9dc0-18ea4ac5b4df"
+                }
+              ]
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:21:48.132Z",
+              "previous": "2025-08-11T07:41:53.150Z"
+            }
+          },
+          "contact": {
+            "createdAt": "2025-08-10T19:22:24.683Z",
+            "customFieldValues": [
+              {
+                "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+                "value": "laura.fischer@arbeitsagentur.de"
+              },
+              {
+                "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                "value": "cdf4bf06-f465-4a6f-bb57-77a9851a7e14"
+              },
+              {
+                "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+                "value": "+491573456789"
+              }
+            ],
+            "deals": [],
+            "firstName": "Laura",
+            "id": "a9ca33a6-6bf4-4ef5-9459-19cbd7d8ff45",
+            "lastName": "Fischer",
+            "organizations": [
+              {
+                "id": "171e394a-827b-406e-818c-4cf579950828",
+                "name": "Bundesagentur für Arbeit"
+              }
+            ],
+            "updatedAt": "2026-01-26T12:21:48.132Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.updated",
+      "timestamp": "2026-01-26T12:21:48.179Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:24:32.567Z",
+    "event": "deal.created",
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "createdAt": "2026-01-26T12:24:32.489Z",
+          "customFieldValues": [
+            {
+              "columnId": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a",
+              "value": "50000"
+            },
+            {
+              "columnId": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+              "value": "2026-06-30"
+            }
+          ],
+          "id": "f6a7b8c9-d0e1-2f3a-4b5c-6d7e8f9a0b1c",
+          "name": "SAP - Q2 2026",
+          "organization": {
+            "id": "c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+            "name": "SAP"
+          },
+          "stage": {
+            "id": "a7b8c9d0-e1f2-3a4b-5c6d-7e8f9a0b1c2d",
+            "name": "Proposal"
+          },
+          "updatedAt": "2026-01-26T12:24:32.489Z",
+          "users": []
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "deal.created",
+      "timestamp": "2026-01-26T12:24:32.542Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:22:29.841Z",
+    "event": "organization.updated",
+    "id": "a7a8f2f4-08c2-44a8-947b-bf3361dc119d",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "contacts": {
+              "current": [],
+              "previous": [
+                {
+                  "firstName": "Sophie",
+                  "id": "2cad0883-424b-4283-99b8-0c062dbf3c43",
+                  "lastName": "Wagner"
+                }
+              ]
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:22:29.749Z",
+              "previous": "2025-08-11T07:41:45.506Z"
+            }
+          },
+          "organization": {
+            "contacts": [
+              {
+                "firstName": "Max",
+                "id": "3357c5a6-d850-4bb7-a887-84252350be1d",
+                "lastName": "Schmidt"
+              },
+              {
+                "firstName": "Leon",
+                "id": "aff3526f-f9b3-4230-a63d-8b1e38ec51d8",
+                "lastName": "Becker"
+              }
+            ],
+            "createdAt": "2025-08-10T18:55:25.702Z",
+            "customFieldValues": [
+              {
+                "columnId": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+                "value": "e4d0e816-10d3-4ef9-a0d0-edd40dc29497"
+              },
+              {
+                "columnId": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+                "value": "https://bmw.de"
+              }
+            ],
+            "deals": [
+              {
+                "id": "254c8bf9-d7a1-489c-819a-1a3e09227f47",
+                "name": "BMW - 2025/01"
+              }
+            ],
+            "id": "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+            "name": "BMW",
+            "updatedAt": "2026-01-26T12:22:29.749Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "organization.updated",
+      "timestamp": "2026-01-26T12:22:29.796Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:25:48.234Z",
+    "event": "deal.updated",
+    "id": "b2c3d4e5-f6a7-890b-c1d2-e3f4a5b6c7d8e",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "stage": {
+              "current": {
+                "id": "c8d9e0f1-a2b3-4c5d-6e7f-8a9b0c1d2e3f",
+                "name": "Negotiation"
+              },
+              "previous": {
+                "id": "a7b8c9d0-e1f2-3a4b-5c6d-7e8f9a0b1c2d",
+                "name": "Proposal"
+              }
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:25:48.156Z",
+              "previous": "2026-01-26T12:24:32.489Z"
+            }
+          },
+          "deal": {
+            "createdAt": "2026-01-26T12:24:32.489Z",
+            "customFieldValues": [
+              {
+                "columnId": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a",
+                "value": "50000"
+              },
+              {
+                "columnId": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+                "value": "2026-06-30"
+              }
+            ],
+            "id": "f6a7b8c9-d0e1-2f3a-4b5c-6d7e8f9a0b1c",
+            "name": "SAP - Q2 2026",
+            "organization": {
+              "id": "c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+              "name": "SAP"
+            },
+            "stage": {
+              "id": "c8d9e0f1-a2b3-4c5d-6e7f-8a9b0c1d2e3f",
+              "name": "Negotiation"
+            },
+            "updatedAt": "2026-01-26T12:25:48.156Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "deal.updated",
+      "timestamp": "2026-01-26T12:25:48.201Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:21:26.849Z",
+    "event": "contact.updated",
+    "id": "bac94b65-c47d-409f-bc4c-4b3cfe2f9db5",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "customFieldValues": {
+              "current": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "41745925-d2a9-4ca0-97cb-245598f5489f"
+                }
+              ],
+              "previous": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "24a105aa-5a81-4b58-9dc0-18ea4ac5b4df"
+                }
+              ]
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:21:26.732Z",
+              "previous": "2025-12-30T16:10:03.567Z"
+            }
+          },
+          "contact": {
+            "createdAt": "2025-08-10T19:38:41.774Z",
+            "customFieldValues": [
+              {
+                "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+                "value": "amina.hassan@tui.com"
+              },
+              {
+                "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                "value": "41745925-d2a9-4ca0-97cb-245598f5489f"
+              },
+              {
+                "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+                "value": "+491759876543"
+              }
+            ],
+            "deals": [],
+            "firstName": "Amin",
+            "id": "37b5c1e2-2b37-4735-b4fa-dc64d3f068fe",
+            "lastName": "Hassan",
+            "organizations": [
+              {
+                "id": "64df181e-6089-4302-86d1-658e41e28587",
+                "name": "TUI"
+              }
+            ],
+            "updatedAt": "2026-01-26T12:21:26.732Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.updated",
+      "timestamp": "2026-01-26T12:21:26.781Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:26:12.789Z",
+    "event": "organization.created",
+    "id": "c3d4e5f6-a7b8-901c-2d3e-f4a5b6c7d8e9f",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "contacts": [],
+          "createdAt": "2026-01-26T12:26:12.712Z",
+          "customFieldValues": [
+            {
+              "columnId": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+              "value": "f1a2b3c4-d5e6-7890-abcd-ef1234567890"
+            },
+            {
+              "columnId": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+              "value": "https://siemens.com"
+            }
+          ],
+          "deals": [],
+          "id": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a",
+          "name": "Siemens",
+          "updatedAt": "2026-01-26T12:26:12.712Z",
+          "users": []
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "organization.created",
+      "timestamp": "2026-01-26T12:26:12.765Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-28T07:39:38.452Z",
+    "event": "contact.updated",
+    "id": "c8068cf9-b0c8-4a7f-b9ec-e502327e4edd",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "entityId": "37b5c1e2-2b37-4735-b4fa-dc64d3f068fe",
+        "payload": {
+          "changes": {
+            "customFieldValues": {
+              "current": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "b6ec8c6c-6007-401d-82c5-3cf59f9cfdf5"
+                }
+              ],
+              "previous": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "41745925-d2a9-4ca0-97cb-245598f5489f"
+                }
+              ]
+            },
+            "updatedAt": {
+              "current": "2026-01-28T07:39:37.769Z",
+              "previous": "2026-01-26T12:21:26.732Z"
+            }
+          },
+          "contact": {
+            "createdAt": "2025-08-10T19:38:41.774Z",
+            "customFieldValues": [
+              {
+                "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+                "value": "amina.hassan@tui.com"
+              },
+              {
+                "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                "value": "b6ec8c6c-6007-401d-82c5-3cf59f9cfdf5"
+              },
+              {
+                "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+                "value": "+491759876543"
+              }
+            ],
+            "deals": [],
+            "firstName": "Amin",
+            "id": "37b5c1e2-2b37-4735-b4fa-dc64d3f068fe",
+            "lastName": "Hassan",
+            "organizations": [
+              {
+                "id": "64df181e-6089-4302-86d1-658e41e28587",
+                "name": "TUI"
+              }
+            ],
+            "updatedAt": "2026-01-28T07:39:37.769Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.updated",
+      "timestamp": "2026-01-28T07:39:37.835Z"
+    },
+    "responseMessage": "Not Found",
+    "statusCode": 404,
+    "success": false,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:27:05.456Z",
+    "event": "contact.updated",
+    "id": "d5e6f7a8-b9c0-1d2e-3f4a-5b6c7d8e9f0a1",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "changes": {
+            "firstName": {
+              "current": "Michael",
+              "previous": "Mike"
+            },
+            "updatedAt": {
+              "current": "2026-01-26T12:27:05.378Z",
+              "previous": "2026-01-20T10:15:30.123Z"
+            }
+          },
+          "contact": {
+            "createdAt": "2025-09-15T14:22:10.456Z",
+            "customFieldValues": [
+              {
+                "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+                "value": "michael.schneider@mercedes-benz.com"
+              },
+              {
+                "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                "value": "g1h2i3j4-k5l6-7890-mnop-qr5678901234"
+              },
+              {
+                "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+                "value": "+491601112223"
+              }
+            ],
+            "deals": [
+              {
+                "id": "h2i3j4k5-l6m7-890n-opqr-st6789012345",
+                "name": "Mercedes-Benz - 2026/01"
+              }
+            ],
+            "firstName": "Michael",
+            "id": "e6f7a8b9-c0d1-2e3f-4a5b-6c7d8e9f0a1b2",
+            "lastName": "Schneider",
+            "organizations": [
+              {
+                "id": "f7a8b9c0-d1e2-3f4a-5b6c-7d8e9f0a1b2c3",
+                "name": "Mercedes-Benz"
+              }
+            ],
+            "updatedAt": "2026-01-26T12:27:05.378Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.updated",
+      "timestamp": "2026-01-26T12:27:05.431Z"
+    },
+    "responseMessage": "Internal Server Error",
+    "statusCode": 500,
+    "success": false,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-26T12:23:15.123Z",
+    "event": "contact.created",
+    "id": "f3e8d9c2-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "payload": {
+          "createdAt": "2026-01-26T12:23:15.045Z",
+          "customFieldValues": [
+            {
+              "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+              "value": "thomas.weber@sap.com"
+            },
+            {
+              "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+              "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+            },
+            {
+              "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+              "value": "+491701234567"
+            }
+          ],
+          "deals": [],
+          "firstName": "Thomas",
+          "id": "b8c9d0e1-f2a3-4b5c-6d7e-8f9a0b1c2d3e",
+          "lastName": "Weber",
+          "organizations": [
+            {
+              "id": "c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+              "name": "SAP"
+            }
+          ],
+          "updatedAt": "2026-01-26T12:23:15.045Z",
+          "users": []
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.created",
+      "timestamp": "2026-01-26T12:23:15.098Z"
+    },
+    "responseMessage": "OK",
+    "statusCode": 200,
+    "success": true,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-28T07:39:30.985Z",
+    "event": "contact.updated",
+    "id": "fc527788-19b2-4429-9aa8-3fa5b7ea7b14",
+    "requestBody": {
+      "data": {
+        "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+        "entityId": "5642d1a1-dbba-4241-9353-0f433f31d259",
+        "payload": {
+          "changes": {
+            "customFieldValues": {
+              "current": [
+                {
+                  "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                  "value": "ae85edc9-6ade-4955-af37-1b370fb169e5"
+                }
+              ],
+              "previous": []
+            },
+            "updatedAt": {
+              "current": "2026-01-28T07:39:29.936Z",
+              "previous": "2026-01-28T07:39:23.232Z"
+            }
+          },
+          "contact": {
+            "createdAt": "2026-01-28T07:39:23.232Z",
+            "customFieldValues": [
+              {
+                "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+                "value": "max.mustermann@bayer.com"
+              },
+              {
+                "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+                "value": "ae85edc9-6ade-4955-af37-1b370fb169e5"
+              }
+            ],
+            "deals": [
+              {
+                "id": "19725145-12a2-4bc8-a0f5-dd978e847af4",
+                "name": "Bayer - 2025/01"
+              }
+            ],
+            "firstName": "Max",
+            "id": "5642d1a1-dbba-4241-9353-0f433f31d259",
+            "lastName": "Mustermann",
+            "organizations": [
+              {
+                "id": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+                "name": "Bayer"
+              }
+            ],
+            "updatedAt": "2026-01-28T07:39:29.936Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.updated",
+      "timestamp": "2026-01-28T07:39:30.079Z"
+    },
+    "responseMessage": "Not Found",
+    "statusCode": 404,
+    "success": false,
+    "url": "https://demo.customermates.com/example/webhook"
+  }
+]

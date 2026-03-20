@@ -1,0 +1,22 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T19:15:54.954Z",
+    "email": "julia.weber@customermates.com",
+    "emailVerified": true,
+    "id": "1Cvl3toPmqqoqxng5EXpSOSPREAjGrUi",
+    "image": null,
+    "name": "julia.weber@customermates.com",
+    "updatedAt": "2026-01-29T19:16:05.648Z"
+  },
+  {
+    "companyId": null,
+    "createdAt": "2025-12-07T19:04:38.153Z",
+    "email": "max.mustermann@customermates.com",
+    "emailVerified": true,
+    "id": "X1UwmzitymTjZYjwXMrSvaFkClaWDGen",
+    "image": null,
+    "name": "max.mustermann@customermates.com",
+    "updatedAt": "2025-12-07T19:04:48.337Z"
+  }
+]

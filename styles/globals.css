@@ -1,0 +1,167 @@
+@import "tailwindcss";
+@plugin '@tailwindcss/typography';
+@plugin './hero.ts';
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
+
+@import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-openapi/css/preset.css';
+
+/* Values hardcoded from styles/heroui.config.ts */
+@theme {
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #000000;
+  --color-fd-muted: #f4f4f5;
+  --color-fd-muted-foreground: #656567;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #000000;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #000000;
+  --color-fd-border: #e7e7e7;
+  --color-fd-primary: #5e4ae3;
+  --color-fd-primary-foreground: #fff;
+  --color-fd-secondary: #f4f4f5;
+  --color-fd-secondary-foreground: #000000;
+  --color-fd-accent: color-mix(in srgb, #e3e3e6 50%, transparent);
+  --color-fd-accent-foreground: #000000;
+  --color-fd-ring: #d4d4d8;
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.dark {
+  --color-fd-background: #0e0e10;
+  --color-fd-foreground: #ffffff;
+  --color-fd-muted: #141416;
+  --color-fd-muted-foreground: #b2b2b5;
+  --color-fd-popover: #121214;
+  --color-fd-popover-foreground: #ffffff;
+  --color-fd-card: #121214;
+  --color-fd-card-foreground: #ffffff;
+  --color-fd-border: #1d1d1d;
+  --color-fd-primary: #5e4ae3;
+  --color-fd-primary-foreground: #fff;
+  --color-fd-secondary: #141416;
+  --color-fd-secondary-foreground: #ffffff;
+  --color-fd-accent: color-mix(in srgb, #26262a 30%, transparent);
+  --color-fd-accent-foreground: #ffffff;
+  --color-fd-ring: #65656b;
+}
+
+@layer base {
+  :root {
+    --fd-layout-width: 1600px;
+  }
+
+  * {
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 9999px;
+  }
+
+  html {
+    --scrollbar-thumb: #d4d4d8;
+    --scrollbar-track: #f4f4f500;
+  }
+
+  html.dark {
+    --scrollbar-thumb: #27272a;
+    --scrollbar-track: #12121400;
+  }
+
+  .prose {
+    font-family: var(--font-family-sans);
+  }
+
+  .prose :where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    font-family: var(--font-family-sans);
+    font-weight: 700;
+  }
+
+  .prose :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    font-weight: 700;
+  }
+
+  .prose :where(b):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    font-weight: 700;
+  }
+
+}
+
+g:focus,
+path:focus {
+  outline: none !important;
+}
+
+[data-slot="helper-wrapper"] {
+  padding: 0;
+}
+
+@layer utilities {
+  .text-x-4xl {
+    @apply text-4xl md:text-5xl lg:text-7xl px-4 tracking-tight font-bold text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-white dark:via-gray-100 dark:to-gray-400;
+  }
+
+  .text-x-3xl {
+    @apply text-3xl md:text-4xl tracking-tight font-bold;
+  }
+
+  .text-x-2xl {
+    @apply text-xl md:text-2xl tracking-tight font-medium;
+  }
+
+  .text-x-xl {
+    @apply text-base md:text-xl tracking-tight font-medium;
+  }
+
+  .text-x-lg {
+    @apply text-lg tracking-tight font-medium;
+  }
+
+  .text-x-md {
+    @apply text-base tracking-tight;
+  }
+
+  .text-x-sm {
+    @apply text-sm tracking-tight;
+  }
+
+  .text-x-xs {
+    @apply text-xs tracking-tight;
+  }
+
+  .text-subdued {
+    @apply text-default-800 dark:text-default-600;
+  }
+
+  .prose
+    :where(thead th:first-child, tbody td:first-child, tfoot td:first-child):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    padding-inline-start: 1em !important;
+  }
+
+  .prose
+    :where(thead th:last-child, tbody td:last-child, tfoot td:last-child):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    padding-inline-end: 1em !important;
+  }
+}

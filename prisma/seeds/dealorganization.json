@@ -1,0 +1,82 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:14:01.029Z",
+    "dealId": "b8ef061f-de74-4f48-b43f-79b47de6e647",
+    "id": "0990546c-5fbe-4c09-8e44-a24fff8fba0a",
+    "organizationId": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "updatedAt": "2026-01-29T18:14:01.029Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:49:34.023Z",
+    "dealId": "37d2a9dd-eccd-4fc7-a776-7bd024399f49",
+    "id": "0d2e52b8-e286-4ecd-bb4f-753bedb2c17f",
+    "organizationId": "319c0c9e-030c-4218-a38f-b39441317bba",
+    "updatedAt": "2026-01-29T18:49:34.023Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:14:25.884Z",
+    "dealId": "69fe0678-12e0-4880-8c17-f5a52981d8f8",
+    "id": "0fc07428-4dc1-449d-85dd-d9062110bf99",
+    "organizationId": "89b9e82c-8b53-4a31-8588-1ea6ff35fe48",
+    "updatedAt": "2026-01-29T18:14:25.884Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:44:26.160Z",
+    "dealId": "d3ad1a66-0d50-40c4-ac31-9322deabd7df",
+    "id": "1cd0d256-eadb-4f27-860b-f0dbb0970d58",
+    "organizationId": "439870ba-9e16-4478-a66c-52ad65cd5fe7",
+    "updatedAt": "2026-01-29T18:44:26.160Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:12:28.017Z",
+    "dealId": "a1395380-9b6f-4b97-a10c-c6e65494f518",
+    "id": "20ddb94d-8a1c-4cc9-a0ab-e5612ee28952",
+    "organizationId": "59bf04b6-01c3-49f9-a05f-dd03550b543e",
+    "updatedAt": "2026-01-29T18:12:28.017Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:09:13.903Z",
+    "dealId": "a925b133-2bad-4d31-a22e-6fa5a3c0e08b",
+    "id": "246c809e-977b-4f60-b214-498f7584e687",
+    "organizationId": "d91bc708-e987-4f0c-b4c2-98b19871c4ec",
+    "updatedAt": "2026-01-29T18:09:13.903Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:09:30.787Z",
+    "dealId": "b57b538e-fbda-40af-956a-ae3928edeaa2",
+    "id": "750637d5-7b25-47f4-bbf4-7ca0d8e84fb7",
+    "organizationId": "dd18d644-0d3b-4b66-8181-29a4c0e7d7da",
+    "updatedAt": "2026-01-29T18:09:30.787Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:09.720Z",
+    "dealId": "beb33fd7-806f-41ba-9917-364e04a943fa",
+    "id": "9d901f3b-46ea-4aac-a1d2-718682f32143",
+    "organizationId": "acb116da-3161-42b3-b87f-6d498dc1e3e5",
+    "updatedAt": "2026-01-29T18:16:09.720Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:52:34.262Z",
+    "dealId": "aa49bce0-d893-449c-b099-f7a687db5626",
+    "id": "c8ff71ce-bea6-4b6f-8ba1-97296a6474e7",
+    "organizationId": "82045ad4-d0f1-4235-82bd-8b3751927621",
+    "updatedAt": "2026-01-29T18:52:34.262Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:33:19.947Z",
+    "dealId": "2df02878-f1c4-4c83-9108-422a07ec49c4",
+    "id": "f7a57983-ded2-40be-a470-a666b1b9fa9a",
+    "organizationId": "319c0c9e-030c-4218-a38f-b39441317bba",
+    "updatedAt": "2026-01-29T18:33:19.947Z"
+  }
+]

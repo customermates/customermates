@@ -1,0 +1,4 @@
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile.fly"

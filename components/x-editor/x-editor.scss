@@ -1,0 +1,132 @@
+.tiptap {
+  :first-child {
+    margin-top: 0;
+  }
+
+  p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1, h2 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.125rem;
+    letter-spacing: -0.025em;
+    font-weight: 400;
+  }
+
+  h2 {
+    font-size: 1rem;
+    letter-spacing: -0.025em;
+    font-weight: 400;
+  }
+
+  ul,
+  ol {
+    padding: 0 1rem;
+    margin: 0.75rem 1rem 0.75rem 0.4rem;
+
+    li p {
+      margin-top: 0.125rem;
+      margin-bottom: 0.125rem;
+    }
+  }
+
+  ul[data-type='taskList'] {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+
+    li {
+      align-items: flex-start;
+      display: flex;
+      overflow: hidden;
+
+      > label {
+        flex: 0 0 auto;
+        margin-right: 0.5rem;
+        user-select: none;
+      }
+
+      > div {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      > p {
+        word-break: break-word;
+      }
+    }
+
+    input[type='checkbox'] {
+      cursor: pointer;
+      accent-color: hsl(var(--heroui-primary));
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: transparent;
+      border: 2px solid hsl(var(--heroui-default-300));
+      border-radius: 4px;
+      width: 16px;
+      height: 16px;
+      position: relative;
+      margin-top: 4px;
+      
+      &:checked {
+        background-color: hsl(var(--heroui-primary));
+        border-color: hsl(var(--heroui-primary));
+        
+        &::after {
+          content: '';
+          position: absolute;
+          left: 4px;
+          top: 1px;
+          width: 4px;
+          height: 8px;
+          border: solid white;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+      }
+    }
+
+    ul[data-type='taskList'] {
+      margin: 0;
+    }
+  }
+
+   p.is-editor-empty:first-child::before {
+    color: hsl(var(--heroui-default-500));
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  blockquote {
+    border-left-color: hsl(var(--heroui-divider)) !important;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  blockquote > p::before,
+  blockquote > p::after {
+    content: '';
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid hsl(var(--heroui-divider));
+    cursor: pointer;
+    margin: 1rem 0;
+
+    &.ProseMirror-selectednode {
+      border-top: 1px solid var(--purple);
+    }
+  }
+}

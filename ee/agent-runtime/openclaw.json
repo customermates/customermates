@@ -1,0 +1,35 @@
+{
+  "acp": {
+    "defaultAgent": "main"
+  },
+  "agents": {
+    "defaults": {
+      "heartbeat": {
+        "every": "30m"
+      },
+      "model": {
+        "primary": "${MODEL}"
+      },
+      "workspace": "/data/workspace"
+    }
+  },
+  "gateway": {
+    "auth": {
+      "mode": "token"
+    },
+    "bind": "loopback",
+    "controlUi": {
+      "allowedOrigins": ["${CONTROL_UI_ALLOWED_ORIGIN}", "${AGENT_BASE_URL}"],
+      "dangerouslyDisableDeviceAuth": true,
+      "enabled": true
+    },
+    "mode": "local",
+    "port": 3001,
+    "trustedProxies": ["127.0.0.1"]
+  },
+  "hooks": {
+    "enabled": true,
+    "path": "/hooks",
+    "token": "${OPENCLAW_HOOKS_TOKEN}"
+  }
+}

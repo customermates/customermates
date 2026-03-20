@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+yarn run lint --max-warnings=0
+tsc --noEmit
+
+if ! git diff --quiet; then
+  echo ""
+  echo "Pre-commit hook modified files. Stage the changes and commit again."
+  git status --short
+  exit 1
+fi

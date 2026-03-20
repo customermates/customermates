@@ -1,0 +1,72 @@
+---
+title: Self-Hosting Get Started
+description: Self-host Customermates on your own infrastructure with Docker Compose, PostgreSQL, and a production-ready Next.js app container.
+---
+
+## Self-host Customermates with Docker Compose
+
+This page shows how to run a self-hosted Customermates deployment with Docker Compose and PostgreSQL.
+If you are still deciding between deployment models, compare [Self-Hosted vs Cloud](/docs/self-host-vs-cloud) first.
+
+Self-hosted deployments run the community edition by default. Paid Enterprise features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) are not active in self-hosted deployments.
+
+## Prerequisites
+
+Before deploying, make sure you have:
+
+- a VPS with Docker Engine and Docker Compose installed
+- a domain you can point to your server
+- access to create DNS records
+- access to clone this repository on your server
+
+For production usage, use a reverse proxy with HTTPS termination in front of the app container.
+
+## Installation flow
+
+From the project root on your server:
+
+```bash
+cp .env.selfhost.template .env
+chmod +x scripts/selfhost-setup.sh
+./scripts/selfhost-setup.sh
+```
+
+The setup script:
+
+1. Validate required inputs and environment values.
+2. Build the app image and start PostgreSQL.
+3. Start the app container with Docker Compose.
+4. Run `prisma migrate deploy`.
+
+If you need to adjust configuration values, update `.env` and run the setup script again.
+
+## Initial startup checks
+
+After setup, verify the containers are running:
+
+```bash
+docker compose ps
+```
+
+Then follow the application logs until the app reports it is ready:
+
+```bash
+docker compose logs -f app
+```
+
+For database diagnostics:
+
+```bash
+docker compose logs -f postgres
+```
+
+## First login and signup
+
+Once the app is reachable in the browser:
+
+1. Open your configured domain.
+2. Create your first account or sign in.
+3. Complete onboarding and initial company setup.
+
+After this first login, continue with [Managing Your Installation](/docs/managing-your-installation) to handle updates, restarts, and troubleshooting workflows.
+For the operational trade-offs between deployment models, also see [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).

@@ -1,0 +1,346 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:05:15.940Z",
+    "id": "09f03abf-e191-47ab-8aca-df9720400907",
+    "serviceId": "3070dae5-c67b-4d0e-91c0-120631b106b3",
+    "updatedAt": "2026-01-29T18:05:15.940Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:04:37.317Z",
+    "id": "0b35e7eb-f185-4acd-9ecb-78d3bb98d8a3",
+    "serviceId": "b1ffc24c-e6b0-4c9d-ba12-d6bcfa6ced2b",
+    "updatedAt": "2026-01-29T18:04:37.317Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:21.510Z",
+    "id": "125a824c-9d82-43b1-a019-f3fff3d2aca1",
+    "serviceId": "c2134bbc-c0f7-4f9f-97e4-93a6e844fc98",
+    "updatedAt": "2026-01-29T18:02:21.510Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:53:38.740Z",
+    "id": "14c84334-1c28-439e-b730-c3861caeff63",
+    "serviceId": "5f6fe608-dd5d-40f9-a761-233ee0d8bc25",
+    "updatedAt": "2026-01-29T18:53:38.740Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:47:24.600Z",
+    "id": "1aa16bf7-d3e8-4bd6-8ff0-0a5098e00967",
+    "serviceId": "90dbc3d0-3636-4839-b809-7b43ba1037b7",
+    "updatedAt": "2026-01-29T18:47:24.600Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:54:09.073Z",
+    "id": "20da77eb-9e40-475a-ab4e-f4b73b7e5d14",
+    "serviceId": "0fe6e01a-dab5-442a-9c83-58ae1f4bb3fd",
+    "updatedAt": "2026-01-29T18:54:09.073Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:46:45.356Z",
+    "id": "23fac62e-d95e-4347-844f-fb64bc943cd4",
+    "serviceId": "065c9658-4d06-4a14-bc45-0c0c6f1aff6d",
+    "updatedAt": "2026-01-29T18:46:45.356Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:50:32.780Z",
+    "id": "2629b29f-1393-490d-a121-49265a018b54",
+    "serviceId": "54a0be77-7d08-49aa-9d9b-24a4dfbc8051",
+    "updatedAt": "2026-01-29T18:50:32.780Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:56.703Z",
+    "id": "28f833d7-f099-45df-a73c-f19be8f92fd2",
+    "serviceId": "1d5e6d30-07b0-4c82-b8c5-602bd36e028d",
+    "updatedAt": "2026-01-29T18:16:56.703Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:47:07.410Z",
+    "id": "29a744c7-e51b-440d-8ad4-c94601e7948e",
+    "serviceId": "a8b51239-19f0-4abd-b48c-7c74d786a7a5",
+    "updatedAt": "2026-01-29T18:47:07.410Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:12:48.555Z",
+    "id": "2a2d3218-3c39-4055-9ff8-a941c54c8138",
+    "serviceId": "a9d9b428-49d5-41a2-abb4-a31e87a9d497",
+    "updatedAt": "2026-01-29T18:12:48.555Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:00:41.156Z",
+    "id": "2e9af38c-9b5f-4dd5-9ea8-b8139b2862f0",
+    "serviceId": "8031f19e-8906-4184-aed6-2a21f3b8606a",
+    "updatedAt": "2026-01-29T18:00:41.156Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:46:20.454Z",
+    "id": "35c25188-59e0-4718-8ac5-8b67747cdf5f",
+    "serviceId": "70fd8623-70ed-464f-a44f-43334b49446b",
+    "updatedAt": "2026-01-29T18:46:20.454Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:13:05.665Z",
+    "id": "3dd62d4d-56aa-4626-895a-1a2c636aaa00",
+    "serviceId": "e53209c0-3c16-463a-85a6-bdbee5743e42",
+    "updatedAt": "2026-01-29T18:13:05.665Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:07:36.428Z",
+    "id": "3edc245a-4684-4e45-8d75-3d40dae96fa5",
+    "serviceId": "fbb3e1fc-8edb-4904-8364-37a5a7fea0c1",
+    "updatedAt": "2026-01-29T18:07:36.428Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:53:03.644Z",
+    "id": "599582bc-ed1f-46bc-82a7-a10d81631503",
+    "serviceId": "3faa9280-ee6b-40cb-aabe-8eca449531d5",
+    "updatedAt": "2026-01-29T18:53:03.644Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:06:44.638Z",
+    "id": "5afb9864-6c69-4105-9106-65147703d15d",
+    "serviceId": "4936d672-f6b4-425b-83e2-0d6537e0fe84",
+    "updatedAt": "2026-01-29T18:06:44.638Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:47:49.959Z",
+    "id": "5b34c182-5e9f-4756-9759-2bdc80e8fb37",
+    "serviceId": "548cdc64-7995-4984-9d11-992e9101eaf5",
+    "updatedAt": "2026-01-29T18:47:49.959Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:29.109Z",
+    "id": "67015d48-7833-46cf-b491-2b0f9f86ca95",
+    "serviceId": "a23c8bbc-3d54-4e45-a517-c122eed11f4d",
+    "updatedAt": "2026-01-29T18:02:29.109Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:10:06.579Z",
+    "id": "671741d8-027a-4a28-a5e9-89a23bf0ca04",
+    "serviceId": "2a280bc2-06bc-4bcd-9792-66df3600fe59",
+    "updatedAt": "2026-01-29T18:10:06.579Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:22.596Z",
+    "id": "6f60d009-1bf6-416c-9dc6-1acd64263895",
+    "serviceId": "3c7a4bc6-3c3c-44a3-8749-bf757fa10f92",
+    "updatedAt": "2026-01-29T18:16:22.596Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:00:19.909Z",
+    "id": "71d37934-5f95-4497-b7c4-bb0b43c6d30c",
+    "serviceId": "6eb1c95d-7d3b-418b-a647-8958e4dcd8a4",
+    "updatedAt": "2026-01-29T18:00:19.909Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:47.966Z",
+    "id": "7a434a23-cfdd-4fdc-a756-3e94f86b05c6",
+    "serviceId": "e9d384be-de3e-4494-9ca8-9ab36709303d",
+    "updatedAt": "2026-01-29T18:16:47.966Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:00:49.670Z",
+    "id": "8303477d-1d52-4434-976d-7fd3bdcf6801",
+    "serviceId": "0b78b44d-51e0-43f0-863c-79d20dde94fc",
+    "updatedAt": "2026-01-29T18:00:49.670Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:51:11.025Z",
+    "id": "8c1ca2b0-2d07-4a34-b72b-c577b8be4d93",
+    "serviceId": "99d8ffd0-e7dd-47b0-9181-112d628f8a0b",
+    "updatedAt": "2026-01-29T18:51:11.025Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:50:44.753Z",
+    "id": "8e6ef058-4d9d-42be-9701-cd3d9032b65f",
+    "serviceId": "92cf09a5-857c-4be9-9a94-3a5d9387f4ac",
+    "updatedAt": "2026-01-29T18:50:44.753Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:48.619Z",
+    "id": "a791b648-61f6-4fb7-8129-7a6fc6a3653a",
+    "serviceId": "876d14c8-05cb-4fc6-adf1-323fe3e86a86",
+    "updatedAt": "2026-01-29T18:02:48.619Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:02:38.154Z",
+    "id": "ab46f79c-f5fd-4bf5-b24b-d857ba15dc31",
+    "serviceId": "734a2118-0f61-40ee-ba7b-6ff078cebd52",
+    "updatedAt": "2026-01-29T18:02:38.154Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:12:54.165Z",
+    "id": "afd98a06-9af5-4385-afab-bc2fdd68ada3",
+    "serviceId": "9d4553cd-ce33-441d-b999-ba10e8cd9460",
+    "updatedAt": "2026-01-29T18:12:54.165Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:53:27.628Z",
+    "id": "b41a755c-4121-4d32-960d-2c65e6e215b7",
+    "serviceId": "3b4e256b-b4a6-47b4-a853-fc6d0df8e69e",
+    "updatedAt": "2026-01-29T18:53:27.628Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:09:42.245Z",
+    "id": "ba34b90e-5234-43fe-a511-759d586f3b86",
+    "serviceId": "efdcef37-da01-4c49-99eb-de8a9c9d933d",
+    "updatedAt": "2026-01-29T18:09:42.245Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:00:02.654Z",
+    "id": "ca70490a-0dbd-46fe-8452-f594c8a1231e",
+    "serviceId": "608d46aa-03e7-465e-8035-9f5a15d0029f",
+    "updatedAt": "2026-01-29T18:00:02.654Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:16:37.429Z",
+    "id": "cad52a2d-1e37-4ea4-a4e2-65deeb055afc",
+    "serviceId": "2e5545ad-e162-4144-8a62-9ec6115f5a3d",
+    "updatedAt": "2026-01-29T18:16:37.429Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:04:57.176Z",
+    "id": "d0d2cb3c-3f74-48a6-a8cd-f5a8c0d90fa2",
+    "serviceId": "ea91b9cb-d4e9-4df6-84fd-2b396a967d51",
+    "updatedAt": "2026-01-29T18:04:57.176Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:32:53.538Z",
+    "id": "dbf7a536-b02f-431d-8242-c8a5499109bd",
+    "serviceId": "b1166338-3ae7-4cee-a58f-b89d34995d20",
+    "updatedAt": "2026-01-29T18:32:53.538Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:06:57.511Z",
+    "id": "e4fb6f86-b90a-45d4-aba3-fb50f322e6d4",
+    "serviceId": "0fb2911e-7a5a-4901-93c0-c7e4d071e4b1",
+    "updatedAt": "2026-01-29T18:06:57.511Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:10:16.734Z",
+    "id": "e561d96c-8ac7-4d61-a243-86b6cca5f244",
+    "serviceId": "9c8bfd54-5c67-4ffc-9aae-31c5a3eb8075",
+    "updatedAt": "2026-01-29T18:10:16.734Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:05:05.273Z",
+    "id": "e972bab5-2ada-4022-9c31-5fc81a66a8d0",
+    "serviceId": "12b5aa15-694e-4887-8e0b-def8307507d0",
+    "updatedAt": "2026-01-29T18:05:05.273Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:10:24.472Z",
+    "id": "ea2bd933-37ee-4814-9def-7c96c26ffa62",
+    "serviceId": "4d422642-7e8b-49a8-836c-a29056e71db1",
+    "updatedAt": "2026-01-29T18:10:24.472Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:00:28.958Z",
+    "id": "f5e0cd30-c9ab-4e08-80f9-b11655ee2656",
+    "serviceId": "238f0a6d-30c2-4ef4-b9c6-743002c5d59e",
+    "updatedAt": "2026-01-29T18:00:28.958Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:50:54.882Z",
+    "id": "f6ee1041-0340-4844-ab13-4c8670f1119b",
+    "serviceId": "d580d047-2488-468d-90bb-03b1b54cbf72",
+    "updatedAt": "2026-01-29T18:50:54.882Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:12:39.961Z",
+    "id": "f85c565e-525d-4fa6-93bb-94c3cd9093f4",
+    "serviceId": "d3a267c0-69b6-4008-b765-04010848039a",
+    "updatedAt": "2026-01-29T18:12:39.961Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:53:56.021Z",
+    "id": "febbd53b-336f-4e28-a90a-ddeabb87f719",
+    "serviceId": "20992a64-4c01-4050-ac74-918727ef8105",
+    "updatedAt": "2026-01-29T18:53:56.021Z",
+    "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+  }
+]

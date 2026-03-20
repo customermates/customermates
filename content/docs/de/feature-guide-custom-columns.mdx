@@ -1,0 +1,55 @@
+---
+title: Benutzerdefinierte Felder
+description: Verstehe, wie benutzerdefinierte Felder CRM-Entitäten für Filter, Gruppierung, Dashboards und Integrationen erweitern, ohne das Grundmodell zu verkomplizieren.
+---
+
+## Überblick
+
+Benutzerdefinierte Felder erweitern das Standardmodell des CRM um strukturierte Informationen, die für euren Prozess wichtig sind. Sie stehen bei **Kontakten**, **Organisationen**, **Deals**, **Services** und **Aufgaben** zur Verfügung. So lassen sich zusätzliche Daten direkt in den vorhandenen Produktflächen pflegen, statt eigene Seitensysteme oder Freitext-Workarounds aufzubauen.
+
+Weil diese Felder typisiert sind, speichern sie nicht nur zusätzliche Inhalte. Die Definition eines Feldes beeinflusst auch, wie Werte eingegeben werden, wie sie dargestellt werden, wo sie filterbar sind und ob sie in anderen Produktbereichen weiterverwendet werden können.
+
+## Unterstützte Feldtypen
+
+Customermates unterstützt folgende Feldarten:
+
+- **Freitext** für offene Texteingaben
+- **Datum** für reine Datumswerte
+- **Datum und Zeit** für Zeitstempel
+- **Währung** für Geldbeträge
+- **Link** für URLs
+- **E-Mail** für E-Mail-Adressen
+- **Telefon** für Telefonnummern
+- **Einzelauswahl** für vordefinierte Auswahllisten
+
+Einige Typen bringen zusätzliche Optionen mit. Datums- und Datumszeit-Felder können ein Anzeigeformat definieren. Währungsfelder speichern eine konfigurierte Währung. Link-, E-Mail- und Telefon-Felder können mehrere Werte und eine Chip-Darstellung erlauben. Single-Select-Felder definieren sortierte Optionen und Default-Werte.
+
+<DocsImage alt="Modal zum Erstellen eines benutzerdefinierten Feldes mit Feldtyp-Auswahl und Optionen" src="docs-custom-columns-create.png" />
+
+## Wo benutzerdefinierte Felder angelegt werden
+
+Benutzerdefinierte Felder werden direkt aus den Entitäts-Modals heraus angelegt. Praktisch bedeutet das: Nutzer öffnen ein Kontakt-, Organisations-, Deal-, Service- oder Aufgaben-Modal, wechseln in den Bearbeiten-Modus für benutzerdefinierte Felder und starten dort den Flow zum Hinzufügen eines neuen Feldes. Die Werte selbst werden anschließend im selben Entitäts-Modal gepflegt.
+
+Dadurch liegt die Schema-Erweiterung genau dort, wo sie im Alltag gebraucht wird. Benutzerdefinierte Felder fühlen sich damit wie ein Teil der normalen Bearbeitung an und nicht wie ein getrenntes Admin-Setup.
+
+<DocsImage alt="Entitäts-Modal im Bearbeiten-Modus für benutzerdefinierte Felder" src="docs-custom-columns-edit-modal.png" />
+
+## Wo Werte sichtbar werden
+
+Sobald ein Feld existiert, wird es Teil der jeweiligen Datensatz-Oberfläche. Benutzerdefinierte Felder können in Detailansichten, Listen- und Tabellenansichten sowie in gemeinsamen Darstellungs-Komponenten im Produkt auftauchen. Besonders sichtbar sind Single-Select-Werte, weil sie in manchen Listen auch als Chips dargestellt und dort direkt geändert werden können.
+
+Das ist für die Lesbarkeit wichtig. Ein gut benanntes Feld hilft nicht nur im Bearbeitungsformular, sondern auch dabei, Datensätze in Übersichten schnell zu erfassen und im Team konsistent zu verstehen.
+
+<DocsImage alt="Datensatzansicht oder Tabellenzeile mit befüllten benutzerdefinierten Feldern" src="docs-custom-columns-values.png" />
+
+## Filter, Gruppierung und nachgelagerte Nutzung
+
+Benutzerdefinierte Felder beeinflussen auch, wie Daten organisiert werden können. Die meisten Feldtypen stehen in Filtern und Datenansichten zur Verfügung und eignen sich damit für Segmentierung und operative Sichten.
+
+> Eine Ausnahme ist **Währung**: Der Wert wird normal gespeichert und angezeigt, steht aber aktuell nicht als filterbares benutzerdefiniertes Feld zur Verfügung.
+
+Single-Select-Felder sind besonders wichtig, weil sie auch für Gruppierungen wiederverwendet werden können. Sie können Kanban-Gruppierungen steuern und außerdem als Gruppierungsdimension für Dashboard-Widgets dienen.
+
+Benutzerdefinierte Felder wirken auch in Integrationen hinein. Ihre Werte sind Teil von Datensatz-Payloads, tauchen in Update-Events auf und stehen API-, MCP- und Automations-Flows zur Verfügung, die mit diesen Entitäten arbeiten. Für Reporting-Anwendungsfälle ergänzt du das mit [Dashboard & Widgets](/docs/feature-guide-dashboard-widgets). Für externe Workflows gehst du weiter zu [CRM-Integrationen](/docs/integrations-intro).
+
+<DocsImage alt="Filter-Modal oder gruppierte Ansicht mit Single-Select-Feld" src="docs-custom-columns-filter-grouping.png" />

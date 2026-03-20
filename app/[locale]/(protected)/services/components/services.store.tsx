@@ -1,0 +1,38 @@
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { RootStore } from "@/core/stores/root.store";
+import type { XTableColumn } from "@/core/base/base-data-view.store";
+import type { ServiceDto } from "@/features/services/service.schema";
+
+import { EntityType, Resource } from "@/generated/prisma";
+
+import { getServicesAction } from "../actions";
+
+import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+
+export class ServicesStore extends BaseDataViewStore<ServiceDto> {
+  constructor(public readonly rootStore: RootStore) {
+    super(rootStore, Resource.services, EntityType.service);
+  }
+
+  get canAccessDeals() {
+    return this.rootStore.userStore.canAccess(Resource.deals);
+  }
+
+  get columnsDefinition() {
+    const columns: (XTableColumn | false)[] = [
+      { uid: "name", sortable: true },
+      { uid: "amount", sortable: true },
+      this.canAccessDeals && { uid: "deals" },
+      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label })),
+      { uid: "users" },
+      { uid: "updatedAt", sortable: true },
+      { uid: "createdAt", sortable: true },
+    ];
+
+    return columns.filter((col): col is XTableColumn => Boolean(col));
+  }
+
+  protected async refreshAction(params?: GetQueryParams) {
+    return await getServicesAction(params);
+  }
+}

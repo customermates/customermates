@@ -1,0 +1,31 @@
+{
+  "buildCommand": "if [ \"$VERCEL_ENV\" == \"preview\" ]; then yarn vercel-preview-build; else yarn vercel-build; fi",
+  "crons": [
+    {
+      "path": "/api/cron/lifecycle",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "development": false,
+      "main": true,
+      "preview": true
+    }
+  },
+  "headers": [
+    {
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ],
+      "source": "/.well-known/microsoft-identity-association.json"
+    }
+  ]
+}

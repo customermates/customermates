@@ -1,0 +1,32 @@
+[
+  {
+    "accessToken": null,
+    "accessTokenExpiresAt": null,
+    "accountId": "1Cvl3toPmqqoqxng5EXpSOSPREAjGrUi",
+    "createdAt": "2026-01-29T19:15:54.965Z",
+    "id": "b0EJZq7ua0EF1qD8raTZjrw5fTmFF5FN",
+    "idToken": null,
+    "password": "d7f50a6de68fc45a93d372ea7f491ba8:5f8333342be1b33fc45ddb51add3822a27831631533d3bf4bc6d69ae9ed1e2e4c269761e31cb9624e33ee70492e232f7b28dd42b78e196f76a5130b0d2159ebc",
+    "providerId": "credential",
+    "refreshToken": null,
+    "refreshTokenExpiresAt": null,
+    "scope": null,
+    "updatedAt": "2026-01-29T19:15:54.965Z",
+    "userId": "1Cvl3toPmqqoqxng5EXpSOSPREAjGrUi"
+  },
+  {
+    "accessToken": null,
+    "accessTokenExpiresAt": null,
+    "accountId": "X1UwmzitymTjZYjwXMrSvaFkClaWDGen",
+    "createdAt": "2025-12-07T19:04:38.161Z",
+    "id": "JifMRlSbEs9xUZcbpJ0TeJENAlzzBReD",
+    "idToken": null,
+    "password": "71931c731f63a3ab585fa86501c8ef9c:4dcc2f86bd26ae911ca85dbf4e40f3868e1ac5d8ed46a89baaaf5b31792b54b1f8fdb1fe302cc21b8237a1f1bd752212762ff797697115ff9016fe3903d5955b",
+    "providerId": "credential",
+    "refreshToken": null,
+    "refreshTokenExpiresAt": null,
+    "scope": null,
+    "updatedAt": "2025-12-07T19:04:38.162Z",
+    "userId": "X1UwmzitymTjZYjwXMrSvaFkClaWDGen"
+  }
+]

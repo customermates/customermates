@@ -1,0 +1,66 @@
+---
+title: OpenClaw und andere KI-Agenten
+description: Verstehe, wie der Pro-Plan einen vorkonfigurierten sandboxed OpenClaw-Container mit nutzerbezogenem CRM-Zugriff und integrierten Container-Aktionen bereitstellt.
+---
+
+## OpenClaw im Pro-Plan
+
+Im Pro-Plan erwartet Customermates nicht, dass jedes Team eine komplette KI-Agent-Umgebung selbst zusammensetzt. Stattdessen stellt das Produkt pro Nutzer einen vorkonfigurierten, sandboxed OpenClaw-Container bereit, der bereits für CRM-orientierte Nutzung vorbereitet ist.
+
+Dadurch bekommst du eine Agent-Runtime, die nur noch mit deinen eigenen Provider-Zugangsdaten und deinen konkreten CRM-Workflows ergänzt werden muss, während die Ausführung weiterhin pro Nutzer isoliert bleibt und nicht als gemeinsamer Agent-Prozess für den ganzen Workspace läuft.
+
+## So funktioniert das Setup
+
+Der OpenClaw-Container wird von Customermates als gemanagte Runtime vorbereitet. Der Zugriff auf CRM-Daten bleibt dabei nutzerbezogen. Das heißt: Der Agent arbeitet mit den Rechten des jeweiligen Nutzers und nicht mit einem pauschalen workspaceweiten Zugriff.
+
+Praktisch sieht das Setup so aus:
+
+1. Der Nutzer ist im Pro-Plan.
+2. Customermates provisioniert einen sandboxed OpenClaw-Container für genau diesen Nutzer.
+3. Der Nutzer ergänzt eigene Provider-Zugangsdaten wie OpenAI- oder Anthropic-Keys.
+4. Der Agent arbeitet mit nutzerbezogenen Rechten gegen Customermates.
+
+> Das Entscheidende ist nicht nur "KI-Agent mit CRM verbunden", sondern "eine sandboxed Agent-Runtime pro Nutzer mit nutzerbezogenen Rechten". Genau das schafft stärkere Isolation, klarere Verantwortlichkeiten und eine sicherere Grundlage für Live-CRM-Arbeit.
+
+## Warum MCP trotzdem wichtig bleibt
+
+Auch wenn der OpenClaw-Container von Customermates vorkonfiguriert wird, bleibt der Integrationsansatz auf [Model Context Protocol (MCP)](/docs/mcp) aufgebaut. Dadurch kann der Agent CRM-Fähigkeiten tool-nativ entdecken, Aktionen ausführen und Validierungsprobleme sauber korrigieren, ohne gegen die gesamte rohe API-Oberfläche arbeiten zu müssen.
+
+Ergänzend nutzt du [OpenAPI 3.1.0](/docs/openapi) nur dann, wenn exakte Endpoint-Payloads, Schema-Details oder transportnahe technische Validierung relevant werden.
+
+## Verfügbare Container-Aktionen
+
+Sobald der Container bereitsteht, stellt Customermates drei praktische Aktionen für seine Verwaltung bereit:
+
+- **Open Control UI**, um die Agent-Control-Oberfläche in einem separaten Fenster zu öffnen
+- **Add Environment Variable**, um Laufzeitkonfiguration für den Container hinzuzufügen oder anzupassen
+- **Reset Agent**, um den Agenten vollständig zurückzusetzen, wenn du bewusst neu starten willst
+
+> Das Zurücksetzen ist destruktiv. Dabei werden Chatverlauf, Erinnerungen und gelernte Skills entfernt, sodass der Agent wieder vollständig frisch startet.
+
+## Was Nutzer typischerweise konfigurieren
+
+Nach der Provisionierung werden in der Regel zuerst Provider-Zugangsdaten wie OpenAI- oder Anthropic-Keys ergänzt. Danach kommen nur noch zusätzliche Umgebungsvariablen hinzu, wenn weitere Laufzeitkonfiguration für Prompts, Tools oder externe Services gebraucht wird.
+
+Das bedeutet: Nutzer beginnen nicht damit, die komplette Container-Architektur selbst aufzubauen. Die Kern-Runtime ist bereits vorhanden, und sie ergänzen hauptsächlich Zugangsdaten und umgebungsspezifische Konfiguration.
+
+## Skills und Orthogonal
+
+Sobald der Container bereitsteht, ist die [Skills](/docs/skills)-Seite meist der nächste praktische Schritt. Dort sehen Nutzer wiederverwendbare Fähigkeiten, die dem Agenten für konkretere Workflows hinzugefügt werden können.
+
+Ein Teil dieser Skills stammt von **Orthogonal**. In diesem Zusammenhang ist Orthogonal eine externe Skill-Quelle, die wiederverwendbare Agent-Fähigkeiten bereitstellt, die in die OpenClaw-Runtime installiert und anschließend mit Customermates-Workflows kombiniert werden können.
+
+> Die Skills-Seite wird noch weiter ausgebaut. Sie zeigt bereits die Richtung des Skill-Systems, aber weitere Skills, Beispiele und vorbereitete Workflows kommen noch dazu.
+
+## Sicherheit und Laufzeitgrenzen
+
+Das Grundprinzip bleibt über das gesamte Setup hinweg gleich: Der CRM-Zugriff bleibt nutzerbezogen und die OpenClaw-Runtime bleibt sandboxed. Genau diese Trennung ist wichtig, weil sie die Agent-Ausführung pro Nutzer isoliert hält und dem Agenten trotzdem Live-CRM-Kontext ermöglicht.
+
+Für das zugrunde liegende Sicherheits- und Laufzeitmodell gehst du weiter zu [Architektur & Sicherheit](/docs/architecture-security). Für eventgetriebene Folgeprozesse nach Agent-Aktionen kombinierst du das mit [Webhooks & Events](/docs/feature-guide-webhooks-events).
+
+## OpenClaw-Setup im Produkt
+
+<DocsImage
+  alt="OpenClaw-Setup mit provisioniertem Agent-Container und den verfügbaren Aktionen Open Control UI, Add Environment Variable und Reset Agent"
+  src="docs-openclaw-agent-setup.png"
+/>

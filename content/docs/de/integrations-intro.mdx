@@ -1,0 +1,28 @@
+---
+title: CRM-Integrationen
+description: Verbinde Customermates mit APIs, MCP-Clients, n8n-Workflows und KI-Agenten in deinem CRM-Stack, egal ob Cloud oder self-hosted Deployment.
+---
+
+## Warum CRM-Integrationen wichtig sind
+
+Integrationen helfen dir, Customermates als verlässliche Datenbasis zu behalten und gleichzeitig mit den bereits etablierten Tools in deinem Team zu arbeiten.  
+Statt Daten manuell zwischen Systemen zu übertragen, verbindest du API-Clients, Automationsflows und Agent-Tools rund um ein konsistentes CRM-Modell. Diese Seite ist der Einstiegspunkt, wenn du den passenden Integrationsweg zwischen direktem API-Zugriff, MCP für KI-Agenten oder deterministischer Workflow-Automation mit n8n auswählen möchtest.
+Wenn du gleichzeitig Deployment-Modelle bewertest, gehe auch zu [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud) und [Self-Hosting Get Started](/docs/self-hosting).
+
+## So wählst du den richtigen Integrationsweg
+
+- Nutze [OpenAPI 3.1.0](/docs/openapi), wenn du endpointgenaue API-Dokumentation und direkte HTTP-Integrationen brauchst.
+- Nutze [MCP](/docs/mcp), wenn du Tool-Interoperabilität für KI-Agenten und strukturiertes Tool Calling aufbauen möchtest.
+- Nutze [n8n](/docs/n8n), wenn du Low-Code-Workflows über mehrere Systeme orchestrieren willst.
+- Nutze [Skills](/docs/skills), wenn du wiederverwendbare Agent-Fähigkeiten und stabile Ausführungsbausteine brauchst.
+
+## API-Zugriff und Zugangsdaten
+
+Für die API-Nutzung erstellst du deinen Schlüssel in den [Kontoeinstellungen](/docs/account-settings) und sendest ihn bei jeder Anfrage im Header `x-api-key`.  
+Die vollständige maschinenlesbare Spezifikation findest du unter [OpenAPI JSON](https://customermates.com/v1/openapi.json).
+
+Wenn du Richtung produktiven Einsatz gehst, richte dich zusätzlich nach [Webhooks & Events](/docs/feature-guide-webhooks-events), prüfe Payload-Annahmen vor aktivierten Schreiboperationen und ziehe [Architektur & Sicherheit](/docs/architecture-security) hinzu, wenn Sicherheit und Laufzeitisolierung Teil der Bewertung sind.
+
+> Starte zuerst mit einem reinen Read-Only-Flow, um Feldzuordnungen und Payload-Struktur sicher zu validieren.  
+> Danach ergänzt du kontrollierte Create- und Update-Abläufe mit Retries und idempotentem Verhalten.  
+> Im letzten Schritt aktivierst du webhookbasierte Automationen und beobachtest Fehlerquote, Latenz und Zustellung, bevor du geschäftskritische Prozesse breit ausrollst.

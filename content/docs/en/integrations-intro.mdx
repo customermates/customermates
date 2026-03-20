@@ -1,0 +1,27 @@
+---
+title: CRM Integrations
+description: Connect Customermates to APIs, MCP clients, n8n workflows, and AI agents across your CRM stack, whether you run cloud or self-hosted deployments.
+---
+
+## Why CRM integrations matter
+
+Integrations let you keep Customermates as your system of record while still working with the tools your team already uses.  
+Instead of copying data manually between systems, you can connect API clients, automation flows, and agent tooling around one consistent CRM model. This page is the hub for choosing the right integration path, whether you need direct API access, AI-agent tooling through MCP, or deterministic workflow automation with n8n.
+If you are evaluating deployment models at the same time, see [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud) and [Self-Hosting Get Started](/docs/self-hosting).
+
+## Choose the right integration path
+
+- Use [OpenAPI 3.1.0](/docs/openapi) when you need endpoint-level API documentation and direct HTTP integrations.
+- Use [MCP](/docs/mcp) when you want tool interoperability for agents and structured tool calling.
+- Use [n8n](/docs/n8n) when you want low-code workflow orchestration across systems.
+- Use [Skills](/docs/skills) when you want reusable agent capabilities and repeatable execution patterns.
+
+## API access and credentials
+
+For API usage, create your key in [Account Settings](/docs/account-settings) and include it via the `x-api-key` header.  
+You can inspect the full machine-readable spec at [OpenAPI JSON](https://customermates.com/v1/openapi.json).
+
+If you are planning production usage, align your implementation with [Webhooks & Events](/docs/feature-guide-webhooks-events), validate payload assumptions before enabling write flows, and review [Architecture & Security](/docs/architecture-security) when security and runtime isolation are part of the evaluation.
+
+> Start with one read-only flow to verify field mappings and payload shape, then move to controlled create and update operations with retries and idempotent handling.  
+> After that, activate webhook-driven automations and monitor errors, latency, and delivery behavior before scaling to more business-critical processes.

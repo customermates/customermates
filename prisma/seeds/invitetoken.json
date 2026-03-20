@@ -1,0 +1,20 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T19:15:08.054Z",
+    "createdById": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "expiresAt": "2026-02-05T19:15:08.052Z",
+    "id": "22394e80-8cc0-4566-bbc6-528046303ec2",
+    "token": "2uiglw0LqNoDY_F8FQUlco6e8fzyQnQb",
+    "updatedAt": "2026-01-29T19:15:08.054Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-05-20T14:29:54.211Z",
+    "createdById": "ea120bc5-0849-4fab-9491-1a351b65051b",
+    "expiresAt": "2025-05-27T14:29:54.210Z",
+    "id": "dc4e524d-f235-48bf-b0ab-f5b23ff17c45",
+    "token": "se7x_rROjeqFyGwMUVAUXytLrGoaHBMQ",
+    "updatedAt": "2025-05-20T14:29:54.211Z"
+  }
+]

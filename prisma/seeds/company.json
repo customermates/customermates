@@ -1,0 +1,17 @@
+[
+  {
+    "city": "Frankfurt am Main",
+    "country": "de",
+    "createdAt": "2025-05-20T13:51:09.646Z",
+    "currency": "eur",
+    "email": null,
+    "id": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "name": "Customermates GmbH",
+    "phone": null,
+    "postalCode": "60313",
+    "street": "Hans-Bunte-Straße 12",
+    "updatedAt": "2025-05-20T14:28:51.643Z",
+    "vatNumber": null,
+    "website": null
+  }
+]

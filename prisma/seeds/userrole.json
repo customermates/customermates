@@ -1,0 +1,11 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-05-20T13:51:09.646Z",
+    "description": "Full access to all features and settings",
+    "id": "b8e5f3a2-1234-5678-9abc-111111111111",
+    "isSystemRole": true,
+    "name": "Admin",
+    "updatedAt": "2025-05-20T14:28:51.643Z"
+  }
+]

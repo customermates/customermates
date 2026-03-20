@@ -1,0 +1,62 @@
+---
+title: Webhooks & Events
+description: Understand how Customermates emits CRM events, signs webhook deliveries, and supports webhook-driven automation flows.
+---
+
+## Overview
+
+Webhooks are the event-delivery layer for Customermates. They let external systems react when records change inside the CRM, which makes them useful for synchronizations, notifications, audit pipelines, and downstream automation.
+
+Webhook delivery focuses on lifecycle changes of the main CRM entities. The product exposes webhook subscriptions in the company area and records delivery attempts so teams can see what was sent and what happened afterwards. This is the core page for webhook setup, delivery semantics, and how to build reliable event-driven CRM integrations.
+
+## Available events
+
+Customermates currently provides exactly fifteen webhook events:
+
+- `contact.created`, `contact.updated`, `contact.deleted`
+- `organization.created`, `organization.updated`, `organization.deleted`
+- `deal.created`, `deal.updated`, `deal.deleted`
+- `service.created`, `service.updated`, `service.deleted`
+- `task.created`, `task.updated`, `task.deleted`
+
+That means webhooks are centered on the five main CRM entities and their lifecycle changes. Internally, the platform has more domain events than that, but the webhook layer currently delivers the fifteen entity events listed above.
+
+<DocsImage alt="Company webhooks overview with subscriptions and recent deliveries" src="docs-webhooks-overview.png" />
+
+## Where webhooks are configured
+
+Webhook configuration lives in the [Company Settings](/docs/company-settings) area. A webhook subscription lets users define:
+
+- the destination URL
+- an optional description
+- one or more subscribed events
+- an optional secret
+- whether the webhook is enabled
+
+The same settings area also includes recent deliveries, which makes the feature usable not only for setup but also for debugging and operations.
+
+<DocsImage alt="Webhook modal with URL, event selection, secret, and enabled state" src="docs-webhooks-modal.png" />
+
+## Delivery format and security
+
+When a subscribed event is triggered, Customermates sends a `POST` request with a JSON body in the shape `{ event, data, timestamp }`. If a secret is configured, the request also includes an `X-Webhook-Signature` header. That signature is generated as an HMAC-SHA256 hash of the raw JSON payload.
+
+This gives receivers two stable anchors: the event name for routing logic and the signature header for authenticity checks.
+
+<DocsImage alt="Delivery detail view with request body and delivery metadata" src="docs-webhooks-delivery-detail.png" />
+
+## Delivery behavior
+
+Webhook delivery is handled asynchronously relative to the main user action. In practical terms, a failed webhook does not block the original CRM update. Each attempt is recorded with a success state, status code, response message, event name, URL, and request body, so the delivery history can be reviewed afterwards.
+
+Two operational details are especially important:
+
+- non-2xx responses are stored as failed deliveries
+- a manual resend action exists from the delivery history
+
+> Customermates does **not** currently provide an automatic retry mechanism or an idempotency key/header for webhook deliveries. Because manual resend is available and downstream systems may replay work on their own, receiving endpoints should still be written in an idempotent way.
+
+## Processing events in external systems
+
+On the receiving side, most teams will route webhook payloads into a workflow tool, backend service, queue, or internal integration layer. The event name can decide which handler should run, while the `data` payload provides the record snapshot or change context needed for the next step. For deterministic orchestration, combine this page with [n8n integration for agentic CRM workflows](/docs/n8n). For the broader integration strategy, continue with [CRM Integrations](/docs/integrations-intro).
+

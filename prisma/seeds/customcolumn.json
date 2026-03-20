@@ -1,0 +1,287 @@
+[
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:42:03.122Z",
+    "entityType": "service",
+    "id": "05899962-9370-4976-97b2-42b67337ea83",
+    "label": "Service / Hardware",
+    "options": {
+      "options": [
+        {
+          "color": "default",
+          "index": 0,
+          "isDefault": false,
+          "label": "Service",
+          "value": "2d1ab50d-a025-483a-aed5-718ba9d56479"
+        },
+        {
+          "color": "default",
+          "index": 1,
+          "isDefault": true,
+          "label": "Hardware",
+          "value": "0e05a4fe-7d04-4020-96b9-b1ed3664e7fa"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2026-01-29T19:11:43.151Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T18:44:53.271Z",
+    "entityType": "organization",
+    "id": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+    "label": "Website",
+    "options": {},
+    "type": "link",
+    "updatedAt": "2025-08-10T18:44:53.271Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:12:14.142Z",
+    "entityType": "organization",
+    "id": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+    "label": "Type",
+    "options": {
+      "options": [
+        {
+          "color": "primary",
+          "isDefault": false,
+          "label": "Direct customer",
+          "value": "e4d0e816-10d3-4ef9-a0d0-edd40dc29497"
+        },
+        {
+          "color": "secondary",
+          "isDefault": false,
+          "label": "Affiliated company",
+          "value": "25d7e436-03fc-4eaf-8bdc-60fb32d0b8e0"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2025-12-07T20:45:20.362Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-10T20:33:26.971Z",
+    "entityType": "contact",
+    "id": "4c6ab6a0-b232-4386-8201-3176757e5281",
+    "label": "Sales Pipeline",
+    "options": {
+      "options": [
+        {
+          "color": "default",
+          "index": 0,
+          "isDefault": true,
+          "label": "New",
+          "value": "54cab74f-4bf9-4ad5-8bb1-eca862f4ad3a"
+        },
+        {
+          "color": "primary",
+          "index": 1,
+          "isDefault": false,
+          "label": "Contact",
+          "value": "24a105aa-5a81-4b58-9dc0-18ea4ac5b4df"
+        },
+        {
+          "color": "secondary",
+          "index": 2,
+          "isDefault": false,
+          "label": "Qualified",
+          "value": "41745925-d2a9-4ca0-97cb-245598f5489f"
+        },
+        {
+          "color": "warning",
+          "index": 3,
+          "isDefault": false,
+          "label": "In Progress",
+          "value": "b6ec8c6c-6007-401d-82c5-3cf59f9cfdf5"
+        },
+        {
+          "color": "success",
+          "index": 4,
+          "isDefault": false,
+          "label": "Won",
+          "value": "ae85edc9-6ade-4955-af37-1b370fb169e5"
+        },
+        {
+          "color": "danger",
+          "index": 5,
+          "isDefault": false,
+          "label": "Lost",
+          "value": "cdf4bf06-f465-4a6f-bb57-77a9851a7e14"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2026-01-29T18:37:26.928Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:24:37.924Z",
+    "entityType": "contact",
+    "id": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+    "label": "Phones",
+    "options": {
+      "allowMultiple": true,
+      "color": "default"
+    },
+    "type": "phone",
+    "updatedAt": "2025-12-11T07:24:48.534Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-29T18:18:49.438Z",
+    "entityType": "service",
+    "id": "90d05d1c-a258-40b0-a330-41b69fc081b3",
+    "label": "Pricing model",
+    "options": {
+      "options": [
+        {
+          "color": "primary",
+          "index": 0,
+          "isDefault": true,
+          "label": "Fixed",
+          "value": "535a5b06-2224-4df8-860c-365e77ca2ac7"
+        },
+        {
+          "color": "secondary",
+          "index": 1,
+          "isDefault": false,
+          "label": "Monthly",
+          "value": "2a7c6665-2486-43db-97d2-ac0536a3e410"
+        },
+        {
+          "color": "success",
+          "index": 2,
+          "isDefault": false,
+          "label": "Daily",
+          "value": "76b50c20-04f9-4ea2-9ac1-b968d182d8db"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2026-01-29T18:18:49.438Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-11T07:58:39.933Z",
+    "entityType": "deal",
+    "id": "c016d831-4411-45b3-bf58-e9fb58a9ed05",
+    "label": "Start Date",
+    "options": {
+      "displayFormat": "numericalShort"
+    },
+    "type": "date",
+    "updatedAt": "2025-08-11T07:58:39.933Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-12-18T08:44:26.393Z",
+    "entityType": "task",
+    "id": "c1c6bbc7-3bca-42a4-8d49-507d73554434",
+    "label": "State",
+    "options": {
+      "options": [
+        {
+          "color": "default",
+          "isDefault": true,
+          "label": "Todo",
+          "value": "88cac093-c4b2-4575-b5d1-1824597784ed"
+        },
+        {
+          "color": "primary",
+          "isDefault": false,
+          "label": "In Progress",
+          "value": "2d4e3a3e-6394-4bc8-bc40-fe420da3c1a8"
+        },
+        {
+          "color": "warning",
+          "isDefault": false,
+          "label": "Blocked",
+          "value": "48346b09-635d-4b2d-8bc4-29b046e3ecb9"
+        },
+        {
+          "color": "success",
+          "isDefault": false,
+          "label": "Done",
+          "value": "bffc054a-7037-4f2c-8a95-e953953c5b10"
+        },
+        {
+          "color": "danger",
+          "isDefault": false,
+          "label": "Canceled",
+          "value": "924857b9-e1b9-4ab5-9d47-d5f8b4fbda14"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2025-12-18T08:44:26.393Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2026-01-30T14:15:35.479Z",
+    "entityType": "deal",
+    "id": "d316aec1-1f10-49f7-9127-d6f94b032c99",
+    "label": "Status",
+    "options": {
+      "options": [
+        {
+          "color": "warning",
+          "index": 1,
+          "isDefault": true,
+          "label": "Open",
+          "value": "35d538d3-8726-4957-b7b5-7a17959c99d5"
+        },
+        {
+          "color": "success",
+          "index": 1,
+          "isDefault": false,
+          "label": "Won",
+          "value": "fa4d3bad-dd1b-481c-9ce9-b487bb3411c9"
+        },
+        {
+          "color": "danger",
+          "index": 2,
+          "isDefault": false,
+          "label": "Lost",
+          "value": "3bbe664e-cc45-4ce0-ba7a-3dcd03a40685"
+        },
+        {
+          "color": "default",
+          "index": 3,
+          "isDefault": false,
+          "label": "Abandoned",
+          "value": "5e455e56-4da6-4b06-ae9f-cc7a09c27083"
+        }
+      ]
+    },
+    "type": "singleSelect",
+    "updatedAt": "2026-01-30T14:15:35.479Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-10T19:24:37.924Z",
+    "entityType": "contact",
+    "id": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+    "label": "Emails",
+    "options": {
+      "allowMultiple": true,
+      "color": "default"
+    },
+    "type": "email",
+    "updatedAt": "2026-01-29T19:00:06.492Z"
+  },
+  {
+    "companyId": "19389c8e-db5d-4c6e-bf45-7cd04a8e8842",
+    "createdAt": "2025-08-11T07:58:39.933Z",
+    "entityType": "deal",
+    "id": "fd4d90a5-a149-4f33-b645-d29f9ff5dc55",
+    "label": "End Date",
+    "options": {
+      "displayFormat": "numericalShort"
+    },
+    "type": "date",
+    "updatedAt": "2025-08-11T07:58:39.933Z"
+  }
+]
