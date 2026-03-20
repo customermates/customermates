@@ -27,7 +27,8 @@ type Identifiable =
       value: string;
     };
 
-export interface XAutocompleteProps<T extends Identifiable> extends AutocompleteProps<T> {
+export interface XAutocompleteProps<T extends Identifiable>
+  extends Omit<AutocompleteProps<T>, "selectionMode" | "value"> {
   id: string;
   value?: string | string[];
   selectionMode?: "single" | "multiple";
@@ -44,6 +45,7 @@ export const XAutocomplete = observer(
   <T extends Identifiable>({
     id,
     label,
+    value: controlledValue,
     selectionMode = "single",
     items,
     getItems,
@@ -60,7 +62,7 @@ export const XAutocomplete = observer(
 
     const store = useXForm();
     const errorMessage = store?.getError(id);
-    const value = props.value ?? (store?.getValue(id) as string | string[] | undefined);
+    const value = controlledValue ?? (store?.getValue(id) as string | string[] | undefined);
     const selectedKeys = value === undefined ? [] : Array.isArray(value) ? value : [value];
 
     const {

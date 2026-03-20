@@ -58,10 +58,7 @@ export const markdownBaseComponents: Pick<
   ),
   blockquote: ({ className, children }) => (
     <XAlert
-      className={cn(
-        "text-primary-900 dark:text-primary-800 [&_li]:text-primary-900! dark:[&_li]:text-primary-800! [&_p]:text-primary-900! dark:[&_p]:text-primary-800!",
-        className,
-      )}
+      className={cn("text-primary-600 [&_li]:text-primary-600! [&_p]:text-primary-600!", className)}
       color="primary"
     >
       {children}

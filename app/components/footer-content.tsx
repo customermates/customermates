@@ -69,7 +69,7 @@ export function FooterContent({ competitors = [] }: FooterProps) {
               <a
                 aria-label="GitHub"
                 className="text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
-                href="https://github.com/customermates"
+                href="https://github.com/customermates/customermates"
                 rel="noopener noreferrer"
                 target="_blank"
               >

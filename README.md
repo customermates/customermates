@@ -19,7 +19,7 @@ Customermates is a CRM for modern teams that want a clear system for contacts, o
 
 You can use the managed cloud version or run Customermates yourself in your own infrastructure with Docker Compose.
 
-## Getting Started
+## 🚀 Getting Started
 
 There are two ways to start using Customermates:
 
@@ -36,7 +36,7 @@ Docs entry points:
 - [Managing Your Self-Hosted Installation](https://customermates.com/docs/managing-your-installation)
 - [CRM Integrations](https://customermates.com/docs/integrations-intro)
 
-## Key Features
+## ⭐ Key Features
 
 - CRM for contacts, organizations, deals, services, and tasks
 - API access with OpenAPI documentation
@@ -49,11 +49,17 @@ Docs entry points:
 - Self-hosted deployment with Docker Compose and PostgreSQL
 - Cloud pricing from **€10**
 
-## Feature Preview
+## 🖼️ Feature Preview
 
 ### Dashboard & Widgets
 
 <img src="public/images/light/docs-dashboard-overview.png" alt="Customermates dashboard with multiple CRM widgets" width="1200" />
+
+### Kanban View & Table View
+
+<img src="public/images/light/docs-entities-list-relationships.png" alt="List or card view with related-record chips and assignee avatars" width="1200" />
+
+<img src="public/images/light/docs-custom-columns-values.png" alt="Live record view or table row with populated custom columns" width="1200" />
 
 ### Custom Columns
 
@@ -61,7 +67,9 @@ Docs entry points:
 
 ### Webhooks & Events
 
-<img src="public/images/light/docs-webhooks-overview.png" alt="Customermates webhooks overview with subscriptions and deliveries" width="1200" />
+<img src="public/images/light/docs-webhooks-modal.png" alt="Webhook modal with URL, event selection, secret, and enabled state" width="1200" />
+
+<img src="public/images/light/docs-webhooks-delivery-detail.png" alt="Delivery detail view with request body and delivery metadata" width="1200" />
 
 ### OpenClaw & AI Agents
 
@@ -74,7 +82,7 @@ See the related docs:
 - [Webhooks & Events](https://customermates.com/docs/feature-guide-webhooks-events)
 - [OpenClaw & AI Agents](https://customermates.com/docs/openclaw-and-ai-agents)
 
-## Comparison
+## 📊 Comparison
 
 Customermates supports both cloud and self-hosted deployment models.
 
@@ -95,7 +103,7 @@ Customermates supports both cloud and self-hosted deployment models.
 
 If you want the full decision guide, see [Self-Hosted CRM vs Cloud CRM](https://customermates.com/docs/self-host-vs-cloud).
 
-## Self-Hosting
+## 🐳 Self-Hosting
 
 Customermates can be deployed on your own infrastructure with Docker Compose.
 
@@ -128,7 +136,7 @@ More docs:
 - [Self-Hosting Get Started](https://customermates.com/docs/self-hosting)
 - [Managing Your Self-Hosted Installation](https://customermates.com/docs/managing-your-installation)
 
-## Development
+## 🛠️ Development
 
 Run Customermates locally:
 
@@ -146,7 +154,7 @@ Useful scripts:
 - `yarn db:reset`
 - `yarn db:reseed`
 
-## Documentation
+## 📚 Documentation
 
 The docs cover:
 
@@ -158,7 +166,7 @@ The docs cover:
 
 Start here: [customermates.com/docs](https://customermates.com/docs)
 
-## License
+## 📄 License
 
 Customermates uses an open-core licensing model.
 

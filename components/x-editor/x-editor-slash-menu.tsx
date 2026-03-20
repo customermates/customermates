@@ -154,7 +154,7 @@ export function XEditorSlashMenu({
         {slashCommands.map((command, index) => (
           <Button
             key={command.title}
-            ref={(el) => {
+            ref={(el: HTMLButtonElement | null) => {
               commandButtonRefs.current[index] = el;
             }}
             className="w-full justify-start"

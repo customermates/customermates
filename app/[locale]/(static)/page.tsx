@@ -42,9 +42,7 @@ export default async function HomePage() {
       <HomepageBenefits benefitsSection={benefits} />
 
       <div className="max-w-5xl mx-auto px-4">
-        <XAlert color="primary" variant="faded">
-          {automationExplanation}
-        </XAlert>
+        <XAlert color="primary">{automationExplanation}</XAlert>
       </div>
 
       <XFeatureSection {...features} />

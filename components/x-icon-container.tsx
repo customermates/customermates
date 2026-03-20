@@ -23,7 +23,7 @@ export function XIconContainer({ icon, iconClassName, iconSize = "md", className
     <div
       className={cn(
         sizeClasses[size],
-        "rounded-xl bg-linear-to-br from-primary-500/30 to-primary-600/20 dark:from-primary-500/20 dark:to-primary-600/10 border border-primary-500/40 dark:border-primary-500/30 shadow-md shadow-primary-500/20 dark:shadow-primary-500/10 flex items-center justify-center",
+        "rounded-md bg-linear-to-br from-primary-500/30 to-primary-600/20 dark:from-primary-500/20 dark:to-primary-600/10 border border-primary-500/40 dark:border-primary-500/30 shadow-md shadow-primary-500/20 dark:shadow-primary-500/10 flex items-center justify-center",
         className,
       )}
     >
