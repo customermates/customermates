@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
 import { ExtendedWidget } from "./widget.types";

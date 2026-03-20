@@ -3,7 +3,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { DealDto } from "@/features/deals/deal.schema";
 
 import { action, makeObservable } from "mobx";
-
 import { Resource } from "@/generated/prisma";
 
 import { deleteDealAction, getDealByIdAction, createDealAction, updateDealAction } from "../actions";

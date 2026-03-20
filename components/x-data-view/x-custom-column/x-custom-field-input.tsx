@@ -6,7 +6,6 @@ import { Button } from "@heroui/button";
 import { observer } from "mobx-react-lite";
 import { z } from "zod";
 import { cn } from "@heroui/theme";
-
 import { CustomColumnType } from "@/generated/prisma";
 
 import { XFavicon } from "../../x-favicon";

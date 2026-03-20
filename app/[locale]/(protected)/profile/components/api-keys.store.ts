@@ -4,7 +4,6 @@ import type { XTableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import { action, makeObservable } from "mobx";
-
 import { Resource } from "@/generated/prisma";
 
 import { deleteApiKeyAction, refreshApiKeysAction } from "../actions";

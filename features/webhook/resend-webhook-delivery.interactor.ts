@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { Resource, Action, Webhook } from "@/generated/prisma";
 
 import { WebhookService } from "./webhook.service";

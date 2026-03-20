@@ -3,7 +3,6 @@ import type { TaskDto } from "@/features/tasks/task.schema";
 import type { CreateTaskData } from "@/features/tasks/upsert/create-task.interactor";
 
 import { computed, makeObservable } from "mobx";
-
 import { Resource, TaskType } from "@/generated/prisma";
 
 import { deleteTaskAction, getTaskByIdAction, createTaskAction, updateTaskAction } from "../actions";

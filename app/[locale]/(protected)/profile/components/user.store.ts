@@ -5,7 +5,6 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { makeObservable } from "mobx";
 import { action, observable } from "mobx";
-
 import { Action, CountryCode, Resource } from "@/generated/prisma";
 
 export class UserStore {

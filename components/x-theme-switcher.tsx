@@ -5,7 +5,6 @@ import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { Tab, Tabs } from "@heroui/tabs";
 import { ComputerDesktopIcon, MoonIcon, SunIcon } from "@heroicons/react/24/outline";
-
 import { Theme } from "@/generated/prisma";
 
 import { XIcon } from "./x-icon";

@@ -5,7 +5,6 @@ import type { ChartDataPoint } from "./chart.types";
 import { useMemo, useRef, useEffect, useState } from "react";
 import { Label, Pie, PieChart, ResponsiveContainer, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-
 import { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";

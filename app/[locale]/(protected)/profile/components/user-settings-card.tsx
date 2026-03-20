@@ -3,7 +3,6 @@
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-
 import { Locale, Theme } from "@/generated/prisma";
 
 import { XCard } from "@/components/x-card/x-card";

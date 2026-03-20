@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { type OrganizationDto } from "../organization.schema";

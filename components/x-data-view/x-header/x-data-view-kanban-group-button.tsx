@@ -9,7 +9,6 @@ import { Select } from "@heroui/select";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useState, useRef } from "react";
-
 import { CustomColumnType } from "@/generated/prisma";
 
 import { XIcon } from "../../x-icon";

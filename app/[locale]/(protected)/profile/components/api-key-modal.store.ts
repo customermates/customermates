@@ -3,7 +3,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { CreateApiKeyData } from "@/features/api-key/create-api-key.interactor";
 
 import { action, makeObservable, observable, runInAction, toJS } from "mobx";
-
 import { Resource } from "@/generated/prisma";
 
 import { createApiKeyAction } from "../actions";

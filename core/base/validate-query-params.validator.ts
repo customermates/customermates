@@ -1,8 +1,8 @@
 import type { Filter, FilterableField, SortDescriptor } from "./base-get.schema";
 
 import { z } from "zod";
-
 import { CustomColumnType } from "@/generated/prisma";
+
 import type { EntityType } from "@/generated/prisma";
 
 import { SortableField } from "./base-query-builder";

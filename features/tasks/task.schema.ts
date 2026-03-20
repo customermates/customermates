@@ -1,7 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-
 import { TaskType } from "@/generated/prisma";
 
 import { CustomFieldValueSchema, UserReferenceSchema, NotesSchema } from "@/core/base/base-entity.schema";

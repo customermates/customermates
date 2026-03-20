@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { CountryCode } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";

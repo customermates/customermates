@@ -22,8 +22,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-
 import { CustomColumnType } from "@/generated/prisma";
+
 import type { EntityType } from "@/generated/prisma";
 
 import { AssigneeGuardModal } from "@/app/components/assignee-guard-modal";

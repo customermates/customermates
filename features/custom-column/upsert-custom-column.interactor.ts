@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/generated/prisma";
 
 import { CustomColumnDto } from "./custom-column.schema";

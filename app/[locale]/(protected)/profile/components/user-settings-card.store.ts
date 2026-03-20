@@ -3,7 +3,6 @@ import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, toJS } from "mobx";
-
 import { Locale, Theme } from "@/generated/prisma";
 
 import { updateSettingsAction } from "../actions";

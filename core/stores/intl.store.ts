@@ -5,7 +5,6 @@ import { makeAutoObservable } from "mobx";
 import { format, register } from "timeago.js";
 import de from "timeago.js/lib/lang/de";
 import en from "timeago.js/lib/lang/en_US";
-
 import { Currency, Locale } from "@/generated/prisma";
 
 register("de", de);

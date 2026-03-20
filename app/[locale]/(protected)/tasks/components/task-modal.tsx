@@ -2,7 +2,6 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-
 import { Resource, EntityType } from "@/generated/prisma";
 
 import { getUsersAction } from "../../company/actions";

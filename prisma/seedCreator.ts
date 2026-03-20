@@ -3,7 +3,6 @@ import "dotenv/config";
 import { writeFileSync, mkdirSync } from "fs";
 
 import { PrismaPg } from "@prisma/adapter-pg";
-
 import { PrismaClient, Prisma } from "@/generated/prisma";
 
 const adapter = new PrismaPg({

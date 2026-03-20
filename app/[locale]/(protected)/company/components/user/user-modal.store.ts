@@ -4,7 +4,6 @@ import type { UserDto } from "@/features/user/user.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
-
 import { CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from "../../actions";

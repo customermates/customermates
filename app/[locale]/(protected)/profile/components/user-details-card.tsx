@@ -5,7 +5,6 @@ import type { UserDetails } from "@/features/user/get/get-user-details.interacto
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
-
 import { Status } from "@/generated/prisma";
 
 import { UserDetailsAvatar } from "./user-details-avatar";

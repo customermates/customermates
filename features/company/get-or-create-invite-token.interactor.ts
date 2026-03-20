@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-
 import { InviteToken, Resource, Action } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";

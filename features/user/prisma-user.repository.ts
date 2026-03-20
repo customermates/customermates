@@ -3,7 +3,6 @@ import type { RepoArgs } from "@/core/utils/types";
 import { randomUUID } from "crypto";
 
 import { getTranslations } from "next-intl/server";
-
 import { CustomColumnType, EntityType, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { FindUserRepo } from "./user.service";

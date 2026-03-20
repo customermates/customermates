@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-
 import { Company, Resource, Action } from "@/generated/prisma";
 
 import { SubscriptionService } from "./subscription.service";

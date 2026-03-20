@@ -7,7 +7,6 @@ import {
   listSubscriptionItems,
   updateSubscriptionItem,
 } from "@lemonsqueezy/lemonsqueezy.js";
-
 import { CountryCode, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { TenantAgnostic } from "@/core/decorators/tenant-agnostic.decorator";

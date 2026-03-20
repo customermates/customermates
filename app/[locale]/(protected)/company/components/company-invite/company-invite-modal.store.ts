@@ -1,7 +1,6 @@
 import type { RootStore } from "@/core/stores/root.store";
 
 import { makeObservable, action } from "mobx";
-
 import { Resource } from "@/generated/prisma";
 
 import { getOrCreateInviteTokenAction } from "../../actions";

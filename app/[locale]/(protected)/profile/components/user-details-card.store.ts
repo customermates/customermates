@@ -3,7 +3,6 @@ import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-d
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, toJS } from "mobx";
-
 import { CountryCode } from "@/generated/prisma";
 
 import { updateUserAction } from "../actions";

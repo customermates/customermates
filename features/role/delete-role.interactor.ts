@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { Resource, Action } from "@/generated/prisma";
 
 import { UserRoleDto } from "./get-roles.interactor";

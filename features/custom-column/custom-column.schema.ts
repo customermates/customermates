@@ -1,7 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-
 import { CustomColumnType, EntityType, Currency } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";

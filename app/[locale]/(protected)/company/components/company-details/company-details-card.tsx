@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-
 import { CountryCode } from "@/generated/prisma";
+
 import type { Company } from "@/generated/prisma";
 
 import { XInput } from "@/components/x-inputs/x-input";

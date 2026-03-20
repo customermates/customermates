@@ -1,7 +1,6 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
-
 import { EntityType } from "@/generated/prisma";
 import { Resource } from "@/generated/prisma";
 

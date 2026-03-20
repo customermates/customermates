@@ -19,7 +19,6 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
-
 import { CustomColumnType } from "@/generated/prisma";
 
 import { useXDataView } from "../x-data-view-container";
