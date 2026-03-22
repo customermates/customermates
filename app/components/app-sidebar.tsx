@@ -110,8 +110,8 @@ export const AppSidebar = observer(({ user, systemTaskCount, company, subscripti
     return cn(
       getButtonClassName("h-9 rounded-lg transition-colors"),
       isSelected
-        ? "bg-primary/10 text-foreground"
-        : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100",
+        ? "bg-default-300/80 dark:bg-default-200/30 text-foreground font-medium"
+        : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/10",
       additionalClasses,
     );
   }
@@ -246,6 +246,148 @@ export const AppSidebar = observer(({ user, systemTaskCount, company, subscripti
     },
   ];
 
+  const overviewItemOrder = ["dashboard", "ai-agent", "tasks"] as const;
+  const crmItemOrder = ["contacts", "organizations", "deals", "services"] as const;
+  const overviewItems = overviewItemOrder
+    .map((key) => authItems.find((item) => item.key === key))
+    .filter((item): item is AuthItem => Boolean(item));
+  const crmItems = crmItemOrder
+    .map((key) => authItems.find((item) => item.key === key))
+    .filter((item): item is AuthItem => Boolean(item));
+
+  function renderAuthItem(item: AuthItem) {
+    const isSelected = selectedKey === item.key;
+    const iconContent = (
+      <XIcon
+        className={cn(isSelected ? "text-foreground" : "text-default-900 dark:text-default-800")}
+        icon={item.icon}
+      />
+    );
+
+    if (item.key === "ai-agent") {
+      const showProvision = appSidebarStore.agentProvisioned !== true;
+      const showManageActions = appSidebarStore.agentProvisioned === true;
+      const aiAgentDropdownItems = [];
+      if (showManageActions) {
+        aiAgentDropdownItems.push(
+          XDropdownItem({
+            key: "openControlUi",
+            children: t("AiAgent.openControlUi"),
+          }),
+        );
+        aiAgentDropdownItems.push(
+          XDropdownItem({
+            key: "addEnvironmentVariable",
+            children: t("AiAgent.addEnvironmentVariable"),
+          }),
+        );
+        aiAgentDropdownItems.push(
+          XDropdownItem({
+            key: "reset",
+            color: "danger",
+            className: "text-danger border-danger",
+            children: t("AiAgent.reset"),
+          }),
+        );
+      }
+
+      if (showProvision) {
+        return (
+          <Button
+            key={item.key}
+            className={getNavItemClassName(isSelected)}
+            isDisabled={appSidebarStore.agentBooting}
+            isIconOnly={!isSidebarOpen}
+            isLoading={appSidebarStore.agentBooting}
+            startContent={isSidebarOpen && !appSidebarStore.agentBooting ? iconContent : null}
+            variant="light"
+            onPress={() =>
+              handleSidebarPress(() => {
+                rootStore.aiAgentProvisionModalStore.onInitOrRefresh({ openaiApiKey: "", anthropicApiKey: "" });
+                rootStore.aiAgentProvisionModalStore.open();
+              })
+            }
+          >
+            {isSidebarOpen ? (
+              <span
+                className={cn(
+                  "tracking-normal text-sm font-normal",
+                  isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
+                )}
+              >
+                {item.title}
+              </span>
+            ) : !appSidebarStore.agentBooting ? (
+              iconContent
+            ) : null}
+          </Button>
+        );
+      }
+
+      return (
+        <Dropdown key={item.key}>
+          <DropdownTrigger>
+            <Button
+              className={getNavItemClassName(isSelected)}
+              isDisabled={appSidebarStore.agentBooting}
+              isIconOnly={!isSidebarOpen}
+              isLoading={appSidebarStore.agentBooting}
+              startContent={isSidebarOpen && !appSidebarStore.agentBooting ? iconContent : null}
+              variant="light"
+            >
+              {isSidebarOpen ? (
+                <span
+                  className={cn(
+                    "tracking-normal text-sm font-normal",
+                    isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
+                  )}
+                >
+                  {item.title}
+                </span>
+              ) : !appSidebarStore.agentBooting ? (
+                iconContent
+              ) : null}
+            </Button>
+          </DropdownTrigger>
+
+          <DropdownMenu aria-label={t("NavigationBar.aiAgent")} onAction={onAiAgentAction}>
+            {aiAgentDropdownItems}
+          </DropdownMenu>
+        </Dropdown>
+      );
+    }
+
+    return (
+      <Button
+        key={item.key}
+        as={XLink}
+        className={getNavItemClassName(isSelected)}
+        href={`/${item.key}`}
+        isIconOnly={!isSidebarOpen}
+        startContent={isSidebarOpen ? iconContent : null}
+        variant="light"
+        onPress={() =>
+          handleSidebarPress(() => {
+            setSelectedKey(item.key);
+          })
+        }
+      >
+        {isSidebarOpen ? (
+          <span
+            className={cn(
+              "tracking-normal text-sm font-normal",
+              isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
+            )}
+          >
+            {item.title}
+          </span>
+        ) : (
+          iconContent
+        )}
+      </Button>
+    );
+  }
+
   const sidebarContent = (
     <>
       <Button
@@ -326,138 +468,19 @@ export const AppSidebar = observer(({ user, systemTaskCount, company, subscripti
           </DropdownMenu>
         </Dropdown>
 
-        {authItems.map((item) => {
-          const isSelected = selectedKey === item.key;
-          const iconContent = (
-            <XIcon
-              className={cn(isSelected ? "text-foreground" : "text-default-900 dark:text-default-800")}
-              icon={item.icon}
-            />
-          );
+        {overviewItems.length > 0 && isSidebarOpen && (
+          <div className="mx-3 mt-2 px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-subdued">
+            Overview
+          </div>
+        )}
 
-          if (item.key === "ai-agent") {
-            const showProvision = appSidebarStore.agentProvisioned !== true;
-            const showManageActions = appSidebarStore.agentProvisioned === true;
-            const aiAgentDropdownItems = [];
-            if (showManageActions) {
-              aiAgentDropdownItems.push(
-                XDropdownItem({
-                  key: "openControlUi",
-                  children: t("AiAgent.openControlUi"),
-                }),
-              );
-              aiAgentDropdownItems.push(
-                XDropdownItem({
-                  key: "addEnvironmentVariable",
-                  children: t("AiAgent.addEnvironmentVariable"),
-                }),
-              );
-              aiAgentDropdownItems.push(
-                XDropdownItem({
-                  key: "reset",
-                  color: "danger",
-                  className: "text-danger border-danger",
-                  children: t("AiAgent.reset"),
-                }),
-              );
-            }
+        {overviewItems.map(renderAuthItem)}
 
-            if (showProvision) {
-              return (
-                <Button
-                  key={item.key}
-                  className={getNavItemClassName(isSelected)}
-                  isDisabled={appSidebarStore.agentBooting}
-                  isIconOnly={!isSidebarOpen}
-                  isLoading={appSidebarStore.agentBooting}
-                  startContent={isSidebarOpen && !appSidebarStore.agentBooting ? iconContent : null}
-                  variant="light"
-                  onPress={() =>
-                    handleSidebarPress(() => {
-                      rootStore.aiAgentProvisionModalStore.onInitOrRefresh({ openaiApiKey: "", anthropicApiKey: "" });
-                      rootStore.aiAgentProvisionModalStore.open();
-                    })
-                  }
-                >
-                  {isSidebarOpen ? (
-                    <span
-                      className={cn(
-                        "tracking-normal text-sm font-normal",
-                        isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
-                      )}
-                    >
-                      {item.title}
-                    </span>
-                  ) : !appSidebarStore.agentBooting ? (
-                    iconContent
-                  ) : null}
-                </Button>
-              );
-            }
+        {crmItems.length > 0 && isSidebarOpen && (
+          <div className="mx-3 mt-2 px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-subdued">CRM</div>
+        )}
 
-            return (
-              <Dropdown key={item.key}>
-                <DropdownTrigger>
-                  <Button
-                    className={getNavItemClassName(isSelected)}
-                    isDisabled={appSidebarStore.agentBooting}
-                    isIconOnly={!isSidebarOpen}
-                    isLoading={appSidebarStore.agentBooting}
-                    startContent={isSidebarOpen && !appSidebarStore.agentBooting ? iconContent : null}
-                    variant="light"
-                  >
-                    {isSidebarOpen ? (
-                      <span
-                        className={cn(
-                          "tracking-normal text-sm font-normal",
-                          isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
-                        )}
-                      >
-                        {item.title}
-                      </span>
-                    ) : !appSidebarStore.agentBooting ? (
-                      iconContent
-                    ) : null}
-                  </Button>
-                </DropdownTrigger>
-
-                <DropdownMenu aria-label={t("NavigationBar.aiAgent")} onAction={onAiAgentAction}>
-                  {aiAgentDropdownItems}
-                </DropdownMenu>
-              </Dropdown>
-            );
-          }
-
-          return (
-            <Button
-              key={item.key}
-              as={XLink}
-              className={getNavItemClassName(isSelected)}
-              href={`/${item.key}`}
-              isIconOnly={!isSidebarOpen}
-              startContent={isSidebarOpen ? iconContent : null}
-              variant="light"
-              onPress={() =>
-                handleSidebarPress(() => {
-                  setSelectedKey(item.key);
-                })
-              }
-            >
-              {isSidebarOpen ? (
-                <span
-                  className={cn(
-                    "tracking-normal text-sm font-normal",
-                    isSelected ? "text-foreground" : "text-default-900 dark:text-default-800",
-                  )}
-                >
-                  {item.title}
-                </span>
-              ) : (
-                iconContent
-              )}
-            </Button>
-          );
-        })}
+        {crmItems.map(renderAuthItem)}
       </nav>
 
       <div

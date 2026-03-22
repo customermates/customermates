@@ -210,8 +210,8 @@ export const DocsSidebar = observer(() => {
     return cn(
       getButtonClassName("h-9 rounded-lg transition-colors"),
       isSelected
-        ? "bg-primary/10 text-foreground"
-        : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100",
+        ? "bg-default-300/80 dark:bg-default-200/30 text-foreground font-medium"
+        : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/10",
       additionalClasses,
     );
   }
@@ -266,8 +266,8 @@ export const DocsSidebar = observer(() => {
                   className={cn(
                     "relative flex items-center justify-between gap-2 min-w-0 h-8 rounded-md px-3 transition-colors",
                     isActive
-                      ? "bg-primary/10 text-foreground font-normal"
-                      : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100",
+                      ? "bg-default-300/80 dark:bg-default-200/30 text-foreground font-medium"
+                      : "text-default-900 dark:text-default-800 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/10",
                   )}
                   color="foreground"
                   href={item.url}
