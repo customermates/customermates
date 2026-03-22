@@ -25,7 +25,6 @@ import { XTranslationSync } from "@/components/x-translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { XCustomColumnModal } from "@/components/x-data-view/x-custom-column/x-custom-column-modal";
 import { XEditFiltersModal } from "@/components/x-data-view/x-filter-modal/x-edit-filters-modal";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -82,7 +81,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
       <XCustomColumnModal />
 
-      {IS_CLOUD_HOSTED && <AuditLogModal />}
+      <AuditLogModal />
 
       <ApiKeyModal />
 
