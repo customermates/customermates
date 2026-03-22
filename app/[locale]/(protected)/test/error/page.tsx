@@ -28,7 +28,7 @@ export default function ErrorTestPage() {
 
   return (
     <XPageContainer>
-      <XPageCenter showGridBackground>
+      <XPageCenter>
         <XCard className="max-w-md">
           <XCardHeroHeader subtitle={t("subtitle")} title={t("title")} />
 

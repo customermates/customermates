@@ -22,7 +22,7 @@ export default async function OnboardingPage() {
   const avatarUrl = session.user?.image?.startsWith("https:") ? session.user.image : "";
 
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <OnboardingCard
         avatarUrl={avatarUrl}
         email={session.user?.email ?? ""}

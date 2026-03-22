@@ -22,7 +22,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   if (error === "INVALID_TOKEN") redirect("/auth/forgot-password?info=RESET_LINK_INVALID");
 
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <ResetPasswordCard />
     </XPageCenter>
   );

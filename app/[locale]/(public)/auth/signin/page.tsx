@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default function SignInPage() {
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <SignInCard showSocialProviders={IS_CLOUD_HOSTED} />
     </XPageCenter>
   );

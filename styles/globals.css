@@ -110,13 +110,23 @@ path:focus {
   outline: none !important;
 }
 
+.recharts-no-focus-outline .recharts-wrapper:focus,
+.recharts-no-focus-outline .recharts-wrapper:focus-visible,
+.recharts-no-focus-outline .recharts-surface:focus,
+.recharts-no-focus-outline .recharts-surface:focus-visible,
+.recharts-no-focus-outline .recharts-layer:focus,
+.recharts-no-focus-outline .recharts-layer:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 [data-slot="helper-wrapper"] {
   padding: 0;
 }
 
 @layer utilities {
   .text-x-4xl {
-    @apply text-4xl md:text-5xl lg:text-7xl px-4 tracking-tight font-bold text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-white dark:via-gray-100 dark:to-gray-400;
+    @apply z-10 text-4xl md:text-5xl lg:text-7xl px-4 tracking-tight font-bold text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-white dark:via-gray-100 dark:to-gray-400;
   }
 
   .text-x-3xl {

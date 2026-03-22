@@ -22,7 +22,7 @@ export default async function SignUpPage() {
   const companyName = res.valid ? res.companyName : null;
 
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <SignUpCard companyName={companyName} showSocialProviders={IS_CLOUD_HOSTED} />
     </XPageCenter>
   );

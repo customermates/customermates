@@ -10,7 +10,7 @@ type Props = {
 export function XChip({ children, ...props }: Props) {
   return (
     <Chip
-      radius="full"
+      radius="md"
       size="sm"
       variant="flat"
       {...props}

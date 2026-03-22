@@ -29,7 +29,7 @@ export default async function SubscriptionExpiredPage() {
 
   return (
     <XPageContainer>
-      <XPageCenter showGridBackground>
+      <XPageCenter>
         <SubscriptionExpiredCard />
       </XPageCenter>
     </XPageContainer>

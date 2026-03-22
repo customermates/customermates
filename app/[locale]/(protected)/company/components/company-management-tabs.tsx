@@ -76,11 +76,10 @@ export function CompanyManagementTabs({
     <Tabs
       fullWidth
       aria-label={t("UserAvatar.company")}
-      classNames={{ panel: "contents" }}
+      classNames={{ panel: "contents", tabList: "bg-content1 shadow-small" }}
       color="primary"
       radius="lg"
       selectedKey={selectedTab}
-      variant="bordered"
       onSelectionChange={onTabSelectionChange}
     >
       <Tab key="users" title={t("UsersCard.title")}>

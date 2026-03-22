@@ -1,4 +1,4 @@
-import type { Layouts, Layout } from "react-grid-layout";
+import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout/legacy";
 import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
 import type { ExtendedWidget } from "@/features/widget/widget.types";
 import type { GetResult } from "@/core/base/base-get.interactor";
@@ -13,8 +13,10 @@ import { GRID_COLS } from "./grid.constants";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
 
+type MutableLayouts = Record<string, LayoutItem[]>;
+
 export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
-  layouts: Layouts = { xs: [], sm: [], md: [], lg: [] };
+  layouts: ResponsiveLayouts = { xs: [], sm: [], md: [], lg: [] };
 
   constructor(public readonly rootStore: RootStore) {
     super(rootStore);
@@ -33,7 +35,7 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
     this.items = args.items;
     this.customColumns = args.customColumns ?? [];
 
-    const layouts: Layouts = { xs: [], sm: [], md: [], lg: [] };
+    const layouts: MutableLayouts = { xs: [], sm: [], md: [], lg: [] };
 
     this.items.forEach((widget) => {
       for (const breakpoint of BREAKPOINTS) {
@@ -59,7 +61,7 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
     this.isReady = true;
   }
 
-  onLayoutChange(_: Layout[], layouts: Layouts) {
+  onLayoutChange(_: Layout, layouts: ResponsiveLayouts) {
     if (!this.isReady) return;
 
     const payloadNew = this.normalizeLayouts(layouts);
@@ -79,18 +81,18 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
     return { items: widgets };
   }
 
-  private normalizeLayouts(layouts: Layouts): UpdateWidgetLayoutsData["layouts"] {
+  private normalizeLayouts(layouts: ResponsiveLayouts): UpdateWidgetLayoutsData["layouts"] {
     const payload: UpdateWidgetLayoutsData["layouts"] = { xs: [], sm: [], md: [], lg: [] };
 
     BREAKPOINTS.forEach((breakpoint) => {
-      payload[breakpoint] = layouts[breakpoint].map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
+      payload[breakpoint] = (layouts[breakpoint] ?? []).map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
     });
 
     return payload;
   }
 
   private findFirstAvailableSpot(
-    layout: Layout[],
+    layout: LayoutItem[],
     cols: number,
     itemW: number,
     itemH: number,

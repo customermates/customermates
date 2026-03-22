@@ -14,7 +14,7 @@ export default async function VerifyEmailPage() {
   if (session?.user?.emailVerified) redirect("/");
 
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <VerifyEmailCard email={session?.user?.email} />
     </XPageCenter>
   );

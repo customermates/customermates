@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default function ForgotPasswordPage() {
   return (
-    <XPageCenter showGridBackground>
+    <XPageCenter>
       <ForgotPasswordCard />
     </XPageCenter>
   );

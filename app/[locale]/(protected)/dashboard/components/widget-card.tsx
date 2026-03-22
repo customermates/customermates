@@ -7,8 +7,6 @@ import React, { useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { Button } from "@heroui/button";
 import dynamic from "next/dynamic";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
@@ -17,8 +15,6 @@ import { herouiConfig } from "@/styles/heroui.config";
 import { XCard } from "@/components/x-card/x-card";
 import { XCardHeader } from "@/components/x-card/x-card-header";
 import { XCardBody } from "@/components/x-card/x-card-body";
-import { XIcon } from "@/components/x-icon";
-import { useRootStore } from "@/core/stores/root-store.provider";
 
 const VerticalBarChart = dynamic(
   () => import("./vertical-bar-chart").then((mod) => ({ default: mod.VerticalBarChart })),
@@ -50,7 +46,6 @@ type Props = {
 
 export const WidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations("");
-  const { widgetModalStore } = useRootStore();
   const { resolvedTheme } = useTheme();
 
   const cardContent = useMemo((): React.ReactElement => {
@@ -132,18 +127,12 @@ export const WidgetCard = observer(({ widget }: Props) => {
   }, [widget.displayOptions, widget.data, widget.aggregationType, resolvedTheme, t]);
 
   return (
-    <XCard className="h-full overflow-visible">
+    <XCard className="h-full cursor-pointer overflow-visible">
       <XCardHeader>
-        <div className="flex w-full gap-1 items-center justify-start">
-          <h2 className="text-x-md grow truncate">{widget.name}</h2>
-
-          <Button isIconOnly size="sm" variant="light" onPress={() => void widgetModalStore.loadById(widget.id)}>
-            <XIcon icon={EllipsisVerticalIcon} />
-          </Button>
-        </div>
+        <h2 className="text-x-md truncate">{widget.name}</h2>
       </XCardHeader>
 
-      <XCardBody className="overflow-visible">{cardContent}</XCardBody>
+      <XCardBody className="overflow-visible recharts-no-focus-outline">{cardContent}</XCardBody>
     </XCard>
   );
 });

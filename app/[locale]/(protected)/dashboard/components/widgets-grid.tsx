@@ -1,12 +1,12 @@
 "use client";
 
 import type { ComponentType } from "react";
-import type { Layout, Layouts } from "react-grid-layout";
+import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
 import type { ExtendedWidget } from "@/features/widget/widget.types";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 
@@ -24,7 +24,7 @@ import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
 
 const ResponsiveGridLayout = dynamic(
   () =>
-    import("react-grid-layout").then((mod) => {
+    import("react-grid-layout/legacy").then((mod) => {
       const { Responsive, WidthProvider } = mod;
       return WidthProvider(Responsive) as ComponentType<any>;
     }),
@@ -38,13 +38,29 @@ type Props = {
 };
 
 export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields }: Props) => {
-  const { widgetsStore } = useRootStore();
+  const { widgetsStore, widgetModalStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const isTouchDevice = useIsTouchDevice();
+  const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
   useEffect(() => {
     widgetsStore.setItems({ items: widgets });
   }, [widgets]);
+
+  useEffect(() => {
+    function onPointerUp(e: PointerEvent) {
+      if (!pointerStart.current) return;
+      const { id, x, y } = pointerStart.current;
+      pointerStart.current = null;
+      if (Math.abs(e.clientX - x) < 8 && Math.abs(e.clientY - y) < 8) void widgetModalStore.loadById(id);
+    }
+    document.addEventListener("pointerup", onPointerUp);
+    return () => document.removeEventListener("pointerup", onPointerUp);
+  }, [widgetModalStore]);
+
+  const handlePointerDown = useCallback((id: string, e: React.PointerEvent) => {
+    pointerStart.current = { id, x: e.clientX, y: e.clientY };
+  }, []);
 
   return (
     <>
@@ -61,10 +77,10 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
           margin={[16, 16]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
           rowHeight={124}
-          onLayoutChange={(layout: Layout[], layouts: Layouts) => widgetsStore.onLayoutChange(layout, layouts)}
+          onLayoutChange={(layout: Layout, layouts: ResponsiveLayouts) => widgetsStore.onLayoutChange(layout, layouts)}
         >
           {items.map((widget) => (
-            <div key={widget.id}>
+            <div key={widget.id} onPointerDown={(e) => handlePointerDown(widget.id, e)}>
               <WidgetCard widget={widget} />
             </div>
           ))}

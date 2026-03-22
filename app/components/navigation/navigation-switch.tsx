@@ -56,10 +56,12 @@ export function NavigationSwitch({
 
       <main className="flex flex-col relative flex-1 overflow-auto bg-background">
         {!isAuthenticated && !isDocsRoute && (
-          <header className="sticky top-0 z-10 border-b border-divider bg-background flex flex-col">
+          <header className="sticky top-0 z-30 border-b border-divider bg-background flex flex-col">
             <PublicNavbar />
           </header>
         )}
+
+        <div className="pointer-events-none absolute inset-0 -top-32 md:-top-48 bg-size-[40px_40px] bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#171717_1px,transparent_1px),linear-gradient(to_bottom,#171717_1px,transparent_1px)] mask-[linear-gradient(to_bottom,black,transparent_80%),linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] mask-intersect" />
 
         {children}
       </main>
