@@ -11,9 +11,9 @@ import { CustomColumnType } from "@/generated/prisma";
 
 import { XFavicon } from "../../x-favicon";
 import { XIcon } from "../../x-icon";
-import { XInputNumber } from "../../x-inputs/x-input-number";
 
 import { XInput } from "@/components/x-inputs/x-input";
+import { XInputNumber } from "@/components/x-inputs/x-input-number";
 import { XInputChips } from "@/components/x-inputs/x-input-chips";
 import { XSelect } from "@/components/x-inputs/x-select";
 import { XSelectItem } from "@/components/x-inputs/x-select-item";
@@ -25,11 +25,18 @@ type Props = {
   column: CustomColumnDto;
   value: string | undefined;
   onChange: (value: string | undefined) => void;
+  id?: string;
   label?: string | null;
   isEditing?: boolean;
 };
 
-export function XCustomFieldEditor({ column, value, onChange, label, isEditing = false }: Props) {
+function formStringToNumber(value: string | undefined): number | undefined {
+  if (value === undefined || value === "") return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+export function XCustomFieldEditor({ column, value, onChange, id, label, isEditing = false }: Props) {
   const t = useTranslations("Common.inputs");
   const { intlStore } = useRootStore();
 
@@ -129,10 +136,10 @@ export function XCustomFieldEditor({ column, value, onChange, label, isEditing =
               </span>
             )
           }
-          id={inputId}
+          id={id ?? inputId}
           label={resolvedLabel ?? t(inputId)}
-          value={value ? Number(value) : undefined}
-          onValueChange={(next) => onChange(isNaN(next) ? undefined : String(next))}
+          value={formStringToNumber(value)}
+          onValueChange={(n) => onChange(n === undefined ? undefined : String(n))}
         />
       );
 

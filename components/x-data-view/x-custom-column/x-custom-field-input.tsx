@@ -30,6 +30,7 @@ export const XCustomFieldValueInput = observer(({ isEditing, column, index }: Pr
     <div className={cn("grid", { "grid-cols-[1fr_3.5rem]": isEditing })}>
       <XCustomFieldEditor
         column={column}
+        id={id}
         isEditing={isEditing}
         label={label}
         value={value}

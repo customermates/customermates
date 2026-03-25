@@ -140,5 +140,5 @@
     "vercel-preview-build": "prisma generate && yarn db:reset && yarn openapi:generate && next build && bash ee/scripts/fly-deploy-if-needed.sh --reset"
   },
   "type": "module",
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
