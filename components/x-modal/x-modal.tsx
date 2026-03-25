@@ -35,7 +35,7 @@ export const XModal = observer(({ children, store, onClose, ...props }: Props) =
     <>
       <Modal
         classNames={{
-          backdrop: "bg-overlay/20",
+          backdrop: "bg-overlay/50",
         }}
         closeButton={false}
         hideCloseButton={false}

@@ -19,14 +19,18 @@ import { UpdateDealRepo } from "./update-deal.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
+import { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
+import { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
+import { unique } from "@/core/utils/unique";
 
 export const UpdateDealSchema = BaseUpdateDealSchema.superRefine(async (data, ctx) => {
   const { di } = await import("@/core/dependency-injection/container");
@@ -66,7 +70,10 @@ export type UpdateDealData = Data<typeof UpdateDealSchema>;
 })
 export class UpdateDealInteractor {
   constructor(
-    private repo: UpdateDealRepo,
+    private dealsRepo: UpdateDealRepo,
+    private organizationsRepo: GetUnscopedOrganizationRepo,
+    private contactsRepo: GetUnscopedContactRepo,
+    private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -74,12 +81,65 @@ export class UpdateDealInteractor {
   @Validate(UpdateDealSchema)
   @Transaction
   async invoke(data: UpdateDealData): Validated<DealDto, UpdateDealData> {
-    const previousDeal = await this.repo.getDealByIdOrThrow(data.id);
-    const deal = await this.repo.updateDealOrThrow(data);
+    const previousDeal = await this.dealsRepo.getOrThrowUnscoped(data.id);
+
+    const relatedOrganizationIds = unique(
+      previousDeal.organizations.map((it) => it.id),
+      data.organizationIds,
+    );
+    const relatedContactIds = unique(
+      previousDeal.contacts.map((it) => it.id),
+      data.contactIds,
+    );
+    const relatedServiceIds = unique(
+      previousDeal.services.map((it) => it.id),
+      data.services?.map((s) => s.serviceId),
+    );
+
+    const [previousOrganizations, previousContacts, previousServices] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
+      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+    ]);
+
+    const deal = await this.dealsRepo.updateDealOrThrow(data);
+
+    const [currentOrganizations, currentContacts, currentServices] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
+      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+    ]);
 
     const changes = calculateChanges(previousDeal, deal);
 
     await Promise.all([
+      ...buildRelationChangePublishes(previousOrganizations, currentOrganizations, "deals", (organization, changes) =>
+        this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
+          entityId: organization.id,
+          payload: {
+            organization,
+            changes,
+          },
+        }),
+      ),
+      ...buildRelationChangePublishes(previousContacts, currentContacts, "deals", (contact, changes) =>
+        this.eventService.publish(DomainEvent.CONTACT_UPDATED, {
+          entityId: contact.id,
+          payload: {
+            contact,
+            changes,
+          },
+        }),
+      ),
+      ...buildRelationChangePublishes(previousServices, currentServices, "deals", (service, changes) =>
+        this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
+          entityId: service.id,
+          payload: {
+            service,
+            changes,
+          },
+        }),
+      ),
       this.eventService.publish(DomainEvent.DEAL_UPDATED, {
         entityId: deal.id,
         payload: {

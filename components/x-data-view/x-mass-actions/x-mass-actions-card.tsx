@@ -77,7 +77,7 @@ export const XMassActionsCard = observer(() => {
               isDisabled={isLoading}
               isLoading={isLoading}
               startContent={!isLoading && <XIcon icon={TrashIcon} />}
-              variant="flat"
+              variant="bordered"
               onPress={() => void handleDelete()}
             >
               {t("delete")}
@@ -123,7 +123,7 @@ export const XMassActionsCard = observer(() => {
                     color="primary"
                     isDisabled={isLoading}
                     isLoading={isLoading}
-                    variant="flat"
+                    variant="solid"
                     onPress={() => void handleUpdateFieldValue()}
                   >
                     {t("updateValue")}

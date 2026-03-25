@@ -17,12 +17,14 @@ import {
   TrashIcon,
   ViewColumnsIcon,
   CircleStackIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { CustomColumnType } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -88,6 +90,7 @@ export const XBaseCustomColumnEntityModal = observer(
   }: Props<Form, Dto>) => {
     const t = useTranslations("");
     const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+    const rootStore = useRootStore();
 
     const [viewMode, setViewMode] = useState<EntityModalViewMode>(() => {
       const saved = Cookies.get(COOKIE_NAME);
@@ -107,7 +110,7 @@ export const XBaseCustomColumnEntityModal = observer(
     }
 
     const { canManage } = store;
-    const { xCustomColumnModalStore } = useRootStore();
+    const { xCustomColumnModalStore, entityHistoryModalStore, userStore } = useRootStore();
     const { showDeleteConfirmation } = useDeleteConfirmation();
 
     const { form, isLoading, isEditingCustomField, toggleEditingCustomField } = store;
@@ -166,6 +169,24 @@ export const XBaseCustomColumnEntityModal = observer(
                       </XTooltip>
                     )}
                   </ButtonGroup>
+
+                  {rootStore.isCloudHosted && hasId && userStore.can(Resource.auditLog, Action.readAll) && (
+                    <XTooltip content={t("Common.actions.showHistory")}>
+                      <div>
+                        <Button
+                          isIconOnly
+                          color="primary"
+                          size="sm"
+                          variant="flat"
+                          onPress={() => {
+                            if (typeof form.id === "string") void entityHistoryModalStore.loadByEntityId(form.id);
+                          }}
+                        >
+                          <XIcon icon={ClockIcon} />
+                        </Button>
+                      </div>
+                    </XTooltip>
+                  )}
 
                   {canManage && (
                     <>

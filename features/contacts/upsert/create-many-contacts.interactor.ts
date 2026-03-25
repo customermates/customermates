@@ -17,12 +17,16 @@ import { CreateContactRepo } from "./create-contact.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
+import { calculateChanges } from "@/core/utils/calculate-changes";
+import { unique } from "@/core/utils/unique";
 
 export const CreateManyContactsSchema = z
   .object({
@@ -68,6 +72,8 @@ export type CreateManyContactsData = Data<typeof CreateManyContactsSchema>;
 export class CreateManyContactsInteractor {
   constructor(
     private repo: CreateContactRepo,
+    private organizationsRepo: GetUnscopedOrganizationRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -75,9 +81,40 @@ export class CreateManyContactsInteractor {
   @Validate(CreateManyContactsSchema)
   @Transaction
   async invoke(data: CreateManyContactsData): Validated<ContactDto[], CreateManyContactsData> {
+    const relatedOrganizationIds = unique(data.contacts.flatMap((contact) => contact.organizationIds));
+    const relatedDealIds = unique(data.contacts.flatMap((contact) => contact.dealIds));
+
+    const [previousOrganizations, previousDeals] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+    ]);
+
     const contacts = await Promise.all(data.contacts.map((contactData) => this.repo.createContactOrThrow(contactData)));
 
+    const [currentOrganizations, currentDeals] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+    ]);
+
     await Promise.all([
+      ...currentOrganizations.map((organization, index) =>
+        this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
+          entityId: organization.id,
+          payload: {
+            organization,
+            changes: calculateChanges(previousOrganizations[index], organization),
+          },
+        }),
+      ),
+      ...currentDeals.map((deal, index) =>
+        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+          entityId: deal.id,
+          payload: {
+            deal,
+            changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
       ...contacts.map((contact) =>
         this.eventService.publish(DomainEvent.CONTACT_CREATED, {
           entityId: contact.id,

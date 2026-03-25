@@ -11,11 +11,6 @@ import {
   NotesSchema,
 } from "@/core/base/base-entity.schema";
 
-export const ServiceWithQuantityReferenceSchema = z.object({
-  serviceId: z.uuid(),
-  quantity: z.number(),
-});
-
 export const DealDtoSchema = z.object({
   id: z.uuid(),
   name: z.string(),
@@ -28,7 +23,6 @@ export const DealDtoSchema = z.object({
   users: z.array(UserReferenceSchema),
   contacts: z.array(ContactReferenceSchema),
   services: z.array(ServiceReferenceSchema),
-  servicesWithQuantity: z.array(ServiceWithQuantityReferenceSchema),
   customFieldValues: z
     .array(CustomFieldValueSchema)
     .describe(

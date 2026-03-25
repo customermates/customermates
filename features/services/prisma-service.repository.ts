@@ -5,6 +5,7 @@ import { EntityType, Prisma, Resource } from "@/generated/prisma";
 import { PrismaCustomColumnRepo } from "../custom-column/prisma-custom-column.repository";
 import { GetWidgetFilterableFieldsServiceRepo } from "../widget/get-widget-filterable-fields.interactor";
 
+import { GetUnscopedServiceRepo } from "./get-unscoped-service.repo";
 import { GetServicesRepo } from "./get/get-services.interactor";
 import { GetServicesConfigurationRepo } from "./get/get-services-configuration.interactor";
 import { GetServiceByIdRepo } from "./get/get-service-by-id.interactor";
@@ -33,13 +34,14 @@ export class PrismaServiceRepo
     UpdateServiceRepo,
     DeleteServiceRepo,
     GetWidgetFilterableFieldsServiceRepo,
-    FindServicesByIdsRepo
+    FindServicesByIdsRepo,
+    GetUnscopedServiceRepo
 {
   private get customColumnRepo() {
     return di.get(PrismaCustomColumnRepo);
   }
 
-  private get baseSelect() {
+  private get userScopedSelect() {
     return {
       id: true,
       name: true,
@@ -62,6 +64,14 @@ export class PrismaServiceRepo
         },
       },
     } as const;
+  }
+
+  private get companyScopedSelect() {
+    return {
+      ...this.userScopedSelect,
+      users: { select: this.userScopedSelect.users.select },
+      deals: { select: this.userScopedSelect.deals.select },
+    };
   }
 
   getSearchableFields() {
@@ -109,7 +119,7 @@ export class PrismaServiceRepo
         id,
         ...this.accessWhere("service"),
       },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     if (!service) return null;
@@ -121,13 +131,12 @@ export class PrismaServiceRepo
     };
   }
 
-  async getServiceByIdOrThrow(id: string) {
+  async getOrThrowUnscoped(id: string) {
+    const { companyId } = this.user;
+
     const service = await this.prisma.service.findFirstOrThrow({
-      where: {
-        id,
-        ...this.accessWhere("service"),
-      },
-      select: this.baseSelect,
+      where: { id, companyId },
+      select: this.companyScopedSelect,
     });
 
     return {
@@ -137,12 +146,33 @@ export class PrismaServiceRepo
     };
   }
 
+  async getManyOrThrowUnscoped(ids: string[]) {
+    if (ids.length === 0) return [];
+
+    const { companyId } = this.user;
+    const uniqueIds = [...new Set(ids)];
+
+    const services = await this.prisma.service.findMany({
+      where: { id: { in: uniqueIds }, companyId },
+      select: this.companyScopedSelect,
+      orderBy: { id: "asc" },
+    });
+
+    if (services.length !== uniqueIds.length) throw new Error("One or more services not found");
+
+    return services.map((service) => ({
+      ...service,
+      users: service.users.map((it) => it.user),
+      deals: service.deals.map((it) => it.deal),
+    }));
+  }
+
   async getItems(params: GetQueryParams) {
     const args = await this.buildQueryArgs(params, this.accessWhere("service"));
 
     const services = await this.prisma.service.findMany({
       ...args,
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     return services.map((service) => ({
@@ -217,16 +247,14 @@ export class PrismaServiceRepo
 
     const createdService = await this.prisma.service.findFirstOrThrow({
       where: { id: service.id, ...this.accessWhere("service") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
-    const res = {
+    return {
       ...createdService,
       users: createdService.users.map((it) => it.user),
       deals: createdService.deals.map((it) => it.deal),
     };
-
-    return res;
   }
 
   @Transaction
@@ -315,16 +343,14 @@ export class PrismaServiceRepo
 
     const updatedService = await this.prisma.service.findFirstOrThrow({
       where: { id, ...this.accessWhere("service") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
-    const res = {
+    return {
       ...updatedService,
       users: updatedService.users.map((it) => it.user),
       deals: updatedService.deals.map((it) => it.deal),
     };
-
-    return res;
   }
 
   @Transaction
@@ -333,7 +359,7 @@ export class PrismaServiceRepo
 
     const service = await this.prisma.service.findFirstOrThrow({
       where: { id, ...this.accessWhere("service") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const serviceDto: ServiceDto = {
@@ -363,41 +389,41 @@ export class PrismaServiceRepo
     if (dealIds.length === 0) return;
 
     const { companyId } = this.user;
+    const uniqueDealIds = Array.from(new Set(dealIds));
 
-    const dealServices = await this.prisma.serviceDeal.findMany({
-      where: { dealId: { in: dealIds }, companyId },
-      include: {
-        service: {
-          select: {
-            amount: true,
-          },
-        },
-      },
-    });
+    const [existingDeals, serviceDeals] = await Promise.all([
+      this.prisma.deal.findMany({
+        where: { id: { in: uniqueDealIds }, companyId },
+        select: { id: true, totalValue: true, totalQuantity: true },
+      }),
+      this.prisma.serviceDeal.findMany({
+        where: { dealId: { in: uniqueDealIds }, companyId },
+        include: { service: { select: { amount: true } } },
+      }),
+    ]);
 
-    const dealTotals = new Map<string, { totalValue: number; totalQuantity: number }>();
-
-    dealServices.forEach((sd: any) => {
-      const dealId = sd.dealId;
-      const current = dealTotals.get(dealId) || { totalValue: 0, totalQuantity: 0 };
-
-      dealTotals.set(dealId, {
-        totalValue: current.totalValue + sd.service.amount * sd.quantity,
-        totalQuantity: current.totalQuantity + sd.quantity,
-      });
-    });
-
-    await Promise.all(
-      Array.from(dealTotals.entries()).map(([dealId, totals]) =>
-        this.prisma.deal.update({
-          where: { id: dealId, companyId },
-          data: {
-            totalValue: totals.totalValue,
-            totalQuantity: totals.totalQuantity,
-          },
-        }),
-      ),
+    const computedTotalsByDealId = new Map<string, { totalValue: number; totalQuantity: number }>(
+      uniqueDealIds.map((id) => [id, { totalValue: 0, totalQuantity: 0 }]),
     );
+
+    for (const serviceDeal of serviceDeals) {
+      const totals = computedTotalsByDealId.get(serviceDeal.dealId);
+      if (!totals) continue;
+      totals.totalValue += serviceDeal.service.amount * serviceDeal.quantity;
+      totals.totalQuantity += serviceDeal.quantity;
+    }
+
+    const existingDealsById = new Map(existingDeals.map((deal) => [deal.id, deal]));
+    const updates: Promise<unknown>[] = [];
+
+    for (const [dealId, totals] of computedTotalsByDealId.entries()) {
+      const existing = existingDealsById.get(dealId);
+      if (!existing) continue;
+      if (existing.totalValue === totals.totalValue && existing.totalQuantity === totals.totalQuantity) continue;
+      updates.push(this.prisma.deal.update({ where: { id: dealId, companyId }, data: totals }));
+    }
+
+    await Promise.all(updates);
   }
 
   async findIds(ids: Set<string>): Promise<Set<string>> {

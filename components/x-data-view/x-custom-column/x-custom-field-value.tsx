@@ -26,7 +26,7 @@ import { updateEntityCustomFieldValueAction } from "@/app/actions";
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
   item: E;
-  store: BaseDataViewStore<E>;
+  store?: BaseDataViewStore<E>;
 };
 
 export const XCustomFieldValue = observer(
@@ -56,6 +56,8 @@ export const XCustomFieldValue = observer(
     }
 
     async function handleSelectOption(optionValue: string) {
+      if (!store) return;
+
       const customFieldValues = [
         {
           columnId: column.id,
@@ -79,9 +81,18 @@ export const XCustomFieldValue = observer(
       switch (column.type) {
         case CustomColumnType.singleSelect: {
           const selectedOption = column.options.options.find((option) => option.value === field?.value);
-          const options = column.options.options;
 
           if (!selectedOption) return <span />;
+
+          if (!store) {
+            return (
+              <XChip color={selectedOption.color} size="sm" variant="flat">
+                {selectedOption.label}
+              </XChip>
+            );
+          }
+
+          const options = column.options.options;
 
           return (
             <Dropdown isOpen={isDropdownOpen} onOpenChange={setIsDropdownOpen}>

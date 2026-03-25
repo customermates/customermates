@@ -13,12 +13,15 @@ import { CreateServiceRepo } from "./create-service.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
+import { calculateChanges } from "@/core/utils/calculate-changes";
+import { unique } from "@/core/utils/unique";
 
 export const CreateServiceSchema = BaseCreateServiceSchema.superRefine(async (data, ctx) => {
   const { di } = await import("@/core/dependency-injection/container");
@@ -48,15 +51,31 @@ export type CreateServiceData = Data<typeof CreateServiceSchema>;
 export class CreateServiceInteractor {
   constructor(
     private repo: CreateServiceRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
 
   @Validate(CreateServiceSchema)
   async invoke(data: CreateServiceData): Validated<ServiceDto, CreateServiceData> {
+    const relatedDealIds = unique(data.dealIds);
+
+    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
     const service = await this.repo.createServiceOrThrow(data);
 
+    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
     await Promise.all([
+      ...currentDeals.map((deal, index) =>
+        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+          entityId: deal.id,
+          payload: {
+            deal,
+            changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
       this.eventService.publish(DomainEvent.SERVICE_CREATED, {
         entityId: service.id,
         payload: service,

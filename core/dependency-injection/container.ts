@@ -89,6 +89,11 @@ import {
   GetAuditLogsByEntityIdInteractor,
   GetAuditLogsByEntityIdRepo,
 } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
+import {
+  GetEntityChangeHistoryByIdCustomColumnRepo,
+  GetEntityChangeHistoryByIdAuditLogRepo,
+  GetEntityChangeHistoryByIdInteractor,
+} from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 import { GetAuditLogsInteractor, GetAuditLogsRepo } from "@/ee/audit-log/get/get-audit-logs.interactor";
 import { GetTasksInteractor, GetTasksRepo } from "@/features/tasks/get/get-tasks.interactor";
 import { GetTasksApiInteractor } from "@/features/tasks/get/get-tasks-api.interactor";
@@ -225,6 +230,10 @@ import { UpdateManyServicesInteractor } from "@/features/services/upsert/update-
 import { DeleteServiceInteractor } from "@/features/services/delete/delete-service.interactor";
 import { DeleteServiceRepo } from "@/features/services/delete/delete-service.repo";
 import { DeleteManyServicesInteractor } from "@/features/services/delete/delete-many-services.interactor";
+import { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
+import { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { GetWidgetsInteractor, GetWidgetsRepo } from "@/features/widget/get-widgets.interactor";
 import { UpsertWidgetInteractor, UpsertWidgetRepo } from "@/features/widget/upsert-widget.interactor";
@@ -414,6 +423,9 @@ di.bind(GetAuditLogsByEntityIdRepo).to(PrismaAuditLogRepo);
 di.bind(GetAuditLogsByEntityIdInteractor).toSelf().inSingletonScope();
 di.bind(GetAuditLogsRepo).to(PrismaAuditLogRepo);
 di.bind(GetAuditLogsInteractor).toSelf().inSingletonScope();
+di.bind(GetEntityChangeHistoryByIdAuditLogRepo).to(PrismaAuditLogRepo);
+di.bind(GetEntityChangeHistoryByIdCustomColumnRepo).to(PrismaCustomColumnRepo);
+di.bind(GetEntityChangeHistoryByIdInteractor).toSelf().inSingletonScope();
 di.bind(GetWebhooksForEventRepo).to(PrismaWebhookRepo);
 di.bind(CreateWebhookDeliveryRepo).to(PrismaWebhookDeliveryRepo);
 di.bind(GetWebhooksRepo).to(PrismaWebhookRepo);
@@ -481,6 +493,10 @@ di.bind(FindDealsByIdsRepo).to(PrismaDealRepo);
 di.bind(FindServicesByIdsRepo).to(PrismaServiceRepo);
 di.bind(FindTasksByIdsRepo).to(PrismaTaskRepo);
 di.bind(FindContactsByIdsRepo).to(PrismaContactRepo);
+di.bind(GetUnscopedContactRepo).to(PrismaContactRepo);
+di.bind(GetUnscopedOrganizationRepo).to(PrismaOrganizationRepo);
+di.bind(GetUnscopedDealRepo).to(PrismaDealRepo);
+di.bind(GetUnscopedServiceRepo).to(PrismaServiceRepo);
 di.bind(PrismaCustomColumnRepo).toSelf().inSingletonScope();
 di.bind(DeleteCustomColumnInteractor).toSelf().inSingletonScope();
 di.bind(UpsertCustomColumnInteractor).toSelf().inSingletonScope();

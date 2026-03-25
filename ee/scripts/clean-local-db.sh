@@ -6,7 +6,7 @@ set -e  # Exit on error
 if [[ $# -ne 1 ]]; then
   echo "❌ Error: Company ID is required."
   echo "Usage: $0 <company_id>"
-  echo "Example: $0 19389c8e-db5d-4c6e-bf45-7cd04a8e8842"
+  echo "Example: $0 b7de4dd8-5848-4347-84bc-f613a56f1f8f"
   exit 1
 fi
 

@@ -32,6 +32,10 @@ import { DeleteManyDealsInteractor } from "@/features/deals/delete/delete-many-d
 import { DeleteManyServicesInteractor } from "@/features/services/delete/delete-many-services.interactor";
 import { DeleteManyTasksInteractor } from "@/features/tasks/delete/delete-many-tasks.interactor";
 import { serializeResult } from "@/core/utils/action-result";
+import {
+  GetEntityChangeHistoryByIdInteractor,
+  type GetEntityChangeHistoryByIdData,
+} from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 
 export async function deleteCustomColumnAction(id: string) {
   return di.get(DeleteCustomColumnInteractor).invoke({ id });
@@ -123,4 +127,8 @@ export async function bulkUpdateCustomFieldValuesAction(data: {
       await di.get(UpdateManyTasksInteractor).invoke({ tasks: items });
       break;
   }
+}
+
+export async function getEntityChangeHistoryByIdAction(data: GetEntityChangeHistoryByIdData) {
+  return di.get(GetEntityChangeHistoryByIdInteractor).invoke(data);
 }

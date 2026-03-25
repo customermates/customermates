@@ -5,6 +5,7 @@ import { EntityType, Prisma, Resource } from "@/generated/prisma";
 import { PrismaCustomColumnRepo } from "../custom-column/prisma-custom-column.repository";
 import { GetWidgetFilterableFieldsContactRepo } from "../widget/get-widget-filterable-fields.interactor";
 
+import { GetUnscopedContactRepo } from "./get-unscoped-contact.repo";
 import { GetContactsRepo } from "./get/get-contacts.interactor";
 import { GetContactsConfigurationRepo } from "./get/get-contacts-configuration.interactor";
 import { GetContactByIdRepo } from "./get/get-contact-by-id.interactor";
@@ -33,13 +34,14 @@ export class PrismaContactRepo
     DeleteContactRepo,
     GetWidgetFilterableFieldsContactRepo,
     GetContactsConfigurationRepo,
-    FindContactsByIdsRepo
+    FindContactsByIdsRepo,
+    GetUnscopedContactRepo
 {
   private get customColumnRepo() {
     return di.get(PrismaCustomColumnRepo);
   }
 
-  private get baseSelect() {
+  private get userScopedSelect() {
     return {
       id: true,
       firstName: true,
@@ -66,6 +68,15 @@ export class PrismaContactRepo
         },
       },
     } as const;
+  }
+
+  private get companyScopedSelect() {
+    return {
+      ...this.userScopedSelect,
+      organizations: { select: this.userScopedSelect.organizations.select },
+      users: { select: this.userScopedSelect.users.select },
+      deals: { select: this.userScopedSelect.deals.select },
+    };
   }
 
   getSearchableFields() {
@@ -123,7 +134,7 @@ export class PrismaContactRepo
         id,
         ...this.accessWhere("contact"),
       },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     if (!contact) return null;
@@ -136,13 +147,12 @@ export class PrismaContactRepo
     };
   }
 
-  async getContactByIdOrThrow(id: string) {
+  async getOrThrowUnscoped(id: string) {
+    const { companyId } = this.user;
+
     const contact = await this.prisma.contact.findFirstOrThrow({
-      where: {
-        id,
-        ...this.accessWhere("contact"),
-      },
-      select: this.baseSelect,
+      where: { id, companyId },
+      select: this.companyScopedSelect,
     });
 
     return {
@@ -153,12 +163,32 @@ export class PrismaContactRepo
     };
   }
 
+  async getManyOrThrowUnscoped(ids: string[]) {
+    const { companyId } = this.user;
+    const uniqueIds = [...new Set(ids)];
+
+    const contacts = await this.prisma.contact.findMany({
+      where: { id: { in: uniqueIds }, companyId },
+      select: this.companyScopedSelect,
+      orderBy: { id: "asc" },
+    });
+
+    if (contacts.length !== uniqueIds.length) throw new Error("One or more contacts not found");
+
+    return contacts.map((contact) => ({
+      ...contact,
+      organizations: contact.organizations.map((it) => it.organization),
+      users: contact.users.map((it) => it.user),
+      deals: contact.deals.map((it) => it.deal),
+    }));
+  }
+
   async getItems(params: GetQueryParams) {
     const args = await this.buildQueryArgs(params, this.accessWhere("contact"));
 
     const contacts = await this.prisma.contact.findMany({
       ...args,
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     return contacts.map((contact) => ({
@@ -239,7 +269,7 @@ export class PrismaContactRepo
 
     const createdContact = await this.prisma.contact.findFirstOrThrow({
       where: { id: contact.id, ...this.accessWhere("contact") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -342,7 +372,7 @@ export class PrismaContactRepo
 
     const updatedContact = await this.prisma.contact.findFirstOrThrow({
       where: { id, ...this.accessWhere("contact") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -359,7 +389,7 @@ export class PrismaContactRepo
   async deleteContactOrThrow(id: RepoArgs<DeleteContactRepo, "deleteContactOrThrow">) {
     const contact = await this.prisma.contact.findFirstOrThrow({
       where: { id, ...this.accessWhere("contact") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const contactDto: ContactDto = {

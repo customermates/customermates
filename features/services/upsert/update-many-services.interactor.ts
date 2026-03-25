@@ -17,13 +17,15 @@ import { UpdateServiceRepo } from "./update-service.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
+import { unique } from "@/core/utils/unique";
 
 export const UpdateManyServicesSchema = z
   .object({
@@ -68,7 +70,8 @@ export type UpdateManyServicesData = Data<typeof UpdateManyServicesSchema>;
 })
 export class UpdateManyServicesInteractor {
   constructor(
-    private repo: UpdateServiceRepo,
+    private servicesRepo: UpdateServiceRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -76,12 +79,37 @@ export class UpdateManyServicesInteractor {
   @Validate(UpdateManyServicesSchema)
   @Transaction
   async invoke(data: UpdateManyServicesData): Validated<ServiceDto[], UpdateManyServicesData> {
-    const previousServices = await Promise.all(data.services.map((s) => this.repo.getServiceByIdOrThrow(s.id)));
-    const services = await Promise.all(data.services.map((serviceData) => this.repo.updateServiceOrThrow(serviceData)));
-
+    const previousServices = await this.servicesRepo.getManyOrThrowUnscoped(data.services.map((s) => s.id));
     const previousServicesMap = new Map(previousServices.map((s) => [s.id, s]));
 
+    const relatedDealIds = unique(
+      previousServices.flatMap((service) => service.deals.map((it) => it.id)),
+      data.services.flatMap((serviceData) => serviceData.dealIds ?? []),
+    );
+
+    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
+    const services = await Promise.all(
+      data.services.map((serviceData) => this.servicesRepo.updateServiceOrThrow(serviceData)),
+    );
+
+    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
     await Promise.all([
+      ...buildRelationChangePublishes(
+        previousDeals,
+        currentDeals,
+        "services",
+        (deal, changes) =>
+          this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+            entityId: deal.id,
+            payload: {
+              deal,
+              changes,
+            },
+          }),
+        ["totalValue", "totalQuantity"],
+      ),
       ...services.map((service) => {
         const previousService = previousServicesMap.get(service.id);
         const changes = previousService ? calculateChanges(previousService, service) : {};

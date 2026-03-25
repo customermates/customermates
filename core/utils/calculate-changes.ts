@@ -1,6 +1,46 @@
 import deepEqual from "fast-deep-equal/es6";
 
-type ChangeRecord = Record<string, { previous: unknown; current: unknown }>;
+export type ChangeRecord = Record<string, { previous: unknown; current: unknown }>;
+
+export function hasRelationChanged(
+  changes: ChangeRecord,
+  relationField: string,
+  additionalFields: string[] = [],
+): boolean {
+  for (const field of additionalFields) if (field in changes) return true;
+
+  const change = changes[relationField];
+  if (!change) return false;
+
+  const previous = Array.isArray(change.previous) ? (change.previous as { id: string; quantity?: number }[]) : [];
+  const current = Array.isArray(change.current) ? (change.current as { id: string; quantity?: number }[]) : [];
+
+  if (previous.length !== current.length) return true;
+
+  const previousMap = new Map(previous.map((it) => [it.id, it.quantity]));
+
+  for (const item of current) {
+    if (!previousMap.has(item.id)) return true;
+    if (previousMap.get(item.id) !== item.quantity) return true;
+  }
+
+  return false;
+}
+
+export function buildRelationChangePublishes<T extends Record<string, unknown>>(
+  previousEntities: T[],
+  currentEntities: T[],
+  relationField: string,
+  publish: (currentEntity: T, changes: ChangeRecord) => Promise<void>,
+  additionalFields?: string[],
+): Promise<void>[] {
+  return currentEntities.flatMap((currentEntity, index) => {
+    const changes = calculateChanges(previousEntities[index], currentEntity);
+    if (!hasRelationChanged(changes, relationField, additionalFields)) return [];
+
+    return [publish(currentEntity, changes)];
+  });
+}
 
 function findKeyProperty(arr: unknown[]): string | null {
   if (arr.length === 0) return null;

@@ -15,12 +15,15 @@ import { CreateServiceRepo } from "./create-service.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
+import { calculateChanges } from "@/core/utils/calculate-changes";
+import { unique } from "@/core/utils/unique";
 
 export const CreateManyServicesSchema = z
   .object({
@@ -62,6 +65,7 @@ export type CreateManyServicesData = Data<typeof CreateManyServicesSchema>;
 export class CreateManyServicesInteractor {
   constructor(
     private repo: CreateServiceRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -69,9 +73,24 @@ export class CreateManyServicesInteractor {
   @Validate(CreateManyServicesSchema)
   @Transaction
   async invoke(data: CreateManyServicesData): Validated<ServiceDto[], CreateManyServicesData> {
+    const relatedDealIds = unique(data.services.flatMap((service) => service.dealIds));
+
+    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
     const services = await Promise.all(data.services.map((serviceData) => this.repo.createServiceOrThrow(serviceData)));
 
+    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
     await Promise.all([
+      ...currentDeals.map((deal, index) =>
+        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+          entityId: deal.id,
+          payload: {
+            deal,
+            changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
       ...services.map((service) =>
         this.eventService.publish(DomainEvent.SERVICE_CREATED, {
           entityId: service.id,

@@ -8,6 +8,8 @@ import { FeedbackModal } from "./company/components/feedback/feedback-modal";
 import { CompanyUserModal } from "./company/components/user/user-modal";
 import { CompanyInviteModal } from "./company/components/company-invite/company-invite-modal";
 import { AuditLogModal } from "./company/components/audit-log/audit-log-modal";
+import { EntityHistoryDetailsModal } from "./company/components/audit-log/entity-history-details-modal";
+import { EntityHistoryModal } from "./company/components/audit-log/entity-history-modal";
 import { WebhookDeliveryModal } from "./company/components/webhook/webhook-delivery-modal";
 import { WebhookModal } from "./company/components/webhook/webhook-modal";
 import { ApiKeyModal } from "./profile/components/api-key-modal";
@@ -82,6 +84,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <XCustomColumnModal />
 
       <AuditLogModal />
+
+      <EntityHistoryModal />
+
+      <EntityHistoryDetailsModal />
 
       <ApiKeyModal />
 

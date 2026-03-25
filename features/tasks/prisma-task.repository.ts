@@ -46,7 +46,7 @@ export class PrismaTaskRepo
     return di.get(PrismaCustomColumnRepo);
   }
 
-  private get baseSelect() {
+  private get userScopedSelect() {
     return {
       id: true,
       name: true,
@@ -65,6 +65,13 @@ export class PrismaTaskRepo
         },
       },
     } as const;
+  }
+
+  private get companyScopedSelect() {
+    return {
+      ...this.userScopedSelect,
+      users: { select: this.userScopedSelect.users.select },
+    };
   }
 
   getSearchableFields() {
@@ -103,7 +110,7 @@ export class PrismaTaskRepo
 
     const tasks = await this.prisma.task.findMany({
       ...args,
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     return tasks.map((task) => ({
@@ -286,7 +293,7 @@ export class PrismaTaskRepo
 
     const createdTask = await this.prisma.task.findFirstOrThrow({
       where: { id: task.id, ...this.accessWhere("task") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -354,7 +361,7 @@ export class PrismaTaskRepo
 
     const updatedTask = await this.prisma.task.findFirstOrThrow({
       where: { id, ...this.accessWhere("task") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -369,7 +376,7 @@ export class PrismaTaskRepo
   async deleteTaskOrThrow(id: string) {
     const task = await this.prisma.task.findFirstOrThrow({
       where: { id, ...this.accessWhere("task") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const taskDto: TaskDto = {
@@ -417,7 +424,7 @@ export class PrismaTaskRepo
         id,
         ...this.accessWhere("task"),
       },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     if (!task) return null;
@@ -434,7 +441,7 @@ export class PrismaTaskRepo
         id,
         ...this.accessWhere("task"),
       },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     return {

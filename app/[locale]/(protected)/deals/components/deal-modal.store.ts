@@ -48,8 +48,8 @@ export class DealModalStore extends BaseCustomColumnEntityModalStore<CreateDealD
         organizationIds: entity.organizations.map((org) => org.id),
         userIds: entity.users.map((user) => user.id),
         contactIds: entity.contacts.map((contact) => contact.id),
-        services: entity.servicesWithQuantity.map((it) => ({
-          serviceId: it.serviceId,
+        services: entity.services.map((it) => ({
+          serviceId: it.id,
           quantity: it.quantity,
         })),
       };

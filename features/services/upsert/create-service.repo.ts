@@ -1,4 +1,4 @@
-import { type ServiceDto } from "../service.schema";
+import type { ServiceDto } from "../service.schema";
 
 import { type CreateServiceData } from "./create-service.interactor";
 

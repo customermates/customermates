@@ -22,6 +22,19 @@ export const DealServicesSelection = observer(() => {
 
   if (!userStore.canAccess(Resource.services)) return null;
 
+  async function getServiceOptions(params: { searchTerm?: string }) {
+    const result = await getServicesAction(params);
+    return {
+      ...result,
+      items: result.items.map((service) => ({ ...service, quantity: 1 })),
+    };
+  }
+
+  async function createServiceOption(name: string) {
+    const service = await createServiceByNameAction(name, userStore.user?.id);
+    return service ? { ...service, quantity: 1 } : null;
+  }
+
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
       <div className="w-full grid grid-cols-[minmax(120px,400px)_68px_40px] gap-2 items-center">
@@ -46,7 +59,7 @@ export const DealServicesSelection = observer(() => {
             <XAutocomplete
               isRequired
               filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
-              getItems={getServicesAction}
+              getItems={getServiceOptions}
               id={`services[${index}].serviceId`}
               items={fetchedEntity?.services.filter((it) => !selectedServiceIds.includes(it.id)) ?? []}
               label={null}
@@ -57,7 +70,7 @@ export const DealServicesSelection = observer(() => {
                   </span>
                 ))
               }
-              onCreate={(name) => createServiceByNameAction(name, userStore.user?.id)}
+              onCreate={createServiceOption}
             >
               {(service) =>
                 XAutocompleteItem({

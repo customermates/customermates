@@ -66,7 +66,10 @@ export const DealsCard = observer(({ deals }: Props) => {
       case "services":
         return (
           <XChipStack
-            items={item.services.map((service) => ({ id: service.id, label: service.name }))}
+            items={item.services.map((service) => ({
+              id: service.id,
+              label: `${service.name} – ${intlStore.formatCurrency(service.amount * service.quantity)}`,
+            }))}
             size="sm"
             variant="flat"
             onChipClick={(service) => void serviceModalStore.loadById(service.id)}

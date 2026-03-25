@@ -2,14 +2,14 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import z from "zod";
 
-import { DealDtoSchema, ServiceWithQuantityReferenceSchema } from "../deal.schema";
+import { DealDtoSchema } from "../deal.schema";
 
 import {
   CustomFieldValueSchema,
   ContactReferenceSchema,
   OrganizationReferenceSchema,
-  UserReferenceSchema,
   ServiceReferenceSchema,
+  UserReferenceSchema,
 } from "@/core/base/base-entity.schema";
 
 const DealChangesSchema = z.object({
@@ -65,12 +65,6 @@ const DealChangesSchema = z.object({
     .object({
       previous: z.array(ServiceReferenceSchema),
       current: z.array(ServiceReferenceSchema),
-    })
-    .optional(),
-  servicesWithQuantity: z
-    .object({
-      previous: z.array(ServiceWithQuantityReferenceSchema),
-      current: z.array(ServiceWithQuantityReferenceSchema),
     })
     .optional(),
   customFieldValues: z

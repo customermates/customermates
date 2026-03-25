@@ -5,6 +5,7 @@ import { EntityType, Prisma, Resource } from "@/generated/prisma";
 import { PrismaCustomColumnRepo } from "../custom-column/prisma-custom-column.repository";
 import { GetWidgetFilterableFieldsOrganizationRepo } from "../widget/get-widget-filterable-fields.interactor";
 
+import { GetUnscopedOrganizationRepo } from "./get-unscoped-organization.repo";
 import { GetOrganizationsRepo } from "./get/get-organizations.interactor";
 import { GetOrganizationsConfigurationRepo } from "./get/get-organizations-configuration.interactor";
 import { GetOrganizationByIdRepo } from "./get/get-organization-by-id.interactor";
@@ -33,13 +34,14 @@ export class PrismaOrganizationRepo
     UpdateOrganizationRepo,
     DeleteOrganizationRepo,
     GetWidgetFilterableFieldsOrganizationRepo,
-    FindOrganizationsByIdsRepo
+    FindOrganizationsByIdsRepo,
+    GetUnscopedOrganizationRepo
 {
   private get customColumnRepo() {
     return di.get(PrismaCustomColumnRepo);
   }
 
-  private get baseSelect() {
+  private get userScopedSelect() {
     return {
       id: true,
       name: true,
@@ -65,6 +67,15 @@ export class PrismaOrganizationRepo
         },
       },
     } as const;
+  }
+
+  private get companyScopedSelect() {
+    return {
+      ...this.userScopedSelect,
+      contacts: { select: this.userScopedSelect.contacts.select },
+      users: { select: this.userScopedSelect.users.select },
+      deals: { select: this.userScopedSelect.deals.select },
+    };
   }
 
   getSearchableFields() {
@@ -118,7 +129,7 @@ export class PrismaOrganizationRepo
         id,
         ...this.accessWhere("organization"),
       },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     if (!organization) return null;
@@ -131,13 +142,12 @@ export class PrismaOrganizationRepo
     };
   }
 
-  async getOrganizationByIdOrThrow(id: string) {
+  async getOrThrowUnscoped(id: string) {
+    const { companyId } = this.user;
+
     const organization = await this.prisma.organization.findFirstOrThrow({
-      where: {
-        id,
-        ...this.accessWhere("organization"),
-      },
-      select: this.baseSelect,
+      where: { id, companyId },
+      select: this.companyScopedSelect,
     });
 
     return {
@@ -148,12 +158,34 @@ export class PrismaOrganizationRepo
     };
   }
 
+  async getManyOrThrowUnscoped(ids: string[]) {
+    if (ids.length === 0) return [];
+
+    const { companyId } = this.user;
+    const uniqueIds = [...new Set(ids)];
+
+    const organizations = await this.prisma.organization.findMany({
+      where: { id: { in: uniqueIds }, companyId },
+      select: this.companyScopedSelect,
+      orderBy: { id: "asc" },
+    });
+
+    if (organizations.length !== uniqueIds.length) throw new Error("One or more organizations not found");
+
+    return organizations.map((organization) => ({
+      ...organization,
+      contacts: organization.contacts.map((it) => it.contact),
+      users: organization.users.map((it) => it.user),
+      deals: organization.deals.map((it) => it.deal),
+    }));
+  }
+
   async getItems(params: GetQueryParams) {
     const args = await this.buildQueryArgs(params, this.accessWhere("organization"));
 
     const organizations = await this.prisma.organization.findMany({
       ...args,
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     return organizations.map((organization) => ({
@@ -254,7 +286,7 @@ export class PrismaOrganizationRepo
 
     const createdOrganization = await this.prisma.organization.findFirstOrThrow({
       where: { id: organization.id, ...this.accessWhere("organization") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -360,7 +392,7 @@ export class PrismaOrganizationRepo
 
     const updatedOrganization = await this.prisma.organization.findFirstOrThrow({
       where: { id, ...this.accessWhere("organization") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const res = {
@@ -377,7 +409,7 @@ export class PrismaOrganizationRepo
   async deleteOrganizationOrThrow(id: string) {
     const organization = await this.prisma.organization.findFirstOrThrow({
       where: { id, ...this.accessWhere("organization") },
-      select: this.baseSelect,
+      select: this.userScopedSelect,
     });
 
     const organizationDto: OrganizationDto = {

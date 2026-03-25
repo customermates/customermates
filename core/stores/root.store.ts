@@ -45,6 +45,8 @@ import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/compo
 import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
 import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-log-modal.store";
 import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
+import { EntityHistoryDetailsModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-details-modal.store";
+import { EntityHistoryModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-modal.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { AiAgentProvisionModalStore } from "@/app/components/ai-agent-provision-modal.store";
 import { AiAgentEnvironmentVariableModalStore } from "@/app/components/ai-agent-environment-variable-modal.store";
@@ -98,6 +100,8 @@ export class RootStore {
   private _webhookModalStore?: WebhookModalStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
+  private _entityHistoryDetailsModalStore?: EntityHistoryDetailsModalStore;
+  private _entityHistoryModalStore?: EntityHistoryModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
   private _aiAgentProvisionModalStore?: AiAgentProvisionModalStore;
   private _aiAgentEnvironmentVariableModalStore?: AiAgentEnvironmentVariableModalStore;
@@ -296,6 +300,14 @@ export class RootStore {
 
   get auditLogModalStore() {
     return (this._auditLogModalStore ??= new AuditLogModalStore(this));
+  }
+
+  get entityHistoryModalStore() {
+    return (this._entityHistoryModalStore ??= new EntityHistoryModalStore(this));
+  }
+
+  get entityHistoryDetailsModalStore() {
+    return (this._entityHistoryDetailsModalStore ??= new EntityHistoryDetailsModalStore(this));
   }
 
   get feedbackModalStore() {

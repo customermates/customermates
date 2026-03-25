@@ -19,13 +19,16 @@ import { UpdateContactRepo } from "./update-contact.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
+import { unique } from "@/core/utils/unique";
 
 export const UpdateManyContactsSchema = z
   .object({
@@ -68,14 +71,15 @@ export const UpdateManyContactsSchema = z
     }
   });
 export type UpdateManyContactsData = Data<typeof UpdateManyContactsSchema>;
-
 @TentantInteractor({
   resource: Resource.contacts,
   action: Action.update,
 })
 export class UpdateManyContactsInteractor {
   constructor(
-    private repo: UpdateContactRepo,
+    private contactsRepo: UpdateContactRepo,
+    private organizationsRepo: GetUnscopedOrganizationRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -83,12 +87,55 @@ export class UpdateManyContactsInteractor {
   @Validate(UpdateManyContactsSchema)
   @Transaction
   async invoke(data: UpdateManyContactsData): Validated<ContactDto[], UpdateManyContactsData> {
-    const previousContacts = await Promise.all(data.contacts.map((c) => this.repo.getContactByIdOrThrow(c.id)));
-    const contacts = await Promise.all(data.contacts.map((contactData) => this.repo.updateContactOrThrow(contactData)));
-
+    const previousContacts = await this.contactsRepo.getManyOrThrowUnscoped(data.contacts.map((c) => c.id));
     const previousContactsMap = new Map(previousContacts.map((c) => [c.id, c]));
 
+    const relatedOrganizationIds = unique(
+      previousContacts.flatMap((contact) => contact.organizations.map((it) => it.id)),
+      data.contacts.flatMap((contactData) => contactData.organizationIds ?? []),
+    );
+    const relatedDealIds = unique(
+      previousContacts.flatMap((contact) => contact.deals.map((it) => it.id)),
+      data.contacts.flatMap((contactData) => contactData.dealIds ?? []),
+    );
+
+    const [previousOrganizations, previousDeals] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+    ]);
+
+    const contacts = await Promise.all(
+      data.contacts.map((contactData) => this.contactsRepo.updateContactOrThrow(contactData)),
+    );
+
+    const [currentOrganizations, currentDeals] = await Promise.all([
+      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+    ]);
+
     await Promise.all([
+      ...buildRelationChangePublishes(
+        previousOrganizations,
+        currentOrganizations,
+        "contacts",
+        (organization, changes) =>
+          this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
+            entityId: organization.id,
+            payload: {
+              organization,
+              changes,
+            },
+          }),
+      ),
+      ...buildRelationChangePublishes(previousDeals, currentDeals, "contacts", (deal, changes) =>
+        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+          entityId: deal.id,
+          payload: {
+            deal,
+            changes,
+          },
+        }),
+      ),
       ...contacts.map((contact) => {
         const previousContact = previousContactsMap.get(contact.id);
         const changes = previousContact ? calculateChanges(previousContact, contact) : {};

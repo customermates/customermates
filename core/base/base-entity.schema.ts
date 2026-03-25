@@ -32,6 +32,7 @@ export const ServiceReferenceSchema = z.object({
   id: z.uuid(),
   name: z.string(),
   amount: z.number(),
+  quantity: z.number(),
 });
 
 export const CustomFieldValueSchema = z.object({

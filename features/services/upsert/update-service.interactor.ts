@@ -15,14 +15,16 @@ import { UpdateServiceRepo } from "./update-service.repo";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { EventService } from "@/features/event/event.service";
+import { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import { WidgetService } from "@/features/widget/widget.service";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { Data, type Validated } from "@/core/validation/validation.utils";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
+import { unique } from "@/core/utils/unique";
 
 export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (data, ctx) => {
   const { di } = await import("@/core/dependency-injection/container");
@@ -54,7 +56,8 @@ export type UpdateServiceData = Data<typeof UpdateServiceSchema>;
 })
 export class UpdateServiceInteractor {
   constructor(
-    private repo: UpdateServiceRepo,
+    private servicesRepo: UpdateServiceRepo,
+    private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {}
@@ -62,18 +65,39 @@ export class UpdateServiceInteractor {
   @Validate(UpdateServiceSchema)
   @Transaction
   async invoke(data: UpdateServiceData): Validated<ServiceDto, UpdateServiceData> {
-    const previousService = await this.repo.getServiceByIdOrThrow(data.id);
-    const service = await this.repo.updateServiceOrThrow(data);
+    const previousService = await this.servicesRepo.getOrThrowUnscoped(data.id);
+
+    const relatedDealIds = unique(
+      previousService.deals.map((it) => it.id),
+      data.dealIds,
+    );
+
+    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+
+    const service = await this.servicesRepo.updateServiceOrThrow(data);
+
+    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
 
     const changes = calculateChanges(previousService, service);
 
     await Promise.all([
+      ...buildRelationChangePublishes(
+        previousDeals,
+        currentDeals,
+        "services",
+        (deal, changes) =>
+          this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+            entityId: deal.id,
+            payload: {
+              deal,
+              changes,
+            },
+          }),
+        ["totalValue", "totalQuantity"],
+      ),
       this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
         entityId: service.id,
-        payload: {
-          service,
-          changes,
-        },
+        payload: { service, changes },
       }),
       this.widgetService.recalculateUserWidgets(),
     ]);
