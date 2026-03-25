@@ -168,7 +168,7 @@ export const AppSidebar = observer(({ user, systemTaskCount, company, subscripti
   useEffect(() => {
     userStore.setUser(user);
     if (company) companyStore.setCompany(company);
-  }, [user, company, userStore, companyStore]);
+  }, [user, company]);
 
   function handleSidebarPress(callback?: () => void) {
     if (window.innerWidth < 768) layoutStore.setIsSidebarOpen(false);

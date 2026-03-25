@@ -1,26 +1,18 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
 import { XDataViewContainer } from "@/components/x-data-view/x-data-view-container";
 import { XDataViewCell } from "@/components/x-data-view/x-data-view-cell";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { XChipStack } from "@/components/x-chip/x-chip-stack";
 import { XChip } from "@/components/x-chip/x-chip";
-type Props = {
-  webhooks: GetResult<WebhookDto>;
-};
-
-export const WebhooksCard = observer(({ webhooks }: Props) => {
+export const WebhooksCard = observer(() => {
   const t = useTranslations("");
   const { webhookModalStore, webhooksStore, intlStore } = useRootStore();
-
-  useEffect(() => webhooksStore.setItems(webhooks), [webhooks, webhooksStore]);
 
   function renderCell(item: WebhookDto, columnKey: React.Key): string | number | JSX.Element {
     switch (columnKey) {

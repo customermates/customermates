@@ -1,11 +1,9 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
 import type { AuditLogDto } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { XDataViewContainer } from "@/components/x-data-view/x-data-view-container";
@@ -15,15 +13,9 @@ import { XChip } from "@/components/x-chip/x-chip";
 import { XCopyableChip } from "@/components/x-chip/x-copyable-chip";
 import { XAvatarStack } from "@/components/x-avatar-stack";
 
-type Props = {
-  auditLogs: GetResult<AuditLogDto>;
-};
-
-export const AuditLogsCard = observer(({ auditLogs }: Props) => {
+export const AuditLogsCard = observer(() => {
   const t = useTranslations("");
   const { auditLogModalStore, auditLogsStore, intlStore, userModalStore } = useRootStore();
-
-  useEffect(() => auditLogsStore.setItems(auditLogs), [auditLogs]);
 
   function renderCell(item: AuditLogDto, columnKey: React.Key): string | number | JSX.Element {
     switch (columnKey) {

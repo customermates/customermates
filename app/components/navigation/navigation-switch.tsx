@@ -37,7 +37,7 @@ export function NavigationSwitch({
 
   useLayoutEffect(() => {
     layoutStore.setIsNavbarVisible(shouldShowNavbar);
-  }, [layoutStore, shouldShowNavbar]);
+  }, [shouldShowNavbar]);
 
   return (
     <div className="h-screen flex">

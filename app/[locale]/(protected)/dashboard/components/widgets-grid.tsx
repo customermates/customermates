@@ -56,7 +56,7 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);
-  }, [widgetModalStore]);
+  }, []);
 
   const handlePointerDown = useCallback((id: string, e: React.PointerEvent) => {
     pointerStart.current = { id, x: e.clientX, y: e.clientY };

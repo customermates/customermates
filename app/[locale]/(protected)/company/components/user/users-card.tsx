@@ -1,11 +1,10 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
 import type { UserDto } from "@/features/user/user.schema";
 
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { observer } from "mobx-react-lite";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@heroui/button";
 import { Avatar } from "@heroui/avatar";
@@ -19,23 +18,21 @@ import { XDataViewContainer } from "@/components/x-data-view/x-data-view-contain
 import { XDataViewCell } from "@/components/x-data-view/x-data-view-cell";
 
 type Props = {
-  users: GetResult<UserDto>;
   isCompanyOnboarding: boolean;
 };
 
-export const UsersCard = observer(({ users, isCompanyOnboarding }: Props) => {
+export const UsersCard = observer(({ isCompanyOnboarding }: Props) => {
   const t = useTranslations("");
   const { usersStore, userModalStore, companyInviteModalStore, rolesStore, intlStore } = useRootStore();
   const { canManage, isDisabled } = usersStore;
-
-  useEffect(() => usersStore.setItems(users), [users]);
+  const roles = rolesStore.items;
 
   useEffect(() => {
     const cleanupUrlSync = usersStore.withUrlSync();
     return () => cleanupUrlSync();
   }, []);
 
-  const renderCell = React.useCallback((item: UserDto, columnKey: React.Key) => {
+  function renderCell(item: UserDto, columnKey: React.Key): string | number | JSX.Element {
     const cellValue = item[columnKey as keyof UserDto];
 
     switch (columnKey) {
@@ -64,7 +61,7 @@ export const UsersCard = observer(({ users, isCompanyOnboarding }: Props) => {
       case "status":
         return <XChip color={USER_STATUS_COLORS_MAP[item.status]}>{t(`Common.userStatuses.${item.status}`)}</XChip>;
       case "role": {
-        const role = rolesStore.items.find((r) => r.id === item.roleId);
+        const role = roles.find((r) => r.id === item.roleId);
 
         return role ? <XChip>{role?.name}</XChip> : "";
       }
@@ -75,7 +72,7 @@ export const UsersCard = observer(({ users, isCompanyOnboarding }: Props) => {
       default:
         return cellValue?.toString() ?? "";
     }
-  }, []);
+  }
 
   return (
     <XDataViewContainer

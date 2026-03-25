@@ -214,7 +214,7 @@ export const XCustomFieldValue = observer(
             <span />
           );
       }
-    }, [column, item, intlStore, value, isDropdownOpen, handleSelectOption]);
+    }, [column, item, value, isDropdownOpen, handleSelectOption]);
 
     return renderValue();
   },

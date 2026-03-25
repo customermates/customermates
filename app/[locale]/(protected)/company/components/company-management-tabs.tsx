@@ -18,6 +18,8 @@ import { AuditLogsCard } from "./audit-log/audit-logs-card";
 import { WebhooksCard } from "./webhook/webhooks-card";
 import { WebhookDeliveriesCard } from "./webhook/webhook-deliveries-card";
 
+import { useRootStore } from "@/core/stores/root-store.provider";
+
 type Props = {
   auditLogs: GetResult<AuditLogDto>;
   canAccessAuditLogs: boolean;
@@ -43,6 +45,15 @@ export function CompanyManagementTabs({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { auditLogsStore, rolesStore, usersStore, webhookDeliveriesStore, webhooksStore } = useRootStore();
+
+  useEffect(() => {
+    usersStore.setItems(users);
+    rolesStore.setItems(roles);
+    auditLogsStore.setItems(auditLogs);
+    webhooksStore.setItems(webhooks);
+    webhookDeliveriesStore.setItems(deliveries);
+  }, [auditLogs, deliveries, roles, users, webhooks]);
 
   const availableTabs = [
     "users",
@@ -83,28 +94,28 @@ export function CompanyManagementTabs({
       onSelectionChange={onTabSelectionChange}
     >
       <Tab key="users" title={t("UsersCard.title")}>
-        <UsersCard isCompanyOnboarding={isCompanyOnboarding} users={users} />
+        <UsersCard isCompanyOnboarding={isCompanyOnboarding} />
       </Tab>
 
       <Tab key="roles" title={t("RolesCard.title")}>
-        <RolesCard roles={roles} />
+        <RolesCard />
       </Tab>
 
       {canAccessAuditLogs && (
         <Tab key="audit-logs" title={t("AuditLogsCard.title")}>
-          <AuditLogsCard auditLogs={auditLogs} />
+          <AuditLogsCard />
         </Tab>
       )}
 
       {canAccessApi && (
         <Tab key="webhooks" title={t("WebhooksCard.title")}>
-          <WebhooksCard webhooks={webhooks} />
+          <WebhooksCard />
         </Tab>
       )}
 
       {canAccessApi && (
         <Tab key="webhook-deliveries" title={t("WebhookDeliveriesCard.title")}>
-          <WebhookDeliveriesCard deliveries={deliveries} />
+          <WebhookDeliveriesCard />
         </Tab>
       )}
     </Tabs>

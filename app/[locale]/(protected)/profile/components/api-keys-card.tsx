@@ -24,7 +24,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
 
-  useEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys, apiKeysStore]);
+  useEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
 
   return (
     <XCard>

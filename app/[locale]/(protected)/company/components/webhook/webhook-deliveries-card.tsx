@@ -1,26 +1,18 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
 import type { WebhookDeliveryDto } from "@/features/webhook/get-webhook-deliveries.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
 
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { XDataViewContainer } from "@/components/x-data-view/x-data-view-container";
 import { XDataViewCell } from "@/components/x-data-view/x-data-view-cell";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { XChip } from "@/components/x-chip/x-chip";
-type Props = {
-  deliveries: GetResult<WebhookDeliveryDto>;
-};
-
-export const WebhookDeliveriesCard = observer(({ deliveries }: Props) => {
+export const WebhookDeliveriesCard = observer(() => {
   const t = useTranslations("");
   const { webhookDeliveryModalStore, webhookDeliveriesStore, intlStore } = useRootStore();
-
-  useEffect(() => webhookDeliveriesStore.setItems(deliveries), [deliveries]);
 
   function renderCell(item: WebhookDeliveryDto, columnKey: React.Key): string | number | JSX.Element {
     switch (columnKey) {

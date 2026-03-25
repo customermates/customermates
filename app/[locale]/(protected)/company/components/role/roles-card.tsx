@@ -1,8 +1,5 @@
 "use client";
 
-import type { GetResult } from "@/core/base/base-get.interactor";
-
-import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -14,13 +11,9 @@ import { XChip } from "@/components/x-chip/x-chip";
 import { XDataViewContainer } from "@/components/x-data-view/x-data-view-container";
 import { XDataViewCell } from "@/components/x-data-view/x-data-view-cell";
 
-type Props = { roles: GetResult<UserRoleDto> };
-
-export const RolesCard = observer(({ roles }: Props) => {
+export const RolesCard = observer(() => {
   const { rolesStore, roleModalStore } = useRootStore();
   const t = useTranslations("");
-
-  useEffect(() => rolesStore.setItems(roles), [roles]);
 
   function renderCell(item: UserRoleDto, columnKey: React.Key) {
     switch (columnKey) {

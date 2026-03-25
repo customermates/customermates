@@ -13,7 +13,7 @@ export function XTranslationSync() {
   useEffect(() => {
     if (locale === "en" || locale === "de") localeStore.setLocale(locale);
     localeStore.setTranslation(t);
-  }, [locale, t, localeStore]);
+  }, [locale, t]);
 
   return null;
 }
