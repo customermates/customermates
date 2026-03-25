@@ -39,7 +39,10 @@ export const XDataCard = observer(<E extends HasId>({ item, renderCell, classNam
 
           if (column.uid === "name") {
             return (
-              <div key={column.uid} className="flex w-full items-center justify-between gap-3 mb-1">
+              <div
+                key={column.uid}
+                className="flex w-full items-center justify-between gap-3 mb-1 [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal [&_.truncate]:text-ellipsis"
+              >
                 {cellContent}
               </div>
             );

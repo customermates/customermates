@@ -133,119 +133,101 @@ export const XBaseCustomColumnEntityModal = observer(
                 <h2 className="text-x-lg grow">{t(titleKey)}</h2>
 
                 <div className="flex items-center gap-2">
-                  <ButtonGroup size="sm" variant="flat">
-                    <XTooltip content={t("Common.actions.showMasterData")}>
-                      <Button
-                        isIconOnly
-                        aria-label={t("Common.actions.showMasterData")}
-                        color={viewMode === EntityModalViewMode.masterData ? "primary" : "default"}
-                        onPress={() => handleViewModeChange(EntityModalViewMode.masterData)}
-                      >
-                        <XIcon icon={CircleStackIcon} />
-                      </Button>
-                    </XTooltip>
-
-                    <XTooltip content={t("Common.actions.showNotes")}>
-                      <Button
-                        isIconOnly
-                        aria-label={t("Common.actions.showNotes")}
-                        color={viewMode === EntityModalViewMode.notes ? "primary" : "default"}
-                        onPress={() => handleViewModeChange(EntityModalViewMode.notes)}
-                      >
-                        <XIcon icon={PencilSquareIcon} />
-                      </Button>
-                    </XTooltip>
-
-                    {isLargeScreen && (
-                      <XTooltip content={t("Common.actions.showSideBySide")}>
-                        <Button
-                          isIconOnly
-                          aria-label={t("Common.actions.showSideBySide")}
-                          color={viewMode === EntityModalViewMode.sideBySide ? "primary" : "default"}
-                          onPress={() => handleViewModeChange(EntityModalViewMode.sideBySide)}
-                        >
-                          <XIcon icon={ViewColumnsIcon} />
-                        </Button>
+                  {isEditingCustomField ? (
+                    <ButtonGroup size="sm" variant="flat">
+                      <XTooltip content={t("Common.actions.cancel")}>
+                        <Button onPress={toggleEditingCustomField}>{t("Common.actions.cancel")}</Button>
                       </XTooltip>
-                    )}
-                  </ButtonGroup>
 
-                  {rootStore.isCloudHosted && hasId && userStore.can(Resource.auditLog, Action.readAll) && (
-                    <XTooltip content={t("Common.actions.showHistory")}>
-                      <div>
-                        <Button
-                          isIconOnly
-                          color="primary"
-                          size="sm"
-                          variant="flat"
-                          onPress={() => {
-                            if (typeof form.id === "string") void entityHistoryModalStore.loadByEntityId(form.id);
-                          }}
-                        >
-                          <XIcon icon={ClockIcon} />
-                        </Button>
-                      </div>
-                    </XTooltip>
-                  )}
-
-                  {canManage && (
+                      <Button
+                        color="primary"
+                        startContent={<XIcon icon={PlusIcon} />}
+                        onPress={() => {
+                          xCustomColumnModalStore.initialize(CustomColumnType.plain, entityType);
+                          xCustomColumnModalStore.open();
+                        }}
+                      >
+                        {t("Common.actions.addCustomField")}
+                      </Button>
+                    </ButtonGroup>
+                  ) : (
                     <>
-                      {isEditingCustomField ? (
-                        <>
-                          <XTooltip content={t("Common.actions.cancel")}>
-                            <div>
-                              <Button size="sm" variant="flat" onPress={toggleEditingCustomField}>
-                                {t("Common.actions.cancel")}
-                              </Button>
-                            </div>
-                          </XTooltip>
-
+                      <ButtonGroup size="sm" variant="flat">
+                        <XTooltip content={t("Common.actions.showMasterData")}>
                           <Button
-                            color="primary"
-                            size="sm"
-                            startContent={<XIcon icon={PlusIcon} />}
-                            variant="flat"
-                            onPress={() => {
-                              xCustomColumnModalStore.initialize(CustomColumnType.plain, entityType);
-                              xCustomColumnModalStore.open();
-                            }}
+                            isIconOnly
+                            aria-label={t("Common.actions.showMasterData")}
+                            color={viewMode === EntityModalViewMode.masterData ? "primary" : "default"}
+                            onPress={() => handleViewModeChange(EntityModalViewMode.masterData)}
                           >
-                            {t("Common.actions.addCustomField")}
+                            <XIcon icon={CircleStackIcon} />
                           </Button>
-                        </>
-                      ) : (
-                        <>
+                        </XTooltip>
+
+                        <XTooltip content={t("Common.actions.showNotes")}>
+                          <Button
+                            isIconOnly
+                            aria-label={t("Common.actions.showNotes")}
+                            color={viewMode === EntityModalViewMode.notes ? "primary" : "default"}
+                            onPress={() => handleViewModeChange(EntityModalViewMode.notes)}
+                          >
+                            <XIcon icon={PencilSquareIcon} />
+                          </Button>
+                        </XTooltip>
+
+                        {isLargeScreen && (
+                          <XTooltip content={t("Common.actions.showSideBySide")}>
+                            <Button
+                              isIconOnly
+                              aria-label={t("Common.actions.showSideBySide")}
+                              color={viewMode === EntityModalViewMode.sideBySide ? "primary" : "default"}
+                              onPress={() => handleViewModeChange(EntityModalViewMode.sideBySide)}
+                            >
+                              <XIcon icon={ViewColumnsIcon} />
+                            </Button>
+                          </XTooltip>
+                        )}
+                      </ButtonGroup>
+
+                      {rootStore.isCloudHosted && hasId && userStore.can(Resource.auditLog, Action.readAll) && (
+                        <XTooltip content={t("Common.actions.showHistory")}>
+                          <div>
+                            <Button
+                              isIconOnly
+                              color="primary"
+                              size="sm"
+                              variant="flat"
+                              onPress={() => {
+                                if (typeof form.id === "string") void entityHistoryModalStore.loadByEntityId(form.id);
+                              }}
+                            >
+                              <XIcon icon={ClockIcon} />
+                            </Button>
+                          </div>
+                        </XTooltip>
+                      )}
+
+                      {canManage && (
+                        <ButtonGroup size="sm" variant="flat">
                           <XTooltip content={t("Common.actions.editCustomFields")}>
-                            <div>
-                              <Button
-                                isIconOnly
-                                color="primary"
-                                size="sm"
-                                variant="flat"
-                                onPress={toggleEditingCustomField}
-                              >
-                                <XIcon icon={PencilIcon} />
-                              </Button>
-                            </div>
+                            <Button isIconOnly color="primary" onPress={toggleEditingCustomField}>
+                              <XIcon icon={PencilIcon} />
+                            </Button>
                           </XTooltip>
 
                           {hasId && canDelete && (
                             <XTooltip content={t("Common.actions.delete")}>
-                              <div>
-                                <Button
-                                  isIconOnly
-                                  color="danger"
-                                  isDisabled={isLoading}
-                                  size="sm"
-                                  variant="flat"
-                                  onPress={() => showDeleteConfirmation(() => void store.delete())}
-                                >
-                                  <XIcon icon={TrashIcon} />
-                                </Button>
-                              </div>
+                              <Button
+                                isIconOnly
+                                color="danger"
+                                isDisabled={isLoading}
+                                onPress={() => showDeleteConfirmation(() => void store.delete())}
+                              >
+                                <XIcon icon={TrashIcon} />
+                              </Button>
                             </XTooltip>
                           )}
-                        </>
+                        </ButtonGroup>
                       )}
                     </>
                   )}
