@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { Dropdown, DropdownMenu, DropdownTrigger } from "@heroui/dropdown";
 
 import { XDropdownItem } from "../x-inputs/x-dropdown-item";
+import { XTooltip } from "../x-tooltip";
 
 import { XClickableChip } from "./x-clickable-chip";
 
@@ -225,21 +226,22 @@ export function XChipStack<T extends ChipStackItem>({
             : {};
 
         return (
-          <XClickableChip
-            key={item.id}
-            className={className}
-            color={color}
-            size={size}
-            startContent={item.startContent}
-            style={style}
-            variant={variant}
-            onClick={(e) => {
-              onChipClick?.(item);
-              e.stopPropagation();
-            }}
-          >
-            <span className="truncate whitespace-nowrap">{item.label}</span>
-          </XClickableChip>
+          <XTooltip key={item.id} content={item.label}>
+            <XClickableChip
+              className={className}
+              color={color}
+              size={size}
+              startContent={item.startContent}
+              style={style}
+              variant={variant}
+              onClick={(e) => {
+                onChipClick?.(item);
+                e.stopPropagation();
+              }}
+            >
+              <span className="truncate whitespace-nowrap">{item.label}</span>
+            </XClickableChip>
+          </XTooltip>
         );
       })}
 
