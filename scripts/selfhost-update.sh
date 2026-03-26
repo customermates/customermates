@@ -39,5 +39,5 @@ fi
 
 docker compose build app
 docker compose run --rm app npx prisma migrate deploy
-docker compose up -d --no-deps app
+docker compose up -d --no-deps app webhook-worker
 docker compose ps

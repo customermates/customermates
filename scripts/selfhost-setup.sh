@@ -47,6 +47,6 @@ done
 docker compose build app
 docker compose up -d postgres
 docker compose run --rm app npx prisma migrate deploy
-docker compose up -d app
+docker compose up -d app webhook-worker
 docker compose ps
 echo "Setup completed. Open ${BASE_URL}"
