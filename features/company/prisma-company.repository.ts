@@ -133,14 +133,6 @@ export class PrismaCompanyRepo
     });
   }
 
-  @BypassTenantGuard
-  async findToken(token: string) {
-    return await this.prisma.inviteToken.findUnique({
-      where: { token },
-    });
-  }
-
-  @BypassTenantGuard
   async findTokenOrThrow(token: string) {
     const res = await this.prisma.inviteToken.findUniqueOrThrow({
       where: { token },

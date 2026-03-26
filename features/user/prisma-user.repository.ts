@@ -450,7 +450,6 @@ export class PrismaUserRepo
     return user;
   }
 
-  @BypassTenantGuard
   async findCompanyId(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },
@@ -558,7 +557,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async clearMachineIdsForUser(userId: string) {
     await this.prisma.user.update({
       where: { id: userId },
@@ -571,7 +569,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async findProspectUsers() {
     const now = Date.now();
     const from = new Date(now - 24 * 60 * 60 * 1000);
@@ -590,7 +587,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async findActiveUsersInactiveFor24HoursWithMachine() {
     const before = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
@@ -603,7 +599,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async findInactiveUsersPast3DaysForCleanup() {
     const now = Date.now();
     const before = new Date(now - 3 * 24 * 60 * 60 * 1000);
@@ -617,7 +612,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async findUsersWithResourcesOutsideProPlan() {
     return await this.prisma.user.findMany({
       where: {
@@ -629,7 +623,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async findUsersWithTrialEndedLast24Hours() {
     const now = Date.now();
     const from = new Date(now - 24 * 60 * 60 * 1000);
@@ -638,7 +631,6 @@ export class PrismaUserRepo
     return await this.findUsersWithTrialEndDateBetween(from, to);
   }
 
-  @BypassTenantGuard
   async findUsersWithTrialEndedBetween3And4Days() {
     const now = Date.now();
     const from = new Date(now - 4 * 24 * 60 * 60 * 1000);
@@ -647,7 +639,6 @@ export class PrismaUserRepo
     return await this.findUsersWithTrialEndDateBetween(from, to);
   }
 
-  @BypassTenantGuard
   async findUsersWithTrialEndedBetween6And7Days() {
     const now = Date.now();
     const from = new Date(now - 7 * 24 * 60 * 60 * 1000);
@@ -656,7 +647,6 @@ export class PrismaUserRepo
     return await this.findUsersWithTrialEndDateBetween(from, to);
   }
 
-  @BypassTenantGuard
   async findUsersPastSubscriptionGracePeriod() {
     const before = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
@@ -687,7 +677,6 @@ export class PrismaUserRepo
     });
   }
 
-  @BypassTenantGuard
   async claimWelcomeEmailSent(userId: string, sentAt: Date) {
     const result = await this.prisma.user.updateMany({
       where: { id: userId, welcomeEmailSentAt: null },
@@ -697,7 +686,6 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  @BypassTenantGuard
   async claimTrialExpiredOfferSent(userId: string, sentAt: Date) {
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialExpiredOfferSentAt: null },
@@ -707,7 +695,6 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  @BypassTenantGuard
   async claimTrialInactivationReminderSent(userId: string, sentAt: Date) {
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationReminderSentAt: null },
@@ -717,7 +704,6 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  @BypassTenantGuard
   async claimTrialInactivationNoticeSent(userId: string, sentAt: Date) {
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationNoticeSentAt: null },
@@ -727,7 +713,6 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  @BypassTenantGuard
   async deactivateUser(userId: string) {
     await this.prisma.user.update({
       where: { id: userId },
