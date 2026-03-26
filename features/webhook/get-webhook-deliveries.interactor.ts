@@ -1,6 +1,6 @@
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource, Action, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { BaseGetRepo, P13nRepo } from "@/core/base/base-get.interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -21,6 +21,8 @@ export type WebhookDeliveryDto = {
   statusCode: number | null;
   responseMessage: string | null;
   success: boolean;
+  status: WebhookDeliveryStatus;
+  deliveredAt: Date | null;
   createdAt: Date;
 };
 

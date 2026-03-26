@@ -1211,6 +1211,12 @@
   },
   "WebhookDeliveryModal": {
     "createdAt": "Erstellt am",
+    "deliveryStatus": {
+      "failed": "Fehlgeschlagen",
+      "pending": "Ausstehend",
+      "processing": "Wird gesendet",
+      "success": "Zugestellt"
+    },
     "entity": "Element",
     "event": "Ereignis",
     "failed": "Fehlgeschlagen",

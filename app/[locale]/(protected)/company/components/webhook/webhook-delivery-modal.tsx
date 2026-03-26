@@ -3,7 +3,9 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Button } from "@heroui/button";
+import { WebhookDeliveryStatus } from "@/generated/prisma";
 
+import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { XModal } from "@/components/x-modal/x-modal";
 import { XCard } from "@/components/x-card/x-card";
@@ -26,28 +28,23 @@ export const WebhookDeliveryModal = observer(() => {
           <div className="flex items-center gap-2 mr-auto">
             <h2 className="text-x-lg grow">{t("WebhookDeliveryModal.title")}</h2>
 
-            {delivery.success ? (
-              <XChip color="success" size="sm">
-                {t("WebhookDeliveryModal.success")}
-              </XChip>
-            ) : (
-              <XChip color="danger" size="sm">
-                {t("WebhookDeliveryModal.failed")}
-              </XChip>
-            )}
+            <XChip color={WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR[delivery.status]} size="sm">
+              {t(`WebhookDeliveryModal.deliveryStatus.${delivery.status}`)}
+            </XChip>
           </div>
 
-          {store.canManage && (
-            <Button
-              color="primary"
-              isLoading={store.isResending}
-              size="sm"
-              variant="flat"
-              onPress={() => void store.resend()}
-            >
-              {t("WebhookDeliveryModal.resend")}
-            </Button>
-          )}
+          {store.canManage &&
+            (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed) && (
+              <Button
+                color="primary"
+                isLoading={store.isResending}
+                size="sm"
+                variant="flat"
+                onPress={() => void store.resend()}
+              >
+                {t("WebhookDeliveryModal.resend")}
+              </Button>
+            )}
         </XCardHeader>
 
         <XCardBody>

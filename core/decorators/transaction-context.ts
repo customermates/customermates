@@ -1,7 +1,18 @@
+import type { AppPrismaClient } from "@/prisma/db";
+
 import { AsyncLocalStorage } from "node:async_hooks";
 
-export const transactionStorage = new AsyncLocalStorage<unknown>();
+import type { Prisma, Webhook } from "@/generated/prisma";
 
-export function getTransactionClient<T>(): T | undefined {
-  return transactionStorage.getStore() as T | undefined;
+export type TransactionStore = {
+  client: AppPrismaClient;
+  auditLogBatch: Prisma.AuditLogCreateManyInput[];
+  webhookDeliveryBatch: Prisma.WebhookDeliveryCreateManyInput[];
+  enabledWebhooks: Webhook[] | null;
+};
+
+export const transactionStorage = new AsyncLocalStorage<TransactionStore>();
+
+export function getTransactionClient<T extends AppPrismaClient>(): T | undefined {
+  return transactionStorage.getStore()?.client as T | undefined;
 }

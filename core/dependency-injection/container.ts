@@ -1,7 +1,5 @@
 import { Container } from "inversify";
 
-import { transactionStorage } from "@/core/decorators/transaction-context";
-import { tenantStorage } from "@/core/decorators/tenant-context";
 import {
   CleanupInactiveUsersResourcesInteractor,
   CleanupInactiveUsersResourcesActionRepo,
@@ -80,7 +78,6 @@ import { DeleteRoleInteractor, DeleteRoleRepo } from "@/features/role/delete-rol
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { TaskService, TaskRepo as TaskWorkerRepo } from "@/features/tasks/task.service";
 import { PrismaTaskRepo } from "@/features/tasks/prisma-task.repository";
-import { AuditLogService, AuditLogRepo } from "@/ee/audit-log/audit-log.service";
 import { CompanyOnboardingTaskListener } from "@/features/tasks/listener/company-onboarding-task.listener";
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
 import { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
@@ -266,14 +263,15 @@ import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-soc
 import { FindUserRepo, UserService } from "@/features/user/user.service";
 import { GetUserByIdInteractor, GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import { RouteGuardService } from "@/features/auth/route-guard.service";
-import { EventBusWorker } from "@/features/event/event-bus.worker";
 import { EventService } from "@/features/event/event.service";
 import { WidgetService, RecalculateUserWidgetsRepo } from "@/features/widget/widget.service";
 import { GetWebhooksInteractor, GetWebhooksRepo } from "@/features/webhook/get-webhooks.interactor";
 import { UpsertWebhookInteractor, UpsertWebhookRepo } from "@/features/webhook/upsert-webhook.interactor";
 import { DeleteWebhookInteractor, DeleteWebhookRepo } from "@/features/webhook/delete-webhook.interactor";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
-import { WebhookService, GetWebhooksForEventRepo, CreateWebhookDeliveryRepo } from "@/features/webhook/webhook.service";
+import { ProcessWebhookDeliveriesInteractor } from "@/features/webhook/process-webhook-deliveries.interactor";
+import { CreateAuditLogRepo, GetWebhooksForEventRepo } from "@/features/event/event.service";
+import { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import {
   GetWebhookDeliveriesInteractor,
   GetWebhookDeliveriesRepo,
@@ -282,8 +280,12 @@ import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-del
 import {
   ResendWebhookDeliveryInteractor,
   GetWebhookDeliveryByIdRepo,
-  GetWebhookByUrlRepo,
 } from "@/features/webhook/resend-webhook-delivery.interactor";
+import {
+  ClaimPendingDeliveriesRepo,
+  UpdateDeliveryOutcomeRepo,
+  GetWebhookSecretRepo,
+} from "@/features/webhook/process-webhook-deliveries.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
 import { EmailService } from "@/features/email/email.service";
 import { GlobalSearchInteractor, GlobalSearchRepo } from "@/features/search/global-search.interactor";
@@ -413,12 +415,10 @@ di.bind(UserPendingAuthorizationTaskListener).toSelf().inSingletonScope();
 di.bind(BaseTaskListener).to(CompanyOnboardingTaskListener);
 di.bind(BaseTaskListener).to(UserPendingAuthorizationTaskListener);
 
-di.bind(EventBusWorker).toSelf().inSingletonScope();
 di.bind(EventService).toSelf().inSingletonScope();
 
-di.bind(AuditLogRepo).to(PrismaAuditLogRepo);
-di.bind(AuditLogService).toSelf().inSingletonScope();
 di.bind(PrismaAuditLogRepo).toSelf().inSingletonScope();
+di.bind(CreateAuditLogRepo).to(PrismaAuditLogRepo);
 di.bind(GetAuditLogsByEntityIdRepo).to(PrismaAuditLogRepo);
 di.bind(GetAuditLogsByEntityIdInteractor).toSelf().inSingletonScope();
 di.bind(GetAuditLogsRepo).to(PrismaAuditLogRepo);
@@ -433,10 +433,12 @@ di.bind(UpsertWebhookRepo).to(PrismaWebhookRepo);
 di.bind(DeleteWebhookRepo).to(PrismaWebhookRepo);
 di.bind(GetWebhookDeliveriesRepo).to(PrismaWebhookDeliveryRepo);
 di.bind(GetWebhookDeliveryByIdRepo).to(PrismaWebhookDeliveryRepo);
-di.bind(GetWebhookByUrlRepo).to(PrismaWebhookRepo);
-di.bind(WebhookService).toSelf().inSingletonScope();
+di.bind(ClaimPendingDeliveriesRepo).to(PrismaWebhookDeliveryRepo);
+di.bind(UpdateDeliveryOutcomeRepo).to(PrismaWebhookDeliveryRepo);
+di.bind(GetWebhookSecretRepo).to(PrismaWebhookRepo);
 di.bind(PrismaWebhookRepo).toSelf().inSingletonScope();
 di.bind(PrismaWebhookDeliveryRepo).toSelf().inSingletonScope();
+di.bind(ProcessWebhookDeliveriesInteractor).toSelf().inSingletonScope();
 di.bind(GetWebhooksInteractor).toSelf().inSingletonScope();
 di.bind(UpsertWebhookInteractor).toSelf().inSingletonScope();
 di.bind(DeleteWebhookInteractor).toSelf().inSingletonScope();
@@ -610,35 +612,5 @@ di.bind(SendTrialExtensionOfferInteractor).toSelf().inSingletonScope();
 di.bind(SendTrialInactivationReminderInteractor).toSelf().inSingletonScope();
 di.bind(DeactivateTrialUsersAndSendNoticeInteractor).toSelf().inSingletonScope();
 di.bind(DeactivateUsersAfterSubscriptionGracePeriodInteractor).toSelf().inSingletonScope();
-
-di.onActivation(EventBusWorker, (_, dispatcher: EventBusWorker) => {
-  const taskProviders = di.isBound(BaseTaskListener) ? di.getAll(BaseTaskListener) : [];
-  const auditLogService = di.get(AuditLogService);
-  const webhookService = di.get(WebhookService);
-
-  // Task creation and audit logging are handled within a single transaction,
-  // while webhooks are executed separately to avoid blocking it.
-  // Webhooks maintain tenant context to ensure company-level isolation,
-  // and any webhook delivery failures are isolated so they don't impact
-  // the main transaction or its data.
-  dispatcher.injectEventListeners(async (eventType, payload): Promise<void> => {
-    const tenantContext = tenantStorage.getStore();
-
-    await Promise.all([
-      ...taskProviders.map((provider) => provider.handle(eventType, payload)),
-      auditLogService.handle(eventType, payload),
-    ]);
-
-    transactionStorage.exit(() => {
-      if (tenantContext) {
-        tenantStorage.run(tenantContext, () => {
-          void webhookService.handle(eventType, payload);
-        });
-      } else void webhookService.handle(eventType, payload);
-    });
-  });
-
-  return dispatcher;
-});
 
 export { di };

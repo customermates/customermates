@@ -5,11 +5,12 @@ import { Prisma } from "@/generated/prisma";
 import { GetWebhooksRepo } from "./get-webhooks.interactor";
 import { UpsertWebhookRepo } from "./upsert-webhook.interactor";
 import { DeleteWebhookRepo } from "./delete-webhook.interactor";
-import { type WebhookDto } from "./webhook.schema";
-import { GetWebhookByUrlRepo } from "./resend-webhook-delivery.interactor";
-import { GetWebhooksForEventRepo } from "./webhook.service";
+import { GetWebhookSecretRepo } from "./process-webhook-deliveries.interactor";
+import { WebhookDto } from "./webhook.schema";
 
+import { GetWebhooksForEventRepo } from "@/features/event/event.service";
 import { BaseRepository } from "@/core/base/base-repository";
+import { transactionStorage } from "@/core/decorators/transaction-context";
 import { Repository } from "@/core/decorators/repository.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
@@ -19,7 +20,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 @Repository
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
-  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhookByUrlRepo, GetWebhooksForEventRepo
+  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo, GetWebhookSecretRepo
 {
   private get baseSelect() {
     return {
@@ -71,7 +72,7 @@ export class PrismaWebhookRepo
   }
 
   @Transaction
-  async upsertWebhookOrThrow(args: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">): Promise<WebhookDto> {
+  async upsertWebhookOrThrow(args: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">) {
     const { companyId } = this.user;
     const { id, ...webhookData } = args;
 
@@ -113,7 +114,7 @@ export class PrismaWebhookRepo
   }
 
   @Transaction
-  async deleteWebhookOrThrow(id: RepoArgs<DeleteWebhookRepo, "deleteWebhookOrThrow">): Promise<WebhookDto> {
+  async deleteWebhookOrThrow(id: RepoArgs<DeleteWebhookRepo, "deleteWebhookOrThrow">) {
     const { companyId } = this.user;
 
     const webhook = await this.prisma.webhook.findFirstOrThrow({
@@ -128,35 +129,32 @@ export class PrismaWebhookRepo
     return webhook as WebhookDto;
   }
 
-  async getWebhooksForEvent(event: string, companyId: string): Promise<WebhookDto[]> {
-    const webhooks = await this.prisma.webhook.findMany({
-      where: {
-        companyId,
-        enabled: true,
-        events: {
-          has: event,
-        },
-      },
-      select: this.baseSelect,
-    });
+  async getWebhooksForEvent(event: string) {
+    const { companyId } = this.user;
 
-    return webhooks as WebhookDto[];
+    const store = transactionStorage.getStore();
+
+    if (store) {
+      const webhooks = (store.enabledWebhooks ??= await this.prisma.webhook.findMany({
+        where: { companyId, enabled: true },
+      }));
+
+      return webhooks.filter((webhook) => webhook.events.includes(event));
+    }
+
+    return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
   }
 
-  async getWebhookByUrlOrThrow(url: string) {
-    const companyId = this.user.companyId;
-
-    const webhook = await this.prisma.webhook.findFirstOrThrow({
-      where: {
-        url,
-        companyId,
-      },
+  async getSecret(companyId: string, url: string): Promise<string | null> {
+    const websocket = await this.prisma.webhook.findFirst({
+      where: { companyId, url },
+      select: { secret: true },
     });
 
-    return webhook;
+    return websocket?.secret ?? null;
   }
 
-  async getWebhookByIdOrThrow(id: string): Promise<WebhookDto> {
+  async getWebhookByIdOrThrow(id: string) {
     const { companyId } = this.user;
 
     const webhook = await this.prisma.webhook.findFirstOrThrow({

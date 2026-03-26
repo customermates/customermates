@@ -2,7 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { WebhookDeliveryDto } from "@/features/webhook/get-webhook-deliveries.interactor";
 
 import { makeObservable, action } from "mobx";
-import { Resource } from "@/generated/prisma";
+import { Resource, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { resendWebhookDeliveryAction } from "../../actions";
 
@@ -27,6 +27,8 @@ export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto
         statusCode: null,
         responseMessage: null,
         success: false,
+        status: WebhookDeliveryStatus.pending,
+        deliveredAt: null,
         createdAt: new Date(),
       },
       Resource.api,

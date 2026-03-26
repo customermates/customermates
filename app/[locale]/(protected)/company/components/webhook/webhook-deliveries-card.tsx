@@ -5,11 +5,13 @@ import type { WebhookDeliveryDto } from "@/features/webhook/get-webhook-deliveri
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { XDataViewContainer } from "@/components/x-data-view/x-data-view-container";
 import { XDataViewCell } from "@/components/x-data-view/x-data-view-cell";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { XChip } from "@/components/x-chip/x-chip";
+
 export const WebhookDeliveriesCard = observer(() => {
   const t = useTranslations("");
   const { webhookDeliveryModalStore, webhookDeliveriesStore, intlStore } = useRootStore();
@@ -32,16 +34,13 @@ export const WebhookDeliveriesCard = observer(() => {
         return entityName ? <XDataViewCell>{entityName}</XDataViewCell> : <XDataViewCell>-</XDataViewCell>;
       }
 
-      case "status":
-        return item.success ? (
-          <XChip color="success" size="sm">
-            {t("WebhookDeliveryModal.success")}
-          </XChip>
-        ) : (
-          <XChip color="danger" size="sm">
-            {t("WebhookDeliveryModal.failed")}
+      case "status": {
+        return (
+          <XChip color={WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR[item.status]} size="sm">
+            {t(`WebhookDeliveryModal.deliveryStatus.${item.status}`)}
           </XChip>
         );
+      }
 
       case "statusCode":
         return item.statusCode ? <XDataViewCell className="text-x-sm">{item.statusCode}</XDataViewCell> : "";

@@ -52,8 +52,6 @@ export function validateNotes(
       return parsed;
     }
   } catch (error) {
-    console.error(error);
-
     const errorCode =
       error instanceof Error && Object.values(CustomErrorCode).includes(error.message as CustomErrorCode)
         ? (error.message as CustomErrorCode)

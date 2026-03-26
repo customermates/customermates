@@ -29,5 +29,19 @@ services:
     ports:
       - "${APP_PORT:-4000}:4000"
 
+  webhook-worker:
+    image: curlimages/curl:8.11.1
+    container_name: customermates-webhook-worker
+    depends_on:
+      - app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      WEBHOOK_CRON_URL: http://app:4000/api/cron/webhook-deliveries
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'while true; do curl -sf -H "Authorization: Bearer $${CRON_SECRET}" "$${WEBHOOK_CRON_URL}" || true; sleep 5; done'
+
 volumes:
   postgres-data:

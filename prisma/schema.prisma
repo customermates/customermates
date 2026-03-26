@@ -623,20 +623,32 @@ model Webhook {
   @@index([companyId])
 }
 
+enum WebhookDeliveryStatus {
+  pending
+  processing
+  success
+  failed
+}
+
 model WebhookDelivery {
-  id            String   @id @default(uuid())
-  url           String
-  companyId     String
-  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  event         String
-  requestBody   Json
-  statusCode    Int?
+  id              String                @id @default(uuid())
+  url             String
+  companyId       String
+  company         Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  event           String
+  requestBody     Json
+  statusCode      Int?
   responseMessage String?
-  success       Boolean  @default(false)
-  createdAt     DateTime @default(now())
+  success         Boolean               @default(false)
+  status          WebhookDeliveryStatus @default(pending)
+  lockedAt        DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime              @default(now())
 
   @@index([companyId])
   @@index([createdAt])
+  @@index([status, lockedAt])
+  @@index([companyId, createdAt])
 }
 
 model Subscription {

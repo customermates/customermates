@@ -6,12 +6,12 @@ type TenantContext = { user?: ExtendedUser; bypass?: boolean };
 
 export const tenantStorage = new AsyncLocalStorage<TenantContext>();
 
-export function runWithTenant<T>(user: ExtendedUser, fn: () => Promise<T>): Promise<T> {
-  return tenantStorage.run({ user, bypass: false }, () => fn().then((v) => v));
+export function runWithTenant<T>(user: ExtendedUser, fn: () => T | Promise<T>): Promise<T> {
+  return tenantStorage.run({ user, bypass: false }, () => Promise.resolve(fn()));
 }
 
-export function runWithoutTenant<T>(fn: () => Promise<T>): Promise<T> {
-  return tenantStorage.run({ bypass: true }, () => fn().then((v) => v));
+export function runWithoutTenant<T>(fn: () => T | Promise<T>): Promise<T> {
+  return tenantStorage.run({ bypass: true }, () => Promise.resolve(fn()));
 }
 
 export function getTenantUser(): ExtendedUser {

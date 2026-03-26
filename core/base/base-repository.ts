@@ -8,7 +8,7 @@ import { getTransactionClient } from "../decorators/transaction-context";
 import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
 import { BaseQueryBuilder } from "@/core/base/base-query-builder";
-import { prisma } from "@/prisma/db";
+import { prisma, type AppPrismaClient } from "@/prisma/db";
 
 type ModelWhereInputMap = {
   contact: Prisma.ContactWhereInput;
@@ -23,7 +23,7 @@ export abstract class BaseRepository<
   TWhereInput extends Record<string, unknown> = Record<string, unknown>,
 > extends BaseQueryBuilder<TWhereInput> {
   public get prisma() {
-    return getTransactionClient<typeof prisma>() ?? prisma;
+    return getTransactionClient<AppPrismaClient>() ?? prisma;
   }
 
   public get user(): ExtendedUser {

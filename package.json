@@ -137,8 +137,9 @@
     "templates:sync-openclaw": "bash ee/scripts/sync-openclaw-templates.sh",
     "templates:sync-orthogonal": "bash ee/scripts/sync-orthogonal-skill.sh",
     "vercel-build": "prisma generate && prisma migrate deploy && yarn openapi:generate && next build && bash ee/scripts/fly-deploy-if-needed.sh",
-    "vercel-preview-build": "prisma generate && yarn db:reset && yarn openapi:generate && next build && bash ee/scripts/fly-deploy-if-needed.sh --reset"
+    "vercel-preview-build": "prisma generate && yarn db:reset && yarn openapi:generate && next build && bash ee/scripts/fly-deploy-if-needed.sh --reset",
+    "webhook-deliveries:run": "bash ee/scripts/run-webhook-delivery-cron.sh"
   },
   "type": "module",
-  "version": "1.0.3"
+  "version": "1.1.0"
 }

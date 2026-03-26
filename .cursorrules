@@ -84,18 +84,15 @@ Next.js 16 application with TypeScript, Prisma, and internationalization.
 - Sentry auto-captures unhandled errors via `onRequestError` in `instrumentation.ts` — no manual `Sentry.captureException` needed.
 - The only try/catch patterns that are justified:
   - `handleError` in `core/api/interactor-handler.ts`: translates known errors (auth, permission, demo) to HTTP status codes for the public REST API. Unknown errors are rethrown for auto-capture.
-  - Webhook delivery in `webhook.service.ts`: records failed deliveries when `fetch` throws on user-configured URLs. This is error handling, not suppression.
+  - Webhook HTTP in `process-webhook-deliveries.interactor.ts`: delivery outcome is persisted on the row; the batch does not throw for a single failed job.
   - Boolean probes like `machineExists` / `checkHealth`: network failure means `false`.
   - Retry logic (e.g., `destroyVolume`).
 - `@Transaction` ensures rollback on error — do not swallow errors inside transactional interactors.
 
 ## Domain Events
 
-- Events are dispatched through `EventService.publish()` inside interactors
-- `EventBusWorker.dispatch()` executes listeners — errors propagate and trigger `@Transaction` rollback
-- Task creation and audit logging run inside the transaction (awaited)
-- Webhook delivery runs outside the transaction (`transactionStorage.exit`) and is fire-and-forget (`void`)
-- Webhook delivery failures are recorded as failed deliveries, not thrown
+- `EventService.publish()` awaits task listeners, audit log, and webhook enqueue together — errors propagate and trigger `@Transaction` rollback; they share the interactive transaction when `publish` runs inside `@Transaction`
+- Outbound webhook HTTP runs in a separate worker; enqueue failures propagate like other listener errors
 
 ## Public REST API
 

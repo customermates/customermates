@@ -111,4 +111,6 @@ const prisma = basePrisma.$extends({
 
 if (IS_DEVELOPMENT) globalForPrisma.prisma = basePrisma;
 
+export type AppPrismaClient = typeof prisma;
+
 export { prisma };
