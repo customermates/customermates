@@ -11,7 +11,7 @@ Vereinfacht besteht die Plattform aus drei klaren Ebenen: der Anwendung, dem sic
 ## So werden Daten und KI-Laufzeit abgesichert
 
 Deine CRM-Daten werden im Kernsystem mit klaren Zugriffsgrenzen verwaltet.  
-Für KI-Workflows erhält jeder Nutzer eine sichere, gemanagte und sandboxte Docker-basierte VPS mit eigenem KI-Agenten. Dieser Agent kann entweder direkt oder über die Customermates API aufgerufen werden. Das bedeutet: Die Agent-Ausführung ist pro Nutzer isoliert und läuft nicht in einem geteilten Prozess mit anderen Nutzern.
+Für KI-Workflows erhält jeder Nutzer eine sichere, gemanagte und sandboxte Docker-basierte VPS mit eigenem KI-Agenten. Dieser Agent kann entweder direkt oder über die Customermates API aufgerufen werden. Wenn er mit dem CRM arbeitet, tut er das mit den eigenen API-Key-basierten Berechtigungen des jeweiligen Nutzers statt mit einem breiten gemeinsamen Zugriff. Das bedeutet: Die Agent-Ausführung ist pro Nutzer isoliert und läuft nicht in einem geteilten Prozess mit anderen Nutzern.
 
 Diese Architektur bringt im Alltag konkrete Vorteile: stärkere Isolation, klarere Kontrollgrenzen und stabiles Verhalten auch dann, wenn viele Agenten parallel aktiv sind.
 
@@ -37,4 +37,4 @@ flowchart LR
 
 ## Warum das für dein Team wichtig ist
 
-Du bekommst ein Setup, das sich von außen einfach anfühlt, aber darunter auf Vertrauen, Sicherheit und Kontrolle ausgelegt ist. Business-Teams können sich auf Kundenarbeit und Prozesse konzentrieren, während technische Stakeholder auf klare Isolation und gemanagte Infrastruktur für die KI-Ausführung bauen können. Für die Integrationsflächen auf dieser Grundlage gehst du weiter zu [CRM-Integrationen](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp) oder [Webhooks & Events](/docs/feature-guide-webhooks-events).
+Du bekommst ein Setup, das sich von außen einfach anfühlt, aber darunter auf Vertrauen, Sicherheit und Kontrolle ausgelegt ist. Business-Teams können sich auf Kundenarbeit und Prozesse konzentrieren, während technische Stakeholder auf klare Isolation und gemanagte Infrastruktur für die KI-Ausführung bauen können. Für die Integrationsflächen auf dieser Grundlage gehst du weiter zu [CRM-Integrationen](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), [Berechtigungen & Rollen](/docs/features-permissions-roles) oder [Webhooks & Events](/docs/features-webhooks-events).

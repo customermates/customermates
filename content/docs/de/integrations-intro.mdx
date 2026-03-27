@@ -18,10 +18,10 @@ Wenn du gleichzeitig Deployment-Modelle bewertest, gehe auch zu [Self-Hosted CRM
 
 ## API-Zugriff und Zugangsdaten
 
-Für die API-Nutzung erstellst du deinen Schlüssel in den [Kontoeinstellungen](/docs/account-settings) und sendest ihn bei jeder Anfrage im Header `x-api-key`.  
+Für die API-Nutzung erstellst du deinen Schlüssel in deinen Profileinstellungen und sendest ihn bei jeder Anfrage im Header `x-api-key`.  
 Die vollständige maschinenlesbare Spezifikation findest du unter [OpenAPI JSON](https://customermates.com/v1/openapi.json).
 
-Wenn du Richtung produktiven Einsatz gehst, richte dich zusätzlich nach [Webhooks & Events](/docs/feature-guide-webhooks-events), prüfe Payload-Annahmen vor aktivierten Schreiboperationen und ziehe [Architektur & Sicherheit](/docs/architecture-security) hinzu, wenn Sicherheit und Laufzeitisolierung Teil der Bewertung sind.
+Wenn du Richtung produktiven Einsatz gehst, richte dich zusätzlich nach [Webhooks & Events](/docs/features-webhooks-events), prüfe Payload-Annahmen vor aktivierten Schreiboperationen und ziehe [Architektur & Sicherheit](/docs/architecture-security) hinzu, wenn Sicherheit und Laufzeitisolierung Teil der Bewertung sind.
 
 > Starte zuerst mit einem reinen Read-Only-Flow, um Feldzuordnungen und Payload-Struktur sicher zu validieren.  
 > Danach ergänzt du kontrollierte Create- und Update-Abläufe mit Retries und idempotentem Verhalten.  

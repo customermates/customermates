@@ -56,11 +56,16 @@ Some of those skills come from **Orthogonal**. In this context, Orthogonal is an
 
 The key design principle stays the same throughout the setup: CRM access remains user-scoped and the OpenClaw runtime stays sandboxed. That separation matters because it keeps agent execution isolated per user while still allowing the agent to work with live CRM context.
 
-For the broader runtime model behind that setup, continue with [Architecture & Security](/docs/architecture-security). For event-driven follow-up flows after agent actions, pair this with [Webhooks & Events](/docs/feature-guide-webhooks-events).
+For the broader runtime model behind that setup, continue with [Architecture & Security](/docs/architecture-security). For event-driven follow-up flows after agent actions, pair this with [Webhooks & Events](/docs/features-webhooks-events).
 
 ## OpenClaw setup in the product
 
 <DocsImage
   alt="OpenClaw setup view showing the provisioned agent container and the available actions Open Control UI, Add Environment Variable, and Reset Agent"
   src="docs-openclaw-agent-setup.png"
+/>
+
+<DocsImage
+  alt="OpenClaw chat view showing CRM-related questions and answers based on user-scoped CRM access"
+  src="docs-openclaw-crm-questions.png"
 />

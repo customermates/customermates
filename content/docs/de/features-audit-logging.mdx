@@ -1,0 +1,43 @@
+---
+title: Audit Logging
+description: Verstehe, wie Customermates Workspace-Aktivität protokolliert, Änderungsverläufe sichtbar macht und Teams bei Nachvollziehbarkeit im operativen Alltag unterstützt.
+demo:
+  src: https://demo.customermates.com/de/company?sort=name%3Adesc&pageSize=100&tab=audit-logs
+  title: Audit Logging Demo
+---
+
+## Überblick
+
+Audit Logging gibt Teams einen strukturierten Verlauf darüber, was sich im Workspace geändert hat, wer die jeweilige Aktion ausgelöst hat und wann sie stattgefunden hat. Genau das wird wichtig, sobald mehrere Personen im selben Unternehmensaccount arbeiten und operative Änderungen auch im Nachhinein verständlich bleiben müssen.
+
+Dieses Feature ist weniger eine reine Datenspeicherung als eine Form von Nachvollziehbarkeit. Es hilft Teams dabei, Abläufe zu rekonstruieren, administrative Aktionen zu prüfen und zu verstehen, wie ein Datensatz seinen aktuellen Zustand erreicht hat.
+
+> Audit Logging ist besonders dann wertvoll, wenn Verantwortlichkeit, Fehlersuche und Sichtbarkeit von Änderungen Teil des täglichen Betriebs sind.
+
+<DocsImage alt="Feature Audit Logging mit Audit-Log-Liste, Event-Labels, Benutzerinformationen und Zeitstempeln" src="docs-features-audit-logging-overview.png" />
+
+## Wie das Audit-Log gelesen wird
+
+Die Hauptansicht des Audit-Logs funktioniert wie eine operative Zeitleiste. Teams können Einträge nach Element, Event, Benutzer und Zeitpunkt überfliegen und anschließend eine Zeile öffnen, um tiefer in die Details zu gehen. Dadurch bleibt die erste Ansicht breit genug für Review, ohne dass genauere Analyse verloren geht.
+
+In der Praxis ist das hilfreich, wenn beantwortet werden soll, wer einen Datensatz geändert hat, welches Ereignis zuerst passiert ist oder ob eine bestimmte Änderung durch einen Benutzer oder durch einen nachgelagerten Ablauf entstanden ist.
+
+## Details und Änderungsverlauf
+
+Beim Öffnen eines Audit-Log-Eintrags gelangt man in eine Detailansicht mit den zugrunde liegenden Event-Daten. Dort lassen sich das betroffene Element, der Event-Typ, der ausführende Benutzer und das gespeicherte Payload für genau diesen Zeitpunkt nachvollziehen.
+
+<DocsImage alt="Audit-Log-Details-Modal mit Element, Event, Benutzer, Zeitstempel und gespeicherten Ereignisdaten" src="docs-features-audit-logging-details-modal.png" />
+
+Für Entitäten, bei denen Änderungsverläufe verfügbar sind, zeigt das Produkt zusätzlich eine History-orientierte Ansicht, die stärker darauf fokussiert, was sich über mehrere Zeitpunkte hinweg verändert hat. Dadurch eignet sich das Feature nicht nur für Governance und Compliance, sondern auch für praktische Fehlersuche und operative Transparenz.
+
+<DocsImage alt="Audit-Log-Verlaufs-Modal mit Benutzern, Events, Anzahl der Änderungen und Zeitstempeln für eine Entität" src="docs-features-audit-logging-history-modal.png" />
+
+<DocsImage alt="Audit-Log-Detailansicht eines Verlaufs-Eintrags mit ausgewählter Änderung sowie Feldwerten vor und nach der Anpassung" src="docs-features-audit-logging-history-modal-details.png" />
+
+## Wo Teams es nutzen
+
+Audit Logging ist besonders nützlich, wenn Teams administrative Aktionen prüfen, die Entwicklung eines Datensatzes verstehen oder unerwartete Änderungen untersuchen müssen. Dadurch wird es Teil des operativen Sicherheitsnetzes des Workspaces, weil es eine gemeinsame faktische Sicht auf vergangene Aktivität schafft statt sich auf Erinnerung oder informelle Abstimmung zu verlassen.
+
+Das Feature passt außerdem natürlich zu Berechtigungen und Governance. Je klarer der Zugriff strukturiert ist, desto wertvoller wird es zu verstehen, wie dieser Zugriff im Zeitverlauf tatsächlich genutzt wurde.
+
+Wenn du das Zugriffsmodell hinter diesen administrativen Grenzen verstehen willst, gehe weiter zu [Berechtigungen & Rollen](/docs/features-permissions-roles). Wenn du eventgetriebene Integrationen aus einer anderen Perspektive betrachten willst, gehe weiter zu [Webhooks & Events](/docs/features-webhooks-events).

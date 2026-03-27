@@ -1,22 +1,25 @@
 ---
 title: Customermates CRM Überblick
 description: Verstehe, was Customermates ist, wie das CRM aufgebaut ist und wo du mit Integrationen, Self-Hosting und Feature-Dokumentation starten solltest.
+demo:
+  src: https://demo.customermates.com/de
+  title: Customermates Demo
 ---
 
 ## Was ist Customermates?
 
 Customermates ist ein CRM für moderne Teams, die Kundenbeziehungen klar strukturiert verwalten wollen, ohne komplizierte Einrichtung.  
-Es verbindet klassische CRM-Workflows (Kontakte, Organisationen, Deals, Aufgaben) mit praxisnaher KI-Unterstützung, Integrationen und Automatisierung. Diese Seite ist der beste Einstieg, wenn du dir zuerst einen kompakten Produktüberblick verschaffen willst, bevor du in API-Dokumentation, KI-Agent-Workflows, Self-Hosting oder konkrete Feature-Guides einsteigst.
+Es verbindet klassische CRM-Workflows mit praxisnaher KI-Unterstützung, Integrationen und Automatisierung. Diese Seite ist der beste Einstieg, wenn du dir zuerst einen kompakten Produktüberblick verschaffen willst, bevor du in API-Dokumentation, KI-Agent-Workflows, Self-Hosting oder konkrete Feature-Guides einsteigst.
 
 ## Unsere Vision
 
 Customermates ist aus einer Frustration über die zwei Extreme im Markt entstanden: Plattformen, die so simpel sind, dass sie am Ende kaum mehr als ein Dashboard sind, und Plattformen, die so aufgebläht, kompliziert und enterprise-lastig werden, dass sie starke Teams eher ausbremsen als voranbringen.
 
-Ich liebe es ohnehin, SaaS zu bauen, also habe ich beschlossen, das CRM zu entwickeln, das ich selbst nutzen wollte. Wenn Automatisierung und KI-Agenten immer mehr wiederkehrende und operative Arbeit übernehmen, lassen sich ganze Schichten klassischer Workflow-Software und Enterprise-Add-ons ersetzen, während viele ältere Tools schon heute hinter dem zurückbleiben, was moderne Teams erwarten.
+Wir lieben es ohnehin, SaaS zu bauen, also haben wir beschlossen, das CRM zu entwickeln, das wir selbst nutzen wollten. Wenn Automatisierung und KI-Agenten immer mehr wiederkehrende und operative Arbeit übernehmen, lassen sich ganze Schichten klassischer Workflow-Software und Enterprise-Add-ons ersetzen, während viele ältere Tools schon heute hinter dem zurückbleiben, was moderne Teams erwarten.
 
 ## Produktüberblick
 
-Customermates verbindet vier zentrale Bausteine: ein praxistaugliches Core CRM für Kontakte, Organisationen, Deals, Services und Aufgaben, Integrationen für deinen technischen Stack, klare Team-Einstellungen für Konto- und Organisationsverwaltung sowie kostenpflichtige Enterprise-Funktionen für Teams mit höheren Governance-Anforderungen.
+Customermates verbindet vier zentrale Bausteine: ein praxistaugliches Core CRM, Integrationen für deinen technischen Stack, klare Team-Einstellungen für Konto- und Organisationsverwaltung sowie kostenpflichtige Enterprise-Funktionen für Teams mit höheren Governance-Anforderungen.
 
 Zu den kostenpflichtigen Enterprise-Funktionen gehören aktuell Audit Logging, Single Sign-On, AI Agent und Whitelabeling.
 
@@ -24,6 +27,73 @@ Zu den kostenpflichtigen Enterprise-Funktionen gehören aktuell Audit Logging, S
 
 Am einfachsten startest du mit [CRM-Vergleich](/docs/comparison), um ein strategisches Bild zu bekommen, und gehst dann in die [CRM-Integrationen](/docs/integrations-intro), sobald es um Anbindung und technische Umsetzung geht. Wenn du ein self-hosted CRM Deployment betreiben willst, gehe weiter zu [Self-Hosting Get Started](/docs/self-hosting) und [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud). Danach kannst du je nach Bedarf direkt in [OpenAPI 3.1.0](/docs/openapi), [MCP](/docs/mcp), [n8n](/docs/n8n) oder [Skills](/docs/skills) wechseln.
 
-Für konkrete Umsetzungsmuster sind [Entitäten & Beziehungen](/docs/feature-guide-entities-relationships), [Benutzerdefinierte Felder](/docs/feature-guide-custom-columns), [Webhooks & Events](/docs/feature-guide-webhooks-events) und [Dashboard & Widgets](/docs/feature-guide-dashboard-widgets) die besten nächsten Schritte. Anschließend regelst du mit [Kontoeinstellungen](/docs/account-settings), [Unternehmenseinstellungen](/docs/company-settings) und [Rollen & Berechtigungen](/docs/roles-permissions) die organisatorischen Details.
+Für konkrete Umsetzungsmuster und Produkt-Rundgänge gehe weiter zu [Reports & Statistiken](/docs/features-report-statistics), [Benutzerdefinierte Felder](/docs/features-custom-columns), [Tabellen- & Kanban-Ansicht](/docs/features-table-kanban-view), [Webhooks & Events](/docs/features-webhooks-events), [Berechtigungen & Rollen](/docs/features-permissions-roles) und [Audit Logging](/docs/features-audit-logging).
 
-Wenn du neu bist, starte hier und gehe danach die Sidebar von oben nach unten durch.
+Wenn du neu bist, starte hier und gehe danach über die Sidebar in die Feature-Seiten.
+
+## Core-CRM-Modell
+
+Customermates hält das CRM-Modell bewusst kompakt. Statt Informationen auf viele Objekttypen zu verteilen, arbeitet das Produkt mit wenigen zentralen Datensatzarten, die sich auf unterschiedliche Weise miteinander verknüpfen lassen. So wird es leichter, Kundenkontext, kommerziellen Kontext und operative Arbeit gemeinsam zu verstehen.
+
+Wichtig ist die Unterscheidung zwischen **Organisation** und **Unternehmen**. Eine Organisation ist ein CRM-Datensatz innerhalb deines Workspaces. Das Unternehmen ist der Workspace oder Tenant selbst. Auf dieser Seite geht es um CRM-Datensätze und darum, wie sie im Produkt zusammenspielen.
+
+## Zentrale Entitäten
+
+Die wichtigsten Datensatzarten in Customermates sind:
+
+- **Kontakte** für einzelne Personen
+- **Organisationen** für Kundenunternehmen oder Accounts
+- **Deals** für Verkaufschancen und laufende Vertriebsarbeit
+- **Services** für Leistungen oder Positionen, die mit einem Deal verbunden sind
+- **Aufgaben** für konkrete Follow-ups und interne Arbeit
+
+Nutzer liegen als Zuweisung über diesen Bereichen. Kontakte, Organisationen, Deals, Services und Aufgaben können jeweils zugewiesen, gefiltert und in denselben Workspace-Ansichten bearbeitet werden.
+
+| Entität | Hauptzweck | Typische Frage |
+| --- | --- | --- |
+| Kontakt | Einzelne Person | Mit wem sprechen wir? |
+| Organisation | Kundenunternehmen oder Account | Welches Unternehmen ist beteiligt? |
+| Deal | Kommerzielle Chance | Was wollen wir abschließen? |
+| Service | Leistung oder Position | Was wird verkauft oder geliefert? |
+| Aufgabe | Follow-up-Arbeit | Was muss als Nächstes passieren? |
+
+## Beziehungsmodell
+
+Das Produkt ist so aufgebaut, dass verknüpfte Datensätze beim Arbeiten sichtbar bleiben. Kontakte können mit Organisationen und Deals verbunden werden, Deals können Services enthalten, und Nutzer bewegen sich über Tabellen, Karten, Modals und Detailansichten entlang dieser Verknüpfungen.
+
+<Mermaid
+  chart="
+flowchart LR
+  C[Kontakte]
+  O[Organisationen]
+  D[Deals]
+  S[Services]
+  T[Aufgaben]
+  U[Zugewiesene Nutzer]
+
+  C <--> O
+  C <--> D
+  O <--> D
+  D <--> S
+  C <--> U
+  O <--> U
+  D <--> U
+  S <--> U
+  T <--> U
+"
+/>
+
+Genau dieses Beziehungsmodell ist wichtig, weil es kommerziellen Kontext, operative Arbeit und Zuständigkeit gleichzeitig sichtbar hält. Statt einen einzelnen Datensatz isoliert zu betrachten, können Teams entlang der Verknüpfungen arbeiten und so das vollständigere Bild sehen.
+
+## Wie Teams das Modell typischerweise lesen
+
+In der Praxis arbeiten viele Teams in dieser Reihenfolge:
+
+1. Mit **Kontakt** oder **Organisation** starten, um den Kundenkontext zu verstehen.
+2. In den **Deal** wechseln, um die kommerzielle Situation zu sehen.
+3. Verknüpfte **Services** prüfen, um den Leistungsumfang zu verstehen.
+4. **Aufgaben** und **Zuweisungen** prüfen, um das operative Follow-up zu sehen.
+
+Genau das ist wichtig, weil Customermates nicht als Sammlung isolierter Module gedacht ist. Es ist ein verbundener Workspace, in dem dieselben Datensätze operative Arbeit, gruppierte Ansichten, Reporting, Integrationen und zugriffsgesteuerte Zusammenarbeit gemeinsam tragen.
+
+> Der Wert des Modells liegt nicht nur darin, Daten zu speichern. Der eigentliche Wert ist, dass dieselbe Struktur operative Arbeit, Reporting und Integrationen tragen kann, ohne dass Teams ihren Prozess mehrfach neu modellieren müssen.

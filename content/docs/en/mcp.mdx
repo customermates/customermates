@@ -27,13 +27,13 @@ With a CLI-based approach, you can still get strong results, but the workflow is
 
 ## Tokens and CLI clients
 
-If you work with CLI-based MCP clients, tokens can be stored and reused there instead of being passed manually every time. A practical example is `mcporter`, which can list servers, call tools, and keep authentication configured in the client environment. The underlying API keys are managed in [Account Settings](/docs/account-settings), which is the right place to create or rotate credentials before connecting a client.
+If you work with CLI-based MCP clients, tokens can be stored and reused there instead of being passed manually every time. A practical example is `mcporter`, which can list servers, call tools, and keep authentication configured in the client environment. The underlying API keys are created and rotated in your profile settings before connecting a client.
 
 That makes MCP especially useful for local agent workflows, internal automations, and operator tooling where repeated authenticated calls should stay simple and safe. For many teams, this is the easiest bridge between a secure MCP server and the day-to-day workflows of engineers and operators.
 
 ## Example MCP server setup
 
-Create an API key in [Account Settings](/docs/account-settings), then configure your MCP client to connect to the Customermates MCP endpoint and send the key in the `x-api-key` header. If your client supports environment variable expansion, use that pattern for the header value instead of checking a raw key into config.
+Create an API key in your profile settings, then configure your MCP client to connect to the Customermates MCP endpoint and send the key in the `x-api-key` header. If your client supports environment variable expansion, use that pattern for the header value instead of checking a raw key into config.
 
 ```json
 {
@@ -99,6 +99,6 @@ The following example mirrors the style of the Customermates skill used in OpenC
 
 ## Recommended usage flow
 
-> For most agent setups, start with MCP when the model needs to reason about which action to take, and use intent detection to narrow the available tools whenever your runtime supports it. Then fall back to [OpenAPI 3.1.0](/docs/openapi) whenever you need exact payload structure, endpoint semantics, or implementation-level validation. For event-driven follow-up flows, pair this with [Webhooks & Events](/docs/feature-guide-webhooks-events).
+> For most agent setups, start with MCP when the model needs to reason about which action to take, and use intent detection to narrow the available tools whenever your runtime supports it. Then fall back to [OpenAPI 3.1.0](/docs/openapi) whenever you need exact payload structure, endpoint semantics, or implementation-level validation. For event-driven follow-up flows, pair this with [Webhooks & Events](/docs/features-webhooks-events).
 
 That combination gives you a tool-native interface for LLMs, a smaller and more relevant schema surface during execution, and a precise HTTP contract for technical integrations.

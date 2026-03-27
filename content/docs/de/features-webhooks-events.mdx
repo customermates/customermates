@@ -1,0 +1,57 @@
+---
+title: Webhooks & Events
+description: Verstehe, wie Customermates CRM-Events erzeugt, Webhook-Zustellungen signiert und eventgetriebene Integrationen unterstützt.
+demo:
+  src: https://demo.customermates.com/de/company?sort=name%3Adesc&pageSize=100&tab=webhook-deliveries
+  title: Webhooks und Events Demo
+---
+
+## Überblick
+
+Webhooks sind die Event-Zustellungsschicht von Customermates. Sie sorgen dafür, dass externe Systeme reagieren können, wenn sich CRM-Datensätze verändern. Dadurch eignen sie sich für Synchronisationen, Benachrichtigungen, Audit-Pipelines und nachgelagerte Automationen.
+
+Das Zustellmodell konzentriert sich auf Lifecycle-Änderungen der wichtigsten CRM-Entitäten, und Zustellversuche werden gespeichert, damit Teams nachvollziehen können, was gesendet wurde und wie der Ziel-Endpunkt reagiert hat.
+
+> Dieses Feature ist besonders relevant, wenn CRM-Änderungen Prozesse außerhalb der App anstoßen sollen oder nachgelagerte Systeme eine verlässliche Event-Quelle brauchen.
+
+<DocsImage alt="Feature Webhooks und Events mit Subscriptions und Zustellhistorie" src="docs-features-webhooks-events-overview.png" />
+
+## Verfügbare Events
+
+Customermates stellt derzeit fünfzehn Webhook-Events bereit:
+
+- `contact.created`, `contact.updated`, `contact.deleted`
+- `organization.created`, `organization.updated`, `organization.deleted`
+- `deal.created`, `deal.updated`, `deal.deleted`
+- `service.created`, `service.updated`, `service.deleted`
+- `task.created`, `task.updated`, `task.deleted`
+
+Damit gibt es eine stabile Event-Fläche über die fünf zentralen CRM-Entitäten hinweg.
+
+## Zustellformat und Betrieb
+
+Wenn ein abonniertes Event ausgelöst wird, sendet Customermates einen `POST`-Request mit einem JSON-Body im Format `{ event, data, timestamp }`. Falls ein Secret konfiguriert ist, enthält der Request zusätzlich einen `X-Webhook-Signature`-Header auf Basis einer HMAC-SHA256-Signatur des rohen JSON-Bodys.
+
+Das eigentliche Setup passiert typischerweise in einem Modal, in dem Ziel-URL, abonnierte Events, optionales Secret und Aktivstatus festgelegt werden.
+
+<DocsImage alt="Webhook-Modal mit Ziel-URL, Event-Auswahl, Secret und Aktivstatus" src="docs-features-webhooks-events-webhook-modal.png" />
+
+Für den laufenden Betrieb sind zwei Punkte besonders wichtig. Fehlgeschlagene Zustellungen verschwinden nicht lautlos, sondern bleiben sichtbar. Und Zustellungen lassen sich manuell erneut senden, wenn ein Zielsystem korrigiert wurde oder ein Ablauf bewusst wiederholt werden soll.
+
+## Was Teams damit typischerweise bauen
+
+Häufige Folgeprozesse sind:
+
+- Synchronisation von CRM-Änderungen in andere Systeme
+- Benachrichtigungen bei wichtigen Lifecycle-Änderungen
+- Start von Automationen in Workflow-Tools
+- Einspeisung in Audit- oder Enrichment-Pipelines
+- Übergabe von Datensatzänderungen an interne Backend-Jobs
+
+## Operative Orientierung
+
+Bei der Umsetzung von Webhooks hilft es, sie als Zustellereignisse und nicht als garantierte fachliche Fertigmeldung zu betrachten. Praktisch heißt das: Signaturen prüfen, Resends sauber vertragen und im empfangenden System genug Kontext behalten, um Fehler später nachvollziehen zu können. Der Event-Name entscheidet dabei, welcher Handler laufen soll, und das Payload liefert den inhaltlichen Kontext für den nächsten Schritt.
+
+> Die Webhook-Schicht ist besonders stark, wenn das empfangende System mit Doppelauslieferungen, manuellen Resends und Downstream-Fehlern sauber umgehen kann.
+
+Für die breitere Integrationsplanung gehe weiter zu [CRM-Integrationen](/docs/integrations-intro). Für Zugriffskontrolle im Workspace gehe weiter zu [Berechtigungen & Rollen](/docs/features-permissions-roles).

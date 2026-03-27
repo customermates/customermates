@@ -11,7 +11,7 @@ You can think of the platform as three clear layers: the application experience,
 ## How your data and AI runtime are handled
 
 Your CRM data is managed in the core platform with strict access boundaries.  
-For AI workflows, each user gets a secure, managed, sandboxed Docker-based VPS with their own AI agent. That agent can be called either directly or through the Customermates API. This means agent execution is isolated per user and does not run in a shared process with other users.
+For AI workflows, each user gets a secure, managed, sandboxed Docker-based VPS with their own AI agent. That agent can be called either directly or through the Customermates API. When it works against the CRM, it does so with the user’s own API-key-backed permissions rather than broad shared access. This means agent execution is isolated per user and does not run in a shared process with other users.
 
 That design gives you practical protection in daily operations: stronger isolation, clearer control boundaries, and predictable behavior even when many agents are active at the same time.
 
@@ -37,4 +37,4 @@ flowchart LR
 
 ## Why this matters for your team
 
-You get a setup that feels simple from the outside, but is designed for trust and control underneath. Business teams can focus on workflows and customer work, while technical stakeholders can rely on clear isolation and managed infrastructure for AI execution. For the integration surfaces built on top of that foundation, continue with [CRM Integrations](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), or [Webhooks & Events](/docs/feature-guide-webhooks-events).
+You get a setup that feels simple from the outside, but is designed for trust and control underneath. Business teams can focus on workflows and customer work, while technical stakeholders can rely on clear isolation and managed infrastructure for AI execution. For the integration surfaces built on top of that foundation, continue with [CRM Integrations](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), [Permissions & Roles](/docs/features-permissions-roles), or [Webhooks & Events](/docs/features-webhooks-events).

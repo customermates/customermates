@@ -1,0 +1,43 @@
+---
+title: Audit Logging
+description: Understand how Customermates records workspace activity, exposes change history, and helps teams review operational and administrative traceability.
+demo:
+  src: https://demo.customermates.com/en/company?sort=name%3Adesc&pageSize=100&tab=audit-logs
+  title: Audit logging demo
+---
+
+## Overview
+
+Audit logging gives teams a structured record of what changed in the workspace, who triggered the event, and when it happened. That becomes especially important once several people work in the same company account and operational changes need to stay understandable after the fact.
+
+This feature is less about raw storage and more about traceability. It helps teams reconstruct what happened, review administrative actions, and understand how a record reached its current state.
+
+> Audit logging matters most when accountability, troubleshooting, and change visibility are part of daily operations.
+
+<DocsImage alt="Feature audit logging overview showing audit log list, event labels, user information, and timestamps" src="docs-features-audit-logging-overview.png" />
+
+## How the audit log is read
+
+The main audit log view works like an operational timeline. Teams can scan entries by entity, event, user, and timestamp, then open a row to inspect more detail. That keeps the first view broad enough for review while still making deeper investigation possible.
+
+In practice, this is useful when someone needs to answer questions like who changed a record, which event happened first, or whether a certain entity was updated by a user action or by a related workflow.
+
+## Details and change history
+
+Opening an audit log entry leads into a detail view with the underlying event data. From there, teams can review the affected entity, the event type, the actor, and the payload that was recorded for that moment.
+
+<DocsImage alt="Audit log details modal showing entity, event, actor, timestamp, and recorded event data" src="docs-features-audit-logging-details-modal.png" />
+
+For entities where change history is available, the product also surfaces a history-oriented view that focuses more directly on what changed over time. That makes the feature useful not only for compliance-style review, but also for practical debugging and day-to-day operational clarity.
+
+<DocsImage alt="Audit log change history modal showing users, events, change counts, and timestamps for an entity" src="docs-features-audit-logging-history-modal.png" />
+
+<DocsImage alt="Audit log change history details view showing the selected change entry with field-level before and after values" src="docs-features-audit-logging-history-modal-details.png" />
+
+## Where teams use it
+
+Audit logging is especially useful when teams need to review administrative actions, understand record evolution, or investigate unexpected changes. It becomes part of the operational safety net of the workspace because it gives people a shared factual view of past activity instead of relying on memory or informal coordination.
+
+The feature also fits naturally with permissions and governance. The more clearly access is structured, the more valuable it becomes to understand how that access was used over time.
+
+If you want to understand the access model behind those administrative boundaries, continue with [Permissions & Roles](/docs/features-permissions-roles). If you want to review event-driven integrations from another angle, continue with [Webhooks & Events](/docs/features-webhooks-events).

@@ -1,0 +1,57 @@
+---
+title: Webhooks & Events
+description: Understand how Customermates emits CRM events, signs webhook deliveries, and supports event-driven integrations.
+demo:
+  src: https://demo.customermates.com/en/company?sort=name%3Adesc&pageSize=100&tab=webhook-deliveries
+  title: Webhooks and events demo
+---
+
+## Overview
+
+Webhooks are the event-delivery layer of Customermates. They let external systems react when CRM records change, which makes them useful for synchronization, notifications, audit pipelines, and follow-up automation.
+
+The delivery model focuses on lifecycle changes for the main CRM entities, and delivery attempts are stored so teams can understand what was sent and how the destination endpoint responded.
+
+> This feature is most useful when CRM changes should trigger something outside the app, or when downstream systems need a reliable event source.
+
+<DocsImage alt="Feature webhooks and events overview showing subscriptions and delivery history" src="docs-features-webhooks-events-overview.png" />
+
+## Available events
+
+Customermates currently exposes fifteen webhook events:
+
+- `contact.created`, `contact.updated`, `contact.deleted`
+- `organization.created`, `organization.updated`, `organization.deleted`
+- `deal.created`, `deal.updated`, `deal.deleted`
+- `service.created`, `service.updated`, `service.deleted`
+- `task.created`, `task.updated`, `task.deleted`
+
+That gives teams a stable event surface across the five central CRM entities.
+
+## Delivery format and operations
+
+When a subscribed event is triggered, Customermates sends a `POST` request with a JSON body in the format `{ event, data, timestamp }`. If a secret is configured, the request also includes an `X-Webhook-Signature` header based on an HMAC-SHA256 signature of the raw JSON body.
+
+The actual setup usually happens in a modal where the destination URL, the subscribed events, the optional secret, and the enabled state are defined.
+
+<DocsImage alt="Webhook setup modal showing target URL, subscribed events, secret, and enabled state" src="docs-features-webhooks-events-webhook-modal.png" />
+
+For day-to-day operations, two details matter most. Failed deliveries are preserved instead of disappearing silently, and teams can inspect and resend them manually when they need to verify fixes or replay an integration step.
+
+## What teams usually build with it
+
+Typical follow-up flows include:
+
+- syncing CRM updates into another system
+- triggering notifications for important lifecycle changes
+- starting automations in workflow tools
+- feeding audit or enrichment pipelines
+- handing record changes to internal backend jobs
+
+## Operational guidance
+
+When implementing webhooks, it usually helps to treat them as delivery events, not as guaranteed business completion signals. In practice that means the receiving side should verify signatures, stay safe under resends, and keep enough context to debug failed calls after the fact. The event name tells the receiver which handler should run, while the payload provides the record context for the next step.
+
+> The webhook layer is strongest when the receiving system is built to handle retries, duplicates, and downstream failure gracefully.
+
+For broader integration planning, continue with [CRM Integrations](/docs/integrations-intro). For access control around the workspace, continue with [Permissions & Roles](/docs/features-permissions-roles).

@@ -97,42 +97,39 @@ export const DocsSidebar = observer(() => {
       ],
     },
     {
-      key: "feature-guides",
-      label: t("DocsSidebar.featureGuides"),
+      key: "features",
+      label: t("DocsSidebar.features"),
       items: [
         {
-          key: "feature-guide-entities-relationships",
-          url: "/docs/feature-guide-entities-relationships",
-          title: t("DocsSidebar.entitiesRelationships"),
+          key: "features-report-statistics",
+          url: "/docs/features-report-statistics",
+          title: t("DocsSidebar.reportAndStatistics"),
         },
         {
-          key: "feature-guide-custom-columns",
-          url: "/docs/feature-guide-custom-columns",
+          key: "features-custom-columns",
+          url: "/docs/features-custom-columns",
           title: t("DocsSidebar.customColumns"),
         },
         {
-          key: "feature-guide-webhooks-events",
-          url: "/docs/feature-guide-webhooks-events",
+          key: "features-table-kanban-view",
+          url: "/docs/features-table-kanban-view",
+          title: t("DocsSidebar.tableAndKanbanView"),
+        },
+        {
+          key: "features-webhooks-events",
+          url: "/docs/features-webhooks-events",
           title: t("DocsSidebar.webhooksEvents"),
         },
         {
-          key: "feature-guide-dashboard-widgets",
-          url: "/docs/feature-guide-dashboard-widgets",
-          title: t("DocsSidebar.dashboardWidgets"),
+          key: "features-permissions-roles",
+          url: "/docs/features-permissions-roles",
+          title: t("DocsSidebar.permissionsRoles"),
         },
-      ],
-    },
-    {
-      key: "settings",
-      label: t("DocsSidebar.settings"),
-      items: [
-        { key: "settings-account", url: "/docs/account-settings", title: t("DocsSidebar.accountSettings") },
         {
-          key: "settings-company",
-          url: "/docs/company-settings",
-          title: t("DocsSidebar.companySettings"),
+          key: "features-audit-logging",
+          url: "/docs/features-audit-logging",
+          title: t("DocsSidebar.auditLogging"),
         },
-        { key: "settings-roles", url: "/docs/roles-permissions", title: t("DocsSidebar.rolesPermissions") },
       ],
     },
   ];

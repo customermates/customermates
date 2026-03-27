@@ -1,0 +1,45 @@
+---
+title: Berechtigungen & Rollen
+description: Verstehe, wie Zugriffskontrolle im Workspace funktioniert und wie Rollen steuern, was Nutzer in Customermates sehen und verwalten dürfen.
+demo:
+  src: https://demo.customermates.com/de/company?sort=name%3Adesc&pageSize=100&tab=roles
+  title: Berechtigungen und Rollen Demo
+---
+
+## Überblick
+
+Berechtigungen und Rollen legen fest, was Nutzer im Workspace sehen dürfen und was sie verwalten können. Statt Zugriffsregeln einzeln pro Person zu vergeben, bündelt Customermates Berechtigungen in Rollen und weist jedem Nutzer genau eine Rolle zu.
+
+Dadurch entsteht ein klareres Zugriffsmodell für wachsende Teams. Die Rolle definiert die Grenzen, und die Nutzerverwaltung ordnet diese Rolle den passenden Personen zu.
+
+> Dieses Feature wird besonders wichtig, sobald mehrere Personen, Teams oder Verantwortungsstufen denselben Workspace teilen.
+
+## Wie Rollen funktionieren
+
+Jede Rolle bündelt Berechtigungen über die wichtigsten Bereiche des Workspaces hinweg, darunter Kontakte, Organisationen, Deals, Services, Aufgaben, Nutzer, API-Zugriff und auditbezogene Steuerungsbereiche.
+
+Für jeden Bereich kann eine Rolle zwei Dinge definieren:
+
+- **Lesezugriff**, der steuert, was ein Nutzer sehen darf
+- **Verwaltungszugriff**, der steuert, ob ein Nutzer Daten anlegen, ändern oder entfernen darf
+
+Diese Unterscheidung ist wichtig, weil Sichtbarkeit und Administration nicht immer dasselbe sind. Eine Rolle kann also breiten Lesezugriff erlauben und die Verwaltung trotzdem einschränken.
+
+## Typische Ziele beim Rollendesign
+
+Das eigentliche Setup lebt meist in einem Rollen-Modal. Dort arbeitet sich ein Team Bereich für Bereich durch das Zugriffsmodell des Workspaces und entscheidet, was eine Rolle sehen oder verwalten darf.
+
+<DocsImage alt="Rollen-Modal mit Berechtigungsbereichen für Lesezugriff und Verwaltung" src="docs-features-permissions-roles-role-modal.png" />
+
+Teams gestalten Rollen meist so, dass Zusammenarbeit dort breit sichtbar bleibt, wo sie wichtig ist, während Änderungsrechte oder administrative Steuerung bewusster begrenzt werden. In vielen Workspaces bedeutet das, operative Rollen von sensibleren Unternehmens- oder Systemrechten klar zu trennen.
+
+## Rollen im Alltag zuweisen
+
+Rollen werden über die Nutzerverwaltung im Workspace vergeben. Wenn ein Nutzerdatensatz aktualisiert wird, wird die zugewiesene Rolle Teil des operativen Profils dieser Person in Customermates.
+
+Einige Rollen werden als geschützte Systemrollen behandelt, damit der Workspace einen stabilen administrativen Pfad behält. Gleichzeitig können Teams zusätzliche Rollen für ihre eigene Struktur und tägliche Arbeit anlegen.
+Beim Definieren von Rollen hilft es meist, von echten Verantwortlichkeiten auszugehen statt von theoretischen Kombinationen. Kleine Rollensets bleiben verständlicher und damit auch pflegbarer. In der Praxis sind die klarsten Setups meistens diejenigen, in denen Sichtbarkeit und Verwaltung getrennt gedacht werden und in denen administrative Rollen mit besonderer Sorgfalt geprüft werden, weil sie sowohl Produktzugriff als auch operatives Risiko beeinflussen.
+
+> Ein gutes Zugriffsmodell ist nicht nur technisch korrekt. Es ist auch für Manager und operative Nutzer verständlich, die täglich damit arbeiten.
+
+Wenn du nachvollziehen willst, wie sich administrative Aktivität später prüfen lässt, gehe weiter zu [Audit Logging](/docs/features-audit-logging). Wenn du die eventgetriebene Seite administrativer Abläufe verstehen willst, gehe weiter zu [Webhooks & Events](/docs/features-webhooks-events).

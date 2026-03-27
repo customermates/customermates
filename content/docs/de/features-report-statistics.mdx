@@ -1,0 +1,62 @@
+---
+title: Reports & Statistiken
+description: Verstehe, wie Dashboards, Widgets und gruppierte CRM-Ansichten Datensätze in Reporting, Analysen und operative Sichtbarkeit übersetzen.
+demo:
+  src: https://demo.customermates.com/de/dashboard
+  title: Reports und Statistiken Demo
+---
+
+## Überblick
+
+Customermates macht aus CRM-Datensätzen eine visuelle Reporting-Fläche. Statt Listen einzeln durchzugehen, können Nutzer Widgets und gruppierte Ansichten kombinieren, um Mengen, kommerzielle Signale, Segmente und Trends an einem Ort zu verfolgen.
+
+Dadurch fühlt sich Reporting wie ein Teil der täglichen CRM-Arbeit an und nicht wie ein separater BI-Workflow. Teams können Pipeline-Bewegungen, Verteilungen nach Stufe oder gefilterte Datensätze direkt im Produkt beobachten.
+
+> Dieser Bereich ist vor allem für operatives Reporting gedacht, nicht als losgelöstes BI-System. Der Fokus liegt auf schneller Sichtbarkeit direkt im CRM.
+
+<DocsImage alt="Feature Reports und Statistiken mit Dashboard-Widgets und CRM-Analyseansichten" src="docs-features-report-statistics-overview.png" />
+
+## Widgets und gruppierte Ansichten
+
+Wenn ein Team ein Widget erstellt, beginnt die eigentliche Logik meist in einem Modal. Dort wird entschieden, auf welcher Entität die Frage basiert, ob gezählt oder ein kommerzieller Wert zusammengefasst werden soll, wie der Datensatz gefiltert wird und wie das Ergebnis sichtbar werden soll.
+
+<DocsImage alt="Widget-Modal für Reports und Statistiken mit Entität, Aggregation, Gruppierung und Anzeigeoptionen" src="docs-features-report-statistics-widget-modal.png" />
+
+Das Setup funktioniert meist am besten in dieser Reihenfolge:
+
+1. Mit dem **Entitätstyp** beginnen, auf dem die fachliche Frage basiert.
+2. Die **Aggregation** wählen, die zum gewünschten Ergebnis passt.
+3. Eine **Gruppierung** nur dann ergänzen, wenn das Ergebnis in Segmente aufgeteilt werden soll.
+4. Den Datensatz mit **Filtern** eingrenzen, sobald die Grundlogik stimmt.
+5. Zum Schluss die **Anzeigeoptionen** wählen, damit das Ergebnis gut lesbar wird.
+
+Diese Reihenfolge ist wichtig, weil die ersten Entscheidungen die Bedeutung des Widgets festlegen, während die späteren Schritte vor allem verfeinern, wie diese Bedeutung sichtbar wird.
+
+## Was die Optionen im Modal bedeuten
+
+Die wichtigsten Felder im Widget-Modal beeinflussen das Ergebnis auf unterschiedliche Weise:
+
+| Option | Was sie steuert |
+| --- | --- |
+| Name | Die Bezeichnung, die später auf dem Dashboard erscheint |
+| Entitätstyp | Auf welchen Datensätzen das Widget basiert |
+| Aggregation | Ob gezählt oder ein kommerzieller Wert zusammengefasst wird |
+| Gruppierung | Ob das Ergebnis in Kategorien aufgeteilt wird |
+| Filter | Welche Datensätze in die Berechnung einfließen |
+| Anzeigeoptionen | Wie das Ergebnis visuell dargestellt wird |
+
+Praktisch ist vor allem die Unterscheidung zwischen Aggregation und Gruppierung entscheidend. Die Aggregation bestimmt, was gemessen wird, und die Gruppierung bestimmt, wie diese Messung aufgeteilt wird. Sobald diese beiden Entscheidungen klar sind, wird der Rest des Setups meist deutlich einfacher.
+
+Gruppierte Ansichten ergänzen dieses Modell aus der anderen Richtung. Sie sind weniger ein einzelnes Chart und mehr eine Perspektive auf denselben Datenbestand. Zusammen trennen Widgets und gruppierte Ansichten Bedeutung von Darstellung: Die Filter bestimmen, was einfließt, und die Anzeige bestimmt, wie das Ergebnis gelesen wird.
+
+## Wie Teams das nutzen
+
+Die meisten Teams beginnen nicht mit dem Chart-Typ, sondern mit einer Frage. Sie wollen verstehen, wo Pipeline-Volumen liegt, wie Arbeit verteilt ist, welches Segment wächst oder was sich in einem gefilterten Ausschnitt verändert hat. Von dort aus wird das Setup deutlich klarer: zuerst den richtigen Datensatztyp wählen, dann die Gruppierung, die dem Ergebnis Form gibt, und erst danach die Darstellung verfeinern.
+
+Genau deshalb werden benutzerdefinierte Felder für Reporting so wertvoll. Sobald ein Team prozessspezifische Struktur eingeführt hat, kann dieselbe Struktur auch als Gruppierungsdimension in Reports wiederverwendet werden. In der Praxis nutzen Teams diesen Bereich sowohl für operative Steuerung als auch für Management-Sichtbarkeit: Pipeline-Veränderungen, Segmentanalysen, zugewiesene Arbeit und kommerzielle Summen lassen sich direkt im Produkt verstehen.
+
+Der praktische Vorteil ist Geschwindigkeit. Teams müssen Datensätze nicht erst exportieren, extern aufbereiten und das Ergebnis anschließend wieder in operative CRM-Aktionen übersetzen. Sie sehen ein Muster und können direkt im selben Workspace darauf reagieren.
+
+> Ein guter Report ist meist eng und entscheidungsorientiert. Starte lieber mit einer klaren Frage pro Widget als mit einem einzigen Chart, der alles gleichzeitig erklären soll.
+
+Wenn du die Felder verstehen willst, die viele dieser Gruppierungen antreiben, gehe weiter zu [Benutzerdefinierte Felder](/docs/features-custom-columns). Wenn du Datensätze stärker operativ bearbeiten willst, gehe weiter zu [Tabellen- & Kanban-Ansicht](/docs/features-table-kanban-view).

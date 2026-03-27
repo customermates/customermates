@@ -18,10 +18,10 @@ If you are evaluating deployment models at the same time, see [Self-Hosted CRM v
 
 ## API access and credentials
 
-For API usage, create your key in [Account Settings](/docs/account-settings) and include it via the `x-api-key` header.  
+For API usage, create your key in your profile settings and include it via the `x-api-key` header.  
 You can inspect the full machine-readable spec at [OpenAPI JSON](https://customermates.com/v1/openapi.json).
 
-If you are planning production usage, align your implementation with [Webhooks & Events](/docs/feature-guide-webhooks-events), validate payload assumptions before enabling write flows, and review [Architecture & Security](/docs/architecture-security) when security and runtime isolation are part of the evaluation.
+If you are planning production usage, align your implementation with [Webhooks & Events](/docs/features-webhooks-events), validate payload assumptions before enabling write flows, and review [Architecture & Security](/docs/architecture-security) when security and runtime isolation are part of the evaluation.
 
 > Start with one read-only flow to verify field mappings and payload shape, then move to controlled create and update operations with retries and idempotent handling.  
 > After that, activate webhook-driven automations and monitor errors, latency, and delivery behavior before scaling to more business-critical processes.

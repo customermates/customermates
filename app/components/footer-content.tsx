@@ -49,13 +49,14 @@ function UneedBadge() {
 export function FooterContent({ competitors = [] }: FooterProps) {
   const t = useTranslations("Footer");
   const tNav = useTranslations("NavigationBar");
+  const tDocs = useTranslations("DocsSidebar");
   const tCommon = useTranslations("Common");
   const tUserAvatar = useTranslations("UserAvatar");
 
   return (
     <footer className="border-t border-divider bg-content2 dark:bg-content1 mt-auto w-full text-x-sm">
       <div className="max-w-[1300px] mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           <div className="space-y-6">
             <XLink aria-label={`${tCommon("imageAlt.logo")} ${tUserAvatar("home")}`} href="/">
               <XImage alt={tCommon("imageAlt.logo")} height={27} src="customermates.svg" width={156} />
@@ -141,6 +142,48 @@ export function FooterContent({ competitors = [] }: FooterProps) {
               <li>
                 <XLink className="text-subdued" href="/affiliate">
                   {tNav("affiliate")}
+                </XLink>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-foreground">{t("features")}</h3>
+
+            <ul className="space-y-2">
+              <li>
+                <XLink className="text-subdued" href="/docs/features-report-statistics">
+                  {tDocs("reportAndStatistics")}
+                </XLink>
+              </li>
+
+              <li>
+                <XLink className="text-subdued" href="/docs/features-custom-columns">
+                  {tDocs("customColumns")}
+                </XLink>
+              </li>
+
+              <li>
+                <XLink className="text-subdued" href="/docs/features-table-kanban-view">
+                  {tDocs("tableAndKanbanView")}
+                </XLink>
+              </li>
+
+              <li>
+                <XLink className="text-subdued" href="/docs/features-webhooks-events">
+                  {tDocs("webhooksEvents")}
+                </XLink>
+              </li>
+
+              <li>
+                <XLink className="text-subdued" href="/docs/features-permissions-roles">
+                  {tDocs("permissionsRoles")}
+                </XLink>
+              </li>
+
+              <li>
+                <XLink className="text-subdued" href="/docs/features-audit-logging">
+                  {tDocs("auditLogging")}
                 </XLink>
               </li>
             </ul>

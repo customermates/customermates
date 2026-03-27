@@ -52,7 +52,7 @@ export const markdownBaseComponents: Pick<
     </li>
   ),
   a: ({ className, children, ...props }) => (
-    <XLink inheritSize className={cn("text-inherit underline decoration-current", className)} {...(props as LinkProps)}>
+    <XLink inheritSize className={cn("underline decoration-current", className)} {...(props as LinkProps)}>
       {children}
     </XLink>
   ),
