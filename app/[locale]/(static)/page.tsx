@@ -16,7 +16,6 @@ import { XFeatureSection } from "@/components/x-feature-section";
 import { XTestimonialSection } from "@/components/x-testimonial-section";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { homepageSource, pricingSource } from "@/core/fumadocs/source";
-import { XAlert } from "@/components/x-alert";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -30,7 +29,7 @@ export default async function HomePage() {
 
   if (!homepagePage) notFound();
 
-  const { automationExplanation, hero, benefits, features, testimonials, pricingTitle, faq, cta } = homepagePage.data;
+  const { hero, benefits, features, testimonials, pricingTitle, faq, cta } = homepagePage.data;
   const pricingData = pricingPage?.data.pricing;
 
   return (
@@ -40,10 +39,6 @@ export default async function HomePage() {
       <HomepageDemo />
 
       <HomepageBenefits benefitsSection={benefits} />
-
-      <div className="max-w-5xl mx-auto px-4">
-        <XAlert color="primary">{automationExplanation}</XAlert>
-      </div>
 
       <XFeatureSection {...features} />
 

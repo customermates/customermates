@@ -13,7 +13,10 @@ const benefitItemSchema = z.object({
 });
 
 export const benefitsSchema = z.object({
+  badge: z.string(),
   benefits: z.array(benefitItemSchema),
+  subtitle: z.string(),
+  title: z.string(),
 });
 export type Benefits = z.infer<typeof benefitsSchema>;
 

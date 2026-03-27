@@ -36,9 +36,9 @@ export function BaseFeaturesSection({
             return (
               <XCard key={index} shadow={cardShadow}>
                 <XCardBody>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
+                  <h3 className="font-semibold flex items-center gap-2">
                     <div className="text-subdued">
-                      <XIcon icon={Icon} size="sm" />
+                      <XIcon icon={Icon} />
                     </div>
 
                     {feature.title}

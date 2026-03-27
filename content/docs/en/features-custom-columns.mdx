@@ -24,6 +24,21 @@ The setup itself usually happens in a modal. That modal is where the team decide
 
 Custom columns are especially useful when teams need to capture process-specific information without changing the overall CRM structure. In practice, they become the layer that adapts a standard CRM model to the way a specific business actually works. One team might use them to classify deals more precisely, another to mark operational readiness, and another to make filtering and grouping possible around internal workflow stages that do not belong in the base product model.
 
+## Available column types
+
+The product currently supports these custom column types:
+
+| Column type | Typical usage |
+| --- | --- |
+| Plain text | Short structured notes, identifiers, labels, or process-specific values that should stay easy to scan in forms and table views |
+| Date | Deadlines, renewal dates, launch dates, or any value that should be filtered and compared as a calendar date |
+| Date & time | Appointments, handoff times, reminders, or operational events where the exact timestamp matters |
+| Currency | Budget, estimated value, implementation cost, or other commercial amounts that should stay numerically consistent |
+| Single select | Workflow stages, internal classifications, segments, or status-like values that should support filtering, grouping, and Kanban organization |
+| Link | Reference URLs to external systems, documents, tickets, or related resources |
+| Email | Contact-specific email fields that should stay validated and easy to reuse |
+| Phone | Contact-specific phone values that should stay validated and operationally accessible |
+
 ## Why typed fields matter
 
 Typed columns create more reliable operational behavior than generic free text. Once a value is structured, the rest of the product can do something meaningful with it. Filters become more trustworthy, grouped views become more useful, reports can reuse the same dimensions, and integrations receive data that is easier to interpret consistently.
