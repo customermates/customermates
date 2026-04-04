@@ -1,0 +1,176 @@
+---
+title: "Self-Hosted CRM: Deploy on Your Infrastructure With Full Data Control"
+description: "Self-hosted CRM with Docker deployment, open-source code, and GDPR compliance. Full data sovereignty, air-gap capable, no vendor lock-in. Start free today."
+featureName: Self-Hosted CRM
+
+hero:
+  title: Self-Hosted CRM That Puts You in Control
+  description: Deploy Customermates on your own infrastructure with Docker. Maintain complete data sovereignty, satisfy compliance requirements, and run a modern CRM on your terms with zero vendor lock-in.
+  buttonLeftText: Start for free
+  buttonLeftHref: /auth/signup
+  buttonRightText: Watch live demo
+  buttonRightHref: https://demo.customermates.com
+  hint: "✓ No credit card required ✓ First 3 days free"
+
+cta:
+  action: Ready to own your CRM data?
+  description: Deploy Customermates on your servers or start with the cloud version. Your data, your rules, your infrastructure.
+  buttonLeftText: Start for free
+  buttonLeftHref: /auth/signup
+  buttonRightText: Watch live demo
+  buttonRightHref: https://demo.customermates.com
+  hint: "✓ No credit card required ✓ First 3 days free"
+---
+
+## What Is a Self-Hosted CRM?
+
+A self-hosted CRM is a customer relationship management system that you deploy and run on your own servers or infrastructure instead of relying on a vendor's cloud. With a self-hosted CRM, you control where the software runs, where your data is stored, and who has access. Nothing leaves your environment unless you explicitly allow it.
+
+According to [Gartner](https://www.gartner.com/en/newsroom/press-releases/2024-09-04-gartner-says-worldwide-crm-market-grew-14-percent-in-2023), the global CRM market reached $48.7 billion in 2023, yet most major platforms remain cloud-only. For businesses that handle sensitive customer data, operate in regulated industries, or want full sovereignty over their systems, self-hosting is not a preference but a requirement. Government agencies, healthcare organizations, financial services companies, and security-conscious enterprises often cannot send customer data to third-party cloud providers, regardless of where those servers are located.
+
+Self-hosting also appeals to technical teams who want complete control over their stack. You choose the hardware, the operating system, the database configuration, the [backup strategy](/blog/crm-best-practices), and the update schedule. The CRM runs exactly as you need it, with no dependencies on external services for daily operation.
+
+## How Self-Hosting Works in Customermates
+
+Customermates is built as an [open-source CRM](/blog/open-source-crm) with Docker as the primary deployment method. Self-hosting is not an afterthought or a premium tier. It is a first-class deployment option with full documentation and community support.
+
+**Docker deployment.** Customermates ships as Docker containers, making deployment straightforward on any infrastructure that supports Docker. Whether you run bare-metal servers, virtual machines, or a Kubernetes cluster, the containerized architecture fits into your existing setup. A single `docker compose up` command gets you a running instance with the CRM, database, and all dependencies configured.
+
+**Full source code access.** Customermates is open source. You can inspect every line of code, audit the security model, verify data handling practices, and modify the application to fit your specific needs. There are no black boxes, no obfuscated modules, and no hidden telemetry. What you see in the repository is exactly what runs on your server.
+
+**Your data stays on your servers.** When you self-host Customermates, all customer data, files, attachments, notes, emails, and system logs remain on infrastructure you control. The application does not phone home, does not sync data to external services, and does not require an internet connection to function after initial setup. Your data never touches a server you do not own.
+
+**Included n8n automation engine.** The [n8n workflow automation](/features/workflow-automation) engine deploys alongside Customermates as part of the same Docker stack. Your automation workflows, credentials, and execution history stay on your infrastructure. This means you can automate business processes with the same power as the [cloud version](/features/cloud-crm) but with complete data isolation.
+
+**Standard PostgreSQL database.** Customermates uses PostgreSQL, a widely trusted open-source database. Your data is stored in a standard format that you can query, back up, migrate, and manage with familiar tools. You are never locked into a proprietary data format that requires the vendor's software to access.
+
+## Key Benefits of a Self-Hosted CRM
+
+**Complete data sovereignty.** You decide where your data lives, who can access it, and how long it is retained. No third party can access your customer information, subpoena your data from a cloud provider, or shut down your CRM due to a terms-of-service dispute. Your data is yours in the most literal sense.
+
+**GDPR and compliance by architecture.** Self-hosting Customermates within EU infrastructure means your data processing meets [GDPR requirements](https://gdpr-info.eu/) by default. You control the data processor, the data location, and the retention policies. For organizations that need to demonstrate compliance to auditors or regulators, a self-hosted CRM provides the clearest and most defensible position.
+
+**Air-gapped environments.** Some organizations require systems that operate with no internet connection at all. Customermates can run in fully air-gapped environments after the initial Docker image deployment. Internal teams access the CRM over the local network, and no external connectivity is needed for day-to-day operation.
+
+**Custom security policies.** Apply your organization's security standards directly. Configure firewalls, VPN access, SSO integration, encryption at rest, and network segmentation according to your own policies. You are not limited by what a cloud provider's admin panel offers. The infrastructure is yours to secure as you see fit.
+
+**Predictable performance.** Self-hosted deployments run on dedicated resources. There is no multi-tenant noisy-neighbor problem, no shared infrastructure bottlenecks, and no dependency on an external provider's uptime. Your CRM performs consistently because it runs on hardware you provision and monitor.
+
+**No vendor lock-in.** With open-source code and a standard PostgreSQL database, you are never trapped. Whether you want to modify the application, fork it, migrate to different hardware, or switch to the cloud version later, every path is open. Your investment in configuration, customization, and data is fully portable.
+
+## Cloud CRM vs. Self-Hosted CRM: Which Is Right for You?
+
+Choosing between cloud and self-hosted deployment depends on your organization's priorities. Here is how the two models compare:
+
+| Criteria | Cloud CRM | Self-Hosted CRM |
+|----------|-----------|-----------------|
+| Setup time | Minutes | 30 minutes to a few hours |
+| Data location | Provider's servers | Your servers |
+| Maintenance | Provider handles updates | You control update schedule |
+| Customization | Configuration options | Full source code access |
+| Cost model | Per-user monthly fee | Infrastructure cost only |
+| Internet required | Always | Only for initial setup |
+| Compliance control | Depends on provider | Full control |
+| Scalability | Provider scales for you | You scale your hardware |
+
+With Customermates, you do not have to choose permanently. You can start with the [cloud version](/features/cloud-crm) at €10 per user per month and migrate to self-hosting at any time, or vice versa. The application is identical in both environments with [full feature parity](/pricing).
+
+## Self-Hosted CRM Comparison
+
+| Feature | Customermates | HubSpot | Salesforce | Pipedrive |
+|---------|--------------|---------|------------|-----------|
+| Self-hosting available | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Open source | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Docker deployment | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Air-gap capable | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Full source code access | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| Standard database (PostgreSQL) | <StatusAvailable /> | <StatusUnavailable /> | <StatusUnavailable /> | <StatusUnavailable /> |
+| EU/GDPR hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Built-in automation (n8n) | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
+| Cloud option available | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
+| Price/user/month (cloud) | €10 flat | Free / $90+ | $25+ | $14+ |
+
+[**HubSpot**](https://www.hubspot.com/products/crm), **Salesforce**, and **Pipedrive** are cloud-only platforms. None of them offer self-hosting, on-premise deployment, or access to source code. If your compliance requirements mandate data sovereignty or on-premise infrastructure, these platforms cannot meet them. See our [HubSpot alternative comparison](/compare/hubspot-alternative), [Salesforce alternative comparison](/compare/salesforce-alternative), and [Pipedrive alternative comparison](/compare/pipedrive-alternative) for detailed breakdowns.
+
+For organizations evaluating self-hosted CRM options, Customermates stands alone as a modern, open-source CRM with full feature parity between cloud and self-hosted deployments.
+
+## Self-Hosting Cost Breakdown
+
+One of the most compelling reasons to self-host a CRM is cost savings at scale. Here is a realistic comparison for a 25-person team:
+
+| Cost factor | Customermates (self-hosted) | HubSpot Sales Hub | Salesforce Sales Cloud |
+|-------------|---------------------------|--------------------|-----------------------|
+| Software license | Free (open source) | $90/user/month | $25-$165/user/month |
+| Infrastructure (VPS) | ~€30-80/month | Included | Included |
+| Monthly total (25 users) | ~€30-80 | $2,250+ | $625-$4,125 |
+| Annual total | ~€360-960 | $27,000+ | $7,500-$49,500 |
+
+Self-hosting Customermates eliminates per-user licensing entirely. You pay only for the server infrastructure. For teams of 10 or more, the savings are significant. Even the [cloud-hosted version](/pricing) at €10/user/month is substantially cheaper than most competitors. Compare [Salesforce pricing](/blog/salesforce-pricing) and [Pipedrive pricing](/blog/pipedrive-pricing) for more details.
+
+## Deployment Options
+
+**Single server.** For [small business](/for/smb) and mid-market teams, Customermates runs comfortably on a single server. A machine with 4 GB of RAM and 2 CPU cores handles a team of up to 50 users with room to spare. Docker Compose manages all the services, and the entire stack starts with a single command.
+
+**High availability.** For organizations that need redundancy, Customermates can be deployed across multiple nodes with a load balancer, replicated PostgreSQL databases, and shared storage for file attachments. The containerized architecture makes horizontal scaling straightforward.
+
+**Kubernetes.** Teams already running Kubernetes can deploy Customermates using Helm charts or custom manifests. The application integrates cleanly with existing cluster infrastructure, including ingress controllers, persistent volume claims, and secrets management.
+
+**Private cloud.** Deploy on AWS, Azure, Google Cloud, [Hetzner](https://www.hetzner.com/), or any infrastructure provider within your own virtual private cloud. You get the flexibility of cloud infrastructure with the control of self-hosting. The CRM runs in your tenant, on your network, under your account.
+
+## Use Cases for Self-Hosted CRM
+
+**Regulated industries.** Financial services, [healthcare](/for/healthcare), legal, and government organizations often face strict data residency and processing requirements. Self-hosting Customermates on approved infrastructure satisfies these requirements without the compliance risk of third-party cloud CRM providers.
+
+**Security-conscious companies.** Organizations that handle sensitive data or operate under strict security policies benefit from running the CRM within their own security perimeter. No data leaves the network, and the entire application stack is under your security team's oversight.
+
+**Technical teams that want control.** Development teams, [agencies](/for/agencies), and IT organizations that prefer to manage their own infrastructure will appreciate the clean Docker deployment, standard database, and full source code access. Customermates fits into existing DevOps workflows with integrations for [Slack](/features/slack-integration), [email](/features/email-integration), and [custom APIs](/features/api).
+
+**Cost-conscious scaling.** At a certain team size, self-hosting becomes significantly more cost-effective than per-user SaaS pricing. You pay for infrastructure once and add users without incremental licensing costs. For [startups](/for/startups) and growing companies, the economics of self-hosting are compelling. Combined with the [affordable cloud pricing](/blog/affordable-crm-software), Customermates offers the most flexible cost structure in the CRM market.
+
+## Step-by-Step: How to Deploy Customermates
+
+Getting your self-hosted CRM running takes less than 30 minutes:
+
+1. **Prepare your server.** Provision a Linux server with Docker and Docker Compose installed. Minimum requirements: 4 GB RAM, 2 CPU cores, 20 GB storage.
+
+2. **Clone the repository.** Pull the Customermates Docker images or clone the open-source repository from GitHub.
+
+3. **Configure environment variables.** Set your database credentials, domain name, TLS certificates, and SMTP settings in the `.env` file.
+
+4. **Start the stack.** Run `docker compose up -d` to launch all services: the CRM application, PostgreSQL database, n8n automation engine, and any additional workers.
+
+5. **Access your CRM.** Navigate to your domain in the browser, create your admin account, and begin importing [contacts](/features/contact-management), [leads](/features/lead-management), and [pipeline data](/features/pipeline).
+
+6. **Set up backups.** Configure automated PostgreSQL backups and file storage snapshots to protect your data.
+
+The documentation covers everything from basic single-server setup to production-ready configurations with TLS, monitoring, and [reporting dashboards](/features/reporting).
+
+## Frequently Asked Questions
+
+### Can I switch between cloud and self-hosted?
+
+Yes. Customermates is the same application whether it runs on our infrastructure or yours. You can start with the [cloud version](/features/cloud-crm) to evaluate the platform, then migrate to self-hosting when ready. Data export and import tools make the transition straightforward. Many teams begin with the cloud trial and self-host once they are ready for production.
+
+### What infrastructure do I need to self-host?
+
+A Linux server with Docker installed is sufficient. The minimum requirements are 4 GB RAM and 2 CPU cores for teams up to 50 users. Customermates uses PostgreSQL as its database and ships as Docker containers, so any Docker-capable environment works, including VPS providers, on-premise servers, and private cloud platforms.
+
+### Is self-hosting free or does it cost extra?
+
+Self-hosting Customermates is completely free because it is open-source software. The cloud-hosted version costs €10 per user per month and includes hosting, maintenance, and updates. Self-hosted users manage their own infrastructure and updates. All features, including [lead management](/features/lead-management), [sales automation](/features/sales-automation), [pipeline tracking](/features/pipeline), and [task management](/features/task-management), are identical in both options.
+
+### How do I handle updates when self-hosting?
+
+Updates are delivered as new Docker images. Pull the latest image, restart your containers, and the application handles database migrations automatically. You control when to update, giving you time to test new versions in a staging environment before rolling them out to production.
+
+### Is the self-hosted version secure?
+
+Customermates follows security best practices: encrypted connections, role-based access control, audit logging, and no external telemetry. Since you control the infrastructure, you can add your own security layers including VPN access, firewall rules, SSO integration, and network segmentation. The open-source codebase means you can audit every component yourself.
+
+### Can I integrate self-hosted Customermates with other tools?
+
+Absolutely. The self-hosted version includes the same [API](/features/api), [integrations](/features/integrations), and [n8n automation engine](/features/workflow-automation) as the cloud version. Connect with [email providers](/features/email-integration), [LinkedIn](/features/linkedin-integration), [Outlook](/features/outlook-integration), [Slack](/features/slack-integration), and hundreds of other tools through n8n workflows.
+
+## Start Self-Hosting Your CRM Today
+
+Deploy Customermates on your infrastructure in under thirty minutes, or [start with the cloud version](/auth/signup) free for three days with no credit card required. All features, including [contact management](/features/contact-management), [email integration](/features/email-integration), [sales tracking](/features/sales-tracking), and [workflow automation](/features/workflow-automation), are available from day one. No [hidden costs](/blog/free-crm), no feature gates, no vendor lock-in.
