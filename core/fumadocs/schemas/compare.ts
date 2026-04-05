@@ -7,6 +7,7 @@ export const comparisonFeatureSchema = z.object({
   name: z.string(),
   source: z.union([z.boolean(), z.string()]),
   competitor: z.union([z.boolean(), z.string()]),
+  competitor2: z.union([z.boolean(), z.string()]).optional(),
 });
 export type ComparisonFeature = z.infer<typeof comparisonFeatureSchema>;
 
@@ -18,6 +19,7 @@ export type ComparisonItem = z.infer<typeof comparisonItemSchema>;
 
 export const comparisonTableSchema = z.object({
   competitorName: z.string(),
+  competitor2Name: z.string().optional(),
   sections: z.array(comparisonItemSchema),
   title: z.string(),
 });
