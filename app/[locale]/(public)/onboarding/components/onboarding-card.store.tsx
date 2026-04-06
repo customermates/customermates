@@ -3,6 +3,7 @@ import type { RegisterUserData } from "@/features/user/register/register-user.in
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, toJS } from "mobx";
+
 import { CountryCode } from "@/generated/prisma";
 
 import { onboardingAction } from "../actions";

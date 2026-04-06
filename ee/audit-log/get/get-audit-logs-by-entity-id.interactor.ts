@@ -1,6 +1,7 @@
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 
 import { z } from "zod";
+
 import { Action, Resource } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";

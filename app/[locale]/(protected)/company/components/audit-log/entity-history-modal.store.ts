@@ -3,6 +3,7 @@ import type { AuditLogDto } from "@/ee/audit-log/get/get-audit-logs-by-entity-id
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { action, makeObservable, observable } from "mobx";
+
 import { Resource } from "@/generated/prisma";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";

@@ -10,6 +10,7 @@ import { ClipboardIcon, EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outl
 import { addToast } from "@heroui/toast";
 import { useTranslations } from "next-intl";
 import { Dropdown, DropdownMenu, DropdownTrigger } from "@heroui/dropdown";
+
 import { CustomColumnType } from "@/generated/prisma";
 
 import { XFavicon } from "../../x-favicon";

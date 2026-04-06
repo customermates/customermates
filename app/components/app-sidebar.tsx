@@ -27,8 +27,8 @@ import { User } from "@heroui/user";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection } from "@heroui/dropdown";
 import { Avatar } from "@heroui/avatar";
 import { cn } from "@heroui/theme";
-import { Resource } from "@/generated/prisma";
 
+import { Resource } from "@/generated/prisma";
 import type { Company, Theme } from "@/generated/prisma";
 
 import { SidebarFrame } from "./navigation/sidebar-frame";

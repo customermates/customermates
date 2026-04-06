@@ -1,6 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+
 import { Status, CountryCode } from "@/generated/prisma";
 
 export const UserDtoSchema = z.object({

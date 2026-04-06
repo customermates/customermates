@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { InviteToken } from "@/generated/prisma";
 
 import { Data } from "@/core/validation/validation.utils";

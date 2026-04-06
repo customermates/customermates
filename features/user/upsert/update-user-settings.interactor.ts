@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { Locale, Theme } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";

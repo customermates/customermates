@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { Resource, Action } from "@/generated/prisma";
 
 import { FindDealsByIdsRepo } from "../find-deals-by-ids.repo";

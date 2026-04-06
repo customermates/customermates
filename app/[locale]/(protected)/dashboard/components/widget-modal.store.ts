@@ -8,6 +8,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { action, computed, makeObservable, observable, toJS, reaction, runInAction } from "mobx";
 import { cloneDeep } from "lodash";
+
 import { EntityType, WidgetGroupByType, AggregationType, Resource } from "@/generated/prisma";
 
 import { upsertWidgetAction, deleteWidgetAction, getWidgetByIdAction, getCompanyWidgetsAction } from "../actions";

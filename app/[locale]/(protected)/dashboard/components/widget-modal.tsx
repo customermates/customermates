@@ -11,6 +11,7 @@ import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import { Tab, Tabs } from "@heroui/tabs";
 import { TrashIcon } from "@heroicons/react/24/outline";
+
 import { EntityType } from "@/generated/prisma";
 
 import { XModal } from "@/components/x-modal/x-modal";

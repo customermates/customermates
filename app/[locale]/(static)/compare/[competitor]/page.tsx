@@ -44,8 +44,8 @@ export default async function CompetitorComparePage({ params }: Props) {
       <PageHero {...page.data.hero} />
 
       <XComparisonTable
-        competitorName={page.data.comparison.competitorName}
         competitor2Name={page.data.comparison.competitor2Name}
+        competitorName={page.data.comparison.competitorName}
         sections={page.data.comparison.sections.map((section) => ({
           title: section.title,
           features: section.features.map((feature) => ({

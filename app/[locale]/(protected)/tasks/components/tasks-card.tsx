@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
+
 import { TaskType } from "@/generated/prisma";
 
 import { getSystemTaskNameTranslationKey } from "./system-task.config";

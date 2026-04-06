@@ -2,6 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+
 import { Status } from "@/generated/prisma";
 
 import { UserDetailsAvatar } from "../../../profile/components/user-details-avatar";

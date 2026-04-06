@@ -3,6 +3,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
 
 import { action, makeObservable, observable, toJS } from "mobx";
+
 import { CountryCode, Currency, Resource } from "@/generated/prisma";
 
 import { updateCompanyAction } from "../../actions";

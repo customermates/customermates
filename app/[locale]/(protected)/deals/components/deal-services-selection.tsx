@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/button";
 import { useTranslations } from "next-intl";
+
 import { Resource } from "@/generated/prisma";
 
 import { createServiceByNameAction, getServicesAction } from "../../services/actions";

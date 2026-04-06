@@ -5,6 +5,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import { Avatar } from "@heroui/avatar";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+
 import { CustomColumnType, Status } from "@/generated/prisma";
 
 import { isCustomField } from "../x-table-view/x-table-view.utils";

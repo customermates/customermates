@@ -4,6 +4,7 @@ import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import type { UserRoleDto } from "@/features/role/get-roles.interactor";
 
 import { action, computed, makeObservable, toJS } from "mobx";
+
 import { Resource, Action } from "@/generated/prisma";
 
 import { deleteRoleAction, upsertRoleAction } from "../../actions";

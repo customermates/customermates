@@ -8,8 +8,8 @@ import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 
 import { makeObservable, observable, computed, action, toJS, runInAction, reaction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
 
+import { Action, CustomColumnType } from "@/generated/prisma";
 import type { Resource, EntityType } from "@/generated/prisma";
 
 import { decodeGetParams, encodeGetParams } from "../utils/get-params";

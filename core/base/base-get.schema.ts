@@ -1,6 +1,7 @@
 import type { Data } from "../validation/validation.utils";
 
 import { z } from "zod";
+
 import { Prisma } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "./base-query-builder";

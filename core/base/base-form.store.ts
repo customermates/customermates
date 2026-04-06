@@ -6,8 +6,8 @@ import { makeObservable, observable, computed, action } from "mobx";
 import { JSONPath } from "jsonpath-plus";
 import equal from "fast-deep-equal/es6";
 import { cloneDeep } from "lodash";
-import { Action } from "@/generated/prisma";
 
+import { Action } from "@/generated/prisma";
 import type { Resource } from "@/generated/prisma";
 
 export abstract class BaseFormStore<T extends object = object> {

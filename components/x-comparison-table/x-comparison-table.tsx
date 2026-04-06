@@ -25,7 +25,7 @@ export type XComparisonTableProps = {
 };
 
 export function XComparisonTable({ competitorName, competitor2Name, sections, title }: XComparisonTableProps) {
-  const hasTwoCompetitors = !!competitor2Name;
+  const hasTwoCompetitors = Boolean(competitor2Name);
   const gridCols = hasTwoCompetitors ? "grid-cols-4" : "grid-cols-3";
 
   return (
@@ -43,7 +43,9 @@ export function XComparisonTable({ competitorName, competitor2Name, sections, ti
               <XImage alt="Customermates" height={27} src="customermates.svg" width={150} />
             </div>
 
-            <div className={`flex flex-col items-center justify-center px-6 ${hasTwoCompetitors ? "border-r border-divider" : ""}`}>
+            <div
+              className={`flex flex-col items-center justify-center px-6 ${hasTwoCompetitors ? "border-r border-divider" : ""}`}
+            >
               <span className="text-x-lg text-center">{competitorName}</span>
             </div>
 

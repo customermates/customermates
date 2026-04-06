@@ -7,8 +7,8 @@ import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
-import { Locale, Status } from "@/generated/prisma";
 
+import { Locale, Status } from "@/generated/prisma";
 import type { Company } from "@/generated/prisma";
 
 import { Providers } from "./providers";

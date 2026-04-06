@@ -7,6 +7,7 @@ import { Button } from "@heroui/button";
 import { Radio } from "@heroui/radio";
 import { useTranslations } from "next-intl";
 import { TrashIcon } from "@heroicons/react/24/outline";
+
 import { Resource } from "@/generated/prisma";
 
 import { XInput } from "@/components/x-inputs/x-input";

@@ -6,8 +6,8 @@ import type { CustomFieldValueDto } from "./base-entity.schema";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { addToast } from "@heroui/toast";
-import { CustomColumnType } from "@/generated/prisma";
 
+import { CustomColumnType } from "@/generated/prisma";
 import type { Resource } from "@/generated/prisma";
 
 import { BaseModalStore } from "./base-modal.store";

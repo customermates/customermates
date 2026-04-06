@@ -7,6 +7,7 @@ import { EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { parseDateTime } from "@internationalized/date";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+
 import { CustomColumnType } from "@/generated/prisma";
 
 import { XFavicon } from "../../x-favicon";

@@ -1,9 +1,8 @@
-import { Action, Resource } from "@/generated/prisma/client";
-
 import { UserDetailsCard } from "./components/user-details-card";
 import { UserSettingsCard } from "./components/user-settings-card";
 import { ApiKeysCard } from "./components/api-keys-card";
 
+import { Action, Resource } from "@/generated/prisma/client";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
 import { XPageRowContent } from "@/components/x-layout-primitives/x-page-row-content";

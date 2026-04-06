@@ -2,6 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { WebhookDeliveryDto } from "@/features/webhook/get-webhook-deliveries.interactor";
 
 import { makeObservable, action } from "mobx";
+
 import { Resource, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { resendWebhookDeliveryAction } from "../../actions";

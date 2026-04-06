@@ -4,6 +4,7 @@ import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { UpsertWebhookData } from "@/features/webhook/upsert-webhook.interactor";
 
 import { action, makeObservable, observable, toJS } from "mobx";
+
 import { Resource } from "@/generated/prisma";
 
 import { deleteWebhookAction, upsertWebhookAction } from "../../actions";

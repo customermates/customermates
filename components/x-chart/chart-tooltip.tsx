@@ -5,6 +5,7 @@ import type { TooltipProps } from "recharts";
 import { Tooltip } from "recharts";
 import { observer } from "mobx-react-lite";
 import { cn } from "@heroui/theme";
+
 import { AggregationType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
