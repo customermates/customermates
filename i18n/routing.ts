@@ -27,8 +27,6 @@ export const PUBLIC_ROUTES_SEO = [
   "/affiliate",
   "/docs",
   "/docs/:slug",
-  "/docs/openapi",
-  "/docs/skills",
 ] as const;
 
 export const PUBLIC_ROUTES = [
@@ -39,6 +37,8 @@ export const PUBLIC_ROUTES = [
   "/invitation/:token",
   "/docs/skills/:slug",
   "/docs/openapi/:slug",
+  "/docs/openapi",
+  "/docs/skills",
 ] as const;
 
 export const routing = defineRouting({

@@ -1,8 +1,8 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
+import type { apiOverviewSource, skillsOverviewSource } from "./source";
 
 import {
   affiliateSource,
-  apiOverviewSource,
   authSource,
   automationSource,
   blogPostsSource,
@@ -16,7 +16,6 @@ import {
   homepageSource,
   legalSource,
   pricingSource,
-  skillsOverviewSource,
 } from "./source";
 
 type Loader =
@@ -123,14 +122,6 @@ export const ROUTE_SOURCE_MAP: Record<
   "/docs/:slug": {
     source: docsSource,
     path: [":slug"],
-  },
-  "/docs/openapi": {
-    source: apiOverviewSource,
-    path: ["openapi"],
-  },
-  "/docs/skills": {
-    source: skillsOverviewSource,
-    path: ["skills"],
   },
 };
 

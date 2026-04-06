@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -7,7 +5,6 @@ import { DocsPageHeader } from "../components/docs-page-header";
 import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../docs.utils";
 
 import { Footer } from "@/app/components/footer";
-import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { apiDocsSource, apiOverviewSource } from "@/core/fumadocs/source";
 import { XPageContainer } from "@/components/x-layout-primitives/x-page-container";
 import { XAlert } from "@/components/x-alert";
@@ -35,11 +32,6 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
     if (indexB === -1) return -1;
     return indexA - indexB;
   });
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return generateMetadataFromMeta({ locale, route: "/docs/openapi" });
 }
 
 export default async function OpenApiOverviewPage() {

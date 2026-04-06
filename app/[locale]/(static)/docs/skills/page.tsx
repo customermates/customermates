@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import type { SkillTag } from "@/core/fumadocs/skills-tags";
 
 import { notFound } from "next/navigation";
@@ -10,14 +9,8 @@ import { SkillsOverviewClient } from "./skills-overview-client";
 
 import { Footer } from "@/app/components/footer";
 import { XPageContainer } from "@/components/x-layout-primitives/x-page-container";
-import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { skillsOverviewSource, skillsSource } from "@/core/fumadocs/source";
 import { SKILL_TAGS } from "@/core/fumadocs/skills-tags";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return generateMetadataFromMeta({ locale, route: "/docs/skills" });
-}
 
 export default async function DocsSkillsOverviewPage() {
   const locale = await getLocale();
