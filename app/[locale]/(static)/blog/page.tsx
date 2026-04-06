@@ -36,7 +36,13 @@ export default async function BlogPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {sortedPosts.map((post) => (
               <div key={post.url} className="min-w-0">
-                <BlogPostCard {...post.data.blogPost} locale={locale} title={post.data.title} url={post.url} />
+                <BlogPostCard
+                  {...post.data.blogPost}
+                  description={post.data.description}
+                  locale={locale}
+                  title={post.data.title}
+                  url={post.url}
+                />
               </div>
             ))}
           </div>

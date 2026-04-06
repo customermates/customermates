@@ -12,6 +12,7 @@ import { XIcon } from "@/components/x-icon";
 import { XImage } from "@/components/x-image";
 
 type Props = BlogPost & {
+  description?: string;
   title: string;
   locale: string;
   url: string;
@@ -23,7 +24,7 @@ function getImagePath(url: string): string {
   return `${slug}.png`;
 }
 
-export function BlogPostCard({ url, title, date, author, tags, locale }: Props) {
+export function BlogPostCard({ url, title, description, date, author, tags, locale }: Props) {
   const imagePath = getImagePath(url);
 
   return (
@@ -62,6 +63,8 @@ export function BlogPostCard({ url, title, date, author, tags, locale }: Props) 
               })}
             </time>
           </div>
+
+          {description && <p className="text-sm text-subdued line-clamp-2">{description}</p>}
 
           {tags.length > 0 && (
             <div className="flex gap-2 min-w-0 overflow-hidden">
