@@ -11,14 +11,14 @@
     },
     "environmentVariable": {
       "key": "Schlüssel",
-      "restartHint": "Das Hinzufügen oder Ändern von Umgebungsvariablen startet den Container neu. Das dauert in der Regel etwa 3-5 Minuten.",
+      "restartHint": "Das Hinzufügen oder Ändern von Umgebungsvariablen startet den Container neu. Dies kann bis zu 10 Minuten dauern.",
       "title": "Umgebungsvariable hinzufügen",
       "value": "Wert",
       "valuePlaceholder": "Variablenwert"
     },
     "openControlUi": "Chat öffnen",
     "provision": "Agent bereitstellen",
-    "provisionPending": "Die Bereitstellung wurde im Hintergrund gestartet und dauert in der Regel 3-5 Minuten. Bitte versuche danach erneut, den AI-Agenten zu öffnen.",
+    "provisionPending": "Die Bereitstellung wurde im Hintergrund gestartet und kann beim ersten Setup bis zu 10 Minuten dauern. Bitte versuche danach erneut, den AI-Agenten zu öffnen.",
     "reset": "Agent zurücksetzen",
     "resetConfirmMessage": "Dies löscht unwiderruflich den gesamten Chatverlauf, alle Erinnerungen und erlernten Skills. Der Agent startet komplett neu.",
     "resetConfirmTitle": "Agent zurücksetzen"

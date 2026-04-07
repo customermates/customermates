@@ -31,5 +31,20 @@
     "enabled": true,
     "path": "/hooks",
     "token": "${OPENCLAW_HOOKS_TOKEN}"
+  },
+  "plugins": {
+    "allow": [
+      "anthropic",
+      "openai",
+      "google",
+      "openrouter",
+      "groq",
+      "deepseek",
+      "xai",
+      "mistral",
+      "memory-core",
+      "lobster",
+      "llm-task"
+    ]
   }
 }

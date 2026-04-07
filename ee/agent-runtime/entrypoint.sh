@@ -61,7 +61,7 @@ fi
 node /app/router.cjs &
 ROUTER_PID=$!
 
-node dist/index.js gateway --port 3001 --bind loopback &
+node dist/index.js gateway run --port 3001 --bind loopback &
 GATEWAY_PID=$!
 
 cleanup() {
@@ -74,14 +74,14 @@ cleanup() {
 trap cleanup TERM INT EXIT
 
 i=1
-while [ $i -le 40 ]; do
-  node -e "fetch('http://127.0.0.1:3001/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" >/dev/null 2>&1 && break
+while [ $i -le 90 ]; do
+  curl -sf http://127.0.0.1:3001/healthz >/dev/null 2>&1 && break
   i=$((i + 1))
   sleep 2
 done
 
 # Bootstrap local device approval once gateway is healthy so RPC-style CLI calls can work.
-if [ $i -le 40 ]; then
+if [ $i -le 90 ]; then
   openclaw devices list --json >/dev/null 2>&1 || true
   openclaw devices approve --latest >/dev/null 2>&1 || true
 fi

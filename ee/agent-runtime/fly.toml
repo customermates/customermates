@@ -2,3 +2,12 @@ primary_region = "ams"
 
 [build]
   dockerfile = "Dockerfile.fly"
+
+[checks]
+  [checks.alive]
+    type = "http"
+    port = 3000
+    path = "/readyz"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "5m"

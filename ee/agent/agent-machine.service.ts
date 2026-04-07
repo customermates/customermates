@@ -45,7 +45,7 @@ export class AgentMachineService extends UserAccessor {
       CRM_API_URL: BASE_URL,
       CRM_API_KEY: args.crmApiKey,
       AGENT_BASE_URL,
-      NODE_OPTIONS: "--max-old-space-size=1024",
+      NODE_OPTIONS: "--max-old-space-size=1536",
     };
 
     if (args.anthropicApiKey) env.ANTHROPIC_API_KEY = args.anthropicApiKey;
@@ -57,9 +57,9 @@ export class AgentMachineService extends UserAccessor {
         region: FLY_REGION,
         config: {
           image: `registry.fly.io/${FLY_APP_NAME}:latest`,
-          guest: { cpu_kind: "shared", cpus: 2, memory_mb: 1536 },
+          guest: { cpu_kind: "shared", cpus: 2, memory_mb: 2048 },
           auto_start: true,
-          auto_stop: "off",
+          auto_stop: "suspend",
           restart: { policy: "always" },
           env,
           mounts: [{ volume: args.volumeId, path: "/data" }],
@@ -68,7 +68,7 @@ export class AgentMachineService extends UserAccessor {
               protocol: "tcp",
               internal_port: 3000,
               auto_start_machines: true,
-              auto_stop_machines: "off",
+              auto_stop_machines: "suspend",
               ports: [
                 { port: 443, handlers: ["tls", "http"] },
                 { port: 80, handlers: ["http"] },

@@ -11,14 +11,14 @@
     },
     "environmentVariable": {
       "key": "Key",
-      "restartHint": "Adding or changing environment variables restarts the container. This usually takes about 3-5 minutes.",
+      "restartHint": "Adding or changing environment variables restarts the container. This may take up to 10 minutes.",
       "title": "Add Environment Variable",
       "value": "Value",
       "valuePlaceholder": "Variable value"
     },
     "openControlUi": "Open Chat",
     "provision": "Provision Agent",
-    "provisionPending": "Provisioning has started in the background and usually takes 3-5 minutes. Please try opening the AI Agent again after that.",
+    "provisionPending": "Provisioning has started in the background and may take up to 10 minutes on first setup. Please try opening the AI Agent again after that.",
     "reset": "Reset Agent",
     "resetConfirmMessage": "This will permanently erase all chat history, memory, and learned skills. The agent will start fresh. This cannot be undone.",
     "resetConfirmTitle": "Reset Agent"
