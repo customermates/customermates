@@ -3,10 +3,11 @@
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { SharedSelection } from "@heroui/system-rsc";
 
-import { EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { ClipboardIcon, EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { parseDateTime } from "@internationalized/date";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { addToast } from "@heroui/toast";
 
 import { CustomColumnType } from "@/generated/prisma";
 
@@ -38,8 +39,24 @@ function formStringToNumber(value: string | undefined): number | undefined {
 }
 
 export function XCustomFieldEditor({ column, value, onChange, id, label, isEditing = false }: Props) {
-  const t = useTranslations("Common.inputs");
+  const t = useTranslations("");
   const { intlStore } = useRootStore();
+
+  async function handleCopy(val: string) {
+    try {
+      await navigator.clipboard.writeText(val);
+      addToast({
+        description: t("Common.notifications.copiedToClipboard", { value: val }),
+        color: "success",
+        icon: <XIcon icon={ClipboardIcon} size="sm" />,
+      });
+    } catch {
+      addToast({
+        description: t("Common.notifications.copyFailed"),
+        color: "danger",
+      });
+    }
+  }
 
   const borderClassNames = isEditing ? "rounded-r-none" : undefined;
   const inputId = `custom-field-editor-${column.id}`;
@@ -55,7 +72,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
           }}
           id={inputId}
           items={column.options?.options}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           renderValue={(items) =>
             items.map((item) => (
               <XChip key={item.key} color={item.data?.color}>
@@ -89,7 +106,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
             inputWrapper: borderClassNames,
           }}
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           renderChip={(url) => {
             let startContent: React.ReactNode;
             let displayLabel: string;
@@ -119,6 +136,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
           }}
           schema={z.url()}
           value={value}
+          onChipClick={(url) => window.open(url, "_blank", "noreferrer")}
           onValueChange={onChange}
         />
       );
@@ -138,7 +156,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
             )
           }
           id={id ?? inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           value={formStringToNumber(value)}
           onValueChange={(n) => onChange(n === undefined ? undefined : String(n))}
         />
@@ -151,7 +169,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
             inputWrapper: borderClassNames,
           }}
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           value={value}
           onValueChange={onChange}
         />
@@ -176,7 +194,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
           }}
           granularity="day"
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           value={parsedValue}
           onChange={(dateValue) => {
             if (!dateValue) {
@@ -214,7 +232,7 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
           }}
           granularity="minute"
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           value={parsedValue}
           onChange={(dateValue) => {
             if (!dateValue) {
@@ -240,9 +258,10 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
             inputWrapper: borderClassNames,
           }}
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           schema={z.email()}
           value={value}
+          onChipClick={(val) => void handleCopy(val)}
           onValueChange={onChange}
         />
       );
@@ -256,9 +275,10 @@ export function XCustomFieldEditor({ column, value, onChange, id, label, isEditi
             inputWrapper: borderClassNames,
           }}
           id={inputId}
-          label={resolvedLabel ?? t(inputId)}
+          label={resolvedLabel ?? t("Common.inputs." + inputId)}
           schema={z.e164()}
           value={value}
+          onChipClick={(val) => void handleCopy(val)}
           onValueChange={onChange}
         />
       );

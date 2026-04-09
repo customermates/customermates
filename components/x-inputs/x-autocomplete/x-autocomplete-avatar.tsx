@@ -14,9 +14,11 @@ type MultiSelectAvatarItem = {
   avatarUrl?: string | null | undefined;
 };
 
-type Props = Omit<XAutocompleteProps<MultiSelectAvatarItem>, "renderValue" | "children">;
+type Props = Omit<XAutocompleteProps<MultiSelectAvatarItem>, "renderValue" | "children"> & {
+  onChipClick?: (key: string) => void;
+};
 
-export function XAutocompleteAvatar({ items = [], ...props }: Props) {
+export function XAutocompleteAvatar({ items = [], onChipClick, ...props }: Props) {
   return (
     <XAutocomplete
       items={items}
@@ -38,6 +40,7 @@ export function XAutocompleteAvatar({ items = [], ...props }: Props) {
           </XChip>
         ))
       }
+      onChipClick={onChipClick}
       {...props}
     >
       {(item) =>

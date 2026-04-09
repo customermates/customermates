@@ -17,7 +17,7 @@ import { XLink } from "@/components/x-link";
 
 export const TaskModal = observer(() => {
   const t = useTranslations("");
-  const { taskModalStore, userStore } = useRootStore();
+  const { taskModalStore, userModalStore, userStore } = useRootStore();
   const { form, fetchedEntity, customColumns, isEditingCustomField, isCustomTask, isDisabled, systemTaskAlertConfig } =
     taskModalStore;
 
@@ -54,6 +54,7 @@ export const TaskModal = observer(() => {
           id="userIds"
           items={fetchedEntity?.users ?? []}
           selectionMode="multiple"
+          onChipClick={(id) => void userModalStore.loadById(id)}
         />
       )}
     </XBaseCustomColumnEntityModal>

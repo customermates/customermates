@@ -19,7 +19,7 @@ import { XAutocompleteItem } from "@/components/x-inputs/x-autocomplete/x-autoco
 import { XChip } from "@/components/x-chip/x-chip";
 
 export const OrganizationModal = observer(() => {
-  const { organizationModalStore, userStore } = useRootStore();
+  const { organizationModalStore, contactModalStore, dealModalStore, userModalStore, userStore } = useRootStore();
   const { isEditingCustomField, customColumns, fetchedEntity } = organizationModalStore;
 
   return (
@@ -36,6 +36,7 @@ export const OrganizationModal = observer(() => {
           id="contactIds"
           items={fetchedEntity?.contacts ?? []}
           selectionMode="multiple"
+          onChipClick={(id) => void contactModalStore.loadById(id)}
           onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
         />
       )}
@@ -47,6 +48,7 @@ export const OrganizationModal = observer(() => {
           items={fetchedEntity?.deals ?? []}
           renderValue={(items) => items.map((item) => <XChip key={item.key}>{item.data?.name}</XChip>)}
           selectionMode="multiple"
+          onChipClick={(id) => void dealModalStore.loadById(id)}
           onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
         >
           {(deal) => XAutocompleteItem({ key: deal.id, children: deal.name })}
@@ -62,6 +64,7 @@ export const OrganizationModal = observer(() => {
         id="userIds"
         items={fetchedEntity?.users ?? []}
         selectionMode="multiple"
+        onChipClick={(id) => void userModalStore.loadById(id)}
       />
     </XBaseCustomColumnEntityModal>
   );

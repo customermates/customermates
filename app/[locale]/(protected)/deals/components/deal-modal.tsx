@@ -21,7 +21,7 @@ import { XAutocomplete } from "@/components/x-inputs/x-autocomplete/x-autocomple
 import { XCustomFieldValueInput } from "@/components/x-data-view/x-custom-column/x-custom-field-input";
 
 export const DealModal = observer(() => {
-  const { dealModalStore, userStore } = useRootStore();
+  const { dealModalStore, contactModalStore, organizationModalStore, userModalStore, userStore } = useRootStore();
   const { isEditingCustomField, customColumns, fetchedEntity } = dealModalStore;
 
   return (
@@ -34,6 +34,7 @@ export const DealModal = observer(() => {
           id="contactIds"
           items={fetchedEntity?.contacts ?? []}
           selectionMode="multiple"
+          onChipClick={(id) => void contactModalStore.loadById(id)}
           onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
         />
       )}
@@ -45,6 +46,7 @@ export const DealModal = observer(() => {
           items={fetchedEntity?.organizations ?? []}
           renderValue={(items) => items.map((item) => <XChip key={item.key}>{item.data?.name}</XChip>)}
           selectionMode="multiple"
+          onChipClick={(id) => void organizationModalStore.loadById(id)}
           onCreate={(name) => createOrganizationByNameAction(name, userStore.user?.id)}
         >
           {(org) => XAutocompleteItem({ key: org.id, children: org.name })}
@@ -60,6 +62,7 @@ export const DealModal = observer(() => {
         id="userIds"
         items={fetchedEntity?.users ?? []}
         selectionMode="multiple"
+        onChipClick={(id) => void userModalStore.loadById(id)}
       />
 
       <DealServicesSelection />

@@ -39,6 +39,7 @@ export interface XAutocompleteProps<T extends Identifiable>
   filterFunction?: (item: T) => boolean;
   showClearButtons?: boolean;
   onCreate?: (name: string) => Promise<T | null>;
+  onChipClick?: (key: string) => void;
 }
 
 export const XAutocomplete = observer(
@@ -52,6 +53,7 @@ export const XAutocomplete = observer(
     filterFunction,
     showClearButtons = true,
     onCreate,
+    onChipClick,
     ...props
   }: XAutocompleteProps<T>) => {
     const t = useTranslations("Common.inputs");
@@ -106,7 +108,7 @@ export const XAutocomplete = observer(
         const itemKey = itemsToRender[index]?.key;
         if (!itemKey) return item;
 
-        return React.cloneElement(item as React.ReactElement<{ endContent?: React.ReactNode }>, {
+        const withClose = React.cloneElement(item as React.ReactElement<{ endContent?: React.ReactNode }>, {
           endContent: (
             <Button
               isIconOnly
@@ -119,8 +121,28 @@ export const XAutocomplete = observer(
             </Button>
           ),
         });
+
+        if (!onChipClick) return withClose;
+
+        return (
+          <div
+            key={itemKey}
+            className="cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest("button")) return;
+              onChipClick(itemKey);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onChipClick(itemKey);
+            }}
+          >
+            {withClose}
+          </div>
+        );
       });
-    }, [selectedKeys, allItems, selectionMode, showClearButtons, props.renderValue]);
+    }, [selectedKeys, allItems, selectionMode, showClearButtons, onChipClick, props.renderValue]);
 
     const emptyContent = useMemo(() => {
       if (!input.trim()) return t("emptyContent");
