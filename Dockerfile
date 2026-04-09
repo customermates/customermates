@@ -28,5 +28,6 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/core/fumadocs ./core/fumadocs
 EXPOSE 4000
-CMD ["yarn", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && exec yarn start"]
