@@ -44,7 +44,7 @@ for VAR in "${REQUIRED_VARS[@]}"; do
   fi
 done
 
-docker compose build app
+docker compose pull app
 docker compose up -d postgres
 docker compose run --rm app npx prisma migrate deploy
 docker compose up -d app webhook-worker

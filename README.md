@@ -137,12 +137,17 @@ Customermates can be deployed on your own infrastructure with Docker Compose.
 
 ### Setup
 
-From the project root on your server:
+No need to clone the repo. Download the required files and run the setup script:
 
 ```bash
-cp .env.selfhost.template .env
-chmod +x scripts/selfhost-setup.sh
-./scripts/selfhost-setup.sh
+mkdir customermates && cd customermates
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/scripts/selfhost-setup.sh
+mv .env.selfhost.template .env
+# edit .env with your values
+chmod +x selfhost-setup.sh
+./selfhost-setup.sh
 ```
 
 Useful self-hosting scripts:

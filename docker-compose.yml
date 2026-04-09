@@ -9,23 +9,22 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/customermates/customermates:latest
     container_name: customermates-app
     depends_on:
       - postgres
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       DATABASE_DIRECT_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       NODE_ENV: production
+      BASE_URL: ${BASE_URL}
+      CRON_SECRET: ${CRON_SECRET}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      RESEND_API_KEY: ${RESEND_API_KEY}
     ports:
       - "${APP_PORT:-4000}:4000"
 
@@ -35,9 +34,8 @@ services:
     depends_on:
       - app
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
+      CRON_SECRET: ${CRON_SECRET}
       WEBHOOK_CRON_URL: http://app:4000/api/cron/webhook-deliveries
     entrypoint: ["/bin/sh", "-c"]
     command:

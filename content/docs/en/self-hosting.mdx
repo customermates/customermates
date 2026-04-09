@@ -17,26 +17,30 @@ Before deploying, make sure you have:
 - a VPS with Docker Engine and Docker Compose installed
 - a domain you can point to your server
 - access to create DNS records
-- access to clone this repository on your server
 
 For production usage, use a reverse proxy with HTTPS termination in front of the app container.
 
 ## Installation flow
 
-From the project root on your server:
+Download the two required files and run the setup script:
 
 ```bash
-cp .env.selfhost.template .env
-chmod +x scripts/selfhost-setup.sh
-./scripts/selfhost-setup.sh
+mkdir customermates && cd customermates
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template
+curl -O https://raw.githubusercontent.com/customermates/customermates/main/scripts/selfhost-setup.sh
+mv .env.selfhost.template .env
+# edit .env with your values
+chmod +x selfhost-setup.sh
+./selfhost-setup.sh
 ```
 
 The setup script:
 
 1. Validate required inputs and environment values.
-2. Build the app image and start PostgreSQL.
-3. Start the app container with Docker Compose.
-4. Run `prisma migrate deploy`.
+2. Pull the pre-built app image from the container registry.
+3. Start PostgreSQL and run database migrations.
+4. Start the app and webhook worker containers.
 
 If you need to adjust configuration values, update `.env` and run the setup script again.
 
