@@ -49,15 +49,29 @@ const CountEntitySchema = z.object({
 });
 
 const DetailsEntitySchema = z.object({
-  entity: EntitySchema,
-  id: z.uuid(),
-  include: z.enum(["masterData", "withNotes"]).default("masterData"),
+  items: z
+    .array(
+      z.object({
+        entity: EntitySchema,
+        id: z.uuid(),
+        include: z.enum(["masterData", "withNotes"]).default("masterData"),
+      }),
+    )
+    .min(1)
+    .max(10),
 });
 
 const NotesEntitySchema = z.object({
   entity: EntitySchema,
-  id: z.uuid(),
-  notes: z.string(),
+  items: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        notes: z.string(),
+      }),
+    )
+    .min(1)
+    .max(10),
 });
 
 const DeleteEntitySchema = z.object({
@@ -206,61 +220,68 @@ export const countEntityTool = {
 
 export const getEntityDetailsTool = {
   name: "get_entity_details",
-  description: "Get details by ID for a selected entity type.",
+  description: "Get details by ID for selected entity types. Supports mixed entity types in a single call.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: DetailsEntitySchema,
-  execute: async ({ entity, id, include }: z.infer<typeof DetailsEntitySchema>) => {
-    const result = await detailsExecutors[entity](id);
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+  execute: async ({ items }: z.infer<typeof DetailsEntitySchema>) => {
+    const results = await Promise.all(
+      items.map(async ({ entity, id, include }) => {
+        const result = await detailsExecutors[entity](id);
+        if (!result.ok) return { error: `Validation error: ${z.prettifyError(result.error)}` };
 
-    const key = singularLabels[entity];
-    const row = result.data[key];
-    if (!row) return `${key[0].toUpperCase()}${key.slice(1)} not found`;
+        const key = singularLabels[entity];
+        const row = result.data[key];
+        if (!row) return { error: `${key[0].toUpperCase()}${key.slice(1)} not found` };
 
-    const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
-    if (include === "withNotes") {
-      const markdown = notes ? serializeJSONToMarkdown(notes as object) : null;
-      return encodeToToon(formatDatesInResponse({ [key]: masterData, notes: markdown }));
-    }
+        const { notes, ...masterData } = row as Record<string, unknown> & { notes?: unknown };
+        if (include === "withNotes") {
+          const markdown = notes ? serializeJSONToMarkdown(notes as object) : null;
+          return formatDatesInResponse({ [key]: masterData, notes: markdown });
+        }
 
-    return encodeToToon(formatDatesInResponse({ [key]: masterData }));
+        return formatDatesInResponse({ [key]: masterData });
+      }),
+    );
+
+    return encodeToToon(results);
   },
 };
 
 export const setEntityNotesTool = {
-  name: "set_entity_notes",
-  description: "Set markdown notes by ID for a selected entity type. Pass empty string to clear notes.",
+  name: "batch_set_entity_notes",
+  description: "Batch update: sets markdown notes for a selected entity type. Pass empty string to clear notes.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: NotesEntitySchema,
-  execute: async ({ entity, id, notes }: z.infer<typeof NotesEntitySchema>) => {
-    const normalizedNotes = notes.trim() === "" ? null : notes;
+  execute: async ({ entity, items }: z.infer<typeof NotesEntitySchema>) => {
+    const normalized = items.map(({ id, notes }) => ({
+      id,
+      notes: notes.trim() === "" ? null : notes,
+    }));
 
     if (entity === "contact") {
-      const result = await di.get(UpdateManyContactsInteractor).invoke({ contacts: [{ id, notes: normalizedNotes }] });
+      const result = await di.get(UpdateManyContactsInteractor).invoke({ contacts: normalized });
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-      return "Notes updated successfully.";
+      return `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`;
     }
     if (entity === "organization") {
-      const result = await di
-        .get(UpdateManyOrganizationsInteractor)
-        .invoke({ organizations: [{ id, notes: normalizedNotes }] });
+      const result = await di.get(UpdateManyOrganizationsInteractor).invoke({ organizations: normalized });
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-      return "Notes updated successfully.";
+      return `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`;
     }
     if (entity === "deal") {
-      const result = await di.get(UpdateManyDealsInteractor).invoke({ deals: [{ id, notes: normalizedNotes }] });
+      const result = await di.get(UpdateManyDealsInteractor).invoke({ deals: normalized });
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-      return "Notes updated successfully.";
+      return `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`;
     }
     if (entity === "service") {
-      const result = await di.get(UpdateManyServicesInteractor).invoke({ services: [{ id, notes: normalizedNotes }] });
+      const result = await di.get(UpdateManyServicesInteractor).invoke({ services: normalized });
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-      return "Notes updated successfully.";
+      return `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`;
     }
 
-    const result = await di.get(UpdateManyTasksInteractor).invoke({ tasks: [{ id, notes: normalizedNotes }] });
+    const result = await di.get(UpdateManyTasksInteractor).invoke({ tasks: normalized });
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return "Notes updated successfully.";
+    return `Updated notes for ${normalized.length} ${singularLabels.task}(s)`;
   },
 };
 
