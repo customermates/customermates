@@ -8,69 +8,41 @@ description: Betreibe Customermates self-hosted in deiner eigenen Infrastruktur 
 Diese Seite zeigt, wie du eine self-hosted Customermates-Installation mit Docker Compose und PostgreSQL aufsetzt.
 Wenn du noch zwischen Deployment-Modellen vergleichst, gehe zuerst zu [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).
 
-Self-hosted Deployments laufen standardmäßig in der Community Edition. Die kostenpflichtigen Enterprise-Features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) sind in self-hosted Deployments nicht aktiv.
+Self-hosted Deployments laufen in der Community Edition. Enterprise-Features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) erfordern eine separate Lizenz.
 
 ## Voraussetzungen
 
-Vor dem Deployment solltest du Folgendes bereit haben:
+- Docker Engine und Docker Compose auf einem VPS
+- Eine Domain, die auf deinen Server zeigt
+- Ein Reverse Proxy mit HTTPS-Terminierung fuer produktive Nutzung
 
-- ein VPS mit installiertem Docker Engine und Docker Compose
-- eine Domain, die du auf deinen Server zeigen lassen kannst
-- Zugriff zum Anlegen von DNS-Eintraegen
-
-Fuer produktive Nutzung solltest du einen Reverse Proxy mit HTTPS-Terminierung vor den App-Container setzen.
-
-## Installationsablauf
-
-Lade die benoetigten Dateien herunter und fuehre das Setup-Skript aus:
+## Installation
 
 ```bash
 mkdir customermates && cd customermates
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/scripts/selfhost-setup.sh
+BASE=https://raw.githubusercontent.com/customermates/customermates/main
+curl -O $BASE/docker-compose.yml
+curl -O $BASE/.env.selfhost.template
+curl -O $BASE/scripts/selfhost-{setup,update,restart,reset}.sh
+chmod +x selfhost-*.sh
 mv .env.selfhost.template .env
 # .env mit deinen Werten bearbeiten
-chmod +x selfhost-setup.sh
 ./selfhost-setup.sh
 ```
 
-Das Setup-Skript:
+Das Setup-Skript validiert deine `.env`, pullt das App-Image, fuehrt Datenbank-Migrationen aus und startet alle Services.
 
-1. erforderliche Inputs und Umgebungswerte validieren
-2. das vorgefertigte App-Image aus der Container Registry pullen
-3. PostgreSQL starten und Datenbank-Migrationen ausfuehren
-4. App- und Webhook-Worker-Container starten
-
-Wenn du Konfigurationswerte anpassen musst, aktualisiere deine `.env` und fuehre das Setup-Skript erneut aus.
-
-## Initiale Startup-Checks
-
-Nach dem Setup pruefst du, ob die Container laufen:
+## Pruefen
 
 ```bash
 docker compose ps
-```
-
-Danach kannst du die App-Logs verfolgen, bis die Anwendung als bereit gemeldet wird:
-
-```bash
 docker compose logs -f app
 ```
 
-Fuer Datenbank-Diagnosen:
-
-```bash
-docker compose logs -f postgres
-```
-
-## Erster Login und Signup
-
-Sobald die App im Browser erreichbar ist:
+## Erster Login
 
 1. Oeffne deine konfigurierte Domain.
-2. Erstelle dein erstes Konto oder melde dich an.
-3. Schließe Onboarding und initiales Company-Setup ab.
+2. Erstelle dein erstes Konto.
+3. Schliesse Onboarding und Company-Setup ab.
 
-Nach dem ersten Login geht es weiter mit [Installation verwalten](/docs/managing-your-installation) fuer Updates, Restarts und Troubleshooting.
-Fuer die operativen Unterschiede zwischen den Deployment-Modellen siehe auch [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).
+Fuer den laufenden Betrieb siehe [Installation verwalten](/docs/managing-your-installation).

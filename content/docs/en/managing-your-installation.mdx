@@ -3,93 +3,47 @@ title: Managing Your Self-Hosted Installation
 description: Operate a self-hosted Customermates deployment with Docker Compose updates, restarts, logs, resets, and troubleshooting workflows.
 ---
 
-This page covers the ongoing maintenance of a self-hosted Customermates deployment.
 If you have not installed the stack yet, start with [Self-Hosting Get Started](/docs/self-hosting).
 
-Self-hosted mode runs the community edition. Paid Enterprise features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) are unavailable unless explicitly licensed and enabled in your deployment model.
+Self-hosted mode runs the community edition. Enterprise features require a separate license.
 
-## Updating your installation
-
-From your deployment root:
+## Updating
 
 ```bash
-chmod +x scripts/selfhost-update.sh
-./scripts/selfhost-update.sh
+./selfhost-update.sh
 ```
 
-Optional: pull latest git changes before rebuilding:
+Pulls the latest app image, runs `prisma migrate deploy`, and restarts the app and webhook-worker services. Verify with `docker compose ps`.
+
+## Restarting
 
 ```bash
-./scripts/selfhost-update.sh --pull
+./selfhost-restart.sh
 ```
 
-The update script:
+Restarts the stack without running migrations. Use after `.env` or config changes.
 
-1. Optionally pull the latest repository changes.
-2. Rebuild the app image.
-3. Run `prisma migrate deploy`.
-4. Restart the app service.
-
-After every update, verify service health with `docker compose ps`.
-
-## Restart flow
-
-Use the restart helper when configuration changes require a clean restart:
-
-```bash
-chmod +x scripts/selfhost-restart.sh
-./scripts/selfhost-restart.sh
-```
-
-This script should restart the stack safely and print health and log pointers.
-It does not run migrations.
-
-## Logs and troubleshooting basics
-
-Most operational issues can be diagnosed with container logs:
+## Logs and troubleshooting
 
 ```bash
 docker compose logs -f app
 docker compose logs -f postgres
+docker compose ps
+docker compose exec app sh
 ```
 
-Useful checks:
-
-- `docker compose ps` to inspect service state and health
-- `docker compose config` to validate merged Compose configuration
-- `docker compose exec app sh` to inspect runtime environment inside the app container
-
-## Common Docker Compose operations
-
-Daily operations you may use:
+## Resetting all data
 
 ```bash
-docker compose up -d
-docker compose down
-docker compose pull
-docker compose build --no-cache app
-docker compose restart app
+./selfhost-reset.sh
 ```
 
-Use targeted restarts (`docker compose restart app`) when only the application changed.
+Requires explicit `RESET` confirmation before deleting volumes. Irreversible.
 
-## Resetting all self-hosted data
+## Backups
 
-Use the reset helper only when you intentionally want to wipe local deployment data:
+For production deployments:
 
-```bash
-chmod +x scripts/selfhost-reset.sh
-./scripts/selfhost-reset.sh
-```
-
-The script requires explicit confirmation (`RESET`) before deleting volumes.
-
-## Optional operations notes
-
-For production deployments, maintain a backup and restore routine:
-
-- back up PostgreSQL data on a schedule
-- test restore procedures in a non-production environment
-- keep environment files and secrets out of source control
-
-If you are just getting started, go back to the [Self-Hosting quick setup](/docs/self-hosting).
+- Back up PostgreSQL data on a schedule
+- Test restore procedures in a non-production environment
+- Keep `.env` and secrets out of source control

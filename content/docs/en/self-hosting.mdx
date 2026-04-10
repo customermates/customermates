@@ -8,69 +8,41 @@ description: Self-host Customermates on your own infrastructure with Docker Comp
 This page shows how to run a self-hosted Customermates deployment with Docker Compose and PostgreSQL.
 If you are still deciding between deployment models, compare [Self-Hosted vs Cloud](/docs/self-host-vs-cloud) first.
 
-Self-hosted deployments run the community edition by default. Paid Enterprise features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) are not active in self-hosted deployments.
+Self-hosted deployments run the community edition. Enterprise features (Audit Logging, Single Sign-On, AI Agent, Whitelabeling) require a separate license.
 
 ## Prerequisites
 
-Before deploying, make sure you have:
+- Docker Engine and Docker Compose on a VPS
+- A domain pointed to your server
+- A reverse proxy with HTTPS termination for production usage
 
-- a VPS with Docker Engine and Docker Compose installed
-- a domain you can point to your server
-- access to create DNS records
-
-For production usage, use a reverse proxy with HTTPS termination in front of the app container.
-
-## Installation flow
-
-Download the two required files and run the setup script:
+## Installation
 
 ```bash
 mkdir customermates && cd customermates
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/scripts/selfhost-setup.sh
+BASE=https://raw.githubusercontent.com/customermates/customermates/main
+curl -O $BASE/docker-compose.yml
+curl -O $BASE/.env.selfhost.template
+curl -O $BASE/scripts/selfhost-{setup,update,restart,reset}.sh
+chmod +x selfhost-*.sh
 mv .env.selfhost.template .env
 # edit .env with your values
-chmod +x selfhost-setup.sh
 ./selfhost-setup.sh
 ```
 
-The setup script:
+The setup script validates your `.env`, pulls the app image, runs database migrations, and starts all services.
 
-1. Validate required inputs and environment values.
-2. Pull the pre-built app image from the container registry.
-3. Start PostgreSQL and run database migrations.
-4. Start the app and webhook worker containers.
-
-If you need to adjust configuration values, update `.env` and run the setup script again.
-
-## Initial startup checks
-
-After setup, verify the containers are running:
+## Verify
 
 ```bash
 docker compose ps
-```
-
-Then follow the application logs until the app reports it is ready:
-
-```bash
 docker compose logs -f app
 ```
 
-For database diagnostics:
-
-```bash
-docker compose logs -f postgres
-```
-
-## First login and signup
-
-Once the app is reachable in the browser:
+## First login
 
 1. Open your configured domain.
-2. Create your first account or sign in.
-3. Complete onboarding and initial company setup.
+2. Create your first account.
+3. Complete onboarding and company setup.
 
-After this first login, continue with [Managing Your Installation](/docs/managing-your-installation) to handle updates, restarts, and troubleshooting workflows.
-For the operational trade-offs between deployment models, also see [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).
+For ongoing maintenance, see [Managing Your Installation](/docs/managing-your-installation).

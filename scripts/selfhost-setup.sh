@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$([ -f "$SCRIPT_DIR/docker-compose.yml" ] && echo "$SCRIPT_DIR" || echo "$SCRIPT_DIR/..")"
 cd "$ROOT"
 
 if ! command -v docker >/dev/null 2>&1; then
