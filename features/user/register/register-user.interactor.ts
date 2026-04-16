@@ -10,10 +10,12 @@ import { DomainEvent } from "../../event/domain-events";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { secureUrlSchema } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const Schema = z
   .object({
@@ -43,14 +45,17 @@ export abstract class RegisterUserRepo {
 }
 
 @SystemInteractor
-export class RegisterUserInteractor {
+export class RegisterUserInteractor extends BaseInteractor<RegisterUserData, RegisterUserData> {
   constructor(
     private authService: AuthService,
     private repo: RegisterUserRepo,
     private eventService: EventService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
+  @ValidateOutput(Schema)
   @Transaction
   async invoke(data: RegisterUserData): Validated<RegisterUserData> {
     const session = await this.authService.getSessionOrRedirect();
@@ -81,6 +86,6 @@ export class RegisterUserInteractor {
       });
     });
 
-    return { ok: true, data };
+    return { ok: true as const, data };
   }
 }

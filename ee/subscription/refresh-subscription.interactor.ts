@@ -1,16 +1,19 @@
 import type { SubscriptionService } from "./subscription.service";
 
+import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 
 export abstract class RefreshSubscriptionRepo {
   abstract getSubscriptionOrThrow(companyId: string): Promise<{ lemonSqueezyId: string | null }>;
 }
 
 @TentantInteractor({ resource: Resource.company, action: Action.readOwn })
-export class RefreshSubscriptionInteractor extends UserAccessor {
+export class RefreshSubscriptionInteractor extends BaseInteractor<void, null> {
   constructor(
     private repo: RefreshSubscriptionRepo,
     private subscriptionService: SubscriptionService,
@@ -18,11 +21,14 @@ export class RefreshSubscriptionInteractor extends UserAccessor {
     super();
   }
 
-  async invoke(): Promise<void> {
-    const subscription = await this.repo.getSubscriptionOrThrow(this.user.companyId);
+  @ValidateOutput(z.null())
+  async invoke(): Promise<{ ok: true; data: null }> {
+    const subscription = await this.repo.getSubscriptionOrThrow(getTenantUser().companyId);
 
     if (!subscription.lemonSqueezyId) throw new Error("Subscription does not have a LemonSqueezy ID");
 
-    await this.subscriptionService.updateSubscriptionOrThrow(subscription.lemonSqueezyId, this.user.companyId);
+    await this.subscriptionService.updateSubscriptionOrThrow(subscription.lemonSqueezyId, getTenantUser().companyId);
+
+    return { ok: true as const, data: null };
   }
 }

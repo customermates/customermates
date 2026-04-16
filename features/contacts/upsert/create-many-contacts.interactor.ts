@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -13,15 +13,16 @@ import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
-import { type ContactDto } from "../contact.schema";
+import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseCreateContactSchema } from "./create-contact-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -66,18 +67,21 @@ export type CreateManyContactsData = Data<typeof CreateManyContactsSchema>;
   resource: Resource.contacts,
   action: Action.create,
 })
-export class CreateManyContactsInteractor {
+export class CreateManyContactsInteractor extends BaseInteractor<CreateManyContactsData, ContactDto[]> {
   constructor(
     private repo: CreateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(CreateManyContactsSchema)
+  @ValidateOutput(ContactDtoSchema)
   @Transaction
-  async invoke(data: CreateManyContactsData): Validated<ContactDto[], CreateManyContactsData> {
+  async invoke(data: CreateManyContactsData): Validated<ContactDto[]> {
     const relatedOrganizationIds = unique(data.contacts.flatMap((contact) => contact.organizationIds));
     const relatedDealIds = unique(data.contacts.flatMap((contact) => contact.dealIds));
 
@@ -121,6 +125,6 @@ export class CreateManyContactsInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: contacts };
+    return { ok: true as const, data: contacts };
   }
 }

@@ -37,7 +37,8 @@ import { serializeResult } from "@/core/utils/action-result";
 import { type GetEntityChangeHistoryByIdData } from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 
 export async function deleteCustomColumnAction(id: string) {
-  return getDeleteCustomColumnInteractor().invoke({ id });
+  const result = await getDeleteCustomColumnInteractor().invoke({ id });
+  return result.data;
 }
 
 export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {
@@ -45,7 +46,8 @@ export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {
 }
 
 export async function getCustomColumnsByEntityTypeAction(data: GetCustomColumnsByEntityTypeData) {
-  return getGetCustomColumnsByEntityTypeInteractor().invoke(data);
+  const result = await getGetCustomColumnsByEntityTypeInteractor().invoke(data);
+  return result.data;
 }
 
 export async function upsertP13nAction(data: UpsertP13nData) {
@@ -129,5 +131,6 @@ export async function bulkUpdateCustomFieldValuesAction(data: {
 }
 
 export async function getEntityChangeHistoryByIdAction(data: GetEntityChangeHistoryByIdData) {
-  return getGetEntityChangeHistoryByIdInteractor().invoke(data);
+  const result = await getGetEntityChangeHistoryByIdInteractor().invoke(data);
+  return result.data;
 }

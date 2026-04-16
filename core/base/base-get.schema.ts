@@ -124,3 +124,29 @@ export const GetResultSchema = z.object({
   filterableFields: z.array(FilterableFieldSchema).optional(),
   savedFilterPresets: z.array(SavedFilterPresetSchema).optional(),
 });
+
+export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
+  return z.object({
+    p13nId: z.string().optional(),
+    items: z.array(itemSchema),
+    customColumns: z.array(z.any()).optional(),
+    filters: z.array(z.any()).optional(),
+    searchTerm: z.string().optional().nullable(),
+    sortDescriptor: z.any().optional(),
+    pagination: z
+      .object({
+        page: z.number(),
+        pageSize: z.number(),
+        totalPages: z.number(),
+        total: z.number(),
+      })
+      .optional(),
+    filterableFields: z.array(z.any()).optional(),
+    columnOrder: z.array(z.string()).optional(),
+    columnWidths: z.record(z.string(), z.number()).optional(),
+    hiddenColumns: z.array(z.string()).optional(),
+    savedFilterPresets: z.array(z.any()).optional(),
+    viewMode: z.string().optional(),
+    groupingColumnId: z.string().optional(),
+  });
+}

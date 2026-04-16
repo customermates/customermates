@@ -3,7 +3,9 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const LayoutBreakpointSchema = z.object({
   i: z.string(),
@@ -36,11 +38,15 @@ export abstract class UpdateWidgetLayoutsRepo {
 }
 
 @TentantInteractor()
-export class UpdateWidgetLayoutsInteractor {
-  constructor(private repo: UpdateWidgetLayoutsRepo) {}
+export class UpdateWidgetLayoutsInteractor extends BaseInteractor<UpdateWidgetLayoutsData, null> {
+  constructor(private repo: UpdateWidgetLayoutsRepo) {
+    super();
+  }
 
   @Enforce(Schema)
-  async invoke(data: UpdateWidgetLayoutsData): Promise<void> {
+  @ValidateOutput(z.null())
+  async invoke(data: UpdateWidgetLayoutsData): Promise<{ ok: true; data: null }> {
     await this.repo.updateWidgetLayouts(data);
+    return { ok: true as const, data: null };
   }
 }

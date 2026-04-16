@@ -13,7 +13,9 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { GetQueryParamsApiSchema } from "@/core/base/base-get.schema";
+import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base-get.schema";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { ServiceDtoSchema } from "../service.schema";
 
 const GetServicesQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
   await getValidateQueryParams().invoke(getServiceRepo(), EntityType.service, data, ctx);
@@ -35,7 +37,8 @@ export class GetServicesApiInteractor extends BaseGetInteractor<ServiceDto> {
   }
 
   @Validate(GetServicesQueryParamsApiSchema)
-  async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<ServiceDto>, GetQueryParamsApi> {
+  @ValidateOutput(createGetResultSchema(ServiceDtoSchema))
+  async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<ServiceDto>> {
     return await super.invoke(params);
   }
 }

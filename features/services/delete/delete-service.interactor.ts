@@ -2,7 +2,7 @@ import type { DeleteServiceRepo } from "./delete-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
@@ -11,8 +11,9 @@ import { validateServiceIds } from "../../../core/validation/validate-service-id
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -30,16 +31,19 @@ export const DeleteServiceSchema = z
 export type DeleteServiceData = Data<typeof DeleteServiceSchema>;
 
 @TentantInteractor({ resource: Resource.services, action: Action.delete })
-export class DeleteServiceInteractor {
+export class DeleteServiceInteractor extends BaseInteractor<DeleteServiceData, string> {
   constructor(
     private repo: DeleteServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(DeleteServiceSchema)
-  async invoke(data: DeleteServiceData): Validated<string, DeleteServiceData> {
+  @ValidateOutput(z.string())
+  async invoke(data: DeleteServiceData): Validated<string> {
     const previousService = await this.repo.getOrThrowUnscoped(data.id);
 
     const relatedDealIds = unique(previousService.deals.map((it) => it.id));
@@ -67,6 +71,6 @@ export class DeleteServiceInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: data.id };
+    return { ok: true as const, data: data.id };
   }
 }

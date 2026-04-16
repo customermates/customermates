@@ -1,6 +1,9 @@
-import { UserAccessor } from "@/core/base/user-accessor";
+import { CompanyWidgetsResultSchema } from "./widget.schema";
+
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export type CompanyWidget = {
   id: string;
@@ -16,14 +19,13 @@ export abstract class GetCompanyWidgetsRepo {
 
 @AllowInDemoMode
 @TentantInteractor()
-export class GetCompanyWidgetsInteractor extends UserAccessor {
+export class GetCompanyWidgetsInteractor extends BaseInteractor<void, { widgets: CompanyWidget[] }> {
   constructor(private repo: GetCompanyWidgetsRepo) {
     super();
   }
 
-  async invoke(): Promise<{
-    widgets: CompanyWidget[];
-  }> {
-    return { widgets: await this.repo.getCompanyWidgets() };
+  @ValidateOutput(CompanyWidgetsResultSchema)
+  async invoke(): Promise<{ ok: true; data: { widgets: CompanyWidget[] } }> {
+    return { ok: true as const, data: { widgets: await this.repo.getCompanyWidgets() } };
   }
 }

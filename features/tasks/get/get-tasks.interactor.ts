@@ -8,7 +8,9 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 import { Enforce } from "@/core/decorators/enforce.decorator";
-import { GetQueryParamsSchema, type GetQueryParams } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { TaskDtoSchema } from "../task.schema";
 
 export abstract class GetTasksRepo extends BaseGetRepo<TaskDto> {}
 
@@ -28,6 +30,7 @@ export class GetTasksInteractor extends BaseGetInteractor<TaskDto> {
   }
 
   @Enforce(GetQueryParamsSchema)
+  @ValidateOutput(createGetResultSchema(TaskDtoSchema))
   async invoke(params: GetQueryParams = {}) {
     return await super.invoke(params);
   }

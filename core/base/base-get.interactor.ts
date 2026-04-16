@@ -50,7 +50,7 @@ export abstract class BaseGetInteractor<T> {
     protected defaultParams?: GetQueryParams,
   ) {}
 
-  async invoke(params: GetQueryParams = {}): Validated<GetResult<T>, GetQueryParams> {
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
     const { p13nId } = params;
 
     let searchTerm = params.searchTerm;

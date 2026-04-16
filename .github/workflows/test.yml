@@ -1,13 +1,16 @@
 name: Tests
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
     branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "postgresql://localhost:5432/test"
+      DATABASE_DIRECT_URL: "postgresql://localhost:5432/test"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

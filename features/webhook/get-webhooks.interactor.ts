@@ -7,9 +7,11 @@ import { type WebhookDto } from "./webhook.schema";
 import { BaseGetRepo } from "@/core/base/base-get.interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
-import { GetQueryParamsSchema, type GetQueryParams } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { WebhookDtoSchema } from "./webhook.schema";
 
 export abstract class GetWebhooksRepo extends BaseGetRepo<WebhookDto> {}
 
@@ -23,6 +25,7 @@ export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
   }
 
   @Enforce(GetQueryParamsSchema)
+  @ValidateOutput(createGetResultSchema(WebhookDtoSchema))
   async invoke(params: GetQueryParams = {}) {
     return await super.invoke(params);
   }

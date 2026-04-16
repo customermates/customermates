@@ -4,7 +4,6 @@ import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhoo
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { UserAccessor } from "@/core/base/user-accessor";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 
@@ -18,13 +17,11 @@ export abstract class GetWebhookDeliveryByIdRepo {
 }
 
 @TentantInteractor({ resource: Resource.api, action: Action.create })
-export class ResendWebhookDeliveryInteractor extends UserAccessor {
+export class ResendWebhookDeliveryInteractor {
   constructor(
     private deliveryRepo: GetWebhookDeliveryByIdRepo,
     private createRepo: CreateWebhookDeliveryRepo,
-  ) {
-    super();
-  }
+  ) {}
 
   @Enforce(ResendWebhookDeliverySchema)
   async invoke(data: ResendWebhookDeliveryData): Promise<void> {

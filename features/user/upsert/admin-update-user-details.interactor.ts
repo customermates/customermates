@@ -13,8 +13,10 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { createZodError, secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
   email: z.email(),
@@ -43,7 +45,10 @@ export abstract class AdminUpdateUserSubscriptionRepo {
 }
 
 @TentantInteractor({ resource: Resource.users, action: Action.update })
-export class AdminUpdateUserDetailsInteractor extends UserAccessor {
+export class AdminUpdateUserDetailsInteractor extends BaseInteractor<
+  AdminUpdateUserDetailsData,
+  AdminUpdateUserDetailsData
+> {
   constructor(
     private userRepo: AdminUpdateUserDetailsRepo,
     private roleRepo: UpdateUserRoleRepo,
@@ -55,12 +60,13 @@ export class AdminUpdateUserDetailsInteractor extends UserAccessor {
   }
 
   @Validate(Schema)
+  @ValidateOutput(Schema)
   @Transaction
   async invoke(data: AdminUpdateUserDetailsData): Validated<AdminUpdateUserDetailsData> {
     const targetUser = await this.userRepo.findOrThrow(data.email);
     const targetUserId = targetUser.id;
 
-    if (targetUserId === this.user.id) throw new Error("Cannot update own details.");
+    if (targetUserId === getTenantUser().id) throw new Error("Cannot update own details.");
 
     const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRole(targetUser.roleId) : false;
     const newRoleIsSystemAndActive = (await this.roleRepo.isSystemRole(data.roleId)) && data.status === Status.active;
@@ -100,7 +106,7 @@ export class AdminUpdateUserDetailsInteractor extends UserAccessor {
       },
     });
 
-    return { ok: true, data };
+    return { ok: true as const, data };
   }
 
   private async handleSubscriptionQuantityUpdate(companyId: string): Promise<void> {

@@ -7,8 +7,10 @@ import { type UserDto } from "../user.schema";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
-import { GetQueryParamsSchema, type GetQueryParams } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { UserDtoSchema } from "../user.schema";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
@@ -37,6 +39,7 @@ export class GetUsersInteractor extends BaseGetInteractor<UserDto> {
   }
 
   @Enforce(GetQueryParamsSchema)
+  @ValidateOutput(createGetResultSchema(UserDtoSchema))
   async invoke(params: GetQueryParams = {}) {
     return await super.invoke(params);
   }

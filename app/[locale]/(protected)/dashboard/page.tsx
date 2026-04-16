@@ -12,7 +12,7 @@ import {
 export default async function DashboardPage() {
   await getRouteGuardService().ensureAccessOrRedirect();
 
-  const [widgets, customColumns, filterableFields] = await Promise.all([
+  const [widgetsResult, customColumnsResult, filterableFieldsResult] = await Promise.all([
     getGetWidgetsInteractor().invoke(),
     getGetCustomColumnsInteractor().invoke(),
     getGetWidgetFilterableFieldsInteractor().invoke(),
@@ -21,7 +21,11 @@ export default async function DashboardPage() {
   return (
     <XPageContainer>
       <XPageRow>
-        <WidgetsGrid customColumns={customColumns} filterableFields={filterableFields} widgets={widgets} />
+        <WidgetsGrid
+          customColumns={customColumnsResult.data}
+          filterableFields={filterableFieldsResult.data}
+          widgets={widgetsResult.data}
+        />
       </XPageRow>
     </XPageContainer>
   );

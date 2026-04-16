@@ -7,8 +7,10 @@ import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 
 const Schema = z.object({
@@ -23,16 +25,19 @@ export abstract class DeleteRoleRepo {
 }
 
 @TentantInteractor({ resource: Resource.users, action: Action.delete })
-export class DeleteRoleInteractor {
+export class DeleteRoleInteractor extends BaseInteractor<DeleteRoleData, string> {
   constructor(
     private repo: DeleteRoleRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Enforce(Schema)
+  @ValidateOutput(z.string())
   @Transaction
-  async invoke(data: DeleteRoleData): Promise<void> {
+  async invoke(data: DeleteRoleData): Promise<{ ok: true; data: string }> {
     if (await this.repo.isSystemRole(data.id)) throw new Error("Cannot delete system roles");
     if (await this.repo.hasUsersAssigned(data.id)) throw new Error("Cannot delete role that is assigned to users");
 
@@ -45,5 +50,7 @@ export class DeleteRoleInteractor {
       }),
       this.widgetService.recalculateUserWidgets(),
     ]);
+
+    return { ok: true as const, data: data.id };
   }
 }

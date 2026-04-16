@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const Schema = z.object({
   searchTerm: z.string().min(1),
@@ -20,6 +22,16 @@ export type GlobalSearchResultItem =
 export type GlobalSearchResult = {
   results: GlobalSearchResultItem[];
 };
+
+const GlobalSearchResultSchema = z.object({
+  results: z.array(
+    z.object({
+      type: z.enum(["contact", "organization", "deal", "service"]),
+      id: z.string(),
+      name: z.string(),
+    }),
+  ),
+});
 
 export abstract class GlobalSearchRepo {
   abstract search(data: GlobalSearchData): Promise<GlobalSearchResult>;
@@ -39,11 +51,14 @@ export abstract class GlobalSearchRepo {
   ],
   condition: "OR",
 })
-export class GlobalSearchInteractor {
-  constructor(private repo: GlobalSearchRepo) {}
+export class GlobalSearchInteractor extends BaseInteractor<GlobalSearchData, GlobalSearchResult> {
+  constructor(private repo: GlobalSearchRepo) {
+    super();
+  }
 
   @Enforce(Schema)
-  async invoke(data: GlobalSearchData): Promise<GlobalSearchResult> {
-    return await this.repo.search(data);
+  @ValidateOutput(GlobalSearchResultSchema)
+  async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {
+    return { ok: true as const, data: await this.repo.search(data) };
   }
 }

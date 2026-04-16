@@ -114,19 +114,24 @@ const singularLabels: Record<Entity, string> = {
 
 const configurationExecutors: Record<Entity, () => Promise<unknown>> = {
   contact: async () => {
-    return getGetContactsConfigurationInteractor().invoke();
+    const result = await getGetContactsConfigurationInteractor().invoke();
+    return result.data;
   },
   organization: async () => {
-    return getGetOrganizationsConfigurationInteractor().invoke();
+    const result = await getGetOrganizationsConfigurationInteractor().invoke();
+    return result.data;
   },
   deal: async () => {
-    return getGetDealsConfigurationInteractor().invoke();
+    const result = await getGetDealsConfigurationInteractor().invoke();
+    return result.data;
   },
   service: async () => {
-    return getGetServicesConfigurationInteractor().invoke();
+    const result = await getGetServicesConfigurationInteractor().invoke();
+    return result.data;
   },
   task: async () => {
-    return getGetTasksConfigurationInteractor().invoke();
+    const result = await getGetTasksConfigurationInteractor().invoke();
+    return result.data;
   },
 };
 

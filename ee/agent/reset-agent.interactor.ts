@@ -1,8 +1,10 @@
 import type { AgentMachineService } from "./agent-machine.service";
 
+import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export abstract class ResetAgentRepo {
   abstract getMachineIdsOrThrow(): Promise<{ machineId: string; volumeId: string }>;
@@ -17,7 +19,8 @@ export class ResetAgentInteractor {
     private machineService: AgentMachineService,
   ) {}
 
-  async invoke(): Promise<void> {
+  @ValidateOutput(z.null())
+  async invoke(): Promise<{ ok: true; data: null }> {
     await this.repo.verifyProPlanOrThrow();
 
     const { machineId, volumeId } = await this.repo.getMachineIdsOrThrow();
@@ -26,5 +29,7 @@ export class ResetAgentInteractor {
     await this.machineService.destroyVolume(volumeId).catch(() => {});
 
     await this.repo.clearMachineIds();
+
+    return { ok: true as const, data: null };
   }
 }

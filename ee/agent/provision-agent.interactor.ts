@@ -8,8 +8,10 @@ import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { validateLlmApiKey } from "@/core/validation/validate-llm-api-key";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 
 const Schema = z
@@ -30,14 +32,17 @@ export abstract class ProvisionAgentRepo {
 }
 
 @TentantInteractor({ resource: Resource.aiAgent, action: Action.create })
-export class ProvisionAgentInteractor {
+export class ProvisionAgentInteractor extends BaseInteractor<UpsertAgentKeysData, UpsertAgentKeysData> {
   constructor(
     private repo: ProvisionAgentRepo,
     private authService: AuthService,
     private machineService: AgentMachineService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
+  @ValidateOutput(Schema)
   async invoke(data: UpsertAgentKeysData): Validated<UpsertAgentKeysData> {
     await this.repo.verifyProPlanOrThrow();
 
@@ -63,7 +68,7 @@ export class ProvisionAgentInteractor {
 
     await this.repo.storeMachineIds(machineId, volumeId);
 
-    return { ok: true, data };
+    return { ok: true as const, data };
   }
 
   private async rotateCrmApiKey() {

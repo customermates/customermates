@@ -1,12 +1,15 @@
 import type { SubscriptionService } from "./subscription.service";
 
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import type { Company } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 import { BASE_URL } from "@/constants/env";
 
 export abstract class CreateCheckoutCompanyRepo {
@@ -15,7 +18,7 @@ export abstract class CreateCheckoutCompanyRepo {
 }
 
 @TentantInteractor({ resource: Resource.company, action: Action.update })
-export class CreateCheckoutSessionInteractor extends UserAccessor {
+export class CreateCheckoutSessionInteractor extends BaseInteractor<void, null> {
   constructor(
     private lemonSqueezyService: SubscriptionService,
     private repo: CreateCheckoutCompanyRepo,
@@ -23,7 +26,8 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
     super();
   }
 
-  async invoke(): Promise<void> {
+  @ValidateOutput(z.null())
+  async invoke(): Promise<{ ok: true; data: null }> {
     const [company, activeUsersCount] = await Promise.all([this.repo.getDetails(), this.repo.countActiveUsers()]);
 
     const billingAddress: { country?: string; zip?: string } = {};
@@ -41,7 +45,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       zip: company.postalCode || undefined,
       taxNumber: company.vatNumber || undefined,
       custom: {
-        company_id: this.user.companyId,
+        company_id: getTenantUser().companyId,
       },
       redirectUrl,
       quantity: activeUsersCount,

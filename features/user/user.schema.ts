@@ -17,3 +17,7 @@ export const UserDtoSchema = z.object({
 });
 
 export type UserDto = Data<typeof UserDtoSchema>;
+
+export const UserByIdResponseSchema = z.object({
+  user: UserDtoSchema.nullable(),
+});

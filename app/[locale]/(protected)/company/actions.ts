@@ -43,7 +43,8 @@ export async function refreshSubscriptionAction() {
 }
 
 export async function getSubscriptionAction() {
-  return getGetSubscriptionInteractor().invoke();
+  const result = await getGetSubscriptionInteractor().invoke();
+  return result.data;
 }
 
 export async function updateCompanyAction(data: UpdateCompanyDetailsData) {
@@ -59,11 +60,13 @@ export async function adminUpdateUserDetailsAction(data: AdminUpdateUserDetailsD
 }
 
 export async function getOrCreateInviteTokenAction() {
-  return getGetOrCreateInviteTokenInteractor().invoke();
+  const result = await getGetOrCreateInviteTokenInteractor().invoke();
+  return result.data;
 }
 
 export async function getCompanyDetailsAction() {
-  return getGetCompanyDetailsInteractor().invoke();
+  const result = await getGetCompanyDetailsInteractor().invoke();
+  return result.data;
 }
 
 export async function getRolesAction(params?: GetQueryParams) {
@@ -76,7 +79,8 @@ export async function upsertRoleAction(data: UpsertRoleData) {
 }
 
 export async function deleteRoleAction(data: DeleteRoleData) {
-  return getDeleteRoleInteractor().invoke(data);
+  const result = await getDeleteRoleInteractor().invoke(data);
+  return result.data;
 }
 
 export async function getUsersAction(params?: GetQueryParams) {

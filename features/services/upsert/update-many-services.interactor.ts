@@ -2,7 +2,7 @@ import type { UpdateServiceRepo } from "./update-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -12,16 +12,17 @@ import { validateNotes } from "../../../core/validation/validate-notes";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateServiceIds } from "../../../core/validation/validate-service-ids";
-import { type ServiceDto } from "../service.schema";
+import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseUpdateServiceSchema } from "./update-service-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo } from "@/core/di";
@@ -65,17 +66,20 @@ export type UpdateManyServicesData = Data<typeof UpdateManyServicesSchema>;
   resource: Resource.services,
   action: Action.update,
 })
-export class UpdateManyServicesInteractor {
+export class UpdateManyServicesInteractor extends BaseInteractor<UpdateManyServicesData, ServiceDto[]> {
   constructor(
     private servicesRepo: UpdateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(UpdateManyServicesSchema)
+  @ValidateOutput(ServiceDtoSchema)
   @Transaction
-  async invoke(data: UpdateManyServicesData): Validated<ServiceDto[], UpdateManyServicesData> {
+  async invoke(data: UpdateManyServicesData): Validated<ServiceDto[]> {
     const previousServices = await this.servicesRepo.getManyOrThrowUnscoped(data.services.map((s) => s.id));
     const previousServicesMap = new Map(previousServices.map((s) => [s.id, s]));
 
@@ -122,6 +126,6 @@ export class UpdateManyServicesInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: services };
+    return { ok: true as const, data: services };
   }
 }

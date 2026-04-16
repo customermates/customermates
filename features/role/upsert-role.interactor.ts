@@ -7,11 +7,14 @@ import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
+import { RoleDtoSchema } from "./role.schema";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const Schema = z.object({
   id: z.uuid().optional(),
@@ -72,16 +75,19 @@ export abstract class UpsertRoleRepo {
   ],
   condition: "AND",
 })
-export class UpsertRoleInteractor {
+export class UpsertRoleInteractor extends BaseInteractor<UpsertRoleData, UserRoleDto> {
   constructor(
     private repo: UpsertRoleRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
+  @ValidateOutput(RoleDtoSchema)
   @Transaction
-  async invoke(data: UpsertRoleData): Validated<UserRoleDto, UpsertRoleData> {
+  async invoke(data: UpsertRoleData): Validated<UserRoleDto> {
     if (data.id && (await this.repo.isSystemRole(data.id))) throw new Error("Cannot update system roles");
 
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
@@ -103,6 +109,6 @@ export class UpsertRoleInteractor {
 
     await Promise.all([eventPromise, this.widgetService.recalculateUserWidgets()]);
 
-    return { ok: true, data: role };
+    return { ok: true as const, data: role };
   }
 }

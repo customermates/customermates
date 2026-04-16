@@ -1,15 +1,16 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
-import { type OrganizationDto } from "../organization.schema";
+import { type OrganizationDto, OrganizationByIdResponseSchema } from "../organization.schema";
 
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export const GetOrganizationByIdSchema = z.object({
   id: z.uuid(),
@@ -32,25 +33,27 @@ export abstract class OrganizationCustomColumnRepo {
   ],
   condition: "OR",
 })
-export class GetOrganizationByIdInteractor {
+export class GetOrganizationByIdInteractor extends BaseInteractor<
+  GetOrganizationByIdData,
+  { organization: OrganizationDto | null; customColumns: CustomColumnDto[] }
+> {
   constructor(
     private repo: GetOrganizationByIdRepo,
     private customColumnsRepo: OrganizationCustomColumnRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(GetOrganizationByIdSchema)
-  async invoke(data: GetOrganizationByIdData): Validated<
-    {
-      organization: OrganizationDto | null;
-      customColumns: CustomColumnDto[];
-    },
-    GetOrganizationByIdData
-  > {
+  @ValidateOutput(OrganizationByIdResponseSchema)
+  async invoke(
+    data: GetOrganizationByIdData,
+  ): Validated<{ organization: OrganizationDto | null; customColumns: CustomColumnDto[] }> {
     const [organization, customColumns] = await Promise.all([
       this.repo.getOrganizationById(data.id),
       this.customColumnsRepo.findByEntityType(EntityType.organization),
     ]);
 
-    return { ok: true, data: { organization, customColumns } };
+    return { ok: true as const, data: { organization, customColumns } };
   }
 }

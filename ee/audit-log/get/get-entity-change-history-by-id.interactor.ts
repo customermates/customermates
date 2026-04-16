@@ -5,8 +5,10 @@ import type { AuditLogDto } from "./get-audit-logs-by-entity-id.interactor";
 import { z } from "zod";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 
 export const GetEntityChangeHistoryByIdSchema = z.object({
@@ -32,25 +34,30 @@ const ENTITY_TYPE_PREFIX_MAP: Record<string, EntityType> = {
 
 @AllowInDemoMode
 @TentantInteractor({ resource: Resource.auditLog, action: Action.readAll })
-export class GetEntityChangeHistoryByIdInteractor {
+export class GetEntityChangeHistoryByIdInteractor extends BaseInteractor<
+  GetEntityChangeHistoryByIdData,
+  { items: AuditLogDto[]; customColumns: CustomColumnDto[] }
+> {
   constructor(
     private auditLogRepo: GetEntityChangeHistoryByIdAuditLogRepo,
     private customColumnRepo: GetEntityChangeHistoryByIdCustomColumnRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Enforce(GetEntityChangeHistoryByIdSchema)
-  async invoke(data: GetEntityChangeHistoryByIdData): Promise<{
-    items: AuditLogDto[];
-    customColumns: CustomColumnDto[];
-  }> {
+  @ValidateOutput(z.any())
+  async invoke(
+    data: GetEntityChangeHistoryByIdData,
+  ): Promise<{ ok: true; data: { items: AuditLogDto[]; customColumns: CustomColumnDto[] } }> {
     const items = await this.auditLogRepo.getAuditLogsByEntityId(data.entityId);
-    if (items.length === 0) return { items: [], customColumns: [] };
+    if (items.length === 0) return { ok: true as const, data: { items: [], customColumns: [] } };
 
     const entityType = Object.entries(ENTITY_TYPE_PREFIX_MAP).find(([prefix]) =>
       items[0].event.startsWith(prefix),
     )?.[1];
     const customColumns = entityType ? await this.customColumnRepo.findByEntityType(entityType) : [];
 
-    return { items, customColumns };
+    return { ok: true as const, data: { items, customColumns } };
   }
 }

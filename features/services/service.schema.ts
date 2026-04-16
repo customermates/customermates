@@ -8,6 +8,7 @@ import {
   UserReferenceSchema,
   NotesSchema,
 } from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
 export const ServiceDtoSchema = z.object({
   id: z.uuid(),
@@ -26,3 +27,8 @@ export const ServiceDtoSchema = z.object({
 });
 
 export type ServiceDto = Data<typeof ServiceDtoSchema>;
+
+export const ServiceByIdResponseSchema = z.object({
+  service: ServiceDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

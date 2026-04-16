@@ -5,8 +5,10 @@ import { z } from "zod";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -15,16 +17,33 @@ const Schema = z.object({
 
 export type DeleteFilterPresetData = Data<typeof Schema>;
 
+const P13nEntrySchema = z.object({
+  p13nId: z.string(),
+  filters: z.array(z.any()).optional(),
+  savedFilterPresets: z.array(z.any()).optional(),
+  searchTerm: z.string().optional(),
+  sortDescriptor: z.any().optional(),
+  pagination: z.any().optional(),
+  columnWidths: z.record(z.string(), z.number()).optional(),
+  columnOrder: z.array(z.string()).optional(),
+  hiddenColumns: z.array(z.string()).optional(),
+  viewMode: z.string().optional(),
+  groupingColumnId: z.string().optional(),
+});
+
 export abstract class DeleteFilterPresetRepo {
   abstract getP13n(p13nId: string): Promise<P13nEntry | undefined>;
   abstract upsertP13n(data: { p13nId: string; savedFilterPresets: SavedFilterPreset[] }): Promise<P13nEntry>;
 }
 
 @TentantInteractor()
-export class DeleteFilterPresetInteractor {
-  constructor(private repo: DeleteFilterPresetRepo) {}
+export class DeleteFilterPresetInteractor extends BaseInteractor<DeleteFilterPresetData, P13nEntry> {
+  constructor(private repo: DeleteFilterPresetRepo) {
+    super();
+  }
 
   @Enforce(Schema)
+  @ValidateOutput(P13nEntrySchema)
   @Transaction
   async invoke(data: DeleteFilterPresetData): Validated<P13nEntry> {
     const p13nData = await this.repo.getP13n(data.p13nId);
@@ -42,6 +61,6 @@ export class DeleteFilterPresetInteractor {
       savedFilterPresets: updatedPresets,
     });
 
-    return { ok: true, data: res };
+    return { ok: true as const, data: res };
   }
 }

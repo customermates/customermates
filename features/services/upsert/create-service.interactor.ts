@@ -2,21 +2,22 @@ import type { CreateServiceRepo } from "./create-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { type ServiceDto } from "../service.schema";
+import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseCreateServiceSchema } from "./create-service-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -46,16 +47,19 @@ export type CreateServiceData = Data<typeof CreateServiceSchema>;
   resource: Resource.services,
   action: Action.create,
 })
-export class CreateServiceInteractor {
+export class CreateServiceInteractor extends BaseInteractor<CreateServiceData, ServiceDto> {
   constructor(
     private repo: CreateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(CreateServiceSchema)
-  async invoke(data: CreateServiceData): Validated<ServiceDto, CreateServiceData> {
+  @ValidateOutput(ServiceDtoSchema)
+  async invoke(data: CreateServiceData): Validated<ServiceDto> {
     const relatedDealIds = unique(data.dealIds);
 
     const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
@@ -81,6 +85,6 @@ export class CreateServiceInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: service };
+    return { ok: true as const, data: service };
   }
 }

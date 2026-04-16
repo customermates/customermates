@@ -22,7 +22,8 @@ export async function refreshTasksAction(params?: GetQueryParams) {
 }
 
 export async function refreshTaskCountAction() {
-  return await getCountUserTasksInteractor().invoke();
+  const result = await getCountUserTasksInteractor().invoke();
+  return result.data;
 }
 
 export async function createTaskAction(data: CreateTaskData) {

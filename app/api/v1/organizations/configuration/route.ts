@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const result = await getGetOrganizationsConfigurationInteractor().invoke();
 
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(result.data, { status: 200 });
   } catch (error) {
     return handleError(error);
   }

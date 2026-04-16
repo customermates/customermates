@@ -1,10 +1,23 @@
-import { Resource, Action } from "@/generated/prisma";
+import { z } from "zod";
+import { Resource, Action, CountryCode as CountryCodeEnum } from "@/generated/prisma";
 
 import type { CountryCode } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
+
+const UserDetailsDtoSchema = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  country: z.enum(CountryCodeEnum),
+  avatarUrl: z.string().nullable(),
+  roleId: z.string().nullable(),
+  roleName: z.string().nullable(),
+});
 
 export interface UserDetails {
   id: string;
@@ -24,12 +37,16 @@ export interface UserDetails {
   ],
   condition: "OR",
 })
-export class GetUserDetailsInteractor extends UserAccessor {
+export class GetUserDetailsInteractor extends BaseInteractor<void, UserDetails> {
+  @ValidateOutput(UserDetailsDtoSchema)
   // The invoke method is not async, but the decorator requires it
   // eslint-disable-next-line @typescript-eslint/require-await
-  async invoke(): Promise<UserDetails> {
-    const { id, firstName, lastName, country, avatarUrl, roleId, role } = this.user;
+  async invoke(): Promise<{ ok: true; data: UserDetails }> {
+    const { id, firstName, lastName, country, avatarUrl, roleId, role } = getTenantUser();
 
-    return { id, firstName, lastName, country, avatarUrl, roleId, roleName: role?.name ?? null };
+    return {
+      ok: true as const,
+      data: { id, firstName, lastName, country, avatarUrl, roleId, roleName: role?.name ?? null },
+    };
   }
 }

@@ -27,9 +27,10 @@ export async function createApiKeyAction(data: CreateApiKeyData) {
 }
 
 export async function deleteApiKeyAction(data: DeleteApiKeyData) {
-  return getDeleteApiKeyInteractor().invoke(data);
+  return serializeResult(getDeleteApiKeyInteractor().invoke(data));
 }
 
 export async function refreshApiKeysAction() {
-  return getGetApiKeysInteractor().invoke();
+  const result = await getGetApiKeysInteractor().invoke();
+  return result.data;
 }

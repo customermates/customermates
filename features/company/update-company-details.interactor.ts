@@ -9,7 +9,9 @@ import { DomainEvent } from "../event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
   name: z.string().min(1),
@@ -27,7 +29,7 @@ export abstract class UpdateCompanyDetailsRepo {
 }
 
 @TentantInteractor({ resource: Resource.company, action: Action.update })
-export class UpdateCompanyDetailsInteractor extends UserAccessor {
+export class UpdateCompanyDetailsInteractor extends BaseInteractor<UpdateCompanyDetailsData, UpdateCompanyDetailsData> {
   constructor(
     private repo: UpdateCompanyDetailsRepo,
     private eventService: EventService,
@@ -36,10 +38,11 @@ export class UpdateCompanyDetailsInteractor extends UserAccessor {
   }
 
   @Validate(Schema)
+  @ValidateOutput(Schema)
   async invoke(data: UpdateCompanyDetailsData): Validated<UpdateCompanyDetailsData> {
     await this.repo.updateDetails({ ...data });
 
-    const { companyId } = this.user;
+    const { companyId } = getTenantUser();
 
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
       entityId: companyId,
@@ -49,6 +52,6 @@ export class UpdateCompanyDetailsInteractor extends UserAccessor {
       },
     });
 
-    return { ok: true, data };
+    return { ok: true as const, data };
   }
 }

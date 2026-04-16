@@ -22,23 +22,28 @@ export async function upsertWidgetAction(data: UpsertWidgetData) {
 }
 
 export async function deleteWidgetAction(data: DeleteWidgetData) {
-  return getDeleteWidgetInteractor().invoke(data);
+  const result = await getDeleteWidgetInteractor().invoke(data);
+  return result.data;
 }
 
 export async function getCompanyWidgetsAction() {
-  return getGetCompanyWidgetsInteractor().invoke();
+  const result = await getGetCompanyWidgetsInteractor().invoke();
+  return result.data;
 }
 
 export async function getWidgetByIdAction(data: GetWidgetByIdData) {
-  return getGetWidgetByIdInteractor().invoke(data);
+  const result = await getGetWidgetByIdInteractor().invoke(data);
+  return result.data;
 }
 
 export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
-  return getUpdateWidgetLayoutsInteractor().invoke(data);
+  const result = await getUpdateWidgetLayoutsInteractor().invoke(data);
+  return result.data;
 }
 
 export async function refreshWidgetsAction() {
-  return getGetWidgetsInteractor().invoke();
+  const result = await getGetWidgetsInteractor().invoke();
+  return result.data;
 }
 
 export async function updateThemeAction(data: UpdateUserSettingsData) {

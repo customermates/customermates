@@ -4,8 +4,10 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 
 const Schema = z.object({
@@ -24,13 +26,19 @@ export abstract class SetAgentEnvironmentVariableRepo {
 }
 
 @TentantInteractor({ resource: Resource.aiAgent, action: Action.update })
-export class SetAgentEnvironmentVariableInteractor {
+export class SetAgentEnvironmentVariableInteractor extends BaseInteractor<
+  SetAgentEnvironmentVariableData,
+  SetAgentEnvironmentVariableData
+> {
   constructor(
     private repo: SetAgentEnvironmentVariableRepo,
     private machineService: AgentMachineService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
+  @ValidateOutput(Schema)
   async invoke(data: SetAgentEnvironmentVariableData): Validated<SetAgentEnvironmentVariableData> {
     await this.repo.verifyProPlanOrThrow();
 
@@ -42,6 +50,6 @@ export class SetAgentEnvironmentVariableInteractor {
       value: data.value,
     });
 
-    return { ok: true, data };
+    return { ok: true as const, data };
   }
 }

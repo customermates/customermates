@@ -127,9 +127,9 @@ export default async function RootLayout({ children }: Props) {
         getCountSystemTasksInteractor().invoke(),
         getGetSubscriptionInteractor().invoke(),
       ]);
-      company = companyResult;
-      systemTaskCount = systemTaskCountResult;
-      subscriptionPlan = subscriptionResult?.plan ?? null;
+      company = companyResult.data;
+      systemTaskCount = systemTaskCountResult.data;
+      subscriptionPlan = subscriptionResult.data?.plan ?? null;
     }
   }
 

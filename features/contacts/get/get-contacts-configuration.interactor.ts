@@ -4,8 +4,12 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { Resource, Action } from "@/generated/prisma";
 
+import { GetConfigurationSchema } from "@/core/base/base-get.schema";
+
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export interface GetContactsConfigurationResult {
   customColumns: CustomColumnDto[];
@@ -27,10 +31,13 @@ export abstract class GetContactsConfigurationRepo {
   ],
   condition: "OR",
 })
-export class GetContactsConfigurationInteractor {
-  constructor(private repo: GetContactsConfigurationRepo) {}
+export class GetContactsConfigurationInteractor extends BaseInteractor<void, GetContactsConfigurationResult> {
+  constructor(private repo: GetContactsConfigurationRepo) {
+    super();
+  }
 
-  async invoke(): Promise<GetContactsConfigurationResult> {
+  @ValidateOutput(GetConfigurationSchema)
+  async invoke(): Promise<{ ok: true; data: GetContactsConfigurationResult }> {
     const [customColumns, filterableFields] = await Promise.all([
       this.repo.getCustomColumns(),
       this.repo.getFilterableFields(),
@@ -38,9 +45,12 @@ export class GetContactsConfigurationInteractor {
     const sortableFields = this.repo.getSortableFields().map((field) => field.field);
 
     return {
-      customColumns,
-      filterableFields,
-      sortableFields,
+      ok: true,
+      data: {
+        customColumns,
+        filterableFields,
+        sortableFields,
+      },
     };
   }
 }

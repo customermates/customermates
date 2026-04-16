@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
@@ -11,14 +11,15 @@ import { validateCustomFieldValues } from "../../../core/validation/validate-cus
 import { validateContactIds } from "../../contacts/validate-contact-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { type OrganizationDto } from "../organization.schema";
+import { type OrganizationDto, OrganizationDtoSchema } from "../organization.schema";
 
 import { BaseCreateOrganizationSchema } from "./create-organization-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -51,17 +52,20 @@ export type CreateOrganizationData = Data<typeof CreateOrganizationSchema>;
   resource: Resource.organizations,
   action: Action.create,
 })
-export class CreateOrganizationInteractor {
+export class CreateOrganizationInteractor extends BaseInteractor<CreateOrganizationData, OrganizationDto> {
   constructor(
     private repo: CreateOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(CreateOrganizationSchema)
-  async invoke(data: CreateOrganizationData): Validated<OrganizationDto, CreateOrganizationData> {
+  @ValidateOutput(OrganizationDtoSchema)
+  async invoke(data: CreateOrganizationData): Validated<OrganizationDto> {
     const relatedContactIds = unique(data.contactIds);
     const relatedDealIds = unique(data.dealIds);
 
@@ -103,6 +107,6 @@ export class CreateOrganizationInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: organization };
+    return { ok: true as const, data: organization };
   }
 }

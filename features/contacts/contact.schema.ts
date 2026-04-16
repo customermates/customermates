@@ -9,6 +9,7 @@ import {
   UserReferenceSchema,
   NotesSchema,
 } from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
 export const ContactDtoSchema = z.object({
   id: z.uuid(),
@@ -28,3 +29,8 @@ export const ContactDtoSchema = z.object({
 });
 
 export type ContactDto = Data<typeof ContactDtoSchema>;
+
+export const ContactByIdResponseSchema = z.object({
+  contact: ContactDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

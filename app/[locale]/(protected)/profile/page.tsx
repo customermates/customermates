@@ -4,6 +4,8 @@ import { UserDetailsCard } from "./components/user-details-card";
 import { UserSettingsCard } from "./components/user-settings-card";
 import { ApiKeysCard } from "./components/api-keys-card";
 
+import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
+
 import { getGetUserDetailsInteractor, getUserService, getGetApiKeysInteractor, getRouteGuardService } from "@/core/di";
 import { XPageRowContent } from "@/components/x-layout-primitives/x-page-row-content";
 import { XPageRow } from "@/components/x-layout-primitives/x-page-row";
@@ -14,22 +16,22 @@ export default async function ProfilePage() {
 
   const canAccessApi = await getUserService().hasPermission(Resource.api, Action.readAll);
 
-  const [userDetails, apiKeys] = await Promise.all([
+  const [userDetailsResult, apiKeysResult] = await Promise.all([
     getGetUserDetailsInteractor().invoke(),
-    canAccessApi ? getGetApiKeysInteractor().invoke() : [],
+    canAccessApi ? getGetApiKeysInteractor().invoke() : Promise.resolve({ ok: true as const, data: [] as ApiKey[] }),
   ]);
 
   return (
     <XPageContainer>
       <XPageRow columns="2/1">
         <XPageRowContent>
-          <UserDetailsCard userDetails={userDetails} />
+          <UserDetailsCard userDetails={userDetailsResult.data} />
         </XPageRowContent>
 
         <XPageRowContent>
           <UserSettingsCard />
 
-          {canAccessApi && <ApiKeysCard apiKeys={apiKeys} />}
+          {canAccessApi && <ApiKeysCard apiKeys={apiKeysResult.data} />}
         </XPageRowContent>
       </XPageRow>
     </XPageContainer>

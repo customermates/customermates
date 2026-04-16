@@ -7,9 +7,6 @@ import { DemoModeError } from "@/core/errors/app-errors";
 export function SystemInteractor<T extends { new (...args: any[]): object }>(constructor: T) {
   const originalInvoke = constructor.prototype.invoke;
 
-  if (typeof constructor.prototype.invoke !== "function")
-    throw new Error(`Class ${constructor.name} must implement an "invoke" method.`);
-
   constructor.prototype.invoke = function (...args: any[]) {
     if (IS_DEMO_MODE && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
 

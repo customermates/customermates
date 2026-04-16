@@ -11,8 +11,9 @@ import { type CustomColumnDto } from "./custom-column.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -25,7 +26,7 @@ export abstract class DeleteCustomColumnRepo {
 }
 
 @TentantInteractor()
-export class DeleteCustomColumnInteractor extends UserAccessor {
+export class DeleteCustomColumnInteractor extends BaseInteractor<DeleteCustomColumnData, string> {
   constructor(
     private repo: DeleteCustomColumnRepo,
     private userService: UserService,
@@ -36,8 +37,9 @@ export class DeleteCustomColumnInteractor extends UserAccessor {
   }
 
   @Enforce(Schema)
+  @ValidateOutput(z.string())
   @Transaction
-  async invoke(data: DeleteCustomColumnData): Promise<string> {
+  async invoke(data: DeleteCustomColumnData): Promise<{ ok: true; data: string }> {
     const customColumn = await this.repo.find(data.id);
 
     const entityTypePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
@@ -63,6 +65,6 @@ export class DeleteCustomColumnInteractor extends UserAccessor {
       }),
     ]);
 
-    return data.id;
+    return { ok: true as const, data: data.id };
   }
 }

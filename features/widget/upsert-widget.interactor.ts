@@ -5,9 +5,12 @@ import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { WidgetDtoSchema } from "./widget.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
@@ -122,11 +125,14 @@ export abstract class UpsertWidgetRepo {
 }
 
 @TentantInteractor()
-export class UpsertWidgetInteractor {
-  constructor(private repo: UpsertWidgetRepo) {}
+export class UpsertWidgetInteractor extends BaseInteractor<UpsertWidgetData, ExtendedWidget> {
+  constructor(private repo: UpsertWidgetRepo) {
+    super();
+  }
 
   @Validate(Schema)
-  async invoke(data: UpsertWidgetData): Validated<ExtendedWidget, UpsertWidgetData> {
-    return { ok: true, data: await this.repo.upsertWidget({ data }) };
+  @ValidateOutput(WidgetDtoSchema)
+  async invoke(data: UpsertWidgetData): Validated<ExtendedWidget> {
+    return { ok: true as const, data: await this.repo.upsertWidget({ data }) };
   }
 }

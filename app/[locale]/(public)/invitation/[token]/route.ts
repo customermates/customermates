@@ -12,7 +12,8 @@ export async function GET(request: Request, context: { params: Promise<{ locale:
     return NextResponse.redirect(new URL(`/${locale}/${redirectPath}`, request.url));
   }
 
-  const inviteToken = await getInviteTokenValidationInteractor().invoke({ token });
+  const inviteTokenResult = await getInviteTokenValidationInteractor().invoke({ token });
+  const inviteToken = inviteTokenResult.data;
 
   if (!inviteToken.valid)
     return NextResponse.redirect(new URL(`/${locale}/auth/error?type=${inviteToken.errorMessage}`, request.url));

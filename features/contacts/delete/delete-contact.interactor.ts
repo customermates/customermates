@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
@@ -12,8 +12,9 @@ import { validateContactIds } from "../validate-contact-ids";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -31,17 +32,20 @@ export const DeleteContactSchema = z
 export type DeleteContactData = Data<typeof DeleteContactSchema>;
 
 @TentantInteractor({ resource: Resource.contacts, action: Action.delete })
-export class DeleteContactInteractor {
+export class DeleteContactInteractor extends BaseInteractor<DeleteContactData, string> {
   constructor(
     private repo: DeleteContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(DeleteContactSchema)
-  async invoke(data: DeleteContactData): Validated<string, DeleteContactData> {
+  @ValidateOutput(z.string())
+  async invoke(data: DeleteContactData): Validated<string> {
     const previousContact = await this.repo.getOrThrowUnscoped(data.id);
 
     const relatedOrganizationIds = unique(previousContact.organizations.map((it) => it.id));
@@ -85,6 +89,6 @@ export class DeleteContactInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: data.id };
+    return { ok: true as const, data: data.id };
   }
 }

@@ -1,15 +1,16 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
-import { type ContactDto } from "../contact.schema";
+import { type ContactDto, ContactByIdResponseSchema } from "../contact.schema";
 
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export const GetContactByIdSchema = z.object({
   id: z.uuid(),
@@ -32,25 +33,25 @@ export abstract class ContactCustomColumnRepo {
   ],
   condition: "OR",
 })
-export class GetContactByIdInteractor {
+export class GetContactByIdInteractor extends BaseInteractor<
+  GetContactByIdData,
+  { contact: ContactDto | null; customColumns: CustomColumnDto[] }
+> {
   constructor(
     private repo: GetContactByIdRepo,
     private customColumnsRepo: ContactCustomColumnRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(GetContactByIdSchema)
-  async invoke(data: GetContactByIdData): Validated<
-    {
-      contact: ContactDto | null;
-      customColumns: CustomColumnDto[];
-    },
-    GetContactByIdData
-  > {
+  @ValidateOutput(ContactByIdResponseSchema)
+  async invoke(data: GetContactByIdData): Validated<{ contact: ContactDto | null; customColumns: CustomColumnDto[] }> {
     const [contact, customColumns] = await Promise.all([
       this.repo.getContactById(data.id),
       this.customColumnsRepo.findByEntityType(EntityType.contact),
     ]);
 
-    return { ok: true, data: { contact, customColumns } };
+    return { ok: true as const, data: { contact, customColumns } };
   }
 }

@@ -9,6 +9,8 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 export const DeleteWebhookSchema = z.object({
   id: z.uuid(),
@@ -20,14 +22,17 @@ export abstract class DeleteWebhookRepo {
 }
 
 @TentantInteractor({ resource: Resource.api, action: Action.delete })
-export class DeleteWebhookInteractor {
+export class DeleteWebhookInteractor extends BaseInteractor<DeleteWebhookData, string> {
   constructor(
     private repo: DeleteWebhookRepo,
     private eventService: EventService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(DeleteWebhookSchema)
-  async invoke(data: DeleteWebhookData): Validated<string, DeleteWebhookData> {
+  @ValidateOutput(z.string())
+  async invoke(data: DeleteWebhookData): Validated<string> {
     const webhook = await this.repo.deleteWebhookOrThrow(data.id);
 
     await this.eventService.publish(DomainEvent.WEBHOOK_DELETED, {
@@ -35,6 +40,6 @@ export class DeleteWebhookInteractor {
       payload: webhook,
     });
 
-    return { ok: true, data: data.id };
+    return { ok: true as const, data: data.id };
   }
 }

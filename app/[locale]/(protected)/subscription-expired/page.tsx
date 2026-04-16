@@ -14,7 +14,8 @@ export default async function SubscriptionExpiredPage() {
     skipSubscriptionCheck: true,
   });
 
-  const subscription = await getGetSubscriptionInteractor().invoke();
+  const subscriptionResult = await getGetSubscriptionInteractor().invoke();
+  const subscription = subscriptionResult.data;
 
   const isExpired =
     subscription.status === SubscriptionStatus.unPaid ||

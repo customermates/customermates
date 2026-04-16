@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function SignUpPage() {
   const cookiesStore = await cookies();
   const token = cookiesStore.get("inviteToken")?.value;
-  const res = await getInviteTokenValidationInteractor().invoke({ token });
-  const companyName = res.valid ? res.companyName : null;
+  const result = await getInviteTokenValidationInteractor().invoke({ token });
+  const companyName = result.data.valid ? result.data.companyName : null;
 
   return (
     <XPageCenter>

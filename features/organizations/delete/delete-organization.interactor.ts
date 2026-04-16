@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
@@ -12,8 +12,9 @@ import { validateOrganizationIds } from "../../../core/validation/validate-organ
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -31,17 +32,20 @@ export const DeleteOrganizationSchema = z
 export type DeleteOrganizationData = Data<typeof DeleteOrganizationSchema>;
 
 @TentantInteractor({ resource: Resource.organizations, action: Action.delete })
-export class DeleteOrganizationInteractor {
+export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizationData, string> {
   constructor(
     private repo: DeleteOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(DeleteOrganizationSchema)
-  async invoke(data: DeleteOrganizationData): Validated<string, DeleteOrganizationData> {
+  @ValidateOutput(z.string())
+  async invoke(data: DeleteOrganizationData): Validated<string> {
     const previousOrganization = await this.repo.getOrThrowUnscoped(data.id);
 
     const relatedContactIds = unique(previousOrganization.contacts.map((it) => it.id));
@@ -85,6 +89,6 @@ export class DeleteOrganizationInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: data.id };
+    return { ok: true as const, data: data.id };
   }
 }

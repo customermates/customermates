@@ -15,13 +15,13 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function checkAgentHealthAction(): Promise<{ healthy: boolean }> {
-  const healthy = await getCheckAgentHealthInteractor().invoke();
-  return { healthy };
+  const result = await getCheckAgentHealthInteractor().invoke();
+  return { healthy: result.data };
 }
 
 export async function getAgentProvisionedAction(): Promise<{ provisioned: boolean }> {
-  const provisioned = await getGetAgentProvisionedInteractor().invoke();
-  return { provisioned };
+  const result = await getGetAgentProvisionedInteractor().invoke();
+  return { provisioned: result.data };
 }
 
 export async function upsertAgentKeysAction(data: UpsertAgentKeysData) {
@@ -33,12 +33,13 @@ export async function resetAgentAction() {
 }
 
 export async function verifyAgentMachineAction(): Promise<{ exists: boolean }> {
-  const exists = await getVerifyAgentMachineInteractor().invoke();
-  return { exists };
+  const result = await getVerifyAgentMachineInteractor().invoke();
+  return { exists: result.data };
 }
 
 export async function getAgentControlUrlAction(): Promise<{ url: string; token: string; machineId: string } | null> {
-  return await getGetAgentControlUrlInteractor().invoke();
+  const result = await getGetAgentControlUrlInteractor().invoke();
+  return result.data;
 }
 
 export async function setAgentEnvironmentVariableAction(data: SetAgentEnvironmentVariableData) {

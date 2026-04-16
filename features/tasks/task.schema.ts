@@ -4,6 +4,7 @@ import { z } from "zod";
 import { TaskType } from "@/generated/prisma";
 
 import { CustomFieldValueSchema, UserReferenceSchema, NotesSchema } from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
 export const TaskDtoSchema = z.object({
   id: z.uuid(),
@@ -21,3 +22,8 @@ export const TaskDtoSchema = z.object({
 });
 
 export type TaskDto = Data<typeof TaskDtoSchema>;
+
+export const TaskByIdResponseSchema = z.object({
+  task: TaskDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

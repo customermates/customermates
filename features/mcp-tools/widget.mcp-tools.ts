@@ -74,7 +74,8 @@ export const getWidgetsTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: GetWidgetsSchema,
   execute: async () => {
-    const widgets = await getGetWidgetsInteractor().invoke();
+    const result = await getGetWidgetsInteractor().invoke();
+    const widgets = result.data;
     return encodeToToon({
       items: widgets.map((widget) => ({ id: widget.id, name: widget.name })),
       total: widgets.length,
@@ -88,7 +89,8 @@ export const batchGetWidgetDetailsTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: GetWidgetDetailsSchema,
   execute: async (params: z.infer<typeof GetWidgetDetailsSchema>) => {
-    const widget = await getGetWidgetByIdInteractor().invoke({ id: params.id });
+    const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: params.id });
+    const widget = widgetResult.data;
     if (!widget) return `Validation error: Widget with ID ${params.id} not found`;
 
     return encodeToToon({
@@ -171,7 +173,8 @@ export const updateWidgetDisplayOptionsTool = {
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateWidgetDisplayOptionsSchema,
   execute: async (params: z.infer<typeof UpdateWidgetDisplayOptionsSchema>) => {
-    const widget = await getGetWidgetByIdInteractor().invoke({ id: params.id });
+    const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: params.id });
+    const widget = widgetResult.data;
     if (!widget) return `Validation error: Widget with ID ${params.id} not found`;
 
     return updateWidget(
@@ -227,7 +230,8 @@ async function updateWidget(
   updates: Partial<Omit<UpsertWidgetData, "id">>,
   successMessage: string,
 ): Promise<string> {
-  const widget = await getGetWidgetByIdInteractor().invoke({ id });
+  const widgetResult = await getGetWidgetByIdInteractor().invoke({ id });
+  const widget = widgetResult.data;
   if (!widget) return `Validation error: Widget with ID ${id} not found`;
 
   const result = await getUpsertWidgetInteractor().invoke({

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 
-// Mock next/server before importing handleError
 vi.mock("next/server", () => ({
   NextResponse: {
     json: vi.fn((body: unknown, init?: { status?: number }) => ({

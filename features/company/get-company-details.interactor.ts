@@ -1,9 +1,28 @@
-import { Resource, Action } from "@/generated/prisma";
+import { z } from "zod";
+import { Resource, Action, CountryCode, Currency } from "@/generated/prisma";
 
 import type { Company } from "@/generated/prisma";
 
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+
+const CompanyDtoSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  country: z.enum(CountryCode),
+  currency: z.enum(Currency),
+  street: z.string().nullable(),
+  city: z.string().nullable(),
+  postalCode: z.string().nullable(),
+  vatNumber: z.string().nullable(),
+  website: z.string().nullable(),
+  phone: z.string().nullable(),
+  email: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 
 export abstract class GetCompanyDetailsRepo {
   abstract getDetails(): Promise<Company>;
@@ -11,10 +30,13 @@ export abstract class GetCompanyDetailsRepo {
 
 @AllowInDemoMode
 @TentantInteractor({ resource: Resource.company, action: Action.readOwn })
-export class GetCompanyDetailsInteractor {
-  constructor(private repo: GetCompanyDetailsRepo) {}
+export class GetCompanyDetailsInteractor extends BaseInteractor<void, Company> {
+  constructor(private repo: GetCompanyDetailsRepo) {
+    super();
+  }
 
-  async invoke(): Promise<Company> {
-    return await this.repo.getDetails();
+  @ValidateOutput(CompanyDtoSchema)
+  async invoke(): Promise<{ ok: true; data: Company }> {
+    return { ok: true as const, data: await this.repo.getDetails() };
   }
 }

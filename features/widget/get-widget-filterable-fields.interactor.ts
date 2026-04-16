@@ -1,9 +1,14 @@
 import type { FilterableField } from "@/core/base/base-get.schema";
 
+import { z } from "zod";
 import { EntityType } from "@/generated/prisma";
 
+import { FilterableFieldSchema } from "@/core/base/base-get.schema";
+
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export abstract class GetWidgetFilterableFieldsContactRepo {
   abstract getFilterableFields(): Promise<FilterableField[]>;
@@ -27,16 +32,19 @@ export abstract class GetWidgetFilterableFieldsTaskRepo {
 
 @AllowInDemoMode
 @TentantInteractor()
-export class GetWidgetFilterableFieldsInteractor {
+export class GetWidgetFilterableFieldsInteractor extends BaseInteractor<void, Record<EntityType, FilterableField[]>> {
   constructor(
     private contactRepo: GetWidgetFilterableFieldsContactRepo,
     private organizationRepo: GetWidgetFilterableFieldsOrganizationRepo,
     private dealRepo: GetWidgetFilterableFieldsDealRepo,
     private serviceRepo: GetWidgetFilterableFieldsServiceRepo,
     private taskRepo: GetWidgetFilterableFieldsTaskRepo,
-  ) {}
+  ) {
+    super();
+  }
 
-  async invoke(): Promise<Record<EntityType, FilterableField[]>> {
+  @ValidateOutput(z.record(z.enum(EntityType), z.array(FilterableFieldSchema)))
+  async invoke(): Promise<{ ok: true; data: Record<EntityType, FilterableField[]> }> {
     const [contactFields, organizationFields, dealFields, serviceFields, taskFields] = await Promise.all([
       this.contactRepo.getFilterableFields(),
       this.organizationRepo.getFilterableFields(),
@@ -46,11 +54,14 @@ export class GetWidgetFilterableFieldsInteractor {
     ]);
 
     return {
-      [EntityType.contact]: contactFields,
-      [EntityType.organization]: organizationFields,
-      [EntityType.deal]: dealFields,
-      [EntityType.service]: serviceFields,
-      [EntityType.task]: taskFields,
+      ok: true,
+      data: {
+        [EntityType.contact]: contactFields,
+        [EntityType.organization]: organizationFields,
+        [EntityType.deal]: dealFields,
+        [EntityType.service]: serviceFields,
+        [EntityType.task]: taskFields,
+      },
     };
   }
 }

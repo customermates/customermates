@@ -5,8 +5,10 @@ import type { UserReferenceSchema } from "@/core/base/base-entity.schema";
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export type AuditLogDto = {
   id: string;
@@ -28,13 +30,16 @@ export abstract class GetAuditLogsByEntityIdRepo {
 }
 
 @TentantInteractor({ resource: Resource.auditLog, action: Action.readAll })
-export class GetAuditLogsByEntityIdInteractor {
-  constructor(private repo: GetAuditLogsByEntityIdRepo) {}
+export class GetAuditLogsByEntityIdInteractor extends BaseInteractor<GetAuditLogsByEntityIdData, AuditLogDto[]> {
+  constructor(private repo: GetAuditLogsByEntityIdRepo) {
+    super();
+  }
 
   @Enforce(GetAuditLogsByEntityIdSchema)
-  async invoke(data: GetAuditLogsByEntityIdData): Promise<AuditLogDto[]> {
+  @ValidateOutput(z.any())
+  async invoke(data: GetAuditLogsByEntityIdData): Promise<{ ok: true; data: AuditLogDto[] }> {
     const auditLogs = await this.repo.getAuditLogsByEntityId(data.entityId);
 
-    return auditLogs;
+    return { ok: true as const, data: auditLogs };
   }
 }

@@ -1,4 +1,3 @@
-import type { CustomColumnDto } from "./custom-column.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { UserService } from "@/features/user/user.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -6,14 +5,17 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/generated/prisma";
 
+import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
+
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const OptionSchema = z.object({
   value: z.uuid(),
@@ -107,7 +109,7 @@ export abstract class UpsertCustomColumnRepo {
 }
 
 @TentantInteractor()
-export class UpsertCustomColumnInteractor extends UserAccessor {
+export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomColumnData, CustomColumnDto> {
   constructor(
     private repo: UpsertCustomColumnRepo,
     private userService: UserService,
@@ -117,7 +119,8 @@ export class UpsertCustomColumnInteractor extends UserAccessor {
   }
 
   @Validate(UpsertCustomColumnSchema)
-  async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto, UpsertCustomColumnData> {
+  @ValidateOutput(CustomColumnDtoSchema)
+  async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto> {
     const updatePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
       [EntityType.contact]: { resource: Resource.contacts, action: Action.update },
       [EntityType.organization]: { resource: Resource.organizations, action: Action.update },
@@ -161,6 +164,6 @@ export class UpsertCustomColumnInteractor extends UserAccessor {
       });
     }
 
-    return { ok: true, data: customColumn };
+    return { ok: true as const, data: customColumn };
   }
 }

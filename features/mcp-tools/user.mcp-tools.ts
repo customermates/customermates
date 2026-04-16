@@ -11,7 +11,7 @@ export const getUserDetailsTool = {
   inputSchema: z.object({}),
   execute: async () => {
     const result = await getGetUserDetailsInteractor().invoke();
-    return encodeToToon(result);
+    return encodeToToon(result.data);
   },
 };
 

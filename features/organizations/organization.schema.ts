@@ -9,6 +9,7 @@ import {
   UserReferenceSchema,
   NotesSchema,
 } from "@/core/base/base-entity.schema";
+import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
 
 export const OrganizationDtoSchema = z.object({
   id: z.uuid(),
@@ -27,3 +28,8 @@ export const OrganizationDtoSchema = z.object({
 });
 
 export type OrganizationDto = Data<typeof OrganizationDtoSchema>;
+
+export const OrganizationByIdResponseSchema = z.object({
+  organization: OrganizationDtoSchema.nullable(),
+  customColumns: z.array(CustomColumnDtoSchema),
+});

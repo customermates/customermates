@@ -4,7 +4,7 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
@@ -13,9 +13,10 @@ import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -33,7 +34,7 @@ export const DeleteManyDealsSchema = z
 export type DeleteManyDealsData = Data<typeof DeleteManyDealsSchema>;
 
 @TentantInteractor({ resource: Resource.deals, action: Action.delete })
-export class DeleteManyDealsInteractor {
+export class DeleteManyDealsInteractor extends BaseInteractor<DeleteManyDealsData, string[]> {
   constructor(
     private repo: DeleteDealRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
@@ -41,11 +42,14 @@ export class DeleteManyDealsInteractor {
     private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(DeleteManyDealsSchema)
+  @ValidateOutput(z.string())
   @Transaction
-  async invoke(data: DeleteManyDealsData): Validated<string[], DeleteManyDealsData> {
+  async invoke(data: DeleteManyDealsData): Validated<string[]> {
     const previousDeals = await this.repo.getManyOrThrowUnscoped(data.ids);
 
     const relatedOrganizationIds = unique(previousDeals.flatMap((deal) => deal.organizations.map((it) => it.id)));
@@ -103,6 +107,6 @@ export class DeleteManyDealsInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: data.ids };
+    return { ok: true as const, data: data.ids };
   }
 }

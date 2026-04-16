@@ -1,12 +1,29 @@
 import type { SubscriptionService } from "./subscription.service";
 
-import { Resource, Action } from "@/generated/prisma";
+import { z } from "zod";
+import {
+  Resource,
+  Action,
+  SubscriptionPlan as SubscriptionPlanEnum,
+  SubscriptionStatus as SubscriptionStatusEnum,
+} from "@/generated/prisma";
 
 import type { Subscription, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { UserAccessor } from "@/core/base/user-accessor";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
+
+const SubscriptionDtoSchema = z.object({
+  plan: z.enum(SubscriptionPlanEnum),
+  status: z.enum(SubscriptionStatusEnum),
+  quantity: z.number().nullable(),
+  trialEndDate: z.date().nullable(),
+  currentPeriodEnd: z.date().nullable(),
+  customerPortalUrl: z.string().nullable(),
+});
 
 export abstract class GetSubscriptionRepo {
   abstract getSubscriptionOrThrow(companyId: string): Promise<Subscription>;
@@ -23,7 +40,7 @@ export type SubscriptionDto = {
 
 @AllowInDemoMode
 @TentantInteractor({ resource: Resource.company, action: Action.readOwn })
-export class GetSubscriptionInteractor extends UserAccessor {
+export class GetSubscriptionInteractor extends BaseInteractor<void, SubscriptionDto> {
   constructor(
     private repo: GetSubscriptionRepo,
     private lemonSqueezyService: SubscriptionService,
@@ -31,8 +48,9 @@ export class GetSubscriptionInteractor extends UserAccessor {
     super();
   }
 
-  async invoke(): Promise<SubscriptionDto> {
-    const subscription = await this.repo.getSubscriptionOrThrow(this.user.companyId);
+  @ValidateOutput(SubscriptionDtoSchema)
+  async invoke(): Promise<{ ok: true; data: SubscriptionDto }> {
+    const subscription = await this.repo.getSubscriptionOrThrow(getTenantUser().companyId);
 
     let customerPortalUrl: string | null = null;
 
@@ -44,12 +62,15 @@ export class GetSubscriptionInteractor extends UserAccessor {
     }
 
     return {
-      plan: subscription.plan,
-      status: subscription.status,
-      quantity: subscription.quantity,
-      trialEndDate: subscription.trialEndDate,
-      currentPeriodEnd: subscription.currentPeriodEnd,
-      customerPortalUrl,
+      ok: true,
+      data: {
+        plan: subscription.plan,
+        status: subscription.status,
+        quantity: subscription.quantity,
+        trialEndDate: subscription.trialEndDate,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        customerPortalUrl,
+      },
     };
   }
 }

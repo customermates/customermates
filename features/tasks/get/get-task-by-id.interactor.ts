@@ -1,13 +1,16 @@
 import type { TaskDto } from "../task.schema";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
+import { TaskByIdResponseSchema } from "../task.schema";
+
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 
 export const GetTaskByIdSchema = z.object({
@@ -32,25 +35,25 @@ export abstract class TaskCustomColumnRepo {
   ],
   condition: "OR",
 })
-export class GetTaskByIdInteractor {
+export class GetTaskByIdInteractor extends BaseInteractor<
+  GetTaskByIdData,
+  { task: TaskDto | null; customColumns: CustomColumnDto[] }
+> {
   constructor(
     private repo: GetTaskByIdRepo,
     private customColumnsRepo: TaskCustomColumnRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(GetTaskByIdSchema)
-  async invoke(data: GetTaskByIdData): Validated<
-    {
-      task: TaskDto | null;
-      customColumns: CustomColumnDto[];
-    },
-    GetTaskByIdData
-  > {
+  @ValidateOutput(TaskByIdResponseSchema)
+  async invoke(data: GetTaskByIdData): Validated<{ task: TaskDto | null; customColumns: CustomColumnDto[] }> {
     const [task, customColumns] = await Promise.all([
       this.repo.getTaskById(data.id),
       this.customColumnsRepo.findByEntityType(EntityType.task),
     ]);
 
-    return { ok: true, data: { task, customColumns } };
+    return { ok: true as const, data: { task, customColumns } };
   }
 }

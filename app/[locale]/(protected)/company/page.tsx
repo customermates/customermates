@@ -41,23 +41,27 @@ export default async function CompanyPage({ searchParams }: Props) {
   const canAccessAuditLogs = IS_CLOUD_HOSTED && canAccessAuditLogsPermission;
   const canAccessApi = canAccessApiReadAll || canAccessApiReadOwn;
 
-  const [company, users, roles, task, auditLogs, webhooks, webhookDeliveries, subscription] = await Promise.all([
-    getGetCompanyDetailsInteractor().invoke(),
-    getGetUsersInteractor().invoke({ ...userParams, p13nId: "users-card-store" }),
-    getGetRolesInteractor().invoke({ p13nId: "roles-card-store" }),
-    getGetTaskByTypeInteractor().invoke({ type: TaskType.companyOnboarding }),
-    canAccessAuditLogs
-      ? getGetAuditLogsInteractor().invoke({ p13nId: "audit-logs-card-store" })
-      : Promise.resolve({ ok: true, data: { items: [] } }),
-    canAccessApi
-      ? getGetWebhooksInteractor().invoke({ ...userParams, p13nId: "webhooks-card-store" })
-      : Promise.resolve({ ok: true, data: { items: [] } }),
-    canAccessApi
-      ? getGetWebhookDeliveriesInteractor().invoke({ p13nId: "webhook-deliveries-card-store" })
-      : Promise.resolve({ ok: true, data: { items: [] } }),
-    getGetSubscriptionInteractor().invoke(),
-  ]);
+  const [companyResult, users, roles, taskResult, auditLogs, webhooks, webhookDeliveries, subscriptionResult] =
+    await Promise.all([
+      getGetCompanyDetailsInteractor().invoke(),
+      getGetUsersInteractor().invoke({ ...userParams, p13nId: "users-card-store" }),
+      getGetRolesInteractor().invoke({ p13nId: "roles-card-store" }),
+      getGetTaskByTypeInteractor().invoke({ type: TaskType.companyOnboarding }),
+      canAccessAuditLogs
+        ? getGetAuditLogsInteractor().invoke({ p13nId: "audit-logs-card-store" })
+        : Promise.resolve({ ok: true, data: { items: [] } }),
+      canAccessApi
+        ? getGetWebhooksInteractor().invoke({ ...userParams, p13nId: "webhooks-card-store" })
+        : Promise.resolve({ ok: true, data: { items: [] } }),
+      canAccessApi
+        ? getGetWebhookDeliveriesInteractor().invoke({ p13nId: "webhook-deliveries-card-store" })
+        : Promise.resolve({ ok: true, data: { items: [] } }),
+      getGetSubscriptionInteractor().invoke(),
+    ]);
 
+  const company = companyResult.data;
+  const task = taskResult.data;
+  const subscription = subscriptionResult.data;
   const isCompanyOnboarding = Boolean(task);
 
   return (

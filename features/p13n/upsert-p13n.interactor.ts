@@ -5,7 +5,9 @@ import { z } from "zod";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import {
   FilterSchema,
   SortDescriptorSchema,
@@ -29,16 +31,33 @@ const Schema = z.object({
 });
 export type UpsertP13nData = Data<typeof Schema>;
 
+const P13nEntrySchema = z.object({
+  p13nId: z.string(),
+  filters: z.array(z.any()).optional(),
+  savedFilterPresets: z.array(z.any()).optional(),
+  searchTerm: z.string().optional(),
+  sortDescriptor: z.any().optional(),
+  pagination: z.any().optional(),
+  columnWidths: z.record(z.string(), z.number()).optional(),
+  columnOrder: z.array(z.string()).optional(),
+  hiddenColumns: z.array(z.string()).optional(),
+  viewMode: z.string().optional(),
+  groupingColumnId: z.string().optional(),
+});
+
 export abstract class UpsertP13nRepo {
   abstract upsertP13n(data: UpsertP13nData): Promise<P13nEntry>;
 }
 
 @TentantInteractor()
-export class UpsertP13nInteractor {
-  constructor(private repo: UpsertP13nRepo) {}
+export class UpsertP13nInteractor extends BaseInteractor<UpsertP13nData, P13nEntry> {
+  constructor(private repo: UpsertP13nRepo) {
+    super();
+  }
 
   @Enforce(Schema)
+  @ValidateOutput(P13nEntrySchema)
   async invoke(data: UpsertP13nData): Validated<P13nEntry> {
-    return { ok: true, data: await this.repo.upsertP13n(data) };
+    return { ok: true as const, data: await this.repo.upsertP13n(data) };
   }
 }

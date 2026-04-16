@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
@@ -11,14 +11,15 @@ import { validateCustomFieldValues } from "../../../core/validation/validate-cus
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { type ContactDto } from "../contact.schema";
+import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseCreateContactSchema } from "./create-contact-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -51,17 +52,20 @@ export type CreateContactData = Data<typeof CreateContactSchema>;
   resource: Resource.contacts,
   action: Action.create,
 })
-export class CreateContactInteractor {
+export class CreateContactInteractor extends BaseInteractor<CreateContactData, ContactDto> {
   constructor(
     private repo: CreateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(CreateContactSchema)
-  async invoke(data: CreateContactData): Validated<ContactDto, CreateContactData> {
+  @ValidateOutput(ContactDtoSchema)
+  async invoke(data: CreateContactData): Validated<ContactDto> {
     const relatedOrganizationIds = unique(data.organizationIds);
     const relatedDealIds = unique(data.dealIds);
 
@@ -103,6 +107,6 @@ export class CreateContactInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: contact };
+    return { ok: true as const, data: contact };
   }
 }

@@ -6,7 +6,9 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
+import { BaseInteractor } from "@/core/base/base-interactor";
 
 const Schema = z.object({
   id: z.string(),
@@ -19,20 +21,23 @@ export abstract class DeleteApiKeyRepo {
 }
 
 @TentantInteractor({ resource: Resource.api, action: Action.delete })
-export class DeleteApiKeyInteractor {
+export class DeleteApiKeyInteractor extends BaseInteractor<DeleteApiKeyData, string> {
   constructor(
     private readonly authService: AuthService,
     private readonly repo: DeleteApiKeyRepo,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(Schema)
-  async invoke(data: DeleteApiKeyData): Validated<string, DeleteApiKeyData> {
+  @ValidateOutput(z.string())
+  async invoke(data: DeleteApiKeyData): Validated<string> {
     const crmApiKeyId = await this.repo.getCrmApiKeyId();
 
     if (crmApiKeyId && crmApiKeyId === data.id) throw new Error("Cannot delete the CRM Agent API key");
 
     await this.authService.deleteApiKey(data.id);
 
-    return { ok: true, data: data.id };
+    return { ok: true as const, data: data.id };
   }
 }

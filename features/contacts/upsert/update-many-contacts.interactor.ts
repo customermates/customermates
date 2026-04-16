@@ -3,7 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -14,16 +14,17 @@ import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateContactIds } from "../validate-contact-ids";
-import { type ContactDto } from "../contact.schema";
+import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseUpdateContactSchema } from "./update-contact-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
@@ -71,18 +72,21 @@ export type UpdateManyContactsData = Data<typeof UpdateManyContactsSchema>;
   resource: Resource.contacts,
   action: Action.update,
 })
-export class UpdateManyContactsInteractor {
+export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyContactsData, ContactDto[]> {
   constructor(
     private contactsRepo: UpdateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
-  ) {}
+  ) {
+    super();
+  }
 
   @Validate(UpdateManyContactsSchema)
+  @ValidateOutput(ContactDtoSchema)
   @Transaction
-  async invoke(data: UpdateManyContactsData): Validated<ContactDto[], UpdateManyContactsData> {
+  async invoke(data: UpdateManyContactsData): Validated<ContactDto[]> {
     const previousContacts = await this.contactsRepo.getManyOrThrowUnscoped(data.contacts.map((c) => c.id));
     const previousContactsMap = new Map(previousContacts.map((c) => [c.id, c]));
 
@@ -147,6 +151,6 @@ export class UpdateManyContactsInteractor {
       this.widgetService.recalculateUserWidgets(),
     ]);
 
-    return { ok: true, data: contacts };
+    return { ok: true as const, data: contacts };
   }
 }

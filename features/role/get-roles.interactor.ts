@@ -6,8 +6,10 @@ import { Resource, Action } from "@/generated/prisma";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { RoleDtoSchema } from "./role.schema";
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
-import { GetQueryParamsSchema, type GetQueryParams } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 
 export type { UserRoleDto } from "./role.types";
 
@@ -29,6 +31,7 @@ export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
   }
 
   @Enforce(GetQueryParamsSchema)
+  @ValidateOutput(createGetResultSchema(RoleDtoSchema))
   async invoke(params: GetQueryParams = {}) {
     return await super.invoke(params);
   }

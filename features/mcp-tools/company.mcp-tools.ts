@@ -10,7 +10,8 @@ export const getCompanyDetailsTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   execute: async () => {
-    const company = await getGetCompanyDetailsInteractor().invoke();
+    const result = await getGetCompanyDetailsInteractor().invoke();
+    const company = result.data;
     return encodeToToon({
       id: company.id,
       name: company.name,

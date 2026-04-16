@@ -19,9 +19,6 @@ export function TentantInteractor<T extends { new (...args: any[]): object }>(
   permissionRequirement?: PermissionRuleSet | Permission,
 ) {
   return function (constructor: T) {
-    if (typeof constructor.prototype.invoke !== "function")
-      throw new Error(`Class ${constructor.name} must implement an "invoke" method.`);
-
     let normalizedRequirement: PermissionRuleSet | undefined;
 
     if (permissionRequirement) {

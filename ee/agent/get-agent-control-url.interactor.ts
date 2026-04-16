@@ -1,9 +1,12 @@
 import type { AgentMachineService } from "./agent-machine.service";
 
+import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AGENT_BASE_URL } from "@/constants/env";
+import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export abstract class GetAgentControlUrlRepo {
   abstract getMachineId(): Promise<string | null>;
@@ -13,27 +16,33 @@ export abstract class GetAgentControlUrlRepo {
 }
 
 @TentantInteractor({ resource: Resource.aiAgent, action: Action.readOwn })
-export class GetAgentControlUrlInteractor {
+export class GetAgentControlUrlInteractor extends BaseInteractor<
+  void,
+  { url: string; token: string; machineId: string } | null
+> {
   constructor(
     private repo: GetAgentControlUrlRepo,
     private machineService: AgentMachineService,
-  ) {}
+  ) {
+    super();
+  }
 
-  async invoke(): Promise<{ url: string; token: string; machineId: string } | null> {
+  @ValidateOutput(z.object({ url: z.string(), token: z.string(), machineId: z.string() }).nullable())
+  async invoke(): Promise<{ ok: true; data: { url: string; token: string; machineId: string } | null }> {
     await this.repo.verifyProPlanOrThrow();
 
     const machineId = await this.repo.getMachineId();
-    if (!machineId) return null;
+    if (!machineId) return { ok: true as const, data: null };
 
     const exists = await this.machineService.machineExists(machineId);
     if (!exists) {
       await this.repo.clearMachineIds();
-      return null;
+      return { ok: true as const, data: null };
     }
 
     const token = await this.repo.getAgentGatewayToken();
-    if (!token) return null;
+    if (!token) return { ok: true as const, data: null };
 
-    return { url: AGENT_BASE_URL, token, machineId };
+    return { ok: true as const, data: { url: AGENT_BASE_URL, token, machineId } };
   }
 }

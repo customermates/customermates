@@ -5,10 +5,18 @@ import type { AuthService } from "@/features/auth/auth.service";
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
+import { ApiKeyDtoSchema } from "./get-api-keys.interactor";
+
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { BaseInteractor } from "@/core/base/base-interactor";
+
+const CreateApiKeyResultSchema = ApiKeyDtoSchema.extend({
+  key: z.string(),
+});
 
 const MAX_EXPIRATION_SECONDS = 365 * 24 * 60 * 60;
 
@@ -32,11 +40,14 @@ export type CreateApiKeyData = Data<typeof Schema>;
 export type CreateApiKeyResult = ApiKey & { key: string };
 
 @TentantInteractor({ resource: Resource.api, action: Action.create })
-export class CreateApiKeyInteractor {
-  constructor(private readonly authService: AuthService) {}
+export class CreateApiKeyInteractor extends BaseInteractor<CreateApiKeyData, CreateApiKeyResult> {
+  constructor(private readonly authService: AuthService) {
+    super();
+  }
 
   @Validate(Schema)
-  async invoke(data: CreateApiKeyData): Validated<CreateApiKeyResult, CreateApiKeyData> {
+  @ValidateOutput(CreateApiKeyResultSchema)
+  async invoke(data: CreateApiKeyData): Validated<CreateApiKeyResult> {
     const result = await this.authService.createApiKey({
       name: data.name,
       expiresIn: data.expiresIn,

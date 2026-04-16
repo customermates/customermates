@@ -6,7 +6,7 @@ import { CustomErrorCode } from "./validation.types";
 
 export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
 
-export type Validated<Data, Input = Data> = Promise<{ ok: true; data: Data } | { ok: false; error: z.ZodError<Input> }>;
+export type Validated<T> = Promise<{ ok: true; data: T } | { ok: false; error: z.ZodError }>;
 
 export function createZodError<T = unknown>(message: string, path: (string | number)[] = []): z.ZodError<T> {
   return new z.ZodError([
