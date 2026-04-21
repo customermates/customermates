@@ -58,7 +58,7 @@ export default async function CompetitorComparePage({ params }: Props) {
         title={page.data.comparison.title}
       />
 
-      <section className="py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
+      <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
         <Toc items={page.data.toc}>
           <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
             <MDX components={components} />

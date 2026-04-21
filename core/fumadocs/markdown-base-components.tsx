@@ -96,7 +96,8 @@ export const markdownBaseComponents: Pick<
       <table
         className={cn(
           "w-full border-separate border-spacing-0 text-sm",
-          "[&_td]:!border-0 [&_th]:!border-0 [&_tr]:!border-0 [&_tbody]:!border-0 [&_thead]:!border-0",
+          "[&_td]:border-0! [&_th]:border-0! [&_tr]:border-0! [&_tbody]:border-0! [&_thead]:border-0!",
+          "[&_tbody_tr>*]:border-t [&_tbody_tr>*]:border-border/50",
           className,
         )}
         {...props}
@@ -106,7 +107,7 @@ export const markdownBaseComponents: Pick<
     </div>
   ),
   thead: ({ className, children, ...props }) => (
-    <thead className={cn("bg-muted/40", className)} {...props}>
+    <thead className={cn("bg-muted/20 dark:bg-muted/40", className)} {...props}>
       {children}
     </thead>
   ),
@@ -121,12 +122,12 @@ export const markdownBaseComponents: Pick<
     </tr>
   ),
   th: ({ className, children, ...props }) => (
-    <th className={cn("px-4 py-3 text-left text-x-sm font-semibold text-foreground align-top", className)} {...props}>
+    <th className={cn("px-6 py-3 text-left text-x-sm font-semibold text-foreground align-top", className)} {...props}>
       {children}
     </th>
   ),
   td: ({ className, children, ...props }) => (
-    <td className={cn("px-4 py-3 text-x-sm text-foreground align-top", className)} {...props}>
+    <td className={cn("px-6 py-3 text-x-sm text-foreground align-top", className)} {...props}>
       {children}
     </td>
   ),

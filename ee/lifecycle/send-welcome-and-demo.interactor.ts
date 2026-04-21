@@ -28,10 +28,8 @@ export class SendWelcomeAndDemoInteractor {
       if (!claimed) continue;
 
       const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
-      const demoHref =
-        locale === "de"
-          ? "https://calendly.com/customermates/produkt-demo"
-          : "https://calendly.com/customermates/product-demo";
+      const contactHref =
+        locale === "de" ? "https://customermates.com/de/contact" : "https://customermates.com/en/contact";
       const t = await getTranslations({
         locale,
         namespace: "TrialWelcome",
@@ -48,7 +46,7 @@ export class SendWelcomeAndDemoInteractor {
           signoff: t("signoff"),
           subject: t("subject"),
           title: t("title"),
-          href: demoHref,
+          href: contactHref,
         }),
       });
     }

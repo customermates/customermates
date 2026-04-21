@@ -45,7 +45,7 @@ export function ShowcaseFrame({
 
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl bg-card p-2 shadow-2xl shadow-foreground/10",
+          "relative z-10 overflow-hidden rounded-2xl bg-card p-2 shadow-2xl shadow-foreground/10",
           contentClassName,
         )}
       >

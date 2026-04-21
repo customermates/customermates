@@ -28,8 +28,8 @@ export function BlogPostCard({ url, title, description, date, author, tags, loca
   const imagePath = getImagePath(url);
 
   return (
-    <AppLink className="block min-w-0 w-full no-underline text-foreground" href={url}>
-      <AppCard className="overflow-hidden min-w-0 w-full cursor-pointer hover:bg-accent/50 transition-colors">
+    <AppLink className="interactive-surface block min-w-0 w-full text-foreground" href={url}>
+      <AppCard className="overflow-hidden min-w-0 w-full">
         <AppImage
           isLocalized
           alt={title}

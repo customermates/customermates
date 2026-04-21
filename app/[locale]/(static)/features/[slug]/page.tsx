@@ -44,7 +44,7 @@ export default async function FeaturePage({ params }: Props) {
     <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
       <PageHero {...page.data.hero} />
 
-      <div className="w-full max-w-6xl mx-auto px-4 mb-8">
+      <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
         <ShowcaseFrame className="mb-0">
           <AppImage
             isLocalized
@@ -58,7 +58,7 @@ export default async function FeaturePage({ params }: Props) {
         </ShowcaseFrame>
       </div>
 
-      <section className="py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
+      <section className="relative py-12 md:py-16 w-full max-w-6xl mx-auto px-4">
         <Toc items={page.data.toc}>
           <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
             <MDX components={components} />

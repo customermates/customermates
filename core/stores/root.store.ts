@@ -48,6 +48,7 @@ import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/au
 import { EntityHistoryDetailsModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-details-modal.store";
 import { EntityHistoryModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-modal.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
+import { ContactStore } from "@/app/[locale]/(static)/contact/contact.store";
 
 export class RootStore {
   private readonly modalStores = new Set<BaseModalStore<any>>();
@@ -75,6 +76,7 @@ export class RootStore {
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _onboardingStore?: OnboardingStore;
   private _resetPasswordStore?: ResetPasswordStore;
+  private _contactStore?: ContactStore;
   private _signInStore?: SignInStore;
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
@@ -198,6 +200,10 @@ export class RootStore {
 
   get onboardingStore() {
     return (this._onboardingStore ??= new OnboardingStore(this));
+  }
+
+  get contactStore() {
+    return (this._contactStore ??= new ContactStore(this));
   }
 
   get signInStore() {

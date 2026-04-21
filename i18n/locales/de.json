@@ -47,6 +47,7 @@
       "clear": "Leeren",
       "close": "Schließen",
       "collapse": "Einklappen",
+      "contact": "Kontakt",
       "continue": "Weiter",
       "copy": "In die Zwischenablage kopieren",
       "create": "Erstellen",
@@ -384,6 +385,7 @@
       "label": "Bezeichnung",
       "lastName": "Nachname",
       "marketingEmails": "Ich möchte Nachrichten und Angebote per E-Mail erhalten",
+      "message": "Nachricht",
       "name": "Name",
       "options": {
         "allowMultiple": "Mehrere erlauben",
@@ -632,6 +634,36 @@
     "phonesLabel": "Telefon",
     "title": "Kontakt"
   },
+  "ContactPage": {
+    "description": "Frage, Walkthrough oder Partnerschaft? Schreib mir kurz, ich melde mich innerhalb eines Tages zurück.",
+    "form": {
+      "messagePlaceholder": "Woran arbeitest du und wie kann ich helfen?",
+      "submit": "Nachricht senden",
+      "successBody": "Ich melde mich unter der angegebenen E‑Mail, meist innerhalb von 24 Stunden.",
+      "successCta": "Weitere senden",
+      "successTitle": "Danke — Nachricht erhalten.",
+      "successToast": "Danke — Nachricht erhalten. Ich melde mich bald."
+    },
+    "highlights": {
+      "direct": {
+        "body": "Lieber E‑Mail? Schreib direkt — deine Nachricht landet an derselben Stelle.",
+        "title": "Mail: mail@customermates.com"
+      },
+      "fast": {
+        "body": "Meist innerhalb von 24 Stunden, oft am selben Tag.",
+        "title": "Schnelle Antwort"
+      },
+      "personal": {
+        "body": "Keine Ticket‑Warteschlange. Ich bin der Gründer und antworte persönlich.",
+        "title": "Direkt von mir"
+      }
+    },
+    "meta": {
+      "description": "Schreib mir eine Nachricht. Fragen, Partnerschaften oder einfach Hallo sagen — ich lese jede Nachricht.",
+      "title": "Customermates kontaktieren"
+    },
+    "title": "Lass uns reden."
+  },
   "ContactsCard": {
     "title": "Kontakte"
   },
@@ -827,13 +859,13 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Sollte UnexpectedErrorToaster auslösen und von Sentry erfasst werden",
+      "description": "Sollte UnexpectedErrorToaster auslösen",
       "title": "Client-seitige Fehler",
       "triggerAsyncClientError": "Asynchronen Client-Fehler auslösen",
       "triggerClientError": "Client-Fehler auslösen"
     },
     "serverSideError": {
-      "description": "Sollte von Sentry erfasst werden und zur Fehlerseite weiterleiten",
+      "description": "Sollte zur Fehlerseite weiterleiten",
       "title": "Server-seitiger Fehler",
       "triggerServerError": "Server-Fehler auslösen"
     },
@@ -1122,7 +1154,7 @@
   "TrialExpiredOffer": {
     "body": "Ihr Testzeitraum ist vor Kurzem abgelaufen, aber ich möchte Sie gerne weiter begleiten. Wenn Sie möchten, verlängere ich den Test und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Wenn Sie eine Demo buchen möchten, können Sie diesen Link nutzen: ",
+    "scheduleFallback": "Wenn Sie uns kontaktieren möchten, können Sie diesen Link nutzen: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Mehr Zeit nötig? Wir machen gemeinsam weiter",
     "title": "Angebot zur Testverlängerung"
@@ -1147,7 +1179,7 @@
     "body": "Schön, dass Sie da sind. Ich helfe Ihnen gerne dabei, schnell loszulegen und die ersten Schritte so einfach wie möglich zu machen.",
     "dismiss": "Ich bin Ben, Gründer von Customermates. Wenn Sie Fragen oder Interesse an einem persönlichen Gespräch haben, können Sie gerne auf diese E-Mail antworten.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Wenn Sie eine Demo buchen möchten, können Sie diesen Link nutzen: ",
+    "scheduleFallback": "Wenn Sie uns kontaktieren möchten, können Sie diesen Link nutzen: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Willkommen bei Customermates",
     "title": "Willkommen in Ihrer Testphase"

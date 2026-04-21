@@ -84,7 +84,6 @@ export const config = {
       /*
        * Exclude paths:
        * - og (Open Graph image route)
-       * - error-monitoring (Sentry tunnel route)
        * - _next/static, _next/image (Next.js internal)
        * - _vercel (Vercel internal routes)
        * - Files with extensions (images, scripts, etc.)
@@ -97,7 +96,7 @@ export const config = {
        * Only requests that match the source pattern AND don't have prefetch headers will run middleware
        */
       source:
-        "/((?!og(?:/|$)|error-monitoring|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

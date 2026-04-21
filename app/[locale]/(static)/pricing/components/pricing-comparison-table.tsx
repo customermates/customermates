@@ -32,7 +32,7 @@ function ComparisonCell({ value }: { value: string | boolean }) {
 
 export function PricingComparisonTable({ header, plans, sections }: Props) {
   return (
-    <section className="pb-8 w-full">
+    <section className="relative pb-8 w-full">
       <div className="max-w-7xl mx-auto px-4 overflow-x-auto">
         <AppCard className="min-w-[600px] overflow-hidden">
           <div className="grid grid-cols-3 gap-0 py-6">
@@ -60,7 +60,7 @@ export function PricingComparisonTable({ header, plans, sections }: Props) {
           {sections.map((section, sectionIndex) => (
             <div key={sectionIndex}>
               {sectionIndex > 0 && (
-                <div className="grid grid-cols-3 gap-0 py-3 bg-muted/40">
+                <div className="grid grid-cols-3 gap-0 py-3 bg-muted/20 dark:bg-muted/40 border-t border-border/50">
                   <div className="flex items-center px-6">
                     <h3 className="font-semibold text-base">{section.title}</h3>
                   </div>
@@ -72,7 +72,10 @@ export function PricingComparisonTable({ header, plans, sections }: Props) {
               )}
 
               {section.rows.map((row, rowIndex) => (
-                <div key={rowIndex} className="grid grid-cols-3 gap-0 py-3 hover:bg-muted/30 transition-colors">
+                <div
+                  key={rowIndex}
+                  className="grid grid-cols-3 gap-0 py-3 border-t border-border/50 hover:bg-muted/30 transition-colors"
+                >
                   <div className="flex items-center px-6">
                     <span className="text-x-sm text-subdued">{row.label}</span>
                   </div>

@@ -33,7 +33,7 @@ export function GitHubStarButton() {
     <div className="mb-5 md:mb-6">
       <AppLink
         external
-        className="inline-flex items-center gap-1 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-md shadow-primary/15 transition-all duration-300 hover:-translate-y-1 hover:bg-muted hover:shadow-lg hover:shadow-primary/25"
+        className="interactive-surface-elevated inline-flex items-center gap-1 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-md shadow-primary/15"
         href="https://github.com/customermates/customermates"
       >
         <svg className="size-3.5 mr-1" fill="currentColor" viewBox="0 0 24 24">

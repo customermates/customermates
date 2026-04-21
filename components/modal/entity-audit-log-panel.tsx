@@ -134,7 +134,7 @@ export const EntityAuditLogPanel = observer(function EntityAuditLogPanel({ entit
                     </Tooltip>
 
                     <button
-                      className="flex-1 min-w-0 text-left rounded-md -mx-2 px-2 py-1.5 hover:bg-muted/40 transition-colors cursor-pointer"
+                      className="interactive-surface flex-1 min-w-0 text-left rounded-md -mx-2 px-2 py-1.5"
                       type="button"
                       onClick={() => entityHistoryDetailsModalStore.openWithData(item, customColumns)}
                     >

@@ -47,6 +47,7 @@
       "clear": "Clear",
       "close": "Close",
       "collapse": "Collapse",
+      "contact": "Contact",
       "continue": "Continue",
       "copy": "Copy to clipboard",
       "create": "Create",
@@ -385,6 +386,7 @@
       "label": "Label",
       "lastName": "Last Name",
       "marketingEmails": "I want to receive news and offers by email",
+      "message": "Message",
       "name": "Name",
       "options": {
         "allowMultiple": "Allow Multiple",
@@ -633,6 +635,36 @@
     "phonesLabel": "Phone",
     "title": "Contact"
   },
+  "ContactPage": {
+    "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
+    "form": {
+      "messagePlaceholder": "What are you working on, and how can I help?",
+      "submit": "Send message",
+      "successBody": "I'll get back to you at the email you provided, usually within 24 hours.",
+      "successCta": "Send another",
+      "successTitle": "Thanks — message received.",
+      "successToast": "Thanks — message received. I'll get back to you shortly."
+    },
+    "highlights": {
+      "direct": {
+        "body": "Prefer email? Write directly. Your inquiry lands the same place.",
+        "title": "Mail: mail@customermates.com"
+      },
+      "fast": {
+        "body": "Usually within 24 hours, often the same day.",
+        "title": "Fast reply"
+      },
+      "personal": {
+        "body": "No ticket queue. I'm the founder and I reply personally.",
+        "title": "Directly with me"
+      }
+    },
+    "meta": {
+      "description": "Get in touch with Customermates. Questions, partnerships, or just want to say hi — I read every message.",
+      "title": "Contact Customermates"
+    },
+    "title": "Let's talk."
+  },
   "ContactsCard": {
     "title": "Contacts"
   },
@@ -830,13 +862,13 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Should trigger UnexpectedErrorToaster and be captured by Sentry",
+      "description": "Should trigger UnexpectedErrorToaster",
       "title": "Client-Side Errors",
       "triggerAsyncClientError": "Trigger Async Client Error",
       "triggerClientError": "Trigger Client Error"
     },
     "serverSideError": {
-      "description": "Should be captured by Sentry and redirect to error page",
+      "description": "Should redirect to error page",
       "title": "Server-Side Error",
       "triggerServerError": "Trigger Server Error"
     },
@@ -1125,7 +1157,7 @@
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
     "greeting": "Hi {firstName},",
-    "scheduleFallback": "If you'd like to book a demo, you can use this link: ",
+    "scheduleFallback": "If you'd like to get in touch, you can use this link: ",
     "signoff": "Best regards,\nBen",
     "subject": "Need more time? Let's continue together",
     "title": "Trial Extension Offer"
@@ -1150,7 +1182,7 @@
     "body": "Great to have you here. I'd love to help you get started quickly and make your first setup steps easy.",
     "dismiss": "I'm Ben, founder of Customermates. If you have any questions or would like a personal walkthrough, just reply to this email.",
     "greeting": "Hi {firstName},",
-    "scheduleFallback": "If you'd like to book a demo, you can use this link: ",
+    "scheduleFallback": "If you'd like to get in touch, you can use this link: ",
     "signoff": "Best regards,\nBen",
     "subject": "Welcome to Customermates",
     "title": "Welcome to Your Trial"

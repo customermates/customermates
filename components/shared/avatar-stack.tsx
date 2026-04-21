@@ -54,7 +54,7 @@ export function AvatarStack<T extends AvatarStackItem>({
     <div
       className={cn(
         "flex items-center",
-        "cursor-pointer select-none transform-gpu hover:opacity-80 active:scale-[0.97] transition-transform motion-reduce:transition-none",
+        "cursor-pointer select-none transition-transform hover:scale-[1.02] active:scale-[0.99] motion-reduce:transition-none",
         className,
       )}
     >

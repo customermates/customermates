@@ -17,7 +17,7 @@ export function FAQSection({ faqs, title }: Props) {
   if (!faqs.length) return null;
 
   return (
-    <section className="w-full py-12 md:py-16">
+    <section className="relative w-full py-12 md:py-16">
       <div className="mx-auto max-w-4xl px-4">
         {title ? (
           <div className="mb-12 text-center">

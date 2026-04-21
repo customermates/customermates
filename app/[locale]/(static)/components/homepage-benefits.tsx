@@ -12,7 +12,7 @@ type Props = {
 
 export function HomepageBenefits({ benefitsSection }: Props) {
   return (
-    <section className="py-14 md:py-20 w-full max-w-[1200px] px-4 mx-auto" id="benefits">
+    <section className="relative py-14 md:py-20 w-full max-w-[1200px] px-4 mx-auto" id="benefits">
       <div className="text-center mb-10 md:mb-16">
         <SectionBadge className="mb-4">{benefitsSection.badge}</SectionBadge>
 

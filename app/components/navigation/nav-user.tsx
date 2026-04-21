@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 type Props = {
   user: ExtendedUser | null;
@@ -36,8 +36,6 @@ function getInitials(name: string): string {
 }
 
 export const NavUser = observer(function NavUser({ user, theme, labels, onThemeChange, onSignOut }: Props) {
-  const { isMobile } = useSidebar();
-
   const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.email ?? "";
   const initials = getInitials(name);
@@ -72,7 +70,7 @@ export const NavUser = observer(function NavUser({ user, theme, labels, onThemeC
           <DropdownMenuContent
             align="end"
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side="top"
             sideOffset={4}
           >
             <DropdownMenuGroup>

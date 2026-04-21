@@ -17,7 +17,7 @@ export function BaseFeaturesSection({
   title,
 }: Props) {
   return (
-    <section className={`py-12 md:py-16 w-full ${hasSecondaryBackground ? "bg-card" : ""}`}>
+    <section className={`relative py-12 md:py-16 w-full ${hasSecondaryBackground ? "bg-muted/50" : ""}`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-12">
           <h2 className="text-x-3xl mb-4">{title}</h2>
@@ -30,15 +30,13 @@ export function BaseFeaturesSection({
             const IconComponent = ICONS[feature.icon];
 
             return (
-              <AppCard key={index} className={hasSecondaryBackground ? "bg-muted" : ""}>
+              <AppCard key={index}>
                 <AppCardBody>
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <div className="text-subdued">
-                      <Icon icon={IconComponent} />
-                    </div>
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon icon={IconComponent} />
+                  </div>
 
-                    {feature.title}
-                  </h3>
+                  <h3 className="font-semibold">{feature.title}</h3>
 
                   <p className="text-x-sm text-subdued leading-relaxed">{feature.description}</p>
                 </AppCardBody>

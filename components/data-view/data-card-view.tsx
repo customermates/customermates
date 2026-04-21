@@ -47,7 +47,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
         {table.getRowModel().rows.map((row) => (
           <Card
             key={row.id}
-            className={cn("gap-3 py-4", onCardClick && "cursor-pointer hover:bg-muted/40 transition-colors")}
+            className={cn("gap-3 py-4", onCardClick && "interactive-surface")}
             onClick={(e) => {
               if (isInteractiveClick(e)) return;
               onCardClick?.(row.original);

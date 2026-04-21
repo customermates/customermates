@@ -31,7 +31,7 @@ export default async function BlogPage() {
     <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
       <PageHero {...page.data.hero} />
 
-      <section className="pb-16 md:pb-24 w-full">
+      <section className="relative pb-16 md:pb-24 w-full">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {sortedPosts.map((post) => (

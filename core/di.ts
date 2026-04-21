@@ -151,6 +151,7 @@ import { UpsertFilterPresetInteractor } from "@/features/p13n/upsert-filter-pres
 import { DeleteFilterPresetInteractor } from "@/features/p13n/delete-filter-preset.interactor";
 // Feedback interactor
 import { SendFeedbackInteractor } from "@/features/feedback/send-feedback.interactor";
+import { SendContactInquiryInteractor } from "@/features/contact/send-contact-inquiry.interactor";
 // API Key interactors
 import { CreateApiKeyInteractor } from "@/features/api-key/create-api-key.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
@@ -608,6 +609,10 @@ export const getDeleteFilterPresetInteractor = () => new DeleteFilterPresetInter
 // --- Feedback ---
 
 export const getSendFeedbackInteractor = () => new SendFeedbackInteractor(getEmailService());
+
+// --- Contact ---
+
+export const getSendContactInquiryInteractor = () => new SendContactInquiryInteractor(getEmailService());
 
 // --- API Key ---
 

@@ -13,7 +13,7 @@ type Props = {
 
 export function WhyFeaturesSection({ description, features, title }: Props) {
   return (
-    <section className="py-12 md:py-16 w-full bg-card">
+    <section className="relative py-12 md:py-16 w-full bg-card">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-x-3xl mb-4">{title}</h2>

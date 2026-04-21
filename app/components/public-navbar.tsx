@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import NextLink from "next/link";
 
@@ -15,14 +15,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils";
 
 export const PublicNavbar = observer(() => {
-  const locale = useLocale();
   const t = useTranslations("");
   const { layoutStore } = useRootStore();
   const pathname = usePathname();
-  const scheduleDemoHref =
-    locale === "de"
-      ? "https://calendly.com/customermates/produkt-demo"
-      : "https://calendly.com/customermates/product-demo";
 
   function closeMenu() {
     layoutStore.setIsMenuOpen(false);
@@ -57,16 +52,20 @@ export const PublicNavbar = observer(() => {
   );
 
   const signInButton = (
-    <Button asChild size="sm" variant="secondary" onClick={closeMenu}>
+    <Button
+      asChild
+      className="bg-primary/15 text-primary hover:bg-primary/25 dark:bg-primary/20 dark:hover:bg-primary/30"
+      size="sm"
+      variant="secondary"
+      onClick={closeMenu}
+    >
       <NextLink href="/auth/signin">{t("Common.actions.signIn")}</NextLink>
     </Button>
   );
 
-  const scheduleDemoButton = (
-    <Button asChild size="sm" variant="secondary" onClick={closeMenu}>
-      <NextLink href={scheduleDemoHref} rel="noopener noreferrer" target="_blank">
-        {t("Common.actions.scheduleDemo")}
-      </NextLink>
+  const contactButton = (
+    <Button asChild className="bg-transparent shadow-none" size="sm" variant="outline" onClick={closeMenu}>
+      <NextLink href="/contact">{t("Common.actions.contact")}</NextLink>
     </Button>
   );
 
@@ -84,7 +83,7 @@ export const PublicNavbar = observer(() => {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          {scheduleDemoButton}
+          {contactButton}
 
           {signInButton}
         </div>
@@ -116,7 +115,7 @@ export const PublicNavbar = observer(() => {
                   </AppLink>
                 ))}
 
-                {scheduleDemoButton}
+                {contactButton}
 
                 {signInButton}
               </div>

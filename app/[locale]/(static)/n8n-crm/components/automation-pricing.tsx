@@ -12,7 +12,7 @@ export function AutomationPricing({ pricingSection, pricingSectionTitle }: Props
   if (!pricingSection) return null;
 
   return (
-    <section className="py-16 md:py-24 w-full" id="pricing">
+    <section className="relative py-16 md:py-24 w-full" id="pricing">
       <div className="max-w-7xl mx-auto px-4">
         {pricingSectionTitle && (
           <div className="mb-12 text-center max-w-3xl mx-auto">

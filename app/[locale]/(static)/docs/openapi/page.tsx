@@ -79,8 +79,8 @@ export default async function OpenApiOverviewPage() {
         }}
       >
         {docsOverviewItems.map((doc) => (
-          <AppLink key={doc.url} className="block min-w-0 size-full text-foreground no-underline" href={doc.url}>
-            <AppCard className="size-full min-w-0 cursor-pointer hover:bg-accent/50 transition-colors">
+          <AppLink key={doc.url} className="interactive-surface block min-w-0 size-full text-foreground" href={doc.url}>
+            <AppCard className="size-full min-w-0">
               <AppCardBody>
                 <div className="flex items-center justify-between gap-2 min-w-0">
                   <h2 className="text-x-md text-left grow min-w-0 truncate">{doc.title}</h2>

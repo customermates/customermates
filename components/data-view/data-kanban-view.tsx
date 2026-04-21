@@ -66,12 +66,7 @@ function KanbanCard({
   return (
     <Card
       ref={setNodeRef}
-      className={cn(
-        "gap-2 py-3 touch-none",
-        onClick && "cursor-pointer hover:bg-muted/70 transition-colors",
-        isDragging && "opacity-50",
-        className,
-      )}
+      className={cn("gap-2 py-3 touch-none", onClick && "interactive-surface", isDragging && "opacity-50", className)}
       style={style}
       onClick={(e) => {
         if (!transform) onClick?.();

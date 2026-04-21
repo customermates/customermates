@@ -9,7 +9,7 @@ type Props = {
 
 export function AutomationBenefits({ benefitsSection }: Props) {
   return (
-    <section className="py-14 md:py-20 w-full max-w-6xl px-4" id="benefits">
+    <section className="relative py-14 md:py-20 w-full max-w-6xl px-4" id="benefits">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
         {benefitsSection.benefits.map((benefit, index) => {
           const Icon = ICONS[benefit.icon];

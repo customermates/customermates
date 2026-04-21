@@ -2,8 +2,8 @@ import enMessages from "@/i18n/locales/en.json";
 import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailText } from "@/components/emails/base/email-text";
-const DEMO_HREF_EN = "https://calendly.com/customermates/product-demo";
-const DEMO_HREF_DE = "https://calendly.com/customermates/produkt-demo";
+const CONTACT_HREF_EN = "https://customermates.com/en/contact";
+const CONTACT_HREF_DE = "https://customermates.com/de/contact";
 
 type Props = {
   greeting: string;
@@ -16,8 +16,8 @@ type Props = {
 };
 
 export default function TrialExpiredOffer({ greeting, body, scheduleFallback, signoff, subject, title, href }: Props) {
-  const resolvedHref = href ?? DEMO_HREF_EN;
-  const shouldRenderFallbackLink = resolvedHref === DEMO_HREF_EN || resolvedHref === DEMO_HREF_DE;
+  const resolvedHref = href ?? CONTACT_HREF_EN;
+  const shouldRenderFallbackLink = resolvedHref === CONTACT_HREF_EN || resolvedHref === CONTACT_HREF_DE;
 
   return (
     <EmailLayout preview={subject} title={title}>
@@ -48,5 +48,5 @@ TrialExpiredOffer.PreviewProps = {
   signoff: offerTranslations.signoff,
   subject: offerTranslations.subject,
   title: offerTranslations.title,
-  href: DEMO_HREF_EN,
+  href: CONTACT_HREF_EN,
 };

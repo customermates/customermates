@@ -294,6 +294,14 @@ path:focus {
     @apply relative text-muted-foreground;
   }
 
+  .interactive-surface {
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:scale-[1.005] active:scale-[0.99] motion-reduce:transition-none;
+  }
+
+  .interactive-surface-elevated {
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:scale-[1.01] hover:shadow-md active:scale-[0.99] motion-reduce:transition-none;
+  }
+
   .prose
     :where(thead th:first-child, tbody td:first-child, tfoot td:first-child):not(
       :where([class~="not-prose"], [class~="not-prose"] *)
