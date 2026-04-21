@@ -1,6 +1,7 @@
 import type { DomainEvent, DomainEventMap } from "./domain-events";
 import type { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
+import type { ChangeRecord } from "@/core/utils/calculate-changes";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { TenantScoped } from "@/core/decorators/tenant-scoped.decorator";
@@ -16,6 +17,13 @@ export abstract class CreateAuditLogRepo {
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
 
+function isNoOpUpdate(data: { payload: unknown }): boolean {
+  const { payload } = data;
+  if (typeof payload !== "object" || payload === null || !("changes" in payload)) return false;
+  const { changes } = payload as { changes: ChangeRecord };
+  return Object.keys(changes).length === 0;
+}
+
 @TenantScoped
 export class EventService extends UserAccessor {
   constructor(
@@ -28,6 +36,11 @@ export class EventService extends UserAccessor {
   }
 
   async publish<E extends DomainEvent>(event: E, data: ScopedEventData<E>): Promise<void> {
+    // Skip no-op updates. `*.updated` payloads always carry a `changes` record;
+    // if it's empty, the entity didn't actually change and no listener, audit
+    // log, or webhook should fire.
+    if (isNoOpUpdate(data)) return;
+
     const { id: userId, companyId } = this.user;
 
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];

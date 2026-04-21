@@ -70,8 +70,15 @@ export const EntityAuditLogPanel = observer(function EntityAuditLogPanel({ entit
   }, [entityId, refreshKey]);
 
   const customColumnsById = new Map(customColumns.map((c) => [c.id, c]));
-  const visibleItems = showAll ? items : items.slice(0, DEFAULT_VISIBLE_COUNT);
-  const hasOverflow = items.length > DEFAULT_VISIBLE_COUNT;
+  // Failsafe: `*.updated` events with zero field changes should never reach the
+  // client (the backend suppresses them in EventService.publish), but if one
+  // slips through, hide it here so the timeline doesn't show a "Task Updated"
+  // row with no changes underneath.
+  const processedItems = items
+    .map((item) => ({ item, changes: processChanges(item, customColumnsById, t) }))
+    .filter(({ item, changes }) => !item.event.endsWith(".updated") || changes.length > 0);
+  const visibleItems = showAll ? processedItems : processedItems.slice(0, DEFAULT_VISIBLE_COUNT);
+  const hasOverflow = processedItems.length > DEFAULT_VISIBLE_COUNT;
 
   return (
     <div className="h-full flex flex-col">
@@ -88,14 +95,13 @@ export const EntityAuditLogPanel = observer(function EntityAuditLogPanel({ entit
           <div className="flex items-center justify-center py-8">
             <Spinner size="lg" />
           </div>
-        ) : items.length === 0 ? (
+        ) : processedItems.length === 0 ? (
           <p className="text-subdued py-8 text-center text-x-sm">{t("AuditLogModal.emptyHistory")}</p>
         ) : (
           <TooltipProvider>
             <ol className="relative flex flex-col">
-              {visibleItems.map((item, index) => {
+              {visibleItems.map(({ item, changes }, index) => {
                 const tone = eventTone(item.event);
-                const changes = processChanges(item, customColumnsById, t);
                 const authorName = `${item.user.firstName} ${item.user.lastName}`.trim();
                 const fieldPreview = changes
                   .slice(0, 3)
