@@ -1,99 +1,51 @@
 ---
-title: Customermates CRM Overview
-description: Get started with Customermates CRM, explore integrations, self-hosting, API docs, and feature guides in one place.
+title: Customermates documentation
+description: Open-source CRM that updates itself through the AI you already use. Start here.
 demo:
   src: https://demo.customermates.com/en
   title: Customermates Demo
 ---
 
-## What is Customermates?
+**TL;DR** — Customermates is an open-source CRM designed to be driven by your AI. Native MCP support means Claude, ChatGPT, Cursor, and anything else that speaks the Model Context Protocol can read and write your CRM without copy-paste.
 
-Customermates is a CRM built for modern teams that want a clear system for customer relationships without complex setup.  
-It combines classic CRM workflows with practical AI support, integrations, and automation. This page is the best starting point if you want a quick product overview before moving into API docs, AI-agent workflows, self-hosting, or feature-specific guides.
+## Start here
 
-## Our vision
+Pick the path that matches where you are:
 
-Customermates was born out of a frustration with the two extremes in the market: platforms that are so simple they end up being little more than dashboards, and platforms that are so bloated, complicated, and enterprise-heavy that they slow great teams down.
+| I want to… | Go to |
+|---|---|
+| Run through a working setup in 5 minutes | [Quickstart](/docs/quickstart) |
+| Understand how the entities fit together | [Core concepts](/docs/concepts) |
+| Hook up Claude / ChatGPT / Cursor | [MCP](/docs/mcp) |
+| Subscribe my stack to CRM events | [Webhooks](/docs/webhooks) |
+| Self-host on my own infra | [Self-hosting](/docs/self-hosting) |
+| Migrate from Pipedrive | [From Pipedrive](/docs/from-pipedrive) |
+| See every tool my AI can call | [MCP tool catalog](/docs/mcp-tool-catalog) |
 
-We love building SaaS anyway, so instead of accepting that trade-off, we decided to build the CRM platform we wanted to use ourselves. With automation tools and native AI integration taking over more repetitive and operational work, entire layers of legacy workflow software and enterprise add-ons can be replaced, while many older tools already feel behind what modern teams now expect.
+## What Customermates is
 
-## Product overview
+A modern CRM with the usual parts — contacts, organizations, deals, services, tasks, custom fields, pipelines, dashboards — plus:
 
-Customermates combines four connected building blocks: a practical core CRM, integrations for your technical stack, team settings that keep account and organization management clean as your workspace grows, and paid Enterprise capabilities for teams with stricter governance requirements.
+- **Native MCP endpoint** so your AI client can discover and call CRM operations without a plugin.
+- **Open source** under AGPLv3 (Enterprise components under a separate commercial license). Self-host or use our cloud.
+- **EU-hosted and GDPR-compliant** for the managed version.
+- **Real webhooks** with signed payloads, retries, and a delivery log.
+- **OpenAPI 3.1** for the full REST surface.
 
-Paid Enterprise capabilities currently include Audit Logging, Single Sign-On, and Whitelabeling.
+## Our take
 
-## How to use these docs
+Most CRMs were designed for a world where humans typed into forms. That world is ending. Customermates treats the AI as a first-class user: tools are named imperatively, errors are actionable, relationships are safe to modify incrementally, and the surface is small enough for a weak model to navigate reliably.
 
-The easiest way to navigate this documentation is to start with [CRM Comparison](/docs/comparison) for strategic context, then continue with [CRM Integrations](/docs/integrations-intro) when you want to connect systems. If you want to run a self-hosted CRM deployment, continue with [Self-Hosting Get Started](/docs/self-hosting) and [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud). From there, move into [OpenAPI 3.1.0](/docs/openapi), [MCP](/docs/mcp), or [n8n](/docs/n8n) depending on your setup.
+The CRM that updates itself in the AI you already use. Not a new tab, not another app.
 
-For implementation patterns and product walkthroughs, continue with [Report & Statistics](/docs/features-report-statistics), [Custom Columns](/docs/features-custom-columns), [Table & Kanban View](/docs/features-table-kanban-view), [Webhooks & Events](/docs/features-webhooks-events), [Permissions & Roles](/docs/features-permissions-roles), and [Audit Logging](/docs/features-audit-logging).
+## How the docs are organized
 
-If you are new, begin here and then move into the feature pages from the sidebar.
+- **Getting started** — [Quickstart](/docs/quickstart), [Concepts](/docs/concepts), [From Pipedrive](/docs/from-pipedrive).
+- **Integrations** — [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
+- **Self-hosting** — [Get started](/docs/self-hosting), [Self-host vs cloud](/docs/self-host-vs-cloud), [Managing your installation](/docs/managing-your-installation), [Architecture and security](/docs/architecture-security).
+- **Reference** — [MCP tool catalog](/docs/mcp-tool-catalog), [Webhook events](/docs/webhook-events), [Filter syntax](/docs/filter-syntax), [API keys](/docs/api-keys).
+- **Comparison** — [Customermates vs alternatives](/docs/comparison).
 
-## Core CRM model
+## Try it
 
-Customermates keeps the CRM model intentionally compact. Instead of scattering information across many object types, the product centers on a handful of records that can be connected to each other in different ways. That makes it easier to understand a customer, see the commercial context around them, and move from one related record to another without losing orientation.
-
-One important distinction is the difference between an **organization** and a **company**. An organization is a CRM record inside your workspace. The company is the workspace or tenant itself. This page is about CRM records and how they work together in the product.
-
-## Core entities
-
-The main business records in Customermates are:
-
-- **Contacts** for individual people
-- **Organizations** for customer companies or accounts
-- **Deals** for commercial opportunities and sales work
-- **Services** for deliverables or line items connected to a deal
-- **Tasks** for actionable follow-ups and internal work
-
-Users sit across those areas as assignees. Contacts, organizations, deals, services, and tasks can all be assigned, filtered, and reviewed through the same workspace.
-
-| Entity | Main purpose | Typical questions it answers |
-| --- | --- | --- |
-| Contact | Individual person | Who are we talking to? |
-| Organization | Customer company or account | Which company is involved? |
-| Deal | Commercial opportunity | What are we trying to close? |
-| Service | Deliverable or line item | What is being sold or delivered? |
-| Task | Follow-up work | What needs to happen next? |
-
-## Relationship model
-
-The product is designed so related records remain visible while users work. Contacts can be linked to organizations and deals, deals can carry services, and users can move across those connections from tables, cards, modals, and detail views.
-
-<Mermaid
-  chart="
-flowchart LR
-  C[Contacts]
-  O[Organizations]
-  D[Deals]
-  S[Services]
-  T[Tasks]
-  U[Assigned users]
-
-  C <--> O
-  C <--> D
-  O <--> D
-  D <--> S
-  C <--> U
-  O <--> U
-  D <--> U
-  S <--> U
-  T <--> U
-"
-/>
-
-That relationship model matters because it keeps commercial context, operational work, and ownership visible at the same time. Instead of understanding one record in isolation, teams can follow the links between records and work from a fuller picture.
-
-## How teams usually read the model
-
-In practice, many teams use the model in this order:
-
-1. Start with the **contact** or **organization** to understand the customer context.
-2. Move into the **deal** to understand the commercial situation.
-3. Review linked **services** to see what is part of the commercial scope.
-4. Check **tasks** and **assignees** to understand operational follow-up.
-
-That flow is important because Customermates is not built as a collection of isolated modules. It is built as a connected workspace where the same records support day-to-day work, grouped views, reporting, integrations, and permission-aware collaboration.
-
-> The value of the model is not only that data can be stored. The value is that the same structure can power day-to-day work, reporting, and integrations without teams having to rebuild their process in each area.
+The embedded demo on this page is a real live instance. Click around, create contacts, delete them — nothing persists across sessions.

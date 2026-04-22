@@ -1,27 +1,56 @@
 ---
-title: "CRM-Integrationen im Überblick"
-description: "Customermates mit APIs, MCP-Clients, n8n-Workflows und native KI-Integration verbinden, für Cloud- und Self-Hosted-Deployments. Alle Integrationswege erklärt."
+title: Integrationen im Überblick
+description: Vier Wege, wie Customermates mit dem Rest deines Stacks spricht — MCP, REST (OpenAPI), Webhooks und n8n. Das Passende wählen.
 ---
 
-## Warum CRM-Integrationen wichtig sind
+**TL;DR** — MCP für KI-getriebene Reads/Writes. OpenAPI für gebaute Integrationen. Webhooks für Push-Notifications bei Änderungen. n8n für visuelle Workflows. Die meisten Teams nutzen mehrere gleichzeitig.
 
-Integrationen helfen dir, Customermates als verlässliche Datenbasis zu behalten und gleichzeitig mit den bereits etablierten Tools in deinem Team zu arbeiten.  
-Statt Daten manuell zwischen Systemen zu übertragen, verbindest du API-Clients, Automationsflows und Agent-Tools rund um ein konsistentes CRM-Modell. Diese Seite ist der Einstiegspunkt, wenn du den passenden Integrationsweg zwischen direktem API-Zugriff, MCP für native KI-Integration oder deterministischer Workflow-Automation mit n8n auswählen möchtest.
-Wenn du gleichzeitig Deployment-Modelle bewertest, gehe auch zu [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud) und [Self-Hosting Get Started](/docs/self-hosting).
+## Entscheidungs-Matrix
 
-## So wählst du den richtigen Integrationsweg
+| Ich will… | Nimm |
+|---|---|
+| Claude/ChatGPT aktualisiert mein CRM im Chat | [MCP](/docs/mcp) |
+| Custom-Integration in Code bauen | [OpenAPI](/docs/openapi) |
+| Auf CRM-Änderungen in meinem Stack reagieren (Slack, Sequencer, BI) | [Webhooks](/docs/webhooks) |
+| Workflows visuell ohne Code komponieren | [n8n](/docs/n8n) |
+| Zwei-Wege-Sync mit Zapier-lastigem Stack | [Webhooks](/docs/webhooks) + REST |
 
-- Nutze [OpenAPI 3.1.0](/docs/openapi), wenn du endpointgenaue API-Dokumentation und direkte HTTP-Integrationen brauchst.
-- Nutze [MCP](/docs/mcp), wenn du Tool-Interoperabilität für native KI-Integration und strukturiertes Tool Calling aufbauen möchtest.
-- Nutze [n8n](/docs/n8n), wenn du Low-Code-Workflows über mehrere Systeme orchestrieren willst.
+## MCP
 
-## API-Zugriff und Zugangsdaten
+Model-Context-Protocol-Endpoint unter `/api/v1/mcp`. Dein KI-Client entdeckt 57 CRM-Tools, ruft sie per Name auf, bekommt strukturierte Fehler zurück. Auf Zuverlässigkeit auch mit schwächeren Modellen ausgelegt: schmale Schemas, inline Enum-Hinweise, Relationship-Safety.
 
-Für die API-Nutzung erstellst du deinen Schlüssel in deinen Profileinstellungen und sendest ihn bei jeder Anfrage im Header `x-api-key`.  
-Die vollständige maschinenlesbare Spezifikation findest du unter [OpenAPI JSON](https://customermates.com/v1/openapi.json).
+[**MCP-Übersicht →**](/docs/mcp) · [**Tool-Katalog →**](/docs/mcp-tool-catalog)
 
-Wenn du Richtung produktiven Einsatz gehst, richte dich zusätzlich nach [Webhooks & Events](/docs/features-webhooks-events), prüfe Payload-Annahmen vor aktivierten Schreiboperationen und ziehe [Architektur & Sicherheit](/docs/architecture-security) hinzu, wenn Sicherheit und Laufzeitisolierung Teil der Bewertung sind.
+## REST (OpenAPI 3.1)
 
-> Starte zuerst mit einem reinen Read-Only-Flow, um Feldzuordnungen und Payload-Struktur sicher zu validieren.  
-> Danach ergänzt du kontrollierte Create- und Update-Abläufe mit Retries und idempotentem Verhalten.  
-> Im letzten Schritt aktivierst du webhookbasierte Automationen und beobachtest Fehlerquote, Latenz und Zustellung, bevor du geschäftskritische Prozesse breit ausrollst.
+Kanonische HTTP-Oberfläche. Jede CRM-Operation ist ein dokumentierter Endpoint mit Request- und Response-Schema. Nutze diesen, wenn du Integrationscode schreibst und weißt, was du brauchst.
+
+[**OpenAPI-Referenz →**](/docs/openapi)
+
+## Webhooks
+
+Jeder Entity-Write emittiert ein Domain-Event. Abonniere per URL, wir POST-en JSON dorthin bei jeder Änderung. Signiert per HMAC-SHA256, wenn du ein Secret setzt. Deliveries geloggt und re-sendable.
+
+[**Webhooks →**](/docs/webhooks) · [**Event-Katalog →**](/docs/webhook-events)
+
+## n8n
+
+Für Teams, die visuelle Automation bevorzugen. Die Customermates-n8n-Nodes wrappen die MCP- und REST-Oberflächen mit Drag-and-Drop-Triggern und -Actions.
+
+[**n8n →**](/docs/n8n)
+
+## Welche Kombi passt
+
+- **Solo-Operator mit KI-first-Workflow:** MCP für Writes, Webhooks in Slack oder E-Mail für Benachrichtigungen. Kein REST nötig.
+- **Kleines Sales-Team:** Webhooks in den vorhandenen Sequencer, MCP für die KI des Founders, gelegentlich OpenAPI-Skripte fürs Aufräumen.
+- **Integrator, der auf Customermates baut:** OpenAPI für die Masse, Webhooks fürs Event-Driven, MCP wenn dein Produkt selbst Agent-getrieben ist.
+
+## Authentifizierung
+
+Alle vier nutzen denselben API-Key. Siehe [API-Keys](/docs/api-keys).
+
+## Weiter
+
+- [Quickstart](/docs/quickstart) — End-to-End in fünf Minuten.
+- [MCP](/docs/mcp) — wenn die KI fahren soll.
+- [Webhooks](/docs/webhooks) — wenn andere Tools abonnieren sollen.

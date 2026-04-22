@@ -1,48 +1,80 @@
 ---
-title: Self-Hosting Get Started
-description: Self-host Customermates on your own infrastructure with Docker Compose, PostgreSQL, and a production-ready Next.js app container.
+title: Self-hosting — get started
+description: Run Customermates on your own infrastructure with Docker Compose in under 15 minutes.
 ---
 
-## Self-host Customermates with Docker Compose
-
-This page shows how to run a self-hosted Customermates deployment with Docker Compose and PostgreSQL.
-If you are still deciding between deployment models, compare [Self-Hosted vs Cloud](/docs/self-host-vs-cloud) first.
-
-Self-hosted deployments run the community edition. Enterprise features (Audit Logging, Single Sign-On, Whitelabeling) require a separate license.
+**TL;DR** — Clone the repo, copy the example env, run `docker compose up -d`, visit `http://localhost:3000`. Postgres, the app, and a background worker start together.
 
 ## Prerequisites
 
-- Docker Engine and Docker Compose on a VPS
-- A domain pointed to your server
-- A reverse proxy with HTTPS termination for production usage
+- Docker and Docker Compose v2.
+- A domain name if you want TLS (optional for local).
+- ~2 GB RAM and a couple of GB of disk per thousand records.
 
-## Installation
+## Step 1 — Clone and configure
 
 ```bash
-mkdir customermates && cd customermates
-BASE=https://raw.githubusercontent.com/customermates/customermates/main
-curl -O $BASE/docker-compose.yml
-curl -O $BASE/.env.selfhost.template
-curl -O $BASE/scripts/selfhost-{setup,update,restart,reset}.sh
-chmod +x selfhost-*.sh
-mv .env.selfhost.template .env
-# edit .env with your values
-./selfhost-setup.sh
+git clone https://github.com/customermates/customermates.git
+cd customermates
+./scripts/selfhost-setup.sh
 ```
 
-The setup script validates your `.env`, pulls the app image, runs database migrations, and starts all services.
+The setup script copies `.env.selfhost.template` to `.env`. Edit the key values:
 
-## Verify
+- `BETTER_AUTH_SECRET` — a long random string (`openssl rand -hex 32`).
+- `CRON_SECRET` — another long random string.
+- `POSTGRES_PASSWORD` — change the default.
+- `BASE_URL` — your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL` — required if you want signup and invite emails.
+
+## Step 2 — Start
 
 ```bash
-docker compose ps
+docker compose up -d
+```
+
+First boot takes a minute while Prisma applies migrations. Watch the logs:
+
+```bash
 docker compose logs -f app
 ```
 
-## First login
+When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
 
-1. Open your configured domain.
-2. Create your first account.
-3. Complete onboarding and company setup.
+## Step 3 — First account
 
-For ongoing maintenance, see [Managing Your Installation](/docs/managing-your-installation).
+Open the URL. Sign up with your email. Once inside, manage roles for additional users from Company → Users and Company → Roles.
+
+## Step 4 — Reverse proxy and TLS
+
+Point your reverse proxy (Caddy, nginx, Traefik) at the app port (4000 by default, or your custom `APP_PORT`). Caddy example:
+
+```text
+crm.example.com {
+  reverse_proxy localhost:4000
+}
+```
+
+Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the proxy forwards `X-Forwarded-Proto` correctly.
+
+## Step 5 — Create an API key
+
+Profile → API Keys → New key. Same as cloud. See [API keys](/docs/api-keys).
+
+## Enterprise features
+
+Audit Logging, SSO, and White-labeling require an Enterprise license. Everything else is free. Configure the license per the instructions shipped with your license key.
+
+## Backups
+
+Back up Postgres with `pg_dump` on a schedule. The app container is stateless.
+
+```bash
+docker compose exec postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%Y%m%d).sql
+```
+
+## Next
+
+- [Managing your installation](/docs/managing-your-installation) — updates, resets, log inspection.
+- [Self-host vs cloud](/docs/self-host-vs-cloud) — if you're still deciding.
+- [Architecture and security](/docs/architecture-security) — what you're running.

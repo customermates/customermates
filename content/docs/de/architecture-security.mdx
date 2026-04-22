@@ -1,31 +1,82 @@
 ---
-title: Architektur & Sicherheit
-description: Verstehe, wie das Customermates CRM aufgebaut ist und wie Datenisolierung und externer KI-Zugriff abgesichert werden.
+title: Architektur und Sicherheit
+description: Wie Customermates gebaut ist, wie Daten isoliert sind, und wie externer KI-Zugriff kontrolliert wird.
 ---
 
-## Einfache Übersicht
+**TL;DR** — Single-Tenant-pro-Company-Datenmodell, auf jeder Ebene erzwungen. Postgres-Row-Isolation per Company-Scope. API-Keys tragen User-Identität. Agents sehen nur das, was der Owner-User sehen darf.
 
-Customermates ist so aufgebaut, dass nicht-technische Teams sicher damit arbeiten können und technische Teams gleichzeitig eine belastbare Grundlage erhalten.  
-Vereinfacht besteht die Plattform aus zwei klaren Ebenen: der Anwendung und dem sicheren Datenkern. Externe native KI-Integration, Automatisierungsplattformen und eigene Integrationen erreichen den Datenkern ausschließlich über authentifizierte, nutzerbezogene APIs. Diese Seite ist der richtige Einstieg, wenn du einen kompakten Überblick über CRM-Architektur, Datenisolierung und den Umfang externer Zugriffe suchst.
+## Stack
 
-## So werden deine Daten abgesichert
+- **Next.js 16** (App Router, Turbopack) — Web-App und API.
+- **PostgreSQL** — Primary Datastore. JSONB für Custom-Column-Werte und Webhook-Payloads.
+- **Prisma** — ORM und Migrationen.
+- **better-auth** — Sessions, Social-Login, API-Keys.
+- **mcp-handler** — Model-Context-Protocol-Endpoint.
+- **TypeScript** durchgängig, Zod-validiert an jeder Grenze.
 
-Deine CRM-Daten werden im Kernsystem mit klaren Zugriffsgrenzen verwaltet. Externe Integrationen (API, MCP, n8n) authentifizieren sich mit nutzerbezogenen API-Keys, sodass jeder automatisierte Client mit den Berechtigungen des jeweiligen Nutzers arbeitet statt mit einem breiten gemeinsamen Zugriff.
+## Tenancy
 
-## Architekturdiagramm
+Jeder Record gehört zu einer **Company**. Die Company-ID wird an drei Stellen erzwungen:
 
-<Mermaid
-  chart="
-flowchart LR
-  UA[Nutzer A]
-  UB[Nutzer B]
-  C[Customermates CRM]
+1. **App-Layer** — jeder Interactor löst den aktuellen User auf Company auf und filtert danach.
+2. **Prisma-Layer** — Queries enthalten `companyId` in jedem `where`.
+3. **Decorator-Layer** — `@TenantInteractor` stellt sicher, dass Interactors, die Scope vergessen, zur Laufzeit werfen.
 
-  UA <--> C
-  UB <--> C
-"
-/>
+Cross-Tenant-Reads sind über die Public-Oberfläche nicht möglich. Es gibt keinen Admin-Panel, das Scope umgeht.
 
-## Warum das für dein Team wichtig ist
+## Authentifizierung
 
-Du bekommst ein Setup, das sich von außen einfach anfühlt, aber darunter auf Vertrauen, Sicherheit und Kontrolle ausgelegt ist. Business-Teams können sich auf Kundenarbeit und Prozesse konzentrieren, während technische Stakeholder auf klare Isolation und gemanagte Infrastruktur für die KI-Ausführung bauen können. Für die Integrationsflächen auf dieser Grundlage gehst du weiter zu [CRM-Integrationen](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), [Berechtigungen & Rollen](/docs/features-permissions-roles) oder [Webhooks & Events](/docs/features-webhooks-events).
+Drei Wege:
+
+- **Session-Cookie** (UI) — signed, http-only, `Secure` unter HTTPS.
+- **API-Key im `x-api-key`** — 64-Zeichen-Token, SHA-256-gehasht at-rest, an User gebunden.
+- **Social-Provider** via better-auth.
+
+Alle drei lösen auf denselben User- und Company-Kontext auf. API-Keys haben ein Display-Präfix für die Erkennung in Audit-Logs.
+
+## Autorisierung
+
+Per User, Rollen-getrieben. Rollen tragen Permissions auf Resources (Contacts, Deals etc.) und Actions (Read, Create, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)` vor dem Handeln.
+
+API-Keys erben die Rechte ihres Users. Keine separaten Key-Level-ACLs heute.
+
+## Externer KI-Zugriff
+
+MCP-Calls sind durch denselben API-Key-Check gegated. Wenn eine KI über MCP handelt:
+
+- Sie ruft `/api/v1/mcp` mit dem API-Key des Users.
+- Der Server löst User + Company aus dem Key auf.
+- Jeder Tool-Call läuft in Tenant-Scope.
+- Validation-Errors liefern strukturierte Meldungen mit Remediation-Hints; interne Schema-Details leaken nicht.
+
+Sicherheits-Guardrails speziell für schwächere Modelle:
+
+- `null` auf Relationship-Array wird vor der DB abgelehnt.
+- Falsches Per-Type-Custom-Column-Update-Tool wird mit Pointer aufs richtige abgelehnt.
+- Destruktive Tools brauchen explizite ID-Listen; kein "delete everything matching filter"-Shortcut.
+
+## Daten at-rest
+
+- Postgres-Verschlüsselung hängt vom Provider ab. In unserer Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Encryption at-rest.
+- Secrets in `.env` werden nie geloggt. Der Logger redacts alles, was wie Key, Token oder Passwort aussieht.
+- Webhook-Secrets liegen in Postgres (müssen retrievable sein, um Requests zu signieren). Wenn dich das stört, eigenes Secret-Management nutzen.
+
+## Daten in-transit
+
+- HTTPS überall in Managed-Cloud.
+- Bei Self-Host bringst du TLS selbst. Caddy-Beispiel unter [Self-Hosting](/docs/self-hosting).
+- Webhook-Deliveries gehen nur an HTTPS-URLs. HTTP wird im Schema abgelehnt.
+
+## Audit-Logging (Enterprise)
+
+Jeder Write geloggt: User, Action, Entity, Before/After. Aus UI queryable. Als JSON exportierbar.
+
+## Vulnerabilities melden
+
+Verantwortungsvoll an `security@customermates.com`. PGP-Key im Repo. Ack-Ziel: 24 Stunden.
+
+## Weiter
+
+- [Self-Hosting](/docs/self-hosting)
+- [API-Keys](/docs/api-keys)
+- [MCP](/docs/mcp)

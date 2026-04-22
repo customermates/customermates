@@ -1,0 +1,89 @@
+---
+title: Filter syntax
+description: Every filter operator Customermates supports, with examples.
+---
+
+**TL;DR** — Filters are arrays of `{ field, operator, value? }` rules, AND-combined. Thirteen operators cover equality, comparison, set membership, range, null checks, and relationship membership.
+
+## Where filters apply
+
+- `filter_entity` and `count_entity` MCP tools.
+- `entityFilters` and `dealFilters` on widgets.
+- Saved views in the UI (converted to the same shape under the hood).
+
+## The shape
+
+```json
+[
+  { "field": "firstName", "operator": "contains", "value": "acme" },
+  { "field": "createdAt", "operator": "gte",       "value": "2024-01-01" }
+]
+```
+
+Rules are AND-combined. For OR logic, run two queries and merge client-side, or use the `in` operator when comparing against a list.
+
+## Operators
+
+| Operator | Expects | Works on | Example value |
+|---|---|---|---|
+| `equals` | single | scalars, ids | `"active"` |
+| `contains` | single | strings | `"acme"` |
+| `gt` | single | numbers, dates | `"2024-01-01"` |
+| `gte` | single | numbers, dates | `100` |
+| `lt` | single | numbers, dates | `"2024-12-31"` |
+| `lte` | single | numbers, dates | `"2024-12-31"` |
+| `in` | array | any | `["id1", "id2"]` |
+| `notIn` | array | any | `["id1"]` |
+| `between` | array of 2 | numbers, dates | `["2024-01-01", "2024-12-31"]` |
+| `isNull` | no value | any | — |
+| `isNotNull` | no value | any | — |
+| `hasNone` | no value | relationship arrays | — |
+| `hasSome` | no value | relationship arrays | — |
+
+## Field names
+
+The `field` value is whatever `get_entity_configuration` returns under `filterableFields` for that entity. It includes:
+
+- Default scalar fields (e.g. `createdAt`, `updatedAt`).
+- Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`) — pair these with `in`, `notIn`, `hasNone`, `hasSome`.
+- Custom column ids — use the column's UUID as the field.
+
+Always call `get_entity_configuration` first if you're not sure what's filterable. The error when a field isn't recognized lists every available field with its allowed operators.
+
+## Examples
+
+Contacts in any of three organizations:
+
+```json
+{ "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
+```
+
+Deals created in 2024 with a custom "stage" column equal to "won":
+
+```json
+[
+  { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
+  { "field": "col_stage", "operator": "equals",  "value": "won" }
+]
+```
+
+Contacts without any organization linked:
+
+```json
+{ "field": "organizationIds", "operator": "hasNone" }
+```
+
+Services whose custom "renewalDate" column is in the next 30 days:
+
+```json
+{ "field": "col_renewal", "operator": "between", "value": ["2026-04-22","2026-05-22"] }
+```
+
+## Free-text vs filters
+
+`filter_entity` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName + lastName for contacts, name for the rest). If you want "contacts whose name contains acme", that's `searchTerm`, not a filter rule on `firstName`. Filter rules on `firstName` specifically are not supported.
+
+## Next
+
+- [Core concepts](/docs/concepts) — field types and relationships.
+- [MCP tool catalog](/docs/mcp-tool-catalog) — where filters appear.

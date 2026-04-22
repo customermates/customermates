@@ -1,42 +1,50 @@
 ---
-title: Self-Hosted CRM vs Cloud CRM – Vergleich
-description: "Customermates als Self-Hosted CRM oder Cloud CRM vergleichen: Setup-Zeit, Wartungsaufwand, Automations-Workflows und Enterprise-Features."
+title: Self-Host vs Cloud
+description: Welches Customermates-Deployment zu dir passt — unsere EU-gehostete Cloud oder deine Infra.
 ---
 
-## Auf einen Blick
+**TL;DR** — Cloud ist schneller loszulegen und wir kümmern uns um alles. Self-Host gibt dir Datenhoheit und Kostenkontrolle, du betreibst aber selbst. Beide haben denselben Funktionsumfang.
 
-Customermates kann auf zwei Arten betrieben werden:
+## Die kurze Antwort
 
-- Cloud: von Customermates gemanagt
-- Self-Hosted: von deinem Team in eigener Infrastruktur betrieben
+| Wenn du… | Nimm |
+|---|---|
+| Heute noch mit dem CRM arbeiten willst | **Cloud** |
+| Ein Team von < 20 ohne harte Data-Residency-Anforderung | **Cloud** |
+| Das CRM auf Private-Infra für Compliance brauchst | **Self-Host** |
+| Long-term weg von Pro-Seat-Pricing willst | **Self-Host** |
+| Agentur mit mehreren Mandanten bist | **Self-Host**, eine Instanz pro Mandant |
+| Zum Projekt beitragen willst | **Self-Host** lokal + Cloud für echte Arbeit |
 
-Diese Seite hilft Teams dabei, gemanagte und self-hosted CRM-Deployment-Modelle sachlich zu vergleichen, ohne die Entscheidung auf ein einzelnes Feature zu reduzieren.
-Welche Variante besser passt, hängt von eurem Betriebsmodell, Datenschutzanforderungen und gewünschter Infrastrukturkontrolle ab.
+## Was du bekommst
 
-## Vergleichstabelle
+| | Cloud | Self-Host |
+|---|---|---|
+| Setup-Zeit | 2 Minuten | ~15 Minuten |
+| Infra, die du managst | keine | Docker, Postgres, Proxy, TLS, Backups |
+| Updates | automatisch | `docker compose pull && up -d` |
+| EU-gehostet | ✓ | wo du willst |
+| Backups | automatisch täglich | du konfigurierst |
+| Support-SLA | inkl. in Paid-Plans | Community |
+| Enterprise-Features (SSO, Audit-Log) | Paid-Plan | Paid-License-Key |
+| Pricing | pro Sitz | kostenlos, nur Enterprise-Lizenz zahlen |
 
-<ComparisonTable
-  columns={["Kriterium", "Cloud", "Self-Hosted"]}
-  rows={[
-    { label: "Pricing", cells: ["€10", "Infrastruktur- und Betriebskosten variieren"] },
-    { label: "Setup Time", cells: ["2 Minuten", "60 - 120 Minuten"] },
-    { label: "Maintenance Required", cells: ["Keine", "Regelmäßige Updates"] },
-    { label: "Privacy friendly", cells: ["available", "available"] },
-    { label: "API and integrations", cells: ["available", "available"] },
-    { label: "Unlimited Users", cells: ["available", "available"] },
-    { label: "Unlimited Records", cells: ["available", "available"] },
-    { label: "n8n and automation workflows", cells: ["available", "available"] },
-    { label: "Audit Logging", cells: ["available", "unavailable"] },
-    { label: "Single Sign-On", cells: ["available", "unavailable"] },
-    { label: "Whitelabeling", cells: ["available", "unavailable"] },
-  ]}
-/>
+## Datenhoheit
 
-## Entscheidungshilfe
+Die Cloud speichert Daten in unserer EU-Region, DSGVO-konform, mit üblicher Verschlüsselung at-rest und in-transit. Wenn deine Compliance verlangt, dass Daten auf deiner Infra liegen: Self-Host.
 
-Wähle Cloud, wenn ihr den operativen Aufwand minimieren und schnell produktiv starten möchtet.
+## Kostenform
 
-Wähle Self-Hosted, wenn euer Team Infrastrukturhoheit priorisiert und laufende Updates sowie Runtime-Betrieb selbst übernehmen möchte.
+- **Cloud** ist vorhersagbar pro Sitz. Linear skalierend.
+- **Self-Host** ist kostenlos für den Core + was du für Infra zahlst (ein kleiner VPS trägt Hunderte User).
 
-Beide Modelle unterstützen APIs, Integrationen und Automations-Workflows. Kostenpflichtige Enterprise-Features (Audit Logging, Single Sign-On, Whitelabeling) sind standardmäßig nur in Cloud-Deployments verfügbar.
-Wenn du auf einem eigenen Server deployen willst, gehe weiter zu [Self-Hosting Get Started](/docs/self-hosting) und [Self-Hosted-Installation verwalten](/docs/managing-your-installation).
+Für ein 5er-Team ist Cloud meist günstiger, wenn du die Zeit fürs eigene Postgres-Backup einrechnest. Für ein 50er-Team lohnt sich Self-Host schnell.
+
+## Wechseln zwischen beiden
+
+Export von einem, Import ins andere. Identisches Datenmodell. Kein Lock-in in beide Richtungen.
+
+## Weiter
+
+- **Cloud:** [Registrieren](https://customermates.com/auth/signup).
+- **Self-Host:** [Erste Schritte](/docs/self-hosting).

@@ -1,0 +1,58 @@
+---
+title: Cursor verbinden
+description: Customermates als MCP-Server in Cursor, damit die IDE das CRM aktualisieren kann, während du programmierst.
+---
+
+**TL;DR** — `customermates`-Block in `~/.cursor/mcp.json`, Cursor neu laden, [Setup-Prompt](/docs/setup-ai-assistant) einfügen.
+
+## Voraussetzungen
+
+- Aktuelle Cursor-Version mit MCP-Support.
+- 64-Zeichen-Customermates-API-Key aus **Profil → API Keys**.
+
+## Konfigurieren
+
+`~/.cursor/mcp.json` öffnen (oder anlegen):
+
+```json
+{
+  "mcpServers": {
+    "customermates": {
+      "url": "https://customermates.com/api/v1/mcp",
+      "headers": {
+        "x-api-key": "${CUSTOMERMATES_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Key exportieren:
+
+```bash
+echo 'export CUSTOMERMATES_API_KEY=dein-64-zeichen-key' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Cursor neu laden (`Cmd+Shift+P → Developer: Reload Window`). Der MCP-Server erscheint im Composer.
+
+## Erstes Gespräch
+
+Im Composer [Setup-Prompt](/docs/setup-ai-assistant) einfügen.
+
+## Warum Customermates in Cursor
+
+Weil der CRM-Zustand Kontext ist. "Welche Deals hängen an Engineering?" während du in einem Ticket bist, oder "log diesen Call" während du den Kunden-Repo liest — alles im Flow. Der Agent liest oder schreibt, ohne dass du den Editor verlässt.
+
+## Troubleshooting
+
+| Symptom | Ursache | Fix |
+|---|---|---|
+| Server taucht nicht auf | `mcp.json` nicht erkannt | Pfad prüfen, Window neu laden |
+| "Invalid API key" | Falsche Key-Länge | Neu erzeugen |
+| Tool-Calls laufen in Timeout | Corporate Proxy blockt | `HTTPS_PROXY` in der Shell setzen, aus der Cursor startet |
+
+## Weiter
+
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)
+- [Claude Desktop verbinden](/docs/mcp-connect-claude)

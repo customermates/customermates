@@ -1,0 +1,117 @@
+---
+title: MCP-Tool-Katalog
+description: Jedes Tool, das Customermates über MCP exponiert, gruppiert nach Oberfläche, mit Sicherheits-Flags und Einzeiler-Zweck.
+---
+
+**TL;DR** — 57 Tools für Entitäten, Widgets, Webhooks, Custom Columns und Admin. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Jedes Tool, das ein Relationship-Array ersetzt, warnt und verweist auf `link_entities` / `unlink_entities`.
+
+## Wie diese Seite zu lesen ist
+
+Drei Flags pro Tool:
+
+- **Read** — keine Mutation.
+- **Destructive** — nicht rückgängig.
+- **Idempotent** — zweimal derselbe Call = derselbe State.
+
+Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
+
+## Generische Entity-Operationen
+
+Ein Set Tools arbeitet gegen alle fünf Entity-Typen (contact, organization, deal, service, task).
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `get_entity_configuration` | ✓ | | Editierbare Felder, Custom-Column-IDs, Filter-Syntax. Vor jedem Create/Update aufrufen. |
+| `filter_entity` | ✓ | | Suchen, filtern, sortieren, paginieren. `{id, name}` pro Item plus Total. |
+| `count_entity` | ✓ | | Günstiges Total mit optionalen Filtern. |
+| `search_all_entities` | ✓ | | Freitext über alle fünf Entitäten in einem Call. |
+| `get_entities` | ✓ | | Batch-Fetch per ID; Typen mischbar. |
+| `update_entity_notes` | | | Markdown-Notes ersetzen, 1–100 Records. |
+| `append_entity_notes` | | | Markdown anhängen, ohne zu überschreiben. Leerzeile zwischen Alt und Neu. |
+| `update_entity_custom_fields` | | | Per-Column-Merge: nur übergebene Spalten ändern sich. `value: null` leert. |
+| `delete_entities` | | ✓ | IRREVERSIBLE Löschen von 1–100 Records per ID. |
+| `link_entities` | | | IDs zu einer Beziehung hinzufügen, ohne andere zu berühren. |
+| `unlink_entities` | | | IDs aus einer Beziehung entfernen, ohne andere zu berühren. |
+
+## Per-Entity Create und Update
+
+Ein Create und ein Update pro Entity. Create bis 100; Update bis 100.
+
+| Entity | Create | Update |
+|---|---|---|
+| Contact | `create_contacts` | `update_contacts` |
+| Organization | `create_organizations` | `update_organizations` |
+| Deal | `create_deals` | `update_deals` |
+| Service | `create_services` | `update_services` |
+| Task | `create_tasks` | `update_tasks` |
+
+Die Update-Tools akzeptieren Partial-Payloads. `null` auf Relationship-Arrays wird abgelehnt, mit Hinweis auf `link_entities` / `unlink_entities`.
+
+## Widgets
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `list_widgets` | ✓ | | Alle Widgets `{id, name}`. |
+| `get_widgets` | ✓ | | Volle Konfiguration für IDs. |
+| `create_widget` | | | Dashboard-Widget anlegen. |
+| `update_widget` | | | Partial-Update. Filter-Ersetzung warnt. |
+| `delete_widget` | | ✓ | IRREVERSIBLE. |
+
+## Webhooks
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `list_webhooks` | ✓ | | Konfigurierte Webhooks. |
+| `get_webhook` | ✓ | | Einen per ID (inkl. Secret). |
+| `create_webhook` | | | Events abonnieren. |
+| `update_webhook` | | | Partial-Update. |
+| `delete_webhook` | | ✓ | IRREVERSIBLE. |
+| `list_webhook_deliveries` | ✓ | | Recent Deliveries mit Statuscodes. |
+| `resend_webhook_delivery` | | | Past Delivery erneut zustellen. |
+
+## Custom Columns
+
+Acht Typen; jeder hat eigenes Create- und Update-Tool, damit schwächere Modelle keine Discriminated-Union-Logik bauen müssen.
+
+| Create | Update |
+|---|---|
+| `create_plain_custom_column` | `update_plain_custom_column` |
+| `create_date_custom_column` | `update_date_custom_column` |
+| `create_datetime_custom_column` | `update_datetime_custom_column` |
+| `create_currency_custom_column` | `update_currency_custom_column` |
+| `create_single_select_custom_column` | `update_single_select_custom_column` |
+| `create_link_custom_column` | `update_link_custom_column` |
+| `create_email_custom_column` | `update_email_custom_column` |
+| `create_phone_custom_column` | `update_phone_custom_column` |
+
+Plus:
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `list_custom_columns` | ✓ | | Alle Custom Columns, optional nach Entity-Typ. |
+| `delete_custom_column` | | ✓ | IRREVERSIBLE. Löscht Spalte und alle gespeicherten Werte. Widgets darauf können brechen. |
+
+## Admin
+
+| Tool | Read | Zweck |
+|---|---|---|
+| `get_current_user` | ✓ | Eigenes Profil. |
+| `update_my_profile` | | Eigenes firstName / lastName / country / avatarUrl. |
+| `list_users` | ✓ | Team. |
+| `get_company` | ✓ | Company-Profil. |
+| `update_company` | | Company-Name, Adresse, Standardwährung. |
+| `list_roles` | ✓ | Rollen und Rechte. |
+
+## Eingebaute Sicherheitsregeln
+
+- **Null auf Relationship-Array** serverseitig abgelehnt mit Hinweis auf `link_entities` / `unlink_entities`.
+- **Falsches per-Type-Custom-Column-Update** abgelehnt mit "this column is type X, use `update_X_custom_column`".
+- **Jedes `delete_*`** hat `destructiveHint: true` und Beschreibung beginnt mit `IRREVERSIBLE`.
+- **Jedes Enum-Feld** listet gültige Werte inline, damit schwächere Modelle keine externen Typen auflösen müssen.
+- **Jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
+
+## Weiter
+
+- [Setup-Prompt](/docs/setup-ai-assistant)
+- [Filter-Syntax](/docs/filter-syntax)
+- [Webhook-Events](/docs/webhook-events)

@@ -1,51 +1,54 @@
 ---
-title: "CRM Comparison: Features, Pricing & GDPR"
-description: Compare Customermates with HubSpot, Pipedrive, Salesforce, and other CRMs in one decision-oriented table, setup time, pricing, GDPR fit, APIs, automation.
+title: Customermates vs alternatives
+description: How Customermates compares to Pipedrive, HubSpot, Airtable, and the open-source options.
 ---
 
-## CRM comparison at a glance
+**TL;DR** — If you want an AI-first CRM that you can self-host, is open source, and doesn't bolt automation on as an afterthought, Customermates is the closest match. Bigger ecosystems win on marketplace breadth; we win on agent-native design and price.
 
-This overview combines the key criteria from the existing competitor pages into one CRM comparison table.
+## At a glance
 
-It is designed for teams that want to compare setup speed, pricing, GDPR fit, API access, automation depth, and n8n compatibility before they commit to a CRM rollout. If you also need to compare deployment models, continue with [Self-Hosted CRM vs Cloud CRM](/docs/self-host-vs-cloud). For deeper technical evaluation after the table, continue with [Architecture & Security](/docs/architecture-security) and [Integrations](/docs/integrations-intro).
+| | Customermates | Pipedrive | HubSpot | Airtable | EspoCRM / Twenty |
+|---|---|---|---|---|---|
+| Open source | ✓ | | | | ✓ |
+| Self-host | ✓ | | | | ✓ |
+| Native MCP | ✓ | | | | |
+| EU-hosted cloud | ✓ | partial | partial | | self-host only |
+| OpenAPI 3.1 | ✓ | ✓ | ✓ | ✓ | partial |
+| Webhooks with retries | ✓ | ✓ | ✓ | limited | limited |
+| Custom fields | 8 types | 6 types | many | many | many |
+| Pricing | transparent, per-seat | per-seat, feature-gated | complex | per-seat | free self-host |
 
-<ComparisonTable
-  columns={[
-    "Criterion",
-    "Customermates",
-    "HubSpot",
-    "Pipedrive",
-    "Salesforce",
-    "Microsoft Dynamics",
-    "Zoho CRM",
-    "Freshsales",
-    "Salesflare",
-    "Salesmate",
-  ]}
-  rows={[
-    { label: "Start & setup", cells: ["2 minutes", "Days to weeks", "Hours to days", "Weeks to months", "Weeks to months", "1-2 weeks", "1-2 days", "1-2 days", "1-2 days"] },
-    { label: "Cost / user / month", cells: ["€10", "€15-€150", "€14-€79", "€25-€300", "€65-€150", "€14-€52", "€11-€71", "€29-€99", "€23-€79"] },
-    { label: "Free start", cells: ["available", "available", "available", "unavailable", "available", "available", "available", "available", "available"] },
-    { label: "Credit card required", cells: ["unavailable", "unavailable", "unavailable", "available", "unavailable", "unavailable", "unavailable", "unavailable", "unavailable"] },
-    { label: "License complexity", cells: ["Low", "Very high", "Medium to high", "High", "Extremely high", "Low to medium", "Medium", "Medium", "Medium"] },
-    { label: "Unlimited records", cells: ["available", "available", "unavailable", "unavailable", "available", "unavailable", "available", "available", "available"] },
-    { label: "Unlimited custom fields", cells: ["available", "available", "unavailable", "unavailable", "unavailable", "unavailable", "unavailable", "available", "unavailable"] },
-    { label: "GDPR compliant", cells: ["available", "partial", "available", "partial", "available", "partial", "available", "available", "available"] },
-    { label: "Hosting", cells: ["EU / Germany", "Global / USA", "Mixed EU & USA", "Global / USA", "Global", "Global / USA & India", "Global / India", "Global / Belgium", "USA"] },
-    { label: "Data control", cells: ["available", "partial", "partial", "partial", "partial", "partial", "partial", "partial", "partial"] },
-    { label: "n8n integration", cells: ["available", "available", "available", "unavailable", "unavailable", "unavailable", "unavailable", "unavailable", "unavailable"] },
-    { label: "API access", cells: ["available", "partial", "available", "partial", "available", "partial", "partial", "available", "available"] },
-    { label: "Automation", cells: ["available", "available", "partial", "partial", "available", "partial", "partial", "available", "available"] },
-    { label: "native AI integration optimized", cells: ["available", "partial", "partial", "partial", "partial", "partial", "partial", "partial", "partial"] },
-  ]}
-/>
+## Where each one wins
 
-> Note: <StatusAvailable /> means broadly available, <StatusUnavailable /> means not typically available, and <StatusPartial /> means plan-, setup-, or vendor-dependent. Competitor features, limits, and pricing can change by plan, region, and vendor release cycle. Use this table as a practical orientation and verify critical requirements in the current vendor docs.
+**Pipedrive** wins on sales-pipeline polish and the Chrome extension. If your team's entire workflow is drag-deals-between-stages and you don't care about AI, Pipedrive is still very good. It doesn't offer self-hosting or MCP.
 
-## How to read this table
+**HubSpot** wins on ecosystem breadth. If you need marketing, service desk, and CMS under one roof and budget is not a concern, HubSpot is hard to beat on breadth. Pricing ramps fast once you grow.
 
-Read this table as a practical decision aid, not as a strict scoring model. Start with setup time and license complexity to estimate onboarding effort, then compare monthly cost together with usage limits to understand scaling impact. For compliance, focus on GDPR status, hosting region, and data control. For technical fit, prioritize n8n integration, API access, automation depth, and whether the CRM is meaningfully optimized for native AI integration workflows instead of only offering isolated AI add-ons.
+**Airtable** wins on schema flexibility. It's not really a CRM, and you'll rebuild things CRMs give you for free, but the flexibility is unmatched.
 
-## Paid Enterprise scope
+**EspoCRM and Twenty** win on cost if you self-host and don't need MCP. Both are capable open-source CRMs. Neither is designed for AI-driven workflows.
 
-Customermates also offers paid Enterprise features for teams with stricter requirements: Audit Logging, Single Sign-On, and Whitelabeling.
+**Customermates** wins when you want:
+
+- Your AI (Claude, ChatGPT, Cursor) to update the CRM in conversation.
+- To self-host on EU infra without losing features.
+- A small, opinionated surface instead of a maze of settings.
+- Open source under AGPLv3, with a separate commercial license for the Enterprise components.
+
+## What we're honest about
+
+- We have **fewer marketplace integrations** than HubSpot or Pipedrive. Webhooks, n8n, and MCP cover most of what teams actually build.
+- We don't do **marketing automation, email campaigns, or landing pages**. We are a CRM, not a suite.
+- We don't have **built-in phone integrations** today.
+- **Mobile app** is web-responsive, not native.
+
+If any of those are dealbreakers, be honest with yourself about the tradeoff.
+
+## Migrate from Pipedrive
+
+Step-by-step at [From Pipedrive](/docs/from-pipedrive). Budget an hour for a team of ten.
+
+## Next
+
+- [Quickstart](/docs/quickstart)
+- [MCP overview](/docs/mcp) — what "AI-first" actually means in practice.

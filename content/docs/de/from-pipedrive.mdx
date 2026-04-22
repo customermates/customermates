@@ -1,0 +1,68 @@
+---
+title: Von Pipedrive
+description: Contacts, Organizations und Deals von Pipedrive nach Customermates migrieren, ohne Custom Fields oder Verknüpfungen zu verlieren.
+---
+
+**TL;DR** — CSV aus Pipedrive exportieren, Felder mappen, via UI oder MCP importieren. Custom Fields werden Custom Columns. Beziehungen überleben. Für ein 10er-Team plane eine Stunde ein.
+
+## Was sauber migriert
+
+| Pipedrive | Customermates |
+|---|---|
+| Persons | Contacts |
+| Organizations | Organizations |
+| Deals | Deals |
+| Products | Services |
+| Activities (offen) | Tasks |
+| Custom Fields | Custom Columns (gleiche acht Typen) |
+| Notes | Notes |
+| Stage | Single-Select Custom Column auf Deals |
+
+## Was (noch) nicht
+
+- **Activity-Historie** (abgeschlossene Activities) — exportiert, aber nicht importiert. CSV zur Referenz behalten.
+- **E-Mail-Threads an Deals** — Pipedrive-spezifisch, kein Pendant heute.
+- **Pipedrive-Automationen** — als Webhook-Subscriber oder n8n-Flows neu bauen. Siehe [n8n](/docs/n8n).
+
+## Schritte
+
+### 1. Aus Pipedrive exportieren
+
+Company Settings → Data → Export data. Entity-Typen wählen. Du bekommst fünf CSVs: persons, organizations, deals, products, activities.
+
+### 2. Custom Columns zuerst anlegen
+
+Schau auf die CSV-Spalten. Jede Spalte, die nicht im Default-Schema ist, wird eine Custom Column. Lege sie im Voraus an, damit der Import die Werte mappen kann.
+
+Der schnellste Weg: per MCP deine KI fragen. Paste die Spaltennamen eines Pipedrive-CSV-Kopfs und sag "für jede, die nicht im Default-Schema ist, leg die richtige Custom Column auf contacts/organizations/deals an". Der [Setup-Prompt](/docs/setup-ai-assistant) erklärt dem Assistenten bereits, wie er den richtigen Spaltentyp wählt.
+
+### 3. Importieren
+
+Settings → Import → CSV hochladen, Spalten mappen. Beziehungen auflösen im ersten Durchgang per Pipedrive-IDs, dann auf Customermates-UUIDs neu verdrahtet.
+
+### 4. Verifizieren
+
+Stichproben: zehn Records pro Entity-Typ. Achte auf:
+
+- **Deal-Stage** — wenn du Pipedrive-Pipelines auf Single-Select umgestellt hast, sollte jeder Deal in der richtigen Option landen.
+- **Contact↔Org-Links** — ein paar bekannte Namen via `search_all_entities`.
+- **Custom-Column-Werte** — besonders Currency und Date, wo CSV-Formatierung schnell kippt.
+
+### 5. Pipedrive abschalten
+
+Nicht kündigen, bis du Activities und relevante E-Mail-Threads exportiert hast. Eventuell Pipedrive eine Woche im Readonly-Modus weiterlaufen lassen.
+
+## Automationen ersetzen
+
+| Pipedrive | Customermates-Pendant |
+|---|---|
+| Automation → Webhook | [Webhooks](/docs/webhooks) |
+| Automation → Zapier | Zapier auf Webhook abonnieren |
+| Automation → Email | n8n oder dein E-Mail-Tool auf Webhook |
+| Automation → Feld aktualisieren | MCP aus Claude/ChatGPT oder direkter Webhook-Listener |
+
+## Weiter
+
+- [Quickstart](/docs/quickstart)
+- [Webhooks](/docs/webhooks)
+- [Custom Columns](/docs/mcp-tool-catalog#custom-columns)

@@ -1,0 +1,57 @@
+---
+title: API keys
+description: Create, rotate, and revoke API keys for MCP and REST access.
+---
+
+**TL;DR** — Create one key per client (Claude, ChatGPT, Zapier, etc.), store it in an env var, rotate when a device is compromised or when a teammate leaves.
+
+## Create a key
+
+**Profile → API Keys → New key**. Give it a name that identifies where it will be used (e.g. `Claude Desktop — personal laptop`). The 64-character key is shown **once**. Copy it immediately.
+
+## Use a key
+
+Send it in the `x-api-key` header on every request:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     https://customermates.com/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+For MCP clients, the key goes into the MCP config:
+
+- [Claude Desktop](/docs/mcp-connect-claude)
+- [ChatGPT](/docs/mcp-connect-chatgpt)
+- [Cursor](/docs/mcp-connect-cursor)
+
+## Hygiene
+
+- **One key per client.** Makes audit logs readable and lets you revoke a single client without breaking the others.
+- **Store in an env var**, not in a config file. `~/.zshrc`, 1Password, Bitwarden CLI, or your OS keychain.
+- **Rotate when**:
+  - A device that held the key is lost or compromised.
+  - A teammate with access leaves.
+  - You suspect the key leaked (check your git history, CI logs, screenshots).
+
+## Rotate
+
+Profile → API Keys → click the key → **Rotate**. A new key is generated and the old one is invalidated immediately. Update every client that had the old key.
+
+## Revoke
+
+Same place → **Revoke**. Invalidates the key without generating a new one. Use when you don't plan to replace it.
+
+## Key format
+
+Customermates keys are 64 characters, base62 (`a-z A-Z 0-9`). Shorter strings in the database from earlier seed data are not valid keys; regenerate them if you see them in your account.
+
+## Permissions
+
+Every key inherits the permissions of the user it belongs to. If a user is demoted from Admin to Member, their keys lose admin capabilities on the next call. There is no separate permission scoping per key today.
+
+## Next
+
+- [Quickstart](/docs/quickstart) — first end-to-end run.
+- [MCP overview](/docs/mcp) — what keys unlock.

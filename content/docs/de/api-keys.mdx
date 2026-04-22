@@ -1,0 +1,57 @@
+---
+title: API-Keys
+description: API-Keys für MCP- und REST-Zugriff anlegen, rotieren, widerrufen.
+---
+
+**TL;DR** — Ein Key pro Client (Claude, ChatGPT, Zapier etc.), in einer Umgebungsvariable speichern, rotieren, wenn ein Gerät kompromittiert ist oder ein Teammitglied geht.
+
+## Key anlegen
+
+**Profil → API Keys → Neuer Key**. Gib ihm einen Namen, der den Einsatzort beschreibt (z.B. `Claude Desktop — privater Laptop`). Der 64-Zeichen-Key wird **einmal** angezeigt. Sofort kopieren.
+
+## Key nutzen
+
+Im Header `x-api-key` bei jeder Request:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     https://customermates.com/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Für MCP-Clients gehört der Key in die MCP-Config:
+
+- [Claude Desktop](/docs/mcp-connect-claude)
+- [ChatGPT](/docs/mcp-connect-chatgpt)
+- [Cursor](/docs/mcp-connect-cursor)
+
+## Hygiene
+
+- **Ein Key pro Client.** Hält Audit-Logs lesbar und erlaubt Revoke einzelner Clients, ohne andere zu brechen.
+- **In Umgebungsvariable speichern**, nicht in Config-Dateien. `~/.zshrc`, 1Password, Bitwarden CLI oder OS-Keychain.
+- **Rotieren wenn**:
+  - Ein Gerät mit dem Key verloren oder kompromittiert ist.
+  - Ein Teammitglied mit Zugriff geht.
+  - Du einen Leak vermutest (Git-History, CI-Logs, Screenshots).
+
+## Rotieren
+
+Profil → API Keys → Key klicken → **Rotate**. Neuer Key generiert, alter sofort ungültig. Alle Clients aktualisieren.
+
+## Widerrufen
+
+Gleicher Ort → **Revoke**. Key wird ungültig, kein neuer generiert. Nutze, wenn du keinen Ersatz brauchst.
+
+## Key-Format
+
+Customermates-Keys sind 64 Zeichen, Base62 (`a-z A-Z 0-9`). Kürzere Strings in der DB aus älterem Seed-Data sind keine gültigen Keys; neu erzeugen, falls du sie siehst.
+
+## Rechte
+
+Jeder Key erbt die Rechte seines Users. Wenn ein User von Admin auf Member degradiert wird, verlieren seine Keys Admin-Fähigkeiten beim nächsten Call. Separate per-Key-Rechte gibt es heute nicht.
+
+## Weiter
+
+- [Quickstart](/docs/quickstart)
+- [MCP-Übersicht](/docs/mcp)

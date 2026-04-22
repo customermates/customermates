@@ -1,29 +1,61 @@
 ---
-title: n8n integration for agentic CRM workflows
-description: Build n8n workflows for Customermates with webhook-driven and scheduled CRM automation.
+title: n8n
+description: Build visual workflows over Customermates — webhook triggers, HTTP actions, and ready-made templates.
 ---
 
-## When to use n8n for CRM automation
+**TL;DR** — Subscribe an n8n webhook node to Customermates events, use the HTTP Request node with your API key to push changes back. No custom node required — the Customermates REST and MCP surfaces work directly.
 
-n8n is the right choice when you want stable, repeatable, event-based or scheduled workflows. It works especially well for integrations that should behave the same way every time, such as syncing records, triggering follow-up steps, or connecting Customermates to external systems.
+## When n8n fits
 
-## When to use an native AI integration instead
+- Your team prefers visual flows over writing code.
+- You want to branch and transform events before routing them (to Slack, HubSpot, Google Sheets, your data warehouse).
+- You already run n8n for other automations.
 
-Use an native AI integration (ChatGPT, Claude, or any MCP-compatible client) when the workflow needs interpretation, reasoning, or flexible decision-making. That is the better path when the system should understand user intent, work with incomplete context, or decide dynamically which next action makes sense. In practice, [MCP](/docs/mcp) is the better fit for agent-native CRM workflows, while n8n is better for deterministic orchestration.
+If you want an AI to drive the CRM in conversation, use [MCP](/docs/mcp) instead or alongside.
 
-## Setup and credentials
+## Pattern 1 — Trigger n8n from CRM changes
 
-For setup and installation, use the Customermates n8n node repository: [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm).
+1. In n8n, add a **Webhook** node. Copy the URL it generates.
+2. In Customermates, **Company → Webhooks → New** and paste the URL. Pick the events you care about.
+3. Add steps after the Webhook node to transform and forward the payload.
 
-> The community node is currently being verified by n8n. You can still use it normally, but you may see a warning during setup until that verification process is fully completed.
+The payload shape is documented at [webhook events](/docs/webhook-events). Common next steps:
 
-Before you build production workflows, create the required API key in your profile settings, review the broader [CRM Integrations](/docs/integrations-intro) overview, and use [OpenAPI 3.1.0](/docs/openapi) when you need exact endpoint and payload details.
+- **Slack**: post "new deal: $[amount]" to a channel.
+- **Google Sheets**: append a row every time a contact is created.
+- **HubSpot**: mirror the contact.
 
-## Typical n8n workflow use cases
+## Pattern 2 — Push to Customermates from n8n
 
-- Record sync between Customermates and other systems
-- Webhook-driven follow-up flows
-- Scheduled enrichment or cleanup jobs
-- Operational workflows that should run deterministically
+Use the **HTTP Request** node:
 
-If your flows react to record changes, pair n8n with [Webhooks & Events](/docs/features-webhooks-events) so the workflow starts from reliable CRM events instead of polling wherever possible.
+- Method: `POST` (or `PATCH` for updates)
+- URL: `https://customermates.com/api/v1/<endpoint>`
+- Headers: `x-api-key` set to your API key (use n8n credentials)
+- Body: JSON matching the [OpenAPI spec](/docs/openapi)
+
+For MCP-style tool calls from n8n, hit `/api/v1/mcp` with `method: "tools/call"`. Useful when you want n8n to get the same guardrails (null-wipe rejection, type-mismatch routing).
+
+## Pattern 3 — Scheduled cleanup
+
+n8n's Cron trigger + Customermates REST makes scheduled jobs easy:
+
+- Daily: find contacts without an organization, post a reminder.
+- Weekly: export last week's won deals to a Google Sheet.
+- Monthly: archive closed-lost deals older than 90 days.
+
+## Authentication
+
+Store the API key as an n8n **Header Auth** credential with name `x-api-key`. Reuse across nodes. Rotate in one place.
+
+## Common gotchas
+
+- **Null-wipe guard** — if you pass `null` on a relationship array, the server rejects. Use `[]` or `link_entities` / `unlink_entities`.
+- **Rate limits** — high-frequency loops hit API limits. Batch where possible.
+- **Webhook ordering** — deliveries are not strictly ordered. Treat them as idempotent messages keyed by `entityId`.
+
+## Next
+
+- [Webhooks](/docs/webhooks) — the trigger side in detail.
+- [OpenAPI](/docs/openapi) — full REST reference for the action side.
+- [MCP](/docs/mcp) — if you want an AI in the loop.

@@ -1,0 +1,100 @@
+---
+title: Webhook event catalog
+description: Every event Customermates emits, when it fires, and the payload shape.
+---
+
+**TL;DR** — 15 events across the five entity types, all with the same predictable envelope. `*.updated` events include a `changes` record so you can act on diffs without comparing state.
+
+## Envelope
+
+Every delivery follows the same shape:
+
+```json
+{
+  "event": "<event-name>",
+  "data": {
+    "userId": "<who-triggered-it>",
+    "companyId": "<tenant>",
+    "entityId": "<affected-record>",
+    "payload": { /* event-specific */ }
+  },
+  "timestamp": "<iso-8601>"
+}
+```
+
+The `userId` is the user that caused the write, which includes a user acting through an API key.
+
+## Event list
+
+| Event | When it fires | Payload keys |
+|---|---|---|
+| `contact.created` | A contact is created via UI, API, MCP, or import | `contact` |
+| `contact.updated` | Any contact field changes | `contact`, `changes` |
+| `contact.deleted` | A contact is deleted | `contactId` |
+| `organization.created` | An organization is created | `organization` |
+| `organization.updated` | Any organization field changes | `organization`, `changes` |
+| `organization.deleted` | An organization is deleted | `organizationId` |
+| `deal.created` | A deal is created | `deal` |
+| `deal.updated` | Any deal field changes | `deal`, `changes` |
+| `deal.deleted` | A deal is deleted | `dealId` |
+| `service.created` | A service is created | `service` |
+| `service.updated` | Any service field changes | `service`, `changes` |
+| `service.deleted` | A service is deleted | `serviceId` |
+| `task.created` | A task is created | `task` |
+| `task.updated` | Any task field changes | `task`, `changes` |
+| `task.deleted` | A task is deleted | `taskId` |
+
+## Payload example: `contact.updated`
+
+```json
+{
+  "event": "contact.updated",
+  "data": {
+    "userId": "u_123",
+    "companyId": "c_abc",
+    "entityId": "ct_xyz",
+    "payload": {
+      "contact": {
+        "id": "ct_xyz",
+        "firstName": "Max",
+        "lastName": "Mustermann",
+        "notes": { /* Tiptap JSON */ },
+        "organizationIds": ["org_1"],
+        "userIds": [],
+        "dealIds": ["deal_1", "deal_2"],
+        "customFieldValues": [
+          { "columnId": "col_stage", "value": "won" }
+        ]
+      },
+      "changes": {
+        "organizationIds": {
+          "previous": [],
+          "current": ["org_1"]
+        }
+      }
+    }
+  },
+  "timestamp": "2026-04-22T10:00:00.000Z"
+}
+```
+
+## The `changes` record
+
+Each key in `changes` is a field name whose value moved. `previous` is what was there before, `current` is what is there now.
+
+Arrays of relationship ids compare as sets. Objects compare by deep equality. Scalar fields compare by value.
+
+If a write does not actually change any field, the event is suppressed. You will not see no-op `*.updated` events.
+
+## Notes are JSON, not markdown
+
+The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render as markdown on your side, run it through a Tiptap-compatible serializer. In MCP tools, `get_entities` with `include: "withNotes"` returns notes pre-serialized to markdown.
+
+## Deleted payloads
+
+Delete events carry only the id, not the final state of the record. If you need the final state for a delete hook (for archiving, say), subscribe to `*.updated` as well and keep a local mirror.
+
+## Next
+
+- [Webhooks overview](/docs/webhooks) — subscribe, verify, retry.
+- [MCP tool catalog](/docs/mcp-tool-catalog#webhooks) — manage webhooks from your AI.

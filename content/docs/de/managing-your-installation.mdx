@@ -1,27 +1,27 @@
 ---
-title: Self-Hosted-Installation verwalten
-description: Betreibe deine self-hosted Customermates-Installation mit Docker Compose Updates, Restarts, Logs, Resets und klaren Troubleshooting-Workflows.
+title: Installation managen
+description: Day-to-day-Betrieb von Self-Hosted Customermates — Updates, Neustarts, Logs und Backups.
 ---
 
-Wenn du den Stack noch nicht installiert hast, beginne mit [Self-Hosting Erste Schritte](/docs/self-hosting).
+Wenn du den Stack noch nicht installiert hast, starte mit [Self-Hosting — Erste Schritte](/docs/self-hosting).
 
-Self-hosted Betrieb nutzt die Community Edition. Enterprise-Features erfordern eine separate Lizenz.
+Self-Hosted läuft die Community-Edition. Enterprise-Features brauchen eine separate Lizenz.
 
-## Aktualisieren
-
-```bash
-./selfhost-update.sh
-```
-
-Pullt das neueste App-Image, fuehrt `prisma migrate deploy` aus und startet App- und Webhook-Worker-Services neu. Pruefen mit `docker compose ps`.
-
-## Neustarten
+## Update
 
 ```bash
-./selfhost-restart.sh
+./scripts/selfhost-update.sh
 ```
 
-Startet den Stack ohne Migrationen neu. Verwenden nach `.env`- oder Konfigurationsaenderungen.
+Pullt das neueste App-Image, lässt `prisma migrate deploy` laufen und startet die Services `app` und `webhook-worker` neu. Status mit `docker compose ps` prüfen.
+
+## Neu starten
+
+```bash
+./scripts/selfhost-restart.sh
+```
+
+Startet den Stack ohne Migrationen neu. Nach `.env`- oder Config-Änderungen.
 
 ## Logs und Troubleshooting
 
@@ -32,18 +32,30 @@ docker compose ps
 docker compose exec app sh
 ```
 
-## Alle Daten zuruecksetzen
+## Alle Daten zurücksetzen
 
 ```bash
-./selfhost-reset.sh
+./scripts/selfhost-reset.sh
 ```
 
-Erfordert explizite `RESET`-Bestaetigung vor dem Loeschen der Volumes. Nicht umkehrbar.
+Verlangt explizite `RESET`-Bestätigung, bevor Volumes gelöscht werden. Irreversibel.
 
 ## Backups
 
-Fuer produktive Deployments:
+Für Produktions-Deployments:
 
-- PostgreSQL-Daten regelmaessig sichern
-- Restore-Prozesse in einer Nicht-Produktionsumgebung testen
-- `.env` und Secrets aus der Versionskontrolle heraushalten
+- PostgreSQL-Daten auf Zeitplan sichern.
+- Restore-Prozeduren in einer Nicht-Produktion testen.
+- `.env` und Secrets nicht ins Source-Repo.
+
+Beispiel:
+
+```bash
+docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" \
+  | gzip > /var/backups/customermates-$(date +%Y%m%d).sql.gz
+```
+
+## Weiter
+
+- [Architektur und Sicherheit](/docs/architecture-security)
+- [Self-Hosting — Erste Schritte](/docs/self-hosting)

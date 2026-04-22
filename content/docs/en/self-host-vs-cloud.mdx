@@ -1,42 +1,50 @@
 ---
-title: Self-Hosted CRM vs Cloud CRM
-description: Compare Customermates as a self-hosted CRM or cloud CRM, including setup time, maintenance, automation workflows, and paid Enterprise features.
+title: Self-host vs cloud
+description: Which Customermates deployment fits you — our EU-hosted cloud or your own infra.
 ---
 
-## At a glance
+**TL;DR** — Cloud is faster to start and we handle everything. Self-hosting gives you data custody and cost control but you run it. Both have the same feature set.
 
-Customermates can run in two ways:
+## The short answer
 
-- Cloud: managed by Customermates
-- Self-hosted: run by your team in your own infrastructure
+| If you… | Pick |
+|---|---|
+| Want to be using the CRM today | **Cloud** |
+| Have a team of < 20 and no strong data residency requirement | **Cloud** |
+| Need the CRM on private infra for compliance | **Self-host** |
+| Want to avoid per-seat pricing long-term | **Self-host** |
+| Are an agency managing multiple tenants | **Self-host**, one instance per tenant |
+| Want to contribute to the project | **Self-host** locally + Cloud for real work |
 
-This page helps teams compare managed and self-hosted CRM deployment models without reducing the decision to a single feature.
-The best option depends on your operational model, privacy requirements, and how much infrastructure ownership you want.
+## What you get in each
 
-## Comparison table
+| | Cloud | Self-host |
+|---|---|---|
+| Setup time | 2 minutes | ~15 minutes |
+| Infra you manage | none | Docker, Postgres, proxy, TLS, backups |
+| Updates | automatic | you run `docker compose pull && up -d` |
+| EU-hosted | ✓ | wherever you put it |
+| Backups | automatic daily | you configure |
+| Support SLA | included on paid plans | community |
+| Enterprise features (SSO, Audit Log) | paid plan | paid license key |
+| Pricing | per seat | free, pay only for Enterprise |
 
-<ComparisonTable
-  columns={["Criterion", "Cloud", "Self-Hosted"]}
-  rows={[
-    { label: "Pricing", cells: ["€10", "Infrastructure and ops costs vary"] },
-    { label: "Setup Time", cells: ["2 minutes", "60 - 120 minutes"] },
-    { label: "Maintenance Required", cells: ["None", "Regular updates"] },
-    { label: "Privacy friendly", cells: ["available", "available"] },
-    { label: "API and integrations", cells: ["available", "available"] },
-    { label: "Unlimited Users", cells: ["available", "available"] },
-    { label: "Unlimited Records", cells: ["available", "available"] },
-    { label: "n8n and automation workflows", cells: ["available", "available"] },
-    { label: "Audit Logging", cells: ["available", "unavailable"] },
-    { label: "Single Sign-On", cells: ["available", "unavailable"] },
-    { label: "Whitelabeling", cells: ["available", "unavailable"] },
-  ]}
-/>
+## Data custody
 
-## How to decide
+Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
 
-Choose cloud if you want to minimize operational work and get to production quickly.
+## Cost shape
 
-Choose self-hosted if your team prefers infrastructure ownership and is comfortable maintaining updates and runtime operations.
+- **Cloud** is predictable per-seat. Scales linearly.
+- **Self-host** is free for the core + any infra you pay for (a small VPS handles hundreds of users).
 
-Both models support API usage, integrations, and automation workflows. Paid Enterprise features (Audit Logging, Single Sign-On, Whitelabeling) are available only in cloud deployments by default.
-If you want to deploy on your own server, continue with [Self-Hosting Get Started](/docs/self-hosting) and [Managing Your Self-Hosted Installation](/docs/managing-your-installation).
+For a 5-person team, Cloud is usually cheaper once you factor in the time to run Postgres backups yourself. For a 50-person team, self-host pays off quickly.
+
+## You can migrate between them
+
+Export from one, import to the other. The data model is identical. No lock-in either direction.
+
+## Next
+
+- **Cloud:** [Sign up](https://customermates.com/auth/signup).
+- **Self-host:** [Get started](/docs/self-hosting).

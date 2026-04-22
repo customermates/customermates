@@ -10,7 +10,7 @@ Self-hosted mode runs the community edition. Enterprise features require a separ
 ## Updating
 
 ```bash
-./selfhost-update.sh
+./scripts/selfhost-update.sh
 ```
 
 Pulls the latest app image, runs `prisma migrate deploy`, and restarts the app and webhook-worker services. Verify with `docker compose ps`.
@@ -18,7 +18,7 @@ Pulls the latest app image, runs `prisma migrate deploy`, and restarts the app a
 ## Restarting
 
 ```bash
-./selfhost-restart.sh
+./scripts/selfhost-restart.sh
 ```
 
 Restarts the stack without running migrations. Use after `.env` or config changes.
@@ -35,7 +35,7 @@ docker compose exec app sh
 ## Resetting all data
 
 ```bash
-./selfhost-reset.sh
+./scripts/selfhost-reset.sh
 ```
 
 Requires explicit `RESET` confirmation before deleting volumes. Irreversible.

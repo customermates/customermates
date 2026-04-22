@@ -1,0 +1,107 @@
+---
+title: Webhooks
+description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries debuggen.
+---
+
+**TL;DR** — Events wählen, HTTPS-URL geben, wir POST-en JSON dorthin bei jeder Änderung. Fehlgeschlagene Deliveries aus der UI oder per MCP erneut zustellen. Signaturen per HMAC-SHA256 über den Raw-Body prüfen.
+
+## Warum Webhooks
+
+Webhooks machen dein CRM zur Source-of-Truth, auf die dein restlicher Stack lauscht. Kein Polling, keine stale Daten.
+
+Typische Einsätze:
+
+- Neue Contacts in deinen E-Mail-Sequencer.
+- Ticket im Support-Tool öffnen, wenn ein Deal verloren geht.
+- Finance-Workflow auslösen, wenn ein Deal gewonnen wird.
+- Near-realtime-Sync ins Data Warehouse.
+
+## Webhook anlegen
+
+**UI:** Unternehmen → Webhooks → Neu.
+
+**MCP:** `create_webhook` mit `url`, `events[]`, optional `description`, `secret`, `enabled`.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["contact.created", "contact.updated", "deal.updated"],
+  "secret": "nutze-einen-random-string-aus-einem-password-manager",
+  "enabled": true
+}
+```
+
+Die URL muss HTTPS sein. HTTP wird abgelehnt.
+
+## Was du bekommst
+
+Jede Delivery ist ein `POST` mit `Content-Type: application/json`:
+
+```json
+{
+  "event": "contact.updated",
+  "data": {
+    "userId": "...",
+    "companyId": "...",
+    "entityId": "...",
+    "payload": {
+      "contact": { "id": "...", "firstName": "Max", "lastName": "Mustermann" },
+      "changes": {
+        "organizationIds": { "previous": [], "current": ["..."] }
+      }
+    }
+  },
+  "timestamp": "2026-04-22T10:00:00.000Z"
+}
+```
+
+Der `changes`-Record existiert nur bei `*.updated`-Events. Er listet jedes Feld, das sich wirklich geändert hat, mit vorherigem und aktuellem Wert.
+
+Siehe [Webhook-Events](/docs/webhook-events) für alle Event-Shapes.
+
+## Signatur-Verifikation
+
+Wenn du ein `secret` setzt, enthält jede ausgehende Request:
+
+```
+X-Webhook-Signature: <hex>
+```
+
+Wo `<hex>` = `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, kein Präfix. Auf deiner Seite neu berechnen und constant-time vergleichen.
+
+Node.js:
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Retries und fehlgeschlagene Deliveries
+
+Jede Delivery wird geloggt. Sichtbar in der UI (Unternehmen → Webhook-Deliveries) oder via `list_webhook_deliveries`.
+
+Eine Delivery ist **failed**, wenn der HTTP-Status nicht im 2xx-Bereich liegt oder die Request timeoutet.
+
+**Failed Delivery neu zustellen** via UI oder `resend_webhook_delivery` mit der Delivery-ID. Ein neuer Delivery-Record entsteht; das Original bleibt unverändert.
+
+Customermates retryt fehlgeschlagene Deliveries nicht automatisch. Wenn dein Receiver down war, Retries aus der UI anstoßen oder `list_webhook_deliveries` in ein Monitoring-Skript piepen.
+
+## Ordering und Concurrency
+
+Deliveries sind **nicht** strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können out-of-order ankommen. Per Timestamp auflösen, oder Deliveries als idempotente Messages behandeln, geschlüsselt per `entityId`.
+
+## Debug-Tipps
+
+- [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
+- `list_webhook_deliveries` unterstützt `searchTerm` auf URL und Event-Name.
+- Wenn dein Receiver 500 zurückgibt, wird der Response-Body geloggt — du siehst exakt, was kaputt war.
+
+## Weiter
+
+- [Webhook-Events](/docs/webhook-events) — jedes Event mit Payload-Shape.
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog#webhooks) — Webhooks programmatisch verwalten.
+- [n8n](/docs/n8n) — Webhooks in visuelle Workflows.

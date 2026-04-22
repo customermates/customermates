@@ -1,0 +1,89 @@
+---
+title: Filter-Syntax
+description: Jeder Filter-Operator in Customermates, mit Beispielen.
+---
+
+**TL;DR** — Filter sind Arrays von `{ field, operator, value? }`-Regeln, UND-verknüpft. Dreizehn Operatoren decken Equality, Vergleich, Set-Membership, Range, Null-Checks und Relationship-Membership ab.
+
+## Wo Filter greifen
+
+- `filter_entity` und `count_entity` MCP-Tools.
+- `entityFilters` und `dealFilters` auf Widgets.
+- Gespeicherte Views in der UI (intern dieselbe Form).
+
+## Die Form
+
+```json
+[
+  { "field": "firstName", "operator": "contains", "value": "acme" },
+  { "field": "createdAt", "operator": "gte",       "value": "2024-01-01" }
+]
+```
+
+Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-seitig mergen, oder den `in`-Operator gegen eine Liste.
+
+## Operatoren
+
+| Operator | Erwartet | Wirkt auf | Beispiel |
+|---|---|---|---|
+| `equals` | einen Wert | Skalare, IDs | `"active"` |
+| `contains` | einen Wert | Strings | `"acme"` |
+| `gt` | einen Wert | Zahlen, Daten | `"2024-01-01"` |
+| `gte` | einen Wert | Zahlen, Daten | `100` |
+| `lt` | einen Wert | Zahlen, Daten | `"2024-12-31"` |
+| `lte` | einen Wert | Zahlen, Daten | `"2024-12-31"` |
+| `in` | Array | beliebig | `["id1", "id2"]` |
+| `notIn` | Array | beliebig | `["id1"]` |
+| `between` | Array aus 2 | Zahlen, Daten | `["2024-01-01", "2024-12-31"]` |
+| `isNull` | kein Value | beliebig | — |
+| `isNotNull` | kein Value | beliebig | — |
+| `hasNone` | kein Value | Relationship-Arrays | — |
+| `hasSome` | kein Value | Relationship-Arrays | — |
+
+## Feldnamen
+
+`field` ist, was `get_entity_configuration` unter `filterableFields` für diese Entity zurückgibt. Enthält:
+
+- Standard-Skalare (z.B. `createdAt`, `updatedAt`).
+- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`) — paar sie mit `in`, `notIn`, `hasNone`, `hasSome`.
+- Custom-Column-IDs — nutze die UUID der Spalte als Feldname.
+
+Immer `get_entity_configuration` zuerst, wenn du unsicher bist, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
+
+## Beispiele
+
+Contacts in einer von drei Organizations:
+
+```json
+{ "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
+```
+
+Deals aus 2024 mit Custom-"stage"-Spalte gleich "won":
+
+```json
+[
+  { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
+  { "field": "col_stage", "operator": "equals",  "value": "won" }
+]
+```
+
+Contacts ohne Organization:
+
+```json
+{ "field": "organizationIds", "operator": "hasNone" }
+```
+
+Services mit Custom-"renewalDate"-Spalte in den nächsten 30 Tagen:
+
+```json
+{ "field": "col_renewal", "operator": "between", "value": ["2026-04-22","2026-05-22"] }
+```
+
+## Freitext vs Filter
+
+`filter_entity` akzeptiert auch `searchTerm` — Freitextsuche über die Namensfelder (firstName+lastName für Contacts, name für den Rest). Für "Contacts, deren Name 'acme' enthält" ist das `searchTerm`, nicht eine Filter-Regel auf `firstName`. Filter-Regeln auf `firstName` werden nicht unterstützt.
+
+## Weiter
+
+- [Kernkonzepte](/docs/concepts)
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)

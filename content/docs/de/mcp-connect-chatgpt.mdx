@@ -1,0 +1,48 @@
+---
+title: ChatGPT verbinden
+description: Customermates in ChatGPT über das Connectors-Feature nutzen.
+---
+
+**TL;DR** — Customermates als Custom Connector in ChatGPT anlegen, URL und API-Key eintragen, [Setup-Prompt](/docs/setup-ai-assistant) einfügen.
+
+## Voraussetzungen
+
+- Ein ChatGPT-Plan mit **Connectors** (Plus oder höher).
+- 64-Zeichen-Customermates-API-Key. Erstellen unter **Profil → API Keys** — siehe [API-Keys](/docs/api-keys).
+
+## Konfigurieren
+
+1. In ChatGPT: **Settings → Connectors → Add connector**.
+2. **Custom connector (MCP)** wählen.
+3. Ausfüllen:
+   - **Name:** Customermates
+   - **URL:** `https://customermates.com/api/v1/mcp` (Self-Host: eigene URL)
+   - **Authentication:** Header
+   - **Header name:** `x-api-key`
+   - **Header value:** dein 64-Zeichen-Key
+4. Speichern. ChatGPT pingt den Server und listet die Tools.
+
+## Erstes Gespräch
+
+Neuen Chat mit aktiviertem Customermates-Connector starten. [Setup-Prompt](/docs/setup-ai-assistant) als erste Nachricht. ChatGPT orientiert sich und fragt nach.
+
+## Troubleshooting
+
+| Symptom | Ursache | Fix |
+|---|---|---|
+| "Connector verification failed" | Falsche URL oder Key | URL und Header-Value prüfen |
+| "Tool not found" | Connector-Cache stale | Connector entfernen und neu hinzufügen |
+| ChatGPT lässt Relationships in Ruhe | Null-Wipe-Guard | `link_entities` / `unlink_entities` einsetzen |
+| Enum-Feld abgelehnt | Wert nicht in der Liste | ChatGPT soll `get_entity_configuration` zuerst aufrufen |
+
+## Tipps
+
+- ChatGPT behält den Setup-Prompt nicht über Chats hinweg. In einem Snippet-Manager (Raycast, TextExpander, Alfred) ablegen.
+- Customermates-Connector pinnen, damit er in jedem Chat verfügbar ist.
+- Bei langen Sessions: ChatGPT erinnern, `search_all_entities` vor dem Raten des Entity-Typs zu nutzen.
+
+## Weiter
+
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)
+- [Claude Desktop verbinden](/docs/mcp-connect-claude)
+- [Webhooks](/docs/webhooks)

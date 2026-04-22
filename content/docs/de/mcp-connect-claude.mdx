@@ -1,0 +1,65 @@
+---
+title: Claude Desktop verbinden
+description: Customermates als MCP-Server in Claude Desktop in unter zwei Minuten.
+---
+
+**TL;DR** — Einen JSON-Block in die Claude-Desktop-Config, neu starten, [Setup-Prompt](/docs/setup-ai-assistant) einfügen, fertig.
+
+## Voraussetzungen
+
+- Customermates-Account mit 64-Zeichen-API-Key. Erstellen unter **Profil → API Keys**. Siehe [API-Keys](/docs/api-keys).
+- Aktuelle Claude-Desktop-Version mit MCP-Support.
+
+## Konfigurieren
+
+**Claude → Settings → Developer → Edit Config** öffnen. Diesen Block mergen:
+
+```json
+{
+  "mcpServers": {
+    "customermates": {
+      "url": "https://customermates.com/api/v1/mcp",
+      "headers": {
+        "x-api-key": "${CUSTOMERMATES_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Bei Self-Host: URL durch deine Instanz ersetzen.
+
+Key in dein Shell-Profil exportieren, damit er nicht in der Config landet:
+
+```bash
+echo 'export CUSTOMERMATES_API_KEY=dein-64-zeichen-key' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Claude Desktop neu starten. Der Server erscheint im Tools-Panel mit allen Customermates-Tools.
+
+## Erstes Gespräch
+
+Neuen Chat öffnen. [Setup-Prompt](/docs/setup-ai-assistant) als erste Nachricht einfügen. Claude fragt nach dem API-Key (erneut, damit er im Kontext steht), prüft, was im CRM liegt, und ist bereit.
+
+## Troubleshooting
+
+| Symptom | Ursache | Fix |
+|---|---|---|
+| "Invalid API key" | Key nicht 64 Zeichen | Neu erzeugen unter Profil → API Keys |
+| "Not authenticated" auf jedem Call | Header-Name falsch | Muss lowercase sein: `x-api-key` |
+| Tools-Panel leer | Claude hat Config nicht geladen | Komplett beenden und neu starten |
+| Server lehnt Relationship-Update ab | Null-Wipe-Guard (Feature) | Claude soll `link_entities` / `unlink_entities` nutzen |
+| Falsches Tool für Custom-Column-Typ | Schema-Mismatch | Server nennt das richtige Tool, Claude retryt |
+
+## Tipps
+
+- Claude Desktop lädt MCP-Configs nicht zur Laufzeit neu. Nach Edits immer neu starten.
+- Ein API-Key pro Client, wenn du granulare Audit-Logs willst.
+- Für ein anderes Projekt (andere Company): neuen Key erzeugen und einen zweiten `customermates-<tenant>`-Eintrag in die Config.
+
+## Weiter
+
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)
+- [Webhook-Events](/docs/webhook-events)
+- [Cursor verbinden](/docs/mcp-connect-cursor)

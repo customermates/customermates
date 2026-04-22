@@ -1,48 +1,80 @@
 ---
-title: Self-Hosting Erste Schritte
-description: Betreibe Customermates self-hosted in deiner eigenen Infrastruktur mit Docker Compose, PostgreSQL und einem produktionsreifen Next.js-App-Container.
+title: Self-Hosting — Erste Schritte
+description: Customermates mit Docker Compose auf eigener Infra in unter 15 Minuten.
 ---
 
-## Customermates self-hosted mit Docker Compose starten
-
-Diese Seite zeigt, wie du eine self-hosted Customermates-Installation mit Docker Compose und PostgreSQL aufsetzt.
-Wenn du noch zwischen Deployment-Modellen vergleichst, gehe zuerst zu [Self-Hosted vs Cloud](/docs/self-host-vs-cloud).
-
-Self-hosted Deployments laufen in der Community Edition. Enterprise-Features (Audit Logging, Single Sign-On, Whitelabeling) erfordern eine separate Lizenz.
+**TL;DR** — Repo clonen, Example-Env kopieren, `docker compose up -d`, `http://localhost:3000` öffnen. Postgres, App und Background-Worker starten zusammen.
 
 ## Voraussetzungen
 
-- Docker Engine und Docker Compose auf einem VPS
-- Eine Domain, die auf deinen Server zeigt
-- Ein Reverse Proxy mit HTTPS-Terminierung fuer produktive Nutzung
+- Docker und Docker Compose v2.
+- Domain-Name, falls du TLS willst (lokal nicht nötig).
+- ~2 GB RAM und ein paar GB Disk pro tausend Records.
 
-## Installation
+## Schritt 1 — Clonen und konfigurieren
 
 ```bash
-mkdir customermates && cd customermates
-BASE=https://raw.githubusercontent.com/customermates/customermates/main
-curl -O $BASE/docker-compose.yml
-curl -O $BASE/.env.selfhost.template
-curl -O $BASE/scripts/selfhost-{setup,update,restart,reset}.sh
-chmod +x selfhost-*.sh
-mv .env.selfhost.template .env
-# .env mit deinen Werten bearbeiten
-./selfhost-setup.sh
+git clone https://github.com/customermates/customermates.git
+cd customermates
+./scripts/selfhost-setup.sh
 ```
 
-Das Setup-Skript validiert deine `.env`, pullt das App-Image, fuehrt Datenbank-Migrationen aus und startet alle Services.
+Das Setup-Script kopiert `.env.selfhost.template` nach `.env`. Die wichtigen Werte editieren:
 
-## Pruefen
+- `BETTER_AUTH_SECRET` — langer Zufallsstring (`openssl rand -hex 32`).
+- `CRON_SECRET` — ein weiterer Zufallsstring.
+- `POSTGRES_PASSWORD` — default ändern.
+- `BASE_URL` — deine Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
+- `RESEND_API_KEY` und `RESEND_FROM_EMAIL` — nötig für Signup- und Einladungs-Mails.
+
+## Schritt 2 — Starten
 
 ```bash
-docker compose ps
+docker compose up -d
+```
+
+First-Boot dauert eine Minute, während Prisma-Migrationen laufen. Logs ansehen:
+
+```bash
 docker compose logs -f app
 ```
 
-## Erster Login
+Wenn die App ready ist, `http://localhost:4000` öffnen (oder dein eigenes `APP_PORT`).
 
-1. Oeffne deine konfigurierte Domain.
-2. Erstelle dein erstes Konto.
-3. Schliesse Onboarding und Company-Setup ab.
+## Schritt 3 — Erster Account
 
-Fuer den laufenden Betrieb siehe [Installation verwalten](/docs/managing-your-installation).
+URL öffnen. Mit E-Mail registrieren. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
+
+## Schritt 4 — Reverse-Proxy und TLS
+
+Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder dein eigenes `APP_PORT`). Caddy:
+
+```text
+crm.example.com {
+  reverse_proxy localhost:4000
+}
+```
+
+Customermates setzt Secure-Cookies, wenn `BASE_URL` mit `https://` startet. Der Proxy muss `X-Forwarded-Proto` korrekt weiterreichen.
+
+## Schritt 5 — API-Key anlegen
+
+Profil → API Keys → Neuer Key. Genau wie in der Cloud. Siehe [API-Keys](/docs/api-keys).
+
+## Enterprise-Features
+
+Audit-Logging, SSO und White-Labeling brauchen eine Enterprise-Lizenz. Alles andere ist kostenlos. Lizenz gemäß der Anleitung konfigurieren, die mit deinem Lizenzschlüssel geliefert wird.
+
+## Backups
+
+Postgres per `pg_dump` auf Zeitplan. Der App-Container ist stateless.
+
+```bash
+docker compose exec postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%Y%m%d).sql
+```
+
+## Weiter
+
+- [Installation managen](/docs/managing-your-installation) — Updates, Resets, Log-Inspektion.
+- [Self-Host vs Cloud](/docs/self-host-vs-cloud) — wenn du noch entscheidest.
+- [Architektur und Security](/docs/architecture-security) — was du betreibst.

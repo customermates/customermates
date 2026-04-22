@@ -1,0 +1,65 @@
+---
+title: Connect Claude Desktop
+description: Expose Customermates to Claude Desktop as an MCP server in under two minutes.
+---
+
+**TL;DR** — Drop one JSON block into Claude Desktop's config, restart, paste the [setup prompt](/docs/setup-ai-assistant), done.
+
+## Prerequisites
+
+- A Customermates account with a 64-character API key. Create one at **Profile → API Keys**. See [API keys](/docs/api-keys) if you need a refresher.
+- A current Claude Desktop build with MCP support.
+
+## Configure
+
+Open **Claude → Settings → Developer → Edit Config**. Merge this into the JSON:
+
+```json
+{
+  "mcpServers": {
+    "customermates": {
+      "url": "https://customermates.com/api/v1/mcp",
+      "headers": {
+        "x-api-key": "${CUSTOMERMATES_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+If you self-host, swap the URL for your instance.
+
+Export the key from your shell profile so it is not checked into the config file:
+
+```bash
+echo 'export CUSTOMERMATES_API_KEY=your-64-character-key' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Restart Claude Desktop. The server appears in the tools panel with all Customermates tools listed.
+
+## First conversation
+
+Open a new chat. Paste the [setup prompt](/docs/setup-ai-assistant) as the first message. Claude will ask for the API key (again, so it has it in context), confirm what's in your CRM, and be ready to work.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| "Invalid API key" | Key shorter than 64 chars | Regenerate in Profile → API Keys |
+| "Not authenticated" on every call | Header name wrong | Must be lowercase `x-api-key` |
+| Tools panel is empty | Claude didn't reload after config edit | Fully quit and reopen Claude Desktop |
+| Server rejects a relationship update | Null-wipe guard fired (this is a feature) | Ask Claude to use `link_entities` / `unlink_entities` instead |
+| Wrong tool for custom column type | Schema mismatch | Server tells Claude which tool to use next; let it retry |
+
+## Tips
+
+- Claude Desktop doesn't hot-reload MCP configs. Always restart after edits.
+- Use one API key per client if you want audit-log granularity.
+- If you switch to a new project (say, a different company in Customermates), create a new API key and drop a `customermates-<tenant>` server entry in the config.
+
+## Next
+
+- [MCP tool catalog](/docs/mcp-tool-catalog) — every tool Claude can call.
+- [Webhook events](/docs/webhook-events) — what fires when Claude changes data.
+- [Connect Cursor](/docs/mcp-connect-cursor) — same server, different client.

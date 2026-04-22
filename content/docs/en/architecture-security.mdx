@@ -1,31 +1,82 @@
 ---
-title: Architecture & Security
-description: Learn how Customermates CRM is structured and how data isolation and external AI access are handled.
+title: Architecture and security
+description: How Customermates is built, how data is isolated, and how external AI access is controlled.
 ---
 
-## A simple overview
+**TL;DR** — Single-tenant-per-company data model enforced at every layer. Postgres row-level isolation via a company scope. API keys carry user identity. Agents see only what the owning user can see.
 
-Customermates is built so non-technical teams can use it confidently while technical teams still get a robust foundation.  
-You can think of the platform as two clear layers: the application experience and the secure data core. External native AI integration, automation platforms, and custom integrations reach the data core only through authenticated, user-scoped APIs. This is the right page when you need a high-level view of CRM architecture, data isolation, and how external access is scoped.
+## Stack
 
-## How your data is handled
+- **Next.js 16** (App Router, Turbopack) — web app and API.
+- **PostgreSQL** — primary datastore. JSONB for custom column values and webhook payloads.
+- **Prisma** — ORM and migrations.
+- **better-auth** — sessions, social login, API keys.
+- **mcp-handler** — Model Context Protocol endpoint.
+- **TypeScript** end-to-end, Zod-validated at every boundary.
 
-Your CRM data is managed in the core platform with strict access boundaries. External integrations (API, MCP, n8n) authenticate with user-scoped API keys, so any automated client runs with the user's own permissions rather than broad shared access.
+## Tenancy
 
-## Architecture diagram
+Every record belongs to a **Company**. The company id is enforced in three places:
 
-<Mermaid
-  chart="
-flowchart LR
-  UA[User A]
-  UB[User B]
-  C[Customermates CRM]
+1. **App layer** — every interactor resolves the current user's company and filters by it.
+2. **Prisma layer** — queries include `companyId` in every `where`.
+3. **Decorator layer** — `@TenantInteractor` ensures interactors that forget to scope throw at runtime.
 
-  UA <--> C
-  UB <--> C
-"
-/>
+Cross-tenant reads are not possible through the public surface. There is no admin panel that bypasses scope.
 
-## Why this matters for your team
+## Authentication
 
-You get a setup that feels simple from the outside, but is designed for trust and control underneath. Business teams can focus on workflows and customer work, while technical stakeholders can rely on clear tenant isolation and audit trails. For the integration surfaces built on top of that foundation, continue with [CRM Integrations](/docs/integrations-intro), [Model Context Protocol (MCP)](/docs/mcp), [Permissions & Roles](/docs/features-permissions-roles), or [Webhooks & Events](/docs/features-webhooks-events).
+Three ways to authenticate:
+
+- **Session cookie** (UI) — signed, http-only, `Secure` under HTTPS.
+- **API key in `x-api-key`** — 64-character token, SHA-256-hashed at rest, tied to a user.
+- **Social providers** via better-auth.
+
+All three resolve to the same user and company context. API keys have a display prefix so you can identify them in audit logs.
+
+## Authorization
+
+Per-user, role-driven. Roles carry permissions on resources (contacts, deals, etc.) and actions (read, create, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
+
+API keys inherit the permissions of their owning user. No separate key-level ACLs today.
+
+## External AI access
+
+MCP calls are gated by the same API key check. When an AI acts through MCP:
+
+- It calls `/api/v1/mcp` with the user's API key.
+- The server resolves user + company from the key.
+- Every tool call runs inside a tenant-scoped context.
+- Validation errors return structured messages with remediation hints; they don't leak internal schema details.
+
+Safety guardrails specifically for weak models:
+
+- Passing `null` on a relationship array is rejected before reaching the database.
+- Wrong per-type custom-column update tools are rejected with a pointer to the right tool.
+- Destructive tools require explicit id lists; there is no "delete everything matching filter" shortcut.
+
+## Data at rest
+
+- Postgres encryption depends on your provider. On our managed cloud, data lives in an EU region with disk-level encryption at rest.
+- Secrets in `.env` are never logged. The logger redacts anything that looks like a key, token, or password.
+- Webhook secrets are stored in Postgres (they need to be retrievable to sign outgoing requests). If that's a concern, run your own secret manager.
+
+## Data in transit
+
+- HTTPS everywhere on managed cloud.
+- On self-host, you bring the TLS. See [self-hosting](/docs/self-hosting) for the Caddy example.
+- Webhook deliveries only go to HTTPS URLs. HTTP is rejected at the schema layer.
+
+## Audit logging (Enterprise)
+
+Every write is logged: user, action, entity, before/after. Queryable from the UI. Exportable as JSON.
+
+## Reporting vulnerabilities
+
+Please disclose responsibly to `security@customermates.com`. PGP key in the repo. We aim to acknowledge within 24 hours.
+
+## Next
+
+- [Self-hosting](/docs/self-hosting) — if you want to run this yourself.
+- [API keys](/docs/api-keys) — hygiene rules.
+- [MCP](/docs/mcp) — how the AI surface is shaped.

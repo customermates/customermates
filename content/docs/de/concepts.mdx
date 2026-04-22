@@ -1,0 +1,77 @@
+---
+title: Kernkonzepte
+description: Entitäten, Beziehungen, Custom Columns, Widgets und Webhooks auf einer Seite.
+---
+
+**TL;DR** — Customermates verfolgt fünf Entitätstypen, jede kann eigene Felder tragen, sie verknüpfen sich typisiert untereinander, und jede Änderung löst einen Webhook aus.
+
+## Die fünf Entitäten
+
+| Entität | Was sie abbildet | Typische Felder |
+|---|---|---|
+| **Contact** | Eine Person | firstName, lastName, notes |
+| **Organization** | Eine Firma | name, notes |
+| **Deal** | Eine Verkaufschance | name, totalValue, totalQuantity |
+| **Service** | Produkt / Leistung an einem Deal | name, amount |
+| **Task** | Ein To-do | name, Zugewiesene |
+
+Jede Entität hat `id`, `createdAt`, `updatedAt`, unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einer anderen Entität oder ein Custom-Column-Wert.
+
+## Beziehungen
+
+Typisiert und many-to-many. Ein Contact gehört zu null oder mehr Organizations und Deals. Ein Deal hat Contacts, Organizations, Services (mit Mengen) plus Zugewiesene.
+
+| Von ↔ Zu | Beispiel |
+|---|---|
+| Contact ↔ Organization | "Max arbeitet bei Initech" |
+| Contact ↔ Deal | "Max ist Stakeholder im Q2-Vertrag" |
+| Organization ↔ Deal | "Der Q2-Vertrag ist mit Initech" |
+| Deal ↔ Service (mit Menge) | "5h Beratung + 1 Setup-Fee" |
+| Deal / Service / Task ↔ User | "Zugewiesen an Julia" |
+
+Tasks verknüpfen sich nur mit Usern. Das ist Absicht: Tasks sind leichtgewichtig.
+
+## Custom Columns
+
+Das Standard-Schema deckt die Basics. Für alles andere: Custom Column.
+
+Acht Typen:
+
+| Typ | Wofür |
+|---|---|
+| **Plain** | Freitext |
+| **Date** | Kalenderdaten (Renewal, Next Touch) |
+| **DateTime** | Zeitstempel |
+| **Currency** | Geldbeträge mit ISO-Währungscode |
+| **Single-select** | Dropdown aus fixer Liste (Stage, Priorität) |
+| **Link** | Eine oder mehrere URLs |
+| **Email** | Eine oder mehrere E-Mails |
+| **Phone** | Eine oder mehrere Telefonnummern |
+
+Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche.
+
+## Widgets
+
+Widgets sind Dashboard-Charts auf Live-Daten. Du wählst Entität, Group-by-Achse (Feld oder Custom Column), Aggregation (Count, Deal Value, Deal Quantity) und Chart-Typ (Bar / Doughnut / Radar). Filter grenzen die Daten ein.
+
+Widgets rendern sich neu, wenn sich die zugrundeliegenden Datensätze ändern. Kein Refresh-Button.
+
+## Webhooks
+
+Jeder Write emittiert ein Domain-Event: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Du abonnierst per URL und Event-Liste. Jede Delivery enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von wo nach wo bewegt hat.
+
+Siehe [Webhook-Events](/docs/webhook-events) für den vollen Payload-Katalog.
+
+## Notes
+
+Notes sind per-Record Markdown. Sie rendern per Tiptap in der UI, sind sonst überall Plain Markdown. Ersetzen (`update_entity_notes`) oder anhängen ohne Verlust (`append_entity_notes`).
+
+## User, Rollen, Company
+
+User sind deine Teammitglieder. Rollen steuern Lese- und Schreibrechte. Die Company ist der Tenant — jeder Datensatz lebt in genau einer Company, Cross-Tenant-Zugriff ist nicht möglich.
+
+## Weiter
+
+- **[Custom Columns](/docs/mcp-tool-catalog#custom-columns)** — Rezepte und Fallstricke.
+- **[Filter-Syntax](/docs/filter-syntax)** — Operatoren und Beispiele.
+- **[MCP-Tool-Katalog](/docs/mcp-tool-catalog)** — jedes Tool auf diese Konzepte abgebildet.

@@ -1,0 +1,70 @@
+---
+title: From Pipedrive
+description: Migrate contacts, organizations, and deals from Pipedrive to Customermates without losing custom fields or links.
+---
+
+**TL;DR** — Export from Pipedrive as CSV, map fields, import through the UI or through the MCP surface. Custom fields become custom columns. Relationships survive. Budget an hour for a team of ten.
+
+## What moves over cleanly
+
+| Pipedrive | Customermates |
+|---|---|
+| Persons | Contacts |
+| Organizations | Organizations |
+| Deals | Deals |
+| Products | Services |
+| Activities (open) | Tasks |
+| Custom fields | Custom columns (same eight types) |
+| Notes | Notes |
+| Stage | Single-select custom column on deals |
+
+## What doesn't (yet)
+
+- **Activity history** (completed activities) — exported but not imported. Keep the CSV for reference.
+- **Email threads attached to deals** — Pipedrive-specific; no equivalent today.
+- **Pipedrive automations** — rewrite as webhook subscribers or n8n flows. See [n8n](/docs/n8n).
+
+## Steps
+
+### 1. Export from Pipedrive
+
+In Pipedrive, Company Settings → Data → Export data. Pick the entity types you need. You will get five CSVs: persons, organizations, deals, products, activities.
+
+### 2. Create custom columns first
+
+Look at your exported CSVs. Any column that isn't in the Customermates default schema becomes a custom column. Create them up front so the import can map values.
+
+The fastest way: ask your AI via MCP. Paste the column names at the top of a Pipedrive CSV and say "for each of these that isn't in the default schema, create the right custom column on contacts/organizations/deals". The [setup prompt](/docs/setup-ai-assistant) already tells the assistant how to pick the right column type.
+
+### 3. Import
+
+Settings → Import → upload CSV, map columns. Relationships resolve by Pipedrive IDs in the first pass, then re-resolve to Customermates UUIDs.
+
+### 4. Verify
+
+Spot-check ten records per entity type. Pay attention to:
+
+- **Deal stage** — if you converted Pipedrive pipelines to single-select, every deal should land in the right option.
+- **Contact↔Org links** — run `search_all_entities` on a few known names.
+- **Custom column values** — especially currency and dates, where CSV formatting is easy to get wrong.
+
+### 5. Turn off Pipedrive
+
+Do not cancel until you've exported historical activities and any email threads you want to keep. Consider keeping Pipedrive in read-only mode for a week.
+
+## Automation replacements
+
+Pipedrive's automations roughly map to:
+
+| Pipedrive | Customermates equivalent |
+|---|---|
+| Automation → Webhook | [Webhooks](/docs/webhooks) |
+| Automation → Zapier | Subscribe Zapier to a webhook |
+| Automation → Email | Subscribe n8n or your email tool to a webhook |
+| Automation → Update field | MCP, from Claude/ChatGPT, or a direct webhook listener |
+
+## Next
+
+- [Quickstart](/docs/quickstart) — verify your account end-to-end.
+- [Webhooks](/docs/webhooks) — recreate automations.
+- [Custom columns](/docs/mcp-tool-catalog#custom-columns) — where your Pipedrive custom fields live.

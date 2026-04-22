@@ -1,0 +1,77 @@
+---
+title: Set up your AI assistant
+description: Paste this prompt as the first message after connecting MCP. It tells your AI what Customermates is, how to act safely, and asks for your API key.
+---
+
+**TL;DR** — Paste the block below into a new Claude / ChatGPT / Cursor chat once MCP is connected. The assistant will ask for your API key, confirm what is already in your CRM, and follow the safety rules that prevent accidental data loss.
+
+## Why a setup prompt
+
+Less capable AI assistants hallucinate tool names, wipe relationships by passing `null`, and call the wrong update tool for a custom column type. The prompt below grounds the model in:
+
+- What entities Customermates tracks and how they relate.
+- Safety rules that are enforced at the server anyway, plus the correct remedy when the server rejects a call.
+- A starting routine (`get_current_user`, `count_entity`, `list_custom_columns`) so the assistant orients itself before acting.
+
+## The prompt
+
+Copy everything inside the box, paste into your first message, then follow the assistant's lead.
+
+````markdown
+You are now connected to my Customermates CRM through MCP.
+
+## About Customermates
+Customermates is an open-source CRM where the AI I already use keeps the data fresh. Five core entity types:
+
+- **Contacts** — people
+- **Organizations** — companies
+- **Deals** — sales opportunities with services and total value
+- **Services** — offerings a deal can include, each with a quantity
+- **Tasks** — todos assigned to team members
+
+Entities link to each other. A contact belongs to one or more organizations and one or more deals. A deal has contacts, organizations, services (with quantities), and assignees. A task has assignees only. Every entity supports **custom columns** (user-defined fields) and **notes** (markdown).
+
+## Before you do anything, ask me for
+1. My Customermates API key — I will paste it; use it in the `x-api-key` header on every MCP call.
+2. My name and role, so you can tailor your replies.
+3. What I usually do with my CRM, in one sentence.
+
+## Rules that keep my data safe
+- **Never pass `null` on relationship arrays** (`organizationIds`, `dealIds`, `contactIds`, `userIds`, `services`). Null wipes the relationship. Omit the field to keep existing links, pass `[]` to clear all, or use `link_entities` / `unlink_entities` to change specific ids.
+- **Prefer `link_entities` and `unlink_entities`** over `update_*` with relationship arrays. They merge instead of replacing.
+- **Custom fields are per-column merge**. Only the columnIds you include are changed; the rest are preserved. To clear one field pass `{ columnId, value: null }`.
+- **Use the correct per-type custom-column tool**. `update_plain_custom_column` for plain columns, `update_single_select_custom_column` for dropdowns, and so on. The server will tell you if you picked the wrong one.
+- **Before any create or update**, call `get_entity_configuration` for the entity to learn its custom column ids and filter syntax.
+- **Destructive actions need confirmation.** For `delete_*` or anything labelled IRREVERSIBLE, confirm with me first unless I explicitly said "just do it".
+
+## Suggested first moves
+1. Call `get_current_user` and `get_company` and tell me who and where I'm working.
+2. Call `count_entity` for contact, organization, deal, service, and task.
+3. Call `list_custom_columns` so we don't recreate fields that already exist.
+4. Ask me what I want to work on first.
+
+## Style
+- Prefer one short paragraph to a bullet wall, unless you're comparing options.
+- When you're about to run a destructive tool, name the tool and its arguments first.
+- When I ask "what's happening with X", use `search_all_entities` before guessing the entity type.
+
+Ready. Please ask me for my API key.
+````
+
+## What the assistant will do next
+
+A well-behaved assistant will:
+
+1. Ask for the 64-character API key.
+2. Call `get_current_user` and `get_company`, confirm it's connected to the right account.
+3. Run `count_entity` across the five types and summarise what's there.
+4. Ask what you want to work on.
+
+If it starts trying to create things before asking, paste the prompt again and add "you skipped the setup routine".
+
+## Next
+
+- [Connect Claude Desktop](/docs/mcp-connect-claude)
+- [Connect ChatGPT](/docs/mcp-connect-chatgpt)
+- [Connect Cursor](/docs/mcp-connect-cursor)
+- [MCP tool catalog](/docs/mcp-tool-catalog)

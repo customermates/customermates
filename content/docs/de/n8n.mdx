@@ -1,29 +1,61 @@
 ---
-title: n8n-Integration für CRM-Workflows mit native KI-Integration
-description: Baue n8n-Workflows für Customermates mit webhookbasierten und zeitgesteuerten CRM-Automationen.
+title: n8n
+description: Visuelle Workflows über Customermates — Webhook-Trigger, HTTP-Actions und fertige Templates.
 ---
 
-## Wann du n8n für CRM-Automation verwenden solltest
+**TL;DR** — n8n-Webhook-Node auf Customermates-Events abonnieren, HTTP-Request-Node mit API-Key für Writes zurück. Kein Custom-Node nötig — die REST- und MCP-Oberflächen funktionieren direkt.
 
-n8n ist die richtige Wahl, wenn du stabile, wiederholbare, eventbasierte oder zeitgesteuerte Workflows brauchst. Besonders stark ist es bei Integrationen, die jedes Mal gleich funktionieren sollen, zum Beispiel bei Datensynchronisation, Follow-up-Automationen oder der Verbindung von Customermates mit externen Systemen.
+## Wann n8n passt
 
-## Wann du stattdessen MCP nutzen solltest
+- Dein Team bevorzugt visuelle Flows gegenüber Code.
+- Du willst Events branchen und transformieren, bevor sie weiterlaufen (Slack, HubSpot, Google Sheets, Warehouse).
+- Du betreibst n8n ohnehin für andere Automationen.
 
-[MCP](/docs/mcp) ist die bessere Wahl, wenn der Ablauf Interpretation, Abwägung oder flexible Entscheidungen eines native KI-Integration braucht, zum Beispiel wenn ein externer Agent Nutzerabsichten verstehen oder dynamisch den nächsten sinnvollen Schritt bestimmen soll. n8n ist dagegen für deterministische Orchestrierung gedacht.
+Wenn eine KI das CRM im Gespräch fahren soll: [MCP](/docs/mcp) stattdessen oder parallel.
 
-## Setup und Zugangsdaten
+## Pattern 1 — n8n aus CRM-Änderungen triggern
 
-Für Setup und Installation nutze das Customermates-n8n-Node-Repository: [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm).
+1. In n8n: **Webhook**-Node hinzufügen. Die generierte URL kopieren.
+2. In Customermates: **Unternehmen → Webhooks → Neu** und URL einfügen. Events wählen.
+3. Nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten.
 
-> Die Community-Node wird aktuell noch von n8n verifiziert. Du kannst sie bereits normal verwenden, es kann beim Setup aber noch ein Warnhinweis erscheinen, bis dieser Verifizierungsprozess vollständig abgeschlossen ist.
+Payload-Shape dokumentiert unter [Webhook-Events](/docs/webhook-events). Typische nächste Schritte:
 
-Bevor du produktive Workflows baust, erstellst du den benötigten API-Key in deinen Profileinstellungen, gehst die breitere Übersicht zu [CRM-Integrationen](/docs/integrations-intro) durch und nutzt [OpenAPI 3.1.0](/docs/openapi), wenn du exakte Endpoint- und Payload-Details brauchst.
+- **Slack**: "neuer Deal: $[Betrag]" in einen Channel.
+- **Google Sheets**: Zeile anhängen bei jedem neuen Contact.
+- **HubSpot**: Contact mirrored.
 
-## Typische n8n-Workflows
+## Pattern 2 — Aus n8n nach Customermates pushen
 
-- Datensynchronisation zwischen Customermates und anderen Systemen
-- Webhook-basierte Follow-up-Workflows
-- Zeitgesteuerte Enrichment- oder Cleanup-Jobs
-- Operative Abläufe, die deterministisch laufen sollen
+**HTTP Request**-Node:
 
-Wenn deine Workflows auf Änderungen an Datensätzen reagieren sollen, kombiniere n8n mit [Webhooks & Events](/docs/features-webhooks-events), damit die Automationen möglichst auf verlässlichen CRM-Events statt auf Polling aufbauen.
+- Method: `POST` (oder `PATCH` für Updates)
+- URL: `https://customermates.com/api/v1/<endpoint>`
+- Headers: `x-api-key` als n8n-Credential gesetzt
+- Body: JSON gemäß [OpenAPI-Spec](/docs/openapi)
+
+Für MCP-Style-Tool-Calls aus n8n auf `/api/v1/mcp` mit `method: "tools/call"`. Nützlich, wenn n8n dieselben Guardrails will (Null-Wipe-Rejection, Type-Mismatch-Routing).
+
+## Pattern 3 — Scheduled Cleanup
+
+n8n Cron-Trigger + Customermates-REST:
+
+- Täglich: Contacts ohne Organization finden, Reminder posten.
+- Wöchentlich: Won-Deals der letzten Woche in Google Sheet.
+- Monatlich: Lost-Deals älter als 90 Tage archivieren.
+
+## Authentifizierung
+
+API-Key als n8n-**Header-Auth**-Credential mit Name `x-api-key` speichern. Über Nodes wiederverwenden. An einer Stelle rotieren.
+
+## Typische Fallstricke
+
+- **Null-Wipe-Guard** — `null` auf Relationship-Array wird abgelehnt. `[]` oder `link_entities` / `unlink_entities` nutzen.
+- **Rate-Limits** — High-Frequency-Loops laufen in Limits. Wenn möglich batchen.
+- **Webhook-Ordering** — Deliveries nicht strikt geordnet. Als idempotente Messages per `entityId` behandeln.
+
+## Weiter
+
+- [Webhooks](/docs/webhooks) — die Trigger-Seite im Detail.
+- [OpenAPI](/docs/openapi) — volle REST-Referenz für die Action-Seite.
+- [MCP](/docs/mcp) — wenn KI im Loop sein soll.

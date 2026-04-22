@@ -1,106 +1,69 @@
 ---
-title: "Model Context Protocol (MCP): KI-Anbindung"
-description: Verbinde native KI-Integration, LLM-Tool-Clients und MCP-Runtimes über den MCP-Endpunkt mit dem Customermates CRM.
+title: Model Context Protocol (MCP)
+description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-## MCP-Endpunkt
+**TL;DR** — MCP-Client auf `https://customermates.com/api/v1/mcp` zeigen, API-Key im Header `x-api-key`, und der Client entdeckt automatisch alle 57 CRM-Tools. Den [Setup-Prompt](/docs/setup-ai-assistant) einfügen, damit deine KI sicher agiert.
 
-Customermates stellt unter `/api/v1/mcp` einen MCP-Endpunkt bereit.  
-Dieser Endpunkt ist für toolfähige Clients, Agent-Runtimes und LLM-Workflows gedacht, die CRM-Operationen über das Model Context Protocol ausführen möchten, statt rohe REST-Endpunkte direkt anzusprechen. Anders gesagt: Er ist die richtige Schnittstelle, wenn das Modell nicht nur Requests senden, sondern auch selbst das passende Werkzeug auswählen, den Tool-Vertrag verstehen und Fehler sauber korrigieren soll. Wenn du noch zwischen Integrationswegen abwägst, starte mit [CRM-Integrationen](/docs/integrations-intro) und nutze diese Seite anschließend für agentgetriebene CRM-Workflows.
+## Wann MCP passt
 
-## MCP im Unterschied zu OpenAPI für CRM-Integrationen
+- Deine KI soll das **CRM lesen und schreiben**, ohne dass du IDs kopierst.
+- Die KI soll **Fähigkeiten entdecken**, statt dass du API-Calls von Hand schreibst.
+- **Ein Endpoint** für Claude, ChatGPT, Cursor, Codex und jeden zukünftigen Client.
 
-Der beabsichtigte Unterschied ist klar:
+Nimm stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations-Service genau weiß, welchen Endpoint er braucht. OpenAPI ist die kanonische HTTP-Referenz. MCP ist die Agent-native Oberfläche darüber.
 
-- Nutze [OpenAPI 3.1.0](/docs/openapi), wenn du kanonische HTTP-Dokumentation, Payload-Schemas und direkte API-Integrationen brauchst.
-- Nutze MCP, wenn ein LLM oder Tool-Client Fähigkeiten entdecken, das passende Werkzeug auswählen und Aktionen auf Tool-Ebene ausführen soll.
+## Der Endpoint
 
-Praktisch bedeutet das: OpenAPI ist die Quelle für exakte Endpoint- und Schema-Details, während MCP die höhere Abstraktion für Workflows mit native KI-Integration ist.
-
-OpenAPI ist ideal, wenn ein Entwickler oder ein Integrationsdienst schon genau weiß, welchen Endpoint er braucht. MCP wird dann stark, wenn der Client zuerst über die Nutzerabsicht nachdenken, das richtige Werkzeug auswählen und mit einer strukturierten Tool-Oberfläche statt mit einer großen rohen API arbeiten soll.
-
-## Native MCP-Nutzung vs. CLI-Nutzung
-
-Praktisch gibt es zwei sinnvolle Wege, mit dem MCP-Server zu arbeiten.
-
-Mit einem nativen MCP-fähigen Client muss das Modell nicht die vollständigen Schemas aller verfügbaren Tools gleichzeitig im Kontext tragen. Die Tool-Definitionen können gezielter bereitgestellt werden, und mit Intent Detection lässt sich die Werkzeugmenge zusätzlich auf genau die Funktionen eingrenzen, die für die aktuelle Aufgabe wirklich relevant sind. Das hält den Modellkontext sauber, reduziert Rauschen und verbessert die Zuverlässigkeit bei der Tool-Auswahl.
-
-Mit einem CLI-basierten Ansatz kommst du ebenfalls sehr weit, nur etwas operativer. Ein Tool wie `mcporter` ist ideal für lokale Clients, reproduzierbare Befehle und gespeicherte Authentifizierung, bleibt aber ein Client-Workflow um den MCP-Server herum und nicht die vollständig native Tool-Ausführung im Host des Modells.
-
-## Tokens und CLI-Clients
-
-Wenn du mit CLI-basierten MCP-Clients arbeitest, können Tokens dort gespeichert und wiederverwendet werden, statt bei jedem Aufruf manuell übergeben zu werden. Ein praktisches Beispiel ist `mcporter`, das Server auflisten, Tools aufrufen und Authentifizierung im Client-Kontext verwalten kann. Die zugrunde liegenden API-Keys legst du in deinen Profileinstellungen an und rotierst sie dort auch bei Bedarf.
-
-Gerade für lokale Agent-Workflows, interne Automationen und operative Tooling-Flows ist das hilfreich, weil wiederholte authentifizierte Aufrufe dadurch deutlich einfacher und sicherer werden. Für viele Teams ist genau das der pragmatische Weg, einen sicheren MCP-Server sauber in den Arbeitsalltag von Entwicklern und Operatoren zu integrieren.
-
-## Beispiel für die MCP-Server-Konfiguration
-
-Erstelle zuerst einen API-Key in deinen Profileinstellungen und konfiguriere danach deinen MCP-Client so, dass er den Customermates MCP-Endpunkt verwendet und den Schlüssel im Header `x-api-key` mitsendet. Wenn dein MCP-Client Umgebungsvariablen in der Konfiguration unterstützt, solltest du dieses Muster für den Header-Wert nutzen, statt einen rohen Schlüssel direkt in die Datei zu schreiben.
-
-```json
-{
-  "mcpServers": {
-    "customermates": {
-      "type": "http",
-      "url": "https://customermates.com/api/v1/mcp",
-      "headers": {
-        "x-api-key": "YOUR_CUSTOMERMATES_API_KEY"
-      }
-    }
-  }
-}
+```
+POST https://customermates.com/api/v1/mcp
+Content-Type: application/json
+x-api-key: <dein-64-zeichen-key>
 ```
 
-## Tool-Bereiche auf oberster Ebene
+Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/list` liefert jedes Tool mit JSON Schema. `tools/call` ruft ein Tool per Name auf.
 
-Der MCP-Endpunkt stellt auf oberster Ebene Werkzeuge für die wichtigsten CRM-Bereiche bereit:
+## Client verbinden
 
-- Generische Entity-Tools für Konfiguration, Filterung, Zählung, Details, Notizen, Löschung und Custom-Field-Updates.
-- Kontakt-, Organisations-, Deal-, Service- und Aufgaben-Tools für typische CRM-Operationen.
-- Widget-Tools zum Lesen und Anpassen von Dashboard-Widgets.
-- Webhook-Tools zum Auflisten, Erstellen, Aktualisieren und Löschen von Webhooks.
-- Nutzer-, Unternehmens- und Rollen-Tools für Workspace-Kontext.
-- Custom-Column-Tools zur Erweiterung von CRM-Entitäten mit typisierten Feldern.
+| Client | Guide |
+|---|---|
+| Claude Desktop | [Claude verbinden](/docs/mcp-connect-claude) |
+| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
+| Cursor | [Cursor verbinden](/docs/mcp-connect-cursor) |
+| Beliebiger MCP-Client | Endpoint und Header oben nutzen |
 
-Dadurch kann ein LLM sowohl übergreifende Discovery-Aufgaben als auch gezielte Änderungen an Entitäten ausführen, ohne für jeden Objekttyp ein eigenes Integrationsmuster zu brauchen. Das Modell kann erst verstehen, was möglich ist, dann filtern oder zählen, anschließend Details laden und danach gezielt Änderungen durchführen.
+## KI einrichten, sobald verbunden
 
-## Für selbstheilende LLM-Workflows gebaut
+MCP exponiert Tools, sagt dem Modell aber nicht, worum es in deinem CRM geht. Paste den [Setup-Prompt](/docs/setup-ai-assistant) als erste Nachricht. Er deckt ab:
 
-Die MCP-Tools sind so gestaltet, dass sie gut mit nativen Retry- und Fix-Loops von LLMs funktionieren. Wenn eine Anfrage an der Validierung scheitert, liefert das System bewusst verwertbare Validierungsfehler zurück, statt einfach still zu scheitern. Dadurch kann ein LLM Parameter korrigieren und den Aufruf automatisch erneut versuchen.
+- Was die fünf Entitätstypen sind und wie sie verknüpfen.
+- Sicherheitsregeln (niemals `null` auf Relationship-Arrays, `link_entities` / `unlink_entities` bevorzugen).
+- Eine Startroutine, damit das Modell sich orientiert, bevor es handelt.
 
-Gerade in Agent-Flows ist das nützlich, wenn das Modell das richtige Tool auswählen, Parameter zuordnen, Fehler erkennen und ohne manuelles Eingreifen sauber weiterarbeiten soll. Statt beim ersten fehlerhaften Aufruf zu scheitern, bekommt das Modell genug Struktur zurück, um sich selbst zu korrigieren und den Workflow fortzusetzen. Genau das ist für native LLM-Erlebnisse mit Live-CRM-Daten entscheidend.
+## Wie die Tool-Oberfläche für schwächere Modelle gebaut ist
 
-## Beispiel für Skill-Guidance
+Nicht jedes Modell plant so gut wie Claude Opus. Die MCP-Oberfläche ist auf den Weak-Model-Case zugeschnitten:
 
-Der folgende Block zeigt eine beispielhafte Anleitung, die du deinem MCP-Client mitgeben kannst, um CRM-basiertes Reasoning konsistent zu halten:
+- **Verb-first-imperative Namen** — `create_contacts`, `update_deal`, `delete_custom_column`. Kein Batch-Präfix. Verb passt zur Absicht.
+- **Schmale Per-Type-Tools** — acht `create_*_custom_column` und acht `update_*_custom_column` statt eines Discriminated-Union-Giganten. Modelle wählen per Name statt per Branch auf `type`.
+- **Inline-Enum-Hinweise** — jedes Enum-Feld listet gültige Werte inline, kein Auflösen externer Typen.
+- **Filter-Beispiele inline** — jeder `filters`-Parameter mit JSON-Beispiel in der Beschreibung.
+- **Relationship-Sicherheit** — `link_entities` und `unlink_entities` mergen; `null` auf Relationship-Array wird mit Remediation-Hint abgelehnt.
+- **Type-Mismatch-Routing** — falsches Per-Type-Update liefert "this column is type X, use `update_X_custom_column`".
+- **Destructive Flags** — jedes `delete_*` hat `destructiveHint: true` und beginnt mit `IRREVERSIBLE`.
 
-```md
-# Customermates CRM
+Die volle Tool-Liste: [MCP-Tool-Katalog](/docs/mcp-tool-catalog).
 
-- MCP ist für CRM verpflichtend: Immer wenn es um CRM-Daten oder CRM-Workflows geht, nutze die Customermates MCP-Tools.
-- CRM-Fragen sind immer Live-Daten-Fragen. Antworte nicht aus dem Gedächtnis, wenn Tools es prüfen können.
-- CRM-Werte niemals raten. Wenn Daten nicht geladen werden können, sage das klar.
-- Für CRM-Datenfragen MCP verwenden.
-- Niemals behaupten, Tools seien nicht verfügbar, bevor in diesem Turn nicht mindestens ein MCP-Versuch gemacht wurde.
-- Wenn ein Tool `Validation error:` zurückgibt, Problem automatisch korrigieren und erneut versuchen.
+## CLI-Nutzung
 
-## Workflow
+Wenn du einen lokalen Client willst statt GUI, verbinden Tools wie `mcporter` denselben Endpoint. API-Key einmal in der Client-Config speichern und Tools aus der Shell aufrufen.
 
-1. Für Kontakte, Organisationen, Deals, Services und Aufgaben zuerst generische Tools verwenden:
-   - `get_entity_configuration`
-   - `filter_entity`
-   - `count_entity`
-   - `batch_get_entity_details`
-   - `batch_update_entity_custom_field`
-   - `batch_set_entity_notes`
-   - `batch_delete_entity`
-2. Für Zählfragen zuerst `count_entity` verwenden.
-3. Für Such- und Listenfragen zuerst `filter_entity` verwenden.
-4. Für CRM-Datenantworten im selben Turn mindestens einen relevanten MCP-Aufruf ausführen.
-```
+## OpenAPI neben MCP
 
-## Empfohlener Einsatz
+Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; OpenAPI-Spec auf `/api/v1/openapi`. OpenAPI-Operationen mappen 1:1 auf REST-Endpoints; MCP-Tools wrappen diese plus Safety-Guardrails, die die Raw-API nicht hat.
 
-> Für die meisten Agent-Setups solltest du mit MCP starten, wenn das Modell erst entscheiden muss, welche Aktion überhaupt sinnvoll ist, und wenn möglich per Intent Detection die verfügbaren Tools auf die wirklich relevanten Bereiche eingrenzen. Ergänzend nutzt du [OpenAPI 3.1.0](/docs/openapi), sobald exakte Payload-Strukturen, Endpoint-Semantik oder technische Validierung entscheidend werden. Für eventgetriebene Folgeprozesse kombinierst du das mit [Webhooks & Events](/docs/features-webhooks-events).
+## Weiter
 
-Genau diese Kombination gibt dir eine tool-native Schnittstelle für LLMs, eine kleinere und relevantere Schema-Oberfläche während der Ausführung und gleichzeitig einen präzisen HTTP-Vertrag für klassische Integrationen.
+- [Setup-Prompt](/docs/setup-ai-assistant)
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)
+- [Webhooks](/docs/webhooks) — die andere Hälfte der agentischen Schleife.

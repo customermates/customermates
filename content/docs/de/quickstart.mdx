@@ -1,0 +1,66 @@
+---
+title: Quickstart
+description: Von der Registrierung bis zum ersten KI-aktualisierten Deal in fünf Minuten.
+---
+
+**TL;DR** — Account anlegen, API-Key erzeugen, KI per MCP verbinden, und zusehen, wie das CRM sich selbst aktualisiert, während du in Claude oder ChatGPT arbeitest.
+
+## 1. Account anlegen
+
+[customermates.com/auth/signup](https://customermates.com/auth/signup). Keine Kreditkarte. Erste drei Tage kostenlos, danach wählst du einen Plan.
+
+## 2. API-Key erzeugen
+
+**Profil → API Keys → Neuer Key**. Die 64 Zeichen **sofort** kopieren — sie werden nur einmal angezeigt.
+
+Nicht ins Source-Repo einchecken. Als Umgebungsvariable setzen:
+
+```bash
+export CUSTOMERMATES_API_KEY=dein-64-zeichen-key
+```
+
+## 3. Ein paar Datensätze anlegen
+
+Am schnellsten über die UI:
+
+- **Contacts → Neu** — eine Person anlegen.
+- **Organizations → Neu** — eine Firma anlegen.
+- **Deals → Neu** — mit beiden verknüpfen.
+
+Du kannst denselben Ablauf auch komplett über MCP machen, sobald verbunden (Schritt 5). Nimm, was einfacher ist.
+
+## 4. Ersten Webhook abonnieren
+
+**Unternehmen → Webhooks → Neu**. Als URL eine [webhook.site](https://webhook.site) verwenden. Events: mindestens `contact.created` und `deal.updated`. Speichern.
+
+Bearbeite einen der Contacts. Innerhalb von Sekunden landet die Delivery auf webhook.site mit voller Payload. So erzählt dein CRM dem Rest des Stacks, was sich geändert hat.
+
+## 5. Deine KI verbinden
+
+Wähl den Client, den du wirklich nutzt:
+
+| Client | Guide |
+|---|---|
+| Claude Desktop | [Claude verbinden](/docs/mcp-connect-claude) |
+| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
+| Cursor | [Cursor verbinden](/docs/mcp-connect-cursor) |
+| Beliebiger MCP-Client | [MCP-Übersicht](/docs/mcp) |
+
+Nach dem Verbinden den [Setup-Prompt](/docs/setup-ai-assistant) als erste Nachricht einfügen. Der Assistent orientiert sich und fragt, was du tun willst.
+
+## 6. Deine KI etwas Nützliches tun lassen
+
+Probier eine davon:
+
+- *"Verschieb den Acme-Deal auf Stage 'Won' und hinterleg die Notiz, dass der Vertrag heute unterschrieben wurde."*
+- *"Zeig mir die letzten zehn Contacts, die ich erstellt habe. Welche haben keine E-Mail?"*
+- *"Leg Jane Doe bei Initech an, verknüpf mit der Initech-Org, und starte einen Deal für 12 Stunden Beratung."*
+
+Der Assistent sagt dir, welche Tools er genutzt hat und was sich geändert hat. Kein Copy-Paste, kein App-Wechsel.
+
+## Weiter
+
+- **[Konzepte](/docs/concepts)** — Entitäten, Custom Columns, Beziehungen auf einen Blick.
+- **[Von Pipedrive](/docs/from-pipedrive)** — beim Migrieren.
+- **[MCP-Übersicht](/docs/mcp)** — was der Agent kann und nicht kann.
+- **[Webhooks](/docs/webhooks)** — Customermates mit dem Rest deines Stacks verdrahten.

@@ -1,0 +1,58 @@
+---
+title: Connect Cursor
+description: Run Customermates as an MCP server inside Cursor so your IDE can update the CRM while you code.
+---
+
+**TL;DR** — Add a `customermates` block to `~/.cursor/mcp.json`, reload Cursor, paste the [setup prompt](/docs/setup-ai-assistant).
+
+## Prerequisites
+
+- A current Cursor build with MCP support.
+- A 64-character Customermates API key from **Profile → API Keys**.
+
+## Configure
+
+Open (or create) `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "customermates": {
+      "url": "https://customermates.com/api/v1/mcp",
+      "headers": {
+        "x-api-key": "${CUSTOMERMATES_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Export the key in your shell profile:
+
+```bash
+echo 'export CUSTOMERMATES_API_KEY=your-64-character-key' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Reload Cursor (`Cmd+Shift+P → Developer: Reload Window`). The MCP server appears in the Composer panel.
+
+## First conversation
+
+In Composer, paste the [setup prompt](/docs/setup-ai-assistant). Cursor will pass it to the model and the model will start asking for your API key.
+
+## Why run Customermates in Cursor
+
+Because the CRM state is context. "Show me the deals blocked on engineering" while you're in a ticket, or "log this call" while you're reading the customer's repo, keeps you in flow. The agent can read or write without you leaving the editor.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Server not listed | `mcp.json` not picked up | Check file path, reload window |
+| "Invalid API key" | Wrong key length | Regenerate in Profile → API Keys |
+| Tool calls time out | Corporate proxy blocking | Set `HTTPS_PROXY` in the shell you launch Cursor from |
+
+## Next
+
+- [MCP tool catalog](/docs/mcp-tool-catalog)
+- [Connect Claude Desktop](/docs/mcp-connect-claude)

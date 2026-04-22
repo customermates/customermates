@@ -1,0 +1,100 @@
+---
+title: Webhook-Event-Katalog
+description: Jedes Event, das Customermates emittiert, wann es feuert, und die Payload-Form.
+---
+
+**TL;DR** — 15 Events über die fünf Entity-Typen, alle mit demselben vorhersagbaren Envelope. `*.updated`-Events enthalten einen `changes`-Record, damit du auf Diffs reagieren kannst, ohne State zu vergleichen.
+
+## Envelope
+
+Jede Delivery folgt derselben Form:
+
+```json
+{
+  "event": "<event-name>",
+  "data": {
+    "userId": "<verursacher>",
+    "companyId": "<tenant>",
+    "entityId": "<betroffener-record>",
+    "payload": { /* event-spezifisch */ }
+  },
+  "timestamp": "<iso-8601>"
+}
+```
+
+Die `userId` ist der User, der den Write verursacht hat — inkl. User, die über einen API-Key handeln.
+
+## Event-Liste
+
+| Event | Wann es feuert | Payload-Keys |
+|---|---|---|
+| `contact.created` | Contact via UI/API/MCP/Import erstellt | `contact` |
+| `contact.updated` | Irgendein Contact-Feld ändert sich | `contact`, `changes` |
+| `contact.deleted` | Contact gelöscht | `contactId` |
+| `organization.created` | Organization erstellt | `organization` |
+| `organization.updated` | Irgendein Organization-Feld ändert sich | `organization`, `changes` |
+| `organization.deleted` | Organization gelöscht | `organizationId` |
+| `deal.created` | Deal erstellt | `deal` |
+| `deal.updated` | Irgendein Deal-Feld ändert sich | `deal`, `changes` |
+| `deal.deleted` | Deal gelöscht | `dealId` |
+| `service.created` | Service erstellt | `service` |
+| `service.updated` | Irgendein Service-Feld ändert sich | `service`, `changes` |
+| `service.deleted` | Service gelöscht | `serviceId` |
+| `task.created` | Task erstellt | `task` |
+| `task.updated` | Irgendein Task-Feld ändert sich | `task`, `changes` |
+| `task.deleted` | Task gelöscht | `taskId` |
+
+## Payload-Beispiel: `contact.updated`
+
+```json
+{
+  "event": "contact.updated",
+  "data": {
+    "userId": "u_123",
+    "companyId": "c_abc",
+    "entityId": "ct_xyz",
+    "payload": {
+      "contact": {
+        "id": "ct_xyz",
+        "firstName": "Max",
+        "lastName": "Mustermann",
+        "notes": { /* Tiptap JSON */ },
+        "organizationIds": ["org_1"],
+        "userIds": [],
+        "dealIds": ["deal_1", "deal_2"],
+        "customFieldValues": [
+          { "columnId": "col_stage", "value": "won" }
+        ]
+      },
+      "changes": {
+        "organizationIds": {
+          "previous": [],
+          "current": ["org_1"]
+        }
+      }
+    }
+  },
+  "timestamp": "2026-04-22T10:00:00.000Z"
+}
+```
+
+## Der `changes`-Record
+
+Jeder Key in `changes` ist ein Feldname, dessen Wert sich bewegt hat. `previous` ist der vorherige, `current` der aktuelle.
+
+Relationship-ID-Arrays vergleichen sich als Sets. Objekte als Deep-Equal. Skalare per Wert.
+
+Wenn ein Write tatsächlich nichts ändert, wird das Event unterdrückt. Du bekommst keine No-op-`*.updated`-Events.
+
+## Notes sind JSON, nicht Markdown
+
+Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Zum Rendern als Markdown auf deiner Seite einen Tiptap-Serializer einsetzen. In MCP-Tools liefert `get_entities` mit `include: "withNotes"` die Notes bereits als Markdown.
+
+## Delete-Payloads
+
+Delete-Events enthalten nur die ID, nicht den Endzustand. Wenn du den Endzustand brauchst (fürs Archiv z.B.), auch `*.updated` abonnieren und einen lokalen Mirror halten.
+
+## Weiter
+
+- [Webhooks-Übersicht](/docs/webhooks)
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog#webhooks)

@@ -1,0 +1,66 @@
+---
+title: Quickstart
+description: From signup to your first agent-updated deal in five minutes.
+---
+
+**TL;DR** — Create an account, generate an API key, connect your AI through MCP, and watch the CRM update itself while you work in Claude or ChatGPT.
+
+## 1. Create your account
+
+Go to [customermates.com/auth/signup](https://customermates.com/auth/signup). No credit card. The first three days are free, then you can pick a plan.
+
+## 2. Create an API key
+
+Open **Profile → API Keys → New key**. Copy the 64-character string **immediately** — it is shown once and never again.
+
+Keep the key out of source control. Set it as an environment variable:
+
+```bash
+export CUSTOMERMATES_API_KEY=your-64-character-key
+```
+
+## 3. Seed a few records
+
+The fastest path is the UI:
+
+- **Contacts → New** — create a person.
+- **Organizations → New** — create a company.
+- **Deals → New** — link the deal to both.
+
+You can also do every step through MCP once connected (see step 5). Pick whichever is easier.
+
+## 4. Subscribe to your first webhook
+
+**Company → Webhooks → New**. For the URL paste a [webhook.site](https://webhook.site) endpoint. Pick at least `contact.created` and `deal.updated`. Save.
+
+Edit one of the contacts you just made. Within a few seconds you should see the delivery show up at webhook.site with the full payload. That is your CRM telling your stack what changed.
+
+## 5. Connect your AI
+
+Pick the client you actually use:
+
+| Client | Guide |
+|---|---|
+| Claude Desktop | [Connect Claude](/docs/mcp-connect-claude) |
+| ChatGPT | [Connect ChatGPT](/docs/mcp-connect-chatgpt) |
+| Cursor | [Connect Cursor](/docs/mcp-connect-cursor) |
+| Any MCP client | [MCP overview](/docs/mcp) |
+
+Once connected, paste the [setup prompt](/docs/setup-ai-assistant) as your first message. The assistant will orient itself and ask what to do.
+
+## 6. Ask your AI to do something useful
+
+Try one of these to see it work:
+
+- *"Move the Acme deal to stage 'Won' and add a note that the contract was signed today."*
+- *"Pull the last ten contacts I created. Any without an email address?"*
+- *"Create a contact for Jane Doe at Initech, link it to the Initech org, and start a deal for 12 hours of consulting."*
+
+The assistant will tell you which tools it used and what changed. No copy-paste, no app switching.
+
+## Next
+
+- **[Concepts](/docs/concepts)** — entities, custom columns, relations, at a glance.
+- **[From Pipedrive](/docs/from-pipedrive)** — if you're migrating.
+- **[MCP overview](/docs/mcp)** — what the agent can and can't do.
+- **[Webhooks](/docs/webhooks)** — wire Customermates to the rest of your stack.

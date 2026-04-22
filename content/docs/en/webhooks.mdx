@@ -1,0 +1,107 @@
+---
+title: Webhooks
+description: Subscribe to CRM events, verify signatures, and debug failed deliveries.
+---
+
+**TL;DR** — Pick events, give us an HTTPS URL, we POST JSON there every time something changes. Re-send failed deliveries from the UI or through MCP. Verify signatures with HMAC-SHA256 over the raw body.
+
+## Why webhooks
+
+Webhooks turn your CRM into the source of truth your other tools listen to. No polling, no stale data.
+
+Common uses:
+
+- Push new contacts into your email sequencer.
+- Open a ticket in your support tool when a deal is lost.
+- Trigger a finance workflow when a deal is marked won.
+- Sync to your data warehouse in near-real-time.
+
+## Create a webhook
+
+**UI:** Company → Webhooks → New.
+
+**MCP:** `create_webhook` with `url`, `events[]`, optional `description`, `secret`, `enabled`.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["contact.created", "contact.updated", "deal.updated"],
+  "secret": "use-a-random-string-from-a-password-manager",
+  "enabled": true
+}
+```
+
+The URL must be HTTPS. HTTP is rejected.
+
+## What you receive
+
+Every delivery is a `POST` with `Content-Type: application/json`:
+
+```json
+{
+  "event": "contact.updated",
+  "data": {
+    "userId": "...",
+    "companyId": "...",
+    "entityId": "...",
+    "payload": {
+      "contact": { "id": "...", "firstName": "Max", "lastName": "Mustermann" },
+      "changes": {
+        "organizationIds": { "previous": [], "current": ["..."] }
+      }
+    }
+  },
+  "timestamp": "2026-04-22T10:00:00.000Z"
+}
+```
+
+The `changes` record is only present on `*.updated` events. It names every field that actually moved, with previous and current values.
+
+See [webhook events](/docs/webhook-events) for the full event list and payload shapes.
+
+## Signature verification
+
+If you set a `secret`, every outgoing request includes:
+
+```
+X-Webhook-Signature: <hex>
+```
+
+Where `<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute on your side and compare in constant time.
+
+Node.js example:
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Retries and failed deliveries
+
+Every delivery is recorded. See them in the UI (Company → Webhook Deliveries) or through `list_webhook_deliveries`.
+
+A delivery is considered **failed** if the HTTP status is outside the 2xx range or the request times out.
+
+**Retry a failed delivery** through the UI or `resend_webhook_delivery` with the delivery id. A new delivery record is created; the original is unchanged.
+
+Customermates does not automatically retry failed deliveries. If your receiver is down, trigger retries from the UI or pipe `list_webhook_deliveries` through a monitoring script.
+
+## Ordering and concurrency
+
+Deliveries are **not** strictly ordered across events. Two `contact.updated` events a millisecond apart can arrive out of order. Use the timestamp in the payload to resolve, or treat deliveries as idempotent messages keyed by `entityId`.
+
+## Debugging tips
+
+- Use [webhook.site](https://webhook.site) for a throwaway receiver during integration testing.
+- The `list_webhook_deliveries` tool supports `searchTerm` on url and event name.
+- If your receiver returns a 500, Customermates records the response body so you can see exactly what happened.
+
+## Next
+
+- [Webhook events](/docs/webhook-events) — every event with payload shape.
+- [MCP tool catalog](/docs/mcp-tool-catalog#webhooks) — programmatic webhook management.
+- [n8n integration](/docs/n8n) — drop webhooks into visual workflows.

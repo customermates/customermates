@@ -1,0 +1,48 @@
+---
+title: Connect ChatGPT
+description: Use Customermates inside ChatGPT through its Connectors feature.
+---
+
+**TL;DR** — Add Customermates as a custom connector in ChatGPT, paste the URL and API key, then paste the [setup prompt](/docs/setup-ai-assistant) to start working.
+
+## Prerequisites
+
+- A paid ChatGPT plan that supports **Connectors** (Plus or higher).
+- A 64-character Customermates API key. Create one at **Profile → API Keys** — see [API keys](/docs/api-keys) for details.
+
+## Configure
+
+1. In ChatGPT, open **Settings → Connectors → Add connector**.
+2. Pick **Custom connector (MCP)**.
+3. Fill in:
+   - **Name:** Customermates
+   - **URL:** `https://customermates.com/api/v1/mcp` (self-host: swap in your URL)
+   - **Authentication:** Header
+   - **Header name:** `x-api-key`
+   - **Header value:** your 64-character key
+4. Save. ChatGPT will ping the server and list the available tools.
+
+## First conversation
+
+Start a new chat with the Customermates connector enabled. Paste the [setup prompt](/docs/setup-ai-assistant) as your first message. ChatGPT will orient itself and ask what to do.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| "Connector verification failed" | Wrong URL or key | Re-check URL and header value |
+| "Tool not found" | Stale connector cache | Remove the connector and re-add |
+| ChatGPT refuses to touch relationships | Null-wipe guard in the server | Ask ChatGPT to use `link_entities` / `unlink_entities` |
+| Enum field rejected | Value not in the list | Tell ChatGPT to call `get_entity_configuration` first |
+
+## Tips
+
+- ChatGPT does not remember your setup prompt across chats. Save the prompt in a snippet manager (Raycast, TextExpander, Alfred) so you can paste it fast.
+- Pin the Customermates connector so it's available on every chat that matters.
+- For long sessions, ask ChatGPT to "use `search_all_entities` before guessing the entity type" — the setup prompt already says this but a reminder helps on model drift.
+
+## Next
+
+- [MCP tool catalog](/docs/mcp-tool-catalog) — every callable tool.
+- [Connect Claude Desktop](/docs/mcp-connect-claude) — if you live in Claude instead.
+- [Webhooks](/docs/webhooks) — hear about changes outside ChatGPT.
