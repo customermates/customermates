@@ -10,12 +10,14 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
 import { AppForm } from "@/components/forms/form-context";
+import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { AppModal } from "./app-modal";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations("Common");
+  const handleApplicationError = useApplicationErrorHandler();
   const { deleteConfirmationModalStore: store } = useRootStore();
   const { isLoading, form, close } = store;
   const title = form.title || t("deleteConfirmation.title");
@@ -30,7 +32,7 @@ export const DeleteConfirmationModal = observer(() => {
       toast.success(t("notifications.deleted"));
       store.close();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("notifications.unexpectedError"));
+      handleApplicationError(err);
     } finally {
       store.setIsLoading(false);
     }

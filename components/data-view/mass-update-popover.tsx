@@ -14,6 +14,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { bulkUpdateCustomFieldValuesAction } from "@/app/actions";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -23,6 +24,7 @@ const SEARCH_THRESHOLD = 6;
 
 export const MassUpdatePopover = observer(function MassUpdatePopover<E extends HasId>({ store }: Props<E>) {
   const t = useTranslations("");
+  const handleApplicationError = useApplicationErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -56,7 +58,7 @@ export const MassUpdatePopover = observer(function MassUpdatePopover<E extends H
       toast.success(t("Common.notifications.updated"));
       setOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("Common.notifications.unexpectedError"));
+      handleApplicationError(err);
     } finally {
       setIsLoading(false);
     }

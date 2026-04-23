@@ -3,7 +3,6 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, toJS } from "mobx";
-import { toast } from "sonner";
 
 import { signInWithEmailAction } from "../actions";
 
@@ -41,10 +40,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
     try {
       const res = await signInWithEmailAction({ ...toJS(this.form), callbackURL: this.callbackURL });
 
-      if (!res.ok) {
-        this.setError(res.error);
-        if (res.error?.errors?.[0]) toast.error(res.error.errors?.[0]);
-      }
+      if (!res.ok) this.setError(res.error);
     } finally {
       this.setIsLoading(false);
     }

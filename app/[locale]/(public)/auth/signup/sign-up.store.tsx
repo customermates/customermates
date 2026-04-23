@@ -3,7 +3,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 
 import { action, makeObservable, observable, toJS } from "mobx";
-import { toast } from "sonner";
 
 import { signUpWithEmailAction } from "../actions";
 
@@ -34,10 +33,7 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
     try {
       const res = await signUpWithEmailAction(toJS(this.form));
 
-      if (!res.ok) {
-        this.setError(res.error);
-        if (res.error?.errors?.[0]) toast.error(res.error.errors?.[0]);
-      }
+      if (!res.ok) this.setError(res.error);
     } finally {
       this.setIsLoading(false);
     }
