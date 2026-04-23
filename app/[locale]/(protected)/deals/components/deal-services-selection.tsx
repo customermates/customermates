@@ -22,6 +22,17 @@ export const DealServicesSelection = observer(() => {
 
   if (!userStore.canAccess(Resource.services)) return null;
 
+  const serviceAmountById = new Map(fetchedEntity?.services.map((service) => [service.id, service.amount]) ?? []);
+
+  let totalQuantity = 0;
+  let totalValue = 0;
+  for (const entry of form.services ?? []) {
+    const entryQuantity = entry.quantity ?? 0;
+    totalQuantity += entryQuantity;
+    const amount = entry.serviceId ? (serviceAmountById.get(entry.serviceId) ?? 0) : 0;
+    totalValue += amount * entryQuantity;
+  }
+
   async function getServiceOptions(params: { searchTerm?: string }) {
     const result = await getServicesAction(params);
     return {
@@ -37,6 +48,22 @@ export const DealServicesSelection = observer(() => {
 
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
+      {(form.services || []).length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <AppChip>
+            <span className="text-subdued mr-1">{t("DealModal.totalQuantityLabel")}</span>
+
+            {intlStore.formatNumber(totalQuantity)}
+          </AppChip>
+
+          <AppChip>
+            <span className="text-subdued mr-1">{t("DealModal.totalValueLabel")}</span>
+
+            {intlStore.formatCurrency(totalValue)}
+          </AppChip>
+        </div>
+      )}
+
       <div className="w-full grid grid-cols-[minmax(120px,400px)_68px_40px] gap-2 items-center">
         <label className="text-x-md">{t("DealModal.servicesLabel")}</label>
 

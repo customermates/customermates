@@ -20,6 +20,7 @@
     "changes": "Changes",
     "createdAt": "Created At",
     "deletedField": "Deleted field",
+    "deletedFieldChanged": "Value changed on a field that has since been deleted.",
     "emptyHistory": "No change history available for this entry.",
     "entity": "Element",
     "entityId": "Element ID",
@@ -31,6 +32,7 @@
     "relationsDeleted": "{field} Removed",
     "title": "Audit Log Details",
     "titleHistory": "Change History",
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}",
     "userId": "User"
   },
   "AuditLogsCard": {
@@ -785,6 +787,8 @@
     "startDateLabel": "Start Date",
     "statusLabel": "Status",
     "title": "Deal",
+    "totalQuantityLabel": "Total Quantity",
+    "totalValueLabel": "Total Value",
     "valueLabel": "Value"
   },
   "DealsCard": {

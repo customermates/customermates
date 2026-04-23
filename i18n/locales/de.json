@@ -20,6 +20,7 @@
     "changes": "Änderungen",
     "createdAt": "Erstellt am",
     "deletedField": "Gelöschtes Feld",
+    "deletedFieldChanged": "Ein Feld wurde geändert, das inzwischen gelöscht wurde.",
     "emptyHistory": "Kein Änderungsverlauf für diesen Eintrag verfügbar.",
     "entity": "Element",
     "entityId": "Elements-ID",
@@ -31,6 +32,7 @@
     "relationsDeleted": "{field} entfernt",
     "title": "Audit-Log-Details",
     "titleHistory": "Änderungsverlauf",
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}",
     "userId": "Benutzer"
   },
   "AuditLogsCard": {
@@ -782,6 +784,8 @@
     "startDateLabel": "Startdatum",
     "statusLabel": "Status",
     "title": "Deal",
+    "totalQuantityLabel": "Gesamtmenge",
+    "totalValueLabel": "Gesamtwert",
     "valueLabel": "Wert"
   },
   "DealsCard": {

@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm";
 import deepEqual from "fast-deep-equal/es6";
 
 import { isEmpty, isRelationFieldKey, partitionRelationIds, processChanges } from "./entity-history-details.utils";
+import { NotesDiff } from "./notes-diff";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AppModal } from "@/components/modal/app-modal";
@@ -117,6 +118,11 @@ export const EntityHistoryDetailsModal = observer(() => {
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
     if (isCreatedEvent)
       return <div className="min-w-0">{renderValue(change.key, change.current, change.customColumn)}</div>;
+
+    if (change.key === "notes") return <NotesDiff current={change.current} previous={change.previous} />;
+
+    if (change.key === "customFieldValues" && !change.customColumn)
+      return <p className="text-subdued italic">{t("AuditLogModal.deletedFieldChanged")}</p>;
 
     if (isRelationFieldKey(change.key)) {
       if (!deepEqual(change.previous, change.current)) {
