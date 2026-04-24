@@ -297,7 +297,7 @@ export const FormAutocomplete = observer(
                 {showCreate && (
                   <CommandGroup>
                     <CommandItem value={`__create__${input}`} onSelect={() => void handleCreate()}>
-                      Add &ldquo;{input.trim()}&rdquo;
+                      {t("addOption", { value: input.trim() })}
                     </CommandItem>
                   </CommandGroup>
                 )}

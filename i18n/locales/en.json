@@ -352,6 +352,7 @@
     },
     "inputs": {
       "add": "Add",
+      "addOption": "Add \"{value}\"",
       "address": "Address",
       "aggregationType": "Metric",
       "agreeToTerms": "I agree to the terms and conditions",

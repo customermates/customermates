@@ -351,6 +351,7 @@
     },
     "inputs": {
       "add": "Hinzufügen",
+      "addOption": "„{value}\" hinzufügen",
       "address": "Adresse",
       "aggregationType": "Metrik",
       "agreeToTerms": "Ich stimme den Allgemeinen Geschäftsbedingungen zu",
