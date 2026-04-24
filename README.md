@@ -50,7 +50,7 @@ Docs entry points:
 - Cloud-only enterprise features: Audit Logging, Single Sign-On, and Whitelabeling
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
-- Cloud pricing from **€10**
+- Cloud pricing from **€9**
 
 ## 📊 Comparison
 
@@ -58,7 +58,7 @@ Customermates supports both cloud and self-hosted deployment models.
 
 | Criterion | Cloud | Self-Hosted |
 | --- | --- | --- |
-| Pricing | €10 | Infrastructure and ops costs vary |
+| Pricing | €9 | Infrastructure and ops costs vary |
 | Setup Time | 2 minutes | 60 - 120 minutes |
 | Maintenance Required | None | Regular updates |
 | Privacy friendly | ✅ | ✅ |
