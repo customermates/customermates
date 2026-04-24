@@ -2,6 +2,7 @@ import type { FormEvent } from "react";
 import type { $ZodErrorTree } from "zod/v4/core";
 import type { RootStore } from "../stores/root.store";
 
+import { createElement } from "react";
 import { makeObservable, observable, computed, action } from "mobx";
 import { JSONPath } from "jsonpath-plus";
 import equal from "fast-deep-equal/es6";
@@ -109,11 +110,23 @@ export abstract class BaseFormStore<T extends object = object> {
   }
 
   protected announceErrors(errors: Array<{ path: string; message: string }>) {
-    const lines = errors.map((e) => {
+    const items = errors.map((e) => {
       const label = this.getFieldLabel(e.path);
       return label ? `${label}: ${e.message}` : e.message;
     });
-    toast.error(lines.join("\n"));
+
+    if (items.length === 1) {
+      toast.error(items[0]);
+      return;
+    }
+
+    toast.error(
+      createElement(
+        "div",
+        { className: "space-y-1-5 text-xs" },
+        items.map((text, i) => createElement("div", { key: i }, text)),
+      ),
+    );
   }
 
   resetForm = () => {
