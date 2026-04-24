@@ -14,7 +14,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { getTaskRepo } from "@/core/di";
 
 export const DeleteManyTasksSchema = z
@@ -23,10 +22,8 @@ export const DeleteManyTasksSchema = z
   })
   .superRefine(async (data, ctx) => {
     const taskSet = new Set(data.ids);
-    const [validIdsSet, systemTaskIdsSet] = await preserveTenantContext(async () => {
-      const repo = getTaskRepo();
-      return Promise.all([repo.findIds(taskSet), repo.findSystemTaskIds(taskSet)]);
-    });
+    const repo = getTaskRepo();
+    const [validIdsSet, systemTaskIdsSet] = await Promise.all([repo.findIds(taskSet), repo.findSystemTaskIds(taskSet)]);
     validateTaskIds(data.ids, validIdsSet, ctx, ["ids"]);
     validateSystemTaskIds(data.ids, systemTaskIdsSet, ctx, ["ids"]);
   });

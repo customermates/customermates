@@ -23,7 +23,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
@@ -43,14 +42,12 @@ export const CreateManyContactsSchema = z
       contact.dealIds.forEach((id) => dealSet.add(id));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, allColumns] = await preserveTenantContext(async () => {
-      return await Promise.all([
-        getOrganizationRepo().findIds(organizationSet),
-        getCompanyRepo().findIds(userSet),
-        getDealRepo().findIds(dealSet),
-        getCustomColumnRepo().findByEntityType(EntityType.contact),
-      ]);
-    });
+    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, allColumns] = await Promise.all([
+      getOrganizationRepo().findIds(organizationSet),
+      getCompanyRepo().findIds(userSet),
+      getDealRepo().findIds(dealSet),
+      getCustomColumnRepo().findByEntityType(EntityType.contact),
+    ]);
 
     for (let i = 0; i < data.contacts.length; i++) {
       const contact = data.contacts[i];

@@ -33,18 +33,3 @@ export function isTenantGuardBypassed(): boolean {
 
   return store.bypass ?? false;
 }
-
-export async function preserveTenantContext<T>(fn: () => Promise<T>): Promise<T> {
-  const store = tenantStorage.getStore();
-
-  if (store && store.user) return await fn();
-
-  if (!store || !store.user) {
-    const { getUserService } = await import("@/core/di");
-    const user = await getUserService().getActiveUserOrThrow();
-
-    return await tenantStorage.run({ user, bypass: false }, fn);
-  }
-
-  return await fn();
-}

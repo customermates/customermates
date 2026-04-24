@@ -31,9 +31,9 @@ export function buildRelationChangePublishes<T extends Record<string, unknown>>(
   previousEntities: T[],
   currentEntities: T[],
   relationField: string,
-  publish: (currentEntity: T, changes: ChangeRecord) => Promise<void>,
+  publish: (currentEntity: T, changes: ChangeRecord) => Promise<unknown>,
   additionalFields?: string[],
-): Promise<void>[] {
+): Promise<unknown>[] {
   return currentEntities.flatMap((currentEntity, index) => {
     const changes = calculateChanges(previousEntities[index], currentEntity);
     if (!hasRelationChanged(changes, relationField, additionalFields)) return [];

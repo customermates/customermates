@@ -15,7 +15,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { validateDealIds } from "@/core/validation/validate-deal-ids";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getDealRepo } from "@/core/di";
@@ -26,7 +25,7 @@ export const DeleteDealSchema = z
   })
   .superRefine(async (data, ctx) => {
     const dealSet = new Set([data.id]);
-    const validIdsSet = await preserveTenantContext(() => getDealRepo().findIds(dealSet));
+    const validIdsSet = await getDealRepo().findIds(dealSet);
     validateDealIds(data.id, validIdsSet, ctx, ["id"]);
   });
 export type DeleteDealData = Data<typeof DeleteDealSchema>;

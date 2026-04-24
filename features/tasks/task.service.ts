@@ -1,7 +1,5 @@
 import type { Task, TaskType } from "@/generated/prisma";
 
-import { TenantScoped } from "@/core/decorators/tenant-scoped.decorator";
-
 export abstract class TaskRepo {
   abstract findByType(args: { type: TaskType }): Promise<Task | null>;
   abstract findByTypeAndRelatedUserId(args: { type: TaskType; relatedUserId: string }): Promise<Task | null>;
@@ -9,7 +7,6 @@ export abstract class TaskRepo {
   abstract delete(args: { id: string }): Promise<void>;
 }
 
-@TenantScoped
 export class TaskService {
   constructor(private repo: TaskRepo) {}
 

@@ -77,7 +77,7 @@ export const OnboardingForm = observer(({ email, firstName, lastName, avatarUrl 
             required
             id="agreeToTerms"
             label={
-              <>
+              <span>
                 {t.rich("OnboardingForm.agreeToTerms", {
                   dataPrivacyLink: (chunks) => (
                     <AppLink href="/privacy" target="_blank">
@@ -90,8 +90,7 @@ export const OnboardingForm = observer(({ email, firstName, lastName, avatarUrl 
                     </AppLink>
                   ),
                 })}
-                *
-              </>
+              </span>
             }
           />
 

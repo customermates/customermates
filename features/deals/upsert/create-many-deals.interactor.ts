@@ -25,7 +25,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getOrganizationRepo, getServiceRepo } from "@/core/di";
@@ -47,16 +46,13 @@ export const CreateManyDealsSchema = z
       deal.services.forEach((s) => serviceSet.add(s.serviceId));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, allColumns] =
-      await preserveTenantContext(async () => {
-        return await Promise.all([
-          getOrganizationRepo().findIds(organizationSet),
-          getCompanyRepo().findIds(userSet),
-          getContactRepo().findIds(contactSet),
-          getServiceRepo().findIds(serviceSet),
-          getCustomColumnRepo().findByEntityType(EntityType.deal),
-        ]);
-      });
+    const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, allColumns] = await Promise.all([
+      getOrganizationRepo().findIds(organizationSet),
+      getCompanyRepo().findIds(userSet),
+      getContactRepo().findIds(contactSet),
+      getServiceRepo().findIds(serviceSet),
+      getCustomColumnRepo().findByEntityType(EntityType.deal),
+    ]);
 
     for (let i = 0; i < data.deals.length; i++) {
       const deal = data.deals[i];

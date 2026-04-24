@@ -16,16 +16,16 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { getCompanyRepo, getCustomColumnRepo } from "@/core/di";
 
 export const CreateTaskSchema = BaseCreateTaskSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds);
 
-  const [validUserIdsSet, allColumns] = await preserveTenantContext(() =>
-    Promise.all([getCompanyRepo().findIds(userSet), getCustomColumnRepo().findByEntityType(EntityType.task)]),
-  );
+  const [validUserIdsSet, allColumns] = await Promise.all([
+    getCompanyRepo().findIds(userSet),
+    getCustomColumnRepo().findByEntityType(EntityType.task),
+  ]);
 
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
   validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);

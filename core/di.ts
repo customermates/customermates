@@ -40,6 +40,7 @@ import { SubscriptionService } from "@/ee/subscription/subscription.service";
 // Task Listeners
 import { CompanyOnboardingTaskListener } from "@/features/tasks/listener/company-onboarding-task.listener";
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
+import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
 import { GetContactsApiInteractor } from "@/features/contacts/get/get-contacts-api.interactor";
@@ -202,13 +203,31 @@ export const getTaskService = () => new TaskService(getTaskRepo());
 export const getValidateQueryParams = () => new ValidateQueryParamsValidator();
 export const getCompanyOnboardingTaskListener = () => new CompanyOnboardingTaskListener(getTaskService());
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskService());
-export const getEventService = () =>
-  new EventService(
-    [getCompanyOnboardingTaskListener(), getUserPendingAuthorizationTaskListener()],
-    getWebhookRepo(),
-    getWebhookDeliveryRepo(),
-    getAuditLogRepo(),
-  );
+
+const EXPECTED_TASK_LISTENER_HANDLERS = [
+  { factory: getCompanyOnboardingTaskListener, events: [DomainEvent.USER_REGISTERED, DomainEvent.COMPANY_UPDATED] },
+  {
+    factory: getUserPendingAuthorizationTaskListener,
+    events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
+  },
+] as const;
+
+export const getEventService = () => {
+  const listeners = EXPECTED_TASK_LISTENER_HANDLERS.map(({ factory, events }) => {
+    const listener = factory();
+    for (const event of events) {
+      if (!listener.handles(event)) {
+        throw new Error(
+          `Task listener ${listener.constructor.name} is missing handler for "${event}". ` +
+            `Check its declarative \`handlers\` field.`,
+        );
+      }
+    }
+    return listener;
+  });
+
+  return new EventService(listeners, getWebhookRepo(), getWebhookDeliveryRepo(), getAuditLogRepo());
+};
 export const getWidgetService = () => new WidgetService(getWidgetRepo());
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();
 export const getWidgetGroupingService = () => new WidgetGroupingService();

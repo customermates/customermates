@@ -4,8 +4,8 @@ import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhoo
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { TenantScoped } from "@/core/decorators/tenant-scoped.decorator";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { IS_DEVELOPMENT } from "@/constants/env";
 
 export abstract class GetWebhooksForEventRepo {
   abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
@@ -17,6 +17,13 @@ export abstract class CreateAuditLogRepo {
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
 
+export type PublishResult = {
+  event: DomainEvent;
+  skipped: "no-op-update" | null;
+  listenerHandlers: number;
+  webhookDeliveries: number;
+};
+
 function isNoOpUpdate(data: { payload: unknown }): boolean {
   const { payload } = data;
   if (typeof payload !== "object" || payload === null || !("changes" in payload)) return false;
@@ -24,7 +31,6 @@ function isNoOpUpdate(data: { payload: unknown }): boolean {
   return Object.keys(changes).length === 0;
 }
 
-@TenantScoped
 export class EventService extends UserAccessor {
   constructor(
     private readonly taskListeners: BaseTaskListener[],
@@ -35,23 +41,38 @@ export class EventService extends UserAccessor {
     super();
   }
 
-  async publish<E extends DomainEvent>(event: E, data: ScopedEventData<E>): Promise<void> {
-    // Skip no-op updates. `*.updated` payloads always carry a `changes` record;
-    // if it's empty, the entity didn't actually change and no listener, audit
-    // log, or webhook should fire.
-    if (isNoOpUpdate(data)) return;
+  async publish<E extends DomainEvent>(event: E, data: ScopedEventData<E>): Promise<PublishResult> {
+    if (isNoOpUpdate(data))
+      return this.logAndReturn({ event, skipped: "no-op-update", listenerHandlers: 0, webhookDeliveries: 0 });
 
     const { id: userId, companyId } = this.user;
 
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
 
-    const tasks = [
-      ...this.taskListeners.map((listener) => listener.handle(event, eventData)),
+    const matchingListeners = this.taskListeners.filter((l) => l.handles(event));
+
+    const [, , webhookDeliveries] = await Promise.all([
+      Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
       this.createAuditLog(event, eventData),
       this.createWebhookDeliveries(event, eventData),
-    ];
+    ]);
 
-    await Promise.all(tasks);
+    return this.logAndReturn({
+      event,
+      skipped: null,
+      listenerHandlers: matchingListeners.length,
+      webhookDeliveries,
+    });
+  }
+
+  private logAndReturn(result: PublishResult): PublishResult {
+    if (IS_DEVELOPMENT) {
+      const { event, skipped, listenerHandlers, webhookDeliveries } = result;
+      const suffix = skipped ? ` skipped=${skipped}` : ` listeners=${listenerHandlers} webhooks=${webhookDeliveries}`;
+      // eslint-disable-next-line no-console
+      console.log(`[event] ${event}${suffix}`);
+    }
+    return result;
   }
 
   private async createAuditLog(event: DomainEvent, payload: DomainEventMap[DomainEvent]) {
@@ -62,12 +83,12 @@ export class EventService extends UserAccessor {
     });
   }
 
-  private async createWebhookDeliveries(event: DomainEvent, payload: DomainEventMap[DomainEvent]) {
-    if (!(WebhookEventSchema.options as readonly string[]).includes(event)) return;
+  private async createWebhookDeliveries(event: DomainEvent, payload: DomainEventMap[DomainEvent]): Promise<number> {
+    if (!(WebhookEventSchema.options as readonly string[]).includes(event)) return 0;
 
     const webhooks = await this.webhookRepo.getWebhooksForEvent(event);
 
-    if (webhooks.length === 0) return;
+    if (webhooks.length === 0) return 0;
 
     const body = {
       event,
@@ -82,5 +103,6 @@ export class EventService extends UserAccessor {
     }));
 
     await this.webhookDeliveryRepo.create(data);
+    return webhooks.length;
   }
 }

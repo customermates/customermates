@@ -23,7 +23,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
@@ -34,16 +33,13 @@ export const UpdateOrganizationSchema = BaseUpdateOrganizationSchema.superRefine
   const dealSet = new Set(data.dealIds ?? []);
   const organizationSet = new Set([data.id]);
 
-  const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, allColumns] =
-    await preserveTenantContext(() =>
-      Promise.all([
-        getContactRepo().findIds(contactSet),
-        getCompanyRepo().findIds(userSet),
-        getDealRepo().findIds(dealSet),
-        getOrganizationRepo().findIds(organizationSet),
-        getCustomColumnRepo().findByEntityType(EntityType.organization),
-      ]),
-    );
+  const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, allColumns] = await Promise.all([
+    getContactRepo().findIds(contactSet),
+    getCompanyRepo().findIds(userSet),
+    getDealRepo().findIds(dealSet),
+    getOrganizationRepo().findIds(organizationSet),
+    getCustomColumnRepo().findByEntityType(EntityType.organization),
+  ]);
 
   validateOrganizationIds(data.id, validOrgIdsSet, ctx, ["id"]);
   validateContactIds(data.contactIds, validContactIdsSet, ctx, ["contactIds"]);

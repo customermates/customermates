@@ -21,7 +21,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { getCompanyRepo, getCustomColumnRepo, getTaskRepo } from "@/core/di";
 
 export const UpdateManyTasksSchema = z
@@ -37,13 +36,11 @@ export const UpdateManyTasksSchema = z
       task.userIds?.forEach((id) => userSet.add(id));
     }
 
-    const [validUserIdsSet, validTaskIdsSet, allColumns] = await preserveTenantContext(async () => {
-      return await Promise.all([
-        getCompanyRepo().findIds(userSet),
-        getTaskRepo().findIds(taskSet),
-        getCustomColumnRepo().findByEntityType(EntityType.task),
-      ]);
-    });
+    const [validUserIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
+      getCompanyRepo().findIds(userSet),
+      getTaskRepo().findIds(taskSet),
+      getCustomColumnRepo().findByEntityType(EntityType.task),
+    ]);
 
     for (let i = 0; i < data.tasks.length; i++) {
       const task = data.tasks[i];

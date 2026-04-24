@@ -1,22 +1,13 @@
-import type { DomainEventMap } from "@/features/event/domain-events";
-import type { DomainEvent } from "@/features/event/domain-events";
+import type { DomainEventMap, DomainEvent } from "@/features/event/domain-events";
 
 import type { TaskType } from "@/generated/prisma";
 
-type Handlers = { [K in DomainEvent]?: (payload: DomainEventMap[K]) => Promise<void> };
+export type DomainEventHandlers = { [K in DomainEvent]?: (payload: DomainEventMap[K]) => Promise<void> };
 
 export abstract class BaseTaskListener {
-  private readonly handlers: Handlers = {};
+  abstract readonly handlers: DomainEventHandlers;
 
-  constructor(protected taskType: TaskType) {
-    this.registerEventHandlers();
-  }
-
-  protected abstract registerEventHandlers(): void;
-
-  protected onEvent<E extends DomainEvent>(event: E, handler: Handlers[E]): void {
-    this.handlers[event] = handler;
-  }
+  constructor(protected taskType: TaskType) {}
 
   async handle<E extends DomainEvent>(event: E, payload: DomainEventMap[E]): Promise<void> {
     const handler = this.handlers[event];
@@ -24,5 +15,9 @@ export abstract class BaseTaskListener {
     if (!handler) return;
 
     await handler(payload);
+  }
+
+  handles(event: DomainEvent): boolean {
+    return typeof this.handlers[event] === "function";
   }
 }

@@ -12,7 +12,6 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { getTaskRepo } from "@/core/di";
 
 export const DeleteTaskSchema = z
@@ -21,10 +20,8 @@ export const DeleteTaskSchema = z
   })
   .superRefine(async (data, ctx) => {
     const taskSet = new Set([data.id]);
-    const [validIdsSet, systemTaskIdsSet] = await preserveTenantContext(async () => {
-      const repo = getTaskRepo();
-      return Promise.all([repo.findIds(taskSet), repo.findSystemTaskIds(taskSet)]);
-    });
+    const repo = getTaskRepo();
+    const [validIdsSet, systemTaskIdsSet] = await Promise.all([repo.findIds(taskSet), repo.findSystemTaskIds(taskSet)]);
     validateTaskIds(data.id, validIdsSet, ctx, ["id"]);
     validateSystemTaskIds(data.id, systemTaskIdsSet, ctx, ["id"]);
   });

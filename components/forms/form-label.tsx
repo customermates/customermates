@@ -16,7 +16,7 @@ export const FormLabel = observer(function FormLabel({ className, htmlFor, ...pr
 
   return (
     <Label
-      className={cn("text-xs font-normal text-muted-foreground", hasError && "text-destructive", className)}
+      className={cn("gap-0 text-xs font-normal text-muted-foreground", hasError && "text-destructive", className)}
       htmlFor={htmlFor}
       {...props}
     />

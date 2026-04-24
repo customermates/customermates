@@ -15,7 +15,6 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getOrganizationRepo } from "@/core/di";
@@ -26,7 +25,7 @@ export const DeleteOrganizationSchema = z
   })
   .superRefine(async (data, ctx) => {
     const organizationSet = new Set([data.id]);
-    const validIdsSet = await preserveTenantContext(() => getOrganizationRepo().findIds(organizationSet));
+    const validIdsSet = await getOrganizationRepo().findIds(organizationSet);
     validateOrganizationIds(data.id, validIdsSet, ctx, ["id"]);
   });
 export type DeleteOrganizationData = Data<typeof DeleteOrganizationSchema>;

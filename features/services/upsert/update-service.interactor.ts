@@ -21,7 +21,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
 import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo } from "@/core/di";
@@ -31,14 +30,12 @@ export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (da
   const dealSet = new Set(data.dealIds ?? []);
   const serviceSet = new Set([data.id]);
 
-  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, allColumns] = await preserveTenantContext(() =>
-    Promise.all([
-      getCompanyRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getServiceRepo().findIds(serviceSet),
-      getCustomColumnRepo().findByEntityType(EntityType.service),
-    ]),
-  );
+  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, allColumns] = await Promise.all([
+    getCompanyRepo().findIds(userSet),
+    getDealRepo().findIds(dealSet),
+    getServiceRepo().findIds(serviceSet),
+    getCustomColumnRepo().findByEntityType(EntityType.service),
+  ]);
 
   validateServiceIds(data.id, validServiceIdsSet, ctx, ["id"]);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);

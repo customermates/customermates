@@ -1,32 +1,33 @@
 import type { TaskService } from "../task.service";
+import type { DomainEventHandlers } from "@/features/tasks/listener/base-task.listener";
 
 import { TaskType } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
-import { TenantScoped } from "@/core/decorators/tenant-scoped.decorator";
 
-@TenantScoped
 export class CompanyOnboardingTaskListener extends BaseTaskListener {
+  readonly handlers: DomainEventHandlers;
+
   constructor(private taskService: TaskService) {
     super(TaskType.companyOnboarding);
-  }
 
-  protected registerEventHandlers(): void {
-    this.onEvent(DomainEvent.USER_REGISTERED, async ({ userId, payload }) => {
-      if (payload?.isNewCompany) {
+    this.handlers = {
+      [DomainEvent.USER_REGISTERED]: async ({ userId, payload }) => {
+        if (!payload?.isNewCompany) return;
+
         await this.taskService.create({
           type: this.taskType,
           userIds: [userId],
           name: "Finalize Company Onboarding",
         });
-      }
-    });
+      },
 
-    this.onEvent(DomainEvent.COMPANY_UPDATED, async () => {
-      const task = await this.taskService.findByType({ type: this.taskType });
+      [DomainEvent.COMPANY_UPDATED]: async () => {
+        const task = await this.taskService.findByType({ type: this.taskType });
 
-      if (task) await this.taskService.delete({ id: task.id });
-    });
+        if (task) await this.taskService.delete({ id: task.id });
+      },
+    };
   }
 }

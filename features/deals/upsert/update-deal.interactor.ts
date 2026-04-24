@@ -25,7 +25,6 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
 import {
@@ -46,16 +45,14 @@ export const UpdateDealSchema = BaseUpdateDealSchema.superRefine(async (data, ct
   const dealSet = new Set([data.id]);
 
   const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, validDealIdsSet, allColumns] =
-    await preserveTenantContext(() =>
-      Promise.all([
-        getOrganizationRepo().findIds(organizationSet),
-        getCompanyRepo().findIds(userSet),
-        getContactRepo().findIds(contactSet),
-        getServiceRepo().findIds(serviceSet),
-        getDealRepo().findIds(dealSet),
-        getCustomColumnRepo().findByEntityType(EntityType.deal),
-      ]),
-    );
+    await Promise.all([
+      getOrganizationRepo().findIds(organizationSet),
+      getCompanyRepo().findIds(userSet),
+      getContactRepo().findIds(contactSet),
+      getServiceRepo().findIds(serviceSet),
+      getDealRepo().findIds(dealSet),
+      getCustomColumnRepo().findByEntityType(EntityType.deal),
+    ]);
 
   validateDealIds(data.id, validDealIdsSet, ctx, ["id"]);
   validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);

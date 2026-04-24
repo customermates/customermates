@@ -20,7 +20,6 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -31,14 +30,12 @@ export const CreateContactSchema = BaseCreateContactSchema.superRefine(async (da
   const allUserIds = new Set(data.userIds);
   const allDealIds = new Set(data.dealIds);
 
-  const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, allColumns] = await preserveTenantContext(() =>
-    Promise.all([
-      getOrganizationRepo().findIds(allOrgIds),
-      getCompanyRepo().findIds(allUserIds),
-      getDealRepo().findIds(allDealIds),
-      getCustomColumnRepo().findByEntityType(EntityType.contact),
-    ]),
-  );
+  const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, allColumns] = await Promise.all([
+    getOrganizationRepo().findIds(allOrgIds),
+    getCompanyRepo().findIds(allUserIds),
+    getDealRepo().findIds(allDealIds),
+    getCustomColumnRepo().findByEntityType(EntityType.contact),
+  ]);
 
   validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);

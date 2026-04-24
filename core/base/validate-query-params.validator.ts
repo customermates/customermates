@@ -7,7 +7,6 @@ import { CustomColumnType } from "@/generated/prisma";
 import type { EntityType } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { TenantScoped } from "@/core/decorators/tenant-scoped.decorator";
 import { validateOrganizationIds } from "@/core/validation/validate-organization-ids";
 import { validateUserIds } from "@/core/validation/validate-user-ids";
 import { validateDealIds } from "@/core/validation/validate-deal-ids";
@@ -31,7 +30,6 @@ import {
   getCustomColumnRepo,
 } from "@/core/di";
 
-@TenantScoped
 export class ValidateQueryParamsValidator {
   async invoke(
     repo: { getFilterableFields: () => Promise<FilterableField[]>; getSortableFields: () => SortableField[] },

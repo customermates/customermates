@@ -16,7 +16,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { preserveTenantContext } from "@/core/decorators/tenant-context";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getContactRepo } from "@/core/di";
@@ -27,7 +26,7 @@ export const DeleteManyContactsSchema = z
   })
   .superRefine(async (data, ctx) => {
     const contactSet = new Set(data.ids);
-    const validIdsSet = await preserveTenantContext(() => getContactRepo().findIds(contactSet));
+    const validIdsSet = await getContactRepo().findIds(contactSet);
     validateContactIds(data.ids, validIdsSet, ctx, ["ids"]);
   });
 export type DeleteManyContactsData = Data<typeof DeleteManyContactsSchema>;
