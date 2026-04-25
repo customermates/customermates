@@ -396,7 +396,6 @@
       "isTemplate": "Share as template for other users of your organization",
       "label": "Label",
       "lastName": "Last Name",
-      "marketingEmails": "I want to receive news and offers by email",
       "message": "Message",
       "name": "Name",
       "options": {
@@ -1420,10 +1419,8 @@
   "UserSettingsForm": {
     "displayLanguage": "Display Language",
     "displayLanguageHint": "Controls the UI language — labels, buttons, etc.",
-    "emailSubscription": "Email Subscriptions",
     "formattingLocale": "Formatting Locale",
     "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted.",
-    "marketingEmails": "I want to receive news and offers by email",
     "title": "Settings"
   },
   "VerifyEmail": {

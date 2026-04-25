@@ -18,7 +18,6 @@ export class StepProfileStore extends BaseFormStore<RegisterUserData> {
       avatarUrl: null,
       email: "",
       agreeToTerms: false,
-      marketingEmails: false,
     });
 
     makeObservable(this, {

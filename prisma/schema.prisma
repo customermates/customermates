@@ -118,7 +118,6 @@ model User {
   country          CountryCode        @default(de)
   avatarUrl        String?
   agreeToTerms     Boolean            @default(false)
-  marketingEmails  Boolean            @default(false)
   lastActiveAt           DateTime?
   welcomeEmailSentAt           DateTime?
   trialExpiredOfferSentAt      DateTime?

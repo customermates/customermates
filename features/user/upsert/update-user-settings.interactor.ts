@@ -13,7 +13,6 @@ const Schema = z.object({
   theme: z.enum(Theme),
   displayLanguage: z.enum(Locale),
   formattingLocale: z.enum(Locale),
-  marketingEmails: z.boolean(),
 });
 export type UpdateUserSettingsData = Data<typeof Schema>;
 

@@ -55,7 +55,6 @@ export class PrismaUserRepo
       country: true,
       avatarUrl: true,
       agreeToTerms: true,
-      marketingEmails: true,
       lastActiveAt: true,
       onboardingWizardCompletedAt: true,
       createdAt: true,
@@ -118,7 +117,6 @@ export class PrismaUserRepo
         theme: args.theme,
         displayLanguage: args.displayLanguage,
         formattingLocale: args.formattingLocale,
-        marketingEmails: args.marketingEmails,
       },
       where: { id: userId, companyId },
     });
@@ -212,7 +210,6 @@ export class PrismaUserRepo
         country: args.country,
         status: Status.active,
         companyId: company.id,
-        marketingEmails: args.marketingEmails,
         roleId: adminRole.id,
       },
     });
@@ -392,7 +389,6 @@ export class PrismaUserRepo
         country: args.country,
         status: Status.pendingAuthorization,
         companyId: args.companyId,
-        marketingEmails: args.marketingEmails,
         onboardingWizardCompletedAt: new Date(),
       },
     });

@@ -74,7 +74,6 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
-      marketingEmails: false,
     });
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
@@ -101,7 +100,6 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
-      marketingEmails: false,
     });
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
@@ -121,7 +119,6 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
-      marketingEmails: false,
     });
 
     expect(mockAuthService.sendNewUserNotificationEmail).toHaveBeenCalledWith({
@@ -139,7 +136,6 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
-      marketingEmails: false,
     });
 
     expect(result.ok).toBe(true);

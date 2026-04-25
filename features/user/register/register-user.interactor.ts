@@ -25,7 +25,6 @@ const Schema = z
     country: z.enum(CountryCode),
     avatarUrl: secureUrlSchema().or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
-    marketingEmails: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.agreeToTerms !== true) {

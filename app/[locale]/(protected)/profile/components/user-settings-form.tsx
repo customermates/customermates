@@ -8,7 +8,6 @@ import { Locale, Theme } from "@/generated/prisma";
 
 import { AppForm } from "@/components/forms/form-context";
 import { FormSelect } from "@/components/forms/form-select";
-import { FormSwitch } from "@/components/forms/form-switch";
 import { FormActions } from "@/components/card/form-actions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -64,12 +63,6 @@ export const UserSettingsForm = observer(() => {
         </div>
 
         <FormSelect required id="theme" items={themeItems} label={t("Common.inputs.theme")} />
-
-        <div className="flex flex-col gap-2">
-          <p className="text-x-md">{t("UserSettingsForm.emailSubscription")}</p>
-
-          <FormSwitch id="marketingEmails" label={t("Common.inputs.marketingEmails")} />
-        </div>
       </div>
     </AppForm>
   );

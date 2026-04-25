@@ -53,7 +53,6 @@ export class UserStore {
         avatarUrl: user.avatarUrl,
       });
       this.rootStore.userSettingsStore.onInitOrRefresh({
-        marketingEmails: user.marketingEmails,
         displayLanguage: user.displayLanguage,
         formattingLocale: user.formattingLocale,
         theme: user.theme,

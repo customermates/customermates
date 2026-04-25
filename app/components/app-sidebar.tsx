@@ -74,7 +74,6 @@ export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, 
       theme: next,
       displayLanguage: currentUser.displayLanguage,
       formattingLocale: currentUser.formattingLocale,
-      marketingEmails: currentUser.marketingEmails,
     };
     const res = await updateThemeAction(settings);
     if (res.ok) userStore.updateUserSettings(res.data);
