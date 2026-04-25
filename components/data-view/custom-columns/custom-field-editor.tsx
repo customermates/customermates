@@ -53,8 +53,7 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
 
   const inputId = `custom-field-editor-${column.id}`;
   const resolvedLabel = label === undefined ? column.label : label;
-  const formLabel = hideLabel ? undefined : (resolvedLabel ?? t("Common.inputs." + inputId));
-  const formLabelNullable: string | null | undefined = hideLabel ? null : formLabel;
+  const formLabel: string | null | undefined = hideLabel ? null : (resolvedLabel ?? t("Common.inputs." + inputId));
 
   switch (column.type) {
     case CustomColumnType.singleSelect:
@@ -134,14 +133,14 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
             )
           }
           id={id ?? inputId}
-          label={formLabelNullable}
+          label={formLabel}
           value={formStringToNumber(value)}
           onValueChange={(n) => onChange(n === undefined ? undefined : String(n))}
         />
       );
 
     case CustomColumnType.plain:
-      return <FormInput id={id ?? inputId} label={formLabelNullable} />;
+      return <FormInput id={id ?? inputId} label={formLabel} />;
 
     case CustomColumnType.date:
       return (
@@ -149,7 +148,7 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
           dateOnly
           displayFormat={column.options?.displayFormat ?? undefined}
           id={id ?? inputId}
-          label={formLabelNullable}
+          label={formLabel}
         />
       );
 
@@ -159,7 +158,7 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
           dateOnly={false}
           displayFormat={column.options?.displayFormat ?? undefined}
           id={id ?? inputId}
-          label={formLabelNullable}
+          label={formLabel}
         />
       );
 
