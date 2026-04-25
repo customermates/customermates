@@ -393,6 +393,7 @@ export class PrismaUserRepo
         status: Status.pendingAuthorization,
         companyId: args.companyId,
         marketingEmails: args.marketingEmails,
+        onboardingWizardCompletedAt: new Date(),
       },
     });
 
