@@ -63,6 +63,7 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
       setResults: action,
       setDebouncedSearchTerm: action,
       pushRecentItem: action,
+      removeRecentItem: action,
       clearRecentItems: action,
     });
 
@@ -81,6 +82,11 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
     const next: RecentSearchItem = { ...item, openedAt: Date.now() };
     const filtered = this.recentItems.filter((it) => !(it.type === item.type && it.id === item.id));
     this.recentItems = [next, ...filtered].slice(0, RECENT_MAX);
+    writeRecentToStorage(this.recentItems);
+  };
+
+  removeRecentItem = (id: string) => {
+    this.recentItems = this.recentItems.filter((it) => it.id !== id);
     writeRecentToStorage(this.recentItems);
   };
 

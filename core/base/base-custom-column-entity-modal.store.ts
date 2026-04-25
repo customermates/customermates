@@ -125,7 +125,10 @@ export abstract class BaseCustomColumnEntityModalStore<
     try {
       const res = await this.actions.delete({ id });
 
-      if (res.ok) await this.entityStore.removeItem(id);
+      if (res.ok) {
+        await this.entityStore.removeItem(id);
+        this.rootStore.globalSearchModalStore.removeRecentItem(id);
+      }
 
       this.close();
       return res.ok;
