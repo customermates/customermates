@@ -17,6 +17,7 @@ import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { Icon } from "@/components/shared/icon";
 import { Favicon } from "@/components/shared/favicon";
 import { copyToClipboard } from "@/lib/clipboard";
+import { secureUrlSchema } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
@@ -116,7 +117,9 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
             );
           }}
           value={value}
-          onChipClick={(url) => window.open(url, "_blank", "noreferrer")}
+          onChipClick={(url) => {
+            if (secureUrlSchema().safeParse(url).success) window.open(url, "_blank", "noreferrer");
+          }}
           onValueChange={onChange}
         />
       );

@@ -178,19 +178,18 @@ export class PrismaContactRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, this.accessWhere("contact"));
-
-    const contacts = await this.prisma.contact.findMany({
-      ...args,
+    return this.list({
+      model: "contact",
+      baseWhere: this.accessWhere("contact"),
       select: this.userScopedSelect,
+      params,
+      map: (contact: Prisma.ContactGetPayload<{ select: PrismaContactRepo["userScopedSelect"] }>) => ({
+        ...contact,
+        organizations: contact.organizations.map((it) => it.organization),
+        users: contact.users.map((it) => it.user),
+        deals: contact.deals.map((it) => it.deal),
+      }),
     });
-
-    return contacts.map((contact) => ({
-      ...contact,
-      organizations: contact.organizations.map((it) => it.organization),
-      users: contact.users.map((it) => it.user),
-      deals: contact.deals.map((it) => it.deal),
-    }));
   }
 
   async getCount(params: GetQueryParams) {

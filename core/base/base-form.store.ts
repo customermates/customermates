@@ -229,18 +229,19 @@ export abstract class BaseFormStore<T extends object = object> {
     });
   };
 
+  // Sets a value at a dotted/bracketed path on the form, e.g. "filters[2].value" or "name".
+  // Walks to the parent and assigns the leaf — creates the leaf if MobX dropped it (undefined keys disappear).
   onChange = (id: string, value: unknown): void => {
-    const nodes = JSONPath({
-      path: this.normalizeJsonPath(id),
-      json: this.form,
-      resultType: "all",
-    });
+    const tokens = id.match(/[^.\[\]]+/g) ?? [];
+    const leaf = tokens.pop();
+    if (leaf === undefined) return;
 
-    for (const node of nodes) {
-      const parent = node.parent;
-      const property = node.parentProperty;
-      if (parent !== undefined && property !== undefined) parent[property] = value;
+    let parent: unknown = this.form;
+    for (const token of tokens) {
+      if (parent == null || typeof parent !== "object") return;
+      parent = (parent as Record<string, unknown>)[token];
     }
+    if (parent != null && typeof parent === "object") (parent as Record<string, unknown>)[leaf] = value;
   };
 
   private normalizeJsonPath(id: string): string {

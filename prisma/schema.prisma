@@ -318,6 +318,7 @@ model CustomFieldValue {
   entityType     EntityType
   columnId       String
   value          String?
+  numericValue   Decimal?         @db.Decimal(20, 4)
   type           CustomColumnType
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt

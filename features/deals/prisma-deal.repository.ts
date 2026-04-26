@@ -198,20 +198,19 @@ export class PrismaDealRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, this.accessWhere("deal"));
-
-    const deals = await this.prisma.deal.findMany({
-      ...args,
+    return this.list({
+      model: "deal",
+      baseWhere: this.accessWhere("deal"),
       select: this.userScopedSelect,
+      params,
+      map: (deal: Prisma.DealGetPayload<{ select: PrismaDealRepo["userScopedSelect"] }>) => ({
+        ...deal,
+        organizations: deal.organizations.map((it) => it.organization),
+        users: deal.users.map((it) => it.user),
+        contacts: deal.contacts.map((it) => it.contact),
+        services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      }),
     });
-
-    return deals.map((deal) => ({
-      ...deal,
-      organizations: deal.organizations.map((it) => it.organization),
-      users: deal.users.map((it) => it.user),
-      contacts: deal.contacts.map((it) => it.contact),
-      services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-    }));
   }
 
   async getCount(params: GetQueryParams) {

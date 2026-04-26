@@ -878,6 +878,16 @@
                                   "title": "between",
                                   "type": "string",
                                   "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
                                 }
                               ]
                             },
@@ -912,16 +922,6 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
-                                },
-                                {
-                                  "title": "hasNone",
-                                  "type": "string",
-                                  "const": "hasNone"
-                                },
-                                {
-                                  "title": "hasSome",
-                                  "type": "string",
-                                  "const": "hasSome"
                                 }
                               ]
                             }
@@ -1575,6 +1575,16 @@
                                     "title": "between",
                                     "type": "string",
                                     "const": "between"
+                                  },
+                                  {
+                                    "title": "hasNone",
+                                    "type": "string",
+                                    "const": "hasNone"
+                                  },
+                                  {
+                                    "title": "hasSome",
+                                    "type": "string",
+                                    "const": "hasSome"
                                   }
                                 ]
                               },
@@ -1610,16 +1620,6 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
-                                  },
-                                  {
-                                    "title": "hasNone",
-                                    "type": "string",
-                                    "const": "hasNone"
-                                  },
-                                  {
-                                    "title": "hasSome",
-                                    "type": "string",
-                                    "const": "hasSome"
                                   }
                                 ]
                               }
@@ -1836,6 +1836,16 @@
                                           "title": "between",
                                           "type": "string",
                                           "const": "between"
+                                        },
+                                        {
+                                          "title": "hasNone",
+                                          "type": "string",
+                                          "const": "hasNone"
+                                        },
+                                        {
+                                          "title": "hasSome",
+                                          "type": "string",
+                                          "const": "hasSome"
                                         }
                                       ]
                                     },
@@ -1871,16 +1881,6 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
-                                        },
-                                        {
-                                          "title": "hasNone",
-                                          "type": "string",
-                                          "const": "hasNone"
-                                        },
-                                        {
-                                          "title": "hasSome",
-                                          "type": "string",
-                                          "const": "hasSome"
                                         }
                                       ]
                                     }
@@ -2667,7 +2667,22 @@
                     "sortableFields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ],
+                        "additionalProperties": false
                       }
                     }
                   },
@@ -4738,6 +4753,16 @@
                                   "title": "between",
                                   "type": "string",
                                   "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
                                 }
                               ]
                             },
@@ -4772,16 +4797,6 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
-                                },
-                                {
-                                  "title": "hasNone",
-                                  "type": "string",
-                                  "const": "hasNone"
-                                },
-                                {
-                                  "title": "hasSome",
-                                  "type": "string",
-                                  "const": "hasSome"
                                 }
                               ]
                             }
@@ -5435,6 +5450,16 @@
                                     "title": "between",
                                     "type": "string",
                                     "const": "between"
+                                  },
+                                  {
+                                    "title": "hasNone",
+                                    "type": "string",
+                                    "const": "hasNone"
+                                  },
+                                  {
+                                    "title": "hasSome",
+                                    "type": "string",
+                                    "const": "hasSome"
                                   }
                                 ]
                               },
@@ -5470,16 +5495,6 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
-                                  },
-                                  {
-                                    "title": "hasNone",
-                                    "type": "string",
-                                    "const": "hasNone"
-                                  },
-                                  {
-                                    "title": "hasSome",
-                                    "type": "string",
-                                    "const": "hasSome"
                                   }
                                 ]
                               }
@@ -5696,6 +5711,16 @@
                                           "title": "between",
                                           "type": "string",
                                           "const": "between"
+                                        },
+                                        {
+                                          "title": "hasNone",
+                                          "type": "string",
+                                          "const": "hasNone"
+                                        },
+                                        {
+                                          "title": "hasSome",
+                                          "type": "string",
+                                          "const": "hasSome"
                                         }
                                       ]
                                     },
@@ -5731,16 +5756,6 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
-                                        },
-                                        {
-                                          "title": "hasNone",
-                                          "type": "string",
-                                          "const": "hasNone"
-                                        },
-                                        {
-                                          "title": "hasSome",
-                                          "type": "string",
-                                          "const": "hasSome"
                                         }
                                       ]
                                     }
@@ -6527,7 +6542,22 @@
                     "sortableFields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ],
+                        "additionalProperties": false
                       }
                     }
                   },
@@ -8708,6 +8738,16 @@
                                   "title": "between",
                                   "type": "string",
                                   "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
                                 }
                               ]
                             },
@@ -8742,16 +8782,6 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
-                                },
-                                {
-                                  "title": "hasNone",
-                                  "type": "string",
-                                  "const": "hasNone"
-                                },
-                                {
-                                  "title": "hasSome",
-                                  "type": "string",
-                                  "const": "hasSome"
                                 }
                               ]
                             }
@@ -9405,6 +9435,16 @@
                                     "title": "between",
                                     "type": "string",
                                     "const": "between"
+                                  },
+                                  {
+                                    "title": "hasNone",
+                                    "type": "string",
+                                    "const": "hasNone"
+                                  },
+                                  {
+                                    "title": "hasSome",
+                                    "type": "string",
+                                    "const": "hasSome"
                                   }
                                 ]
                               },
@@ -9440,16 +9480,6 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
-                                  },
-                                  {
-                                    "title": "hasNone",
-                                    "type": "string",
-                                    "const": "hasNone"
-                                  },
-                                  {
-                                    "title": "hasSome",
-                                    "type": "string",
-                                    "const": "hasSome"
                                   }
                                 ]
                               }
@@ -9666,6 +9696,16 @@
                                           "title": "between",
                                           "type": "string",
                                           "const": "between"
+                                        },
+                                        {
+                                          "title": "hasNone",
+                                          "type": "string",
+                                          "const": "hasNone"
+                                        },
+                                        {
+                                          "title": "hasSome",
+                                          "type": "string",
+                                          "const": "hasSome"
                                         }
                                       ]
                                     },
@@ -9701,16 +9741,6 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
-                                        },
-                                        {
-                                          "title": "hasNone",
-                                          "type": "string",
-                                          "const": "hasNone"
-                                        },
-                                        {
-                                          "title": "hasSome",
-                                          "type": "string",
-                                          "const": "hasSome"
                                         }
                                       ]
                                     }
@@ -10535,7 +10565,22 @@
                     "sortableFields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ],
+                        "additionalProperties": false
                       }
                     }
                   },
@@ -12640,6 +12685,16 @@
                                   "title": "between",
                                   "type": "string",
                                   "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
                                 }
                               ]
                             },
@@ -12674,16 +12729,6 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
-                                },
-                                {
-                                  "title": "hasNone",
-                                  "type": "string",
-                                  "const": "hasNone"
-                                },
-                                {
-                                  "title": "hasSome",
-                                  "type": "string",
-                                  "const": "hasSome"
                                 }
                               ]
                             }
@@ -13337,6 +13382,16 @@
                                     "title": "between",
                                     "type": "string",
                                     "const": "between"
+                                  },
+                                  {
+                                    "title": "hasNone",
+                                    "type": "string",
+                                    "const": "hasNone"
+                                  },
+                                  {
+                                    "title": "hasSome",
+                                    "type": "string",
+                                    "const": "hasSome"
                                   }
                                 ]
                               },
@@ -13372,16 +13427,6 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
-                                  },
-                                  {
-                                    "title": "hasNone",
-                                    "type": "string",
-                                    "const": "hasNone"
-                                  },
-                                  {
-                                    "title": "hasSome",
-                                    "type": "string",
-                                    "const": "hasSome"
                                   }
                                 ]
                               }
@@ -13598,6 +13643,16 @@
                                           "title": "between",
                                           "type": "string",
                                           "const": "between"
+                                        },
+                                        {
+                                          "title": "hasNone",
+                                          "type": "string",
+                                          "const": "hasNone"
+                                        },
+                                        {
+                                          "title": "hasSome",
+                                          "type": "string",
+                                          "const": "hasSome"
                                         }
                                       ]
                                     },
@@ -13633,16 +13688,6 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
-                                        },
-                                        {
-                                          "title": "hasNone",
-                                          "type": "string",
-                                          "const": "hasNone"
-                                        },
-                                        {
-                                          "title": "hasSome",
-                                          "type": "string",
-                                          "const": "hasSome"
                                         }
                                       ]
                                     }
@@ -14407,7 +14452,22 @@
                     "sortableFields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ],
+                        "additionalProperties": false
                       }
                     }
                   },
@@ -16299,6 +16359,16 @@
                                   "title": "between",
                                   "type": "string",
                                   "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
                                 }
                               ]
                             },
@@ -16333,16 +16403,6 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
-                                },
-                                {
-                                  "title": "hasNone",
-                                  "type": "string",
-                                  "const": "hasNone"
-                                },
-                                {
-                                  "title": "hasSome",
-                                  "type": "string",
-                                  "const": "hasSome"
                                 }
                               ]
                             }
@@ -16996,6 +17056,16 @@
                                     "title": "between",
                                     "type": "string",
                                     "const": "between"
+                                  },
+                                  {
+                                    "title": "hasNone",
+                                    "type": "string",
+                                    "const": "hasNone"
+                                  },
+                                  {
+                                    "title": "hasSome",
+                                    "type": "string",
+                                    "const": "hasSome"
                                   }
                                 ]
                               },
@@ -17031,16 +17101,6 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
-                                  },
-                                  {
-                                    "title": "hasNone",
-                                    "type": "string",
-                                    "const": "hasNone"
-                                  },
-                                  {
-                                    "title": "hasSome",
-                                    "type": "string",
-                                    "const": "hasSome"
                                   }
                                 ]
                               }
@@ -17257,6 +17317,16 @@
                                           "title": "between",
                                           "type": "string",
                                           "const": "between"
+                                        },
+                                        {
+                                          "title": "hasNone",
+                                          "type": "string",
+                                          "const": "hasNone"
+                                        },
+                                        {
+                                          "title": "hasSome",
+                                          "type": "string",
+                                          "const": "hasSome"
                                         }
                                       ]
                                     },
@@ -17292,16 +17362,6 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
-                                        },
-                                        {
-                                          "title": "hasNone",
-                                          "type": "string",
-                                          "const": "hasNone"
-                                        },
-                                        {
-                                          "title": "hasSome",
-                                          "type": "string",
-                                          "const": "hasSome"
                                         }
                                       ]
                                     }
@@ -18048,7 +18108,22 @@
                     "sortableFields": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field"
+                        ],
+                        "additionalProperties": false
                       }
                     }
                   },

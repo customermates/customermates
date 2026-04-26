@@ -34,7 +34,7 @@ export class DealsStore extends BaseDataViewStore<DealDto> {
       this.canAccessContacts && { uid: "contacts" },
       this.canAccessOrganizations && { uid: "organizations" },
       this.canAccessServices && { uid: "services" },
-      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label })),
+      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },
       { uid: "createdAt", sortable: true },

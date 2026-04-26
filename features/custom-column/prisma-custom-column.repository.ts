@@ -88,10 +88,30 @@ export class PrismaCustomColumnRepo
       FilterOperatorKey.isNull,
       FilterOperatorKey.isNotNull,
     ],
-    [CustomColumnType.email]: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
-    [CustomColumnType.phone]: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
-    [CustomColumnType.plain]: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
-    [CustomColumnType.link]: [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull],
+    [CustomColumnType.email]: [
+      FilterOperatorKey.equals,
+      FilterOperatorKey.contains,
+      FilterOperatorKey.isNull,
+      FilterOperatorKey.isNotNull,
+    ],
+    [CustomColumnType.phone]: [
+      FilterOperatorKey.equals,
+      FilterOperatorKey.contains,
+      FilterOperatorKey.isNull,
+      FilterOperatorKey.isNotNull,
+    ],
+    [CustomColumnType.plain]: [
+      FilterOperatorKey.equals,
+      FilterOperatorKey.contains,
+      FilterOperatorKey.isNull,
+      FilterOperatorKey.isNotNull,
+    ],
+    [CustomColumnType.link]: [
+      FilterOperatorKey.equals,
+      FilterOperatorKey.contains,
+      FilterOperatorKey.isNull,
+      FilterOperatorKey.isNotNull,
+    ],
   };
 
   async find(id: string) {
@@ -239,10 +259,16 @@ export class PrismaCustomColumnRepo
 
         if (!type) return acc;
 
+        const numericValue =
+          type === CustomColumnType.currency && value != null && value !== "" && !Number.isNaN(Number(value))
+            ? Number(value)
+            : null;
+
         acc.push({
           entityType,
           columnId,
           value,
+          numericValue,
           type,
           companyId,
           ...relationWhere,
@@ -266,17 +292,15 @@ export class PrismaCustomColumnRepo
   async getFilterableCustomFields(entityType: EntityType) {
     const columns = await this.findByEntityType(entityType);
 
-    return columns
-      .filter((column) => column.type !== CustomColumnType.currency)
-      .flatMap((column) => {
-        return [
-          {
-            field: column.id,
-            operators: this.operatorsByType[column.type],
-            label: column.label,
-          },
-        ];
-      });
+    return columns.flatMap((column) => {
+      return [
+        {
+          field: column.id,
+          operators: this.operatorsByType[column.type],
+          label: column.label,
+        },
+      ];
+    });
   }
 
   private async createDefaultCustomFieldValues(columnId: string, entityType: EntityType, defaultValue: string) {

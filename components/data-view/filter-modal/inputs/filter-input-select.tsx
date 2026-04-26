@@ -107,18 +107,25 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                   <AppChip
                     key={k}
                     endContent={
-                      <button
+                      <span
                         aria-label="Remove"
                         className="ml-0.5 opacity-50 hover:opacity-100 transition-opacity"
+                        role="button"
                         tabIndex={-1}
-                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeKey(k);
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter" && e.key !== " ") return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeKey(k);
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
                       >
                         <XIcon className="size-3" />
-                      </button>
+                      </span>
                     }
                     startContent={item?.startContent}
                     variant={item?.color ?? "secondary"}
@@ -136,7 +143,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] p-0">
+      <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
         <Command shouldFilter={false}>
           <CommandInput placeholder="Search..." value={input} onValueChange={setInput} />
 

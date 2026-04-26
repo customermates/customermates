@@ -30,7 +30,7 @@ export const FilterAccordion = observer(function FilterAccordion({
   const itemClassName = nested ? "border-b-0" : "border-b last:border-b-0 px-3";
 
   return (
-    <Accordion className="flex flex-col" type="multiple">
+    <Accordion collapsible className="flex flex-col" type="single">
       {filters.map((filter, index) => {
         const isCustom = isCustomField(filter.field);
         const customColumn = isCustom ? customColumns?.find((col) => col.id === filter.field) : null;

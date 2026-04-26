@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -92,7 +91,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-96 p-0">
+      <PopoverContent align="end" className="flex max-h-[calc(100vh-5rem)] w-96 flex-col p-0">
         <AppForm store={modalStore}>
           <PopoverSection label={t("filters.presets.label")}>
             {isCreatingPreset ? (
@@ -164,16 +163,16 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
 
           <Separator />
 
-          <ScrollArea className="max-h-[60vh]">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <FilterAccordion
               baseId="filters"
               customColumns={customColumns}
               filterableFields={store.filterableFields}
               filters={modalStore.form.filters}
             />
-          </ScrollArea>
+          </div>
 
-          <div className="flex flex-col-reverse gap-2 border-t border-border p-2 sm:flex-row sm:justify-end">
+          <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-border p-2 sm:flex-row sm:justify-end">
             {isCreatingPreset && (
               <Button className="h-8" size="sm" type="button" variant="outline" onClick={handleCancelCreatePreset}>
                 {t("actions.cancel")}

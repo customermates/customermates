@@ -30,6 +30,8 @@ export const FilterSchema = z.discriminatedUnion("operator", [
         z.literal(FilterOperatorKey.in).meta({ title: "in" }),
         z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
         z.literal(FilterOperatorKey.between).meta({ title: "between" }),
+        z.literal(FilterOperatorKey.hasNone).meta({ title: "hasNone" }),
+        z.literal(FilterOperatorKey.hasSome).meta({ title: "hasSome" }),
       ]),
       value: z.array(z.string()),
     })
@@ -49,8 +51,6 @@ export const FilterSchema = z.discriminatedUnion("operator", [
       operator: z.union([
         z.literal(FilterOperatorKey.isNull).meta({ title: "isNull" }),
         z.literal(FilterOperatorKey.isNotNull).meta({ title: "isNotNull" }),
-        z.literal(FilterOperatorKey.hasNone).meta({ title: "hasNone" }),
-        z.literal(FilterOperatorKey.hasSome).meta({ title: "hasSome" }),
       ]),
     })
     .meta({ title: "Standalone filter" }),
@@ -93,6 +93,13 @@ export const FilterableFieldSchema = z.object({
 });
 export type FilterableField = Data<typeof FilterableFieldSchema>;
 
+export const SortableFieldDescriptorSchema = z.object({
+  field: z.string(),
+  label: z.string().optional(),
+  columnType: z.string().optional(),
+});
+export type SortableFieldDescriptor = Data<typeof SortableFieldDescriptorSchema>;
+
 export const GetQueryParamsApiSchema = z.object({
   filters: z.array(FilterSchema).optional(),
   searchTerm: z.string().optional(),
@@ -109,7 +116,7 @@ export type GetQueryParams = Data<typeof GetQueryParamsSchema>;
 export const GetConfigurationSchema = z.object({
   customColumns: z.array(CustomColumnDtoSchema),
   filterableFields: z.array(FilterableFieldSchema),
-  sortableFields: z.array(z.string()),
+  sortableFields: z.array(SortableFieldDescriptorSchema),
 });
 
 export const GetResultSchema = z.object({

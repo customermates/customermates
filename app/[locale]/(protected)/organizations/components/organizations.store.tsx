@@ -27,7 +27,7 @@ export class OrganizationsStore extends BaseDataViewStore<OrganizationDto> {
       { uid: "name", sortable: true },
       this.canAccessContacts && { uid: "contacts" },
       this.canAccessDeals && { uid: "deals" },
-      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label })),
+      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },
       { uid: "createdAt", sortable: true },

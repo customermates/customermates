@@ -63,7 +63,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.serviceIds]: "services.serviceId",
   [FilterFieldKey.dealIds]: "deals.dealId",
   [FilterFieldKey.organizationIds]: "organizations.organizationId",
-  [FilterFieldKey.contactIds]: "contacts.id",
+  [FilterFieldKey.contactIds]: "contacts.contactId",
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",
   [FilterFieldKey.event]: "event",
@@ -94,16 +94,20 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
     const where = await this.buildWhereClause(params.filters, params.searchTerm, baseWhere);
-    const orderBy = this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
+    const customColumns = await this.getCustomColumns();
+    const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
+    const orderBy = customSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
     const pagination = this.buildPagination(params.pagination);
 
-    return { where, orderBy, ...pagination };
+    return { where, orderBy, customSort, ...pagination };
   }
 
   validateFilters(filters: Filter[] | undefined, filterableFields: FilterableField[]): Filter[] {
     if (!Array.isArray(filters)) return [];
 
-    return filters.filter((filter) => {
+    const result: Filter[] = [];
+
+    for (const filter of filters) {
       const hasValidStructure =
         filter &&
         typeof filter === "object" &&
@@ -112,15 +116,23 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         filter.operator &&
         typeof filter.operator === "string";
 
-      if (!hasValidStructure) return false;
+      if (!hasValidStructure) continue;
 
-      return filterableFields.some((f) => f.field === filter.field && f.operators.includes(filter.operator));
-    });
+      const fieldConfig = filterableFields.find((f) => f.field === filter.field);
+      if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
+
+      if (!isFilterValueWellFormed(filter, fieldConfig.operators)) continue;
+
+      result.push(maybeExpandDateEqualsToDayRange(filter, fieldConfig.operators));
+    }
+
+    return result;
   }
 
   validateSortDescriptor(
     sortDescriptor: SortDescriptor | undefined,
     sortableFields: SortableField[],
+    customColumns: CustomColumnDto[] = [],
   ): SortDescriptor | undefined {
     if (!sortDescriptor) return undefined;
     if (!sortDescriptor || typeof sortDescriptor !== "object") return undefined;
@@ -130,6 +142,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const validDirections = ["asc", "desc"];
     const isValidDirection = validDirections.includes(sortDescriptor.direction);
     if (!isValidDirection) return undefined;
+
+    if (customColumns.some((c) => c.id === sortDescriptor.field)) return sortDescriptor;
 
     const matched = sortableFields.find((s) => s.field === sortDescriptor.field);
     return matched ? sortDescriptor : undefined;
@@ -156,7 +170,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const filterableFields = await this.getFilterableFields();
     const validFilters = this.validateFilters(filters, filterableFields);
 
-    for (const filter of validFilters) this.applyFieldFilter(where, filter);
+    for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields);
 
     const searchGroup = this.buildSearchGroup(searchTerm);
 
@@ -208,11 +222,14 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   private applyFieldFilter(
     where: WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>,
     filter: Filter,
+    filterableFields: FilterableField[],
   ): void {
     const isCustom = isCustomField(filter.field);
 
     if (isCustom) {
-      const condition = this.buildFilterCondition(filter, "value");
+      const fieldConfig = filterableFields.find((f) => f.field === filter.field);
+      const valueField = fieldConfig && isNumericField(fieldConfig.operators) ? "numericValue" : "value";
+      const condition = this.buildFilterCondition(filter, valueField);
       where.AND = [...(where.AND ?? []), this.createClause("customFieldValues", condition)];
       return;
     }
@@ -336,9 +353,13 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
           : { none: { [relationField]: { in: filter.value } } };
       }
       case FilterOperatorKey.hasNone:
-        return { none: {} };
+        return isCustom
+          ? { none: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          : { none: { [relationField]: { in: filter.value } } };
       case FilterOperatorKey.hasSome:
-        return { some: {} };
+        return isCustom
+          ? { some: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          : { some: { [relationField]: { in: filter.value } } };
       case FilterOperatorKey.isNull:
         return isCustom
           ? { none: { AND: [{ columnId: filter.field }, { [relationField]: { not: null } }] } }
@@ -356,4 +377,84 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
       }
     }
   }
+}
+
+export type CustomSort = { columnId: string; direction: "asc" | "desc"; columnType: CustomColumnDto["type"] };
+
+function resolveCustomSort(
+  sortDescriptor: SortDescriptor | undefined,
+  customColumns: CustomColumnDto[],
+): CustomSort | undefined {
+  if (!sortDescriptor) return undefined;
+  const column = customColumns.find((c) => c.id === sortDescriptor.field);
+  if (!column) return undefined;
+  return { columnId: column.id, direction: sortDescriptor.direction, columnType: column.type };
+}
+
+export function compareCustomFieldValues(
+  a: string | null | undefined,
+  b: string | null | undefined,
+  direction: "asc" | "desc",
+  columnType: CustomColumnDto["type"],
+): number {
+  const isMissing = (v: typeof a) => v === null || v === undefined || v === "";
+  if (isMissing(a)) return isMissing(b) ? 0 : 1;
+  if (isMissing(b)) return -1;
+
+  const cmp =
+    columnType === "currency"
+      ? Number(a) - Number(b)
+      : columnType === "date" || columnType === "dateTime"
+        ? new Date(a).getTime() - new Date(b).getTime()
+        : a.localeCompare(b);
+  return direction === "asc" ? cmp : -cmp;
+}
+
+const COMPARISON_OPS = [FilterOperatorKey.gt, FilterOperatorKey.gte, FilterOperatorKey.lt, FilterOperatorKey.lte];
+
+function isDateLikeField(operators: FilterOperatorKey[]): boolean {
+  return operators.includes(FilterOperatorKey.between);
+}
+
+function isNumericField(operators: FilterOperatorKey[]): boolean {
+  return !isDateLikeField(operators) && COMPARISON_OPS.some((op) => operators.includes(op));
+}
+
+function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorKey[]): boolean {
+  if (filter.operator === FilterOperatorKey.isNull || filter.operator === FilterOperatorKey.isNotNull) return true;
+
+  const rawValue: unknown = "value" in filter ? filter.value : undefined;
+
+  if (filter.operator === FilterOperatorKey.between) {
+    if (!Array.isArray(rawValue) || rawValue.length !== 2) return false;
+  } else if (Array.isArray(rawValue)) {
+    if (rawValue.length === 0) return false;
+  } else if (rawValue === undefined || rawValue === null || rawValue === "") return false;
+
+  const values = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  if (isDateLikeField(fieldOperators))
+    return values.every((v) => typeof v === "string" && !Number.isNaN(new Date(v).getTime()));
+
+  if (isNumericField(fieldOperators))
+    return values.every((v) => v !== "" && v !== null && v !== undefined && !Number.isNaN(Number(v)));
+
+  return true;
+}
+
+function maybeExpandDateEqualsToDayRange(filter: Filter, fieldOperators: FilterOperatorKey[]): Filter {
+  if (filter.operator !== FilterOperatorKey.equals || !isDateLikeField(fieldOperators)) return filter;
+  const value = "value" in filter ? filter.value : undefined;
+  if (typeof value !== "string" || !value.endsWith("T00:00:00Z")) return filter;
+
+  const start = new Date(value);
+  if (Number.isNaN(start.getTime())) return filter;
+  const end = new Date(start);
+  end.setUTCHours(23, 59, 59, 999);
+
+  return {
+    field: filter.field,
+    operator: FilterOperatorKey.between,
+    value: [start.toISOString(), end.toISOString()],
+  };
 }

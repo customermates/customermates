@@ -98,17 +98,16 @@ export class PrismaTaskRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, this.accessWhere("task"));
-
-    const tasks = await this.prisma.task.findMany({
-      ...args,
+    return this.list({
+      model: "task",
+      baseWhere: this.accessWhere("task"),
       select: this.userScopedSelect,
+      params,
+      map: (task: Prisma.TaskGetPayload<{ select: PrismaTaskRepo["userScopedSelect"] }>) => ({
+        ...task,
+        users: task.users.map((it) => it.user),
+      }),
     });
-
-    return tasks.map((task) => ({
-      ...task,
-      users: task.users.map((it) => it.user),
-    }));
   }
 
   async getCount(params: GetQueryParams) {

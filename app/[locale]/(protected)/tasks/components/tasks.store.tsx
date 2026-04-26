@@ -17,7 +17,7 @@ export class TasksStore extends BaseDataViewStore<TaskDto> {
   get columnsDefinition() {
     const columns: (TableColumn | false)[] = [
       { uid: "name", sortable: true },
-      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label })),
+      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },
       { uid: "createdAt", sortable: true },

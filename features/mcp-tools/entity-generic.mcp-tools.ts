@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { encodeToToon, FILTER_FIELD_DESCRIPTION, FILTER_SYNTAX, formatDatesInResponse } from "./utils";
+import { encodeToToon, FILTER_FIELD_DESCRIPTION, FILTER_SYNTAX, SORT_SYNTAX, formatDatesInResponse } from "./utils";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { CustomFieldValueSchema } from "@/core/base/base-entity.schema";
@@ -275,15 +275,19 @@ function ensureAllowedRelation(entity: Entity, relation: Relation): string | nul
 export const getEntityConfigurationTool = {
   name: "get_entity_configuration",
   description:
-    "Return the editable fields, custom columns, and filter syntax for one entity type. " +
+    "Return the editable fields, custom columns, filter syntax, and sort syntax for one entity type. " +
     "Required: entity (contact, organization, deal, service, task). " +
-    "Call this BEFORE any create / update / filter / count call so you use valid field names and custom-column ids.",
+    "Call this BEFORE any create / update / filter / sort / count call so you use valid field names and custom-column ids.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({ entity: EntitySchema }),
   execute: async ({ entity }: { entity: Entity }) => {
     const result = await configurationExecutors[entity]();
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return encodeToToon({ ...(result.data as Record<string, unknown>), filterSyntax: FILTER_SYNTAX });
+    return encodeToToon({
+      ...(result.data as Record<string, unknown>),
+      filterSyntax: FILTER_SYNTAX,
+      sortSyntax: SORT_SYNTAX,
+    });
   },
 };
 

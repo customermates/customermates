@@ -82,7 +82,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
           </AppCardHeader>
 
           <AppCardBody>
-            <Accordion className="w-full" defaultValue={["config"]} type="multiple">
+            <Accordion collapsible className="w-full" defaultValue="config" type="single">
               <AccordionItem value="config">
                 <AccordionTrigger>{t("Dashboard.tabs.config")}</AccordionTrigger>
 

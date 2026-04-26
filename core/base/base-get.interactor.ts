@@ -40,6 +40,7 @@ export abstract class BaseGetRepo<T> {
   abstract validateSortDescriptor(
     sortDescriptor: SortDescriptor | undefined,
     sortableFields: SortableField[],
+    customColumns?: CustomColumnDto[],
   ): SortDescriptor | undefined;
 }
 
@@ -96,7 +97,7 @@ export abstract class BaseGetInteractor<T> {
     const sortableFields = this.repo.getSortableFields();
 
     filters = this.repo.validateFilters(filters, filterableFields);
-    sortDescriptor = this.repo.validateSortDescriptor(sortDescriptor, sortableFields);
+    sortDescriptor = this.repo.validateSortDescriptor(sortDescriptor, sortableFields, customColumns);
 
     if (p13nId && !IS_DEMO_MODE) {
       await this.p13nRepo.upsertP13n({

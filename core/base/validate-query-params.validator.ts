@@ -32,12 +32,19 @@ import {
 
 export class ValidateQueryParamsValidator {
   async invoke(
-    repo: { getFilterableFields: () => Promise<FilterableField[]>; getSortableFields: () => SortableField[] },
+    repo: {
+      getFilterableFields: () => Promise<FilterableField[]>;
+      getSortableFields: () => SortableField[];
+      getCustomColumns?: () => Promise<Array<{ id: string }>>;
+    },
     entityType: EntityType | undefined,
     data: { filters?: Filter[]; sortDescriptor?: SortDescriptor },
     ctx: z.RefinementCtx,
   ) {
-    const filterableFields = await repo.getFilterableFields();
+    const [filterableFields, customColumns] = await Promise.all([
+      repo.getFilterableFields(),
+      repo.getCustomColumns ? repo.getCustomColumns() : Promise.resolve([]),
+    ]);
     const sortableFields = repo.getSortableFields();
 
     if (data.filters && entityType) {
@@ -65,9 +72,10 @@ export class ValidateQueryParamsValidator {
     }
 
     if (data.sortDescriptor) {
-      const found = sortableFields.find((f) => f.field === data.sortDescriptor?.field);
+      const isStaticField = sortableFields.some((f) => f.field === data.sortDescriptor?.field);
+      const isCustomColumn = customColumns.some((c) => c.id === data.sortDescriptor?.field);
 
-      if (!found) {
+      if (!isStaticField && !isCustomColumn) {
         ctx.addIssue({
           code: "custom",
           params: { error: CustomErrorCode.invalidSortField },
@@ -79,6 +87,8 @@ export class ValidateQueryParamsValidator {
 
   private async validateFilterValue(filter: Filter, filterIndex: number, entityType: EntityType, ctx: z.RefinementCtx) {
     if (!("value" in filter)) return;
+
+    if ((filter as { operator: string }).operator === "contains") return;
 
     const fieldPath = ["filters", filterIndex, "value"];
 

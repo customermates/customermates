@@ -21,6 +21,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { Favicon } from "@/components/shared/favicon";
+import { secureUrlSchema } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Icon } from "@/components/shared/icon";
 import { copyToClipboard } from "@/lib/clipboard";
@@ -143,7 +144,7 @@ export const CustomFieldValue = observer(
               })}
               size="sm"
               onChipClick={(item) => {
-                window.open(item.id, "_blank", "noreferrer");
+                if (secureUrlSchema().safeParse(item.id).success) window.open(item.id, "_blank", "noreferrer");
               }}
             />
           ) : (

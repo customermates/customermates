@@ -23,7 +23,7 @@ export class ServicesStore extends BaseDataViewStore<ServiceDto> {
       { uid: "name", sortable: true },
       { uid: "amount", sortable: true },
       this.canAccessDeals && { uid: "deals" },
-      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label })),
+      ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },
       { uid: "createdAt", sortable: true },

@@ -52,9 +52,9 @@ export function formatDatesInResponse<T>(data: T): T {
 export const FILTER_SYNTAX = {
   operators: {
     string: ["equals", "contains", "gt", "gte", "lt", "lte"],
-    array: ["in", "notIn"],
+    array: ["in", "notIn", "hasNone", "hasSome"],
     range: ["between"],
-    noValue: ["isNull", "isNotNull", "hasNone", "hasSome"],
+    noValue: ["isNull", "isNotNull"],
   },
   examples: [
     { field: "status", operator: "equals", value: "active" },
@@ -64,32 +64,40 @@ export const FILTER_SYNTAX = {
   ],
 };
 
-/**
- * Inline-description string for any tool that accepts a `filters` array.
- * Always include this in the .describe() so weak models see example syntax
- * without having to call `get_entity_configuration` first.
- */
+export const SORT_SYNTAX = {
+  shape: { field: "string", direction: "asc | desc" },
+  fieldKinds: {
+    builtin: "Built-in field name (e.g. name, totalValue, createdAt). See sortableFields entries without columnType.",
+    customColumn: "Custom column UUID. See sortableFields entries with columnType.",
+  },
+  comparison: {
+    currency: "numeric",
+    date: "chronological",
+    dateTime: "chronological",
+    plain: "locale-aware string",
+    email: "locale-aware string",
+    phone: "locale-aware string",
+    link: "locale-aware string",
+    singleSelect: "by stored option uuid (ordering between options is not user-meaningful)",
+  },
+  nullHandling: "rows missing the value sort last regardless of direction",
+  examples: [
+    { field: "name", direction: "asc" },
+    { field: "createdAt", direction: "desc" },
+    { field: "<custom-column-uuid>", direction: "asc" },
+  ],
+};
+
 export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Operators: equals, contains, gt, gte, lt, lte, in, notIn, between, isNull, isNotNull, hasNone, hasSome. " +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"gte","value":"2024-01-01"}]. ' +
   "Call get_entity_configuration to see all filterable fields.";
 
-/**
- * Append a `(one of: a, b, c)` hint to a zod enum description.
- * Weak models cannot resolve external TS enums, so the legal values must be
- * spelled out in the MCP-exposed description.
- */
 export function enumHint(values: readonly string[]): string {
   return `(one of: ${values.join(", ")})`;
 }
 
-/**
- * Refuse `null` on the listed fields so a weak model passing
- * `{ organizationIds: null }` gets a validation error instead of silently
- * wiping the relationship. `undefined` (omit) still means "keep existing",
- * `[]` still means "explicitly clear".
- */
 export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T, fields: readonly string[]) {
   return schema.superRefine((value, ctx) => {
     if (!value || typeof value !== "object") return;

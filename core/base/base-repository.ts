@@ -1,13 +1,14 @@
 import type { ExtendedUser } from "@/features/user/user.types";
+import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import { Resource, Action } from "@/generated/prisma";
 
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma, EntityType } from "@/generated/prisma";
 
 import { getTransactionClient } from "../decorators/transaction-context";
 import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
-import { BaseQueryBuilder } from "@/core/base/base-query-builder";
+import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
 
 type ModelWhereInputMap = {
@@ -76,4 +77,62 @@ export abstract class BaseRepository<
     service: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
     task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
   };
+
+  protected async list<TRow extends { id: string }, TMapped>(opts: {
+    model: ListableModel;
+    baseWhere: TWhereInput;
+    select: unknown;
+    params: GetQueryParams;
+    map: (row: TRow) => TMapped;
+  }): Promise<TMapped[]> {
+    const findMany = (args: unknown): Promise<TRow[]> =>
+      (this.prisma as unknown as Record<string, { findMany: (a: unknown) => Promise<unknown[]> }>)[opts.model].findMany(
+        args,
+      ) as Promise<TRow[]>;
+
+    const args = await this.buildQueryArgs(opts.params, opts.baseWhere);
+
+    if (args.customSort) {
+      const candidates = (await findMany({
+        where: args.where,
+        select: {
+          id: true,
+          customFieldValues: {
+            where: { columnId: args.customSort.columnId, entityType: opts.model as EntityType },
+            select: { value: true },
+            take: 1,
+          },
+        },
+      })) as unknown as Array<{ id: string; customFieldValues: Array<{ value: string | null }> }>;
+
+      const { direction, columnType } = args.customSort;
+      candidates.sort((a, b) =>
+        compareCustomFieldValues(a.customFieldValues[0]?.value, b.customFieldValues[0]?.value, direction, columnType),
+      );
+
+      const sortedIds = candidates.slice(args.skip, args.skip + args.take).map((c) => c.id);
+      if (sortedIds.length === 0) return [];
+
+      const fetched = await findMany({
+        where: { id: { in: sortedIds }, ...opts.baseWhere },
+        select: opts.select,
+      });
+      const byId = new Map(fetched.map((row) => [row.id, row]));
+      return sortedIds.flatMap((id) => {
+        const row = byId.get(id);
+        return row ? [opts.map(row)] : [];
+      });
+    }
+
+    const rows = await findMany({
+      where: args.where,
+      orderBy: args.orderBy,
+      skip: args.skip,
+      take: args.take,
+      select: opts.select,
+    });
+    return rows.map(opts.map);
+  }
 }
+
+type ListableModel = "deal" | "contact" | "organization" | "service" | "task";
