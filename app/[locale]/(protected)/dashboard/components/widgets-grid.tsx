@@ -9,8 +9,8 @@ import type { FilterableField } from "@/core/base/base-get.schema";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { useFormatter, useNow, useTranslations } from "next-intl";
+import { Plus, RefreshCw } from "lucide-react";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
+import { cn } from "@/lib/utils";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -43,14 +44,26 @@ type Props = {
 
 export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields }: Props) => {
   const t = useTranslations("");
+  const format = useFormatter();
+  const now = useNow({ updateInterval: 60_000 });
   const { widgetsStore, widgetModalStore } = useRootStore();
-  const { items, layouts } = widgetsStore;
+  const { items, layouts, isRefreshing, lastUpdatedAt } = widgetsStore;
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
   useEffect(() => {
     widgetsStore.setItems({ items: widgets });
   }, [widgets]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || items.length === 0) return;
+    const raf1 = requestAnimationFrame(() => {
+      window.dispatchEvent(new Event("resize"));
+      const raf2 = requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+      return () => cancelAnimationFrame(raf2);
+    });
+    return () => cancelAnimationFrame(raf1);
+  }, [items.length]);
 
   useEffect(() => {
     function onPointerUp(e: PointerEvent) {
@@ -67,18 +80,38 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
     pointerStart.current = { id, x: e.clientX, y: e.clientY };
   }, []);
 
-  const addButton = useMemo(
+  const topBarActions = useMemo(
     () => (
-      <Button size="sm" variant="outline" onClick={() => void widgetModalStore.add()}>
-        <Icon icon={Plus} />
+      <div className="flex items-center gap-2">
+        {lastUpdatedAt && (
+          <span className="hidden sm:inline text-xs text-muted-foreground" title={lastUpdatedAt.toLocaleString()}>
+            {t("Dashboard.lastUpdated", { time: format.relativeTime(lastUpdatedAt, now) })}
+          </span>
+        )}
 
-        <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
-      </Button>
+        <Button
+          aria-label={t("Dashboard.refresh")}
+          disabled={isRefreshing}
+          size="sm"
+          variant="outline"
+          onClick={() => void widgetsStore.recalculate()}
+        >
+          <Icon className={cn(isRefreshing && "animate-spin")} icon={RefreshCw} />
+
+          <span className="hidden sm:inline">{t("Dashboard.refresh")}</span>
+        </Button>
+
+        <Button size="sm" variant="outline" onClick={() => void widgetModalStore.add()}>
+          <Icon icon={Plus} />
+
+          <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
+        </Button>
+      </div>
     ),
-    [t, widgetModalStore],
+    [t, format, now, lastUpdatedAt, isRefreshing, widgetsStore, widgetModalStore],
   );
 
-  useSetTopBarActions(addButton);
+  useSetTopBarActions(topBarActions);
 
   return (
     <>

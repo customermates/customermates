@@ -4,9 +4,9 @@ import type { ExtendedWidget } from "@/features/widget/widget.types";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
+import { recalculateUserWidgetsAction, refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
 
@@ -23,9 +23,37 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
 
     makeObservable(this, {
       layouts: observable,
+      lastUpdatedAt: computed,
       onLayoutChange: action,
+      recalculate: action,
     });
   }
+
+  get lastUpdatedAt(): Date | null {
+    if (this.items.length === 0) return null;
+    const max = this.items.reduce((acc, w) => {
+      const t = new Date(w.updatedAt).getTime();
+      return t > acc ? t : acc;
+    }, 0);
+    return max > 0 ? new Date(max) : null;
+  }
+
+  recalculate = async () => {
+    if (this.isRefreshing) return;
+    runInAction(() => {
+      this.isRefreshing = true;
+    });
+    try {
+      await this.rootStore.loadingOverlayStore.withLoading(async () => {
+        const fresh = await recalculateUserWidgetsAction();
+        this.setItems({ items: fresh });
+      });
+    } finally {
+      runInAction(() => {
+        this.isRefreshing = false;
+      });
+    }
+  };
 
   get columnsDefinition() {
     return [];

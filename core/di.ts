@@ -126,6 +126,7 @@ import { GetRolesInteractor } from "@/features/role/get-roles.interactor";
 import { DeleteRoleInteractor } from "@/features/role/delete-role.interactor";
 // Widget interactors
 import { GetWidgetsInteractor } from "@/features/widget/get-widgets.interactor";
+import { RecalculateUserWidgetsInteractor } from "@/features/widget/recalculate-user-widgets.interactor";
 import { UpsertWidgetInteractor } from "@/features/widget/upsert-widget.interactor";
 import { DeleteWidgetInteractor } from "@/features/widget/delete-widget.interactor";
 import { UpdateWidgetLayoutsInteractor } from "@/features/widget/update-widget-layouts.interactor";
@@ -501,7 +502,8 @@ export const getRegisterUserInteractor = () =>
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
+export const getCompleteOnboardingWizardInteractor = () =>
+  new CompleteOnboardingWizardInteractor(getUserRepo(), getWidgetService());
 
 export const getUpdateUserSettingsInteractor = () => new UpdateUserSettingsInteractor(getUserRepo());
 
@@ -568,6 +570,8 @@ export const getDeleteRoleInteractor = () =>
 // --- Widget ---
 
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
+export const getRecalculateUserWidgetsInteractor = () =>
+  new RecalculateUserWidgetsInteractor(getWidgetService(), getWidgetRepo());
 
 export const getUpsertWidgetInteractor = () => new UpsertWidgetInteractor(getWidgetRepo());
 

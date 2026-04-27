@@ -1,5 +1,6 @@
 import type { LayoutsData } from "./update-widget-layouts.interactor";
 import type { DisplayOptions } from "./upsert-widget.interactor";
+import type { ChipColor } from "@/constants/chip-colors";
 import type { Breakpoint } from "@/core/types/breakpoint";
 import type { Filter } from "@/core/base/base-get.schema";
 
@@ -55,4 +56,5 @@ export type WidgetLayout = {
 export type DiagramDataPoint = {
   label: string;
   value: number;
+  optionColor?: ChipColor;
 };

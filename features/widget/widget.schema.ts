@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
+import { CHIP_COLORS } from "@/constants/chip-colors";
+
 export const CompanyWidgetSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -30,6 +32,7 @@ export const WidgetDtoSchema = z.object({
     z.object({
       label: z.string(),
       value: z.number(),
+      optionColor: z.enum(CHIP_COLORS).optional(),
     }),
   ),
   isTemplate: z.boolean(),

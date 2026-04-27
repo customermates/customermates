@@ -1,6 +1,7 @@
 "use server";
 
 import type { RegisterUserData } from "@/features/user/register/register-user.interactor";
+import type { CompleteOnboardingWizardData } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -21,8 +22,8 @@ export async function registerProfileAction(data: RegisterUserData) {
   return result;
 }
 
-export async function completeOnboardingWizardAction() {
-  const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
+export async function completeOnboardingWizardAction(data: CompleteOnboardingWizardData) {
+  const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke(data));
   if (result.ok) redirect("/");
   return result;
 }

@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { SalesType } from "@/generated/prisma";
 
 import type { RootStore } from "@/core/stores/root.store";
 
@@ -11,11 +12,16 @@ export class OnboardingWizardStore {
   currentStepIndex = 0;
   minStepIndex = 0;
   isSubmitting = false;
+  salesType: SalesType = SalesType.service;
   private beforeNext: BeforeNextHandler | null = null;
 
   constructor(public readonly rootStore: RootStore) {
     makeAutoObservable<this, "beforeNext">(this, { rootStore: false, beforeNext: false });
   }
+
+  setSalesType = (salesType: SalesType) => {
+    this.salesType = salesType;
+  };
 
   get currentStep(): WizardStep {
     return WIZARD_STEPS[this.currentStepIndex];

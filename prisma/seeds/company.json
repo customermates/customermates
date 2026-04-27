@@ -9,6 +9,7 @@
     "name": "Customermates GmbH",
     "phone": null,
     "postalCode": "60313",
+    "salesType": "service",
     "street": "Hans-Bunte-Straße 12",
     "updatedAt": "2026-03-24T09:05:36.953Z",
     "vatNumber": null,

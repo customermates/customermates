@@ -164,19 +164,6 @@
     "default": "Default",
     "defaultColor": "Default Color",
     "defaultData": {
-      "contact": {
-        "firstName": "John",
-        "lastName": "Doe"
-      },
-      "deal": {
-        "name": "First Project"
-      },
-      "organization": {
-        "name": "Example Inc."
-      },
-      "service": {
-        "name": "Consulting Service"
-      },
       "todo": {
         "columnLabel": "Status",
         "name": "My first task",
@@ -378,6 +365,7 @@
         "horizontal": "Show horizontally",
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
+        "useGroupColors": "Use option colors",
         "vertical": "Show vertically"
       },
       "displayType": "Display Type",
@@ -497,6 +485,77 @@
     "options": "Options",
     "postalCode": "Postal Code",
     "role": "Role",
+    "seedData": {
+      "column": {
+        "articleNumber": "Article number",
+        "billableHours": "Billable hours",
+        "hourlyRate": "Hourly rate",
+        "salesPipeline": "Sales pipeline",
+        "stock": "Stock"
+      },
+      "contact": {
+        "alex": { "first": "Alex", "last": "Murphy" },
+        "elena": { "first": "Elena", "last": "Costa" },
+        "linnea": { "first": "Linnea", "last": "Holm" },
+        "marius": { "first": "Marius", "last": "Becker" },
+        "priya": { "first": "Priya", "last": "Iyer" },
+        "rashid": { "first": "Rashid", "last": "Khan" },
+        "sara": { "first": "Sara", "last": "Romero" },
+        "tomas": { "first": "Tomas", "last": "Lindberg" }
+      },
+      "deal": {
+        "atlasDiscovery": "Atlas discovery sprint",
+        "atlasExpansion": "Atlas fleet expansion",
+        "atlasPilot": "Atlas pilot rollout",
+        "atlasRetainer": "Atlas ongoing retainer",
+        "harborDiscovery": "Harbor scoping workshop",
+        "harborRollout": "Harbor rollout package",
+        "kestrelFlagship": "Kestrel flagship launch",
+        "kestrelRetainer": "Kestrel implementation + retainer",
+        "marloweBulk": "Marlowe bulk order",
+        "marloweImplementation": "Marlowe full implementation",
+        "northLightDiscovery": "North Light discovery",
+        "northLightStarter": "North Light starter order"
+      },
+      "organization": {
+        "atlasMobility": "Atlas Mobility",
+        "harborAndLine": "Harbor & Line",
+        "kestrelStudios": "Kestrel Studios",
+        "marloweAndCole": "Marlowe & Cole",
+        "northLight": "North Light Group"
+      },
+      "pipeline": {
+        "lost": "Lost",
+        "new": "New",
+        "qualified": "Qualified",
+        "quoted": "Quoted",
+        "won": "Won"
+      },
+      "service": {
+        "discovery": "Discovery",
+        "enterpriseKit": "Enterprise kit",
+        "implementation": "Implementation",
+        "premiumKit": "Premium kit",
+        "retainer": "Retainer",
+        "starterKit": "Starter kit"
+      },
+      "task": {
+        "introCall": "Intro call",
+        "kickoffPrep": "Prep kickoff materials",
+        "postMortem": "Write project post-mortem",
+        "sendQuote": "Send quote"
+      },
+      "widget": {
+        "activeDealsByStage": "Active deals",
+        "dealsByStage": "Deals by stage",
+        "dealValueByOrg": "Deal value by organization",
+        "tasksByStatus": "Tasks by status",
+        "topDealsByValue": "Top deals by value",
+        "totalContacts": "Contacts",
+        "valueByStage": "Pipeline value",
+        "valuePerService": "Value per service"
+      }
+    },
     "single": "Single",
     "sort": {
       "ascending": "Ascending",
@@ -725,7 +784,9 @@
     },
     "horizontal": "Show horizontally",
     "isTemplate": "Share as template for other users of your organization",
+    "lastUpdated": "Updated {time}",
     "limit": "Max. number of entries",
+    "refresh": "Refresh",
     "reverseXAxis": "Reverse X-axis",
     "reverseYAxis": "Reverse Y-axis",
     "selectWidgetTemplate": "Chart Template",
@@ -1109,31 +1170,17 @@
     "companyNameDescription": "This is shown to anyone you invite to your workspace.",
     "continue": "Continue",
     "entities": {
-      "contact": {
-        "example": "John Doe at Example Inc. — your starter contact.",
-        "purpose": "A person you do business with.",
-        "title": "Contact"
-      },
-      "deal": {
-        "example": "First Project (€1,000) — links John Doe and Example Inc.",
-        "purpose": "A potential sale in progress. Tracks value, stage, and expected close.",
-        "title": "Deal"
-      },
-      "intro": "We've already added one of each to your workspace so you can poke around. Nothing scary — replace or delete them whenever you're ready.",
-      "organization": {
-        "example": "Example Inc. — where John Doe works.",
-        "purpose": "A company, agency, or any group of contacts.",
-        "title": "Organization"
+      "intro": "Pick whichever fits best. We'll tailor your starter pipeline, services and dashboard widgets to match.",
+      "outro": "You can change column types and rename anything later — this just decides the starter shape.",
+      "product": {
+        "description": "You sell physical or digital things in units. We'll add fields for article numbers and stock.",
+        "example": "A starter kit with SKUs, quantities, and stock counts.",
+        "title": "Products"
       },
       "service": {
-        "example": "Consulting Service (€1,000) — bundled into First Project.",
-        "purpose": "Whatever you sell — a physical product, a one-off package, or a recurring service. Tracks what's active and when it renews.",
-        "title": "Service"
-      },
-      "task": {
-        "example": "Anything actionable — follow-up calls, reminders, next steps.",
-        "purpose": "Something to do, optionally linked to a contact, deal, or organization.",
-        "title": "Task"
+        "description": "You sell time, expertise, or recurring engagements. We'll add fields for hourly rate and billable hours.",
+        "example": "A discovery sprint, an implementation project, a monthly retainer.",
+        "title": "Services"
       }
     },
     "finish": "Finish",
@@ -1166,8 +1213,8 @@
         "title": "Your company"
       },
       "entities": {
-        "subtitle": "A quick tour of the five things you'll work with.",
-        "title": "The building blocks"
+        "subtitle": "Tell us what you sell — we'll set up your workspace to match.",
+        "title": "What do you sell?"
       },
       "invite": {
         "placeholder": "Invite team placeholder",

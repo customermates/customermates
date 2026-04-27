@@ -15,14 +15,37 @@ import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifec
 import { randomUUID } from "crypto";
 
 import { getTranslations } from "next-intl/server";
-import { CustomColumnType, EntityType, Status, SubscriptionStatus } from "@/generated/prisma";
+import {
+  AggregationType,
+  CustomColumnType,
+  EntityType,
+  SalesType,
+  Status,
+  SubscriptionStatus,
+  TaskType,
+  WidgetGroupByType,
+} from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
+import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { getSeedData, PIPELINE_STAGES, type StageKey } from "@/features/onboarding-wizard/seed-data";
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { IS_CLOUD_HOSTED } from "@/constants/env";
+
+const TASK_STATUS_STATES = [
+  { key: "open", color: "secondary", isDefault: true },
+  { key: "inProgress", color: "warning", isDefault: false },
+  { key: "blocked", color: "destructive", isDefault: false },
+  { key: "onHold", color: "secondary", isDefault: false },
+  { key: "done", color: "success", isDefault: false },
+  { key: "archived", color: "secondary", isDefault: false },
+] as const;
+
+const STOCK_VALUE = { low: "5", mid: "40", high: "180" } as const;
+const BILLABLE_HOURS_VALUE = { low: "10", mid: "60", high: "150" } as const;
 
 export class PrismaUserRepo
   extends BaseRepository
@@ -141,12 +164,490 @@ export class PrismaUserRepo
     return args;
   }
 
-  async markOnboardingWizardCompleted(userId: string) {
+  @Transaction
+  async markOnboardingWizardCompletedAndSeedDashboard(args: { userId: string; salesType: SalesType }) {
     const { companyId } = this.user;
+    const { userId, salesType } = args;
+
     await this.prisma.user.updateMany({
       data: { onboardingWizardCompletedAt: new Date() },
       where: { id: userId, companyId },
     });
+    await this.prisma.company.update({ where: { id: companyId }, data: { salesType } });
+
+    return this.seedCompanyDashboard(userId, salesType);
+  }
+
+  private async seedCompanyDashboard(userId: string, salesType: SalesType) {
+    const { companyId } = this.user;
+
+    const existingDeal = await this.prisma.deal.findFirst({ where: { companyId }, select: { id: true } });
+    if (existingDeal) return { alreadySeeded: true };
+
+    const t = await getTranslations("Common.seedData");
+    const tCommon = await getTranslations("Common");
+    const seed = getSeedData(salesType);
+
+    const stageOptions = PIPELINE_STAGES.map((s) => ({
+      value: randomUUID(),
+      label: t(`pipeline.${s.key}`),
+      color: s.color,
+      isDefault: s.key === "new",
+      index: s.index,
+    }));
+    const stageColumn = await this.prisma.customColumn.create({
+      data: {
+        label: t("column.salesPipeline"),
+        type: CustomColumnType.singleSelect,
+        entityType: EntityType.deal,
+        companyId,
+        options: { options: stageOptions },
+      },
+    });
+    const stageValueByKey = Object.fromEntries(PIPELINE_STAGES.map((s, i) => [s.key, stageOptions[i].value])) as Record<
+      StageKey,
+      string
+    >;
+
+    const serviceExtraColumnIds = await this.createServiceExtraColumns(salesType, t);
+
+    const taskStatusOptions = TASK_STATUS_STATES.map((s, index) => ({
+      value: randomUUID(),
+      label: tCommon(`defaultData.todo.states.${s.key}`),
+      color: s.color,
+      isDefault: s.isDefault,
+      index,
+    }));
+    const taskStatusColumn = await this.prisma.customColumn.create({
+      data: {
+        label: tCommon("defaultData.todo.columnLabel"),
+        type: CustomColumnType.singleSelect,
+        entityType: EntityType.task,
+        companyId,
+        options: { options: taskStatusOptions },
+      },
+    });
+    const taskStatusByKey = {
+      open: taskStatusOptions[0].value,
+      inProgress: taskStatusOptions[1].value,
+      done: taskStatusOptions[4].value,
+    };
+
+    const ids = await this.createSeedEntities(userId, seed, t);
+
+    const dealStageRows = seed.deals.map((deal) => ({
+      companyId,
+      columnId: stageColumn.id,
+      entityType: EntityType.deal,
+      type: CustomColumnType.singleSelect,
+      value: stageValueByKey[deal.stage],
+      dealId: ids.dealIdByKey[deal.key],
+    }));
+
+    const serviceExtraRows = seed.services.flatMap((service) => {
+      const rows: Array<Record<string, unknown>> = [];
+      if (service.productExtras && serviceExtraColumnIds.articleNumber && serviceExtraColumnIds.stock) {
+        rows.push({
+          companyId,
+          columnId: serviceExtraColumnIds.articleNumber,
+          entityType: EntityType.service,
+          type: CustomColumnType.plain,
+          value: service.productExtras.articleNumber,
+          serviceId: ids.serviceIdByKey[service.key],
+        });
+        rows.push({
+          companyId,
+          columnId: serviceExtraColumnIds.stock,
+          entityType: EntityType.service,
+          type: CustomColumnType.plain,
+          value: STOCK_VALUE[service.productExtras.stockKey],
+          serviceId: ids.serviceIdByKey[service.key],
+        });
+      }
+      if (service.serviceExtras && serviceExtraColumnIds.hourlyRate && serviceExtraColumnIds.billableHours) {
+        rows.push({
+          companyId,
+          columnId: serviceExtraColumnIds.hourlyRate,
+          entityType: EntityType.service,
+          type: CustomColumnType.currency,
+          value: String(service.serviceExtras.hourlyRate),
+          numericValue: service.serviceExtras.hourlyRate,
+          serviceId: ids.serviceIdByKey[service.key],
+        });
+        rows.push({
+          companyId,
+          columnId: serviceExtraColumnIds.billableHours,
+          entityType: EntityType.service,
+          type: CustomColumnType.plain,
+          value: BILLABLE_HOURS_VALUE[service.serviceExtras.billableHoursKey],
+          serviceId: ids.serviceIdByKey[service.key],
+        });
+      }
+      return rows;
+    });
+
+    const taskStatusRows = seed.tasks.map((task) => ({
+      companyId,
+      columnId: taskStatusColumn.id,
+      entityType: EntityType.task,
+      type: CustomColumnType.singleSelect,
+      value: taskStatusByKey[task.statusKey],
+      taskId: ids.taskIdByKey[task.key],
+    }));
+
+    await this.prisma.customFieldValue.createMany({
+      data: [...dealStageRows, ...serviceExtraRows, ...taskStatusRows] as never,
+    });
+
+    await this.createWidgetTemplates(userId, stageColumn.id, stageValueByKey, taskStatusColumn.id, t);
+
+    return { alreadySeeded: false };
+  }
+
+  private async createServiceExtraColumns(
+    salesType: SalesType,
+    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
+  ): Promise<{ articleNumber?: string; stock?: string; hourlyRate?: string; billableHours?: string }> {
+    const { companyId } = this.user;
+
+    if (salesType === SalesType.product) {
+      const [articleNumber, stock] = await Promise.all([
+        this.prisma.customColumn.create({
+          data: {
+            label: t("column.articleNumber"),
+            type: CustomColumnType.plain,
+            entityType: EntityType.service,
+            companyId,
+            options: {},
+          },
+        }),
+        this.prisma.customColumn.create({
+          data: {
+            label: t("column.stock"),
+            type: CustomColumnType.plain,
+            entityType: EntityType.service,
+            companyId,
+            options: {},
+          },
+        }),
+      ]);
+      return { articleNumber: articleNumber.id, stock: stock.id };
+    }
+
+    const [hourlyRate, billableHours] = await Promise.all([
+      this.prisma.customColumn.create({
+        data: {
+          label: t("column.hourlyRate"),
+          type: CustomColumnType.currency,
+          entityType: EntityType.service,
+          companyId,
+          options: { currency: "eur" },
+        },
+      }),
+      this.prisma.customColumn.create({
+        data: {
+          label: t("column.billableHours"),
+          type: CustomColumnType.plain,
+          entityType: EntityType.service,
+          companyId,
+          options: {},
+        },
+      }),
+    ]);
+    return { hourlyRate: hourlyRate.id, billableHours: billableHours.id };
+  }
+
+  private async createSeedEntities(
+    userId: string,
+    seed: ReturnType<typeof getSeedData>,
+    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
+  ) {
+    const { companyId } = this.user;
+
+    const orgIdByKey: Record<string, string> = {};
+    for (const org of seed.organizations) {
+      const created = await this.prisma.organization.create({
+        data: { name: t(`organization.${org.nameKey}`), companyId },
+      });
+      orgIdByKey[org.key] = created.id;
+      await this.prisma.organizationUser.create({ data: { organizationId: created.id, userId, companyId } });
+    }
+
+    const contactIdByKey: Record<string, string> = {};
+    for (const contact of seed.contacts) {
+      const created = await this.prisma.contact.create({
+        data: {
+          firstName: t(`contact.${contact.firstNameKey}`),
+          lastName: t(`contact.${contact.lastNameKey}`),
+          companyId,
+        },
+      });
+      contactIdByKey[contact.key] = created.id;
+      await this.prisma.contactUser.create({ data: { contactId: created.id, userId, companyId } });
+      await this.prisma.contactOrganization.create({
+        data: { contactId: created.id, organizationId: orgIdByKey[contact.orgKey], companyId },
+      });
+    }
+
+    const serviceIdByKey: Record<string, string> = {};
+    for (const service of seed.services) {
+      const created = await this.prisma.service.create({
+        data: { name: t(`service.${service.nameKey}`), amount: service.amount, companyId },
+      });
+      serviceIdByKey[service.key] = created.id;
+      await this.prisma.serviceUser.create({ data: { serviceId: created.id, userId, companyId } });
+    }
+
+    const dealIdByKey: Record<string, string> = {};
+    for (const deal of seed.deals) {
+      const totalValue = deal.serviceLineItems.reduce((sum, item) => {
+        const service = seed.services.find((s) => s.key === item.serviceKey);
+        return sum + (service?.amount ?? 0) * item.quantity;
+      }, 0);
+      const totalQuantity = deal.serviceLineItems.reduce((sum, item) => sum + item.quantity, 0);
+
+      const created = await this.prisma.deal.create({
+        data: { name: t(`deal.${deal.nameKey}`), totalValue, totalQuantity, companyId },
+      });
+      dealIdByKey[deal.key] = created.id;
+
+      await this.prisma.dealUser.create({ data: { dealId: created.id, userId, companyId } });
+      await this.prisma.dealOrganization.create({
+        data: { dealId: created.id, organizationId: orgIdByKey[deal.orgKey], companyId },
+      });
+      for (const contactKey of deal.contactKeys) {
+        await this.prisma.dealContact.create({
+          data: { dealId: created.id, contactId: contactIdByKey[contactKey], companyId },
+        });
+      }
+      for (const item of deal.serviceLineItems) {
+        await this.prisma.serviceDeal.create({
+          data: { dealId: created.id, serviceId: serviceIdByKey[item.serviceKey], quantity: item.quantity, companyId },
+        });
+      }
+    }
+
+    const taskIdByKey: Record<string, string> = {};
+    for (const task of seed.tasks) {
+      const created = await this.prisma.task.create({
+        data: { name: t(`task.${task.nameKey}`), type: TaskType.custom, companyId },
+      });
+      taskIdByKey[task.key] = created.id;
+      await this.prisma.taskUser.create({ data: { taskId: created.id, userId, companyId } });
+    }
+
+    return { orgIdByKey, contactIdByKey, serviceIdByKey, dealIdByKey, taskIdByKey };
+  }
+
+  private async createWidgetTemplates(
+    userId: string,
+    stageColumnId: string,
+    stageValueByKey: Record<StageKey, string>,
+    taskStatusColumnId: string,
+    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
+  ) {
+    const { companyId } = this.user;
+
+    const stageColors: ChartColor[] = [
+      ChartColor.secondary1,
+      ChartColor.primary1,
+      ChartColor.warning1,
+      ChartColor.success1,
+      ChartColor.danger1,
+    ];
+
+    const widgets = [
+      {
+        key: "dealsByStage",
+        entityType: EntityType.deal,
+        groupByType: WidgetGroupByType.customColumn,
+        groupByCustomColumnId: stageColumnId,
+        aggregationType: AggregationType.count,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.doughnutChart,
+          barColors: stageColors,
+          reverseXAxis: false,
+          reverseYAxis: false,
+          useGroupColors: true,
+        },
+        layout: {
+          lg: { w: 2, h: 2, x: 0, y: 0 },
+          md: { w: 2, h: 2, x: 0, y: 0 },
+          sm: { w: 2, h: 2, x: 0, y: 0 },
+          xs: { w: 2, h: 2, x: 0, y: 0 },
+        },
+      },
+      {
+        key: "valueByStage",
+        entityType: EntityType.deal,
+        groupByType: WidgetGroupByType.customColumn,
+        groupByCustomColumnId: stageColumnId,
+        aggregationType: AggregationType.dealValue,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.doughnutChart,
+          barColors: stageColors,
+          reverseXAxis: false,
+          reverseYAxis: false,
+          useGroupColors: true,
+        },
+        layout: {
+          lg: { w: 2, h: 2, x: 2, y: 0 },
+          md: { w: 2, h: 2, x: 2, y: 0 },
+          sm: { w: 2, h: 2, x: 2, y: 0 },
+          xs: { w: 2, h: 2, x: 0, y: 2 },
+        },
+      },
+      {
+        key: "valuePerService",
+        entityType: EntityType.service,
+        groupByType: WidgetGroupByType.service,
+        groupByCustomColumnId: null,
+        aggregationType: AggregationType.dealValue,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.verticalBarChart,
+          barColors: [ChartColor.primary1, ChartColor.primary2, ChartColor.primary3],
+          reverseXAxis: false,
+          reverseYAxis: false,
+        },
+        layout: {
+          lg: { w: 4, h: 3, x: 4, y: 0 },
+          md: { w: 4, h: 3, x: 0, y: 2 },
+          sm: { w: 4, h: 3, x: 0, y: 4 },
+          xs: { w: 2, h: 3, x: 0, y: 4 },
+        },
+      },
+      {
+        key: "activeDealsByStage",
+        entityType: EntityType.deal,
+        groupByType: WidgetGroupByType.customColumn,
+        groupByCustomColumnId: stageColumnId,
+        aggregationType: AggregationType.count,
+        entityFilters: [{ field: stageColumnId, operator: "notIn", value: [stageValueByKey.lost] }],
+        displayOptions: {
+          displayType: DisplayType.radarChart,
+          barColors: stageColors.slice(0, 4),
+          reverseXAxis: false,
+          reverseYAxis: false,
+          useGroupColors: true,
+        },
+        layout: {
+          lg: { w: 2, h: 2, x: 8, y: 0 },
+          md: { w: 2, h: 2, x: 4, y: 0 },
+          sm: { w: 2, h: 2, x: 0, y: 2 },
+          xs: { w: 2, h: 2, x: 0, y: 7 },
+        },
+      },
+      {
+        key: "totalContacts",
+        entityType: EntityType.contact,
+        groupByType: WidgetGroupByType.none,
+        groupByCustomColumnId: null,
+        aggregationType: AggregationType.count,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.doughnutChart,
+          barColors: [ChartColor.default2],
+          reverseXAxis: false,
+          reverseYAxis: false,
+        },
+        layout: {
+          lg: { w: 2, h: 2, x: 10, y: 0 },
+          md: { w: 2, h: 2, x: 6, y: 0 },
+          sm: { w: 2, h: 2, x: 2, y: 2 },
+          xs: { w: 2, h: 2, x: 0, y: 9 },
+        },
+      },
+      {
+        key: "dealValueByOrg",
+        entityType: EntityType.organization,
+        groupByType: WidgetGroupByType.organization,
+        groupByCustomColumnId: null,
+        aggregationType: AggregationType.dealValue,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.horizontalBarChartWithLabels,
+          barColors: [ChartColor.secondary1, ChartColor.secondary2, ChartColor.secondary3],
+          reverseXAxis: false,
+          reverseYAxis: false,
+        },
+        layout: {
+          lg: { w: 4, h: 3, x: 0, y: 2 },
+          md: { w: 4, h: 3, x: 4, y: 2 },
+          sm: { w: 4, h: 3, x: 0, y: 7 },
+          xs: { w: 2, h: 3, x: 0, y: 11 },
+        },
+      },
+      {
+        key: "topDealsByValue",
+        entityType: EntityType.deal,
+        groupByType: WidgetGroupByType.deal,
+        groupByCustomColumnId: null,
+        aggregationType: AggregationType.dealValue,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.horizontalBarChartWithLabels,
+          barColors: [ChartColor.secondary1, ChartColor.secondary2, ChartColor.secondary3],
+          reverseXAxis: false,
+          reverseYAxis: false,
+        },
+        layout: {
+          lg: { w: 4, h: 2, x: 4, y: 3 },
+          md: { w: 4, h: 3, x: 0, y: 5 },
+          sm: { w: 4, h: 2, x: 0, y: 10 },
+          xs: { w: 2, h: 2, x: 0, y: 14 },
+        },
+      },
+      {
+        key: "tasksByStatus",
+        entityType: EntityType.task,
+        groupByType: WidgetGroupByType.customColumn,
+        groupByCustomColumnId: taskStatusColumnId,
+        aggregationType: AggregationType.count,
+        entityFilters: [],
+        displayOptions: {
+          displayType: DisplayType.doughnutChart,
+          barColors: [ChartColor.secondary1, ChartColor.warning1, ChartColor.success1],
+          reverseXAxis: false,
+          reverseYAxis: false,
+          useGroupColors: true,
+        },
+        layout: {
+          lg: { w: 4, h: 3, x: 8, y: 2 },
+          md: { w: 4, h: 3, x: 4, y: 5 },
+          sm: { w: 4, h: 3, x: 0, y: 13 },
+          xs: { w: 2, h: 3, x: 0, y: 17 },
+        },
+      },
+    ];
+
+    for (const widget of widgets) {
+      const id = randomUUID();
+      await this.prisma.widget.create({
+        data: {
+          id,
+          userId,
+          companyId,
+          name: t(`widget.${widget.key}`),
+          entityType: widget.entityType,
+          entityFilters: widget.entityFilters,
+          dealFilters: [],
+          displayOptions: widget.displayOptions,
+          groupByType: widget.groupByType,
+          groupByCustomColumnId: widget.groupByCustomColumnId,
+          aggregationType: widget.aggregationType,
+          layout: {
+            lg: { i: id, ...widget.layout.lg },
+            md: { i: id, ...widget.layout.md },
+            sm: { i: id, ...widget.layout.sm },
+            xs: { i: id, ...widget.layout.xs },
+          },
+          isTemplate: true,
+        },
+      });
+    }
   }
 
   @Transaction
@@ -214,164 +715,12 @@ export class PrismaUserRepo
       },
     });
 
-    await this.createDefaultEntitiesAndCustomColumnsForNewUser(user, company);
-
     const extendedUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
       select: this.extendedUserSelect,
     });
 
     return extendedUser;
-  }
-
-  private async createDefaultEntitiesAndCustomColumnsForNewUser(user: { id: string }, company: { id: string }) {
-    const t = await getTranslations("Common");
-
-    const [contact, organization, deal, service] = await Promise.all([
-      this.prisma.contact.create({
-        data: {
-          firstName: t("defaultData.contact.firstName"),
-          lastName: t("defaultData.contact.lastName"),
-          companyId: company.id,
-        },
-      }),
-      this.prisma.organization.create({
-        data: {
-          name: t("defaultData.organization.name"),
-          companyId: company.id,
-        },
-      }),
-      this.prisma.deal.create({
-        data: {
-          name: t("defaultData.deal.name"),
-          companyId: company.id,
-          totalValue: 1000,
-          totalQuantity: 1,
-        },
-      }),
-      this.prisma.service.create({
-        data: {
-          name: t("defaultData.service.name"),
-          amount: 1000,
-          companyId: company.id,
-        },
-      }),
-    ]);
-
-    await Promise.all([
-      this.prisma.contactUser.create({
-        data: {
-          contactId: contact.id,
-          userId: user.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.contactOrganization.create({
-        data: {
-          contactId: contact.id,
-          organizationId: organization.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.organizationUser.create({
-        data: {
-          organizationId: organization.id,
-          userId: user.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.dealContact.create({
-        data: {
-          dealId: deal.id,
-          contactId: contact.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.dealOrganization.create({
-        data: {
-          dealId: deal.id,
-          organizationId: organization.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.dealUser.create({
-        data: {
-          dealId: deal.id,
-          userId: user.id,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.serviceDeal.create({
-        data: {
-          serviceId: service.id,
-          dealId: deal.id,
-          quantity: 1,
-          companyId: company.id,
-        },
-      }),
-      this.prisma.serviceUser.create({
-        data: {
-          serviceId: service.id,
-          userId: user.id,
-          companyId: company.id,
-        },
-      }),
-    ]);
-
-    await this.prisma.customColumn.create({
-      data: {
-        label: t("defaultData.todo.columnLabel"),
-        type: CustomColumnType.singleSelect,
-        entityType: EntityType.task,
-        companyId: company.id,
-        options: {
-          options: [
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.open"),
-              color: "secondary",
-              isDefault: true,
-              index: 0,
-            },
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.inProgress"),
-              color: "warning",
-              isDefault: false,
-              index: 1,
-            },
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.blocked"),
-              color: "destructive",
-              isDefault: false,
-              index: 2,
-            },
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.onHold"),
-              color: "secondary",
-              isDefault: false,
-              index: 3,
-            },
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.done"),
-              color: "success",
-              isDefault: false,
-              index: 4,
-            },
-            {
-              value: randomUUID(),
-              label: t("defaultData.todo.states.archived"),
-              color: "secondary",
-              isDefault: false,
-              index: 5,
-            },
-          ],
-        },
-      },
-    });
   }
 
   @Transaction

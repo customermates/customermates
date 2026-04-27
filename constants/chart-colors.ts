@@ -16,33 +16,20 @@ type Hue = keyof ThemeColors;
 type ChartColorSet = { fill: string; text: string; stroke: string };
 type ChartColorTheme = { light: ChartColorSet; dark: ChartColorSet };
 
-const lightColors = colorPalettes.light as unknown as ThemeColors;
 const darkColors = colorPalettes.dark as unknown as ThemeColors;
 
 const HUES: Hue[] = ["default", "primary", "secondary", "success", "warning", "danger"];
 const FILL_SHADES = [400, 500, 600] as const;
-const TEXT_OFFSET_BY_HUE: Record<Hue, number> = {
-  default: 300,
-  primary: 200,
-  secondary: 200,
-  success: 300,
-  warning: 300,
-  danger: 200,
-};
+const HIGH_CONTRAST_TEXT_SHADE = 900;
 
 function buildColorSet(hue: Hue, fillShade: number): ChartColorTheme {
-  const textShade = Math.min(900, fillShade + TEXT_OFFSET_BY_HUE[hue]);
-  const light = {
-    fill: lightColors[hue][fillShade],
-    text: lightColors[hue][textShade],
-    stroke: lightColors[hue][fillShade],
-  };
-  const dark = {
+  const textShade = HIGH_CONTRAST_TEXT_SHADE;
+  const set = {
     fill: darkColors[hue][fillShade],
     text: darkColors[hue][textShade],
     stroke: darkColors[hue][fillShade],
   };
-  return { light, dark };
+  return { light: set, dark: set };
 }
 
 export const CHART_COLORS = HUES.reduce(

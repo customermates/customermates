@@ -59,7 +59,7 @@
       }
     },
     "name": "# Sold Hardware",
-    "updatedAt": "2026-03-24T11:01:03.162Z",
+    "updatedAt": "2026-04-27T17:16:03.452Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -127,7 +127,7 @@
       }
     },
     "name": "# Contacts (New)",
-    "updatedAt": "2026-03-24T11:01:03.158Z",
+    "updatedAt": "2026-04-27T17:16:03.430Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -212,7 +212,7 @@
       }
     },
     "name": "Deal Value | Organizations",
-    "updatedAt": "2026-03-24T11:01:03.164Z",
+    "updatedAt": "2026-04-27T17:16:03.434Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -222,26 +222,32 @@
     "data": [
       {
         "label": "New",
+        "optionColor": "secondary",
         "value": 10
       },
       {
         "label": "Lost",
+        "optionColor": "destructive",
         "value": 4
       },
       {
         "label": "Contact",
+        "optionColor": "default",
         "value": 4
       },
       {
         "label": "Won",
+        "optionColor": "success",
         "value": 4
       },
       {
         "label": "Qualified",
+        "optionColor": "info",
         "value": 4
       },
       {
         "label": "In Progress",
+        "optionColor": "warning",
         "value": 4
       }
     ],
@@ -289,7 +295,7 @@
       }
     },
     "name": "Sales Pipeline",
-    "updatedAt": "2026-03-24T11:01:03.160Z",
+    "updatedAt": "2026-04-27T17:16:03.432Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -299,14 +305,17 @@
     "data": [
       {
         "label": "Open",
+        "optionColor": "warning",
         "value": 725500
       },
       {
         "label": "Won",
+        "optionColor": "success",
         "value": 545500
       },
       {
         "label": "Lost",
+        "optionColor": "destructive",
         "value": 538500
       }
     ],
@@ -360,7 +369,7 @@
       }
     },
     "name": "Σ Deal Value",
-    "updatedAt": "2026-03-24T11:01:03.161Z",
+    "updatedAt": "2026-04-27T17:16:03.436Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -370,10 +379,12 @@
     "data": [
       {
         "label": "Service",
+        "optionColor": "secondary",
         "value": 1112700
       },
       {
         "label": "Hardware",
+        "optionColor": "secondary",
         "value": 853200
       }
     ],
@@ -421,7 +432,7 @@
       }
     },
     "name": "Services / Hardware Value",
-    "updatedAt": "2026-03-24T11:01:03.160Z",
+    "updatedAt": "2026-04-27T17:16:03.454Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -431,18 +442,22 @@
     "data": [
       {
         "label": "Open",
+        "optionColor": "warning",
         "value": 725500
       },
       {
         "label": "Won",
+        "optionColor": "success",
         "value": 545500
       },
       {
         "label": "Lost",
+        "optionColor": "destructive",
         "value": 538500
       },
       {
         "label": "Abandoned",
+        "optionColor": "secondary",
         "value": 156400
       }
     ],
@@ -490,7 +505,7 @@
       }
     },
     "name": "Deal Value | State",
-    "updatedAt": "2026-03-24T11:01:03.163Z",
+    "updatedAt": "2026-04-27T17:16:03.453Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -500,14 +515,17 @@
     "data": [
       {
         "label": "Won",
+        "optionColor": "success",
         "value": 4
       },
       {
         "label": "Open",
+        "optionColor": "warning",
         "value": 3
       },
       {
         "label": "Lost",
+        "optionColor": "destructive",
         "value": 2
       }
     ],
@@ -561,7 +579,7 @@
       }
     },
     "name": "# Deals",
-    "updatedAt": "2026-03-24T11:01:03.165Z",
+    "updatedAt": "2026-04-27T17:16:03.455Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -571,10 +589,12 @@
     "data": [
       {
         "label": "Direct customer",
+        "optionColor": "default",
         "value": 11
       },
       {
         "label": "Affiliated company",
+        "optionColor": "secondary",
         "value": 8
       }
     ],
@@ -622,7 +642,7 @@
       }
     },
     "name": "# Organizations",
-    "updatedAt": "2026-03-24T11:01:03.163Z",
+    "updatedAt": "2026-04-27T17:16:03.431Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   }
 ]

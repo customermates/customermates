@@ -1,24 +1,46 @@
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { WidgetService } from "@/features/widget/widget.service";
+
 import { z } from "zod";
+import { SalesType } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
+const Schema = z.object({
+  salesType: z.enum(SalesType),
+});
+
+export type CompleteOnboardingWizardData = Data<typeof Schema>;
+
 export abstract class CompleteOnboardingWizardRepo {
-  abstract markOnboardingWizardCompleted(userId: string): Promise<void>;
+  abstract markOnboardingWizardCompletedAndSeedDashboard(args: {
+    userId: string;
+    salesType: SalesType;
+  }): Promise<{ alreadySeeded: boolean }>;
 }
 
 @TentantInteractor()
-export class CompleteOnboardingWizardInteractor extends BaseInteractor<void, null> {
-  constructor(private repo: CompleteOnboardingWizardRepo) {
+export class CompleteOnboardingWizardInteractor extends BaseInteractor<CompleteOnboardingWizardData, null> {
+  constructor(
+    private repo: CompleteOnboardingWizardRepo,
+    private widgetService: WidgetService,
+  ) {
     super();
   }
 
+  @Validate(Schema)
   @ValidateOutput(z.null())
-  async invoke(): Promise<{ ok: true; data: null }> {
+  async invoke(data: CompleteOnboardingWizardData): Validated<null> {
     const { id } = getTenantUser();
-    await this.repo.markOnboardingWizardCompleted(id);
+    const result = await this.repo.markOnboardingWizardCompletedAndSeedDashboard({
+      userId: id,
+      salesType: data.salesType,
+    });
+    if (!result.alreadySeeded) await this.widgetService.recalculateUserWidgets();
     return { ok: true as const, data: null };
   }
 }

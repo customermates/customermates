@@ -20,6 +20,7 @@ const DisplayOptionsSchema = z
     displayType: z.enum(DisplayType),
     reverseXAxis: z.boolean().optional(),
     reverseYAxis: z.boolean().optional(),
+    useGroupColors: z.boolean().optional(),
   })
   .optional();
 

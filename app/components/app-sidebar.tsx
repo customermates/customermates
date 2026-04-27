@@ -1,7 +1,7 @@
 "use client";
 
 import type { ExtendedUser } from "@/features/user/user.types";
-import type { Company, SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionStatus } from "@/generated/prisma";
 import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-settings.interactor";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
@@ -45,16 +45,15 @@ import { NavUser } from "./navigation/nav-user";
 type Props = {
   systemTaskCount: number;
   user: ExtendedUser | null;
-  company: Company | null;
   subscriptionStatus: SubscriptionStatus | null;
 };
 
-export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, company, subscriptionStatus }: Props) {
+export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, subscriptionStatus }: Props) {
   const t = useTranslations("");
   const pathname = usePathname();
   const intlPathname = useIntlPathname();
   const rootStore = useRootStore();
-  const { userStore, companyStore, globalSearchModalStore, feedbackModalStore } = rootStore;
+  const { userStore, globalSearchModalStore, feedbackModalStore } = rootStore;
 
   const { setOpenMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
@@ -80,11 +79,6 @@ export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, 
   }
 
   useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
-
-  useEffect(() => {
-    userStore.setUser(user);
-    if (company) companyStore.setCompany(company);
-  }, [user, company]);
 
   function closeMobileSidebar(cb?: () => void) {
     if (typeof window !== "undefined" && window.innerWidth < 768) setOpenMobile(false);

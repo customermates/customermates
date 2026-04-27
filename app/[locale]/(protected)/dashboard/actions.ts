@@ -13,6 +13,7 @@ import {
   getGetWidgetByIdInteractor,
   getUpdateWidgetLayoutsInteractor,
   getGetWidgetsInteractor,
+  getRecalculateUserWidgetsInteractor,
   getUpdateUserSettingsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
@@ -43,6 +44,11 @@ export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
 
 export async function refreshWidgetsAction() {
   const result = await getGetWidgetsInteractor().invoke();
+  return result.data;
+}
+
+export async function recalculateUserWidgetsAction() {
+  const result = await getRecalculateUserWidgetsInteractor().invoke();
   return result.data;
 }
 

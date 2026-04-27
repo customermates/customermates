@@ -1,127 +1,11 @@
 [
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-26T09:15:42.312Z",
-    "deliveredAt": null,
-    "event": "contact.created",
-    "id": "e1a2b3c4-d5e6-4f78-9a0b-c1d2e3f4a5b6",
-    "requestBody": {
-      "data": {
-        "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-        "payload": {
-          "createdAt": "2026-03-26T09:15:42.198Z",
-          "customFieldValues": [
-            {
-              "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
-              "value": "sarah.braun@allianz.de"
-            },
-            {
-              "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
-              "value": "24a105aa-5a81-4b58-9dc0-18ea4ac5b4df"
-            },
-            {
-              "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
-              "value": "+491762345678"
-            }
-          ],
-          "deals": [],
-          "firstName": "Sarah",
-          "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
-          "lastName": "Braun",
-          "organizations": [
-            {
-              "id": "171e394a-827b-406e-818c-4cf579950828",
-              "name": "Bundesagentur für Arbeit"
-            }
-          ],
-          "updatedAt": "2026-03-26T09:15:42.198Z",
-          "users": []
-        },
-        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
-      },
-      "event": "contact.created",
-      "timestamp": "2026-03-26T09:15:42.267Z"
-    },
-    "responseMessage": null,
-    "status": "processing",
-    "statusCode": null,
-    "success": false,
-    "url": "https://demo.customermates.com/example/webhook"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-26T09:14:58.741Z",
-    "deliveredAt": null,
-    "event": "organization.updated",
-    "id": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
-    "requestBody": {
-      "data": {
-        "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-        "payload": {
-          "changes": {
-            "contacts": {
-              "current": [
-                {
-                  "firstName": "Sarah",
-                  "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
-                  "lastName": "Braun"
-                }
-              ],
-              "previous": []
-            },
-            "updatedAt": {
-              "current": "2026-03-26T09:14:58.652Z",
-              "previous": "2026-01-28T07:39:37.769Z"
-            }
-          },
-          "organization": {
-            "contacts": [
-              {
-                "firstName": "Laura",
-                "id": "a9ca33a6-6bf4-4ef5-9459-19cbd7d8ff45",
-                "lastName": "Fischer"
-              },
-              {
-                "firstName": "Sarah",
-                "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
-                "lastName": "Braun"
-              }
-            ],
-            "createdAt": "2025-08-10T18:55:25.702Z",
-            "customFieldValues": [
-              {
-                "columnId": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
-                "value": "e4d0e816-10d3-4ef9-a0d0-edd40dc29497"
-              },
-              {
-                "columnId": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
-                "value": "https://arbeitsagentur.de"
-              }
-            ],
-            "deals": [],
-            "id": "171e394a-827b-406e-818c-4cf579950828",
-            "name": "Bundesagentur für Arbeit",
-            "updatedAt": "2026-03-26T09:14:58.652Z",
-            "users": []
-          }
-        },
-        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
-      },
-      "event": "organization.updated",
-      "timestamp": "2026-03-26T09:14:58.705Z"
-    },
-    "responseMessage": null,
-    "status": "processing",
-    "statusCode": null,
-    "success": false,
-    "url": "https://demo.customermates.com/example/webhook"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-01-26T12:22:04.449Z",
     "deliveredAt": "2026-01-26T12:22:04.449Z",
     "event": "organization.updated",
     "id": "095af417-cc80-41b0-a314-798123b9a41f",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -195,6 +79,7 @@
     "deliveredAt": "2026-01-26T12:21:36.745Z",
     "event": "contact.deleted",
     "id": "62a4a1bf-09ee-471b-a5e0-6b08be7912b9",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -244,6 +129,7 @@
     "deliveredAt": "2026-01-26T12:21:48.224Z",
     "event": "contact.updated",
     "id": "793b4e20-32a7-4a1d-9568-9adabc0c7efe",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -315,6 +201,7 @@
     "deliveredAt": "2026-01-26T12:24:32.567Z",
     "event": "deal.created",
     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -356,10 +243,80 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-03-26T09:14:58.741Z",
+    "deliveredAt": null,
+    "event": "organization.updated",
+    "id": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+    "lockedAt": null,
+    "requestBody": {
+      "data": {
+        "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+        "payload": {
+          "changes": {
+            "contacts": {
+              "current": [
+                {
+                  "firstName": "Sarah",
+                  "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
+                  "lastName": "Braun"
+                }
+              ],
+              "previous": []
+            },
+            "updatedAt": {
+              "current": "2026-03-26T09:14:58.652Z",
+              "previous": "2026-01-28T07:39:37.769Z"
+            }
+          },
+          "organization": {
+            "contacts": [
+              {
+                "firstName": "Laura",
+                "id": "a9ca33a6-6bf4-4ef5-9459-19cbd7d8ff45",
+                "lastName": "Fischer"
+              },
+              {
+                "firstName": "Sarah",
+                "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
+                "lastName": "Braun"
+              }
+            ],
+            "createdAt": "2025-08-10T18:55:25.702Z",
+            "customFieldValues": [
+              {
+                "columnId": "3d1e44c5-15cd-4317-a24d-a0c9fff2f964",
+                "value": "e4d0e816-10d3-4ef9-a0d0-edd40dc29497"
+              },
+              {
+                "columnId": "3b30bee4-5a16-4c50-a87b-8f4fcf0262aa",
+                "value": "https://arbeitsagentur.de"
+              }
+            ],
+            "deals": [],
+            "id": "171e394a-827b-406e-818c-4cf579950828",
+            "name": "Bundesagentur für Arbeit",
+            "updatedAt": "2026-03-26T09:14:58.652Z",
+            "users": []
+          }
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "organization.updated",
+      "timestamp": "2026-03-26T09:14:58.705Z"
+    },
+    "responseMessage": null,
+    "status": "processing",
+    "statusCode": null,
+    "success": false,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-01-26T12:22:29.841Z",
     "deliveredAt": "2026-01-26T12:22:29.841Z",
     "event": "organization.updated",
     "id": "a7a8f2f4-08c2-44a8-947b-bf3361dc119d",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -433,6 +390,7 @@
     "deliveredAt": "2026-01-26T12:25:48.234Z",
     "event": "deal.updated",
     "id": "b2c3d4e5-f6a7-890b-c1d2-e3f4a5b6c7d8e",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -496,6 +454,7 @@
     "deliveredAt": "2026-01-26T12:21:26.849Z",
     "event": "contact.updated",
     "id": "bac94b65-c47d-409f-bc4c-4b3cfe2f9db5",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -567,6 +526,7 @@
     "deliveredAt": "2026-01-26T12:26:12.789Z",
     "event": "organization.created",
     "id": "c3d4e5f6-a7b8-901c-2d3e-f4a5b6c7d8e9f",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -606,6 +566,7 @@
     "deliveredAt": null,
     "event": "contact.updated",
     "id": "c8068cf9-b0c8-4a7f-b9ec-e502327e4edd",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -678,6 +639,7 @@
     "deliveredAt": null,
     "event": "contact.updated",
     "id": "d5e6f7a8-b9c0-1d2e-3f4a-5b6c7d8e9f0a1",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -740,10 +702,61 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-03-26T09:15:42.312Z",
+    "deliveredAt": null,
+    "event": "contact.created",
+    "id": "e1a2b3c4-d5e6-4f78-9a0b-c1d2e3f4a5b6",
+    "lockedAt": null,
+    "requestBody": {
+      "data": {
+        "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+        "payload": {
+          "createdAt": "2026-03-26T09:15:42.198Z",
+          "customFieldValues": [
+            {
+              "columnId": "f51bd97a-a1ed-468e-8d9e-d21d2b18576a",
+              "value": "sarah.braun@allianz.de"
+            },
+            {
+              "columnId": "4c6ab6a0-b232-4386-8201-3176757e5281",
+              "value": "24a105aa-5a81-4b58-9dc0-18ea4ac5b4df"
+            },
+            {
+              "columnId": "90586806-b7b8-4bb8-9010-faa8c54290b2",
+              "value": "+491762345678"
+            }
+          ],
+          "deals": [],
+          "firstName": "Sarah",
+          "id": "f2b3c4d5-e6a7-4890-ab1c-d2e3f4a5b6c7",
+          "lastName": "Braun",
+          "organizations": [
+            {
+              "id": "171e394a-827b-406e-818c-4cf579950828",
+              "name": "Bundesagentur für Arbeit"
+            }
+          ],
+          "updatedAt": "2026-03-26T09:15:42.198Z",
+          "users": []
+        },
+        "userId": "ea120bc5-0849-4fab-9491-1a351b65051b"
+      },
+      "event": "contact.created",
+      "timestamp": "2026-03-26T09:15:42.267Z"
+    },
+    "responseMessage": null,
+    "status": "processing",
+    "statusCode": null,
+    "success": false,
+    "url": "https://demo.customermates.com/example/webhook"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-01-26T12:23:15.123Z",
     "deliveredAt": "2026-01-26T12:23:15.123Z",
     "event": "contact.created",
     "id": "f3e8d9c2-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -793,6 +806,7 @@
     "deliveredAt": null,
     "event": "contact.updated",
     "id": "fc527788-19b2-4429-9aa8-3fa5b7ea7b14",
+    "lockedAt": null,
     "requestBody": {
       "data": {
         "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",

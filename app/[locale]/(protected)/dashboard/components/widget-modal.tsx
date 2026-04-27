@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, WidgetGroupByType } from "@/generated/prisma";
 
 import { AppModal } from "@/components/modal";
 import { AppForm } from "@/components/forms/form-context";
@@ -102,15 +102,18 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                               <div className="flex w-full gap-2 items-center justify-start">
                                 <span>{widget.name}</span>
 
-                                <AppChip variant="outline">
-                                  <Avatar className="max-w-4 max-h-4 mr-0.5 size-4">
-                                    {widget.avatarUrl && <AvatarImage src={widget.avatarUrl} />}
+                                <AppChip
+                                  startContent={
+                                    <Avatar className="size-4 shrink-0">
+                                      {widget.avatarUrl && <AvatarImage src={widget.avatarUrl} />}
 
-                                    <AvatarFallback className="text-[8px]">
-                                      {`${widget.firstName?.[0] ?? ""}${widget.lastName?.[0] ?? ""}`.toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
-
+                                      <AvatarFallback className="text-[8px]">
+                                        {`${widget.firstName?.[0] ?? ""}${widget.lastName?.[0] ?? ""}`.toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  }
+                                  variant="outline"
+                                >
                                   {`${widget.firstName} ${widget.lastName}`.trim()}
                                 </AppChip>
                               </div>
@@ -242,58 +245,69 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                 <AccordionTrigger>{t("Dashboard.tabs.display")}</AccordionTrigger>
 
                 <AccordionContent className="flex flex-col gap-4 pb-4 pt-2">
-                  <div className="space-y-1.5">
-                    <FormLabel htmlFor="displayOptions.barColors">
-                      {t("Common.inputs.displayOptions.barColors")}
-                    </FormLabel>
+                  {form.groupByType === WidgetGroupByType.customColumn && (
+                    <FormSwitch
+                      id="displayOptions.useGroupColors"
+                      label={t("Common.inputs.displayOptions.useGroupColors")}
+                    />
+                  )}
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-label={t("Common.inputs.displayOptions.barColors")}
-                          className="w-full justify-between font-normal"
-                          id="displayOptions.barColors"
-                          type="button"
-                          variant="outline"
-                        >
-                          <span className="flex flex-wrap items-center gap-1">
-                            {(form.displayOptions?.barColors ?? []).map((key) => (
-                              <span
+                  {!(
+                    form.groupByType === WidgetGroupByType.customColumn && form.displayOptions?.useGroupColors !== false
+                  ) && (
+                    <div className="space-y-1.5">
+                      <FormLabel htmlFor="displayOptions.barColors">
+                        {t("Common.inputs.displayOptions.barColors")}
+                      </FormLabel>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            aria-label={t("Common.inputs.displayOptions.barColors")}
+                            className="w-full justify-between font-normal"
+                            id="displayOptions.barColors"
+                            type="button"
+                            variant="outline"
+                          >
+                            <span className="flex flex-wrap items-center gap-1">
+                              {(form.displayOptions?.barColors ?? []).map((key) => (
+                                <span
+                                  key={key}
+                                  className="inline-flex size-4 rounded-full"
+                                  style={{ backgroundColor: chartColors[key as keyof typeof chartColors] }}
+                                />
+                              ))}
+                            </span>
+
+                            <ChevronsUpDownIcon className="ml-2 size-4 opacity-50" />
+                          </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+                          {Object.entries(chartColors).map(([key, color]) => {
+                            const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+                            return (
+                              <DropdownMenuCheckboxItem
                                 key={key}
-                                className="inline-flex size-4 rounded-full"
-                                style={{ backgroundColor: chartColors[key as keyof typeof chartColors] }}
-                              />
-                            ))}
-                          </span>
-
-                          <ChevronsUpDownIcon className="ml-2 size-4 opacity-50" />
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
-                        {Object.entries(chartColors).map(([key, color]) => {
-                          const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
-                          return (
-                            <DropdownMenuCheckboxItem
-                              key={key}
-                              checked={selected}
-                              onCheckedChange={(checked) => {
-                                const current = form.displayOptions?.barColors ?? [];
-                                const next = checked
-                                  ? [...current, key as ChartColor]
-                                  : current.filter((k) => k !== (key as ChartColor));
-                                if (next.length === 0) return;
-                                widgetModalStore.onChange("displayOptions.barColors", next);
-                              }}
-                              onSelect={(e) => e.preventDefault()}
-                            >
-                              <span className="inline-flex size-4 rounded-full" style={{ backgroundColor: color }} />
-                            </DropdownMenuCheckboxItem>
-                          );
-                        })}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                                checked={selected}
+                                onCheckedChange={(checked) => {
+                                  const current = form.displayOptions?.barColors ?? [];
+                                  const next = checked
+                                    ? [...current, key as ChartColor]
+                                    : current.filter((k) => k !== (key as ChartColor));
+                                  if (next.length === 0) return;
+                                  widgetModalStore.onChange("displayOptions.barColors", next);
+                                }}
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <span className="inline-flex size-4 rounded-full" style={{ backgroundColor: color }} />
+                              </DropdownMenuCheckboxItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
 
                   <FormSelect
                     id="displayOptions.displayType"

@@ -2,6 +2,7 @@
 
 import type { ChartDataPoint } from "./chart.types";
 import type { ExtendedWidget } from "@/features/widget/widget.types";
+import type { ChipColor } from "@/constants/chip-colors";
 
 import React, { useMemo } from "react";
 import { observer } from "mobx-react-lite";
@@ -13,6 +14,15 @@ import { AggregationType } from "@/generated/prisma";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { getChartColors, getChartTextColors, getChartStrokeColors } from "@/constants/chart-colors";
+
+const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
+  default: ChartColor.default1,
+  secondary: ChartColor.secondary1,
+  destructive: ChartColor.danger1,
+  success: ChartColor.success1,
+  warning: ChartColor.warning1,
+  info: ChartColor.primary1,
+};
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -76,19 +86,18 @@ export const WidgetCard = observer(({ widget }: Props) => {
     }
 
     const barColors = widget.displayOptions?.barColors || [ChartColor.primary1];
+    const useGroupColors = widget.displayOptions?.useGroupColors !== false;
     const chartColors = getChartColors(resolvedTheme);
     const chartTextColors = getChartTextColors(resolvedTheme);
     const chartStrokeColors = getChartStrokeColors(resolvedTheme);
-    const colors =
-      barColors && barColors.length > 0
-        ? barColors.map((color) => chartColors[color])
-        : [chartColors[ChartColor.primary1]];
     const gridColor = "var(--border)";
     const textColor = "var(--muted-foreground)";
 
     const chartData: ChartDataPoint[] = widget.data.map((item, index) => {
-      const colorKey = barColors[index % barColors.length] || ChartColor.primary1;
-      const color = colors[index % colors.length] || chartColors[ChartColor.primary1];
+      const fallbackKey = barColors[index % barColors.length] || ChartColor.primary1;
+      const colorKey: ChartColor =
+        useGroupColors && item.optionColor ? CHIP_TO_CHART_COLOR[item.optionColor] : fallbackKey;
+      const color = chartColors[colorKey];
       const labelColor = chartTextColors[colorKey];
       const strokeColor = chartStrokeColors[colorKey];
 
@@ -101,6 +110,10 @@ export const WidgetCard = observer(({ widget }: Props) => {
         strokeColor,
       };
     });
+
+    const colors = useGroupColors
+      ? chartData.map((point) => point.color)
+      : barColors.map((color) => chartColors[color]);
 
     const displayType = widget.displayOptions?.displayType || DisplayType.verticalBarChart;
     const commonProps = {

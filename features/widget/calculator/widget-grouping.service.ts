@@ -1,5 +1,6 @@
 import type { ExtendedWidget, DiagramDataPoint } from "../widget.types";
 import type { DealRecord, GroupAccumulator, EntityForGrouping } from "./widget-calculator.types";
+import type { ChipColor } from "@/constants/chip-colors";
 
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
@@ -106,10 +107,7 @@ export class WidgetGroupingService extends BaseRepository {
     const customColumn = await getCustomColumnRepo().find(groupByCustomColumnId);
     if (!customColumn || customColumn.type !== "singleSelect") return [];
 
-    const optionsMap = new Map<string, string>();
-    customColumn.options?.options?.forEach((opt) => {
-      if (opt.value && opt.label) optionsMap.set(opt.value, opt.label);
-    });
+    const optionsMap = this.buildOptionsMap(customColumn);
 
     const items: Array<{ id: string; value: number }> = [];
 
@@ -200,10 +198,21 @@ export class WidgetGroupingService extends BaseRepository {
     }
   }
 
+  private buildOptionsMap(customColumn: {
+    type: "singleSelect";
+    options: { options: Array<{ value: string; label: string; color: ChipColor }> };
+  }) {
+    const map = new Map<string, { label: string; color: ChipColor }>();
+    customColumn.options.options.forEach((opt) => {
+      if (opt.value && opt.label) map.set(opt.value, { label: opt.label, color: opt.color });
+    });
+    return map;
+  }
+
   private accumulateCustomColumnValues(
     items: Array<{ id: string; value: number }>,
     valueById: Map<string, string>,
-    optionsMap: Map<string, string>,
+    optionsMap: Map<string, { label: string; color: ChipColor }>,
   ): DiagramDataPoint[] {
     const acc: GroupAccumulator = new Map();
 
@@ -215,9 +224,14 @@ export class WidgetGroupingService extends BaseRepository {
         continue;
       }
 
-      const label = optionsMap.get(customValueId) || customValueId;
+      const option = optionsMap.get(customValueId);
+      const label = option?.label ?? customValueId;
       const existing = acc.get(customValueId);
-      acc.set(customValueId, { label, value: (existing?.value ?? 0) + item.value });
+      acc.set(customValueId, {
+        label,
+        value: (existing?.value ?? 0) + item.value,
+        optionColor: option?.color,
+      });
     }
 
     return Array.from(acc.values());
@@ -232,11 +246,7 @@ export class WidgetGroupingService extends BaseRepository {
 
     if (!customColumn || customColumn.type !== "singleSelect") return [];
 
-    const optionsMap = new Map<string, string>();
-
-    customColumn.options?.options?.forEach((opt) => {
-      if (opt.value && opt.label) optionsMap.set(opt.value, opt.label);
-    });
+    const optionsMap = this.buildOptionsMap(customColumn);
 
     const entityIds = entities.map((e) => e.id);
     const valueByEntityId = await getCustomColumnRepo().findCustomFieldValuesMap(customColumnId, entityType, entityIds);
@@ -251,9 +261,14 @@ export class WidgetGroupingService extends BaseRepository {
         continue;
       }
 
-      const label = optionsMap.get(customValueId) || customValueId;
+      const option = optionsMap.get(customValueId);
+      const label = option?.label ?? customValueId;
       const existing = acc.get(customValueId);
-      acc.set(customValueId, { label, value: (existing?.value ?? 0) + 1 });
+      acc.set(customValueId, {
+        label,
+        value: (existing?.value ?? 0) + 1,
+        optionColor: option?.color,
+      });
     }
 
     return Array.from(acc.values());

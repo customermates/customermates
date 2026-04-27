@@ -39,12 +39,17 @@ export function NavigationSwitch({
   const isDocsRoute = pathname === "/docs" || pathname.startsWith("/docs/");
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
   const hideAppShell = !isAuthenticated || isOnboardingWizard;
-  const { layoutStore } = useRootStore();
+  const { layoutStore, userStore, companyStore } = useRootStore();
   const shouldShowNavbar = hideAppShell && !isDocsRoute;
 
   useLayoutEffect(() => {
     layoutStore.setIsNavbarVisible(shouldShowNavbar);
   }, [shouldShowNavbar]);
+
+  useLayoutEffect(() => {
+    userStore.setUser(user);
+    if (company) companyStore.setCompany(company);
+  }, [user, company]);
 
   if (isDocsRoute) {
     return (
@@ -76,12 +81,7 @@ export function NavigationSwitch({
 
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen}>
-      <AppSidebar
-        company={company}
-        subscriptionStatus={subscriptionStatus}
-        systemTaskCount={systemTaskCount}
-        user={user}
-      />
+      <AppSidebar subscriptionStatus={subscriptionStatus} systemTaskCount={systemTaskCount} user={user} />
 
       <SidebarInset className="min-w-0 overflow-x-clip">
         <TopBarActionsProvider>

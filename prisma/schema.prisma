@@ -154,6 +154,7 @@ model Company {
   website              String?
   phone                String?
   email                String?
+  salesType            SalesType?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   tasks                Task[]
@@ -957,5 +958,10 @@ enum SubscriptionStatus {
   expired
   pastDue
   unPaid
+}
+
+enum SalesType {
+  product
+  service
 }
 

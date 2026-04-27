@@ -164,19 +164,6 @@
     "default": "Standard",
     "defaultColor": "Standardfarbe",
     "defaultData": {
-      "contact": {
-        "firstName": "Max",
-        "lastName": "Mustermann"
-      },
-      "deal": {
-        "name": "Erstes Projekt"
-      },
-      "organization": {
-        "name": "Beispiel GmbH"
-      },
-      "service": {
-        "name": "Beratungsdienst"
-      },
       "todo": {
         "columnLabel": "Status",
         "name": "Meine erste Aufgabe",
@@ -378,6 +365,7 @@
         "horizontal": "Horizontal anzeigen",
         "reverseXAxis": "X-Achse umkehren",
         "reverseYAxis": "Y-Achse umkehren",
+        "useGroupColors": "Optionsfarben verwenden",
         "vertical": "Vertikal anzeigen"
       },
       "displayType": "Anzeigetyp",
@@ -497,6 +485,77 @@
     "options": "Optionen",
     "postalCode": "Postleitzahl",
     "role": "Rolle",
+    "seedData": {
+      "column": {
+        "articleNumber": "Artikelnummer",
+        "billableHours": "Abrechenbare Stunden",
+        "hourlyRate": "Stundensatz",
+        "salesPipeline": "Sales-Pipeline",
+        "stock": "Bestand"
+      },
+      "contact": {
+        "alex": { "first": "Alex", "last": "Murphy" },
+        "elena": { "first": "Elena", "last": "Costa" },
+        "linnea": { "first": "Linnea", "last": "Holm" },
+        "marius": { "first": "Marius", "last": "Becker" },
+        "priya": { "first": "Priya", "last": "Iyer" },
+        "rashid": { "first": "Rashid", "last": "Khan" },
+        "sara": { "first": "Sara", "last": "Romero" },
+        "tomas": { "first": "Tomas", "last": "Lindberg" }
+      },
+      "deal": {
+        "atlasDiscovery": "Atlas Discovery-Sprint",
+        "atlasExpansion": "Atlas Flotten-Erweiterung",
+        "atlasPilot": "Atlas Pilot-Rollout",
+        "atlasRetainer": "Atlas laufender Retainer",
+        "harborDiscovery": "Harbor Scoping-Workshop",
+        "harborRollout": "Harbor Rollout-Paket",
+        "kestrelFlagship": "Kestrel Flagship-Launch",
+        "kestrelRetainer": "Kestrel Implementierung + Retainer",
+        "marloweBulk": "Marlowe Großbestellung",
+        "marloweImplementation": "Marlowe vollständige Implementierung",
+        "northLightDiscovery": "North Light Discovery",
+        "northLightStarter": "North Light Starter-Bestellung"
+      },
+      "organization": {
+        "atlasMobility": "Atlas Mobility",
+        "harborAndLine": "Harbor & Line",
+        "kestrelStudios": "Kestrel Studios",
+        "marloweAndCole": "Marlowe & Cole",
+        "northLight": "North Light Group"
+      },
+      "pipeline": {
+        "lost": "Verloren",
+        "new": "Neu",
+        "qualified": "Qualifiziert",
+        "quoted": "Angebot",
+        "won": "Gewonnen"
+      },
+      "service": {
+        "discovery": "Discovery",
+        "enterpriseKit": "Enterprise-Paket",
+        "implementation": "Implementierung",
+        "premiumKit": "Premium-Paket",
+        "retainer": "Retainer",
+        "starterKit": "Starter-Paket"
+      },
+      "task": {
+        "introCall": "Erstgespräch",
+        "kickoffPrep": "Kickoff-Unterlagen vorbereiten",
+        "postMortem": "Projekt-Post-Mortem schreiben",
+        "sendQuote": "Angebot versenden"
+      },
+      "widget": {
+        "activeDealsByStage": "Aktive Deals",
+        "dealsByStage": "Deals je Stage",
+        "dealValueByOrg": "Deal-Wert je Organisation",
+        "tasksByStatus": "Aufgaben nach Status",
+        "topDealsByValue": "Top Deals nach Wert",
+        "totalContacts": "Kontakte",
+        "valueByStage": "Pipeline-Wert",
+        "valuePerService": "Wert je Service"
+      }
+    },
     "single": "Einzel",
     "sort": {
       "ascending": "Aufsteigend",
@@ -725,7 +784,9 @@
     },
     "horizontal": "Horizontal anzeigen",
     "isTemplate": "Als Vorlage für andere Nutzer Ihrer Organisation freigeben",
+    "lastUpdated": "Aktualisiert {time}",
     "limit": "Max. Anzahl an Einträgen",
+    "refresh": "Aktualisieren",
     "reverseXAxis": "X-Achse umkehren",
     "reverseYAxis": "Y-Achse umkehren",
     "selectWidgetTemplate": "Diagramm-Vorlage",
@@ -1109,31 +1170,17 @@
     "companyNameDescription": "Dieser Name wird jeder Person angezeigt, die du in deinen Workspace einlädst.",
     "continue": "Weiter",
     "entities": {
-      "contact": {
-        "example": "John Doe bei Example Inc. — dein Startkontakt.",
-        "purpose": "Eine Person, mit der du Geschäfte machst.",
-        "title": "Kontakt"
-      },
-      "deal": {
-        "example": "First Project (1.000 €) — verknüpft John Doe und Example Inc.",
-        "purpose": "Ein potenzieller Verkauf. Erfasst Wert, Phase und erwarteten Abschluss.",
-        "title": "Deal"
-      },
-      "intro": "Von jedem Typ haben wir dir schon ein Beispiel in den Workspace gelegt, damit du es direkt anschauen kannst. Kein Stress — du kannst sie jederzeit ersetzen oder löschen.",
-      "organization": {
-        "example": "Example Inc. — wo John Doe arbeitet.",
-        "purpose": "Ein Unternehmen, eine Agentur oder jede Gruppe von Kontakten.",
-        "title": "Organisation"
+      "intro": "Wähle, was am besten passt. Wir richten Pipeline, Services und Dashboard-Widgets passend ein.",
+      "outro": "Spaltentypen und Bezeichnungen kannst du später jederzeit ändern — das bestimmt nur die Startform.",
+      "product": {
+        "description": "Du verkaufst physische oder digitale Dinge in Stückzahlen. Wir ergänzen Felder für Artikelnummer und Bestand.",
+        "example": "Ein Starter-Paket mit Artikelnummern, Mengen und Bestand.",
+        "title": "Produkte"
       },
       "service": {
-        "example": "Consulting Service (1.000 €) — Teil von First Project.",
-        "purpose": "Was auch immer du verkaufst — ein Produkt, ein einmaliges Paket oder eine wiederkehrende Dienstleistung. Erfasst, was aktiv ist und wann es verlängert wird.",
-        "title": "Service"
-      },
-      "task": {
-        "example": "Alles Umsetzbare — Folgetermine, Erinnerungen, nächste Schritte.",
-        "purpose": "Etwas zu erledigen, optional mit Kontakt, Deal oder Organisation verknüpft.",
-        "title": "Aufgabe"
+        "description": "Du verkaufst Zeit, Expertise oder wiederkehrende Engagements. Wir ergänzen Felder für Stundensatz und abrechenbare Stunden.",
+        "example": "Ein Discovery-Sprint, eine Implementierung, ein monatlicher Retainer.",
+        "title": "Services"
       }
     },
     "finish": "Fertig",
@@ -1166,8 +1213,8 @@
         "title": "Dein Unternehmen"
       },
       "entities": {
-        "subtitle": "Ein kurzer Rundgang durch die fünf Dinge, mit denen du arbeitest.",
-        "title": "Die Grundbausteine"
+        "subtitle": "Sag uns, was du verkaufst — wir richten den Workspace passend ein.",
+        "title": "Was verkaufst du?"
       },
       "invite": {
         "placeholder": "Platzhalter Team einladen",
