@@ -35,6 +35,7 @@ function makeContactDto(overrides: Record<string, unknown> = {}) {
     id: CONTACT_ID,
     firstName: "Jane",
     lastName: "Doe",
+    emails: [],
     notes: null,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -103,6 +104,7 @@ describe("CreateContactInteractor", () => {
     await interactor.invoke({
       firstName: "Jane",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [],
@@ -123,6 +125,7 @@ describe("CreateContactInteractor", () => {
     await interactor.invoke({
       firstName: "Jane",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [],
@@ -147,6 +150,7 @@ describe("CreateContactInteractor", () => {
     await interactor.invoke({
       firstName: "Jane",
       lastName: "Doe",
+      emails: [],
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [],
@@ -191,6 +195,7 @@ describe("CreateContactInteractor", () => {
     await interactor.invoke({
       firstName: "Jane",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [DEAL_ID_1],
@@ -217,6 +222,7 @@ describe("CreateContactInteractor", () => {
     const result: any = await interactor.invoke({
       firstName: "Jane",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [],
@@ -229,6 +235,7 @@ describe("CreateContactInteractor", () => {
         id: CONTACT_ID,
         firstName: "Jane",
         lastName: "Doe",
+        emails: [],
       }),
     );
   });
@@ -394,6 +401,7 @@ describe("UpdateContactInteractor", () => {
       id: CONTACT_ID,
       firstName: "Janet",
       lastName: "Doe",
+      emails: [],
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [DEAL_ID_1],
@@ -418,6 +426,7 @@ describe("UpdateContactInteractor", () => {
       id: CONTACT_ID,
       firstName: "Janet",
       lastName: "Doe",
+      emails: [],
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [DEAL_ID_1],
@@ -445,6 +454,7 @@ describe("UpdateContactInteractor", () => {
       id: CONTACT_ID,
       firstName: "Janet",
       lastName: "Doe",
+      emails: [],
       organizationIds: [ORG_ID_1],
       userIds: [],
       dealIds: [DEAL_ID_1],
@@ -472,6 +482,7 @@ describe("UpdateContactInteractor", () => {
       id: CONTACT_ID,
       firstName: "Janet",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [],
@@ -487,6 +498,7 @@ describe("UpdateContactInteractor", () => {
       id: CONTACT_ID,
       firstName: "Janet",
       lastName: "Doe",
+      emails: [],
       organizationIds: [],
       userIds: [],
       dealIds: [],
@@ -542,8 +554,24 @@ describe("CreateManyContactsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       contacts: [
-        { firstName: "Jane", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
-        { firstName: "John", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
+        {
+          firstName: "Jane",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
+        {
+          firstName: "John",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -577,6 +605,7 @@ describe("CreateManyContactsInteractor", () => {
         {
           firstName: "Jane",
           lastName: "Doe",
+          emails: [],
           organizationIds: [ORG_ID_1],
           userIds: [],
           dealIds: [],
@@ -604,8 +633,24 @@ describe("CreateManyContactsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       contacts: [
-        { firstName: "Jane", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
-        { firstName: "John", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
+        {
+          firstName: "Jane",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
+        {
+          firstName: "John",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -616,8 +661,24 @@ describe("CreateManyContactsInteractor", () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       contacts: [
-        { firstName: "Jane", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
-        { firstName: "John", lastName: "Doe", organizationIds: [], userIds: [], dealIds: [], customFieldValues: [] },
+        {
+          firstName: "Jane",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
+        {
+          firstName: "John",
+          lastName: "Doe",
+          emails: [],
+          organizationIds: [],
+          userIds: [],
+          dealIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -712,7 +773,7 @@ describe("UpdateManyContactsInteractor", () => {
 
     const interactor = createInteractor();
     await interactor.invoke({
-      contacts: [{ id: CONTACT_ID, firstName: "Janet", lastName: "Doe", organizationIds: [ORG_ID_1] }],
+      contacts: [{ id: CONTACT_ID, firstName: "Janet", lastName: "Doe", emails: [], organizationIds: [ORG_ID_1] }],
     });
 
     const orgUpdatedCalls = mockEventService.publish.mock.calls.filter(
@@ -738,7 +799,7 @@ describe("UpdateManyContactsInteractor", () => {
 
     const interactor = createInteractor();
     await interactor.invoke({
-      contacts: [{ id: CONTACT_ID, firstName: "Janet", lastName: "Doe", dealIds: [DEAL_ID_1] }],
+      contacts: [{ id: CONTACT_ID, firstName: "Janet", lastName: "Doe", emails: [], dealIds: [DEAL_ID_1] }],
     });
 
     const dealUpdatedCalls = mockEventService.publish.mock.calls.filter(

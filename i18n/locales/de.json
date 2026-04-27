@@ -285,6 +285,7 @@
         "contactIds": "Kontakt",
         "createdAt": "Erstellt am",
         "dealIds": "Deal",
+        "emails": "E-Mails",
         "event": "Ereignis",
         "organizationIds": "Organisation",
         "serviceIds": "Service",
@@ -494,14 +495,46 @@
         "stock": "Bestand"
       },
       "contact": {
-        "alex": { "first": "Alex", "last": "Murphy" },
-        "elena": { "first": "Elena", "last": "Costa" },
-        "linnea": { "first": "Linnea", "last": "Holm" },
-        "marius": { "first": "Marius", "last": "Becker" },
-        "priya": { "first": "Priya", "last": "Iyer" },
-        "rashid": { "first": "Rashid", "last": "Khan" },
-        "sara": { "first": "Sara", "last": "Romero" },
-        "tomas": { "first": "Tomas", "last": "Lindberg" }
+        "alex": {
+          "email": "alex.murphy@northlight.example",
+          "first": "Alex",
+          "last": "Murphy"
+        },
+        "elena": {
+          "email": "elena.costa@harborline.example",
+          "first": "Elena",
+          "last": "Costa"
+        },
+        "linnea": {
+          "email": "linnea.holm@kestrelstudios.example",
+          "first": "Linnea",
+          "last": "Holm"
+        },
+        "marius": {
+          "email": "marius.becker@marlowecole.example",
+          "first": "Marius",
+          "last": "Becker"
+        },
+        "priya": {
+          "email": "priya.iyer@northlight.example",
+          "first": "Priya",
+          "last": "Iyer"
+        },
+        "rashid": {
+          "email": "rashid.khan@atlasmobility.example",
+          "first": "Rashid",
+          "last": "Khan"
+        },
+        "sara": {
+          "email": "sara.romero@atlasmobility.example",
+          "first": "Sara",
+          "last": "Romero"
+        },
+        "tomas": {
+          "email": "tomas.lindberg@harborline.example",
+          "first": "Tomas",
+          "last": "Lindberg"
+        }
       },
       "deal": {
         "atlasDiscovery": "Atlas Discovery-Sprint",
@@ -585,7 +618,7 @@
         "deals": "Deals",
         "description": "Beschreibung",
         "email": "E-Mail",
-        "emails": "E-Mail",
+        "emails": "E-Mails",
         "enabled": "Aktiviert",
         "endDate": "Enddatum",
         "entity": "Element",

@@ -53,6 +53,14 @@
                     "lastName": {
                       "type": "string"
                     },
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      }
+                    },
                     "notes": {
                       "description": "Markdown content",
                       "anyOf": [
@@ -185,6 +193,7 @@
                     "id",
                     "firstName",
                     "lastName",
+                    "emails",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -283,6 +292,14 @@
                       "lastName": {
                         "type": "string"
                       },
+                      "emails": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
                       "notes": {
                         "description": "Markdown content",
                         "anyOf": [
@@ -415,6 +432,7 @@
                       "id",
                       "firstName",
                       "lastName",
+                      "emails",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -512,6 +530,14 @@
                       "lastName": {
                         "type": "string"
                       },
+                      "emails": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
                       "notes": {
                         "description": "Markdown content",
                         "anyOf": [
@@ -644,6 +670,7 @@
                       "id",
                       "firstName",
                       "lastName",
+                      "emails",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -1920,6 +1947,14 @@
                           "lastName": {
                             "type": "string"
                           },
+                          "emails": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "email",
+                              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                            }
+                          },
                           "notes": {
                             "description": "Markdown content",
                             "anyOf": [
@@ -2052,6 +2087,7 @@
                           "id",
                           "firstName",
                           "lastName",
+                          "emails",
                           "createdAt",
                           "updatedAt",
                           "organizations",
@@ -2788,6 +2824,14 @@
                             "lastName": {
                               "type": "string"
                             },
+                            "emails": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "email",
+                                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                              }
+                            },
                             "notes": {
                               "description": "Markdown content",
                               "anyOf": [
@@ -2920,6 +2964,7 @@
                             "id",
                             "firstName",
                             "lastName",
+                            "emails",
                             "createdAt",
                             "updatedAt",
                             "organizations",
@@ -3512,6 +3557,21 @@
                     "type": "string",
                     "minLength": 1
                   },
+                  "emails": {
+                    "anyOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "notes": {
                     "description": "Markdown content",
                     "anyOf": [
@@ -3622,6 +3682,14 @@
                     },
                     "lastName": {
                       "type": "string"
+                    },
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      }
                     },
                     "notes": {
                       "description": "Markdown content",
@@ -3755,6 +3823,7 @@
                     "id",
                     "firstName",
                     "lastName",
+                    "emails",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -20118,6 +20187,15 @@
           "lastName": {
             "type": "string"
           },
+          "emails": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          },
           "notes": {
             "description": "Markdown content",
             "anyOf": [
@@ -20203,6 +20281,15 @@
                 },
                 "lastName": {
                   "type": "string"
+                },
+                "emails": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "email",
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  }
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -20301,6 +20388,21 @@
                 "lastName": {
                   "type": "string",
                   "minLength": 1
+                },
+                "emails": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -21618,6 +21720,14 @@
                   "lastName": {
                     "type": "string"
                   },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
                   "notes": {
                     "description": "Markdown content",
                     "anyOf": [
@@ -21746,6 +21856,7 @@
                   "id",
                   "firstName",
                   "lastName",
+                  "emails",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -21813,6 +21924,14 @@
                       },
                       "lastName": {
                         "type": "string"
+                      },
+                      "emails": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                        }
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -21942,6 +22061,7 @@
                       "id",
                       "firstName",
                       "lastName",
+                      "emails",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -22328,6 +22448,14 @@
                   "lastName": {
                     "type": "string"
                   },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
                   "notes": {
                     "description": "Markdown content",
                     "anyOf": [
@@ -22456,6 +22584,7 @@
                   "id",
                   "firstName",
                   "lastName",
+                  "emails",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -26248,6 +26377,21 @@
           "lastName": {
             "type": "string",
             "minLength": 1
+          },
+          "emails": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "email",
+                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "notes": {
             "description": "Markdown content",

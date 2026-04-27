@@ -21,6 +21,7 @@ export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
             id: "",
             firstName: "",
             lastName: "",
+            emails: [],
             createdAt: new Date(),
             updatedAt: new Date(),
             organizations: [],

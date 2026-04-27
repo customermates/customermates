@@ -18,6 +18,7 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
       {
         firstName: "",
         lastName: "",
+        emails: [],
         notes: null,
         organizationIds: [],
         userIds: [],
@@ -52,6 +53,7 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
       ...baseData,
       firstName: "",
       lastName: "",
+      emails: [],
       notes: null,
       organizationIds: [],
       userIds: [],

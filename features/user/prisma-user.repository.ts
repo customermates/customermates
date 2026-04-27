@@ -379,6 +379,7 @@ export class PrismaUserRepo
         data: {
           firstName: t(`contact.${contact.firstNameKey}`),
           lastName: t(`contact.${contact.lastNameKey}`),
+          emails: [t(`contact.${contact.emailKey}`)],
           companyId,
         },
       });

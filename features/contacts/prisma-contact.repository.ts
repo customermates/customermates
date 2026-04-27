@@ -40,6 +40,7 @@ export class PrismaContactRepo
       id: true,
       firstName: true,
       lastName: true,
+      emails: true,
       notes: true,
       createdAt: true,
       updatedAt: true,
@@ -74,7 +75,16 @@ export class PrismaContactRepo
   }
 
   getSearchableFields() {
-    return [{ field: "firstName" }, { field: "lastName" }, { field: "organizations.organization.name" }];
+    return [
+      { field: "firstName" },
+      { field: "lastName" },
+      { field: "emailsText" },
+      { field: "organizations.organization.name" },
+    ];
+  }
+
+  getArrayFields() {
+    return new Set(["emails"]);
   }
 
   getSortableFields() {
@@ -109,6 +119,7 @@ export class PrismaContactRepo
     return [
       ...filterFields,
       ...customFields,
+      { field: FilterFieldKey.emails, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.emails] },
       {
         field: FilterFieldKey.userIds,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.userIds],
@@ -201,12 +212,13 @@ export class PrismaContactRepo
   @Transaction
   async createContactOrThrow(args: RepoArgs<CreateContactRepo, "createContactOrThrow">) {
     const { companyId } = this.user;
-    const { organizationIds, userIds, dealIds, customFieldValues, firstName, lastName, notes } = args;
+    const { organizationIds, userIds, dealIds, customFieldValues, firstName, lastName, emails, notes } = args;
 
     const data = {
       firstName,
       lastName,
-      notes: notes,
+      emails,
+      notes,
       companyId,
     };
 
@@ -284,6 +296,7 @@ export class PrismaContactRepo
 
     if (contactData.firstName !== undefined) data.firstName = contactData.firstName;
     if (contactData.lastName !== undefined) data.lastName = contactData.lastName;
+    if (contactData.emails != null) data.emails = contactData.emails;
     if (contactData.notes !== undefined) data.notes = contactData.notes;
 
     await this.prisma.contact.updateMany({

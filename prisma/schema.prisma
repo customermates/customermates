@@ -266,6 +266,8 @@ model Contact {
   id                String                @id @default(uuid())
   firstName         String
   lastName          String
+  emails            String[]              @default([])
+  emailsText        String?               @default(dbgenerated("emails_to_search_text(emails)"))
   companyId         String
   notes             Json?
   createdAt         DateTime              @default(now())
@@ -279,6 +281,8 @@ model Contact {
   @@index([companyId])
   @@index([firstName])
   @@index([lastName])
+  @@index([emails], type: Gin)
+  @@index([emailsText])
 }
 
 model Organization {

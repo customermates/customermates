@@ -21,7 +21,8 @@ export const createContactsTool = {
   description:
     "Create up to 100 contacts in one call. " +
     "Required per item: firstName, lastName. " +
-    "Optional per item: notes, organizationIds, userIds, dealIds, customFieldValues. " +
+    "Optional per item: emails (array of email strings), notes, organizationIds, userIds, dealIds, customFieldValues. " +
+    "`emails` is the canonical place for any email address belonging to the contact. The FIRST item in the array is the primary email used for default outbound drafts. Integrations resolving by email match against any element of the array. Pass an empty array (or omit the field) if the contact has no email. " +
     "You can pass organizationIds/userIds/dealIds directly in create so linked contacts are created in one call. " +
     "Prereq: call get_entity_configuration for custom-column ids. " +
     "Returns the list of created contact ids and names.",
@@ -44,7 +45,8 @@ export const updateContactsTool = {
   description:
     "Partial update for up to 100 contacts in one call. " +
     "Required per item: id. " +
-    "Optional per item: firstName, lastName, notes, organizationIds, userIds, dealIds, customFieldValues. " +
+    "Optional per item: firstName, lastName, emails, notes, organizationIds, userIds, dealIds, customFieldValues. " +
+    "`emails` REPLACES the contact's email list. Pass an array of valid emails (first item is primary), pass [] to clear all emails, or omit the field to leave existing emails untouched. To add a single email without re-sending the full list, fetch the contact first and append. " +
     "WARNING: if you pass organizationIds, userIds, or dealIds, the array REPLACES existing links (any id not in the array is unlinked). " +
     "To ADD or REMOVE a single link without touching the rest, use link_entities or unlink_entities instead. " +
     NO_NULL_WIPE_WARNING +

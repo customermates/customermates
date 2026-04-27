@@ -214,8 +214,11 @@ export abstract class BaseFormStore<T extends object = object> {
       const isLast = i === pathParts.length - 1;
       const nextIsArrayIndex = i < pathParts.length - 1 && pathParts[i + 1]?.match(/^\d+$/);
 
-      if (isArrayIndex) errorPath += `.items[${part}].properties`;
-      else {
+      if (isArrayIndex) {
+        errorPath += `.items[${part}]`;
+        if (isLast) errorPath += ".errors";
+        else errorPath += ".properties";
+      } else {
         errorPath += `.${part}`;
         if (isLast) errorPath += ".errors";
         else if (!nextIsArrayIndex) errorPath += ".properties";

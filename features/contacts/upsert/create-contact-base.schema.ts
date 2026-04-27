@@ -5,6 +5,7 @@ import { CustomFieldValueSchema, NotesSchema } from "@/core/base/base-entity.sch
 export const BaseCreateContactSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string(),
+  emails: z.array(z.email()).optional().default([]),
   notes: NotesSchema,
   organizationIds: z.array(z.uuid()).optional().default([]),
   userIds: z.array(z.uuid()).optional().default([]),

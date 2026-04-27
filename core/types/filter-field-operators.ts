@@ -18,12 +18,15 @@ const dateOperators = [
   FilterOperatorKey.between,
 ];
 
+const stringArrayOperators = [FilterOperatorKey.equals, FilterOperatorKey.isNull, FilterOperatorKey.isNotNull];
+
 export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperatorKey[]> = {
   [FilterFieldKey.userIds]: relationOperators,
   [FilterFieldKey.serviceIds]: relationOperators,
   [FilterFieldKey.dealIds]: relationOperators,
   [FilterFieldKey.organizationIds]: relationOperators,
   [FilterFieldKey.contactIds]: relationOperators,
+  [FilterFieldKey.emails]: stringArrayOperators,
   [FilterFieldKey.updatedAt]: dateOperators,
   [FilterFieldKey.createdAt]: dateOperators,
   [FilterFieldKey.event]: [FilterOperatorKey.in, FilterOperatorKey.notIn],

@@ -47,6 +47,7 @@ export async function createContactByNameAction(name: string, userId: string | n
   const result = await createContactAction({
     firstName,
     lastName,
+    emails: [],
     notes: null,
     organizationIds: [],
     userIds: userId ? [userId] : [],

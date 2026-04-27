@@ -64,6 +64,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.dealIds]: "deals.dealId",
   [FilterFieldKey.organizationIds]: "organizations.organizationId",
   [FilterFieldKey.contactIds]: "contacts.contactId",
+  [FilterFieldKey.emails]: "emails",
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",
   [FilterFieldKey.event]: "event",
@@ -90,6 +91,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
   getCustomColumns(): Promise<Array<CustomColumnDto>> {
     return Promise.resolve([]);
+  }
+
+  getArrayFields(): Set<string> {
+    return new Set();
   }
 
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
@@ -246,6 +251,12 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
       return;
     }
 
+    if (this.getArrayFields().has(relationFieldPath)) {
+      const condition = this.buildArrayFilterCondition(filter);
+      where.AND = [...(where.AND ?? []), this.createClause(relationFieldPath, condition)];
+      return;
+    }
+
     const fieldCondition = this.buildFilterCondition(filter);
 
     where.AND = [...(where.AND ?? []), this.createClause(filter.field, fieldCondition)];
@@ -253,8 +264,27 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return;
   }
 
+  private buildArrayFilterCondition(filter: Filter) {
+    const asArray = (v: unknown) => (Array.isArray(v) ? v : [v]);
+    switch (filter.operator) {
+      case FilterOperatorKey.equals:
+        return { has: filter.value };
+      case FilterOperatorKey.in:
+        return { hasSome: asArray(filter.value) };
+      case FilterOperatorKey.notIn:
+        return { not: { hasSome: asArray(filter.value) } };
+      case FilterOperatorKey.isNull:
+        return { isEmpty: true };
+      case FilterOperatorKey.isNotNull:
+        return { isEmpty: false };
+      default:
+        throw new Error(`Operator ${filter.operator} is not supported for array fields`);
+    }
+  }
+
   private buildSearchConditions(search: string): Array<TWhereInput> {
     const fields = this.getSearchableFields();
+    const arrayFields = this.getArrayFields();
 
     return fields.map((field) => {
       const isRelationField = field.field.includes(".");
@@ -276,6 +306,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
           some: buildNestedCondition(remainingPath),
         });
       }
+
+      if (arrayFields.has(field.field)) return this.createWhere(field.field, { has: search });
 
       return this.createWhere(field.field, { contains: search, mode: "insensitive" });
     });

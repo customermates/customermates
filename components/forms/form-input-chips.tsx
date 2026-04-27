@@ -19,6 +19,7 @@ type Props = {
   placeholder?: string;
   required?: boolean;
   allowMultiple?: boolean;
+  arrayMode?: boolean;
   renderChip?: (value: string, endContent: ReactNode) => ReactNode;
   chipColor?: ChipColor;
   value?: string;
@@ -35,6 +36,7 @@ export const FormInputChips = observer(
     placeholder,
     required,
     allowMultiple,
+    arrayMode,
     renderChip,
     chipColor,
     value: controlledValue,
@@ -48,26 +50,33 @@ export const FormInputChips = observer(
     const store = useAppForm();
     const t = useTranslations("Common.inputs");
     const resolvedLabel = label === null ? undefined : (label ?? t(id));
-    const storeValue = (store?.getValue(id) ?? undefined) as string | undefined;
+    const storeValue = store?.getValue(id) as string[] | string | undefined;
     const fieldValue = controlledValue ?? storeValue;
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const hasErrorAt = (path: string) => {
+      const e = store?.getError(path);
+      return Array.isArray(e) ? e.length > 0 : Boolean(e);
+    };
     const isReadOnly = store?.isReadOnly ?? false;
     const isDisabled = store?.isLoading ?? false;
 
     let chipValues: string[] = [];
-    if (fieldValue != null && fieldValue !== "") {
-      try {
-        chipValues = fieldValue.split(",").filter((v) => v.trim() !== "");
-      } catch {
-        chipValues = [];
-      }
-    }
+    if (arrayMode) {
+      if (Array.isArray(fieldValue)) chipValues = fieldValue;
+    } else if (typeof fieldValue === "string" && fieldValue !== "")
+      chipValues = fieldValue.split(",").filter((v) => v.trim() !== "");
+
+    const chipErrors = chipValues.map((_, i) => hasErrorAt(`${id}[${i}]`));
+    const hasError = hasErrorAt(id) || chipErrors.some(Boolean);
 
     function commit(next: string[]) {
-      const nextValue = allowMultiple ? next.join(",") : next[next.length - 1];
-      if (onValueChange) onValueChange(nextValue);
-      else store?.onChange(id, nextValue);
+      if (arrayMode) {
+        if (onValueChange) onValueChange(next as unknown as string);
+        else store?.onChange(id, next);
+      } else {
+        const nextValue = allowMultiple ? next.join(",") : next[next.length - 1];
+        if (onValueChange) onValueChange(nextValue);
+        else store?.onChange(id, nextValue);
+      }
       setInputValue("");
     }
 
@@ -120,7 +129,8 @@ export const FormInputChips = observer(
             className,
           )}
         >
-          {chipValues.map((item) => {
+          {chipValues.map((item, index) => {
+            const chipHasError = chipErrors[index] ?? false;
             const removeButton = isReadOnly ? undefined : (
               <button
                 aria-label="Remove"
@@ -135,7 +145,7 @@ export const FormInputChips = observer(
             const chip = renderChip ? (
               renderChip(item, removeButton)
             ) : (
-              <AppChip endContent={removeButton} variant={chipColor ? chipColor : "secondary"}>
+              <AppChip endContent={removeButton} variant={chipHasError ? "destructive" : (chipColor ?? "secondary")}>
                 {item}
               </AppChip>
             );
@@ -143,7 +153,7 @@ export const FormInputChips = observer(
             if (onChipClick) {
               return (
                 <span
-                  key={item}
+                  key={`${item}-${index}`}
                   className="cursor-pointer"
                   role="button"
                   tabIndex={0}
@@ -160,7 +170,7 @@ export const FormInputChips = observer(
               );
             }
 
-            return <span key={item}>{chip}</span>;
+            return <span key={`${item}-${index}`}>{chip}</span>;
           })}
 
           {!isReadOnly && (

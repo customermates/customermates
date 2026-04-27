@@ -25,7 +25,6 @@ import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/ee/audit-log/prisma-audit-log.repository";
-import { PrismaGlobalSearchRepo } from "@/features/search/prisma-global-search.repository";
 // Services
 import { EmailService } from "@/features/email/email.service";
 import { AuthService } from "@/features/auth/auth.service";
@@ -192,7 +191,6 @@ export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
-export const getSearchRepo = () => new PrismaGlobalSearchRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -624,7 +622,7 @@ export const getDeleteCustomColumnInteractor = () =>
 
 // --- Search ---
 
-export const getGlobalSearchInteractor = () => new GlobalSearchInteractor(getSearchRepo());
+export const getGlobalSearchInteractor = () => new GlobalSearchInteractor();
 
 // --- P13n ---
 

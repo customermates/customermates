@@ -11,7 +11,13 @@ export const PIPELINE_STAGES: ReadonlyArray<{ key: StageKey; color: string; inde
 ];
 
 export type SeedOrganization = { key: string; nameKey: string };
-export type SeedContact = { key: string; firstNameKey: string; lastNameKey: string; orgKey: string };
+export type SeedContact = {
+  key: string;
+  firstNameKey: string;
+  lastNameKey: string;
+  emailKey: string;
+  orgKey: string;
+};
 export type SeedService = {
   key: string;
   nameKey: string;
@@ -46,14 +52,56 @@ const SHARED_ORGS: SeedOrganization[] = [
 ];
 
 const SHARED_CONTACTS: SeedContact[] = [
-  { key: "alex", firstNameKey: "alex.first", lastNameKey: "alex.last", orgKey: "north-light" },
-  { key: "priya", firstNameKey: "priya.first", lastNameKey: "priya.last", orgKey: "north-light" },
-  { key: "marius", firstNameKey: "marius.first", lastNameKey: "marius.last", orgKey: "marlowe-and-cole" },
-  { key: "elena", firstNameKey: "elena.first", lastNameKey: "elena.last", orgKey: "harbor-and-line" },
-  { key: "tomas", firstNameKey: "tomas.first", lastNameKey: "tomas.last", orgKey: "harbor-and-line" },
-  { key: "linnea", firstNameKey: "linnea.first", lastNameKey: "linnea.last", orgKey: "kestrel-studios" },
-  { key: "rashid", firstNameKey: "rashid.first", lastNameKey: "rashid.last", orgKey: "atlas-mobility" },
-  { key: "sara", firstNameKey: "sara.first", lastNameKey: "sara.last", orgKey: "atlas-mobility" },
+  { key: "alex", firstNameKey: "alex.first", lastNameKey: "alex.last", emailKey: "alex.email", orgKey: "north-light" },
+  {
+    key: "priya",
+    firstNameKey: "priya.first",
+    lastNameKey: "priya.last",
+    emailKey: "priya.email",
+    orgKey: "north-light",
+  },
+  {
+    key: "marius",
+    firstNameKey: "marius.first",
+    lastNameKey: "marius.last",
+    emailKey: "marius.email",
+    orgKey: "marlowe-and-cole",
+  },
+  {
+    key: "elena",
+    firstNameKey: "elena.first",
+    lastNameKey: "elena.last",
+    emailKey: "elena.email",
+    orgKey: "harbor-and-line",
+  },
+  {
+    key: "tomas",
+    firstNameKey: "tomas.first",
+    lastNameKey: "tomas.last",
+    emailKey: "tomas.email",
+    orgKey: "harbor-and-line",
+  },
+  {
+    key: "linnea",
+    firstNameKey: "linnea.first",
+    lastNameKey: "linnea.last",
+    emailKey: "linnea.email",
+    orgKey: "kestrel-studios",
+  },
+  {
+    key: "rashid",
+    firstNameKey: "rashid.first",
+    lastNameKey: "rashid.last",
+    emailKey: "rashid.email",
+    orgKey: "atlas-mobility",
+  },
+  {
+    key: "sara",
+    firstNameKey: "sara.first",
+    lastNameKey: "sara.last",
+    emailKey: "sara.email",
+    orgKey: "atlas-mobility",
+  },
 ];
 
 const SHARED_TASKS: SeedTask[] = [

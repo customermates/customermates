@@ -15,10 +15,6 @@
     "createdAt": "2026-03-24T08:58:51.135Z",
     "filters": [
       {
-        "field": "91317088-4ef0-4dc9-a21e-e1b917627688",
-        "operator": "isNotNull"
-      },
-      {
         "field": "userIds",
         "operator": "in",
         "value": ["f637539f-fa74-4af1-b473-b5d19ef4cbe7"]
@@ -38,7 +34,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-04-27T17:15:46.618Z",
+    "updatedAt": "2026-04-27T17:39:42.669Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   },

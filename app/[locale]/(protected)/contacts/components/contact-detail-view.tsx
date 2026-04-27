@@ -1,6 +1,8 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { createDealByNameAction, getDealsAction } from "../../deals/actions";
@@ -11,11 +13,13 @@ import { EntityDetailBody } from "@/components/modal/entity-detail-body";
 import { AppChip } from "@/components/chip/app-chip";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
 import { FormInput } from "@/components/forms/form-input";
+import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { copyToClipboard } from "@/lib/clipboard";
 
 type Props = {
   layout?: "drawer" | "page";
@@ -24,8 +28,15 @@ type Props = {
 export const ContactDetailView = observer(function ContactDetailView({ layout = "drawer" }: Props) {
   const { contactDetailStore, userStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const t = useTranslations("");
 
   const { isEditingCustomField, customColumns, fetchedEntity } = contactDetailStore;
+
+  async function handleCopyEmail(value: string) {
+    const ok = await copyToClipboard(value);
+    if (ok) toast.success(t("Common.notifications.copiedToClipboard", { value }));
+    else toast.error(t("Common.notifications.copyFailed"));
+  }
 
   return (
     <EntityDetailBody
@@ -39,6 +50,8 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
 
         <FormInput id="lastName" />
       </div>
+
+      <FormInputChips arrayMode id="emails" onChipClick={(val) => void handleCopyEmail(val)} />
 
       {userStore.canAccess(Resource.organizations) && (
         <FormAutocomplete

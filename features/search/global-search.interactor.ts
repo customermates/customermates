@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
+import { entityListExecutors, entityNameExtractors } from "./entity-list-executors";
+
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -33,9 +35,8 @@ const GlobalSearchResultSchema = z.object({
   ),
 });
 
-export abstract class GlobalSearchRepo {
-  abstract search(data: GlobalSearchData): Promise<GlobalSearchResult>;
-}
+const UI_SEARCHABLE_ENTITIES = ["contact", "organization", "deal", "service"] as const;
+const UI_RESULTS_PER_ENTITY = 50;
 
 @AllowInDemoMode
 @TentantInteractor({
@@ -52,13 +53,27 @@ export abstract class GlobalSearchRepo {
   condition: "OR",
 })
 export class GlobalSearchInteractor extends BaseInteractor<GlobalSearchData, GlobalSearchResult> {
-  constructor(private repo: GlobalSearchRepo) {
-    super();
-  }
-
   @Enforce(Schema)
   @ValidateOutput(GlobalSearchResultSchema)
   async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {
-    return { ok: true as const, data: await this.repo.search(data) };
+    const { searchTerm } = data;
+
+    const perEntity = await Promise.all(
+      UI_SEARCHABLE_ENTITIES.map(async (entity): Promise<GlobalSearchResultItem[]> => {
+        const result = await entityListExecutors[entity]({
+          searchTerm,
+          pagination: { page: 1, pageSize: 100 },
+        });
+        if (!result.ok) return [];
+        const items: any[] = result.data?.items ?? [];
+        return items.slice(0, UI_RESULTS_PER_ENTITY).map((item) => ({
+          type: entity,
+          id: item.id,
+          name: entityNameExtractors[entity](item),
+        })) as GlobalSearchResultItem[];
+      }),
+    );
+
+    return { ok: true as const, data: { results: perEntity.flat() } };
   }
 }

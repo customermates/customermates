@@ -15,6 +15,7 @@ export const ContactDtoSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
+  emails: z.array(z.email()),
   notes: NotesSchema,
   createdAt: z.date(),
   updatedAt: z.date(),

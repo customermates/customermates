@@ -144,22 +144,6 @@
     "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "31d9578f-9fce-40f2-bf5a-80a44496c551",
-    "createdAt": "2026-03-24T09:18:14.437Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "08d7189a-0284-4b71-821e-4a94e130c7cc",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:18:14.437Z",
-    "value": "mara.bauer@deutschebahn.com"
-  },
-  {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -784,22 +768,6 @@
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "84555ffb-b1dd-4c32-87b4-f5ebda13d38a",
-    "createdAt": "2026-03-24T09:21:48.276Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "318f4047-5a36-4e9b-8dda-63e00bbeae13",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:21:48.276Z",
-    "value": "omar.khalil@deloitte.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -912,22 +880,6 @@
     "value": "5b9bac9e-5c43-4415-ab85-e20665809adc"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "173e9084-63b8-4419-ab09-fed2aead7c39",
-    "createdAt": "2026-03-24T09:25:43.885Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "379bbcec-a7e8-4eba-80b8-fdbd22c0e51d",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:25:43.885Z",
-    "value": "tim.wagner@nrwbank.de"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -958,22 +910,6 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:12:12.082Z",
     "value": "+491634567890"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "e33e7862-fa29-402e-a16b-98db16cca800",
-    "createdAt": "2026-03-24T09:23:02.499Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "398fe6ba-d980-47c2-b444-258574f2a1a4",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:23:02.499Z",
-    "value": "paul.koch@deutschepost.de"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -1056,22 +992,6 @@
     "value": "2026-01-01T00:00:00Z"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "33ac3248-948f-4192-9c6c-1e7d912afa58",
-    "createdAt": "2026-03-24T09:18:58.808Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "445bb808-7fce-4699-9c2c-846a87bbb015",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:18:58.808Z",
-    "value": "max.schmidt@bmw.de"
-  },
-  {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -1102,22 +1022,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:43:29.534Z",
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "ee47f4f3-ed27-4c3e-88ab-57bac6330db2",
-    "createdAt": "2026-03-24T09:22:15.713Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "4608f4f8-291b-4812-a0cd-a2751a659555",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:22:15.713Z",
-    "value": "paul.fischer@deutschebahn.com"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
@@ -1214,22 +1118,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:49:25.222Z",
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "a957c9f3-d27b-4462-b4eb-2b0d020fbf83",
-    "createdAt": "2026-03-24T09:25:08.485Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "4ad97270-adb7-414d-b47b-8257f90be821",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:25:08.485Z",
-    "value": "sophie.wagner@bmw.de"
   },
   {
     "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
@@ -1552,22 +1440,6 @@
     "value": "6f02559d-a54e-4778-bab6-e3462b69bf21"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "c9809459-b8ae-4873-aa8f-8dcf00f57bae",
-    "createdAt": "2026-03-24T09:26:42.425Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "64a3a404-810e-4c8a-af8e-5254f5b2b0be",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:26:42.425Z",
-    "value": "yasmin.farouk@sap.com"
-  },
-  {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -1744,22 +1616,6 @@
     "value": "+491722345678"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "63496574-a466-4bec-9b84-39bf3373ef71",
-    "createdAt": "2026-03-24T09:09:14.004Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "7b7182b6-7377-407d-b496-f568c96f04c0",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:09:14.004Z",
-    "value": "amina.hassan@tui.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -1790,22 +1646,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:23:02.499Z",
     "value": "1180756b-ad14-4e14-9136-4636ea3fd4e9"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "0218fa8d-5388-4a22-9248-964e93ed5db2",
-    "createdAt": "2026-03-24T09:27:10.274Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "7c8091a9-0e2a-4a4b-b18a-4f34a49609b5",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:27:10.274Z",
-    "value": "leon.becker@bmw.de"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -1872,22 +1712,6 @@
     "value": "+491728765432"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "7fdd7093-40a3-4a81-b5d1-f537e8abb218",
-    "createdAt": "2026-03-24T09:11:10.120Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "7febaac5-f815-4eda-99c3-8704a26620e1",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:11:10.120Z",
-    "value": "felix.koch@continental.com"
-  },
-  {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -1918,22 +1742,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:51:48.527Z",
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "d33a0794-23c0-4496-9887-6cb25a16d4c3",
-    "createdAt": "2026-03-24T09:17:35.554Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "822fe79b-fa24-4705-8f68-cb0bc9e51446",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:17:35.554Z",
-    "value": "lukas.fischer@bayer.com"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -2032,22 +1840,6 @@
     "value": "+491585432109"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "a34c6443-b50a-4f19-b282-a944adb4718d",
-    "createdAt": "2026-03-24T09:09:52.522Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "887d6d98-9b5c-4893-b1d4-d15fa395cad0",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:09:52.522Z",
-    "value": "amir.haddad@pwc.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2078,38 +1870,6 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:11:10.120Z",
     "value": "+491637890123"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "71ad1cc5-485c-45c1-b633-4b086ce50d60",
-    "createdAt": "2026-03-24T09:19:45.026Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "8b505b3a-114a-4155-adee-38a20083181e",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:19:45.026Z",
-    "value": "maxine.zoll@mckinsey.com"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
-    "createdAt": "2026-03-24T09:12:12.082Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "8d107fcd-5cfb-43e6-959e-4917a66798e1",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:12:12.082Z",
-    "value": "jonas.weber@continental.com"
   },
   {
     "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -2160,22 +1920,6 @@
     "value": "bc87aa03-158f-4b89-bbc2-c34a8f617f81"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "ab7441bf-bbbd-4656-9c9f-a6356c087aa3",
-    "createdAt": "2026-03-24T09:24:03.801Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "9714dcb1-249e-40d2-966d-252fdbbd2f6b",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:24:03.801Z",
-    "value": "reinhold.mertens@siemens.com"
-  },
-  {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2190,22 +1934,6 @@
     "type": "link",
     "updatedAt": "2026-03-24T09:36:15.067Z",
     "value": "https://mckinsey.com"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "8b53e07a-ce38-48e3-b0a3-f040ab46e579",
-    "createdAt": "2026-03-24T09:14:56.898Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "9bbafbf1-a3fb-4ec3-8a1b-937e447d99ee",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:14:56.898Z",
-    "value": "leila.chen@hays.de"
   },
   {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
@@ -2254,22 +1982,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:45:31.316Z",
     "value": "096fdaa9-7fb5-4059-b941-f75a2ad7fc47"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
-    "createdAt": "2026-03-24T09:13:36.517Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "a145529c-c9a3-4fd8-8d74-cb15501cb405",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:13:36.517Z",
-    "value": "felix.schneider@telekom.de"
   },
   {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
@@ -2432,22 +2144,6 @@
     "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "3e47a0cb-531e-4bab-8ac3-62628c35744a",
-    "createdAt": "2026-03-24T09:24:35.295Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "ac0c7b19-97a3-4776-ab0f-7a915f2df745",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:24:35.295Z",
-    "value": "sophie.hoffmann@deutschebahn.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2510,22 +2206,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:57:31.517Z",
     "value": "096fdaa9-7fb5-4059-b941-f75a2ad7fc47"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "7330fac9-7413-4c41-9959-82baa23cb47a",
-    "createdAt": "2026-03-24T09:16:12.379Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "b6651ce3-359e-4a61-9e90-4f478afbe8e6",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:16:12.379Z",
-    "value": "lina.alvarez@wavestone.com"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -2622,22 +2302,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:34:10.989Z",
     "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "baed574a-d2e8-4858-9dbc-64f3a57a340b",
-    "createdAt": "2026-03-24T09:08:28.787Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "baaa31d2-b4d2-4f8a-8b52-fb6ec2b0ef29",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:08:28.787Z",
-    "value": "alexej.sofr@hays.com"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
@@ -2816,22 +2480,6 @@
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "99ce08a4-4727-468c-b18e-e68e17f1531f",
-    "createdAt": "2026-03-24T09:13:39.687Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "c79bcad9-5317-4850-97e2-803f59793161",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:13:39.687Z",
-    "value": "laura.fischer@arbeitsagentur.de"
-  },
-  {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2928,22 +2576,6 @@
     "value": "2026-07-01T00:00:00Z"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "da965f4d-9da2-4688-93fd-c8f7009f7c53",
-    "createdAt": "2026-03-24T09:23:29.919Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "cf32b9a6-30a0-4943-a866-af5a371f1467",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:23:29.919Z",
-    "value": "rashid.malik@kpmg.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3006,22 +2638,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:36:15.067Z",
     "value": "5b9bac9e-5c43-4415-ab85-e20665809adc"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "69b5dd99-66c4-40d5-9ee5-3aba6b24ebc7",
-    "createdAt": "2026-03-24T09:14:21.939Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "d2a61793-7d69-43a4-9b34-d6fcb46326fb",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:14:21.939Z",
-    "value": "lea.bauer@continental.com"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
@@ -3136,22 +2752,6 @@
     "value": "2026-08-01T00:00:00Z"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "90b23e1b-1c01-4399-8fc7-5608647e377f",
-    "createdAt": "2026-03-24T09:20:23.544Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "d6abd167-d675-4998-b229-609a76291c4c",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:20:23.544Z",
-    "value": "mia.schneider@bayer.com"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3200,22 +2800,6 @@
     "value": "+491730987654"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "1e326939-d0aa-4a77-a9eb-a6f163e4f60e",
-    "createdAt": "2026-03-24T09:16:50.417Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "d8392b46-43f6-4518-9eb8-a599a4c7ef03",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:16:50.417Z",
-    "value": "lucio.ball@wavestone.com"
-  },
-  {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3246,22 +2830,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:56:10.836Z",
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
-    "createdAt": "2026-03-24T09:10:23.687Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "da0dbc84-3791-4126-afd5-0cce439737c7",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:10:23.687Z",
-    "value": "anna.mueller@bayer.com"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -3470,22 +3038,6 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:14:21.939Z",
     "value": "+491636789012"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "e7e92e29-b9fa-4592-9eeb-45f0382162cf",
-    "createdAt": "2026-03-24T09:20:56.411Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "e3f3e31c-a760-48b0-a609-c25ac3398856",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:20:56.411Z",
-    "value": "nia.johnson@mckinsey.com"
   },
   {
     "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -3984,22 +3536,6 @@
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
   },
   {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "87f31c98-f322-4df5-9171-ac6e71d7753d",
-    "createdAt": "2026-03-24T09:12:49.309Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "f932d983-f37f-4a59-aa2a-ece339ec8abb",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:12:49.309Z",
-    "value": "kian.rahimi@sthree.com"
-  },
-  {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "0218fa8d-5388-4a22-9248-964e93ed5db2",
@@ -4014,22 +3550,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:27:10.274Z",
     "value": "a2c208ca-6f84-4c03-898b-a8d29654cb6b"
-  },
-  {
-    "columnId": "91317088-4ef0-4dc9-a21e-e1b917627688",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": "86ea94c7-d457-45ee-9b47-e6646aa922e4",
-    "createdAt": "2026-03-24T09:26:12.767Z",
-    "dealId": null,
-    "entityType": "contact",
-    "id": "fad63be1-332d-4b28-b09b-ebc35d432dd7",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "email",
-    "updatedAt": "2026-03-24T09:26:12.767Z",
-    "value": "jonas.hoffmann@arbeitsagentur.de"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",

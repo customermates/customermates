@@ -5,28 +5,24 @@ import { encodeToToon, FILTER_FIELD_DESCRIPTION, FILTER_SYNTAX, SORT_SYNTAX, for
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { CustomFieldValueSchema } from "@/core/base/base-entity.schema";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
 import {
-  getGetContactsApiInteractor,
   getGetContactByIdInteractor,
   getDeleteManyContactsInteractor,
   getGetContactsConfigurationInteractor,
   getUpdateManyContactsInteractor,
-  getGetOrganizationsApiInteractor,
   getGetOrganizationByIdInteractor,
   getDeleteManyOrganizationsInteractor,
   getGetOrganizationsConfigurationInteractor,
   getUpdateManyOrganizationsInteractor,
-  getGetDealsApiInteractor,
   getGetDealByIdInteractor,
   getDeleteManyDealsInteractor,
   getGetDealsConfigurationInteractor,
   getUpdateManyDealsInteractor,
-  getGetServicesApiInteractor,
   getGetServiceByIdInteractor,
   getDeleteManyServicesInteractor,
   getGetServicesConfigurationInteractor,
   getUpdateManyServicesInteractor,
-  getGetTasksApiInteractor,
   getGetTaskByIdInteractor,
   getDeleteManyTasksInteractor,
   getGetTasksConfigurationInteractor,
@@ -153,15 +149,6 @@ const LinkEntitiesSchema = z.object({
 
 type Entity = z.infer<typeof EntitySchema>;
 type Relation = z.infer<typeof RelationSchema>;
-type FilterInput = z.infer<typeof FilterSchema>;
-type SortInput = z.infer<typeof SortDescriptorSchema>;
-
-type ListQueryParams = {
-  searchTerm?: string;
-  filters?: FilterInput[];
-  sortDescriptor?: SortInput;
-  pagination: { page: number; pageSize: 5 | 10 | 25 | 100 };
-};
 
 const singularLabels: Record<Entity, string> = {
   contact: "contact",
@@ -197,14 +184,6 @@ const configurationExecutors: Record<Entity, () => Promise<ConfigResult>> = {
   task: async () => (await getGetTasksConfigurationInteractor().invoke()) as ConfigResult,
 };
 
-const listExecutors: Record<Entity, (params: ListQueryParams) => Promise<any>> = {
-  contact: async (params) => getGetContactsApiInteractor().invoke(params),
-  organization: async (params) => getGetOrganizationsApiInteractor().invoke(params),
-  deal: async (params) => getGetDealsApiInteractor().invoke(params),
-  service: async (params) => getGetServicesApiInteractor().invoke(params),
-  task: async (params) => getGetTasksApiInteractor().invoke(params),
-};
-
 const detailsExecutors: Record<Entity, (id: string) => Promise<any>> = {
   contact: async (id) => getGetContactByIdInteractor().invoke({ id }),
   organization: async (id) => getGetOrganizationByIdInteractor().invoke({ id }),
@@ -219,14 +198,6 @@ const deleteExecutors: Record<Entity, (ids: string[]) => Promise<any>> = {
   deal: async (ids) => getDeleteManyDealsInteractor().invoke({ ids }),
   service: async (ids) => getDeleteManyServicesInteractor().invoke({ ids }),
   task: async (ids) => getDeleteManyTasksInteractor().invoke({ ids }),
-};
-
-const nameExtractors: Record<Entity, (item: any) => string> = {
-  contact: (item) => `${item.firstName ?? ""} ${item.lastName ?? ""}`.trim(),
-  organization: (item) => String(item.name ?? ""),
-  deal: (item) => String(item.name ?? ""),
-  service: (item) => String(item.name ?? ""),
-  task: (item) => String(item.name ?? ""),
 };
 
 async function updateManyEntities(
@@ -307,7 +278,7 @@ export const filterEntityTool = {
     page,
     pageSize,
   }: z.infer<typeof FilterEntitySchema>) => {
-    const result = await listExecutors[entity]({
+    const result = await entityListExecutors[entity]({
       searchTerm,
       filters,
       sortDescriptor,
@@ -318,7 +289,7 @@ export const filterEntityTool = {
     return encodeToToon({
       items: result.data.items.map((item: any) => ({
         id: item.id,
-        name: nameExtractors[entity](item),
+        name: entityNameExtractors[entity](item),
       })),
       total: result.data.pagination?.total ?? result.data.items.length,
       page,
@@ -336,7 +307,7 @@ export const countEntityTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: CountEntitySchema,
   execute: async ({ entity, filters, sortDescriptor }: z.infer<typeof CountEntitySchema>) => {
-    const result = await listExecutors[entity]({
+    const result = await entityListExecutors[entity]({
       filters,
       sortDescriptor,
       pagination: { page: 1, pageSize: 5 },
@@ -563,7 +534,7 @@ export const searchAllEntitiesTool = {
 
     const results = await Promise.all(
       targets.map(async (entity) => {
-        const result = await listExecutors[entity]({
+        const result = await entityListExecutors[entity]({
           searchTerm,
           pagination: { page: 1, pageSize },
         });
@@ -572,7 +543,7 @@ export const searchAllEntitiesTool = {
           entity,
           items: result.data.items.slice(0, limitPerEntity).map((item: any) => ({
             id: item.id,
-            name: nameExtractors[entity](item),
+            name: entityNameExtractors[entity](item),
           })),
           total: result.data.pagination?.total ?? result.data.items.length,
         };

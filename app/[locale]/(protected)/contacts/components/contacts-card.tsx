@@ -5,6 +5,8 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { useMemo } from "react";
 import { EntityType } from "@/generated/prisma";
 
@@ -13,6 +15,7 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { copyToClipboard } from "@/lib/clipboard";
 
 type Props = {
   contacts: GetResult<ContactDto>;
@@ -28,8 +31,15 @@ function getInitials(name: string): string {
 export const ContactsCard = observer(({ contacts }: Props) => {
   const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const t = useTranslations("");
 
   useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
+
+  async function handleCopyEmail(value: string) {
+    const ok = await copyToClipboard(value);
+    if (ok) toast.success(t("Common.notifications.copiedToClipboard", { value }));
+    else toast.error(t("Common.notifications.copyFailed"));
+  }
 
   const columns = useMemo<ColumnDef<ContactDto>[]>(() => {
     return [
@@ -47,6 +57,16 @@ export const ContactsCard = observer(({ contacts }: Props) => {
             </div>
           );
         },
+      },
+      {
+        id: "emails",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.emails.map((email) => ({ id: email, label: email }))}
+            size="sm"
+            onChipClick={(item) => void handleCopyEmail(item.label)}
+          />
+        ),
       },
       {
         id: "organizations",
