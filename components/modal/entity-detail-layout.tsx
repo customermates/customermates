@@ -215,7 +215,17 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               </span>
             </div>
 
-            <div className="p-4 pt-2 xl:flex-1 xl:min-h-0">{masterData}</div>
+            <div className="p-4 pt-2 xl:flex-1 xl:min-h-0">
+              {masterData}
+
+              {isEditingCustomField && canManage && (
+                <Button className="w-full mt-4" size="sm" type="button" variant="default" onClick={onAddCustomField}>
+                  <Icon icon={Plus} />
+
+                  {t("Common.actions.addCustomField")}
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col bg-background xl:min-h-0 xl:overflow-hidden">

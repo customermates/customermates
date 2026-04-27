@@ -229,10 +229,13 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     const modalStore = this.entityModalMap[this.form.entityType];
     const tableStore = this.tableStoreMap[this.form.entityType];
     const entityId = modalStore.form.id;
+    const wasEditing = modalStore.isEditingCustomField;
 
     await tableStore.refresh();
     if (entityId) await modalStore.loadById(entityId);
     else await modalStore.add();
+
+    if (wasEditing) modalStore.setIsEditingCustomField(true);
   };
 
   private createFormData(params: {

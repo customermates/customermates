@@ -46,7 +46,7 @@ export const FormSelect = observer(
     const isLoading = store?.isLoading ?? false;
 
     return (
-      <div className={cn("space-y-1.5", containerClassName)}>
+      <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
           <FormLabel htmlFor={id}>
             {resolvedLabel}

@@ -179,46 +179,53 @@ export const FormAutocomplete = observer(
       const toRender = selectionMode === "multiple" ? list : list.slice(0, 1);
       const rendered = renderValue(toRender);
 
-      if (selectionMode !== "multiple") return rendered;
       if (!React.isValidElement(rendered) && !Array.isArray(rendered)) return rendered;
 
+      const isMulti = selectionMode === "multiple";
       const arr = Array.isArray(rendered) ? rendered : [rendered];
       return arr.map((el, i) => {
         if (!React.isValidElement(el)) return el;
         const itemKey = toRender[i]?.key;
         if (!itemKey) return el;
 
-        const withClose = isReadOnly
-          ? el
-          : React.cloneElement(el as React.ReactElement<{ endContent?: React.ReactNode }>, {
-              endContent: (
-                <span
-                  aria-label="Remove"
-                  className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-                  role="button"
-                  tabIndex={-1}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(itemKey);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
+        const withClose =
+          isMulti && !isReadOnly
+            ? React.cloneElement(el as React.ReactElement<{ endContent?: React.ReactNode }>, {
+                endContent: (
+                  <span
+                    aria-label="Remove"
+                    className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                    role="button"
+                    tabIndex={-1}
+                    onClick={(e) => {
                       e.stopPropagation();
                       handleRemove(itemKey);
-                    }
-                  }}
-                >
-                  <XIcon className="size-3" />
-                </span>
-              ),
-            });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRemove(itemKey);
+                      }
+                    }}
+                  >
+                    <XIcon className="size-3" />
+                  </span>
+                ),
+              })
+            : el;
 
-        if (!onChipClick) return <span key={itemKey}>{withClose}</span>;
+        if (!onChipClick) {
+          return (
+            <span key={itemKey} className="inline-flex min-w-0 max-w-full">
+              {withClose}
+            </span>
+          );
+        }
         return (
           <span
             key={itemKey}
-            className="cursor-pointer"
+            className="inline-flex min-w-0 max-w-full cursor-pointer"
             role="button"
             tabIndex={0}
             onClick={(e) => {

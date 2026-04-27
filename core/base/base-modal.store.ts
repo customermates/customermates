@@ -26,6 +26,7 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
       setIsSubmittingWithGuard: action,
       setIsClosingWithGuard: action,
       toggleEditingCustomField: action,
+      setIsEditingCustomField: action,
       open: action,
       close: action,
     });
@@ -41,6 +42,10 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
 
   toggleEditingCustomField = () => {
     this.isEditingCustomField = !this.isEditingCustomField;
+  };
+
+  setIsEditingCustomField = (next: boolean) => {
+    this.isEditingCustomField = next;
   };
 
   open = () => {

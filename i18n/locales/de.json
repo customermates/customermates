@@ -880,6 +880,7 @@
     "startDateLabel": "Startdatum",
     "statusLabel": "Status",
     "title": "Deal",
+    "totalLabel": "Gesamt",
     "totalQuantityLabel": "Gesamtmenge",
     "totalValueLabel": "Gesamtwert",
     "valueLabel": "Wert"
