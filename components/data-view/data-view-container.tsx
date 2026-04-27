@@ -50,18 +50,18 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   const t = useTranslations("Common.table.columns");
   const isEmbedded = embedded || Boolean(title);
 
-  const resolvedColumns = useMemo<ColumnDef<E>[]>(
-    () =>
-      columns
-        .filter((c) => store.visibleColumnIds.has(c.id ?? ""))
-        .map((c) => {
-          const withHeader = c.header ? c : { ...c, header: t(c.id ?? "") };
-          return c.id && store.sortableColumnIds.has(c.id)
-            ? ({ ...withHeader, accessorKey: c.id } as ColumnDef<E>)
-            : withHeader;
-        }),
-    [columns, store.visibleColumnIds, store.sortableColumnIds, t],
-  );
+  const resolvedColumns = useMemo<ColumnDef<E>[]>(() => {
+    const byId = new Map(columns.map((c) => [c.id ?? "", c]));
+    return store.orderedColumns
+      .map((tc) => byId.get(tc.uid))
+      .filter((c): c is ColumnDef<E> => c !== undefined)
+      .map((c) => {
+        const withHeader = c.header ? c : { ...c, header: t(c.id ?? "") };
+        return c.id && store.sortableColumnIds.has(c.id)
+          ? ({ ...withHeader, accessorKey: c.id } as ColumnDef<E>)
+          : withHeader;
+      });
+  }, [columns, store.orderedColumns, store.sortableColumnIds, t]);
 
   const topBarNode = useMemo(
     () =>
