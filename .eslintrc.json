@@ -59,6 +59,22 @@
       }
     },
     {
+      "files": ["components/modal/hooks/use-entity-drawer-stack.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "components/shared/language-selector.tsx",
+        "**/user-settings-form.tsx",
+        "**/subscription-expired-view.tsx"
+      ],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    },
+    {
       "files": ["**/*.json", "**/*.jsonc", "**/*.json5"],
       "parser": "jsonc-eslint-parser",
       "plugins": ["jsonc"],
@@ -95,6 +111,25 @@
     "jsx-a11y/no-autofocus": "off",
     "no-console": "off",
     "no-implicit-coercion": ["error", { "boolean": true }],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "importNames": ["useRouter"],
+            "message": "Import useRouter from '@/i18n/navigation' so navigation flows through the unsaved-changes guard. The only exception is components/modal/hooks/use-entity-drawer-stack.ts, which intentionally uses the raw router for drawer-stack query writes that do not change the page.",
+            "name": "next/navigation"
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "message": "Avoid 'window.location.href = ...' — it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/language-selector.tsx for an example).",
+        "selector": "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location'][left.property.name='href']"
+      }
+    ],
     "no-unused-vars": "off",
     "prettier/prettier": [
       "warn",

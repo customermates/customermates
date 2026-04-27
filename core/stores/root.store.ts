@@ -53,8 +53,11 @@ import { EntityHistoryModalStore } from "@/app/[locale]/(protected)/company/comp
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { ContactStore } from "@/app/[locale]/(public)/contact/contact.store";
 
+import { NavigationGuardController } from "./navigation-guard.controller";
+
 export class RootStore {
   private readonly modalStores = new Set<BaseModalStore<any>>();
+  public readonly navigationGuard = new NavigationGuardController();
 
   private _apiKeysStore?: ApiKeysStore;
   private _companyStore?: CompanyStore;

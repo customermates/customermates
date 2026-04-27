@@ -5,6 +5,8 @@ import type { EntityType } from "@/generated/prisma";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
+import { useRouter as useGuardedIntlRouter } from "@/i18n/navigation";
+
 const OPEN_PARAM = "open";
 
 export type EntityDrawerEntry = {
@@ -89,7 +91,7 @@ export function useEntityDrawerStack() {
 
 export function useOpenEntity() {
   const { pushEntity } = useEntityDrawerStack();
-  const router = useRouter();
+  const router = useGuardedIntlRouter();
   return useCallback(
     (entityType: EntityType, id: string) => {
       if (id === "new") {

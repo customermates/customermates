@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "@/i18n/navigation";
 import { ROUTING_LOCALES } from "@/i18n/routing";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/lib/utils";
 
 type Locale = (typeof ROUTING_LOCALES)[number];
@@ -32,10 +33,13 @@ export const LanguageSelector = observer(({ className }: Props) => {
   const pathname = usePathname();
   const currentLocale = useLocale() as Locale;
   const currentLocaleLabel = t(`locales.${currentLocale}`);
+  const { navigationGuard } = useRootStore();
 
   function handleSelect(locale: Locale) {
     if (locale === currentLocale) return;
-    window.location.href = `/${locale}${pathname}`;
+    navigationGuard.tryNavigate(() => {
+      window.location.href = `/${locale}${pathname}`;
+    });
   }
 
   return (

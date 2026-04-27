@@ -18,6 +18,7 @@ import { GlobalSearchModal } from "@/app/components/global-search-modal";
 import { EntityDrawer } from "@/components/modal/entity-drawer";
 import { LoadingOverlay } from "@/components/shared/loading-overlay";
 import { DeleteConfirmationModal } from "@/components/modal/delete-confirmation-modal";
+import { NavigationGuardModal } from "@/components/modal/navigation-guard-modal";
 import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toaster";
 import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -51,6 +52,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <Toaster />
 
       <DeleteConfirmationModal />
+
+      <NavigationGuardModal />
 
       <LoadingOverlay />
 

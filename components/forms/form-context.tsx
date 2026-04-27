@@ -6,6 +6,7 @@ import type { BaseFormStore } from "@/core/base/base-form.store";
 import { createContext, useContext } from "react";
 import { observer } from "mobx-react-lite";
 
+import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { cn } from "@/lib/utils";
 
 type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
@@ -21,6 +22,8 @@ export function useAppForm<T extends object = object>(): BaseFormStore<T> | null
 }
 
 export const AppForm = observer(({ store, onSubmit, className, children, ...props }: AppFormProps) => {
+  useNavigationGuard(store);
+
   const handleSubmit =
     onSubmit ??
     (store.onSubmit
