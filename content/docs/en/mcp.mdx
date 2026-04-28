@@ -29,9 +29,12 @@ The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools
 
 | Client | Guide |
 |---|---|
-| Claude Desktop | [Connect Claude](/docs/mcp-connect-claude-desktop) |
-| ChatGPT | [Connect ChatGPT](/docs/mcp-connect-chatgpt) |
+| Claude Code | [Connect Claude Code](/docs/mcp-connect-claude-code) |
+| Claude Desktop | [Connect Claude Desktop](/docs/mcp-connect-claude-desktop) |
+| Codex | [Connect Codex](/docs/mcp-connect-codex) |
 | Cursor | [Connect Cursor](/docs/mcp-connect-cursor) |
+| Gemini CLI | [Connect Gemini](/docs/mcp-connect-gemini) |
+| ChatGPT | [Connect ChatGPT](/docs/mcp-connect-chatgpt) |
 | Any MCP client | Use the endpoint and header above |
 
 Every connect-* page includes the full setup prompt you should paste as your first message to brief the model on safe CRM usage.
@@ -53,6 +56,12 @@ The full tool list is at [MCP tool catalog](/docs/mcp-tool-catalog).
 ## CLI use
 
 If you prefer a local client over a GUI, tools like `mcporter` can connect to the same endpoint. Store the API key once in the client config and call tools from the shell.
+
+## Brief the agent on the first message
+
+Once the client is connected, paste this as your first message before doing anything else. It tells the agent how to discover capabilities, how to handle write operations safely, and what guardrails apply.
+
+<McpSetupPrompt />
 
 ## OpenAPI alongside MCP
 

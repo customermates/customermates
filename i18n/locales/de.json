@@ -957,6 +957,7 @@
     "connectClaudeDesktop": "Claude Desktop verbinden",
     "connectCodex": "Codex verbinden",
     "connectCursor": "Cursor verbinden",
+    "connectGemini": "Gemini verbinden",
     "connectYourAi": "KI verbinden",
     "customColumns": "Benutzerdefinierte Felder",
     "entitiesRelationships": "Entitäten & Beziehungen",
@@ -1213,6 +1214,7 @@
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
         "cursor": "Cursor",
+        "gemini": "Gemini",
         "skip": "Später einrichten"
       },
       "createKey": "API-Key erstellen",
@@ -1226,7 +1228,8 @@
           "claudeCode": "In einem Terminal ausführen:",
           "claudeDesktop": "Claude → Settings → Developer → Edit Config öffnen, das hier mergen, dann Claude Desktop beenden und neu öffnen:",
           "codex": "Zu ~/.codex/config.toml hinzufügen:",
-          "cursor": "In Cursor: Settings → Tools & MCP → Add new MCP server öffnen und einfügen:"
+          "cursor": "In Cursor: Settings → Tools & MCP → Add new MCP server öffnen und einfügen:",
+          "gemini": "Zu ~/.gemini/settings.json hinzufügen (in bestehenden mcpServers mergen, falls vorhanden):"
         },
         "label": "Customermates mit {tool} verbinden"
       },
@@ -1238,6 +1241,15 @@
     "back": "Zurück",
     "companyNameDescription": "Dieser Name wird jeder Person angezeigt, die du in deinen Workspace einlädst.",
     "continue": "Weiter",
+    "demoData": {
+      "cleanDescription": "Beispieldaten überspringen. Du startest mit einem leeren Workspace.",
+      "cleanLabel": "Leer starten",
+      "description": "Sollen wir den Workspace mit Beispieldaten einrichten oder leer starten?",
+      "keepDescription": "Starte mit Beispiel-Kontakten, -Deals, -Services und -Tasks, damit du die App direkt erkunden kannst.",
+      "keepLabel": "Beispieldaten behalten",
+      "recommended": "Empfohlen",
+      "title": "Beispieldaten"
+    },
     "entities": {
       "intro": "Wähle, was am besten passt. Wir richten Pipeline, Services und Dashboard-Widgets passend ein.",
       "outro": "Spaltentypen und Bezeichnungen kannst du später jederzeit ändern — das bestimmt nur die Startform.",
@@ -1247,7 +1259,7 @@
         "title": "Produkte"
       },
       "service": {
-        "description": "Du verkaufst Zeit, Expertise oder wiederkehrende Engagements. Wir ergänzen Felder für Stundensatz und abrechenbare Stunden.",
+        "description": "Du verkaufst Zeit, Expertise oder wiederkehrende Engagements. Wir ergänzen ein Feld für abrechenbare Stunden.",
         "example": "Ein Discovery-Sprint, eine Implementierung, ein monatlicher Retainer.",
         "title": "Services"
       }

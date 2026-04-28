@@ -10,6 +10,7 @@ const LANGS: Record<McpTool, string> = {
   claudeDesktop: "json",
   codex: "toml",
   cursor: "json",
+  gemini: "json",
 };
 
 type Props = {

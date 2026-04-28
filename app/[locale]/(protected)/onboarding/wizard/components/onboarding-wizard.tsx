@@ -74,7 +74,10 @@ export const OnboardingWizard = observer(
     const handleFinish = async () => {
       onboardingWizardStore.setIsSubmitting(true);
       try {
-        await completeOnboardingWizardAction({ salesType: onboardingWizardStore.salesType });
+        await completeOnboardingWizardAction({
+          salesType: onboardingWizardStore.salesType,
+          keepDemoData: onboardingWizardStore.keepDemoData,
+        });
       } finally {
         onboardingWizardStore.setIsSubmitting(false);
       }

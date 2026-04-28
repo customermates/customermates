@@ -122,6 +122,12 @@ export function useDocGroups(): DocSidebarGroup[] {
           icon: Code2,
         },
         {
+          key: "mcp-connect-gemini",
+          url: "/docs/mcp-connect-gemini",
+          title: t("DocsSidebar.connectGemini"),
+          icon: Code2,
+        },
+        {
           key: "mcp-connect-chatgpt",
           url: "/docs/mcp-connect-chatgpt",
           title: t("DocsSidebar.connectChatgpt"),

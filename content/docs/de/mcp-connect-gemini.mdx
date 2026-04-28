@@ -1,0 +1,52 @@
+---
+title: Gemini CLI verbinden
+description: Customermates über ~/.gemini/settings.json an die Gemini CLI anbinden.
+---
+
+Die Gemini CLI lädt MCP-Server aus `~/.gemini/settings.json`. Eine Datei-Bearbeitung, dann Session starten und Setup-Prompt einfügen.
+
+## 1. API-Key anlegen
+
+In Customermates: **Profil → API Keys → Neuer Key**. Gib ihm einen Namen (z.B. `Gemini CLI`). Der 64-Zeichen-Key wird **einmal** angezeigt. Sofort kopieren.
+
+## 2. Server in settings.json eintragen
+
+`~/.gemini/settings.json` öffnen. Folgendes einfügen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="gemini" />
+
+Bei Self-Host: URL durch deine Instanz ersetzen.
+
+Falls `mcpServers` bereits Einträge enthält, `customermates` daneben einfügen, nicht überschreiben.
+
+## 3. Setup-Prompt als erste Nachricht senden
+
+`gemini` in einem Terminal starten und das hier als erste Nachricht senden:
+
+<McpSetupPrompt locale="de" />
+
+Der Agent orientiert sich und wartet auf Anweisungen.
+
+## Warum Customermates in Gemini
+
+Der Gemini-CLI-Agent läuft im selben Terminal, in dem du sowieso arbeitest. Das CRM wird zu einem weiteren Tool in derselben Session: einen Call loggen, ohne die App zu wechseln, eine Deal-Stage zwischen zwei Commits verschieben, prüfen, wer gerade blockiert ist, während du das Repo des Kunden liest.
+
+## Probier deinen ersten echten Prompt
+
+- *"Verschieb den Acme-Deal in Stage 'Won' und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
+- *"Find Contacts in der Org für das Repo, in dem ich gerade bin."*
+- *"Log einen Task, dem Bug-Report nachzugehen, den wir eben besprochen haben."*
+
+## Troubleshooting
+
+| Symptom | Lösung |
+|---|---|
+| Server wird nicht erkannt | `gemini` neu starten, JSON-Syntax prüfen |
+| "Invalid API key" | In Profil → API Keys neu erstellen |
+| Tool-Calls laufen in Timeout | `HTTPS_PROXY` in der Shell setzen, in der `gemini` gestartet wurde |
+
+## Weiter
+
+- [MCP-Tool-Katalog](/docs/mcp-tool-catalog)
+- [Claude Code verbinden](/docs/mcp-connect-claude-code)
+- [Cursor verbinden](/docs/mcp-connect-cursor)

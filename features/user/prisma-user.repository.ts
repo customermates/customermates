@@ -165,15 +165,21 @@ export class PrismaUserRepo
   }
 
   @Transaction
-  async markOnboardingWizardCompletedAndSeedDashboard(args: { userId: string; salesType: SalesType }) {
+  async markOnboardingWizardCompletedAndSeedDashboard(args: {
+    userId: string;
+    salesType: SalesType;
+    keepDemoData: boolean;
+  }) {
     const { companyId } = this.user;
-    const { userId, salesType } = args;
+    const { userId, salesType, keepDemoData } = args;
 
     await this.prisma.user.updateMany({
       data: { onboardingWizardCompletedAt: new Date() },
       where: { id: userId, companyId },
     });
     await this.prisma.company.update({ where: { id: companyId }, data: { salesType } });
+
+    if (!keepDemoData) return { alreadySeeded: false };
 
     return this.seedCompanyDashboard(userId, salesType);
   }

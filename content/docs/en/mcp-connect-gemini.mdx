@@ -1,0 +1,52 @@
+---
+title: Connect Gemini CLI
+description: Add Customermates to the Gemini CLI by editing ~/.gemini/settings.json.
+---
+
+The Gemini CLI loads MCP servers from `~/.gemini/settings.json`. One file edit, then start a session and paste the setup prompt.
+
+## 1. Create an API key
+
+In Customermates: **Profile → API Keys → New key**. Name it for the client (e.g. `Gemini CLI`). Copy the 64-character string immediately. It's shown once.
+
+## 2. Add the server to settings.json
+
+Open `~/.gemini/settings.json`. Merge this in, replacing `YOUR_KEY`:
+
+<McpInstallSnippet tool="gemini" />
+
+Self-hosting? Swap the URL for your instance.
+
+If `mcpServers` already has entries, add `customermates` alongside the existing ones rather than overwriting.
+
+## 3. Paste this setup prompt into your first message
+
+Run `gemini` in any terminal and send this as your first message:
+
+<McpSetupPrompt />
+
+The agent will orient itself and wait for direction.
+
+## Why run Customermates in Gemini
+
+Gemini's CLI agent sits in the same terminal where you already work. The CRM becomes another tool in the same session: log a call without switching apps, move a deal stage between commits, query who's blocked while reading a customer's repo.
+
+## Try your first real prompt
+
+- *"Move the Acme deal to stage 'Won' and add a note that the contract was signed today."*
+- *"Find contacts at the org for the repo I'm currently in."*
+- *"Log a task to follow up on the bug report we just discussed."*
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| Server not picked up | Restart `gemini`, confirm the JSON parses cleanly |
+| "Invalid API key" | Regenerate in Profile → API Keys |
+| Tool calls time out | Set `HTTPS_PROXY` in the shell you launched `gemini` from |
+
+## Next
+
+- [MCP tool catalog](/docs/mcp-tool-catalog)
+- [Connect Claude Code](/docs/mcp-connect-claude-code)
+- [Connect Cursor](/docs/mcp-connect-cursor)

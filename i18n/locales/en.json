@@ -957,6 +957,7 @@
     "connectClaudeDesktop": "Connect Claude Desktop",
     "connectCodex": "Connect Codex",
     "connectCursor": "Connect Cursor",
+    "connectGemini": "Connect Gemini",
     "connectYourAi": "Connect your AI",
     "customColumns": "Custom Columns",
     "entitiesRelationships": "Entities & Relationships",
@@ -1213,6 +1214,7 @@
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
         "cursor": "Cursor",
+        "gemini": "Gemini",
         "skip": "Skip for now"
       },
       "createKey": "Create API key",
@@ -1226,7 +1228,8 @@
           "claudeCode": "Run this in any terminal:",
           "claudeDesktop": "Open Claude → Settings → Developer → Edit Config, merge this in, then quit and reopen Claude Desktop:",
           "codex": "Add this to ~/.codex/config.toml:",
-          "cursor": "In Cursor, open Settings → Tools & MCP → Add new MCP server, then paste:"
+          "cursor": "In Cursor, open Settings → Tools & MCP → Add new MCP server, then paste:",
+          "gemini": "Add this to ~/.gemini/settings.json (merge into mcpServers if it already exists):"
         },
         "label": "Connect Customermates to {tool}"
       },
@@ -1238,6 +1241,15 @@
     "back": "Back",
     "companyNameDescription": "This is shown to anyone you invite to your workspace.",
     "continue": "Continue",
+    "demoData": {
+      "cleanDescription": "Skip the example data. You'll begin with an empty workspace.",
+      "cleanLabel": "Start clean",
+      "description": "Should we set up your workspace with example data, or start completely empty?",
+      "keepDescription": "Start with example contacts, deals, services, and tasks so you can explore the app right away.",
+      "keepLabel": "Keep demo data",
+      "recommended": "Recommended",
+      "title": "Demo data"
+    },
     "entities": {
       "intro": "Pick whichever fits best. We'll tailor your starter pipeline, services and dashboard widgets to match.",
       "outro": "You can change column types and rename anything later — this just decides the starter shape.",
@@ -1247,7 +1259,7 @@
         "title": "Products"
       },
       "service": {
-        "description": "You sell time, expertise, or recurring engagements. We'll add fields for hourly rate and billable hours.",
+        "description": "You sell time, expertise, or recurring engagements. We'll add a field for billable hours.",
         "example": "A discovery sprint, an implementation project, a monthly retainer.",
         "title": "Services"
       }

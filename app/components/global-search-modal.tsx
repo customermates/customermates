@@ -82,6 +82,10 @@ export const GlobalSearchModal = observer(() => {
 
   useEffect(() => setSelectedIndex(0), [flatItems.length]);
 
+  useEffect(() => {
+    if (isOpen) setSelectedIndex(0);
+  }, [isOpen]);
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Escape") {
       globalSearchModalStore.close();

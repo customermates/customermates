@@ -29,9 +29,12 @@ Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/l
 
 | Client | Guide |
 |---|---|
-| Claude Desktop | [Claude verbinden](/docs/mcp-connect-claude-desktop) |
-| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
+| Claude Code | [Claude Code verbinden](/docs/mcp-connect-claude-code) |
+| Claude Desktop | [Claude Desktop verbinden](/docs/mcp-connect-claude-desktop) |
+| Codex | [Codex verbinden](/docs/mcp-connect-codex) |
 | Cursor | [Cursor verbinden](/docs/mcp-connect-cursor) |
+| Gemini CLI | [Gemini verbinden](/docs/mcp-connect-gemini) |
+| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
 | Beliebiger MCP-Client | Endpoint und Header oben nutzen |
 
 Jede Connect-Seite enthält den vollen Setup-Prompt, den du als erste Nachricht einfügen solltest, damit das Modell sicher mit deinem CRM umgeht.
@@ -53,6 +56,12 @@ Die volle Tool-Liste: [MCP-Tool-Katalog](/docs/mcp-tool-catalog).
 ## CLI-Nutzung
 
 Wenn du einen lokalen Client willst statt GUI, verbinden Tools wie `mcporter` denselben Endpoint. API-Key einmal in der Client-Config speichern und Tools aus der Shell aufrufen.
+
+## Agent als erste Nachricht briefen
+
+Sobald der Client verbunden ist, das hier als erste Nachricht einfügen, bevor du sonst etwas tust. Es erklärt dem Agenten, wie er Fähigkeiten entdeckt, wie er Schreib-Operationen sicher handhabt und welche Guardrails gelten.
+
+<McpSetupPrompt locale="de" />
 
 ## OpenAPI neben MCP
 

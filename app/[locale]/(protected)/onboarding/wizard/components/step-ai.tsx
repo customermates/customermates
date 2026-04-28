@@ -14,7 +14,7 @@ import { getMcpSetupPrompt } from "@/features/docs/mcp-setup-prompt";
 
 import type { StepAiChoice } from "./step-ai.store";
 
-const CHOICES: StepAiChoice[] = ["claudeCode", "claudeDesktop", "codex", "cursor", "skip"];
+const CHOICES: StepAiChoice[] = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini", "skip"];
 
 function toDocsSlug(choice: Exclude<StepAiChoice, "skip">): string {
   return `mcp-connect-${choice.replace(/([A-Z])/g, "-$1").toLowerCase()}`;

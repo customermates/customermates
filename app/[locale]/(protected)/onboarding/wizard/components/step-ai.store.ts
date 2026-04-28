@@ -4,13 +4,14 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { createApiKeyAction } from "../../../profile/actions";
 
-export type StepAiChoice = "claudeCode" | "claudeDesktop" | "codex" | "cursor" | "skip";
+export type StepAiChoice = "claudeCode" | "claudeDesktop" | "codex" | "cursor" | "gemini" | "skip";
 
 const CHOICE_LABELS: Record<Exclude<StepAiChoice, "skip">, string> = {
   claudeCode: "Claude Code",
   claudeDesktop: "Claude Desktop",
   codex: "Codex",
   cursor: "Cursor",
+  gemini: "Gemini",
 };
 
 export class StepAiStore {

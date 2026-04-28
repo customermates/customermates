@@ -12,6 +12,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
   salesType: z.enum(SalesType),
+  keepDemoData: z.boolean().default(true),
 });
 
 export type CompleteOnboardingWizardData = Data<typeof Schema>;
@@ -20,6 +21,7 @@ export abstract class CompleteOnboardingWizardRepo {
   abstract markOnboardingWizardCompletedAndSeedDashboard(args: {
     userId: string;
     salesType: SalesType;
+    keepDemoData: boolean;
   }): Promise<{ alreadySeeded: boolean }>;
 }
 
@@ -39,6 +41,7 @@ export class CompleteOnboardingWizardInteractor extends BaseInteractor<CompleteO
     const result = await this.repo.markOnboardingWizardCompletedAndSeedDashboard({
       userId: id,
       salesType: data.salesType,
+      keepDemoData: data.keepDemoData,
     });
     if (!result.alreadySeeded) await this.widgetService.recalculateUserWidgets();
     return { ok: true as const, data: null };

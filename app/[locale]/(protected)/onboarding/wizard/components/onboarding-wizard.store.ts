@@ -13,6 +13,7 @@ export class OnboardingWizardStore {
   minStepIndex = 0;
   isSubmitting = false;
   salesType: SalesType = SalesType.service;
+  keepDemoData = true;
   private beforeNext: BeforeNextHandler | null = null;
 
   constructor(public readonly rootStore: RootStore) {
@@ -21,6 +22,10 @@ export class OnboardingWizardStore {
 
   setSalesType = (salesType: SalesType) => {
     this.salesType = salesType;
+  };
+
+  setKeepDemoData = (keepDemoData: boolean) => {
+    this.keepDemoData = keepDemoData;
   };
 
   get currentStep(): WizardStep {
