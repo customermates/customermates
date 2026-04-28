@@ -7,6 +7,10 @@ type GenerateOgImageProps = {
 };
 
 export function generateOgImage({ description, logoDataUrl, title }: GenerateOgImageProps): ReactElement {
+  const titleFontSize = title.length > 80 ? 48 : title.length > 40 ? 60 : 76;
+  const descriptionFontSize =
+    description && description.length > 200 ? 30 : description && description.length > 100 ? 36 : 42;
+
   return (
     <div
       style={{
@@ -18,7 +22,7 @@ export function generateOgImage({ description, logoDataUrl, title }: GenerateOgI
         flexDirection: "column",
         height: "100%",
         justifyContent: "space-between",
-        padding: "80px",
+        padding: "64px",
         fontFamily: "Inter",
         width: "100%",
       }}
@@ -34,7 +38,7 @@ export function generateOgImage({ description, logoDataUrl, title }: GenerateOgI
           style={{
             color: "white",
             display: "flex",
-            fontSize: title.length > 40 ? 60 : 76,
+            fontSize: titleFontSize,
             fontWeight: 700,
             letterSpacing: "-0.02em",
             lineHeight: 1.1,
@@ -50,9 +54,9 @@ export function generateOgImage({ description, logoDataUrl, title }: GenerateOgI
             style={{
               color: "rgb(163, 163, 163)",
               display: "flex",
-              fontSize: description.length > 100 ? 36 : 42,
+              fontSize: descriptionFontSize,
               lineHeight: 1.4,
-              maxWidth: "900px",
+              maxWidth: "1000px",
               overflowWrap: "normal",
               wordBreak: "normal",
             }}
@@ -69,7 +73,7 @@ export function generateOgImage({ description, logoDataUrl, title }: GenerateOgI
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="" height="82" src={logoDataUrl} style={{ height: "82px" }} />
+        <img alt="" height="64" src={logoDataUrl} style={{ height: "64px" }} />
       </div>
     </div>
   );

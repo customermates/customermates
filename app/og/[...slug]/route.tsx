@@ -19,7 +19,7 @@ const interBoldPromise = readFile(
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const rawTitle = searchParams.get("title")?.trim() || "Customermates";
-  const title = rawTitle.startsWith("Customermates - ") ? rawTitle : `Customermates - ${rawTitle}`;
+  const title = rawTitle.startsWith("Customermates") ? rawTitle : `Customermates - ${rawTitle}`;
   const description = searchParams.get("description")?.trim() || undefined;
   const [interRegular, interBold, logoDataUrl] = await Promise.all([
     interRegularPromise,
