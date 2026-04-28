@@ -1,4 +1,3 @@
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["relationJoins"]
@@ -23,7 +22,6 @@ model AuthUser {
   apikeys       Apikey[]
 
   @@unique([email])
-
   @@index([email])
 }
 
@@ -39,7 +37,6 @@ model AuthSession {
   authuser  AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
-
   @@index([userId])
   @@index([token])
 }
@@ -70,7 +67,7 @@ model AuthVerification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
-  
+
   @@index([identifier])
 }
 
@@ -103,39 +100,39 @@ model Apikey {
 }
 
 model User {
-  id               String             @id @default(uuid())
-  email            String             @unique
-  firstName        String
-  lastName         String
-  companyId        String
-  roleId           String?
-  role             UserRole?          @relation(fields: [roleId], references: [id])
-  status           Status             @default(pendingAuthorization)
-  displayLanguage  Locale             @default(system)
-  formattingLocale Locale             @default(system)
-  auditLogs        AuditLog[]
-  theme            Theme              @default(system)
-  country          CountryCode        @default(de)
-  avatarUrl        String?
-  agreeToTerms     Boolean            @default(false)
-  lastActiveAt           DateTime?
-  welcomeEmailSentAt           DateTime?
-  trialExpiredOfferSentAt      DateTime?
+  id                              String             @id @default(uuid())
+  email                           String             @unique
+  firstName                       String
+  lastName                        String
+  companyId                       String
+  roleId                          String?
+  role                            UserRole?          @relation(fields: [roleId], references: [id])
+  status                          Status             @default(pendingAuthorization)
+  displayLanguage                 Locale             @default(system)
+  formattingLocale                Locale             @default(system)
+  auditLogs                       AuditLog[]
+  theme                           Theme              @default(system)
+  country                         CountryCode        @default(de)
+  avatarUrl                       String?
+  agreeToTerms                    Boolean            @default(false)
+  lastActiveAt                    DateTime?
+  welcomeEmailSentAt              DateTime?
+  trialExpiredOfferSentAt         DateTime?
   trialInactivationReminderSentAt DateTime?
-  trialInactivationNoticeSentAt DateTime?
-  onboardingWizardCompletedAt DateTime?
-  createdAt              DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens    InviteToken[]      @relation("TokenCreator")
-  deals            DealUser[]
-  contacts         ContactUser[]
-  organizations    OrganizationUser[]
-  services         ServiceUser[]
-  tasks            TaskUser[]
-  relatedTasks     Task[]             @relation("TaskRelatedUser")
-  widgets          Widget[]
-  p13n             P13n[]
+  trialInactivationNoticeSentAt   DateTime?
+  onboardingWizardCompletedAt     DateTime?
+  createdAt                       DateTime           @default(now())
+  updatedAt                       DateTime           @updatedAt
+  company                         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]      @relation("TokenCreator")
+  deals                           DealUser[]
+  contacts                        ContactUser[]
+  organizations                   OrganizationUser[]
+  services                        ServiceUser[]
+  tasks                           TaskUser[]
+  relatedTasks                    Task[]             @relation("TaskRelatedUser")
+  widgets                         Widget[]
+  p13n                            P13n[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -736,10 +733,10 @@ model WebhookDelivery {
 }
 
 model Subscription {
-  id                    String            @id @default(uuid())
-  companyId             String            @unique
-  company               Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  lemonSqueezyId        String?           @unique
+  id                    String             @id @default(uuid())
+  companyId             String             @unique
+  company               Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lemonSqueezyId        String?            @unique
   lemonSqueezyVariantId String?
   status                SubscriptionStatus @default(trial)
   quantity              Int?
@@ -1024,6 +1021,23 @@ enum Currency {
   cad
   aud
   chf
+  sek
+  nok
+  dkk
+  pln
+  czk
+  huf
+  try
+  twd
+  zar
+  mxn
+  krw
+  hkd
+  sgd
+  nzd
+  aed
+  sar
+  ils
 }
 
 enum WidgetGroupByType {
@@ -1054,4 +1068,3 @@ enum SalesType {
   product
   service
 }
-
