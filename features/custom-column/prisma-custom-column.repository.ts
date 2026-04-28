@@ -240,6 +240,28 @@ export class PrismaCustomColumnRepo
     return new Map(values.map((v) => [v[idField] as string, v.value ?? undefined]));
   }
 
+  async writeValuesForCreate(
+    entityType: EntityType,
+    entityId: string,
+    values: Array<{ columnId: string; value?: string | undefined | null }>,
+  ) {
+    const provided = values ?? [];
+    const providedColumnIds = new Set(provided.map((v) => v.columnId));
+
+    const allColumns = await this.findByEntityType(entityType);
+    const defaults: Array<{ columnId: string; value: string }> = [];
+    for (const column of allColumns) {
+      if (column.type !== CustomColumnType.singleSelect) continue;
+      if (providedColumnIds.has(column.id)) continue;
+      const defaultOption = column.options?.options?.find((o) => o.isDefault);
+      if (defaultOption) defaults.push({ columnId: column.id, value: defaultOption.value });
+    }
+
+    const valuesWithDefaults = [...provided, ...defaults];
+    if (valuesWithDefaults.length === 0) return;
+    await this.replaceValuesForEntity(entityType, entityId, valuesWithDefaults);
+  }
+
   async replaceValuesForEntity(
     entityType: EntityType,
     entityId: string,

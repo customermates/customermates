@@ -24,6 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { DataCardBody } from "./data-card-body";
 import { cn } from "@/lib/utils";
 
@@ -102,34 +103,49 @@ function KanbanColumn({
   label,
   count,
   option,
+  onHeaderClick,
   children,
 }: {
   id: string;
   label: string;
   count: number;
   option?: CustomColumnOption;
+  onHeaderClick?: () => void;
   children: ReactNode;
 }) {
   const { setNodeRef } = useDroppable({ id });
+
+  const headerContent = option ? (
+    <AppChip size="sm" variant={option.color}>
+      <span className="truncate">
+        {label}
+
+        <span className="opacity-60 mx-1">·</span>
+
+        <span className="tabular-nums">{count}</span>
+      </span>
+    </AppChip>
+  ) : (
+    <span className="text-sm font-medium">
+      {label}
+
+      <span className="ml-1 text-xs text-muted-foreground tabular-nums">· {count}</span>
+    </span>
+  );
+
   return (
     <div ref={setNodeRef} className="flex w-72 shrink-0 flex-col rounded-lg p-0">
       <div className="sticky top-0 z-10 -mx-2 mb-1 flex items-center gap-2 rounded-t-lg bg-background/80 px-3 py-2 backdrop-blur-md">
-        {option ? (
-          <AppChip size="sm" variant={option.color}>
-            <span className="truncate">
-              {label}
-
-              <span className="opacity-60 mx-1">·</span>
-
-              <span className="tabular-nums">{count}</span>
-            </span>
-          </AppChip>
+        {onHeaderClick ? (
+          <button
+            className="inline-flex items-center rounded-md cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            type="button"
+            onClick={onHeaderClick}
+          >
+            {headerContent}
+          </button>
         ) : (
-          <span className="text-sm font-medium">
-            {label}
-
-            <span className="ml-1 text-xs text-muted-foreground tabular-nums">· {count}</span>
-          </span>
+          headerContent
         )}
       </div>
 
@@ -147,6 +163,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 }: Props<E>) {
   const t = useTranslations("");
   const handleApplicationError = useApplicationErrorHandler();
+  const { customColumnModalStore } = useRootStore();
   const groupingColumnId = store.groupingColumnId ?? "";
   const rawGrouping = store.customColumns.find((c) => c.id === groupingColumnId);
   const groupingCustomColumn =
@@ -232,7 +249,16 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
             const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
             const label = key === EMPTY_GROUP_KEY ? EMPTY_GROUP_LABEL : (option?.label ?? key);
             return (
-              <KanbanColumn key={key} count={items.length} id={key} label={label} option={option}>
+              <KanbanColumn
+                key={key}
+                count={items.length}
+                id={key}
+                label={label}
+                option={option}
+                onHeaderClick={
+                  groupingCustomColumn ? () => customColumnModalStore.openWithColumn(groupingCustomColumn) : undefined
+                }
+              >
                 {items.map((item) => {
                   const row = rowsById.get(item.id);
                   return (

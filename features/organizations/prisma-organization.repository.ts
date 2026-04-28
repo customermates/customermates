@@ -297,11 +297,9 @@ export class PrismaOrganizationRepo
       );
     }
 
-    if (customFieldValues.length > 0) {
-      promises.push(
-        getCustomColumnRepo().replaceValuesForEntity(EntityType.organization, organization.id, customFieldValues),
-      );
-    }
+    promises.push(
+      getCustomColumnRepo().writeValuesForCreate(EntityType.organization, organization.id, customFieldValues),
+    );
 
     await Promise.all(promises);
 

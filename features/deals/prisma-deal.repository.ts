@@ -316,8 +316,7 @@ export class PrismaDealRepo
       );
     }
 
-    if (customFieldValues.length > 0)
-      promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.deal, deal.id, customFieldValues));
+    promises.push(getCustomColumnRepo().writeValuesForCreate(EntityType.deal, deal.id, customFieldValues));
 
     await Promise.all(promises);
 

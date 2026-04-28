@@ -11,7 +11,7 @@ import type { GetTaskByIdRepo } from "@/features/tasks/get/get-task-by-id.intera
 import type { FindTasksByIdsRepo } from "@/features/tasks/find-tasks-by-ids.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 
-import { CustomColumnType, EntityType, TaskType, Resource, Action } from "@/generated/prisma";
+import { EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
 
@@ -253,25 +253,7 @@ export class PrismaTaskRepo
       );
     }
 
-    const customColumns = await getCustomColumnRepo().findByEntityType(EntityType.task);
-    const defaultCustomFieldValues = customColumns
-      .filter(
-        (column): column is Extract<typeof column, { type: typeof CustomColumnType.singleSelect }> =>
-          column.type === CustomColumnType.singleSelect && column.options?.options?.some((opt) => opt.isDefault),
-      )
-      .map((column) => {
-        const defaultOption = column.options.options.find((opt) => opt.isDefault);
-        return defaultOption
-          ? {
-              columnId: column.id,
-              value: defaultOption.value,
-            }
-          : null;
-      })
-      .filter((cfv): cfv is { columnId: string; value: string } => cfv !== null);
-
-    if (defaultCustomFieldValues.length > 0)
-      promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.task, task.id, defaultCustomFieldValues));
+    promises.push(getCustomColumnRepo().writeValuesForCreate(EntityType.task, task.id, []));
 
     await Promise.all(promises);
 
@@ -343,8 +325,7 @@ export class PrismaTaskRepo
       );
     }
 
-    if (customFieldValues.length > 0)
-      promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.task, task.id, customFieldValues));
+    promises.push(getCustomColumnRepo().writeValuesForCreate(EntityType.task, task.id, customFieldValues));
 
     await Promise.all(promises);
 
@@ -564,10 +545,10 @@ export class PrismaTaskRepo
   }
 
   async getManyOrThrowUnscoped(ids: string[]): Promise<TaskDto[]> {
+    if (ids.length === 0) return [];
+
     const { companyId } = this.user;
     const uniqueIds = [...new Set(ids)];
-
-    if (uniqueIds.length === 0) return [];
 
     const tasks = await this.prisma.task.findMany({
       where: { id: { in: uniqueIds }, companyId },

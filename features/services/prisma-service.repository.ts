@@ -259,8 +259,7 @@ export class PrismaServiceRepo
       );
     }
 
-    if (customFieldValues.length > 0)
-      promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.service, service.id, customFieldValues));
+    promises.push(getCustomColumnRepo().writeValuesForCreate(EntityType.service, service.id, customFieldValues));
 
     await Promise.all(promises);
 

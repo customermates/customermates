@@ -183,6 +183,8 @@ export class PrismaContactRepo
   }
 
   async getManyOrThrowUnscoped(ids: string[]) {
+    if (ids.length === 0) return [];
+
     const { companyId } = this.user;
     const uniqueIds = [...new Set(ids)];
 
@@ -295,8 +297,7 @@ export class PrismaContactRepo
       );
     }
 
-    if (customFieldValues.length > 0)
-      promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.contact, contact.id, customFieldValues));
+    promises.push(getCustomColumnRepo().writeValuesForCreate(EntityType.contact, contact.id, customFieldValues));
 
     await Promise.all(promises);
 
@@ -442,7 +443,7 @@ export class PrismaContactRepo
   }
 
   @Transaction
-  async deleteContactOrThrow(id: RepoArgs<DeleteContactRepo, "deleteContactOrThrow">) {
+  async deleteContactOrThrow(id: string) {
     const contact = await this.prisma.contact.findFirstOrThrow({
       where: { id, ...this.accessWhere("contact") },
       select: this.userScopedSelect,
