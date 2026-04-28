@@ -37,6 +37,10 @@ async function main() {
     const auditLogs = await import("./seeds/auditlog.json");
     const userRoles = await import("./seeds/userrole.json");
     const taskUsers = await import("./seeds/taskuser.json");
+    const taskContacts = await import("./seeds/taskcontact.json");
+    const taskOrganizations = await import("./seeds/taskorganization.json");
+    const taskDeals = await import("./seeds/taskdeal.json");
+    const taskServices = await import("./seeds/taskservice.json");
     const rolePermissions = await import("./seeds/rolepermission.json");
     const authAccounts = await import("./seeds/authaccount.json");
     const authUsers = await import("./seeds/authuser.json");
@@ -84,7 +88,8 @@ async function main() {
     }
 
     if (contacts.default?.length > 0) {
-      await prisma.contact.createMany({ data: contacts.default as any });
+      const data = (contacts.default as any[]).map(({ emailsText: _emailsText, ...rest }) => rest);
+      await prisma.contact.createMany({ data: data as any });
       console.log("✅ Inserted contacts");
     }
 
@@ -109,7 +114,8 @@ async function main() {
     }
 
     if (customFieldValues.default?.length > 0) {
-      await prisma.customFieldValue.createMany({ data: customFieldValues.default as any });
+      const data = (customFieldValues.default as any[]).map(({ rangeStart: _rs, rangeEnd: _re, ...rest }) => rest);
+      await prisma.customFieldValue.createMany({ data: data as any });
       console.log("✅ Inserted custom field values");
     }
 
@@ -181,6 +187,26 @@ async function main() {
     if (taskUsers.default?.length > 0) {
       await prisma.taskUser.createMany({ data: taskUsers.default as any });
       console.log("✅ Inserted task users");
+    }
+
+    if (taskContacts.default?.length > 0) {
+      await prisma.taskContact.createMany({ data: taskContacts.default as any });
+      console.log("✅ Inserted task contacts");
+    }
+
+    if (taskOrganizations.default?.length > 0) {
+      await prisma.taskOrganization.createMany({ data: taskOrganizations.default as any });
+      console.log("✅ Inserted task organizations");
+    }
+
+    if (taskDeals.default?.length > 0) {
+      await prisma.taskDeal.createMany({ data: taskDeals.default as any });
+      console.log("✅ Inserted task deals");
+    }
+
+    if (taskServices.default?.length > 0) {
+      await prisma.taskService.createMany({ data: taskServices.default as any });
+      console.log("✅ Inserted task services");
     }
 
     if (p13n.default?.length > 0) {

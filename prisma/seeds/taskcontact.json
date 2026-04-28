@@ -1,0 +1,42 @@
+[
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+    "createdAt": "2026-04-28T11:42:46.452Z",
+    "id": "25030759-db2c-49ff-b458-33b92d288600",
+    "taskId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+    "updatedAt": "2026-04-28T11:42:46.452Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+    "createdAt": "2026-04-28T11:42:15.871Z",
+    "id": "69c4a075-96fd-427f-a827-83612aa8628e",
+    "taskId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "updatedAt": "2026-04-28T11:42:15.871Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+    "createdAt": "2026-04-28T11:45:01.482Z",
+    "id": "6cffa9ec-67e2-455f-aced-1b6bc545edc2",
+    "taskId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "updatedAt": "2026-04-28T11:45:01.482Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+    "createdAt": "2026-04-28T11:43:52.771Z",
+    "id": "ba706c88-5275-4ef8-a562-a035ef6e553f",
+    "taskId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "updatedAt": "2026-04-28T11:43:52.771Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+    "createdAt": "2026-04-28T11:43:25.890Z",
+    "id": "e1284007-c7b2-443a-a8d3-082ec7e664bf",
+    "taskId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+    "updatedAt": "2026-04-28T11:43:25.890Z"
+  }
+]

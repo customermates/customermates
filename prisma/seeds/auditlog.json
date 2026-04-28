@@ -243,6 +243,41 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:54.997Z",
+    "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:29:54.983Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+        "name": "Coordinate demo appointment",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:29:54.983Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "03d00a33-a40c-43ee-a87e-a5032114e36d",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:17:35.563Z",
     "entityId": "d33a0794-23c0-4496-9887-6cb25a16d4c3",
     "event": "contact.created",
@@ -290,6 +325,82 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "04a6ffcf-ed7e-4e60-a839-027fe35e05bc",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:42:15.925Z",
+    "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "2fc38818-cd8a-4e15-bdc2-fc17f050c4e7"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:42:15.865Z",
+            "previous": "2026-04-28T11:34:19.050Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            }
+          ],
+          "createdAt": "2026-04-28T11:29:27.299Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "2fc38818-cd8a-4e15-bdc2-fc17f050c4e7"
+            }
+          ],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+          "name": "Review proposal response",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:42:15.865Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "04b5e91e-c8fe-4db1-a63b-df957f598798",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -415,6 +526,41 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "065b6218-32b0-45b6-b520-9dd4c3881ea8",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:49.996Z",
+    "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:32:49.983Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+        "name": "Loop in legal team",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:32:49.983Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "0763d603-75c5-4887-875b-55bdfb84046c",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -1098,6 +1244,87 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:45:01.533Z",
+    "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "af27f543-a5c9-407e-ace5-85570fc026db"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:45:01.473Z",
+            "previous": "2026-04-28T11:35:44.032Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Felix",
+              "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+              "lastName": "Schneider"
+            }
+          ],
+          "createdAt": "2026-04-28T11:32:19.183Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "af27f543-a5c9-407e-ace5-85570fc026db"
+            }
+          ],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+          "name": "Finalize quote",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+              "name": "BMW"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:45:01.473Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "179bfd69-31d6-4af4-a06e-c85fde03fc5a",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:31:21.115Z",
     "entityId": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
     "event": "organization.updated",
@@ -1479,6 +1706,111 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "1df642f0-3aa8-4f44-8a2a-89b7379ff5b5",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:21.371Z",
+    "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "event": "deal.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+                "name": "Finalize quote",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:32:21.311Z",
+            "previous": "2026-04-28T08:39:35.990Z"
+          }
+        },
+        "deal": {
+          "contacts": [],
+          "createdAt": "2026-03-24T09:47:15.533Z",
+          "customFieldValues": [
+            {
+              "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+              "value": "2026-01-01,2026-12-31"
+            },
+            {
+              "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+              "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+            }
+          ],
+          "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+          "name": "CRM Rollout & Sales Enablement",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "services": [
+            {
+              "amount": 6000,
+              "id": "11c50645-1d6c-4731-8496-2250ff73e080",
+              "name": "Custom Integrations",
+              "quantity": 4
+            },
+            {
+              "amount": 2500,
+              "id": "769c17d7-2a3f-4a08-b3c9-556316ddc968",
+              "name": "User Training Session",
+              "quantity": 6
+            },
+            {
+              "amount": 45000,
+              "id": "7978af5e-1106-4355-9e6b-a7737792bbdf",
+              "name": "CRM Setup & Configuration",
+              "quantity": 1
+            },
+            {
+              "amount": 15000,
+              "id": "54dd599a-4a5d-425e-8c85-2c670e7fd665",
+              "name": "Go-Live Support",
+              "quantity": 1
+            },
+            {
+              "amount": 25000,
+              "id": "037ddb81-5ce8-40cd-87dc-53455e7d4dd6",
+              "name": "Data Migration",
+              "quantity": 1
+            }
+          ],
+          "tasks": [
+            {
+              "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+              "name": "Finalize quote",
+              "type": "custom"
+            }
+          ],
+          "totalQuantity": 13,
+          "totalValue": 124000,
+          "updatedAt": "2026-04-28T11:32:21.311Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "1fda4790-1d6e-4e52-9895-56e78c2f7e9d",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -2493,6 +2825,84 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:03.737Z",
+    "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+      "payload": {
+        "changes": {
+          "contacts": {
+            "current": [
+              {
+                "firstName": "Anna",
+                "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+                "lastName": "Müller"
+              }
+            ],
+            "previous": []
+          },
+          "deals": {
+            "current": [
+              {
+                "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+                "name": "CRM Rollout & Sales Enablement"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:35:03.676Z",
+            "previous": "2026-04-28T11:31:04.795Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            }
+          ],
+          "createdAt": "2026-04-28T11:31:04.795Z",
+          "customFieldValues": [],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+          "name": "Prepare kickoff workshop",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+              "name": "BMW"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:35:03.676Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "2e957f5d-47df-400c-bf04-b2d5d341932b",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:11:10.129Z",
     "entityId": "7fdd7093-40a3-4a81-b5d1-f537e8abb218",
     "event": "contact.created",
@@ -2774,6 +3184,80 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "3357dd7e-cc04-44f1-a460-0c7bf1d90cde",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:44.097Z",
+    "entityId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+    "event": "contact.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+                "name": "Finalize quote",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "contact": {
+          "createdAt": "2026-03-24T09:11:41.279Z",
+          "customFieldValues": [
+            {
+              "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
+              "value": "+491788901234"
+            },
+            {
+              "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
+              "value": "bc87aa03-158f-4b89-bbc2-c34a8f617f81"
+            }
+          ],
+          "deals": [],
+          "emails": ["felix.schneider@telekom.com"],
+          "firstName": "Felix",
+          "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+          "lastName": "Schneider",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "f1f87222-4553-44ad-8cb7-089ceb636e0c",
+              "name": "Deutsche Telekom"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+              "name": "Coordinate demo appointment",
+              "type": "custom"
+            },
+            {
+              "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+              "name": "Finalize quote",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:29:57.036Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "3575cf04-ff20-4314-a415-70a3e28f7725",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -3422,6 +3906,117 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:03.737Z",
+    "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "event": "deal.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+                "name": "Prepare kickoff workshop",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "deal": {
+          "contacts": [],
+          "createdAt": "2026-03-24T09:47:15.533Z",
+          "customFieldValues": [
+            {
+              "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+              "value": "2026-01-01,2026-12-31"
+            },
+            {
+              "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+              "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+            }
+          ],
+          "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+          "name": "CRM Rollout & Sales Enablement",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "services": [
+            {
+              "amount": 6000,
+              "id": "11c50645-1d6c-4731-8496-2250ff73e080",
+              "name": "Custom Integrations",
+              "quantity": 4
+            },
+            {
+              "amount": 2500,
+              "id": "769c17d7-2a3f-4a08-b3c9-556316ddc968",
+              "name": "User Training Session",
+              "quantity": 6
+            },
+            {
+              "amount": 45000,
+              "id": "7978af5e-1106-4355-9e6b-a7737792bbdf",
+              "name": "CRM Setup & Configuration",
+              "quantity": 1
+            },
+            {
+              "amount": 15000,
+              "id": "54dd599a-4a5d-425e-8c85-2c670e7fd665",
+              "name": "Go-Live Support",
+              "quantity": 1
+            },
+            {
+              "amount": 25000,
+              "id": "037ddb81-5ce8-40cd-87dc-53455e7d4dd6",
+              "name": "Data Migration",
+              "quantity": 1
+            }
+          ],
+          "tasks": [
+            {
+              "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+              "name": "Finalize quote",
+              "type": "custom"
+            },
+            {
+              "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+              "name": "Review proposal response",
+              "type": "custom"
+            },
+            {
+              "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+              "name": "Prepare kickoff workshop",
+              "type": "custom"
+            }
+          ],
+          "totalQuantity": 13,
+          "totalValue": 124000,
+          "updatedAt": "2026-04-28T11:32:21.311Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "3d8fada0-f27d-487b-a764-00c84316955f",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:34:11.002Z",
     "entityId": "57ba338e-db0e-4d83-99f7-5ef896a15918",
     "event": "organization.updated",
@@ -3651,6 +4246,41 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:19.203Z",
+    "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:32:19.183Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+        "name": "Finalize quote",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:32:19.183Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "42e6bba2-9110-4ac7-8cad-835383a49942",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:59:22.059Z",
     "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
     "event": "deal.updated",
@@ -3812,6 +4442,77 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:33:33.521Z",
+    "entityId": "d6246156-8c58-4436-95d0-d14bb4600a45",
+    "event": "service.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d6246156-8c58-4436-95d0-d14bb4600a45",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+                "name": "Update training materials",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:33:33.457Z",
+            "previous": "2026-03-24T09:43:29.529Z"
+          }
+        },
+        "service": {
+          "amount": 5000,
+          "createdAt": "2026-03-24T09:43:29.529Z",
+          "customFieldValues": [
+            {
+              "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
+              "value": "096fdaa9-7fb5-4059-b941-f75a2ad7fc47"
+            },
+            {
+              "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
+              "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
+            }
+          ],
+          "deals": [
+            {
+              "id": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
+              "name": "HR Systems Optimization"
+            }
+          ],
+          "id": "d6246156-8c58-4436-95d0-d14bb4600a45",
+          "name": "Admin Training",
+          "notes": null,
+          "tasks": [
+            {
+              "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+              "name": "Update training materials",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:33:33.457Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "4630ee46-a9f7-48d4-b7f9-31efc7a0af30",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:46:01.116Z",
     "entityId": "93f6be3a-9366-4adb-94fc-cc917661855a",
     "event": "deal.updated",
@@ -3959,6 +4660,105 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:52.169Z",
+    "entityId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "event": "deal.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+                "name": "Loop in legal team",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:32:52.112Z",
+            "previous": "2026-04-28T08:41:04.764Z"
+          }
+        },
+        "deal": {
+          "contacts": [],
+          "createdAt": "2026-03-24T09:45:49.821Z",
+          "customFieldValues": [
+            {
+              "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+              "value": "2026-11-16,2027-07-16"
+            },
+            {
+              "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+              "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+            }
+          ],
+          "id": "93f6be3a-9366-4adb-94fc-cc917661855a",
+          "name": "Cloud Infrastructure Migration",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "92196caa-536e-4aa5-9f40-45876c4660d5",
+              "name": "Continental"
+            }
+          ],
+          "services": [
+            {
+              "amount": 5000,
+              "id": "a91fef9c-357e-4690-b14d-80f3b0f306fd",
+              "name": "Post-Migration Support",
+              "quantity": 4
+            },
+            {
+              "amount": 4000,
+              "id": "5fe4b6d9-9684-44ff-b736-b6c87c744107",
+              "name": "Infrastructure Migration",
+              "quantity": 22
+            },
+            {
+              "amount": 16000,
+              "id": "24af4912-12df-44b4-8019-8f1e4435f763",
+              "name": "CI/CD Pipeline Setup",
+              "quantity": 1
+            },
+            {
+              "amount": 18000,
+              "id": "15ffd894-72c7-4a9e-beb0-cefe651a4cd9",
+              "name": "Cloud Readiness Assessment",
+              "quantity": 1
+            }
+          ],
+          "tasks": [
+            {
+              "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+              "name": "Loop in legal team",
+              "type": "custom"
+            }
+          ],
+          "totalQuantity": 28,
+          "totalValue": 142000,
+          "updatedAt": "2026-04-28T11:32:52.112Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "4a71ed75-cffa-416b-9b78-7de262d282d4",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:55:43.901Z",
     "entityId": "70298263-1c8a-4946-8445-ffae808f15e7",
     "event": "service.created",
@@ -4001,6 +4801,80 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "4aa52f41-fb00-4bee-950c-2fcab21d12b6",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:03.737Z",
+    "entityId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+    "event": "contact.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+                "name": "Prepare kickoff workshop",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "contact": {
+          "createdAt": "2026-03-24T09:10:23.526Z",
+          "customFieldValues": [
+            {
+              "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
+              "value": "+491761234567"
+            },
+            {
+              "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
+              "value": "6f02559d-a54e-4778-bab6-e3462b69bf21"
+            }
+          ],
+          "deals": [],
+          "emails": ["anna.muller@bayer.com"],
+          "firstName": "Anna",
+          "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+          "lastName": "Müller",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+              "name": "Review proposal response",
+              "type": "custom"
+            },
+            {
+              "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+              "name": "Prepare kickoff workshop",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:29:29.336Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "4c92b2f2-6746-4d96-b624-3cefdbcaf63e",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -4082,6 +4956,79 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "4ce688c5-ba5c-420e-af62-3ca914f55b89",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:29.433Z",
+    "entityId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+    "event": "contact.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+                "name": "Review proposal response",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:29:29.336Z",
+            "previous": "2026-03-24T09:10:23.526Z"
+          }
+        },
+        "contact": {
+          "createdAt": "2026-03-24T09:10:23.526Z",
+          "customFieldValues": [
+            {
+              "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
+              "value": "+491761234567"
+            },
+            {
+              "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
+              "value": "6f02559d-a54e-4778-bab6-e3462b69bf21"
+            }
+          ],
+          "deals": [],
+          "emails": ["anna.muller@bayer.com"],
+          "firstName": "Anna",
+          "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+          "lastName": "Müller",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+              "name": "Review proposal response",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:29:29.336Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "4dc9f88d-4113-43a6-9d8c-481303413b45",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -4241,6 +5188,41 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:04.810Z",
+    "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:31:04.795Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+        "name": "Prepare kickoff workshop",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:31:04.795Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "54721191-8192-45b4-9ba9-cef31f10f24c",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:57:48.343Z",
     "entityId": "0aece348-9a24-4328-becf-f706176098a2",
     "event": "service.created",
@@ -4283,6 +5265,69 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "55441d00-1507-4cd0-a763-b52d50c4371d",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:34:19.105Z",
+    "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+      "payload": {
+        "changes": {
+          "deals": {
+            "current": [
+              {
+                "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+                "name": "CRM Rollout & Sales Enablement"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:34:19.050Z",
+            "previous": "2026-04-28T11:29:27.299Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            }
+          ],
+          "createdAt": "2026-04-28T11:29:27.299Z",
+          "customFieldValues": [],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+          "name": "Review proposal response",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:34:19.050Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "565d65fd-1858-4655-bf9f-8115092413d5",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -4703,6 +5748,94 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "5de2f128-c10d-4370-97d6-777219555f63",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:44.097Z",
+    "entityId": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+    "event": "organization.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+                "name": "Finalize quote",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "organization": {
+          "contacts": [
+            {
+              "firstName": "Leon",
+              "id": "0218fa8d-5388-4a22-9248-964e93ed5db2",
+              "lastName": "Becker"
+            },
+            {
+              "firstName": "Max",
+              "id": "33ac3248-948f-4192-9c6c-1e7d912afa58",
+              "lastName": "Schmidt"
+            },
+            {
+              "firstName": "Sophie",
+              "id": "a957c9f3-d27b-4462-b4eb-2b0d020fbf83",
+              "lastName": "Wagner"
+            }
+          ],
+          "createdAt": "2026-03-24T09:18:33.864Z",
+          "customFieldValues": [
+            {
+              "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
+              "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
+            },
+            {
+              "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
+              "value": "https://bmw.de"
+            }
+          ],
+          "deals": [
+            {
+              "id": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
+              "name": "Digital Customer Platform"
+            }
+          ],
+          "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+          "name": "BMW",
+          "notes": null,
+          "tasks": [
+            {
+              "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+              "name": "Prepare kickoff workshop",
+              "type": "custom"
+            },
+            {
+              "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+              "name": "Finalize quote",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:31:06.887Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "5e6d6383-e4d4-4a67-8793-d35502a8ee1b",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -5472,6 +6605,61 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:29.433Z",
+    "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+      "payload": {
+        "changes": {
+          "contacts": {
+            "current": [
+              {
+                "firstName": "Anna",
+                "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+                "lastName": "Müller"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            }
+          ],
+          "createdAt": "2026-04-28T11:29:27.299Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+          "name": "Review proposal response",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:29:27.299Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "6d859889-416d-441a-a17c-1098e1acd1a2",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:45:08.473Z",
     "entityId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
     "event": "deal.updated",
@@ -5537,6 +6725,77 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "6f5039fb-36f7-4912-a3c0-d7a189b04dbd",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:43:25.937Z",
+    "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "313e964c-1a31-4d18-a1e3-f92dd5bbcf31"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:43:25.885Z",
+            "previous": "2026-04-28T11:30:24.614Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Jonas",
+              "id": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+              "lastName": "Weber"
+            }
+          ],
+          "createdAt": "2026-04-28T11:30:24.614Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "313e964c-1a31-4d18-a1e3-f92dd5bbcf31"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+            }
+          ],
+          "deals": [],
+          "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+          "name": "Follow up on cold call",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:43:25.885Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "6fbc0f2f-e20d-49fa-bab6-84734b8ca6de",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -5725,6 +6984,77 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "75120b3a-bdfa-4d3e-83d5-86406b22a8f6",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:46:07.296Z",
+    "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "313e964c-1a31-4d18-a1e3-f92dd5bbcf31"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "e6058b3a-2f0e-4b80-a878-b63c255e07cc"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:46:07.230Z",
+            "previous": "2026-04-28T11:33:31.408Z"
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:33:31.408Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "313e964c-1a31-4d18-a1e3-f92dd5bbcf31"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "e6058b3a-2f0e-4b80-a878-b63c255e07cc"
+            }
+          ],
+          "deals": [],
+          "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+          "name": "Update training materials",
+          "notes": null,
+          "organizations": [],
+          "services": [
+            {
+              "amount": 5000,
+              "id": "d6246156-8c58-4436-95d0-d14bb4600a45",
+              "name": "Admin Training"
+            }
+          ],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:46:07.230Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "7557f323-c992-456e-8219-326106720daf",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -6255,6 +7585,59 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:07.001Z",
+    "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+      "payload": {
+        "changes": {
+          "organizations": {
+            "current": [
+              {
+                "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+                "name": "BMW"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:31:04.795Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+          "name": "Prepare kickoff workshop",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+              "name": "BMW"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:31:04.795Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "83e58322-1d38-4505-a57f-8f53f7afd50a",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:52:09.943Z",
     "entityId": "f544ef2c-5b6e-4c98-9694-7baa4a1dba82",
     "event": "service.created",
@@ -6503,6 +7886,41 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "88fc097c-2e5d-44b2-a2f5-86f28bf041eb",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:30:24.626Z",
+    "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:30:24.614Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+        "name": "Follow up on cold call",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:30:24.614Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "898561b9-8cf5-43e6-9cbd-5e0248257168",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -7060,6 +8478,129 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:52.169Z",
+    "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+      "payload": {
+        "changes": {
+          "deals": {
+            "current": [
+              {
+                "id": "93f6be3a-9366-4adb-94fc-cc917661855a",
+                "name": "Cloud Infrastructure Migration"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:32:49.983Z",
+          "customFieldValues": [],
+          "deals": [
+            {
+              "id": "93f6be3a-9366-4adb-94fc-cc917661855a",
+              "name": "Cloud Infrastructure Migration"
+            }
+          ],
+          "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+          "name": "Loop in legal team",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:32:49.983Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "8d5cc6ba-3a74-4496-9d65-74f55799d099",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:44:34.132Z",
+    "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:44:34.069Z",
+            "previous": "2026-04-28T11:31:33.161Z"
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:31:33.161Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+            }
+          ],
+          "deals": [],
+          "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+          "name": "Discuss contract renewal",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:44:34.069Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "8d6acf78-70ef-432c-81f8-23c95eebec8d",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:54:51.213Z",
     "entityId": "bc8e0b1b-2a23-4896-bd11-23ade8f0166b",
     "event": "service.created",
@@ -7353,6 +8894,93 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:35.349Z",
+    "entityId": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+    "event": "organization.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+                "name": "Discuss contract renewal",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:31:35.216Z",
+            "previous": "2026-03-24T09:32:35.686Z"
+          }
+        },
+        "organization": {
+          "contacts": [
+            {
+              "firstName": "Mia",
+              "id": "90b23e1b-1c01-4399-8fc7-5608647e377f",
+              "lastName": "Schneider"
+            },
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            },
+            {
+              "firstName": "Lukas",
+              "id": "d33a0794-23c0-4496-9887-6cb25a16d4c3",
+              "lastName": "Fischer"
+            }
+          ],
+          "createdAt": "2026-03-24T09:10:05.428Z",
+          "customFieldValues": [
+            {
+              "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
+              "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
+            },
+            {
+              "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
+              "value": "https://bayer.com"
+            }
+          ],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+          "name": "Bayer",
+          "notes": null,
+          "tasks": [
+            {
+              "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+              "name": "Discuss contract renewal",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:31:35.216Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "92bc53a7-976d-42e2-9171-3a12cc199611",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:58:47.764Z",
     "entityId": "9fc3d628-428b-4f9d-a502-be19d8f98662",
     "event": "service.created",
@@ -7516,6 +9144,61 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "965a90b3-c46d-4b3e-89a8-818a7c5adf00",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:57.145Z",
+    "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+      "payload": {
+        "changes": {
+          "contacts": {
+            "current": [
+              {
+                "firstName": "Felix",
+                "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+                "lastName": "Schneider"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Felix",
+              "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+              "lastName": "Schneider"
+            }
+          ],
+          "createdAt": "2026-04-28T11:29:54.983Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+          "name": "Coordinate demo appointment",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:29:54.983Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "9671dea2-c1e2-46d8-a822-fba9d70e7f3e",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -8171,6 +9854,41 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:33.176Z",
+    "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:31:33.161Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+        "name": "Discuss contract renewal",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:31:33.161Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "a37c9600-ed06-4328-8496-d8e87afddc44",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:50:04.822Z",
     "entityId": "fb421451-9703-4c2f-ac1c-0b1a13288dda",
     "event": "service.created",
@@ -8592,6 +10310,79 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:30:26.801Z",
+    "entityId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+    "event": "contact.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+                "name": "Follow up on cold call",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:30:26.691Z",
+            "previous": "2026-03-24T09:12:12.075Z"
+          }
+        },
+        "contact": {
+          "createdAt": "2026-03-24T09:12:12.075Z",
+          "customFieldValues": [
+            {
+              "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
+              "value": "+491634567890"
+            },
+            {
+              "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
+              "value": "a2c208ca-6f84-4c03-898b-a8d29654cb6b"
+            }
+          ],
+          "deals": [],
+          "emails": ["jonas.weber@continental-corporation.com"],
+          "firstName": "Jonas",
+          "id": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+          "lastName": "Weber",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "92196caa-536e-4aa5-9f40-45876c4660d5",
+              "name": "Continental"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+              "name": "Follow up on cold call",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:30:26.691Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "a92daed6-c530-4fd5-a824-c9030c02de53",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-04-28T08:34:20.713Z",
     "entityId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
     "event": "custom_column.created",
@@ -8610,6 +10401,77 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "aabca3ba-e8f8-44cb-b6e3-456806ca463c",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:42:46.501Z",
+    "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:42:46.447Z",
+            "previous": "2026-04-28T11:29:54.983Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Felix",
+              "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+              "lastName": "Schneider"
+            }
+          ],
+          "createdAt": "2026-04-28T11:29:54.983Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+            }
+          ],
+          "deals": [],
+          "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+          "name": "Coordinate demo appointment",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:42:46.447Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "adfbe00b-e29d-420c-8d56-123ae134d91d",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -8748,6 +10610,84 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "ae735156-bc79-4fa0-829a-a8017ab564dd",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:35:44.097Z",
+    "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+      "payload": {
+        "changes": {
+          "contacts": {
+            "current": [
+              {
+                "firstName": "Felix",
+                "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+                "lastName": "Schneider"
+              }
+            ],
+            "previous": []
+          },
+          "organizations": {
+            "current": [
+              {
+                "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+                "name": "BMW"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:35:44.032Z",
+            "previous": "2026-04-28T11:32:19.183Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Felix",
+              "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+              "lastName": "Schneider"
+            }
+          ],
+          "createdAt": "2026-04-28T11:32:19.183Z",
+          "customFieldValues": [],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+          "name": "Finalize quote",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+              "name": "BMW"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:35:44.032Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "aea27901-e1a0-4aa2-86ba-063a7bc7a662",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -9245,6 +11185,93 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "b4c84e78-5c09-43c0-9786-84d8ea20819f",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:07.001Z",
+    "entityId": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+    "event": "organization.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+                "name": "Prepare kickoff workshop",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:31:06.887Z",
+            "previous": "2026-03-24T09:32:45.733Z"
+          }
+        },
+        "organization": {
+          "contacts": [
+            {
+              "firstName": "Leon",
+              "id": "0218fa8d-5388-4a22-9248-964e93ed5db2",
+              "lastName": "Becker"
+            },
+            {
+              "firstName": "Max",
+              "id": "33ac3248-948f-4192-9c6c-1e7d912afa58",
+              "lastName": "Schmidt"
+            },
+            {
+              "firstName": "Sophie",
+              "id": "a957c9f3-d27b-4462-b4eb-2b0d020fbf83",
+              "lastName": "Wagner"
+            }
+          ],
+          "createdAt": "2026-03-24T09:18:33.864Z",
+          "customFieldValues": [
+            {
+              "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
+              "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
+            },
+            {
+              "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
+              "value": "https://bmw.de"
+            }
+          ],
+          "deals": [
+            {
+              "id": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
+              "name": "Digital Customer Platform"
+            }
+          ],
+          "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+          "name": "BMW",
+          "notes": null,
+          "tasks": [
+            {
+              "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+              "name": "Prepare kickoff workshop",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:31:06.887Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "b64414bf-5a59-4f4c-bdeb-cba86bbef260",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -9841,6 +11868,61 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "b8dd254f-6c7f-441c-8e95-bb991f6b4989",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:33:33.521Z",
+    "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+      "payload": {
+        "changes": {
+          "services": {
+            "current": [
+              {
+                "amount": 5000,
+                "id": "d6246156-8c58-4436-95d0-d14bb4600a45",
+                "name": "Admin Training"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:33:31.408Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+          "name": "Update training materials",
+          "notes": null,
+          "organizations": [],
+          "services": [
+            {
+              "amount": 5000,
+              "id": "d6246156-8c58-4436-95d0-d14bb4600a45",
+              "name": "Admin Training"
+            }
+          ],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:33:31.408Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "bb4c3c43-439f-48ed-8a56-6798a31d5bec",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -10473,6 +12555,41 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:27.310Z",
+    "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:29:27.299Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+        "name": "Review proposal response",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:29:27.299Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "c1f76da7-943b-4976-8966-b853c3a1b6ee",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:36:15.072Z",
     "entityId": "ba018066-f97c-4efd-b0bf-454f780d8283",
     "event": "organization.updated",
@@ -10593,6 +12710,79 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "c36998a5-2cff-4855-bee2-519ffcb43ec5",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:57.145Z",
+    "entityId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+    "event": "contact.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+                "name": "Coordinate demo appointment",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:29:57.036Z",
+            "previous": "2026-03-24T09:13:36.499Z"
+          }
+        },
+        "contact": {
+          "createdAt": "2026-03-24T09:11:41.279Z",
+          "customFieldValues": [
+            {
+              "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
+              "value": "+491788901234"
+            },
+            {
+              "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
+              "value": "bc87aa03-158f-4b89-bbc2-c34a8f617f81"
+            }
+          ],
+          "deals": [],
+          "emails": ["felix.schneider@telekom.com"],
+          "firstName": "Felix",
+          "id": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
+          "lastName": "Schneider",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "f1f87222-4553-44ad-8cb7-089ceb636e0c",
+              "name": "Deutsche Telekom"
+            }
+          ],
+          "tasks": [
+            {
+              "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+              "name": "Coordinate demo appointment",
+              "type": "custom"
+            }
+          ],
+          "updatedAt": "2026-04-28T11:29:57.036Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "c48d9189-3559-478c-b614-c5cb2e6a85a7",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -11887,6 +14077,61 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:30:26.801Z",
+    "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+      "payload": {
+        "changes": {
+          "contacts": {
+            "current": [
+              {
+                "firstName": "Jonas",
+                "id": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+                "lastName": "Weber"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Jonas",
+              "id": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
+              "lastName": "Weber"
+            }
+          ],
+          "createdAt": "2026-04-28T11:30:24.614Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+          "name": "Follow up on cold call",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:30:24.614Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "d28b5da6-08ce-4d0f-b60d-bc914ad682a4",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:18:58.818Z",
     "entityId": "33ac3248-948f-4192-9c6c-1e7d912afa58",
     "event": "contact.created",
@@ -12582,6 +14827,112 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:34:19.105Z",
+    "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "event": "deal.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+      "payload": {
+        "changes": {
+          "tasks": {
+            "current": [
+              {
+                "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+                "name": "Review proposal response",
+                "type": "custom"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "deal": {
+          "contacts": [],
+          "createdAt": "2026-03-24T09:47:15.533Z",
+          "customFieldValues": [
+            {
+              "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+              "value": "2026-01-01,2026-12-31"
+            },
+            {
+              "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+              "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+            }
+          ],
+          "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+          "name": "CRM Rollout & Sales Enablement",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "services": [
+            {
+              "amount": 6000,
+              "id": "11c50645-1d6c-4731-8496-2250ff73e080",
+              "name": "Custom Integrations",
+              "quantity": 4
+            },
+            {
+              "amount": 2500,
+              "id": "769c17d7-2a3f-4a08-b3c9-556316ddc968",
+              "name": "User Training Session",
+              "quantity": 6
+            },
+            {
+              "amount": 45000,
+              "id": "7978af5e-1106-4355-9e6b-a7737792bbdf",
+              "name": "CRM Setup & Configuration",
+              "quantity": 1
+            },
+            {
+              "amount": 15000,
+              "id": "54dd599a-4a5d-425e-8c85-2c670e7fd665",
+              "name": "Go-Live Support",
+              "quantity": 1
+            },
+            {
+              "amount": 25000,
+              "id": "037ddb81-5ce8-40cd-87dc-53455e7d4dd6",
+              "name": "Data Migration",
+              "quantity": 1
+            }
+          ],
+          "tasks": [
+            {
+              "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+              "name": "Finalize quote",
+              "type": "custom"
+            },
+            {
+              "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+              "name": "Review proposal response",
+              "type": "custom"
+            }
+          ],
+          "totalQuantity": 13,
+          "totalValue": 124000,
+          "updatedAt": "2026-04-28T11:32:21.311Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "e07dd47a-243f-4739-83bd-c9171b984db6",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:20:56.420Z",
     "entityId": "e7e92e29-b9fa-4592-9eeb-45f0382162cf",
     "event": "contact.created",
@@ -12815,6 +15166,59 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "e2787c63-5438-42c5-8f6e-6837c8fd6cd6",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:35.349Z",
+    "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+      "payload": {
+        "changes": {
+          "organizations": {
+            "current": [
+              {
+                "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+                "name": "Bayer"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:31:33.161Z",
+          "customFieldValues": [],
+          "deals": [],
+          "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+          "name": "Discuss contract renewal",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d3fc95a5-ff2f-420b-bf3b-46fa894adae7",
+              "name": "Bayer"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:31:33.161Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "e3ffbd25-7a58-4833-a833-6fced8074273",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -13373,6 +15777,87 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:43:52.837Z",
+    "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "2fc38818-cd8a-4e15-bdc2-fc17f050c4e7"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:43:52.763Z",
+            "previous": "2026-04-28T11:35:03.676Z"
+          }
+        },
+        "task": {
+          "contacts": [
+            {
+              "firstName": "Anna",
+              "id": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
+              "lastName": "Müller"
+            }
+          ],
+          "createdAt": "2026-04-28T11:31:04.795Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "b589516f-b0c9-46a8-b778-545662580ce7"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "2fc38818-cd8a-4e15-bdc2-fc17f050c4e7"
+            }
+          ],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+          "name": "Prepare kickoff workshop",
+          "notes": null,
+          "organizations": [
+            {
+              "id": "d8ef1ba5-ed75-4a0f-9689-119692300536",
+              "name": "BMW"
+            }
+          ],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:43:52.763Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "f110f7ef-ed24-4e8a-b806-79fd6889fa3f",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:24:03.806Z",
     "entityId": "ab7441bf-bbbd-4656-9c9f-a6356c087aa3",
     "event": "contact.created",
@@ -13420,6 +15905,129 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "f15a93bd-7bf0-40b9-9cb6-f56abdb808a5",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:21.371Z",
+    "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+      "payload": {
+        "changes": {
+          "deals": {
+            "current": [
+              {
+                "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+                "name": "CRM Rollout & Sales Enablement"
+              }
+            ],
+            "previous": []
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:32:19.183Z",
+          "customFieldValues": [],
+          "deals": [
+            {
+              "id": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+              "name": "CRM Rollout & Sales Enablement"
+            }
+          ],
+          "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+          "name": "Finalize quote",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:32:19.183Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "f1af6a2c-f82b-4f3e-86ae-b1e47b9cac20",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:45:37.972Z",
+    "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+    "event": "task.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+      "payload": {
+        "changes": {
+          "customFieldValues": {
+            "current": [
+              {
+                "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+                "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+              },
+              {
+                "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+                "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+              }
+            ],
+            "previous": []
+          },
+          "updatedAt": {
+            "current": "2026-04-28T11:45:37.907Z",
+            "previous": "2026-04-28T11:32:49.983Z"
+          }
+        },
+        "task": {
+          "contacts": [],
+          "createdAt": "2026-04-28T11:32:49.983Z",
+          "customFieldValues": [
+            {
+              "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
+              "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
+            },
+            {
+              "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+              "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
+            }
+          ],
+          "deals": [
+            {
+              "id": "93f6be3a-9366-4adb-94fc-cc917661855a",
+              "name": "Cloud Infrastructure Migration"
+            }
+          ],
+          "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+          "name": "Loop in legal team",
+          "notes": null,
+          "organizations": [],
+          "services": [],
+          "type": "custom",
+          "updatedAt": "2026-04-28T11:45:37.907Z",
+          "users": [
+            {
+              "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+              "email": "max.mustermann@customermates.com",
+              "firstName": "Max",
+              "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+              "lastName": "Mustermann"
+            }
+          ]
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "f2cb11d2-b0a4-41fd-8146-92ea0ec89da1",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -13705,6 +16313,41 @@
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },
     "id": "f691173d-79df-4d2b-977c-154d20a75877",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:33:31.420Z",
+    "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+    "event": "task.created",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+      "payload": {
+        "contacts": [],
+        "createdAt": "2026-04-28T11:33:31.408Z",
+        "customFieldValues": [],
+        "deals": [],
+        "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+        "name": "Update training materials",
+        "notes": null,
+        "organizations": [],
+        "services": [],
+        "type": "custom",
+        "updatedAt": "2026-04-28T11:33:31.408Z",
+        "users": [
+          {
+            "avatarUrl": "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+            "email": "max.mustermann@customermates.com",
+            "firstName": "Max",
+            "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
+            "lastName": "Mustermann"
+          }
+        ]
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "f6c2e8b3-7242-4092-aeb1-cb20741da34c",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {

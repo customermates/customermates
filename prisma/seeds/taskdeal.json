@@ -1,0 +1,34 @@
+[
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:43:52.772Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "1fada470-13ee-4130-a95b-b67ba3e400c0",
+    "taskId": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "updatedAt": "2026-04-28T11:43:52.772Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:45:37.914Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "id": "209f1795-b389-460b-825f-2735e1e46f77",
+    "taskId": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+    "updatedAt": "2026-04-28T11:45:37.914Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:42:15.872Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "6f0cdb97-675a-47ee-875a-75141f097891",
+    "taskId": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "updatedAt": "2026-04-28T11:42:15.872Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:45:01.483Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "d924a83a-5bf8-4f92-b61e-00573cedd590",
+    "taskId": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "updatedAt": "2026-04-28T11:45:01.483Z"
+  }
+]

@@ -10,6 +10,15 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:52.108Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "id": "077be6d6-65cf-4b8d-ac39-c9001a2f3e28",
+    "quantity": 1,
+    "serviceId": "15ffd894-72c7-4a9e-beb0-cefe651a4cd9",
+    "updatedAt": "2026-04-28T11:32:52.108Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-04-28T08:46:36.253Z",
     "dealId": "222734b2-9486-4dc9-8157-0690f54d5291",
     "id": "1527465c-1e51-4137-a583-637b1c1c92b1",
@@ -19,12 +28,12 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:39:35.983Z",
+    "createdAt": "2026-04-28T11:32:21.305Z",
     "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "id": "163a4e47-4cf0-487f-9d70-515832e5f255",
-    "quantity": 4,
-    "serviceId": "11c50645-1d6c-4731-8496-2250ff73e080",
-    "updatedAt": "2026-04-28T08:39:35.983Z"
+    "id": "158d0bda-4f79-47cf-85ad-da81208c3fa1",
+    "quantity": 1,
+    "serviceId": "7978af5e-1106-4355-9e6b-a7737792bbdf",
+    "updatedAt": "2026-04-28T11:32:21.305Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -43,6 +52,15 @@
     "quantity": 1,
     "serviceId": "9fc3d628-428b-4f9d-a502-be19d8f98662",
     "updatedAt": "2026-04-28T08:44:01.979Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:21.305Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "29711d41-1f8a-4390-b53e-b6c902193a7d",
+    "quantity": 4,
+    "serviceId": "11c50645-1d6c-4731-8496-2250ff73e080",
+    "updatedAt": "2026-04-28T11:32:21.305Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -82,15 +100,6 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:39:35.983Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "id": "3adbf320-7caa-415d-a9ab-633e403a3983",
-    "quantity": 6,
-    "serviceId": "769c17d7-2a3f-4a08-b3c9-556316ddc968",
-    "updatedAt": "2026-04-28T08:39:35.983Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-04-28T08:44:57.836Z",
     "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
     "id": "41953217-42c7-4878-8ead-697c638c9850",
@@ -100,30 +109,12 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:41:04.757Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "id": "42d2a306-e234-4aff-b764-cbd7381f6bf3",
-    "quantity": 4,
-    "serviceId": "a91fef9c-357e-4690-b14d-80f3b0f306fd",
-    "updatedAt": "2026-04-28T08:41:04.757Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:39:35.983Z",
+    "createdAt": "2026-04-28T11:32:21.305Z",
     "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "id": "55c7e1da-fc72-4a60-a671-2e8fba8c83e5",
+    "id": "63da9668-7926-4820-8302-f239e70503a4",
     "quantity": 1,
-    "serviceId": "7978af5e-1106-4355-9e6b-a7737792bbdf",
-    "updatedAt": "2026-04-28T08:39:35.983Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:41:04.757Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "id": "5c6ad212-bc7c-4f5f-828d-26e5105998e0",
-    "quantity": 22,
-    "serviceId": "5fe4b6d9-9684-44ff-b736-b6c87c744107",
-    "updatedAt": "2026-04-28T08:41:04.757Z"
+    "serviceId": "54dd599a-4a5d-425e-8c85-2c670e7fd665",
+    "updatedAt": "2026-04-28T11:32:21.305Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -142,6 +133,15 @@
     "quantity": 6,
     "serviceId": "d788d25b-6a1b-4a52-b161-e54550b31de6",
     "updatedAt": "2026-04-28T08:46:00.170Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:52.108Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "id": "7246be72-fb4c-4c9d-ae32-c25311e172a7",
+    "quantity": 22,
+    "serviceId": "5fe4b6d9-9684-44ff-b736-b6c87c744107",
+    "updatedAt": "2026-04-28T11:32:52.108Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -235,12 +235,12 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:41:04.757Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "id": "a549e8fe-a8e2-490c-9c32-27a047f4b241",
-    "quantity": 1,
-    "serviceId": "24af4912-12df-44b4-8019-8f1e4435f763",
-    "updatedAt": "2026-04-28T08:41:04.757Z"
+    "createdAt": "2026-04-28T11:33:33.464Z",
+    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
+    "id": "a14ae88a-4201-4b89-a44e-5db83389ff7e",
+    "quantity": 3,
+    "serviceId": "d6246156-8c58-4436-95d0-d14bb4600a45",
+    "updatedAt": "2026-04-28T11:33:33.464Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -289,12 +289,12 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:45:30.351Z",
-    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
-    "id": "cb82c259-5378-4c4f-b9d3-8a45b5e4ceaa",
-    "quantity": 3,
-    "serviceId": "d6246156-8c58-4436-95d0-d14bb4600a45",
-    "updatedAt": "2026-04-28T08:45:30.351Z"
+    "createdAt": "2026-04-28T11:32:21.305Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "c88abb3f-47b8-4ac9-a728-238c5259b43e",
+    "quantity": 6,
+    "serviceId": "769c17d7-2a3f-4a08-b3c9-556316ddc968",
+    "updatedAt": "2026-04-28T11:32:21.305Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -307,12 +307,12 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:39:35.983Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "id": "d700e0a9-e34f-4574-869f-06a97e828efe",
+    "createdAt": "2026-04-28T11:32:52.108Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "id": "d94006c3-9b53-46f8-86bf-ded68f3b26f2",
     "quantity": 1,
-    "serviceId": "54dd599a-4a5d-425e-8c85-2c670e7fd665",
-    "updatedAt": "2026-04-28T08:39:35.983Z"
+    "serviceId": "24af4912-12df-44b4-8019-8f1e4435f763",
+    "updatedAt": "2026-04-28T11:32:52.108Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -325,21 +325,21 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:52.108Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "id": "db1c93a5-7930-4457-b562-c026aaa0df56",
+    "quantity": 4,
+    "serviceId": "a91fef9c-357e-4690-b14d-80f3b0f306fd",
+    "updatedAt": "2026-04-28T11:32:52.108Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-04-28T08:44:01.979Z",
     "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
     "id": "dce5e325-24c9-4799-85da-8e9f18419316",
     "quantity": 70,
     "serviceId": "2ac9b0be-92a7-4a57-8845-2d6ba8bffada",
     "updatedAt": "2026-04-28T08:44:01.979Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:39:35.983Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "id": "e018ca5a-4ddc-48b9-a1d2-d10a070e0e24",
-    "quantity": 1,
-    "serviceId": "037ddb81-5ce8-40cd-87dc-53455e7d4dd6",
-    "updatedAt": "2026-04-28T08:39:35.983Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -361,21 +361,21 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-04-28T08:41:04.757Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "id": "f009ff59-14ce-4874-9fc2-54cc2c552a2f",
-    "quantity": 1,
-    "serviceId": "15ffd894-72c7-4a9e-beb0-cefe651a4cd9",
-    "updatedAt": "2026-04-28T08:41:04.757Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-04-28T08:42:38.792Z",
     "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
     "id": "f606a143-ab29-4b62-87eb-2039a8a99b7c",
     "quantity": 1,
     "serviceId": "1be44d7d-fe30-4556-8909-9fe52256afce",
     "updatedAt": "2026-04-28T08:42:38.792Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:21.305Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "id": "f8685f71-5aca-4284-909c-699e239a409d",
+    "quantity": 1,
+    "serviceId": "037ddb81-5ce8-40cd-87dc-53455e7d4dd6",
+    "updatedAt": "2026-04-28T11:32:21.305Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",

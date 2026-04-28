@@ -11,6 +11,11 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
+const GENERATED_COLUMNS_BY_MODEL: Record<string, Record<string, true>> = {
+  Contact: { emailsText: true },
+  CustomFieldValue: { rangeStart: true, rangeEnd: true },
+};
+
 async function dumpAllTables() {
   const tables = Object.keys(Prisma.ModelName);
   const seedsDir = "./prisma/seeds";
@@ -21,8 +26,10 @@ async function dumpAllTables() {
 
   for (const table of tables) {
     try {
+      const omit = GENERATED_COLUMNS_BY_MODEL[table];
       const data = await (prisma as any)[table].findMany({
         take: 1000,
+        ...(omit ? { omit } : {}),
       });
 
       const fileName = `${seedsDir}/${table.toLowerCase()}.json`;

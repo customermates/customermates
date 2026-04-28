@@ -11,6 +11,16 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:33.161Z",
+    "id": "09d1270c-8dbe-49ba-be2a-996c74e5f1ee",
+    "name": "Discuss contract renewal",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:44:34.069Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:28:11.690Z",
     "id": "13960b18-f867-4aa5-8463-224185631cd4",
     "name": "Review inbound lead from website and assign qualification score",
@@ -21,6 +31,16 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:33:31.408Z",
+    "id": "3c9c2bef-95bc-4727-8cae-8525030c6f37",
+    "name": "Update training materials",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:46:07.230Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:29:23.436Z",
     "id": "5f30dc78-fc42-4658-9caa-e60d0a7becfa",
     "name": "Schedule discovery call with Contoso",
@@ -28,6 +48,16 @@
     "relatedUserId": null,
     "type": "custom",
     "updatedAt": "2026-03-24T10:29:23.436Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:54.983Z",
+    "id": "6807e3d4-4bd4-496c-8d46-dda9f342c9f2",
+    "name": "Coordinate demo appointment",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:42:46.447Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
@@ -61,6 +91,46 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:30:24.614Z",
+    "id": "b136999b-0b04-4c0b-b97a-16e8f27e6db0",
+    "name": "Follow up on cold call",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:43:25.885Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:31:04.795Z",
+    "id": "b47cf9e2-6e72-45b7-a6b6-188ab67c75b6",
+    "name": "Prepare kickoff workshop",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:43:52.763Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:29:27.299Z",
+    "id": "c3680d43-a97d-455d-ba70-fda871264ccb",
+    "name": "Review proposal response",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:42:15.865Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:19.183Z",
+    "id": "cda900fe-7b3d-4ba9-b6d0-1e9720017d6f",
+    "name": "Finalize quote",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:45:01.473Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:26:42.081Z",
     "id": "d95910d6-32a2-421c-932b-45178951b448",
     "name": "Follow up with John Doe from Acme Corp after demo",
@@ -68,5 +138,15 @@
     "relatedUserId": null,
     "type": "custom",
     "updatedAt": "2026-03-24T10:26:42.081Z"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-04-28T11:32:49.983Z",
+    "id": "e24c5f37-b69f-4b2d-9b84-5a3a3049f477",
+    "name": "Loop in legal team",
+    "notes": null,
+    "relatedUserId": null,
+    "type": "custom",
+    "updatedAt": "2026-04-28T11:45:37.907Z"
   }
 ]

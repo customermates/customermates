@@ -2,15 +2,18 @@
   {
     "columnOrder": [
       "organizations",
+      "tasks",
       "deals",
       "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
-      "91317088-4ef0-4dc9-a21e-e1b917627688",
       "0493854e-fb9d-4081-89bc-7a00a352d9db",
+      "emails",
       "updatedAt",
       "createdAt",
       "users"
     ],
-    "columnWidths": {},
+    "columnWidths": {
+      "tasks": 133
+    },
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T08:58:51.135Z",
     "filters": [
@@ -34,7 +37,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-04-27T17:39:42.669Z",
+    "updatedAt": "2026-04-28T11:48:48.135Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   },
@@ -83,7 +86,16 @@
       }
     ],
     "groupingColumnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
-    "hiddenColumns": ["d54d4e52-b895-4601-ad75-d2ff64a3c3e5", "createdAt"],
+    "hiddenColumns": [
+      "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
+      "createdAt",
+      "contacts",
+      "organizations",
+      "deals",
+      "services",
+      "users",
+      "updatedAt"
+    ],
     "id": "75c7ae92-dfbc-443a-8f8d-efe66e3924d0",
     "p13nId": "tasks-card-store",
     "pagination": {
@@ -96,7 +108,7 @@
       "direction": "desc",
       "field": "updatedAt"
     },
-    "updatedAt": "2026-04-28T08:52:31.410Z",
+    "updatedAt": "2026-04-28T11:48:37.466Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "card"
   },
@@ -149,6 +161,7 @@
     "columnOrder": [
       "8c5dedf6-a2be-43fa-ae0e-936da4403215",
       "totalValue",
+      "tasks",
       "totalQuantity",
       "ecb08489-6cce-434f-9562-4ed20b1ed127",
       "contacts",
@@ -163,7 +176,7 @@
     "createdAt": "2026-03-24T09:02:15.570Z",
     "filters": [],
     "groupingColumnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "hiddenColumns": ["contacts", "updatedAt", "createdAt"],
+    "hiddenColumns": ["contacts", "updatedAt", "createdAt", "tasks"],
     "id": "aad38b2b-36b7-42c2-b354-f0b2ddba114f",
     "p13nId": "deals-card-store",
     "pagination": {
@@ -176,7 +189,7 @@
       "direction": "desc",
       "field": "name"
     },
-    "updatedAt": "2026-04-28T08:52:13.366Z",
+    "updatedAt": "2026-04-28T11:48:52.399Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "card"
   },
@@ -186,6 +199,7 @@
       "amount",
       "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
       "deals",
+      "tasks",
       "updatedAt",
       "createdAt",
       "users"
@@ -195,7 +209,7 @@
     "createdAt": "2026-03-24T09:03:56.958Z",
     "filters": [],
     "groupingColumnId": null,
-    "hiddenColumns": ["createdAt"],
+    "hiddenColumns": ["createdAt", "tasks"],
     "id": "d7cc18ea-7107-4f6c-83d9-e7b4c32ab63d",
     "p13nId": "services-card-store",
     "pagination": {
@@ -208,7 +222,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-04-28T08:52:26.870Z",
+    "updatedAt": "2026-04-28T11:48:54.708Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   },
@@ -266,13 +280,17 @@
     "columnOrder": [
       "contacts",
       "deals",
+      "tasks",
       "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
       "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
       "updatedAt",
       "createdAt",
       "users"
     ],
-    "columnWidths": {},
+    "columnWidths": {
+      "deals": 227,
+      "tasks": 191
+    },
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T09:00:40.397Z",
     "filters": [],
@@ -323,7 +341,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-04-28T08:52:20.774Z",
+    "updatedAt": "2026-04-28T11:48:49.511Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   }
