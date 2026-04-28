@@ -37,6 +37,7 @@ function makeOrgDto(overrides: Record<string, unknown> = {}) {
     updatedAt: new Date("2025-01-01"),
     contacts: [],
     users: [],
+    tasks: [],
     deals: [],
     customFieldValues: [],
     ...overrides,
@@ -53,6 +54,7 @@ function makeContactDto(id: string) {
     updatedAt: new Date("2025-01-01"),
     organizations: [],
     users: [],
+    tasks: [],
     deals: [],
     customFieldValues: [],
   };
@@ -69,6 +71,7 @@ function makeDealDto(id: string) {
     updatedAt: new Date("2025-01-01"),
     organizations: [],
     users: [],
+    tasks: [],
     contacts: [],
     services: [],
     customFieldValues: [],
@@ -79,6 +82,7 @@ describe("CreateOrganizationInteractor", () => {
   let mockCreateRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -94,6 +98,9 @@ describe("CreateOrganizationInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -107,6 +114,7 @@ describe("CreateOrganizationInteractor", () => {
       mockCreateRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -119,6 +127,7 @@ describe("CreateOrganizationInteractor", () => {
       contactIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -138,6 +147,7 @@ describe("CreateOrganizationInteractor", () => {
       contactIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -164,6 +174,7 @@ describe("CreateOrganizationInteractor", () => {
       contactIds: [CONTACT_ID_1, CONTACT_ID_2],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -206,6 +217,7 @@ describe("CreateOrganizationInteractor", () => {
       contactIds: [],
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -231,6 +243,7 @@ describe("CreateOrganizationInteractor", () => {
       contactIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -248,6 +261,7 @@ describe("UpdateOrganizationInteractor", () => {
   let mockUpdateRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -255,13 +269,16 @@ describe("UpdateOrganizationInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeOrgDto({ contacts: [], deals: [] })),
+      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeOrgDto({ contacts: [], deals: [], tasks: [] })),
       updateOrganizationOrThrow: vi.fn().mockResolvedValue(makeOrgDto()),
     };
     mockContactRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
     mockDealRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
+    mockTaskRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
@@ -277,6 +294,7 @@ describe("UpdateOrganizationInteractor", () => {
       mockUpdateRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -332,6 +350,7 @@ describe("DeleteOrganizationInteractor", () => {
   let mockDeleteRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -353,6 +372,9 @@ describe("DeleteOrganizationInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -366,6 +388,7 @@ describe("DeleteOrganizationInteractor", () => {
       mockDeleteRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -442,6 +465,7 @@ describe("CreateManyOrganizationsInteractor", () => {
   let mockCreateRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -456,6 +480,7 @@ describe("CreateManyOrganizationsInteractor", () => {
     };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -465,6 +490,7 @@ describe("CreateManyOrganizationsInteractor", () => {
       mockCreateRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -474,8 +500,8 @@ describe("CreateManyOrganizationsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       organizations: [
-        { name: "Org One", contactIds: [], userIds: [], dealIds: [], customFieldValues: [] },
-        { name: "Org Two", contactIds: [], userIds: [], dealIds: [], customFieldValues: [] },
+        { name: "Org One", contactIds: [], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+        { name: "Org Two", contactIds: [], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
       ],
     });
 
@@ -507,7 +533,9 @@ describe("CreateManyOrganizationsInteractor", () => {
 
     const interactor = createInteractor();
     await interactor.invoke({
-      organizations: [{ name: "Org One", contactIds: [CONTACT_ID_1], userIds: [], dealIds: [], customFieldValues: [] }],
+      organizations: [
+        { name: "Org One", contactIds: [CONTACT_ID_1], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+      ],
     });
 
     const contactCalls = mockEventService.publish.mock.calls.filter(
@@ -528,7 +556,9 @@ describe("CreateManyOrganizationsInteractor", () => {
   it("calls widgetService.recalculateUserWidgets", async () => {
     const interactor = createInteractor();
     await interactor.invoke({
-      organizations: [{ name: "Org One", contactIds: [], userIds: [], dealIds: [], customFieldValues: [] }],
+      organizations: [
+        { name: "Org One", contactIds: [], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+      ],
     });
 
     expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
@@ -538,8 +568,8 @@ describe("CreateManyOrganizationsInteractor", () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       organizations: [
-        { name: "Org One", contactIds: [], userIds: [], dealIds: [], customFieldValues: [] },
-        { name: "Org Two", contactIds: [], userIds: [], dealIds: [], customFieldValues: [] },
+        { name: "Org One", contactIds: [], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+        { name: "Org Two", contactIds: [], userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
       ],
     });
 
@@ -554,6 +584,7 @@ describe("UpdateManyOrganizationsInteractor", () => {
   let mockUpdateRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -571,6 +602,7 @@ describe("UpdateManyOrganizationsInteractor", () => {
     };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -580,6 +612,7 @@ describe("UpdateManyOrganizationsInteractor", () => {
       mockUpdateRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -697,6 +730,7 @@ describe("DeleteManyOrganizationsInteractor", () => {
   let mockDeleteRepo: any;
   let mockContactRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -715,6 +749,7 @@ describe("DeleteManyOrganizationsInteractor", () => {
     };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]) };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -724,6 +759,7 @@ describe("DeleteManyOrganizationsInteractor", () => {
       mockDeleteRepo,
       mockContactRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );

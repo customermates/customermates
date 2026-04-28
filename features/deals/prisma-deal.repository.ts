@@ -64,6 +64,10 @@ export class PrismaDealRepo
           quantity: true,
         },
       },
+      tasks: {
+        where: { task: this.accessWhere("task") },
+        select: { task: { select: { id: true, name: true, type: true } } },
+      },
       customFieldValues: {
         select: {
           columnId: true,
@@ -80,6 +84,7 @@ export class PrismaDealRepo
       users: { select: this.userScopedSelect.users.select },
       contacts: { select: this.userScopedSelect.contacts.select },
       services: { select: this.userScopedSelect.services.select },
+      tasks: { select: this.userScopedSelect.tasks.select },
     };
   }
 
@@ -125,6 +130,13 @@ export class PrismaDealRepo
       });
     }
 
+    if (this.canAccess(Resource.tasks)) {
+      filterFields.push({
+        field: FilterFieldKey.taskIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.taskIds],
+      });
+    }
+
     return [
       ...filterFields,
       ...customFields,
@@ -154,6 +166,7 @@ export class PrismaDealRepo
       users: deal.users.map((it) => it.user),
       contacts: deal.contacts.map((it) => it.contact),
       services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: deal.tasks.map((it) => it.task),
     };
   }
 
@@ -171,6 +184,7 @@ export class PrismaDealRepo
       users: deal.users.map((it) => it.user),
       contacts: deal.contacts.map((it) => it.contact),
       services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: deal.tasks.map((it) => it.task),
     };
   }
 
@@ -194,6 +208,7 @@ export class PrismaDealRepo
       users: deal.users.map((it) => it.user),
       contacts: deal.contacts.map((it) => it.contact),
       services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: deal.tasks.map((it) => it.task),
     }));
   }
 
@@ -209,6 +224,7 @@ export class PrismaDealRepo
         users: deal.users.map((it) => it.user),
         contacts: deal.contacts.map((it) => it.contact),
         services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+        tasks: deal.tasks.map((it) => it.task),
       }),
     });
   }
@@ -222,7 +238,7 @@ export class PrismaDealRepo
   @Transaction
   async createDealOrThrow(args: RepoArgs<CreateDealRepo, "createDealOrThrow">) {
     const { companyId } = this.user;
-    const { organizationIds, userIds, contactIds, services, customFieldValues, name, notes } = args;
+    const { organizationIds, userIds, contactIds, services, taskIds, customFieldValues, name, notes } = args;
 
     const data = {
       name,
@@ -288,6 +304,18 @@ export class PrismaDealRepo
       );
     }
 
+    if (taskIds.length > 0) {
+      promises.push(
+        this.prisma.taskDeal.createMany({
+          data: taskIds.map((taskId) => ({
+            dealId: deal.id,
+            taskId,
+            companyId,
+          })),
+        }),
+      );
+    }
+
     if (customFieldValues.length > 0)
       promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.deal, deal.id, customFieldValues));
 
@@ -306,6 +334,7 @@ export class PrismaDealRepo
       users: createdDeal.users.map((it) => it.user),
       contacts: createdDeal.contacts.map((it) => it.contact),
       services: createdDeal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: createdDeal.tasks.map((it) => it.task),
     };
 
     return res;
@@ -314,7 +343,7 @@ export class PrismaDealRepo
   @Transaction
   async updateDealOrThrow(args: RepoArgs<UpdateDealRepo, "updateDealOrThrow">) {
     const { companyId } = this.user;
-    const { id, organizationIds, userIds, contactIds, services, customFieldValues, ...dealData } = args;
+    const { id, organizationIds, userIds, contactIds, services, taskIds, customFieldValues, ...dealData } = args;
 
     const data: Prisma.DealUpdateManyArgs["data"] = { companyId };
 
@@ -410,6 +439,26 @@ export class PrismaDealRepo
       }
     }
 
+    if (taskIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskDeal.deleteMany({
+          where: { dealId: id, companyId, task: this.accessWhere("task") },
+        }),
+      );
+
+      if (taskIds !== null && taskIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskDeal.createMany({
+            data: taskIds.map((taskId) => ({
+              dealId: id,
+              taskId,
+              companyId,
+            })),
+          }),
+        );
+      }
+    }
+
     if (customFieldValues !== undefined) {
       if (customFieldValues === null)
         createPromises.push(getCustomColumnRepo().deleteValuesForEntity(EntityType.deal, id));
@@ -432,6 +481,7 @@ export class PrismaDealRepo
       users: updatedDeal.users.map((it) => it.user),
       contacts: updatedDeal.contacts.map((it) => it.contact),
       services: updatedDeal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: updatedDeal.tasks.map((it) => it.task),
     };
 
     return res;
@@ -468,6 +518,7 @@ export class PrismaDealRepo
       users: deal.users.map((it) => it.user),
       contacts: deal.contacts.map((it) => it.contact),
       services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
+      tasks: deal.tasks.map((it) => it.task),
     };
 
     await this.prisma.deal.deleteMany({ where: { id, ...this.accessWhere("deal") } });

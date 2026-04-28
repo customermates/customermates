@@ -2,6 +2,7 @@ import type { UpdateOrganizationRepo } from "./update-organization.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -14,6 +15,7 @@ import { validateContactIds } from "../../contacts/validate-contact-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { type OrganizationDto, OrganizationDtoSchema } from "../organization.schema";
 
 import { BaseUpdateOrganizationSchema } from "./update-organization-base.schema";
@@ -26,7 +28,14 @@ import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/cal
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
+import {
+  getCompanyRepo,
+  getContactRepo,
+  getCustomColumnRepo,
+  getDealRepo,
+  getOrganizationRepo,
+  getTaskRepo,
+} from "@/core/di";
 
 export const UpdateManyOrganizationsSchema = z
   .object({
@@ -37,21 +46,25 @@ export const UpdateManyOrganizationsSchema = z
     const userSet = new Set<string>();
     const dealSet = new Set<string>();
     const organizationSet = new Set<string>();
+    const taskSet = new Set<string>();
 
     for (const organization of data.organizations) {
       organizationSet.add(organization.id);
       organization.contactIds?.forEach((id) => contactSet.add(id));
       organization.userIds?.forEach((id) => userSet.add(id));
       organization.dealIds?.forEach((id) => dealSet.add(id));
+      organization.taskIds?.forEach((id) => taskSet.add(id));
     }
 
-    const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, allColumns] = await Promise.all([
-      getContactRepo().findIds(contactSet),
-      getCompanyRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getOrganizationRepo().findIds(organizationSet),
-      getCustomColumnRepo().findByEntityType(EntityType.organization),
-    ]);
+    const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, validTaskIdsSet, allColumns] =
+      await Promise.all([
+        getContactRepo().findIds(contactSet),
+        getCompanyRepo().findIds(userSet),
+        getDealRepo().findIds(dealSet),
+        getOrganizationRepo().findIds(organizationSet),
+        getTaskRepo().findIds(taskSet),
+        getCustomColumnRepo().findByEntityType(EntityType.organization),
+      ]);
 
     for (let i = 0; i < data.organizations.length; i++) {
       const organization = data.organizations[i];
@@ -59,6 +72,7 @@ export const UpdateManyOrganizationsSchema = z
       validateContactIds(organization.contactIds, validContactIdsSet, ctx, ["organizations", i, "contactIds"]);
       validateUserIds(organization.userIds, validUserIdsSet, ctx, ["organizations", i, "userIds"]);
       validateDealIds(organization.dealIds, validDealIdsSet, ctx, ["organizations", i, "dealIds"]);
+      validateTaskIds(organization.taskIds, validTaskIdsSet, ctx, ["organizations", i, "taskIds"]);
       validateCustomFieldValues(organization.customFieldValues, allColumns, ctx, [
         "organizations",
         i,
@@ -78,6 +92,7 @@ export class UpdateManyOrganizationsInteractor extends BaseInteractor<UpdateMany
     private organizationsRepo: UpdateOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -101,19 +116,25 @@ export class UpdateManyOrganizationsInteractor extends BaseInteractor<UpdateMany
       previousOrganizations.flatMap((organization) => organization.deals.map((it) => it.id)),
       data.organizations.flatMap((organizationData) => organizationData.dealIds ?? []),
     );
+    const relatedTaskIds = unique(
+      previousOrganizations.flatMap((organization) => organization.tasks.map((it) => it.id)),
+      data.organizations.flatMap((organizationData) => organizationData.taskIds ?? []),
+    );
 
-    const [previousContacts, previousDeals] = await Promise.all([
+    const [previousContacts, previousDeals, previousTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const organizations = await Promise.all(
       data.organizations.map((organizationData) => this.organizationsRepo.updateOrganizationOrThrow(organizationData)),
     );
 
-    const [currentContacts, currentDeals] = await Promise.all([
+    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -131,6 +152,15 @@ export class UpdateManyOrganizationsInteractor extends BaseInteractor<UpdateMany
           entityId: deal.id,
           payload: {
             deal,
+            changes,
+          },
+        }),
+      ),
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "organizations", (task, changes) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
             changes,
           },
         }),

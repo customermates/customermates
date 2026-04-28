@@ -54,6 +54,10 @@ export class PrismaOrganizationRepo
         where: { deal: this.accessWhere("deal") },
         select: { deal: { select: { id: true, name: true } } },
       },
+      tasks: {
+        where: { task: this.accessWhere("task") },
+        select: { task: { select: { id: true, name: true, type: true } } },
+      },
       customFieldValues: {
         select: {
           columnId: true,
@@ -69,6 +73,7 @@ export class PrismaOrganizationRepo
       contacts: { select: this.userScopedSelect.contacts.select },
       users: { select: this.userScopedSelect.users.select },
       deals: { select: this.userScopedSelect.deals.select },
+      tasks: { select: this.userScopedSelect.tasks.select },
     };
   }
 
@@ -105,6 +110,13 @@ export class PrismaOrganizationRepo
       });
     }
 
+    if (this.canAccess(Resource.tasks)) {
+      filterFields.push({
+        field: FilterFieldKey.taskIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.taskIds],
+      });
+    }
+
     return [
       ...filterFields,
       ...customFields,
@@ -133,6 +145,7 @@ export class PrismaOrganizationRepo
       contacts: organization.contacts.map((it) => it.contact),
       users: organization.users.map((it) => it.user),
       deals: organization.deals.map((it) => it.deal),
+      tasks: organization.tasks.map((it) => it.task),
     };
   }
 
@@ -149,6 +162,7 @@ export class PrismaOrganizationRepo
       contacts: organization.contacts.map((it) => it.contact),
       users: organization.users.map((it) => it.user),
       deals: organization.deals.map((it) => it.deal),
+      tasks: organization.tasks.map((it) => it.task),
     };
   }
 
@@ -171,6 +185,7 @@ export class PrismaOrganizationRepo
       contacts: organization.contacts.map((it) => it.contact),
       users: organization.users.map((it) => it.user),
       deals: organization.deals.map((it) => it.deal),
+      tasks: organization.tasks.map((it) => it.task),
     }));
   }
 
@@ -185,6 +200,7 @@ export class PrismaOrganizationRepo
         contacts: organization.contacts.map((it) => it.contact),
         users: organization.users.map((it) => it.user),
         deals: organization.deals.map((it) => it.deal),
+        tasks: organization.tasks.map((it) => it.task),
       }),
     });
   }
@@ -216,7 +232,7 @@ export class PrismaOrganizationRepo
   @Transaction
   async createOrganizationOrThrow(args: RepoArgs<CreateOrganizationRepo, "createOrganizationOrThrow">) {
     const { companyId } = this.user;
-    const { contactIds, userIds, dealIds, customFieldValues, name, notes } = args;
+    const { contactIds, userIds, dealIds, taskIds, customFieldValues, name, notes } = args;
 
     const data = {
       name,
@@ -269,6 +285,18 @@ export class PrismaOrganizationRepo
       );
     }
 
+    if (taskIds.length > 0) {
+      promises.push(
+        this.prisma.taskOrganization.createMany({
+          data: taskIds.map((taskId) => ({
+            organizationId: organization.id,
+            taskId,
+            companyId,
+          })),
+        }),
+      );
+    }
+
     if (customFieldValues.length > 0) {
       promises.push(
         getCustomColumnRepo().replaceValuesForEntity(EntityType.organization, organization.id, customFieldValues),
@@ -287,6 +315,7 @@ export class PrismaOrganizationRepo
       contacts: createdOrganization.contacts.map((it) => it.contact),
       users: createdOrganization.users.map((it) => it.user),
       deals: createdOrganization.deals.map((it) => it.deal),
+      tasks: createdOrganization.tasks.map((it) => it.task),
     };
 
     return res;
@@ -295,7 +324,7 @@ export class PrismaOrganizationRepo
   @Transaction
   async updateOrganizationOrThrow(args: RepoArgs<UpdateOrganizationRepo, "updateOrganizationOrThrow">) {
     const { companyId } = this.user;
-    const { id, contactIds, userIds, dealIds, customFieldValues, ...organizationData } = args;
+    const { id, contactIds, userIds, dealIds, taskIds, customFieldValues, ...organizationData } = args;
 
     const data: Prisma.OrganizationUpdateManyArgs["data"] = { companyId };
 
@@ -370,6 +399,26 @@ export class PrismaOrganizationRepo
       }
     }
 
+    if (taskIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskOrganization.deleteMany({
+          where: { organizationId: id, companyId, task: this.accessWhere("task") },
+        }),
+      );
+
+      if (taskIds !== null && taskIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskOrganization.createMany({
+            data: taskIds.map((taskId) => ({
+              organizationId: id,
+              taskId,
+              companyId,
+            })),
+          }),
+        );
+      }
+    }
+
     if (customFieldValues !== undefined) {
       if (customFieldValues === null)
         createPromises.push(getCustomColumnRepo().deleteValuesForEntity(EntityType.organization, id));
@@ -393,6 +442,7 @@ export class PrismaOrganizationRepo
       contacts: updatedOrganization.contacts.map((it) => it.contact),
       users: updatedOrganization.users.map((it) => it.user),
       deals: updatedOrganization.deals.map((it) => it.deal),
+      tasks: updatedOrganization.tasks.map((it) => it.task),
     };
 
     return res;
@@ -410,6 +460,7 @@ export class PrismaOrganizationRepo
       contacts: organization.contacts.map((it) => it.contact),
       users: organization.users.map((it) => it.user),
       deals: organization.deals.map((it) => it.deal),
+      tasks: organization.tasks.map((it) => it.task),
     };
 
     await this.prisma.organization.deleteMany({ where: { id, ...this.accessWhere("organization") } });

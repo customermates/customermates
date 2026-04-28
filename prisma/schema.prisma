@@ -176,6 +176,10 @@ model Company {
   organizationUsers    OrganizationUser[]
   serviceUsers         ServiceUser[]
   taskUsers            TaskUser[]
+  taskContacts         TaskContact[]
+  taskOrganizations    TaskOrganization[]
+  taskDeals            TaskDeal[]
+  taskServices         TaskService[]
   widgets              Widget[]
   userRoles            UserRole[]
   rolePermissions      RolePermission[]
@@ -222,6 +226,10 @@ model Task {
   company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   relatedUser       User?              @relation("TaskRelatedUser", fields: [relatedUserId], references: [id])
   users             TaskUser[]
+  contacts          TaskContact[]
+  organizations     TaskOrganization[]
+  deals             TaskDeal[]
+  services          TaskService[]
   customFieldValues CustomFieldValue[]
 
   @@index([companyId])
@@ -276,6 +284,7 @@ model Contact {
   organizations     ContactOrganization[]
   users             ContactUser[]
   deals             DealContact[]
+  tasks             TaskContact[]
   customFieldValues CustomFieldValue[]
 
   @@index([companyId])
@@ -296,6 +305,7 @@ model Organization {
   contacts          ContactOrganization[]
   deals             DealOrganization[]
   users             OrganizationUser[]
+  tasks             TaskOrganization[]
   customFieldValues CustomFieldValue[]
 
   @@index([companyId])
@@ -371,6 +381,7 @@ model Deal {
   users             DealUser[]
   contacts          DealContact[]
   services          ServiceDeal[]
+  tasks             TaskDeal[]
   customFieldValues CustomFieldValue[]
 
   @@index([companyId])
@@ -391,6 +402,7 @@ model Service {
   company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users             ServiceUser[]
   deals             ServiceDeal[]
+  tasks             TaskService[]
   customFieldValues CustomFieldValue[]
 
   @@index([companyId])
@@ -531,6 +543,74 @@ model TaskUser {
   @@unique([taskId, userId])
   @@index([taskId])
   @@index([userId])
+  @@index([companyId])
+}
+
+model TaskContact {
+  id        String   @id @default(uuid())
+  taskId    String
+  contactId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, contactId])
+  @@index([taskId])
+  @@index([contactId])
+  @@index([companyId])
+}
+
+model TaskOrganization {
+  id             String       @id @default(uuid())
+  taskId         String
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  task           Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  companyId      String
+  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, organizationId])
+  @@index([taskId])
+  @@index([organizationId])
+  @@index([companyId])
+}
+
+model TaskDeal {
+  id        String   @id @default(uuid())
+  taskId    String
+  dealId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dealId])
+  @@index([taskId])
+  @@index([dealId])
+  @@index([companyId])
+}
+
+model TaskService {
+  id        String   @id @default(uuid())
+  taskId    String
+  serviceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, serviceId])
+  @@index([taskId])
+  @@index([serviceId])
   @@index([companyId])
 }
 

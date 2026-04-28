@@ -4,7 +4,12 @@ import z from "zod";
 
 import { ServiceDtoSchema } from "../service.schema";
 
-import { CustomFieldValueSchema, DealReferenceSchema, UserReferenceSchema } from "@/core/base/base-entity.schema";
+import {
+  CustomFieldValueSchema,
+  DealReferenceSchema,
+  TaskReferenceSchema,
+  UserReferenceSchema,
+} from "@/core/base/base-entity.schema";
 
 const ServiceChangesSchema = z.object({
   name: z
@@ -41,6 +46,12 @@ const ServiceChangesSchema = z.object({
     .object({
       previous: z.array(DealReferenceSchema),
       current: z.array(DealReferenceSchema),
+    })
+    .optional(),
+  tasks: z
+    .object({
+      previous: z.array(TaskReferenceSchema),
+      current: z.array(TaskReferenceSchema),
     })
     .optional(),
   customFieldValues: z

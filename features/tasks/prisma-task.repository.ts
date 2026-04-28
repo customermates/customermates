@@ -9,6 +9,7 @@ import type { UpdateTaskRepo } from "@/features/tasks/upsert/update-task.repo";
 import type { DeleteTaskRepo } from "@/features/tasks/delete/delete-task.repo";
 import type { GetTaskByIdRepo } from "@/features/tasks/get/get-task-by-id.interactor";
 import type { FindTasksByIdsRepo } from "@/features/tasks/find-tasks-by-ids.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 
 import { CustomColumnType, EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 
@@ -36,7 +37,8 @@ export class PrismaTaskRepo
     DeleteTaskRepo,
     GetTaskByIdRepo,
     GetWidgetFilterableFieldsTaskRepo,
-    FindTasksByIdsRepo
+    FindTasksByIdsRepo,
+    GetUnscopedTaskRepo
 {
   private get userScopedSelect() {
     return {
@@ -49,6 +51,22 @@ export class PrismaTaskRepo
       users: {
         where: { user: this.accessWhere("user") },
         select: { user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true, email: true } } },
+      },
+      contacts: {
+        where: { contact: this.accessWhere("contact") },
+        select: { contact: { select: { id: true, firstName: true, lastName: true } } },
+      },
+      organizations: {
+        where: { organization: this.accessWhere("organization") },
+        select: { organization: { select: { id: true, name: true } } },
+      },
+      deals: {
+        where: { deal: this.accessWhere("deal") },
+        select: { deal: { select: { id: true, name: true } } },
+      },
+      services: {
+        where: { service: this.accessWhere("service") },
+        select: { service: { select: { id: true, name: true, amount: true } } },
       },
       customFieldValues: {
         select: {
@@ -63,6 +81,10 @@ export class PrismaTaskRepo
     return {
       ...this.userScopedSelect,
       users: { select: this.userScopedSelect.users.select },
+      contacts: { select: this.userScopedSelect.contacts.select },
+      organizations: { select: this.userScopedSelect.organizations.select },
+      deals: { select: this.userScopedSelect.deals.select },
+      services: { select: this.userScopedSelect.services.select },
     };
   }
 
@@ -86,7 +108,41 @@ export class PrismaTaskRepo
 
     const customFields = await getCustomColumnRepo().getFilterableCustomFields(EntityType.task);
 
+    const filterFields: Array<{
+      field: FilterFieldKey;
+      operators: (typeof FILTER_FIELD_DEFAULT_OPERATORS)[FilterFieldKey];
+    }> = [];
+
+    if (this.canAccess(Resource.contacts)) {
+      filterFields.push({
+        field: FilterFieldKey.contactIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.contactIds],
+      });
+    }
+
+    if (this.canAccess(Resource.organizations)) {
+      filterFields.push({
+        field: FilterFieldKey.organizationIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.organizationIds],
+      });
+    }
+
+    if (this.canAccess(Resource.deals)) {
+      filterFields.push({
+        field: FilterFieldKey.dealIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.dealIds],
+      });
+    }
+
+    if (this.canAccess(Resource.services)) {
+      filterFields.push({
+        field: FilterFieldKey.serviceIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.serviceIds],
+      });
+    }
+
     return [
+      ...filterFields,
       ...customFields,
       {
         field: FilterFieldKey.userIds,
@@ -97,16 +153,24 @@ export class PrismaTaskRepo
     ];
   }
 
+  private toDto(task: Prisma.TaskGetPayload<{ select: PrismaTaskRepo["userScopedSelect"] }>): TaskDto {
+    return {
+      ...task,
+      users: task.users.map((it) => it.user),
+      contacts: task.contacts.map((it) => it.contact),
+      organizations: task.organizations.map((it) => it.organization),
+      deals: task.deals.map((it) => it.deal),
+      services: task.services.map((it) => it.service),
+    };
+  }
+
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "task",
       baseWhere: this.accessWhere("task"),
       select: this.userScopedSelect,
       params,
-      map: (task: Prisma.TaskGetPayload<{ select: PrismaTaskRepo["userScopedSelect"] }>) => ({
-        ...task,
-        users: task.users.map((it) => it.user),
-      }),
+      map: (task: Prisma.TaskGetPayload<{ select: PrismaTaskRepo["userScopedSelect"] }>) => this.toDto(task),
     });
   }
 
@@ -154,6 +218,10 @@ export class PrismaTaskRepo
     await Promise.all([
       this.prisma.customFieldValue.deleteMany({ where: { companyId, taskId: id } }),
       this.prisma.taskUser.deleteMany({ where: { taskId: id, companyId } }),
+      this.prisma.taskContact.deleteMany({ where: { taskId: id, companyId } }),
+      this.prisma.taskOrganization.deleteMany({ where: { taskId: id, companyId } }),
+      this.prisma.taskDeal.deleteMany({ where: { taskId: id, companyId } }),
+      this.prisma.taskService.deleteMany({ where: { taskId: id, companyId } }),
     ]);
 
     await this.prisma.task.deleteMany({ where: { id, companyId } });
@@ -213,7 +281,7 @@ export class PrismaTaskRepo
   @Transaction
   async createTaskOrThrow(args: RepoArgs<CreateTaskRepo, "createTaskOrThrow">) {
     const { companyId } = this.user;
-    const { userIds, customFieldValues, name, notes } = args;
+    const { userIds, contactIds, organizationIds, dealIds, serviceIds, customFieldValues, name, notes } = args;
 
     const data = {
       name,
@@ -243,6 +311,38 @@ export class PrismaTaskRepo
       );
     }
 
+    if (contactIds.length > 0) {
+      promises.push(
+        this.prisma.taskContact.createMany({
+          data: contactIds.map((contactId) => ({ taskId: task.id, contactId, companyId })),
+        }),
+      );
+    }
+
+    if (organizationIds.length > 0) {
+      promises.push(
+        this.prisma.taskOrganization.createMany({
+          data: organizationIds.map((organizationId) => ({ taskId: task.id, organizationId, companyId })),
+        }),
+      );
+    }
+
+    if (dealIds.length > 0) {
+      promises.push(
+        this.prisma.taskDeal.createMany({
+          data: dealIds.map((dealId) => ({ taskId: task.id, dealId, companyId })),
+        }),
+      );
+    }
+
+    if (serviceIds.length > 0) {
+      promises.push(
+        this.prisma.taskService.createMany({
+          data: serviceIds.map((serviceId) => ({ taskId: task.id, serviceId, companyId })),
+        }),
+      );
+    }
+
     if (customFieldValues.length > 0)
       promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.task, task.id, customFieldValues));
 
@@ -253,18 +353,13 @@ export class PrismaTaskRepo
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...createdTask,
-      users: createdTask.users.map((it) => it.user),
-    };
-
-    return res;
+    return this.toDto(createdTask);
   }
 
   @Transaction
   async updateTaskOrThrow(args: RepoArgs<UpdateTaskRepo, "updateTaskOrThrow">) {
     const { companyId } = this.user;
-    const { id, userIds, customFieldValues, ...taskData } = args;
+    const { id, userIds, contactIds, organizationIds, dealIds, serviceIds, customFieldValues, ...taskData } = args;
 
     const data: Prisma.TaskUpdateManyArgs["data"] = { companyId };
 
@@ -307,6 +402,70 @@ export class PrismaTaskRepo
       }
     }
 
+    if (contactIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskContact.deleteMany({
+          where: { taskId: id, companyId, contact: { is: this.accessWhere("contact") } },
+        }),
+      );
+
+      if (contactIds !== null && contactIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskContact.createMany({
+            data: contactIds.map((contactId) => ({ taskId: id, contactId, companyId })),
+          }),
+        );
+      }
+    }
+
+    if (organizationIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskOrganization.deleteMany({
+          where: { taskId: id, companyId, organization: { is: this.accessWhere("organization") } },
+        }),
+      );
+
+      if (organizationIds !== null && organizationIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskOrganization.createMany({
+            data: organizationIds.map((organizationId) => ({ taskId: id, organizationId, companyId })),
+          }),
+        );
+      }
+    }
+
+    if (dealIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskDeal.deleteMany({
+          where: { taskId: id, companyId, deal: { is: this.accessWhere("deal") } },
+        }),
+      );
+
+      if (dealIds !== null && dealIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskDeal.createMany({
+            data: dealIds.map((dealId) => ({ taskId: id, dealId, companyId })),
+          }),
+        );
+      }
+    }
+
+    if (serviceIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskService.deleteMany({
+          where: { taskId: id, companyId, service: { is: this.accessWhere("service") } },
+        }),
+      );
+
+      if (serviceIds !== null && serviceIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskService.createMany({
+            data: serviceIds.map((serviceId) => ({ taskId: id, serviceId, companyId })),
+          }),
+        );
+      }
+    }
+
     if (customFieldValues !== undefined) {
       if (customFieldValues === null)
         createPromises.push(getCustomColumnRepo().deleteValuesForEntity(EntityType.task, id));
@@ -321,12 +480,7 @@ export class PrismaTaskRepo
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...updatedTask,
-      users: updatedTask.users.map((it) => it.user),
-    };
-
-    return res;
+    return this.toDto(updatedTask);
   }
 
   @Transaction
@@ -336,10 +490,7 @@ export class PrismaTaskRepo
       select: this.userScopedSelect,
     });
 
-    const taskDto: TaskDto = {
-      ...task,
-      users: task.users.map((it) => it.user),
-    };
+    const taskDto = this.toDto(task);
 
     await this.prisma.task.deleteMany({ where: { id, ...this.accessWhere("task") } });
 
@@ -386,10 +537,7 @@ export class PrismaTaskRepo
 
     if (!task) return null;
 
-    return {
-      ...task,
-      users: task.users.map((it) => it.user),
-    };
+    return this.toDto(task);
   }
 
   async getTaskByIdOrThrow(id: string) {
@@ -401,9 +549,34 @@ export class PrismaTaskRepo
       select: this.userScopedSelect,
     });
 
-    return {
-      ...task,
-      users: task.users.map((it) => it.user),
-    };
+    return this.toDto(task);
+  }
+
+  async getOrThrowUnscoped(id: string): Promise<TaskDto> {
+    const { companyId } = this.user;
+
+    const task = await this.prisma.task.findFirstOrThrow({
+      where: { id, companyId },
+      select: this.companyScopedSelect,
+    });
+
+    return this.toDto(task);
+  }
+
+  async getManyOrThrowUnscoped(ids: string[]): Promise<TaskDto[]> {
+    const { companyId } = this.user;
+    const uniqueIds = [...new Set(ids)];
+
+    if (uniqueIds.length === 0) return [];
+
+    const tasks = await this.prisma.task.findMany({
+      where: { id: { in: uniqueIds }, companyId },
+      select: this.companyScopedSelect,
+      orderBy: { id: "asc" },
+    });
+
+    if (tasks.length !== uniqueIds.length) throw new Error("One or more tasks not found");
+
+    return tasks.map((task) => this.toDto(task));
   }
 }

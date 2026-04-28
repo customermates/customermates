@@ -26,6 +26,10 @@ export class DealsStore extends BaseDataViewStore<DealDto> {
     return this.rootStore.userStore.canAccess(Resource.services);
   }
 
+  get canAccessTasks() {
+    return this.rootStore.userStore.canAccess(Resource.tasks);
+  }
+
   get columnsDefinition() {
     const columns: (TableColumn | false)[] = [
       { uid: "name", sortable: true },
@@ -34,6 +38,7 @@ export class DealsStore extends BaseDataViewStore<DealDto> {
       this.canAccessContacts && { uid: "contacts" },
       this.canAccessOrganizations && { uid: "organizations" },
       this.canAccessServices && { uid: "services" },
+      this.canAccessTasks && { uid: "tasks" },
       ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },

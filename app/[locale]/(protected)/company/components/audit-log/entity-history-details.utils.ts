@@ -4,7 +4,7 @@ import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events
 
 import deepEqual from "fast-deep-equal/es6";
 
-export const RELATION_FIELD_KEYS = ["users", "contacts", "organizations", "deals", "services"] as const;
+export const RELATION_FIELD_KEYS = ["users", "contacts", "organizations", "deals", "services", "tasks"] as const;
 
 export type RelationFieldKey = (typeof RELATION_FIELD_KEYS)[number];
 

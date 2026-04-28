@@ -7,5 +7,9 @@ export const BaseUpdateTaskSchema = z.object({
   name: z.string().min(1).optional(),
   notes: NotesSchema,
   userIds: z.array(z.uuid()).nullable().optional(),
+  contactIds: z.array(z.uuid()).nullable().optional(),
+  organizationIds: z.array(z.uuid()).nullable().optional(),
+  dealIds: z.array(z.uuid()).nullable().optional(),
+  serviceIds: z.array(z.uuid()).nullable().optional(),
   customFieldValues: z.array(CustomFieldValueSchema).nullable().optional(),
 });

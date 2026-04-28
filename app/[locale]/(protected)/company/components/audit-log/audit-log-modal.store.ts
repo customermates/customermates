@@ -27,6 +27,7 @@ export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
             organizations: [],
             users: [],
             deals: [],
+            tasks: [],
             customFieldValues: [],
           },
         } as AuditLogDto["eventData"],

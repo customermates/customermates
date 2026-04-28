@@ -25,6 +25,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.dealIds]: relationOperators,
   [FilterFieldKey.organizationIds]: relationOperators,
   [FilterFieldKey.contactIds]: relationOperators,
+  [FilterFieldKey.taskIds]: relationOperators,
   [FilterFieldKey.emails]: stringArrayOperators,
   [FilterFieldKey.updatedAt]: dateOperators,
   [FilterFieldKey.createdAt]: dateOperators,

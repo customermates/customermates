@@ -3,6 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -15,6 +16,7 @@ import { validateOrganizationIds } from "../../../core/validation/validate-organ
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateContactIds } from "../../contacts/validate-contact-ids";
 import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { type DealDto, DealDtoSchema } from "../deal.schema";
 
 import { BaseCreateDealSchema } from "./create-deal-base.schema";
@@ -27,7 +29,14 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getOrganizationRepo, getServiceRepo } from "@/core/di";
+import {
+  getCompanyRepo,
+  getContactRepo,
+  getCustomColumnRepo,
+  getOrganizationRepo,
+  getServiceRepo,
+  getTaskRepo,
+} from "@/core/di";
 
 export const CreateManyDealsSchema = z
   .object({
@@ -38,21 +47,25 @@ export const CreateManyDealsSchema = z
     const userSet = new Set<string>();
     const contactSet = new Set<string>();
     const serviceSet = new Set<string>();
+    const taskSet = new Set<string>();
 
     for (const deal of data.deals) {
       deal.organizationIds.forEach((id) => organizationSet.add(id));
       deal.userIds.forEach((id) => userSet.add(id));
       deal.contactIds.forEach((id) => contactSet.add(id));
       deal.services.forEach((s) => serviceSet.add(s.serviceId));
+      deal.taskIds.forEach((id) => taskSet.add(id));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, allColumns] = await Promise.all([
-      getOrganizationRepo().findIds(organizationSet),
-      getCompanyRepo().findIds(userSet),
-      getContactRepo().findIds(contactSet),
-      getServiceRepo().findIds(serviceSet),
-      getCustomColumnRepo().findByEntityType(EntityType.deal),
-    ]);
+    const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns] =
+      await Promise.all([
+        getOrganizationRepo().findIds(organizationSet),
+        getCompanyRepo().findIds(userSet),
+        getContactRepo().findIds(contactSet),
+        getServiceRepo().findIds(serviceSet),
+        getTaskRepo().findIds(taskSet),
+        getCustomColumnRepo().findByEntityType(EntityType.deal),
+      ]);
 
     for (let i = 0; i < data.deals.length; i++) {
       const deal = data.deals[i];
@@ -60,6 +73,7 @@ export const CreateManyDealsSchema = z
       validateUserIds(deal.userIds, validUserIdsSet, ctx, ["deals", i, "userIds"]);
       validateContactIds(deal.contactIds, validContactIdsSet, ctx, ["deals", i, "contactIds"]);
       validateServiceIds(Array.from(serviceSet), validServiceIdsSet, ctx, ["deals", i, "services"]);
+      validateTaskIds(deal.taskIds, validTaskIdsSet, ctx, ["deals", i, "taskIds"]);
       validateCustomFieldValues(deal.customFieldValues, allColumns, ctx, ["deals", i, "customFieldValues"]);
       deal.notes = validateNotes(deal.notes, ctx, ["deals", i, "notes"]);
     }
@@ -76,6 +90,7 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private servicesRepo: GetUnscopedServiceRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -89,19 +104,22 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
     const relatedOrganizationIds = unique(data.deals.flatMap((deal) => deal.organizationIds));
     const relatedContactIds = unique(data.deals.flatMap((deal) => deal.contactIds));
     const relatedServiceIds = unique(data.deals.flatMap((deal) => deal.services.map((s) => s.serviceId)));
+    const relatedTaskIds = unique(data.deals.flatMap((deal) => deal.taskIds));
 
-    const [previousOrganizations, previousContacts, previousServices] = await Promise.all([
+    const [previousOrganizations, previousContacts, previousServices, previousTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const deals = await Promise.all(data.deals.map((dealData) => this.repo.createDealOrThrow(dealData)));
 
-    const [currentOrganizations, currentContacts, currentServices] = await Promise.all([
+    const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -129,6 +147,15 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
           payload: {
             service,
             changes: calculateChanges(previousServices[index], service),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

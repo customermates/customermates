@@ -4,7 +4,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CustomColumnType, Status } from "@/generated/prisma";
+import { CustomColumnType, Status, TaskType } from "@/generated/prisma";
 
 import { isCustomField } from "@/components/data-view/table-view.utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,8 @@ import { getContactsAction } from "@/app/[locale]/(protected)/contacts/actions";
 import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations/actions";
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
+import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
+import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import { DomainEvent } from "@/features/event/domain-events";
 
 export type FilterSelectItem = {
@@ -110,13 +112,25 @@ export function useFilterSelectItems(
             };
           }),
         })),
+      [FilterFieldKey.taskIds]: (params) =>
+        getTasksAction(params).then((res) => ({
+          items: res.items.map((task) => {
+            const nameKey = getSystemTaskNameTranslationKey(task.type);
+            const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
+            return {
+              key: task.id,
+              value: task.id,
+              textValue: label,
+            };
+          }),
+        })),
     };
 
     if (isCustom) return undefined;
 
     const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
     return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
-  }, [field, isCustom]);
+  }, [field, isCustom, t]);
 
   useEffect(() => {
     if (!Array.isArray(value)) {
@@ -178,7 +192,8 @@ export function useFilterSelectItems(
       case FilterFieldKey.serviceIds:
       case FilterFieldKey.dealIds:
       case FilterFieldKey.organizationIds:
-      case FilterFieldKey.contactIds: {
+      case FilterFieldKey.contactIds:
+      case FilterFieldKey.taskIds: {
         return fetchedItems;
       }
 

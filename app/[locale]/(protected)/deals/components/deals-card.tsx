@@ -5,14 +5,16 @@ import type { DealDto } from "@/features/deals/deal.schema";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, TaskType } from "@/generated/prisma";
 
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 type Props = {
   deals: GetResult<DealDto>;
@@ -21,6 +23,7 @@ type Props = {
 export const DealsCard = observer(({ deals }: Props) => {
   const { dealsStore, intlStore, organizationsStore, contactsStore, servicesStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const t = useTranslations("");
 
   useDataViewSync(dealsStore, deals, [organizationsStore, contactsStore, servicesStore]);
 
@@ -70,9 +73,23 @@ export const DealsCard = observer(({ deals }: Props) => {
           />
         ),
       },
+      {
+        id: "tasks",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.tasks.map((task) => {
+              const nameKey = getSystemTaskNameTranslationKey(task.type);
+              const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
+              return { id: task.id, label };
+            })}
+            size="sm"
+            onChipClick={(task) => openEntity(EntityType.task, task.id)}
+          />
+        ),
+      },
       ...standardTailColumns({ store: dealsStore, intlStore, userModalStore }),
     ];
-  }, [dealsStore, dealsStore.customColumns, intlStore, openEntity, userModalStore]);
+  }, [dealsStore, dealsStore.customColumns, intlStore, openEntity, userModalStore, t]);
 
   return (
     <DataViewContainer

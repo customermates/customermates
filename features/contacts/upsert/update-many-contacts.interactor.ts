@@ -2,6 +2,7 @@ import type { UpdateContactRepo } from "./update-contact.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -13,6 +14,7 @@ import { validateNotes } from "../../../core/validation/validate-notes";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { validateContactIds } from "../validate-contact-ids";
 import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
@@ -26,7 +28,14 @@ import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/cal
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
+import {
+  getCompanyRepo,
+  getContactRepo,
+  getCustomColumnRepo,
+  getDealRepo,
+  getOrganizationRepo,
+  getTaskRepo,
+} from "@/core/di";
 
 export const UpdateManyContactsSchema = z
   .object({
@@ -37,21 +46,25 @@ export const UpdateManyContactsSchema = z
     const userSet = new Set<string>();
     const dealSet = new Set<string>();
     const contactSet = new Set<string>();
+    const taskSet = new Set<string>();
 
     for (const contact of data.contacts) {
       contactSet.add(contact.id);
       contact.organizationIds?.forEach((id) => organizationSet.add(id));
       contact.userIds?.forEach((id) => userSet.add(id));
       contact.dealIds?.forEach((id) => dealSet.add(id));
+      contact.taskIds?.forEach((id) => taskSet.add(id));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, validContactIdsSet, allColumns] = await Promise.all([
-      getOrganizationRepo().findIds(organizationSet),
-      getCompanyRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getContactRepo().findIds(contactSet),
-      getCustomColumnRepo().findByEntityType(EntityType.contact),
-    ]);
+    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, validContactIdsSet, validTaskIdsSet, allColumns] =
+      await Promise.all([
+        getOrganizationRepo().findIds(organizationSet),
+        getCompanyRepo().findIds(userSet),
+        getDealRepo().findIds(dealSet),
+        getContactRepo().findIds(contactSet),
+        getTaskRepo().findIds(taskSet),
+        getCustomColumnRepo().findByEntityType(EntityType.contact),
+      ]);
 
     for (let i = 0; i < data.contacts.length; i++) {
       const contact = data.contacts[i];
@@ -59,6 +72,7 @@ export const UpdateManyContactsSchema = z
       validateOrganizationIds(contact.organizationIds, validOrgIdsSet, ctx, ["contacts", i, "organizationIds"]);
       validateUserIds(contact.userIds, validUserIdsSet, ctx, ["contacts", i, "userIds"]);
       validateDealIds(contact.dealIds, validDealIdsSet, ctx, ["contacts", i, "dealIds"]);
+      validateTaskIds(contact.taskIds, validTaskIdsSet, ctx, ["contacts", i, "taskIds"]);
       validateCustomFieldValues(contact.customFieldValues, allColumns, ctx, ["contacts", i, "customFieldValues"]);
       contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
     }
@@ -73,6 +87,7 @@ export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyConta
     private contactsRepo: UpdateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -94,19 +109,25 @@ export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyConta
       previousContacts.flatMap((contact) => contact.deals.map((it) => it.id)),
       data.contacts.flatMap((contactData) => contactData.dealIds ?? []),
     );
+    const relatedTaskIds = unique(
+      previousContacts.flatMap((contact) => contact.tasks.map((it) => it.id)),
+      data.contacts.flatMap((contactData) => contactData.taskIds ?? []),
+    );
 
-    const [previousOrganizations, previousDeals] = await Promise.all([
+    const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const contacts = await Promise.all(
       data.contacts.map((contactData) => this.contactsRepo.updateContactOrThrow(contactData)),
     );
 
-    const [currentOrganizations, currentDeals] = await Promise.all([
+    const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -128,6 +149,15 @@ export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyConta
           entityId: deal.id,
           payload: {
             deal,
+            changes,
+          },
+        }),
+      ),
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "contacts", (task, changes) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
             changes,
           },
         }),

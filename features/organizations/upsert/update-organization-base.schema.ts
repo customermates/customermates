@@ -9,5 +9,6 @@ export const BaseUpdateOrganizationSchema = z.object({
   contactIds: z.array(z.uuid()).nullable().optional(),
   userIds: z.array(z.uuid()).nullable().optional(),
   dealIds: z.array(z.uuid()).nullable().optional(),
+  taskIds: z.array(z.uuid()).nullable().optional(),
   customFieldValues: z.array(CustomFieldValueSchema).nullable().optional(),
 });

@@ -21,6 +21,22 @@ export async function refreshTasksAction(params?: GetQueryParams) {
   return result.ok ? result.data : { items: [] };
 }
 
+export const getTasksAction = refreshTasksAction;
+
+export async function createTaskByNameAction(name: string, userId: string | null | undefined) {
+  const result = await createTaskAction({
+    name,
+    notes: null,
+    userIds: userId ? [userId] : [],
+    contactIds: [],
+    organizationIds: [],
+    dealIds: [],
+    serviceIds: [],
+    customFieldValues: [],
+  });
+  return result.ok ? result.data : null;
+}
+
 export async function refreshTaskCountAction() {
   const result = await getCountUserTasksInteractor().invoke();
   return result.data;

@@ -18,5 +18,6 @@ export const BaseUpdateDealSchema = z.object({
     )
     .nullable()
     .optional(),
+  taskIds: z.array(z.uuid()).nullable().optional(),
   customFieldValues: z.array(CustomFieldValueSchema).nullable().optional(),
 });

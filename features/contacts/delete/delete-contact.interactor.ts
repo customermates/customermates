@@ -2,6 +2,7 @@ import type { DeleteContactRepo } from "./delete-contact.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -36,6 +37,7 @@ export class DeleteContactInteractor extends BaseInteractor<DeleteContactData, s
     private repo: DeleteContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -49,17 +51,20 @@ export class DeleteContactInteractor extends BaseInteractor<DeleteContactData, s
 
     const relatedOrganizationIds = unique(previousContact.organizations.map((it) => it.id));
     const relatedDealIds = unique(previousContact.deals.map((it) => it.id));
+    const relatedTaskIds = unique(previousContact.tasks.map((it) => it.id));
 
-    const [previousOrganizations, previousDeals] = await Promise.all([
+    const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const contact = await this.repo.deleteContactOrThrow(data.id);
 
-    const [currentOrganizations, currentDeals] = await Promise.all([
+    const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -78,6 +83,15 @@ export class DeleteContactInteractor extends BaseInteractor<DeleteContactData, s
           payload: {
             deal,
             changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

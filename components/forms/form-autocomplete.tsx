@@ -21,6 +21,7 @@ type Identifiable = { id: string } | { key: string } | { value: string };
 type Props<T extends Identifiable> = {
   id: string;
   label?: string | null;
+  labelEndAddon?: ReactNode;
   placeholder?: string;
   required?: boolean;
   selectionMode?: "single" | "multiple";
@@ -58,6 +59,7 @@ export const FormAutocomplete = observer(
   <T extends Identifiable>({
     id,
     label,
+    labelEndAddon,
     placeholder = "Select...",
     required,
     selectionMode = "single",
@@ -77,6 +79,7 @@ export const FormAutocomplete = observer(
   }: Props<T>) => {
     const store = useAppForm();
     const t = useTranslations("Common.inputs");
+    const tCommon = useTranslations("Common");
     const isReq = required;
     const resolvedLabel = label === null ? undefined : (label ?? t(id));
     const [open, setOpen] = useState(false);
@@ -95,7 +98,6 @@ export const FormAutocomplete = observer(
 
     const itemsArray: T[] = useMemo(() => Array.from(items ?? []), [items]);
 
-    // debounced fetch when getItems is provided
     useEffect(() => {
       if (!getItems) return;
       const timer = setTimeout(() => {
@@ -248,11 +250,15 @@ export const FormAutocomplete = observer(
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
-            {resolvedLabel}
+          <div className="flex items-center gap-1.5">
+            <FormLabel htmlFor={id}>
+              {resolvedLabel}
 
-            {isReq ? <span className="text-destructive"> *</span> : null}
-          </FormLabel>
+              {isReq ? <span className="text-destructive"> *</span> : null}
+            </FormLabel>
+
+            {labelEndAddon}
+          </div>
         )}
 
         <Popover open={isReadOnly ? false : open} onOpenChange={isReadOnly ? undefined : setOpen}>
@@ -281,10 +287,11 @@ export const FormAutocomplete = observer(
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] p-0">
+          <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
             <Command shouldFilter={false}>
               <CommandInput
-                placeholder="Search..."
+                autoFocus
+                placeholder={tCommon("table.search")}
                 value={input}
                 onKeyDown={(e) => {
                   if (onCreate && e.key === "Enter" && input && filteredItems.length === 0) {

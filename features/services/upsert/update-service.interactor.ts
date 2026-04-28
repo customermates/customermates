@@ -1,6 +1,7 @@
 import type { UpdateServiceRepo } from "./update-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -10,6 +11,7 @@ import { validateCustomFieldValues } from "../../../core/validation/validate-cus
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseUpdateServiceSchema } from "./update-service-base.schema";
@@ -23,23 +25,26 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
 
 export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds ?? []);
   const dealSet = new Set(data.dealIds ?? []);
   const serviceSet = new Set([data.id]);
+  const taskSet = new Set(data.taskIds ?? []);
 
-  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, allColumns] = await Promise.all([
+  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
     getCompanyRepo().findIds(userSet),
     getDealRepo().findIds(dealSet),
     getServiceRepo().findIds(serviceSet),
+    getTaskRepo().findIds(taskSet),
     getCustomColumnRepo().findByEntityType(EntityType.service),
   ]);
 
   validateServiceIds(data.id, validServiceIdsSet, ctx, ["id"]);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
   validateDealIds(data.dealIds, validDealIdsSet, ctx, ["dealIds"]);
+  validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
   validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
   data.notes = validateNotes(data.notes, ctx, ["notes"]);
 });
@@ -53,6 +58,7 @@ export class UpdateServiceInteractor extends BaseInteractor<UpdateServiceData, S
   constructor(
     private servicesRepo: UpdateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -69,12 +75,22 @@ export class UpdateServiceInteractor extends BaseInteractor<UpdateServiceData, S
       previousService.deals.map((it) => it.id),
       data.dealIds,
     );
+    const relatedTaskIds = unique(
+      previousService.tasks.map((it) => it.id),
+      data.taskIds,
+    );
 
-    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [previousDeals, previousTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     const service = await this.servicesRepo.updateServiceOrThrow(data);
 
-    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [currentDeals, currentTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     const changes = calculateChanges(previousService, service);
 
@@ -92,6 +108,15 @@ export class UpdateServiceInteractor extends BaseInteractor<UpdateServiceData, S
             },
           }),
         ["totalValue", "totalQuantity"],
+      ),
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "services", (task, changes) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes,
+          },
+        }),
       ),
       this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
         entityId: service.id,

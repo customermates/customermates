@@ -2,9 +2,15 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import z from "zod";
 
-import { TaskDtoSchema } from "../task.schema";
+import { TaskDtoSchema, TaskServiceReferenceSchema } from "../task.schema";
 
-import { CustomFieldValueSchema, UserReferenceSchema } from "@/core/base/base-entity.schema";
+import {
+  ContactReferenceSchema,
+  CustomFieldValueSchema,
+  DealReferenceSchema,
+  OrganizationReferenceSchema,
+  UserReferenceSchema,
+} from "@/core/base/base-entity.schema";
 
 const TaskChangesSchema = z.object({
   name: z
@@ -29,6 +35,30 @@ const TaskChangesSchema = z.object({
     .object({
       previous: z.array(UserReferenceSchema),
       current: z.array(UserReferenceSchema),
+    })
+    .optional(),
+  contacts: z
+    .object({
+      previous: z.array(ContactReferenceSchema),
+      current: z.array(ContactReferenceSchema),
+    })
+    .optional(),
+  organizations: z
+    .object({
+      previous: z.array(OrganizationReferenceSchema),
+      current: z.array(OrganizationReferenceSchema),
+    })
+    .optional(),
+  deals: z
+    .object({
+      previous: z.array(DealReferenceSchema),
+      current: z.array(DealReferenceSchema),
+    })
+    .optional(),
+  services: z
+    .object({
+      previous: z.array(TaskServiceReferenceSchema),
+      current: z.array(TaskServiceReferenceSchema),
     })
     .optional(),
   customFieldValues: z

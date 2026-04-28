@@ -2,6 +2,7 @@ import type { DeleteOrganizationRepo } from "./delete-organization.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -37,6 +38,7 @@ export class DeleteManyOrganizationsInteractor extends BaseInteractor<DeleteMany
     private repo: DeleteOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -55,17 +57,22 @@ export class DeleteManyOrganizationsInteractor extends BaseInteractor<DeleteMany
     const relatedDealIds = unique(
       previousOrganizations.flatMap((organization) => organization.deals.map((it) => it.id)),
     );
+    const relatedTaskIds = unique(
+      previousOrganizations.flatMap((organization) => organization.tasks.map((it) => it.id)),
+    );
 
-    const [previousContacts, previousDeals] = await Promise.all([
+    const [previousContacts, previousDeals, previousTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const organizations = await Promise.all(data.ids.map((id) => this.repo.deleteOrganizationOrThrow(id)));
 
-    const [currentContacts, currentDeals] = await Promise.all([
+    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -84,6 +91,15 @@ export class DeleteManyOrganizationsInteractor extends BaseInteractor<DeleteMany
           payload: {
             deal,
             changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

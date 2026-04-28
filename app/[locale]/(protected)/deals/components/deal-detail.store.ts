@@ -22,6 +22,7 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
         userIds: [],
         contactIds: [],
         services: [],
+        taskIds: [],
         customFieldValues: [],
       },
       Resource.deals,
@@ -56,6 +57,7 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
         organizationIds: entity.organizations.map((org) => org.id),
         userIds: entity.users.map((user) => user.id),
         contactIds: entity.contacts.map((contact) => contact.id),
+        taskIds: entity.tasks.map((task) => task.id),
         services: entity.services.map((it) => ({
           serviceId: it.id,
           quantity: it.quantity,

@@ -7,6 +7,8 @@ import { createDealByNameAction, getDealsAction } from "../../deals/actions";
 import { getUsersAction } from "../../company/actions";
 
 import { EntityDetailBody } from "@/components/modal/entity-detail-body";
+import { OpenRelationLink } from "@/components/modal/open-relation-link";
+import { TasksAutocompleteField } from "@/components/modal/tasks-autocomplete-field";
 import { FormInput } from "@/components/forms/form-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
@@ -50,6 +52,9 @@ export const ServiceDetailView = observer(function ServiceDetailView({ layout = 
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
+          labelEndAddon={
+            <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="service" targetEntityType="deal" />
+          }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
           onChipClick={(id) => openEntity(EntityType.deal, id)}
@@ -62,6 +67,10 @@ export const ServiceDetailView = observer(function ServiceDetailView({ layout = 
       {customColumns.map((column, index) => (
         <CustomFieldValueInput key={column.id} column={column} index={index} isEditing={isEditingCustomField} />
       ))}
+
+      {userStore.canAccess(Resource.tasks) && (
+        <TasksAutocompleteField entityId={fetchedEntity?.id} entityType="service" tasks={fetchedEntity?.tasks ?? []} />
+      )}
 
       <FormAutocompleteAvatar
         getItems={getUsersAction}

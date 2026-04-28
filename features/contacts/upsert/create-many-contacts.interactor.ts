@@ -2,6 +2,7 @@ import type { CreateContactRepo } from "./create-contact.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -11,6 +12,7 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
 import { type ContactDto, ContactDtoSchema } from "../contact.schema";
@@ -25,7 +27,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo, getTaskRepo } from "@/core/di";
 
 export const CreateManyContactsSchema = z
   .object({
@@ -35,17 +37,20 @@ export const CreateManyContactsSchema = z
     const organizationSet = new Set<string>();
     const userSet = new Set<string>();
     const dealSet = new Set<string>();
+    const taskSet = new Set<string>();
 
     for (const contact of data.contacts) {
       contact.organizationIds.forEach((id) => organizationSet.add(id));
       contact.userIds.forEach((id) => userSet.add(id));
       contact.dealIds.forEach((id) => dealSet.add(id));
+      contact.taskIds.forEach((id) => taskSet.add(id));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, allColumns] = await Promise.all([
+    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
       getOrganizationRepo().findIds(organizationSet),
       getCompanyRepo().findIds(userSet),
       getDealRepo().findIds(dealSet),
+      getTaskRepo().findIds(taskSet),
       getCustomColumnRepo().findByEntityType(EntityType.contact),
     ]);
 
@@ -54,6 +59,7 @@ export const CreateManyContactsSchema = z
       validateOrganizationIds(contact.organizationIds, validOrgIdsSet, ctx, ["contacts", i, "organizationIds"]);
       validateUserIds(contact.userIds, validUserIdsSet, ctx, ["contacts", i, "userIds"]);
       validateDealIds(contact.dealIds, validDealIdsSet, ctx, ["contacts", i, "dealIds"]);
+      validateTaskIds(contact.taskIds, validTaskIdsSet, ctx, ["contacts", i, "taskIds"]);
       validateCustomFieldValues(contact.customFieldValues, allColumns, ctx, ["contacts", i, "customFieldValues"]);
       contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
     }
@@ -69,6 +75,7 @@ export class CreateManyContactsInteractor extends BaseInteractor<CreateManyConta
     private repo: CreateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -81,17 +88,20 @@ export class CreateManyContactsInteractor extends BaseInteractor<CreateManyConta
   async invoke(data: CreateManyContactsData): Validated<ContactDto[]> {
     const relatedOrganizationIds = unique(data.contacts.flatMap((contact) => contact.organizationIds));
     const relatedDealIds = unique(data.contacts.flatMap((contact) => contact.dealIds));
+    const relatedTaskIds = unique(data.contacts.flatMap((contact) => contact.taskIds));
 
-    const [previousOrganizations, previousDeals] = await Promise.all([
+    const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const contacts = await Promise.all(data.contacts.map((contactData) => this.repo.createContactOrThrow(contactData)));
 
-    const [currentOrganizations, currentDeals] = await Promise.all([
+    const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
       this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -110,6 +120,15 @@ export class CreateManyContactsInteractor extends BaseInteractor<CreateManyConta
           payload: {
             deal,
             changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

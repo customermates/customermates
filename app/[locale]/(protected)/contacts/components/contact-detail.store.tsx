@@ -23,6 +23,7 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
         organizationIds: [],
         userIds: [],
         dealIds: [],
+        taskIds: [],
         customFieldValues: [],
       },
       Resource.contacts,
@@ -46,6 +47,7 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
         organizationIds: entity.organizations.map((org) => org.id),
         userIds: entity.users.map((user) => user.id),
         dealIds: entity.deals.map((deal) => deal.id),
+        taskIds: entity.tasks.map((task) => task.id),
       };
     }
 

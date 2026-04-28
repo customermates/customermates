@@ -17,6 +17,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { AppChipStack } from "@/components/chip/app-chip-stack";
 
 type Props = {
   tasks: GetResult<TaskDto>;
@@ -59,9 +60,49 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
           );
         },
       },
+      {
+        id: "contacts",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.contacts.map((c) => ({ id: c.id, label: `${c.firstName} ${c.lastName}`.trim() }))}
+            size="sm"
+            onChipClick={(c) => openEntity(EntityType.contact, c.id)}
+          />
+        ),
+      },
+      {
+        id: "organizations",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.organizations.map((o) => ({ id: o.id, label: o.name }))}
+            size="sm"
+            onChipClick={(o) => openEntity(EntityType.organization, o.id)}
+          />
+        ),
+      },
+      {
+        id: "deals",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.deals.map((d) => ({ id: d.id, label: d.name }))}
+            size="sm"
+            onChipClick={(d) => openEntity(EntityType.deal, d.id)}
+          />
+        ),
+      },
+      {
+        id: "services",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.services.map((s) => ({ id: s.id, label: s.name }))}
+            size="sm"
+            onChipClick={(s) => openEntity(EntityType.service, s.id)}
+          />
+        ),
+      },
       ...standardTailColumns({ store: tasksStore, intlStore, userModalStore }),
     ];
-  }, [t, tasksStore, tasksStore.customColumns, intlStore, userModalStore]);
+  }, [t, tasksStore.customColumns, intlStore, userModalStore, openEntity]);
 
   return (
     <DataViewContainer

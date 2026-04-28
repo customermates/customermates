@@ -5,12 +5,21 @@ import { useTranslations } from "next-intl";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { getUsersAction } from "../../company/actions";
+import { createContactByNameAction, getContactsAction } from "../../contacts/actions";
+import { createOrganizationByNameAction, getOrganizationsAction } from "../../organizations/actions";
+import { createDealByNameAction, getDealsAction } from "../../deals/actions";
+import { createServiceByNameAction, getServicesAction } from "../../services/actions";
 
 import { EntityDetailBody } from "@/components/modal/entity-detail-body";
+import { OpenRelationLink } from "@/components/modal/open-relation-link";
+import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
+import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormInput } from "@/components/forms/form-input";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
+import { AppChip } from "@/components/chip/app-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
 
@@ -21,6 +30,7 @@ type Props = {
 export const TaskDetailView = observer(function TaskDetailView({ layout = "drawer" }: Props) {
   const t = useTranslations("");
   const { taskDetailStore, userModalStore, userStore } = useRootStore();
+  const openEntity = useOpenEntity();
   const { form, fetchedEntity, customColumns, isEditingCustomField, isCustomTask, isDisabled, systemTaskAlertConfig } =
     taskDetailStore;
 
@@ -41,6 +51,75 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
       )}
 
       <FormInput required disabled={isDisabled || (!isCustomTask && form.id !== undefined)} id="name" />
+
+      {userStore.canAccess(Resource.contacts) && (
+        <FormAutocompleteAvatar
+          getItems={getContactsAction}
+          id="contactIds"
+          items={fetchedEntity?.contacts ?? []}
+          labelEndAddon={
+            <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="task" targetEntityType="contact" />
+          }
+          selectionMode="multiple"
+          onChipClick={(id) => openEntity(EntityType.contact, id)}
+          onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
+        />
+      )}
+
+      {userStore.canAccess(Resource.organizations) && (
+        <FormAutocomplete
+          getItems={getOrganizationsAction}
+          id="organizationIds"
+          items={fetchedEntity?.organizations ?? []}
+          labelEndAddon={
+            <OpenRelationLink
+              currentEntityId={fetchedEntity?.id}
+              currentEntityType="task"
+              targetEntityType="organization"
+            />
+          }
+          renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
+          selectionMode="multiple"
+          onChipClick={(id) => openEntity(EntityType.organization, id)}
+          onCreate={(name) => createOrganizationByNameAction(name, userStore.user?.id)}
+        >
+          {(org) => FormAutocompleteItem({ children: org.name })}
+        </FormAutocomplete>
+      )}
+
+      {userStore.canAccess(Resource.deals) && (
+        <FormAutocomplete
+          getItems={getDealsAction}
+          id="dealIds"
+          items={fetchedEntity?.deals ?? []}
+          labelEndAddon={
+            <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="task" targetEntityType="deal" />
+          }
+          renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
+          selectionMode="multiple"
+          onChipClick={(id) => openEntity(EntityType.deal, id)}
+          onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
+        >
+          {(deal) => FormAutocompleteItem({ children: deal.name })}
+        </FormAutocomplete>
+      )}
+
+      {userStore.canAccess(Resource.services) && (
+        <FormAutocomplete
+          getItems={getServicesAction}
+          id="serviceIds"
+          items={fetchedEntity?.services ?? []}
+          labelEndAddon={
+            <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="task" targetEntityType="service" />
+          }
+          renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
+          selectionMode="multiple"
+          onChipClick={(id) => openEntity(EntityType.service, id)}
+          onCreate={(name) => createServiceByNameAction(name, userStore.user?.id)}
+        >
+          {(service) => FormAutocompleteItem({ children: service.name })}
+        </FormAutocomplete>
+      )}
 
       {customColumns.map((column, index) => (
         <CustomFieldValueInput key={column.id} column={column} index={index} isEditing={isEditingCustomField} />

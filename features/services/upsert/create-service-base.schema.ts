@@ -8,5 +8,6 @@ export const BaseCreateServiceSchema = z.object({
   notes: NotesSchema,
   userIds: z.array(z.uuid()).optional().default([]),
   dealIds: z.array(z.uuid()).optional().default([]),
+  taskIds: z.array(z.uuid()).optional().default([]),
   customFieldValues: z.array(CustomFieldValueSchema).optional().default([]),
 });

@@ -1,6 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import { TaskType } from "@/generated/prisma";
 
 export const NotesSchema = z.any().nullable().optional().describe("Markdown content");
 
@@ -33,6 +34,12 @@ export const ServiceReferenceSchema = z.object({
   name: z.string(),
   amount: z.number(),
   quantity: z.number(),
+});
+
+export const TaskReferenceSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  type: z.enum(TaskType),
 });
 
 export const CustomFieldValueSchema = z.object({

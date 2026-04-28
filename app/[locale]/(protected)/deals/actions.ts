@@ -47,6 +47,7 @@ export async function createDealByNameAction(name: string, userId: string | null
     userIds: userId ? [userId] : [],
     contactIds: [],
     services: [],
+    taskIds: [],
     customFieldValues: [],
   });
 

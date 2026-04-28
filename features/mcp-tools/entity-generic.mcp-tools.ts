@@ -34,14 +34,14 @@ const EntitySchema = z
   .describe("Entity type (one of: contact, organization, deal, service, task)");
 
 const RelationSchema = z
-  .enum(["organizations", "contacts", "deals", "services", "users"])
+  .enum(["organizations", "contacts", "deals", "services", "tasks", "users"])
   .describe(
     "Relationship to modify. Allowed pairs: " +
-      "contact -> organizations|users|deals; " +
-      "organization -> contacts|users|deals; " +
-      "deal -> organizations|users|contacts|services; " +
-      "service -> users|deals; " +
-      "task -> users",
+      "contact -> organizations|users|deals|tasks; " +
+      "organization -> contacts|users|deals|tasks; " +
+      "deal -> organizations|users|contacts|services|tasks; " +
+      "service -> users|deals|tasks; " +
+      "task -> users|contacts|organizations|deals|services",
   );
 
 const FilterEntitySchema = z.object({
@@ -159,11 +159,11 @@ const singularLabels: Record<Entity, string> = {
 };
 
 const allowedRelations: Record<Entity, Relation[]> = {
-  contact: ["organizations", "users", "deals"],
-  organization: ["contacts", "users", "deals"],
-  deal: ["organizations", "users", "contacts", "services"],
-  service: ["users", "deals"],
-  task: ["users"],
+  contact: ["organizations", "users", "deals", "tasks"],
+  organization: ["contacts", "users", "deals", "tasks"],
+  deal: ["organizations", "users", "contacts", "services", "tasks"],
+  service: ["users", "deals", "tasks"],
+  task: ["users", "contacts", "organizations", "deals", "services"],
 };
 
 const relationFieldName: Record<Relation, string> = {
@@ -171,8 +171,16 @@ const relationFieldName: Record<Relation, string> = {
   contacts: "contactIds",
   deals: "dealIds",
   services: "services",
+  tasks: "taskIds",
   users: "userIds",
 };
+
+// Task accepts `serviceIds` (no quantity) instead of `services` for its
+// service relation. All other (entity, relation) pairs match `relationFieldName`.
+function fieldNameFor(entity: Entity, relation: Relation): string {
+  if (entity === "task" && relation === "services") return "serviceIds";
+  return relationFieldName[relation];
+}
 
 type ConfigResult = { ok: true; data: unknown } | { ok: false; error: z.ZodError };
 
@@ -412,8 +420,9 @@ export const linkEntitiesTool = {
     "Add ids to a relationship on a single source entity, WITHOUT touching existing links. " +
     "Required: entity, sourceId, relation, ids. " +
     "Allowed (entity, relation) pairs: " +
-    "contact -> organizations|users|deals; organization -> contacts|users|deals; " +
-    "deal -> organizations|users|contacts|services; service -> users|deals; task -> users. " +
+    "contact -> organizations|users|deals|tasks; organization -> contacts|users|deals|tasks; " +
+    "deal -> organizations|users|contacts|services|tasks; service -> users|deals|tasks; " +
+    "task -> users|contacts|organizations|deals|services. " +
     "For deal -> services, new ids are added with quantity 1 (use update_deals to set exact quantities). " +
     "Idempotent: linking an already-linked id is a no-op.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
@@ -439,7 +448,7 @@ export const linkEntitiesTool = {
 
     const current = currentRelationIds(loaded.entity, relation);
     const merged = Array.from(new Set([...current, ...ids]));
-    const payload = { id: sourceId, [relationFieldName[relation]]: merged };
+    const payload = { id: sourceId, [fieldNameFor(entity, relation)]: merged };
     const result = await updateEntityById(entity, payload);
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Linked ${ids.length} ${relation} to ${entity} ${sourceId} (was ${current.length}, now ${merged.length})`;
@@ -452,8 +461,9 @@ export const unlinkEntitiesTool = {
     "Remove ids from a relationship on a single source entity, WITHOUT touching other existing links. " +
     "Required: entity, sourceId, relation, ids. " +
     "Allowed (entity, relation) pairs: " +
-    "contact -> organizations|users|deals; organization -> contacts|users|deals; " +
-    "deal -> organizations|users|contacts|services; service -> users|deals; task -> users. " +
+    "contact -> organizations|users|deals|tasks; organization -> contacts|users|deals|tasks; " +
+    "deal -> organizations|users|contacts|services|tasks; service -> users|deals|tasks; " +
+    "task -> users|contacts|organizations|deals|services. " +
     "Idempotent: unlinking an id that was not linked is a no-op. " +
     "This does NOT delete the related entity; it only removes the link.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
@@ -481,7 +491,7 @@ export const unlinkEntitiesTool = {
 
     const current = currentRelationIds(loaded.entity, relation);
     const kept = current.filter((id) => !removeSet.has(id));
-    const payload = { id: sourceId, [relationFieldName[relation]]: kept };
+    const payload = { id: sourceId, [fieldNameFor(entity, relation)]: kept };
     const result = await updateEntityById(entity, payload);
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Unlinked ${ids.length} ${relation} from ${entity} ${sourceId} (was ${current.length}, now ${kept.length})`;

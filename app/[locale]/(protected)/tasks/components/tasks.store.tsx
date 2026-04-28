@@ -14,9 +14,29 @@ export class TasksStore extends BaseDataViewStore<TaskDto> {
     super(rootStore, Resource.tasks, EntityType.task);
   }
 
+  get canAccessContacts() {
+    return this.rootStore.userStore.canAccess(Resource.contacts);
+  }
+
+  get canAccessOrganizations() {
+    return this.rootStore.userStore.canAccess(Resource.organizations);
+  }
+
+  get canAccessDeals() {
+    return this.rootStore.userStore.canAccess(Resource.deals);
+  }
+
+  get canAccessServices() {
+    return this.rootStore.userStore.canAccess(Resource.services);
+  }
+
   get columnsDefinition() {
     const columns: (TableColumn | false)[] = [
       { uid: "name", sortable: true },
+      this.canAccessContacts && { uid: "contacts" },
+      this.canAccessOrganizations && { uid: "organizations" },
+      this.canAccessDeals && { uid: "deals" },
+      this.canAccessServices && { uid: "services" },
       ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },

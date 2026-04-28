@@ -21,6 +21,7 @@ export class ServiceDetailStore extends BaseCustomColumnEntityModalStore<
         notes: null,
         userIds: [],
         dealIds: [],
+        taskIds: [],
         customFieldValues: [],
       },
       Resource.services,
@@ -43,6 +44,7 @@ export class ServiceDetailStore extends BaseCustomColumnEntityModalStore<
         ...baseData,
         userIds: entity.users.map((user) => user.id),
         dealIds: entity.deals.map((deal) => deal.id),
+        taskIds: entity.tasks.map((task) => task.id),
       };
     }
 

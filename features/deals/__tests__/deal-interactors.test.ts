@@ -39,6 +39,7 @@ function makeDealDto(overrides: Record<string, unknown> = {}) {
     updatedAt: new Date("2025-01-01"),
     organizations: [],
     users: [],
+    tasks: [],
     contacts: [],
     services: [],
     customFieldValues: [],
@@ -60,6 +61,7 @@ function makeContactDto(id: string) {
     updatedAt: new Date("2025-01-01"),
     organizations: [],
     users: [],
+    tasks: [],
     deals: [],
     customFieldValues: [],
   };
@@ -75,6 +77,7 @@ function makeServiceDto(id: string) {
     updatedAt: new Date("2025-01-01"),
     deals: [],
     users: [],
+    tasks: [],
     customFieldValues: [],
   };
 }
@@ -84,6 +87,7 @@ describe("CreateDealInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -102,6 +106,9 @@ describe("CreateDealInteractor", () => {
     mockServiceRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -116,6 +123,7 @@ describe("CreateDealInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -129,6 +137,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -149,6 +158,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -171,6 +181,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -205,6 +216,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [CONTACT_ID_1],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -239,6 +251,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [{ serviceId: SERVICE_ID_1, quantity: 2 }],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -265,6 +278,7 @@ describe("CreateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -283,6 +297,7 @@ describe("UpdateDealInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -325,6 +340,9 @@ describe("UpdateDealInteractor", () => {
         .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [] }])
         .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [{ id: DEAL_ID }] }]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -339,6 +357,7 @@ describe("UpdateDealInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -353,6 +372,7 @@ describe("UpdateDealInteractor", () => {
       userIds: [],
       contactIds: [CONTACT_ID_1],
       services: [{ serviceId: SERVICE_ID_1, quantity: 2 }],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -377,6 +397,7 @@ describe("UpdateDealInteractor", () => {
       userIds: [],
       contactIds: [CONTACT_ID_1],
       services: [{ serviceId: SERVICE_ID_1, quantity: 2 }],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -431,6 +452,7 @@ describe("UpdateDealInteractor", () => {
       userIds: [],
       contactIds: [],
       services: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -443,6 +465,7 @@ describe("DeleteDealInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -468,6 +491,9 @@ describe("DeleteDealInteractor", () => {
     mockServiceRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeServiceDto(SERVICE_ID_1)]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -482,6 +508,7 @@ describe("DeleteDealInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -567,6 +594,7 @@ describe("CreateManyDealsInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -582,6 +610,7 @@ describe("CreateManyDealsInteractor", () => {
     mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -592,6 +621,7 @@ describe("CreateManyDealsInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -601,8 +631,24 @@ describe("CreateManyDealsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       deals: [
-        { name: "Deal One", organizationIds: [], userIds: [], contactIds: [], services: [], customFieldValues: [] },
-        { name: "Deal Two", organizationIds: [], userIds: [], contactIds: [], services: [], customFieldValues: [] },
+        {
+          name: "Deal One",
+          organizationIds: [],
+          userIds: [],
+          contactIds: [],
+          services: [],
+          taskIds: [],
+          customFieldValues: [],
+        },
+        {
+          name: "Deal Two",
+          organizationIds: [],
+          userIds: [],
+          contactIds: [],
+          services: [],
+          taskIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -639,6 +685,7 @@ describe("CreateManyDealsInteractor", () => {
           userIds: [],
           contactIds: [],
           services: [],
+          taskIds: [],
           customFieldValues: [],
         },
       ],
@@ -663,7 +710,15 @@ describe("CreateManyDealsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       deals: [
-        { name: "Deal One", organizationIds: [], userIds: [], contactIds: [], services: [], customFieldValues: [] },
+        {
+          name: "Deal One",
+          organizationIds: [],
+          userIds: [],
+          contactIds: [],
+          services: [],
+          taskIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -674,8 +729,24 @@ describe("CreateManyDealsInteractor", () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       deals: [
-        { name: "Deal One", organizationIds: [], userIds: [], contactIds: [], services: [], customFieldValues: [] },
-        { name: "Deal Two", organizationIds: [], userIds: [], contactIds: [], services: [], customFieldValues: [] },
+        {
+          name: "Deal One",
+          organizationIds: [],
+          userIds: [],
+          contactIds: [],
+          services: [],
+          taskIds: [],
+          customFieldValues: [],
+        },
+        {
+          name: "Deal Two",
+          organizationIds: [],
+          userIds: [],
+          contactIds: [],
+          services: [],
+          taskIds: [],
+          customFieldValues: [],
+        },
       ],
     });
 
@@ -691,6 +762,7 @@ describe("UpdateManyDealsInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -709,6 +781,7 @@ describe("UpdateManyDealsInteractor", () => {
     mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -719,6 +792,7 @@ describe("UpdateManyDealsInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -863,6 +937,7 @@ describe("DeleteManyDealsInteractor", () => {
   let mockOrgRepo: any;
   let mockContactRepo: any;
   let mockServiceRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -883,6 +958,7 @@ describe("DeleteManyDealsInteractor", () => {
     mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeOrgDto(ORG_ID_1)]) };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]) };
     mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeServiceDto(SERVICE_ID_1)]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
@@ -893,6 +969,7 @@ describe("DeleteManyDealsInteractor", () => {
       mockOrgRepo,
       mockContactRepo,
       mockServiceRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );

@@ -6,7 +6,14 @@ import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor } from "@/co
 import { BaseCreateDealSchema } from "@/features/deals/upsert/create-deal-base.schema";
 import { BaseUpdateDealSchema } from "@/features/deals/upsert/update-deal-base.schema";
 
-const DEAL_WIPE_GUARDED_FIELDS = ["organizationIds", "userIds", "contactIds", "services", "customFieldValues"] as const;
+const DEAL_WIPE_GUARDED_FIELDS = [
+  "organizationIds",
+  "userIds",
+  "contactIds",
+  "services",
+  "taskIds",
+  "customFieldValues",
+] as const;
 
 const CreateDealsSchema = z.object({
   deals: z.array(BaseCreateDealSchema).min(1).max(100),
@@ -21,8 +28,8 @@ export const createDealsTool = {
   description:
     "Create up to 100 deals in one call. " +
     "Required per item: name. " +
-    "Optional per item: notes, organizationIds, userIds, contactIds, services (array of { serviceId, quantity }), customFieldValues. " +
-    "You can pass organizationIds/userIds/contactIds/services directly in create so linked deals are created in one call. " +
+    "Optional per item: notes, organizationIds, userIds, contactIds, services (array of { serviceId, quantity }), taskIds, customFieldValues. " +
+    "You can pass organizationIds/userIds/contactIds/services/taskIds directly in create so linked deals are created in one call. " +
     "Prereq: call get_entity_configuration for custom-column ids. " +
     "Returns the list of created deal ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -41,8 +48,8 @@ export const updateDealsTool = {
   description:
     "Partial update for up to 100 deals in one call. " +
     "Required per item: id. " +
-    "Optional per item: name, notes, organizationIds, userIds, contactIds, services (array of { serviceId, quantity }), customFieldValues. " +
-    "WARNING: if you pass organizationIds, userIds, contactIds, or services, the array REPLACES existing links (any id not in the array is unlinked). " +
+    "Optional per item: name, notes, organizationIds, userIds, contactIds, services (array of { serviceId, quantity }), taskIds, customFieldValues. " +
+    "WARNING: if you pass organizationIds, userIds, contactIds, services, or taskIds, the array REPLACES existing links (any id not in the array is unlinked). " +
     "To ADD or REMOVE a single link without touching the rest, use link_entities or unlink_entities instead. " +
     NO_NULL_WIPE_WARNING +
     " Idempotent: same payload produces the same state.",

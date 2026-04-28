@@ -42,6 +42,7 @@ function makeContactDto(overrides: Record<string, unknown> = {}) {
     organizations: [],
     users: [],
     deals: [],
+    tasks: [],
     customFieldValues: [],
     ...overrides,
   };
@@ -64,6 +65,7 @@ function makeDealDto(id: string) {
     users: [],
     contacts: [],
     services: [],
+    tasks: [],
     customFieldValues: [],
   };
 }
@@ -72,6 +74,7 @@ describe("CreateContactInteractor", () => {
   let mockCreateRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -87,6 +90,9 @@ describe("CreateContactInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -96,7 +102,14 @@ describe("CreateContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateContactInteractor(mockCreateRepo, mockOrgRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new CreateContactInteractor(
+      mockCreateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes CONTACT_CREATED event with correct entityId and payload", async () => {
@@ -108,6 +121,7 @@ describe("CreateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -129,6 +143,7 @@ describe("CreateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -154,6 +169,7 @@ describe("CreateContactInteractor", () => {
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -199,6 +215,7 @@ describe("CreateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -226,6 +243,7 @@ describe("CreateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -245,6 +263,7 @@ describe("DeleteContactInteractor", () => {
   let mockDeleteRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -266,6 +285,9 @@ describe("DeleteContactInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -275,7 +297,14 @@ describe("DeleteContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteContactInteractor(mockDeleteRepo, mockOrgRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new DeleteContactInteractor(
+      mockDeleteRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes CONTACT_DELETED event with correct entityId and payload", async () => {
@@ -349,6 +378,7 @@ describe("UpdateContactInteractor", () => {
   let mockUpdateRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -383,6 +413,9 @@ describe("UpdateContactInteractor", () => {
         .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [] }])
         .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [{ id: CONTACT_ID }] }]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -392,7 +425,14 @@ describe("UpdateContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateContactInteractor(mockUpdateRepo, mockOrgRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new UpdateContactInteractor(
+      mockUpdateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes CONTACT_UPDATED event with entityId and changes payload", async () => {
@@ -405,6 +445,7 @@ describe("UpdateContactInteractor", () => {
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -430,6 +471,7 @@ describe("UpdateContactInteractor", () => {
       organizationIds: [ORG_ID_1, ORG_ID_2],
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -458,6 +500,7 @@ describe("UpdateContactInteractor", () => {
       organizationIds: [ORG_ID_1],
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -486,6 +529,7 @@ describe("UpdateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -502,6 +546,7 @@ describe("UpdateContactInteractor", () => {
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -514,6 +559,7 @@ describe("CreateManyContactsInteractor", () => {
   let mockCreateRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -532,6 +578,9 @@ describe("CreateManyContactsInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -545,6 +594,7 @@ describe("CreateManyContactsInteractor", () => {
       mockCreateRepo,
       mockOrgRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -561,6 +611,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
         {
@@ -570,6 +621,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
       ],
@@ -609,6 +661,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [ORG_ID_1],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
       ],
@@ -640,6 +693,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
         {
@@ -649,6 +703,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
       ],
@@ -668,6 +723,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
         {
@@ -677,6 +733,7 @@ describe("CreateManyContactsInteractor", () => {
           organizationIds: [],
           userIds: [],
           dealIds: [],
+          taskIds: [],
           customFieldValues: [],
         },
       ],
@@ -693,6 +750,7 @@ describe("UpdateManyContactsInteractor", () => {
   let mockUpdateRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -714,6 +772,9 @@ describe("UpdateManyContactsInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -727,6 +788,7 @@ describe("UpdateManyContactsInteractor", () => {
       mockUpdateRepo,
       mockOrgRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );
@@ -844,6 +906,7 @@ describe("DeleteManyContactsInteractor", () => {
   let mockDeleteRepo: any;
   let mockOrgRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -866,6 +929,9 @@ describe("DeleteManyContactsInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -879,6 +945,7 @@ describe("DeleteManyContactsInteractor", () => {
       mockDeleteRepo,
       mockOrgRepo,
       mockDealRepo,
+      mockTaskRepo,
       mockEventService,
       mockWidgetService,
     );

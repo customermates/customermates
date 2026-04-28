@@ -46,6 +46,7 @@ export async function createOrganizationByNameAction(name: string, userId: strin
     contactIds: [],
     userIds: userId ? [userId] : [],
     dealIds: [],
+    taskIds: [],
     customFieldValues: [],
   });
 

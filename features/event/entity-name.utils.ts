@@ -2,24 +2,18 @@ import type { DomainEventMap } from "./domain-events";
 
 import { TaskType } from "@/generated/prisma";
 
+import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
+
 import { DomainEvent } from "./domain-events";
-
-const SYSTEM_TASK_NAME_TRANSLATION_KEYS: Record<TaskType, string> = {
-  userPendingAuthorization: "Common.systemTasks.userPendingAuthorization.title",
-  custom: "",
-};
-
-function getSystemTaskNameTranslationKey(taskType: TaskType | null | undefined): string | null {
-  if (!taskType || taskType === TaskType.custom) return null;
-  return SYSTEM_TASK_NAME_TRANSLATION_KEYS[taskType] || null;
-}
 
 function getTaskName(task: { name: string; type: TaskType }, translate?: (key: string) => string): string {
   if (task.type !== TaskType.custom && translate) {
     const translationKey = getSystemTaskNameTranslationKey(task.type);
     if (translationKey) return translate(translationKey);
   }
-  return task.name;
+  // System tasks store an empty `name`; fall back to the type so audit log /
+  // webhook entityName has a stable identifier when no translator is available.
+  return task.name || (task.type !== TaskType.custom ? task.type : "");
 }
 
 const entityNameExtractors: {

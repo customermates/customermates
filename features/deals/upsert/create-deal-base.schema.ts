@@ -17,5 +17,6 @@ export const BaseCreateDealSchema = z.object({
     )
     .optional()
     .default([]),
+  taskIds: z.array(z.uuid()).optional().default([]),
   customFieldValues: z.array(CustomFieldValueSchema).optional().default([]),
 });

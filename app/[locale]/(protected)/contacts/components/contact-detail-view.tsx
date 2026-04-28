@@ -10,6 +10,8 @@ import { createOrganizationByNameAction, getOrganizationsAction } from "../../or
 import { getUsersAction } from "../../company/actions";
 
 import { EntityDetailBody } from "@/components/modal/entity-detail-body";
+import { OpenRelationLink } from "@/components/modal/open-relation-link";
+import { TasksAutocompleteField } from "@/components/modal/tasks-autocomplete-field";
 import { AppChip } from "@/components/chip/app-chip";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
 import { FormInput } from "@/components/forms/form-input";
@@ -58,6 +60,13 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
           getItems={getOrganizationsAction}
           id="organizationIds"
           items={fetchedEntity?.organizations ?? []}
+          labelEndAddon={
+            <OpenRelationLink
+              currentEntityId={fetchedEntity?.id}
+              currentEntityType="contact"
+              targetEntityType="organization"
+            />
+          }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
           onChipClick={(id) => openEntity(EntityType.organization, id)}
@@ -72,6 +81,9 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
+          labelEndAddon={
+            <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="contact" targetEntityType="deal" />
+          }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
           onChipClick={(id) => openEntity(EntityType.deal, id)}
@@ -84,6 +96,10 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
       {customColumns.map((column, index) => (
         <CustomFieldValueInput key={column.id} column={column} index={index} isEditing={isEditingCustomField} />
       ))}
+
+      {userStore.canAccess(Resource.tasks) && (
+        <TasksAutocompleteField entityId={fetchedEntity?.id} entityType="contact" tasks={fetchedEntity?.tasks ?? []} />
+      )}
 
       <FormAutocompleteAvatar
         getItems={getUsersAction}

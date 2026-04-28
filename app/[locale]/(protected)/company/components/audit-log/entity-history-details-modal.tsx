@@ -25,7 +25,8 @@ import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, TaskType } from "@/generated/prisma";
+import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 
 type AvatarItem = { id: string; firstName: string; lastName: string; avatarUrl?: string | null; email?: string | null };
 
@@ -85,6 +86,17 @@ export const EntityHistoryDetailsModal = observer(() => {
                   ? `${item.name} – ${intlStore.formatCurrency(item.amount * item.quantity)}`
                   : item.name,
             }))}
+            size="sm"
+          />
+        );
+      case "tasks":
+        return (
+          <AppChipStack
+            items={(value as { id: string; name: string; type: TaskType }[]).map((task) => {
+              const nameKey = getSystemTaskNameTranslationKey(task.type);
+              const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
+              return { id: task.id, label };
+            })}
             size="sm"
           />
         );

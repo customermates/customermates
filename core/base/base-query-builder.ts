@@ -65,6 +65,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.dealIds]: "deals.dealId",
   [FilterFieldKey.organizationIds]: "organizations.organizationId",
   [FilterFieldKey.contactIds]: "contacts.contactId",
+  [FilterFieldKey.taskIds]: "tasks.taskId",
   [FilterFieldKey.emails]: "emails",
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",

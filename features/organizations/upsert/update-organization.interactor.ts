@@ -2,6 +2,7 @@ import type { UpdateOrganizationRepo } from "./update-organization.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -12,6 +13,7 @@ import { validateContactIds } from "../../contacts/validate-contact-ids";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { type OrganizationDto, OrganizationDtoSchema } from "../organization.schema";
 
 import { BaseUpdateOrganizationSchema } from "./update-organization-base.schema";
@@ -25,26 +27,37 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo } from "@/core/di";
+import {
+  getCompanyRepo,
+  getContactRepo,
+  getCustomColumnRepo,
+  getDealRepo,
+  getOrganizationRepo,
+  getTaskRepo,
+} from "@/core/di";
 
 export const UpdateOrganizationSchema = BaseUpdateOrganizationSchema.superRefine(async (data, ctx) => {
   const contactSet = new Set(data.contactIds ?? []);
   const userSet = new Set(data.userIds ?? []);
   const dealSet = new Set(data.dealIds ?? []);
   const organizationSet = new Set([data.id]);
+  const taskSet = new Set(data.taskIds ?? []);
 
-  const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, allColumns] = await Promise.all([
-    getContactRepo().findIds(contactSet),
-    getCompanyRepo().findIds(userSet),
-    getDealRepo().findIds(dealSet),
-    getOrganizationRepo().findIds(organizationSet),
-    getCustomColumnRepo().findByEntityType(EntityType.organization),
-  ]);
+  const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validOrgIdsSet, validTaskIdsSet, allColumns] =
+    await Promise.all([
+      getContactRepo().findIds(contactSet),
+      getCompanyRepo().findIds(userSet),
+      getDealRepo().findIds(dealSet),
+      getOrganizationRepo().findIds(organizationSet),
+      getTaskRepo().findIds(taskSet),
+      getCustomColumnRepo().findByEntityType(EntityType.organization),
+    ]);
 
   validateOrganizationIds(data.id, validOrgIdsSet, ctx, ["id"]);
   validateContactIds(data.contactIds, validContactIdsSet, ctx, ["contactIds"]);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
   validateDealIds(data.dealIds, validDealIdsSet, ctx, ["dealIds"]);
+  validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
   validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
   data.notes = validateNotes(data.notes, ctx, ["notes"]);
 });
@@ -59,6 +72,7 @@ export class UpdateOrganizationInteractor extends BaseInteractor<UpdateOrganizat
     private organizationsRepo: UpdateOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -79,17 +93,23 @@ export class UpdateOrganizationInteractor extends BaseInteractor<UpdateOrganizat
       previousOrganization.deals.map((it) => it.id),
       data.dealIds,
     );
+    const relatedTaskIds = unique(
+      previousOrganization.tasks.map((it) => it.id),
+      data.taskIds,
+    );
 
-    const [previousContacts, previousDeals] = await Promise.all([
+    const [previousContacts, previousDeals, previousTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const organization = await this.organizationsRepo.updateOrganizationOrThrow(data);
 
-    const [currentContacts, currentDeals] = await Promise.all([
+    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const changes = calculateChanges(previousOrganization, organization);
@@ -109,6 +129,15 @@ export class UpdateOrganizationInteractor extends BaseInteractor<UpdateOrganizat
           entityId: deal.id,
           payload: {
             deal,
+            changes,
+          },
+        }),
+      ),
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "organizations", (task, changes) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
             changes,
           },
         }),

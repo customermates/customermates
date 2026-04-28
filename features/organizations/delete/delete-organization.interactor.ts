@@ -2,6 +2,7 @@ import type { DeleteOrganizationRepo } from "./delete-organization.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -36,6 +37,7 @@ export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizat
     private repo: DeleteOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -49,17 +51,20 @@ export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizat
 
     const relatedContactIds = unique(previousOrganization.contacts.map((it) => it.id));
     const relatedDealIds = unique(previousOrganization.deals.map((it) => it.id));
+    const relatedTaskIds = unique(previousOrganization.tasks.map((it) => it.id));
 
-    const [previousContacts, previousDeals] = await Promise.all([
+    const [previousContacts, previousDeals, previousTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     const organization = await this.repo.deleteOrganizationOrThrow(data.id);
 
-    const [currentContacts, currentDeals] = await Promise.all([
+    const [currentContacts, currentDeals, currentTasks] = await Promise.all([
       this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
       this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -78,6 +83,15 @@ export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizat
           payload: {
             deal,
             changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

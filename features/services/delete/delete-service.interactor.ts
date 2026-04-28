@@ -1,6 +1,7 @@
 import type { DeleteServiceRepo } from "./delete-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -34,6 +35,7 @@ export class DeleteServiceInteractor extends BaseInteractor<DeleteServiceData, s
   constructor(
     private repo: DeleteServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -46,12 +48,19 @@ export class DeleteServiceInteractor extends BaseInteractor<DeleteServiceData, s
     const previousService = await this.repo.getOrThrowUnscoped(data.id);
 
     const relatedDealIds = unique(previousService.deals.map((it) => it.id));
+    const relatedTaskIds = unique(previousService.tasks.map((it) => it.id));
 
-    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [previousDeals, previousTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     const service = await this.repo.deleteServiceOrThrow(data.id);
 
-    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [currentDeals, currentTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     await Promise.all([
       ...currentDeals.map((deal, index) =>
@@ -60,6 +69,15 @@ export class DeleteServiceInteractor extends BaseInteractor<DeleteServiceData, s
           payload: {
             deal,
             changes: calculateChanges(previousDeals[index], deal),
+          },
+        }),
+      ),
+      ...currentTasks.map((task, index) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes: calculateChanges(previousTasks[index], task),
           },
         }),
       ),

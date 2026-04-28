@@ -6,7 +6,7 @@ import { getCreateManyServicesInteractor, getUpdateManyServicesInteractor } from
 import { BaseCreateServiceSchema } from "@/features/services/upsert/create-service-base.schema";
 import { BaseUpdateServiceSchema } from "@/features/services/upsert/update-service-base.schema";
 
-const SERVICE_WIPE_GUARDED_FIELDS = ["userIds", "dealIds", "customFieldValues"] as const;
+const SERVICE_WIPE_GUARDED_FIELDS = ["userIds", "dealIds", "taskIds", "customFieldValues"] as const;
 
 const CreateServicesSchema = z.object({
   services: z.array(BaseCreateServiceSchema).min(1).max(100),
@@ -21,7 +21,8 @@ export const createServicesTool = {
   description:
     "Create up to 100 services in one call. " +
     "Required per item: name, amount (must be > 0). " +
-    "Optional per item: notes, userIds, dealIds, customFieldValues. " +
+    "Optional per item: notes, userIds, dealIds, taskIds, customFieldValues. " +
+    "You can pass userIds/dealIds/taskIds directly in create so linked services are created in one call. " +
     "Prereq: call get_entity_configuration for custom-column ids. " +
     "Returns the list of created service ids and names.",
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -40,8 +41,8 @@ export const updateServicesTool = {
   description:
     "Partial update for up to 100 services in one call. " +
     "Required per item: id. " +
-    "Optional per item: name, amount, notes, userIds, dealIds, customFieldValues. " +
-    "WARNING: if you pass userIds or dealIds, the array REPLACES existing links (any id not in the array is unlinked). " +
+    "Optional per item: name, amount, notes, userIds, dealIds, taskIds, customFieldValues. " +
+    "WARNING: if you pass userIds, dealIds, or taskIds, the array REPLACES existing links (any id not in the array is unlinked). " +
     "To ADD or REMOVE a single link without touching the rest, use link_entities or unlink_entities instead. " +
     NO_NULL_WIPE_WARNING +
     " Idempotent: same payload produces the same state.",

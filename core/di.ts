@@ -247,6 +247,7 @@ export const getCreateContactInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -256,6 +257,7 @@ export const getCreateManyContactsInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -265,6 +267,7 @@ export const getUpdateContactInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -274,6 +277,7 @@ export const getUpdateManyContactsInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -283,6 +287,7 @@ export const getDeleteContactInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -292,6 +297,7 @@ export const getDeleteManyContactsInteractor = () =>
     getContactRepo(),
     getOrganizationRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -314,6 +320,7 @@ export const getCreateOrganizationInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -323,6 +330,7 @@ export const getCreateManyOrganizationsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -332,6 +340,7 @@ export const getUpdateOrganizationInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -341,6 +350,7 @@ export const getUpdateManyOrganizationsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -350,6 +360,7 @@ export const getDeleteOrganizationInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -359,6 +370,7 @@ export const getDeleteManyOrganizationsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getDealRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -379,6 +391,7 @@ export const getCreateDealInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -389,6 +402,7 @@ export const getCreateManyDealsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -399,6 +413,7 @@ export const getUpdateDealInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -409,6 +424,7 @@ export const getUpdateManyDealsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -419,6 +435,7 @@ export const getDeleteDealInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -429,6 +446,7 @@ export const getDeleteManyDealsInteractor = () =>
     getOrganizationRepo(),
     getContactRepo(),
     getServiceRepo(),
+    getTaskRepo(),
     getEventService(),
     getWidgetService(),
   );
@@ -444,22 +462,40 @@ export const getGetServicesConfigurationInteractor = () => new GetServicesConfig
 export const getGetServiceByIdInteractor = () => new GetServiceByIdInteractor(getServiceRepo(), getCustomColumnRepo());
 
 export const getCreateServiceInteractor = () =>
-  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
 
 export const getCreateManyServicesInteractor = () =>
-  new CreateManyServicesInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new CreateManyServicesInteractor(
+    getServiceRepo(),
+    getDealRepo(),
+    getTaskRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getUpdateServiceInteractor = () =>
-  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
 
 export const getUpdateManyServicesInteractor = () =>
-  new UpdateManyServicesInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new UpdateManyServicesInteractor(
+    getServiceRepo(),
+    getDealRepo(),
+    getTaskRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getDeleteServiceInteractor = () =>
-  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
 
 export const getDeleteManyServicesInteractor = () =>
-  new DeleteManyServicesInteractor(getServiceRepo(), getDealRepo(), getEventService(), getWidgetService());
+  new DeleteManyServicesInteractor(
+    getServiceRepo(),
+    getDealRepo(),
+    getTaskRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 // --- Tasks ---
 
@@ -476,22 +512,70 @@ export const getCountUserTasksInteractor = () => new CountUserTasksInteractor(ge
 export const getCountSystemTasksInteractor = () => new CountSystemTasksInteractor(getTaskRepo());
 
 export const getCreateTaskInteractor = () =>
-  new CreateTaskInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new CreateTaskInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getCreateManyTasksInteractor = () =>
-  new CreateManyTasksInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new CreateManyTasksInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getUpdateTaskInteractor = () =>
-  new UpdateTaskInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new UpdateTaskInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getUpdateManyTasksInteractor = () =>
-  new UpdateManyTasksInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new UpdateManyTasksInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getDeleteTaskInteractor = () =>
-  new DeleteTaskInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new DeleteTaskInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 export const getDeleteManyTasksInteractor = () =>
-  new DeleteManyTasksInteractor(getTaskRepo(), getEventService(), getWidgetService());
+  new DeleteManyTasksInteractor(
+    getTaskRepo(),
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getEventService(),
+    getWidgetService(),
+  );
 
 // --- User ---
 

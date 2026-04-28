@@ -7,6 +7,7 @@ import {
   CustomFieldValueSchema,
   DealReferenceSchema,
   OrganizationReferenceSchema,
+  TaskReferenceSchema,
   UserReferenceSchema,
 } from "@/core/base/base-entity.schema";
 
@@ -51,6 +52,12 @@ const ContactChangesSchema = z.object({
     .object({
       previous: z.array(DealReferenceSchema),
       current: z.array(DealReferenceSchema),
+    })
+    .optional(),
+  tasks: z
+    .object({
+      previous: z.array(TaskReferenceSchema),
+      current: z.array(TaskReferenceSchema),
     })
     .optional(),
   customFieldValues: z

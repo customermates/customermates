@@ -96,6 +96,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
       FilterFieldKey.serviceIds,
       FilterFieldKey.dealIds,
       FilterFieldKey.organizationIds,
+      FilterFieldKey.taskIds,
       FilterFieldKey.event,
       FilterFieldKey.status,
     ];

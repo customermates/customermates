@@ -7,6 +7,7 @@ import {
   DealReferenceSchema,
   OrganizationReferenceSchema,
   UserReferenceSchema,
+  TaskReferenceSchema,
   NotesSchema,
 } from "@/core/base/base-entity.schema";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
@@ -22,6 +23,7 @@ export const ContactDtoSchema = z.object({
   organizations: z.array(OrganizationReferenceSchema),
   users: z.array(UserReferenceSchema),
   deals: z.array(DealReferenceSchema),
+  tasks: z.array(TaskReferenceSchema),
   customFieldValues: z
     .array(CustomFieldValueSchema)
     .describe(

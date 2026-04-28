@@ -56,6 +56,10 @@ export class PrismaContactRepo
         where: { deal: this.accessWhere("deal") },
         select: { deal: { select: { id: true, name: true } } },
       },
+      tasks: {
+        where: { task: this.accessWhere("task") },
+        select: { task: { select: { id: true, name: true, type: true } } },
+      },
       customFieldValues: {
         select: {
           columnId: true,
@@ -71,6 +75,7 @@ export class PrismaContactRepo
       organizations: { select: this.userScopedSelect.organizations.select },
       users: { select: this.userScopedSelect.users.select },
       deals: { select: this.userScopedSelect.deals.select },
+      tasks: { select: this.userScopedSelect.tasks.select },
     };
   }
 
@@ -116,6 +121,13 @@ export class PrismaContactRepo
       });
     }
 
+    if (this.canAccess(Resource.tasks)) {
+      filterFields.push({
+        field: FilterFieldKey.taskIds,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.taskIds],
+      });
+    }
+
     return [
       ...filterFields,
       ...customFields,
@@ -149,6 +161,7 @@ export class PrismaContactRepo
       organizations: contact.organizations.map((it) => it.organization),
       users: contact.users.map((it) => it.user),
       deals: contact.deals.map((it) => it.deal),
+      tasks: contact.tasks.map((it) => it.task),
     };
   }
 
@@ -165,6 +178,7 @@ export class PrismaContactRepo
       organizations: contact.organizations.map((it) => it.organization),
       users: contact.users.map((it) => it.user),
       deals: contact.deals.map((it) => it.deal),
+      tasks: contact.tasks.map((it) => it.task),
     };
   }
 
@@ -185,6 +199,7 @@ export class PrismaContactRepo
       organizations: contact.organizations.map((it) => it.organization),
       users: contact.users.map((it) => it.user),
       deals: contact.deals.map((it) => it.deal),
+      tasks: contact.tasks.map((it) => it.task),
     }));
   }
 
@@ -199,6 +214,7 @@ export class PrismaContactRepo
         organizations: contact.organizations.map((it) => it.organization),
         users: contact.users.map((it) => it.user),
         deals: contact.deals.map((it) => it.deal),
+        tasks: contact.tasks.map((it) => it.task),
       }),
     });
   }
@@ -212,7 +228,7 @@ export class PrismaContactRepo
   @Transaction
   async createContactOrThrow(args: RepoArgs<CreateContactRepo, "createContactOrThrow">) {
     const { companyId } = this.user;
-    const { organizationIds, userIds, dealIds, customFieldValues, firstName, lastName, emails, notes } = args;
+    const { organizationIds, userIds, dealIds, taskIds, customFieldValues, firstName, lastName, emails, notes } = args;
 
     const data = {
       firstName,
@@ -267,6 +283,18 @@ export class PrismaContactRepo
       );
     }
 
+    if (taskIds.length > 0) {
+      promises.push(
+        this.prisma.taskContact.createMany({
+          data: taskIds.map((taskId) => ({
+            contactId: contact.id,
+            taskId,
+            companyId,
+          })),
+        }),
+      );
+    }
+
     if (customFieldValues.length > 0)
       promises.push(getCustomColumnRepo().replaceValuesForEntity(EntityType.contact, contact.id, customFieldValues));
 
@@ -282,6 +310,7 @@ export class PrismaContactRepo
       organizations: createdContact.organizations.map((it) => it.organization),
       users: createdContact.users.map((it) => it.user),
       deals: createdContact.deals.map((it) => it.deal),
+      tasks: createdContact.tasks.map((it) => it.task),
     };
 
     return res;
@@ -290,7 +319,7 @@ export class PrismaContactRepo
   @Transaction
   async updateContactOrThrow(args: RepoArgs<UpdateContactRepo, "updateContactOrThrow">) {
     const { companyId } = this.user;
-    const { id, organizationIds, userIds, dealIds, customFieldValues, ...contactData } = args;
+    const { id, organizationIds, userIds, dealIds, taskIds, customFieldValues, ...contactData } = args;
 
     const data: Prisma.ContactUpdateManyArgs["data"] = { companyId };
 
@@ -367,6 +396,26 @@ export class PrismaContactRepo
       }
     }
 
+    if (taskIds !== undefined) {
+      deletePromises.push(
+        this.prisma.taskContact.deleteMany({
+          where: { contactId: id, companyId, task: this.accessWhere("task") },
+        }),
+      );
+
+      if (taskIds !== null && taskIds.length > 0) {
+        createPromises.push(
+          this.prisma.taskContact.createMany({
+            data: taskIds.map((taskId) => ({
+              contactId: id,
+              taskId,
+              companyId,
+            })),
+          }),
+        );
+      }
+    }
+
     if (customFieldValues !== undefined) {
       if (customFieldValues === null)
         createPromises.push(getCustomColumnRepo().deleteValuesForEntity(EntityType.contact, id));
@@ -386,6 +435,7 @@ export class PrismaContactRepo
       organizations: updatedContact.organizations.map((it) => it.organization),
       users: updatedContact.users.map((it) => it.user),
       deals: updatedContact.deals.map((it) => it.deal),
+      tasks: updatedContact.tasks.map((it) => it.task),
     };
 
     return res;
@@ -403,6 +453,7 @@ export class PrismaContactRepo
       organizations: contact.organizations.map((it) => it.organization),
       users: contact.users.map((it) => it.user),
       deals: contact.deals.map((it) => it.deal),
+      tasks: contact.tasks.map((it) => it.task),
     };
 
     await this.prisma.contact.deleteMany({ where: { id, ...this.accessWhere("contact") } });

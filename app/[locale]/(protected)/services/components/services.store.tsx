@@ -18,11 +18,16 @@ export class ServicesStore extends BaseDataViewStore<ServiceDto> {
     return this.rootStore.userStore.canAccess(Resource.deals);
   }
 
+  get canAccessTasks() {
+    return this.rootStore.userStore.canAccess(Resource.tasks);
+  }
+
   get columnsDefinition() {
     const columns: (TableColumn | false)[] = [
       { uid: "name", sortable: true },
       { uid: "amount", sortable: true },
       this.canAccessDeals && { uid: "deals" },
+      this.canAccessTasks && { uid: "tasks" },
       ...this.customColumns.map((column) => ({ uid: column.id, label: column.label, sortable: true })),
       { uid: "users" },
       { uid: "updatedAt", sortable: true },

@@ -4,6 +4,7 @@ export enum FilterFieldKey {
   dealIds = "dealIds",
   organizationIds = "organizationIds",
   contactIds = "contactIds",
+  taskIds = "taskIds",
   emails = "emails",
   updatedAt = "updatedAt",
   createdAt = "createdAt",

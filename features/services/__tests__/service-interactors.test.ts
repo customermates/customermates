@@ -36,6 +36,7 @@ function makeServiceDto(overrides: Record<string, unknown> = {}) {
     updatedAt: new Date("2025-01-01"),
     deals: [],
     users: [],
+    tasks: [],
     customFieldValues: [],
     ...overrides,
   };
@@ -52,6 +53,7 @@ function makeDealDto(id: string) {
     updatedAt: new Date("2025-01-01"),
     organizations: [],
     users: [],
+    tasks: [],
     contacts: [],
     services: [],
     customFieldValues: [],
@@ -61,6 +63,7 @@ function makeDealDto(id: string) {
 describe("CreateServiceInteractor", () => {
   let mockCreateRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -73,6 +76,9 @@ describe("CreateServiceInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -82,7 +88,7 @@ describe("CreateServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateServiceInteractor(mockCreateRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new CreateServiceInteractor(mockCreateRepo, mockDealRepo, mockTaskRepo, mockEventService, mockWidgetService);
   }
 
   it("publishes SERVICE_CREATED event with correct entityId and payload", async () => {
@@ -92,6 +98,7 @@ describe("CreateServiceInteractor", () => {
       amount: 50,
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -111,6 +118,7 @@ describe("CreateServiceInteractor", () => {
       amount: 50,
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -132,6 +140,7 @@ describe("CreateServiceInteractor", () => {
       amount: 50,
       userIds: [],
       dealIds: [DEAL_ID_1],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -157,6 +166,7 @@ describe("CreateServiceInteractor", () => {
       amount: 50,
       userIds: [],
       dealIds: [],
+      taskIds: [],
       customFieldValues: [],
     });
 
@@ -174,6 +184,7 @@ describe("CreateServiceInteractor", () => {
 describe("UpdateServiceInteractor", () => {
   let mockUpdateRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -181,10 +192,13 @@ describe("UpdateServiceInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeServiceDto({ deals: [] })),
+      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeServiceDto({ deals: [], tasks: [] })),
       updateServiceOrThrow: vi.fn().mockResolvedValue(makeServiceDto()),
     };
     mockDealRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
+    mockTaskRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
@@ -196,7 +210,7 @@ describe("UpdateServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateServiceInteractor(mockUpdateRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new UpdateServiceInteractor(mockUpdateRepo, mockDealRepo, mockTaskRepo, mockEventService, mockWidgetService);
   }
 
   it("publishes SERVICE_UPDATED event with entityId and changes", async () => {
@@ -248,6 +262,7 @@ describe("UpdateServiceInteractor", () => {
 describe("DeleteServiceInteractor", () => {
   let mockDeleteRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -265,6 +280,9 @@ describe("DeleteServiceInteractor", () => {
     mockDealRepo = {
       getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
     };
+    mockTaskRepo = {
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+    };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -274,7 +292,7 @@ describe("DeleteServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteServiceInteractor(mockDeleteRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new DeleteServiceInteractor(mockDeleteRepo, mockDealRepo, mockTaskRepo, mockEventService, mockWidgetService);
   }
 
   it("publishes SERVICE_DELETED event with correct entityId and payload", async () => {
@@ -328,6 +346,7 @@ describe("DeleteServiceInteractor", () => {
 describe("CreateManyServicesInteractor", () => {
   let mockCreateRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -341,20 +360,27 @@ describe("CreateManyServicesInteractor", () => {
       createServiceOrThrow: vi.fn().mockResolvedValueOnce(mockService1).mockResolvedValueOnce(mockService2),
     };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
 
   function createInteractor() {
-    return new CreateManyServicesInteractor(mockCreateRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new CreateManyServicesInteractor(
+      mockCreateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes SERVICE_CREATED events for each item created", async () => {
     const interactor = createInteractor();
     await interactor.invoke({
       services: [
-        { name: "Service One", amount: 50, userIds: [], dealIds: [], customFieldValues: [] },
-        { name: "Service Two", amount: 100, userIds: [], dealIds: [], customFieldValues: [] },
+        { name: "Service One", amount: 50, userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+        { name: "Service Two", amount: 100, userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
       ],
     });
 
@@ -386,7 +412,9 @@ describe("CreateManyServicesInteractor", () => {
 
     const interactor = createInteractor();
     await interactor.invoke({
-      services: [{ name: "Service One", amount: 50, userIds: [], dealIds: [DEAL_ID_1], customFieldValues: [] }],
+      services: [
+        { name: "Service One", amount: 50, userIds: [], dealIds: [DEAL_ID_1], taskIds: [], customFieldValues: [] },
+      ],
     });
 
     const dealCalls = mockEventService.publish.mock.calls.filter(
@@ -407,7 +435,7 @@ describe("CreateManyServicesInteractor", () => {
   it("calls widgetService.recalculateUserWidgets", async () => {
     const interactor = createInteractor();
     await interactor.invoke({
-      services: [{ name: "Service One", amount: 50, userIds: [], dealIds: [], customFieldValues: [] }],
+      services: [{ name: "Service One", amount: 50, userIds: [], dealIds: [], taskIds: [], customFieldValues: [] }],
     });
 
     expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
@@ -417,8 +445,8 @@ describe("CreateManyServicesInteractor", () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       services: [
-        { name: "Service One", amount: 50, userIds: [], dealIds: [], customFieldValues: [] },
-        { name: "Service Two", amount: 100, userIds: [], dealIds: [], customFieldValues: [] },
+        { name: "Service One", amount: 50, userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
+        { name: "Service Two", amount: 100, userIds: [], dealIds: [], taskIds: [], customFieldValues: [] },
       ],
     });
 
@@ -432,6 +460,7 @@ describe("CreateManyServicesInteractor", () => {
 describe("UpdateManyServicesInteractor", () => {
   let mockUpdateRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -448,12 +477,19 @@ describe("UpdateManyServicesInteractor", () => {
       updateServiceOrThrow: vi.fn().mockResolvedValueOnce(updated1).mockResolvedValueOnce(updated2),
     };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
 
   function createInteractor() {
-    return new UpdateManyServicesInteractor(mockUpdateRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new UpdateManyServicesInteractor(
+      mockUpdateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes SERVICE_UPDATED events with payload for each item", async () => {
@@ -541,6 +577,7 @@ describe("UpdateManyServicesInteractor", () => {
 describe("DeleteManyServicesInteractor", () => {
   let mockDeleteRepo: any;
   let mockDealRepo: any;
+  let mockTaskRepo: any;
   let mockEventService: any;
   let mockWidgetService: any;
 
@@ -555,12 +592,19 @@ describe("DeleteManyServicesInteractor", () => {
       deleteServiceOrThrow: vi.fn().mockResolvedValueOnce(service1).mockResolvedValueOnce(service2),
     };
     mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]) };
+    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
     mockWidgetService = { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
   });
 
   function createInteractor() {
-    return new DeleteManyServicesInteractor(mockDeleteRepo, mockDealRepo, mockEventService, mockWidgetService);
+    return new DeleteManyServicesInteractor(
+      mockDeleteRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      mockWidgetService,
+    );
   }
 
   it("publishes SERVICE_DELETED events with payload for each deleted item", async () => {

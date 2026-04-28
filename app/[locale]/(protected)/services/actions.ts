@@ -46,6 +46,7 @@ export async function createServiceByNameAction(name: string, userId: string | n
     notes: null,
     userIds: userId ? [userId] : [],
     dealIds: [],
+    taskIds: [],
     customFieldValues: [],
   });
 

@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useMemo } from "react";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, TaskType } from "@/generated/prisma";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
@@ -16,6 +16,7 @@ import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/compo
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { copyToClipboard } from "@/lib/clipboard";
+import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 type Props = {
   contacts: GetResult<ContactDto>;
@@ -88,9 +89,23 @@ export const ContactsCard = observer(({ contacts }: Props) => {
           />
         ),
       },
+      {
+        id: "tasks",
+        cell: ({ row }) => (
+          <AppChipStack
+            items={row.original.tasks.map((task) => {
+              const nameKey = getSystemTaskNameTranslationKey(task.type);
+              const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
+              return { id: task.id, label };
+            })}
+            size="sm"
+            onChipClick={(task) => openEntity(EntityType.task, task.id)}
+          />
+        ),
+      },
       ...standardTailColumns({ store: contactsStore, intlStore, userModalStore }),
     ];
-  }, [contactsStore, contactsStore.customColumns, openEntity, userModalStore, intlStore]);
+  }, [contactsStore, contactsStore.customColumns, openEntity, userModalStore, intlStore, t]);
 
   return (
     <DataViewContainer

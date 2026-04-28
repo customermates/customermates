@@ -1,6 +1,7 @@
 import type { UpdateServiceRepo } from "./update-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
+import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
 import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -12,6 +13,7 @@ import { validateNotes } from "../../../core/validation/validate-notes";
 import { validateUserIds } from "../../../core/validation/validate-user-ids";
 import { validateDealIds } from "../../../core/validation/validate-deal-ids";
 import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import { validateTaskIds } from "../../../core/validation/validate-task-ids";
 import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseUpdateServiceSchema } from "./update-service-base.schema";
@@ -24,7 +26,7 @@ import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/cal
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
 
 export const UpdateManyServicesSchema = z
   .object({
@@ -34,17 +36,20 @@ export const UpdateManyServicesSchema = z
     const userSet = new Set<string>();
     const dealSet = new Set<string>();
     const serviceSet = new Set<string>();
+    const taskSet = new Set<string>();
 
     for (const service of data.services) {
       serviceSet.add(service.id);
       service.userIds?.forEach((id) => userSet.add(id));
       service.dealIds?.forEach((id) => dealSet.add(id));
+      service.taskIds?.forEach((id) => taskSet.add(id));
     }
 
-    const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, allColumns] = await Promise.all([
+    const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
       getCompanyRepo().findIds(userSet),
       getDealRepo().findIds(dealSet),
       getServiceRepo().findIds(serviceSet),
+      getTaskRepo().findIds(taskSet),
       getCustomColumnRepo().findByEntityType(EntityType.service),
     ]);
 
@@ -53,6 +58,7 @@ export const UpdateManyServicesSchema = z
       validateServiceIds(service.id, validServiceIdsSet, ctx, ["services", i, "id"]);
       validateUserIds(service.userIds, validUserIdsSet, ctx, ["services", i, "userIds"]);
       validateDealIds(service.dealIds, validDealIdsSet, ctx, ["services", i, "dealIds"]);
+      validateTaskIds(service.taskIds, validTaskIdsSet, ctx, ["services", i, "taskIds"]);
       validateCustomFieldValues(service.customFieldValues, allColumns, ctx, ["services", i, "customFieldValues"]);
       service.notes = validateNotes(service.notes, ctx, ["services", i, "notes"]);
     }
@@ -67,6 +73,7 @@ export class UpdateManyServicesInteractor extends BaseInteractor<UpdateManyServi
   constructor(
     private servicesRepo: UpdateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
+    private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
     private widgetService: WidgetService,
   ) {
@@ -84,14 +91,24 @@ export class UpdateManyServicesInteractor extends BaseInteractor<UpdateManyServi
       previousServices.flatMap((service) => service.deals.map((it) => it.id)),
       data.services.flatMap((serviceData) => serviceData.dealIds ?? []),
     );
+    const relatedTaskIds = unique(
+      previousServices.flatMap((service) => service.tasks.map((it) => it.id)),
+      data.services.flatMap((serviceData) => serviceData.taskIds ?? []),
+    );
 
-    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [previousDeals, previousTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     const services = await Promise.all(
       data.services.map((serviceData) => this.servicesRepo.updateServiceOrThrow(serviceData)),
     );
 
-    const currentDeals = await this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds);
+    const [currentDeals, currentTasks] = await Promise.all([
+      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
+      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+    ]);
 
     await Promise.all([
       ...buildRelationChangePublishes(
@@ -107,6 +124,15 @@ export class UpdateManyServicesInteractor extends BaseInteractor<UpdateManyServi
             },
           }),
         ["totalValue", "totalQuantity"],
+      ),
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "services", (task, changes) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
+          entityId: task.id,
+          payload: {
+            task,
+            changes,
+          },
+        }),
       ),
       ...services.map((service) => {
         const previousService = previousServicesMap.get(service.id);

@@ -29,5 +29,10 @@ export const entityNameExtractors: Record<EntityKind, (item: any) => string> = {
   organization: (item) => String(item.name ?? ""),
   deal: (item) => String(item.name ?? ""),
   service: (item) => String(item.name ?? ""),
-  task: (item) => String(item.name ?? ""),
+  // System tasks store an empty `name` and rely on i18n; fall back to `type` so callers
+  // (search results, MCP filters) get a stable identifier they can disambiguate.
+  task: (item) => {
+    const name = String(item.name ?? "").trim();
+    return name || String(item.type ?? "");
+  },
 };

@@ -19,6 +19,10 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
         name: "",
         notes: null,
         userIds: [],
+        contactIds: [],
+        organizationIds: [],
+        dealIds: [],
+        serviceIds: [],
         customFieldValues: [],
       },
       Resource.tasks,
@@ -58,6 +62,10 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
         ...entity,
         ...baseData,
         userIds: entity.users.map((user) => user.id),
+        contactIds: entity.contacts.map((contact) => contact.id),
+        organizationIds: entity.organizations.map((organization) => organization.id),
+        dealIds: entity.deals.map((deal) => deal.id),
+        serviceIds: entity.services.map((service) => service.id),
         name: displayName,
       };
     }
@@ -67,6 +75,10 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
       name: "",
       notes: null,
       userIds: [],
+      contactIds: [],
+      organizationIds: [],
+      dealIds: [],
+      serviceIds: [],
     };
   }
 }

@@ -52,6 +52,7 @@ export async function createContactByNameAction(name: string, userId: string | n
     organizationIds: [],
     userIds: userId ? [userId] : [],
     dealIds: [],
+    taskIds: [],
     customFieldValues: [],
   });
 
