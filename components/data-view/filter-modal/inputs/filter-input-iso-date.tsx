@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { useAppForm } from "@/components/forms/form-context";
 import { FormLabel } from "@/components/forms/form-label";
+import { InputClearButton } from "@/components/forms/input-clear-button";
 import { TimeInput } from "@/components/forms/time-input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -99,9 +100,11 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
           type="button"
           variant="outline"
         >
-          <CalendarIcon className="mr-2 size-4" />
+          <CalendarIcon className="mr-2 size-4 shrink-0" />
 
-          {parsed ? format(parsed, dateFormat) : <span />}
+          <span className="truncate flex-1">{parsed ? format(parsed, dateFormat) : ""}</span>
+
+          {parsed && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
         </Button>
       </PopoverTrigger>
 

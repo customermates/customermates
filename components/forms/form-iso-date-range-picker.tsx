@@ -12,6 +12,7 @@ import { addDays, addMonths, addWeeks, addYears, endOfMonth, endOfWeek, startOfM
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "./form-label";
+import { InputClearButton } from "./input-clear-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
@@ -215,9 +216,11 @@ export const FormIsoDateRangePicker = observer(
               type="button"
               variant="outline"
             >
-              <CalendarIcon className="mr-2 size-4" />
+              <CalendarIcon className="mr-2 size-4 shrink-0" />
 
-              <span className="truncate">{triggerLabel}</span>
+              <span className="truncate flex-1">{triggerLabel}</span>
+
+              {parsedRange && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
             </Button>
           </PopoverTrigger>
 
