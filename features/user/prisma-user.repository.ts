@@ -264,16 +264,7 @@ export class PrismaUserRepo
           serviceId: ids.serviceIdByKey[service.key],
         });
       }
-      if (service.serviceExtras && serviceExtraColumnIds.hourlyRate && serviceExtraColumnIds.billableHours) {
-        rows.push({
-          companyId,
-          columnId: serviceExtraColumnIds.hourlyRate,
-          entityType: EntityType.service,
-          type: CustomColumnType.currency,
-          value: String(service.serviceExtras.hourlyRate),
-          numericValue: service.serviceExtras.hourlyRate,
-          serviceId: ids.serviceIdByKey[service.key],
-        });
+      if (service.serviceExtras && serviceExtraColumnIds.billableHours) {
         rows.push({
           companyId,
           columnId: serviceExtraColumnIds.billableHours,
@@ -307,7 +298,7 @@ export class PrismaUserRepo
   private async createServiceExtraColumns(
     salesType: SalesType,
     t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
-  ): Promise<{ articleNumber?: string; stock?: string; hourlyRate?: string; billableHours?: string }> {
+  ): Promise<{ articleNumber?: string; stock?: string; billableHours?: string }> {
     const { companyId } = this.user;
 
     if (salesType === SalesType.product) {
@@ -334,27 +325,16 @@ export class PrismaUserRepo
       return { articleNumber: articleNumber.id, stock: stock.id };
     }
 
-    const [hourlyRate, billableHours] = await Promise.all([
-      this.prisma.customColumn.create({
-        data: {
-          label: t("column.hourlyRate"),
-          type: CustomColumnType.currency,
-          entityType: EntityType.service,
-          companyId,
-          options: { currency: "eur" },
-        },
-      }),
-      this.prisma.customColumn.create({
-        data: {
-          label: t("column.billableHours"),
-          type: CustomColumnType.plain,
-          entityType: EntityType.service,
-          companyId,
-          options: {},
-        },
-      }),
-    ]);
-    return { hourlyRate: hourlyRate.id, billableHours: billableHours.id };
+    const billableHours = await this.prisma.customColumn.create({
+      data: {
+        label: t("column.billableHours"),
+        type: CustomColumnType.plain,
+        entityType: EntityType.service,
+        companyId,
+        options: {},
+      },
+    });
+    return { billableHours: billableHours.id };
   }
 
   private async createSeedEntities(
@@ -435,6 +415,27 @@ export class PrismaUserRepo
       });
       taskIdByKey[task.key] = created.id;
       await this.prisma.taskUser.create({ data: { taskId: created.id, userId, companyId } });
+
+      for (const contactKey of task.contactKeys ?? []) {
+        await this.prisma.taskContact.create({
+          data: { taskId: created.id, contactId: contactIdByKey[contactKey], companyId },
+        });
+      }
+      for (const orgKey of task.orgKeys ?? []) {
+        await this.prisma.taskOrganization.create({
+          data: { taskId: created.id, organizationId: orgIdByKey[orgKey], companyId },
+        });
+      }
+      for (const dealKey of task.dealKeys ?? []) {
+        await this.prisma.taskDeal.create({
+          data: { taskId: created.id, dealId: dealIdByKey[dealKey], companyId },
+        });
+      }
+      for (const serviceKey of task.serviceKeys ?? []) {
+        await this.prisma.taskService.create({
+          data: { taskId: created.id, serviceId: serviceIdByKey[serviceKey], companyId },
+        });
+      }
     }
 
     return { orgIdByKey, contactIdByKey, serviceIdByKey, dealIdByKey, taskIdByKey };

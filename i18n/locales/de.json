@@ -516,7 +516,6 @@
       "column": {
         "articleNumber": "Artikelnummer",
         "billableHours": "Abrechenbare Stunden",
-        "hourlyRate": "Stundensatz",
         "salesPipeline": "Sales-Pipeline",
         "stock": "Bestand"
       },
@@ -599,10 +598,19 @@
         "starterKit": "Starter-Paket"
       },
       "task": {
+        "checkStock": "Bestände prüfen",
+        "confirmBulkOrder": "Großbestellung bestätigen",
+        "contractReview": "Erweiterungsvertrag prüfen",
+        "discoveryWorkshop": "Discovery-Workshop durchführen",
+        "followUp": "Nachfassen nach Pause",
+        "gatherRequirements": "Anforderungen aufnehmen",
+        "implementationPlan": "Umsetzungsplan entwerfen",
         "introCall": "Erstgespräch",
         "kickoffPrep": "Kickoff-Unterlagen vorbereiten",
         "postMortem": "Projekt-Post-Mortem schreiben",
-        "sendQuote": "Angebot versenden"
+        "retainerCheckIn": "Retainer-Check-in planen",
+        "sendQuote": "Angebot versenden",
+        "shipStarterKits": "Starter-Kits versenden"
       },
       "widget": {
         "activeDealsByStage": "Aktive Deals",

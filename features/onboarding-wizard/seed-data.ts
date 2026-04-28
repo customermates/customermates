@@ -23,7 +23,7 @@ export type SeedService = {
   nameKey: string;
   amount: number;
   productExtras?: { articleNumber: string; stockKey: "low" | "mid" | "high" };
-  serviceExtras?: { hourlyRate: number; billableHoursKey: "low" | "mid" | "high" };
+  serviceExtras?: { billableHoursKey: "low" | "mid" | "high" };
 };
 export type SeedDeal = {
   key: string;
@@ -33,7 +33,15 @@ export type SeedDeal = {
   serviceLineItems: Array<{ serviceKey: string; quantity: number }>;
   stage: StageKey;
 };
-export type SeedTask = { key: string; nameKey: string; statusKey: "open" | "inProgress" | "done" };
+export type SeedTask = {
+  key: string;
+  nameKey: string;
+  statusKey: "open" | "inProgress" | "done";
+  contactKeys?: string[];
+  orgKeys?: string[];
+  dealKeys?: string[];
+  serviceKeys?: string[];
+};
 
 export type SeedData = {
   organizations: SeedOrganization[];
@@ -105,10 +113,89 @@ const SHARED_CONTACTS: SeedContact[] = [
 ];
 
 const SHARED_TASKS: SeedTask[] = [
-  { key: "intro-call", nameKey: "introCall", statusKey: "open" },
-  { key: "send-quote", nameKey: "sendQuote", statusKey: "inProgress" },
-  { key: "kickoff-prep", nameKey: "kickoffPrep", statusKey: "open" },
-  { key: "post-mortem", nameKey: "postMortem", statusKey: "done" },
+  {
+    key: "intro-call",
+    nameKey: "introCall",
+    statusKey: "open",
+    contactKeys: ["alex"],
+    orgKeys: ["north-light"],
+  },
+  { key: "send-quote", nameKey: "sendQuote", statusKey: "inProgress", contactKeys: ["marius"] },
+  {
+    key: "kickoff-prep",
+    nameKey: "kickoffPrep",
+    statusKey: "open",
+    contactKeys: ["elena", "tomas"],
+    orgKeys: ["harbor-and-line"],
+  },
+  {
+    key: "post-mortem",
+    nameKey: "postMortem",
+    statusKey: "done",
+    contactKeys: ["linnea"],
+    orgKeys: ["kestrel-studios"],
+  },
+  { key: "follow-up", nameKey: "followUp", statusKey: "open", contactKeys: ["rashid"] },
+  {
+    key: "contract-review",
+    nameKey: "contractReview",
+    statusKey: "inProgress",
+    contactKeys: ["sara"],
+    orgKeys: ["atlas-mobility"],
+  },
+  {
+    key: "gather-requirements",
+    nameKey: "gatherRequirements",
+    statusKey: "open",
+    contactKeys: ["priya"],
+    orgKeys: ["north-light"],
+  },
+];
+
+const PRODUCT_TASKS: SeedTask[] = [
+  {
+    key: "ship-starter-kits",
+    nameKey: "shipStarterKits",
+    statusKey: "open",
+    dealKeys: ["north-light-starter"],
+    serviceKeys: ["starter-kit"],
+  },
+  {
+    key: "check-stock",
+    nameKey: "checkStock",
+    statusKey: "open",
+    serviceKeys: ["premium-kit", "enterprise-kit"],
+  },
+  {
+    key: "confirm-bulk-order",
+    nameKey: "confirmBulkOrder",
+    statusKey: "inProgress",
+    dealKeys: ["marlowe-bulk", "kestrel-flagship"],
+  },
+];
+
+const SERVICE_TASKS: SeedTask[] = [
+  {
+    key: "discovery-workshop",
+    nameKey: "discoveryWorkshop",
+    statusKey: "open",
+    dealKeys: ["north-light-discovery"],
+    serviceKeys: ["discovery"],
+  },
+  {
+    key: "implementation-plan",
+    nameKey: "implementationPlan",
+    statusKey: "inProgress",
+    dealKeys: ["marlowe-implementation"],
+    serviceKeys: ["implementation"],
+  },
+  {
+    key: "retainer-check-in",
+    nameKey: "retainerCheckIn",
+    statusKey: "open",
+    dealKeys: ["kestrel-retainer"],
+    serviceKeys: ["retainer"],
+  },
 ];
 
 const PRODUCT_SERVICES: SeedService[] = [
@@ -137,19 +224,19 @@ const SERVICE_SERVICES: SeedService[] = [
     key: "discovery",
     nameKey: "discovery",
     amount: 1200,
-    serviceExtras: { hourlyRate: 120, billableHoursKey: "low" },
+    serviceExtras: { billableHoursKey: "low" },
   },
   {
     key: "implementation",
     nameKey: "implementation",
     amount: 6400,
-    serviceExtras: { hourlyRate: 140, billableHoursKey: "mid" },
+    serviceExtras: { billableHoursKey: "mid" },
   },
   {
     key: "retainer",
     nameKey: "retainer",
     amount: 2400,
-    serviceExtras: { hourlyRate: 130, billableHoursKey: "high" },
+    serviceExtras: { billableHoursKey: "high" },
   },
 ];
 
@@ -270,6 +357,6 @@ export function getSeedData(salesType: SalesType): SeedData {
     contacts: SHARED_CONTACTS,
     services: salesType === SalesType.product ? PRODUCT_SERVICES : SERVICE_SERVICES,
     deals: salesType === SalesType.product ? PRODUCT_DEALS : SERVICE_DEALS,
-    tasks: SHARED_TASKS,
+    tasks: salesType === SalesType.product ? [...SHARED_TASKS, ...PRODUCT_TASKS] : [...SHARED_TASKS, ...SERVICE_TASKS],
   };
 }

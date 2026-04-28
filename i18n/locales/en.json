@@ -516,7 +516,6 @@
       "column": {
         "articleNumber": "Article number",
         "billableHours": "Billable hours",
-        "hourlyRate": "Hourly rate",
         "salesPipeline": "Sales pipeline",
         "stock": "Stock"
       },
@@ -599,10 +598,19 @@
         "starterKit": "Starter kit"
       },
       "task": {
+        "checkStock": "Check stock levels",
+        "confirmBulkOrder": "Confirm bulk order details",
+        "contractReview": "Review expansion contract",
+        "discoveryWorkshop": "Run discovery workshop",
+        "followUp": "Follow up after pause",
+        "gatherRequirements": "Gather requirements",
+        "implementationPlan": "Draft implementation plan",
         "introCall": "Intro call",
         "kickoffPrep": "Prep kickoff materials",
         "postMortem": "Write project post-mortem",
-        "sendQuote": "Send quote"
+        "retainerCheckIn": "Schedule retainer check-in",
+        "sendQuote": "Send quote",
+        "shipStarterKits": "Ship starter kits"
       },
       "widget": {
         "activeDealsByStage": "Active deals",
