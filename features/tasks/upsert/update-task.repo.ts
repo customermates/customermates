@@ -4,5 +4,6 @@ import { type UpdateTaskData } from "./update-task.interactor";
 
 export abstract class UpdateTaskRepo {
   abstract updateTaskOrThrow(args: UpdateTaskData): Promise<TaskDto>;
-  abstract getTaskByIdOrThrow(id: string): Promise<TaskDto>;
+  abstract getOrThrowUnscoped(id: string): Promise<TaskDto>;
+  abstract getManyOrThrowUnscoped(ids: string[]): Promise<TaskDto[]>;
 }

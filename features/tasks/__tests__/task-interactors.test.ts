@@ -153,7 +153,8 @@ describe("UpdateTaskInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getTaskByIdOrThrow: vi.fn().mockResolvedValue(makeTaskDto()),
+      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeTaskDto()),
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeTaskDto()]),
       updateTaskOrThrow: vi.fn().mockResolvedValue(makeTaskDto()),
     };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
@@ -445,7 +446,8 @@ describe("UpdateManyTasksInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getTaskByIdOrThrow: vi.fn().mockResolvedValueOnce(task1).mockResolvedValueOnce(task2),
+      getOrThrowUnscoped: vi.fn().mockResolvedValueOnce(task1).mockResolvedValueOnce(task2),
+      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([task1, task2]),
       updateTaskOrThrow: vi.fn().mockResolvedValueOnce(updated1).mockResolvedValueOnce(updated2),
     };
     mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };

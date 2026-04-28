@@ -97,7 +97,7 @@ export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto
   @ValidateOutput(TaskDtoSchema)
   @Transaction
   async invoke(data: UpdateTaskData): Validated<TaskDto> {
-    const previousTask = await this.repo.getTaskByIdOrThrow(data.id);
+    const previousTask = await this.repo.getOrThrowUnscoped(data.id);
 
     const relatedContactIds = unique(
       previousTask.contacts.map((it) => it.id),

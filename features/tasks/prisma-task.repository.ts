@@ -521,18 +521,6 @@ export class PrismaTaskRepo
     return this.toDto(task);
   }
 
-  async getTaskByIdOrThrow(id: string) {
-    const task = await this.prisma.task.findFirstOrThrow({
-      where: {
-        id,
-        ...this.accessWhere("task"),
-      },
-      select: this.userScopedSelect,
-    });
-
-    return this.toDto(task);
-  }
-
   async getOrThrowUnscoped(id: string): Promise<TaskDto> {
     const { companyId } = this.user;
 

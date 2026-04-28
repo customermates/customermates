@@ -114,7 +114,7 @@ export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksDat
   @ValidateOutput(TaskDtoSchema)
   @Transaction
   async invoke(data: UpdateManyTasksData): Validated<TaskDto[]> {
-    const previousTasks = await Promise.all(data.tasks.map((t) => this.repo.getTaskByIdOrThrow(t.id)));
+    const previousTasks = await this.repo.getManyOrThrowUnscoped(data.tasks.map((t) => t.id));
 
     const relatedContactIds = unique(
       previousTasks.flatMap((t) => t.contacts.map((it) => it.id)),
