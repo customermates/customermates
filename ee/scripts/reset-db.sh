@@ -7,7 +7,6 @@ if [ "$1" == "-f" ]; then
     npx prisma db push --force-reset
     npx prisma db seed
 else
-    # Normal migrate reset
     echo "Resetting the Prisma database..."
     npx prisma migrate reset --force
     npx prisma db seed

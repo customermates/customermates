@@ -1883,21 +1883,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -2950,21 +2935,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -6196,21 +6166,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -7254,21 +7209,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -10577,21 +10517,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -11673,21 +11598,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -14920,21 +14830,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -15956,21 +15851,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -18990,21 +18870,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [
@@ -20008,21 +19873,6 @@
                           },
                           "label": {
                             "type": "string"
-                          },
-                          "columnType": {
-                            "type": "string",
-                            "enum": [
-                              "currency",
-                              "date",
-                              "dateRange",
-                              "dateTime",
-                              "dateTimeRange",
-                              "email",
-                              "plain",
-                              "link",
-                              "phone",
-                              "singleSelect"
-                            ]
                           }
                         },
                         "required": [

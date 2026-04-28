@@ -156,18 +156,6 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-24T09:03:32.545Z",
-    "entityType": "deal",
-    "id": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "label": "Start Date",
-    "options": {
-      "displayFormat": "numericalShort"
-    },
-    "type": "date",
-    "updatedAt": "2026-03-24T09:03:32.545Z"
-  },
-  {
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T08:58:34.444Z",
     "entityType": "task",
     "id": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -223,15 +211,15 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-24T09:03:47.829Z",
+    "createdAt": "2026-04-28T08:34:20.707Z",
     "entityType": "deal",
-    "id": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "label": "End Date",
+    "id": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "label": "Project Period",
     "options": {
       "displayFormat": "numericalShort"
     },
-    "type": "date",
-    "updatedAt": "2026-03-24T09:03:47.829Z"
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:52:07.179Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",

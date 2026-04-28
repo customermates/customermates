@@ -33,7 +33,7 @@
     "firstName": "Max",
     "formattingLocale": "system",
     "id": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
-    "lastActiveAt": "2026-04-27T17:39:06.333Z",
+    "lastActiveAt": "2026-04-28T08:36:53.216Z",
     "lastName": "Mustermann",
     "onboardingWizardCompletedAt": "2026-03-24T08:58:34.388Z",
     "roleId": "e37c4186-5651-43cf-8688-7a8775d11bb2",
@@ -42,7 +42,7 @@
     "trialExpiredOfferSentAt": null,
     "trialInactivationNoticeSentAt": null,
     "trialInactivationReminderSentAt": null,
-    "updatedAt": "2026-04-27T17:39:06.334Z",
+    "updatedAt": "2026-04-28T08:36:53.217Z",
     "welcomeEmailSentAt": null
   }
 ]

@@ -32,22 +32,6 @@
     "value": "+491585432111"
   },
   {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:14:30.743Z",
-    "dealId": "7d0b3571-e0ca-4265-9f97-b80d11e4c424",
-    "entityType": "deal",
-    "id": "0176e694-dfcb-4774-b19c-3bb71efdeef4",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:14:30.743Z",
-    "value": "2026-01-31T00:00:00Z"
-  },
-  {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "da965f4d-9da2-4688-93fd-c8f7009f7c53",
@@ -128,20 +112,20 @@
     "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
-    "createdAt": "2026-03-24T10:07:59.474Z",
-    "dealId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
+    "createdAt": "2026-04-28T08:46:36.255Z",
+    "dealId": "222734b2-9486-4dc9-8157-0690f54d5291",
     "entityType": "deal",
-    "id": "087bf237-7793-4ded-b827-8688bf1d0db4",
+    "id": "091892fb-2ec7-4371-a30c-a13a295df7e0",
     "numericValue": null,
     "organizationId": null,
     "serviceId": null,
     "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:07:59.474Z",
-    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:46:36.255Z",
+    "value": "2026-01-01,2026-08-31"
   },
   {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
@@ -206,22 +190,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:58:47.751Z",
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:16:00.422Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "entityType": "deal",
-    "id": "12f75d95-9b63-4d49-885b-a27129514c24",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:16:00.422Z",
-    "value": "2026-01-01T00:00:00Z"
   },
   {
     "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -352,20 +320,20 @@
     "value": "1180756b-ad14-4e14-9136-4636ea3fd4e9"
   },
   {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
-    "createdAt": "2026-03-24T10:09:21.074Z",
+    "createdAt": "2026-04-28T08:46:36.255Z",
     "dealId": "222734b2-9486-4dc9-8157-0690f54d5291",
     "entityType": "deal",
-    "id": "192cf7c6-9593-45a4-ab81-0b4174313961",
+    "id": "198615da-88f7-45ca-9dcb-b637b9eeff4e",
     "numericValue": null,
     "organizationId": null,
     "serviceId": null,
     "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:09:21.074Z",
-    "value": "2026-01-01T00:00:00Z"
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:46:36.255Z",
+    "value": "b3a225d6-58ad-41d9-a425-e507b65d54a6"
   },
   {
     "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -382,22 +350,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T10:27:50.108Z",
     "value": "af27f543-a5c9-407e-ace5-85570fc026db"
-  },
-  {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:11:53.002Z",
-    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
-    "entityType": "deal",
-    "id": "1ad636d0-c2e5-4d2f-a546-3c64d2c200ba",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:11:53.002Z",
-    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -480,6 +432,22 @@
     "value": "1180756b-ad14-4e14-9136-4636ea3fd4e9"
   },
   {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:45:30.353Z",
+    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
+    "entityType": "deal",
+    "id": "22cde9ec-daf2-46c0-843c-fe89b0d934e6",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:45:30.353Z",
+    "value": "2026-01-01,2026-12-31"
+  },
+  {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "ee47f4f3-ed27-4c3e-88ab-57bac6330db2",
@@ -544,6 +512,22 @@
     "value": "https://nrwbank.de"
   },
   {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:46:00.172Z",
+    "dealId": "a6e93289-04d4-49cb-9057-a20495692aca",
+    "entityType": "deal",
+    "id": "255ce366-ad4f-4f98-8201-73c21fe34fc7",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:46:00.172Z",
+    "value": "2026-07-01,2026-07-01"
+  },
+  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -574,22 +558,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:50:04.797Z",
     "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:20:11.911Z",
-    "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
-    "entityType": "deal",
-    "id": "26b8a406-0a28-49f6-9523-2d68ccf7c481",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:20:11.911Z",
-    "value": "2026-01-01T00:00:00Z"
   },
   {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
@@ -640,6 +608,22 @@
     "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
   },
   {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:39:35.985Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
+    "entityType": "deal",
+    "id": "2b4c015c-5a57-4059-8fec-8479fd02bdb7",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:39:35.985Z",
+    "value": "2026-01-01,2026-12-31"
+  },
+  {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
@@ -654,22 +638,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:12:12.082Z",
     "value": "a2c208ca-6f84-4c03-898b-a8d29654cb6b"
-  },
-  {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:20:11.911Z",
-    "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
-    "entityType": "deal",
-    "id": "2e0fb99a-1a95-42fa-8fc9-3d76ad9a76c2",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:20:11.911Z",
-    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
   },
   {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
@@ -718,6 +686,22 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:09:14.004Z",
     "value": "+491759876543"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:46:00.172Z",
+    "dealId": "a6e93289-04d4-49cb-9057-a20495692aca",
+    "entityType": "deal",
+    "id": "2f79dd22-f339-4480-8e98-5a2f81fdabf0",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:46:00.172Z",
+    "value": "2d3776bf-e5b0-44bf-9a09-a258be512990"
   },
   {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
@@ -814,22 +798,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:51:24.669Z",
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:07:59.474Z",
-    "dealId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
-    "entityType": "deal",
-    "id": "3515e426-81f1-41c4-82cd-a83dd10d2502",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:07:59.474Z",
-    "value": "2027-01-01T00:00:00Z"
   },
   {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
@@ -976,20 +944,20 @@
     "value": "1180756b-ad14-4e14-9136-4636ea3fd4e9"
   },
   {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
-    "createdAt": "2026-03-24T10:11:53.002Z",
-    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
+    "createdAt": "2026-04-28T08:39:35.985Z",
+    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
     "entityType": "deal",
-    "id": "43d0f513-7fde-4e87-a08d-eeec769cb1ef",
+    "id": "43633811-e7df-4399-84c4-24bc5f0fd6ab",
     "numericValue": null,
     "organizationId": null,
     "serviceId": null,
     "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:11:53.002Z",
-    "value": "2026-01-01T00:00:00Z"
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:39:35.985Z",
+    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -1038,22 +1006,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:38:11.936Z",
     "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:16:00.422Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "entityType": "deal",
-    "id": "472fc30b-b003-4da9-b563-c9e70841873e",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:16:00.422Z",
-    "value": "2026-12-31T00:00:00Z"
   },
   {
     "columnId": "7397b5ea-d6ae-47a3-bcab-47d488debd0b",
@@ -1120,22 +1072,6 @@
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:16:00.422Z",
-    "dealId": "390a59e9-5ff8-4100-91df-b38bcd79354a",
-    "entityType": "deal",
-    "id": "4ba010be-3426-440a-8176-f7f23a774e04",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:16:00.422Z",
-    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
-  },
-  {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -1150,6 +1086,22 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:32:35.698Z",
     "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:44:01.980Z",
+    "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
+    "entityType": "deal",
+    "id": "4d3ceea4-c350-4f88-b14a-f87bc9ca6c33",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:44:01.980Z",
+    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
@@ -1214,6 +1166,38 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:57:08.628Z",
     "value": "9f12f5ec-7011-4afc-8e6b-1e61d5d75e7f"
+  },
+  {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:37:30.664Z",
+    "dealId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
+    "entityType": "deal",
+    "id": "52a7304a-619c-46f5-944f-64d2e7289b3f",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:37:30.664Z",
+    "value": "2027-01-01,2027-01-01"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:42:38.794Z",
+    "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
+    "entityType": "deal",
+    "id": "534090d6-4c15-4a93-b7e8-6852a73ae52c",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:42:38.794Z",
+    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -1310,6 +1294,22 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:20:23.544Z",
     "value": "+491761122334"
+  },
+  {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:44:01.980Z",
+    "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
+    "entityType": "deal",
+    "id": "5b5ad2e9-98e6-4165-821b-144b2ecd2b0c",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:44:01.980Z",
+    "value": "2025-08-01,2026-08-01"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -1472,20 +1472,36 @@
     "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
   },
   {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
-    "createdAt": "2026-03-24T10:16:30.542Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "createdAt": "2026-04-28T08:44:57.838Z",
+    "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
     "entityType": "deal",
-    "id": "6e66bd5d-5277-4a23-834b-3d60851e71cf",
+    "id": "6a291236-d57c-49f7-b7c1-08e7cf4318d3",
     "numericValue": null,
     "organizationId": null,
     "serviceId": null,
     "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:16:30.542Z",
-    "value": "2027-07-16T00:00:00Z"
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:44:57.838Z",
+    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:41:04.760Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "entityType": "deal",
+    "id": "6e328589-7ad1-43e2-8a4f-7c441a9f7345",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:41:04.760Z",
+    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -1582,22 +1598,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:44:36.655Z",
     "value": "9f12f5ec-7011-4afc-8e6b-1e61d5d75e7f"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:10:09.369Z",
-    "dealId": "a6e93289-04d4-49cb-9057-a20495692aca",
-    "entityType": "deal",
-    "id": "7a52cc6f-d98f-4394-84af-80e17f3b9ce8",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:10:09.369Z",
-    "value": "2026-07-01T00:00:00Z"
   },
   {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
@@ -1790,22 +1790,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:20:23.544Z",
     "value": "6f02559d-a54e-4778-bab6-e3462b69bf21"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:07:59.474Z",
-    "dealId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
-    "entityType": "deal",
-    "id": "86d05516-41e1-44e1-8efc-9233876411b4",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:07:59.474Z",
-    "value": "2027-01-01T00:00:00Z"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -2192,6 +2176,38 @@
     "value": "096fdaa9-7fb5-4059-b941-f75a2ad7fc47"
   },
   {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:43:17.815Z",
+    "dealId": "7d0b3571-e0ca-4265-9f97-b80d11e4c424",
+    "entityType": "deal",
+    "id": "af69e6d3-5b32-437a-9273-68367dc7eb64",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:43:17.815Z",
+    "value": "b3a225d6-58ad-41d9-a425-e507b65d54a6"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:45:30.353Z",
+    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
+    "entityType": "deal",
+    "id": "b09e9a40-e0d9-4a9c-a5d1-291a1d1652b7",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:45:30.353Z",
+    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
+  },
+  {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2224,22 +2240,6 @@
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
   },
   {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:20:11.911Z",
-    "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
-    "entityType": "deal",
-    "id": "b78207ae-8584-4c28-a32f-92233293071c",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:20:11.911Z",
-    "value": "2028-01-01T00:00:00Z"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2270,22 +2270,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T10:36:38.546Z",
     "value": "b95e1f6b-4604-4990-bbb8-5f856d05ed9f"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:13:32.102Z",
-    "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
-    "entityType": "deal",
-    "id": "b8761eea-6e0f-4071-bf98-8eeac73c38eb",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:13:32.102Z",
-    "value": "2025-08-01T00:00:00Z"
   },
   {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
@@ -2352,22 +2336,6 @@
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:14:30.743Z",
-    "dealId": "7d0b3571-e0ca-4265-9f97-b80d11e4c424",
-    "entityType": "deal",
-    "id": "bb9f56e0-2508-4d56-b811-068a87f5c7e5",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:14:30.743Z",
-    "value": "b3a225d6-58ad-41d9-a425-e507b65d54a6"
-  },
-  {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2382,6 +2350,22 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:36:30.014Z",
     "value": "3fc122a5-2240-4e8a-ab2a-56448dffa03f"
+  },
+  {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:43:17.815Z",
+    "dealId": "7d0b3571-e0ca-4265-9f97-b80d11e4c424",
+    "entityType": "deal",
+    "id": "bfedb366-c0d2-4892-ab93-2460c125dcd6",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:43:17.815Z",
+    "value": "2026-01-31,2026-01-31"
   },
   {
     "columnId": "d54d4e52-b895-4601-ad75-d2ff64a3c3e5",
@@ -2430,6 +2414,22 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:27:10.274Z",
     "value": "+491723344556"
+  },
+  {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:42:38.794Z",
+    "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
+    "entityType": "deal",
+    "id": "c2b850eb-7cf1-4f4a-a84c-951b70b50cd1",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:42:38.794Z",
+    "value": "2026-07-01,2027-12-31"
   },
   {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
@@ -2496,6 +2496,22 @@
     "value": "ee2c97e3-fb3c-4f67-a5d3-2a3d54ab5ee2"
   },
   {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:41:04.760Z",
+    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
+    "entityType": "deal",
+    "id": "c887ad46-d0e0-4bcd-9232-6347337181ab",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:41:04.760Z",
+    "value": "2026-11-16,2027-07-16"
+  },
+  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -2558,22 +2574,6 @@
     "type": "phone",
     "updatedAt": "2026-03-24T09:09:52.522Z",
     "value": "+491742109876"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:10:09.369Z",
-    "dealId": "a6e93289-04d4-49cb-9057-a20495692aca",
-    "entityType": "deal",
-    "id": "cf189d72-0298-4fdf-9309-8585788753b6",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:10:09.369Z",
-    "value": "2026-07-01T00:00:00Z"
   },
   {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
@@ -2672,22 +2672,6 @@
     "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:10:09.369Z",
-    "dealId": "a6e93289-04d4-49cb-9057-a20495692aca",
-    "entityType": "deal",
-    "id": "d51ab501-9988-4595-bcde-6417abb4fb1a",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:10:09.369Z",
-    "value": "2d3776bf-e5b0-44bf-9a09-a258be512990"
-  },
-  {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "84555ffb-b1dd-4c32-87b4-f5ebda13d38a",
@@ -2734,22 +2718,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:46:01.096Z",
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:13:32.102Z",
-    "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
-    "entityType": "deal",
-    "id": "d6605103-567a-4ff4-bc6d-ee4364874c7d",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:13:32.102Z",
-    "value": "2026-08-01T00:00:00Z"
   },
   {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
@@ -2864,22 +2832,6 @@
     "value": "+491563210987"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:16:30.542Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "entityType": "deal",
-    "id": "db5cf20a-48ab-4a7a-87a5-c36befef23ed",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:16:30.542Z",
-    "value": "63e85eb5-ec10-47c9-b788-30640ec5369b"
-  },
-  {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "1e326939-d0aa-4a77-a9eb-a6f163e4f60e",
@@ -2992,22 +2944,6 @@
     "value": "+491563210999"
   },
   {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:14:30.743Z",
-    "dealId": "7d0b3571-e0ca-4265-9f97-b80d11e4c424",
-    "entityType": "deal",
-    "id": "e10612be-1fd1-4bfe-a515-5d28cf0f86dc",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:14:30.743Z",
-    "value": "2026-01-31T00:00:00Z"
-  },
-  {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
@@ -3088,22 +3024,6 @@
     "value": "9f12f5ec-7011-4afc-8e6b-1e61d5d75e7f"
   },
   {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:15:21.623Z",
-    "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
-    "entityType": "deal",
-    "id": "e5de0e00-b525-4e3b-a867-8beba333e155",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:15:21.623Z",
-    "value": "2027-12-31T00:00:00Z"
-  },
-  {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3118,22 +3038,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:38:41.760Z",
     "value": "5b9bac9e-5c43-4415-ab85-e20665809adc"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:09:21.074Z",
-    "dealId": "222734b2-9486-4dc9-8157-0690f54d5291",
-    "entityType": "deal",
-    "id": "e6befd03-4e40-499e-8caf-6e4f192fb585",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:09:21.074Z",
-    "value": "2026-08-31T00:00:00Z"
   },
   {
     "columnId": "789a2888-1d8d-4203-b2ce-9549898fab9d",
@@ -3216,6 +3120,22 @@
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
   },
   {
+    "columnId": "ecb08489-6cce-434f-9562-4ed20b1ed127",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:44:57.838Z",
+    "dealId": "3b10c30c-9c3a-4ccf-af9f-6a30406ebf87",
+    "entityType": "deal",
+    "id": "ea68ac67-1e66-416c-b326-af3b618ee8ee",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "dateRange",
+    "updatedAt": "2026-04-28T08:44:57.838Z",
+    "value": "2026-01-01,2028-01-01"
+  },
+  {
     "columnId": "6b104eb7-a96f-4f53-9d2f-4729f92f638e",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3262,6 +3182,22 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:16:12.379Z",
     "value": "eea27d41-f9ea-461f-b994-8f57cfe9891e"
+  },
+  {
+    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "contactId": null,
+    "createdAt": "2026-04-28T08:37:30.664Z",
+    "dealId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
+    "entityType": "deal",
+    "id": "edeed5b9-9bd1-4617-845e-23cb43dd79e4",
+    "numericValue": null,
+    "organizationId": null,
+    "serviceId": null,
+    "taskId": null,
+    "type": "singleSelect",
+    "updatedAt": "2026-04-28T08:37:30.664Z",
+    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
   },
   {
     "columnId": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
@@ -3344,22 +3280,6 @@
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:09:21.074Z",
-    "dealId": "222734b2-9486-4dc9-8157-0690f54d5291",
-    "entityType": "deal",
-    "id": "f1d2a2dc-ff92-41e4-9a6f-250134012d02",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:09:21.074Z",
-    "value": "b3a225d6-58ad-41d9-a425-e507b65d54a6"
-  },
-  {
     "columnId": "540b062c-7961-487c-af39-bcd37903ac2f",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3408,38 +3328,6 @@
     "value": "9f12f5ec-7011-4afc-8e6b-1e61d5d75e7f"
   },
   {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:15:21.623Z",
-    "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
-    "entityType": "deal",
-    "id": "f5037831-755c-4aba-9378-206a7f579309",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:15:21.623Z",
-    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
-  },
-  {
-    "columnId": "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:11:53.002Z",
-    "dealId": "f56ffbe9-82f7-4525-b4be-e1105d71c8fc",
-    "entityType": "deal",
-    "id": "f604cce9-e9ee-4d92-9579-b18ba40f55f7",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:11:53.002Z",
-    "value": "2026-12-31T00:00:00Z"
-  },
-  {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": null,
@@ -3470,22 +3358,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T09:44:36.655Z",
     "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:15:21.623Z",
-    "dealId": "25e41309-6581-4a38-ab21-8fcf1dd94d9c",
-    "entityType": "deal",
-    "id": "f68f0602-fb29-4a01-a289-fd94415a655a",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:15:21.623Z",
-    "value": "2026-07-01T00:00:00Z"
   },
   {
     "columnId": "f26bf5a8-f22e-48d1-ba9f-d71fd8eae7b8",
@@ -3582,38 +3454,6 @@
     "type": "singleSelect",
     "updatedAt": "2026-03-24T10:27:50.108Z",
     "value": "6197e771-8f02-43b0-a695-9342a2d31d8e"
-  },
-  {
-    "columnId": "c3fa6a08-cea5-4554-823d-275c2feff99f",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:16:30.542Z",
-    "dealId": "93f6be3a-9366-4adb-94fc-cc917661855a",
-    "entityType": "deal",
-    "id": "fc3a1ffe-4f5a-4813-bd43-7f9a4ca96f8b",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "date",
-    "updatedAt": "2026-03-24T10:16:30.542Z",
-    "value": "2026-11-16T00:00:00Z"
-  },
-  {
-    "columnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "contactId": null,
-    "createdAt": "2026-03-24T10:13:32.102Z",
-    "dealId": "4ec70d01-f5cb-435a-947a-e93cf8b3a2b4",
-    "entityType": "deal",
-    "id": "fca3ed86-99b7-4b4e-89f9-2a4d47a8db4e",
-    "numericValue": null,
-    "organizationId": null,
-    "serviceId": null,
-    "taskId": null,
-    "type": "singleSelect",
-    "updatedAt": "2026-03-24T10:13:32.102Z",
-    "value": "77445265-03ea-4ecf-b6e2-dc9dd7f0b194"
   },
   {
     "columnId": "0493854e-fb9d-4081-89bc-7a00a352d9db",

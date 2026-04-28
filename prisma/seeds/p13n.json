@@ -96,7 +96,7 @@
       "direction": "desc",
       "field": "updatedAt"
     },
-    "updatedAt": "2026-03-24T11:02:10.869Z",
+    "updatedAt": "2026-04-28T08:52:31.410Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "card"
   },
@@ -150,11 +150,10 @@
       "8c5dedf6-a2be-43fa-ae0e-936da4403215",
       "totalValue",
       "totalQuantity",
+      "ecb08489-6cce-434f-9562-4ed20b1ed127",
       "contacts",
       "organizations",
       "services",
-      "c3fa6a08-cea5-4554-823d-275c2feff99f",
-      "ed5d753c-f0a8-4d04-a7c9-1381467f4747",
       "users",
       "updatedAt",
       "createdAt"
@@ -177,7 +176,7 @@
       "direction": "desc",
       "field": "name"
     },
-    "updatedAt": "2026-03-24T11:02:23.506Z",
+    "updatedAt": "2026-04-28T08:52:13.366Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "card"
   },
@@ -209,7 +208,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-03-24T11:02:35.787Z",
+    "updatedAt": "2026-04-28T08:52:26.870Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   },
@@ -324,7 +323,7 @@
       "direction": "asc",
       "field": "name"
     },
-    "updatedAt": "2026-03-24T11:02:19.518Z",
+    "updatedAt": "2026-04-28T08:52:20.774Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7",
     "viewMode": "table"
   }
