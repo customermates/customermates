@@ -12,8 +12,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { completeOnboardingWizardAction } from "../actions";
-
+import { WIZARD_STEPS } from "./onboarding-wizard.store";
 import { StepProfile } from "./step-profile";
 import { StepEntities } from "./step-entities";
 import { StepCompany } from "./step-company";
@@ -42,12 +41,16 @@ export const OnboardingWizard = observer(
   }: Props) => {
     const t = useTranslations("OnboardingWizard");
     const { onboardingWizardStore } = useRootStore();
-    const { currentStep, currentStepIndex, totalSteps, isFirstStep, isLastStep, isSubmitting, next, back } =
-      onboardingWizardStore;
+    const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
 
     useEffect(() => {
+      const aiStepIndex = WIZARD_STEPS.indexOf("ai");
+      if (initialCompany?.salesType) {
+        onboardingWizardStore.setInitialStep(aiStepIndex);
+        return;
+      }
       onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0);
-    }, [profileCompleted]);
+    }, [profileCompleted, initialCompany?.salesType]);
 
     const renderStep = () => {
       switch (currentStep) {
@@ -68,18 +71,6 @@ export const OnboardingWizard = observer(
           return <StepAi />;
         case "invite":
           return <StepInvite />;
-      }
-    };
-
-    const handleFinish = async () => {
-      onboardingWizardStore.setIsSubmitting(true);
-      try {
-        await completeOnboardingWizardAction({
-          salesType: onboardingWizardStore.salesType,
-          keepDemoData: onboardingWizardStore.keepDemoData,
-        });
-      } finally {
-        onboardingWizardStore.setIsSubmitting(false);
       }
     };
 
@@ -118,15 +109,9 @@ export const OnboardingWizard = observer(
               {t("back")}
             </Button>
 
-            {isLastStep ? (
-              <Button disabled={isSubmitting} type="button" onClick={() => void handleFinish()}>
-                {t("finish")}
-              </Button>
-            ) : (
-              <Button disabled={isSubmitting} type="button" onClick={() => void next()}>
-                {t("next")}
-              </Button>
-            )}
+            <Button disabled={isSubmitting} type="button" onClick={() => void next()}>
+              {t("next")}
+            </Button>
           </AppCardFooter>
         )}
       </AppCard>

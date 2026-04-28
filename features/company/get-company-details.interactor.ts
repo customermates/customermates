@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Resource, Action, CountryCode, Currency } from "@/generated/prisma";
+import { Resource, Action, CountryCode, Currency, SalesType } from "@/generated/prisma";
 
 import type { Company } from "@/generated/prisma";
 
@@ -20,6 +20,7 @@ const CompanyDtoSchema = z.object({
   website: z.string().nullable(),
   phone: z.string().nullable(),
   email: z.string().nullable(),
+  salesType: z.enum(SalesType).nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

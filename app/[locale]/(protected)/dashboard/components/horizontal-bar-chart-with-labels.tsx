@@ -66,6 +66,7 @@ export const HorizontalBarChartWithLabels = observer(
               content={(props) => {
                 const { x, y, height, width, value, index } = props;
                 const entry = chartData[index as number];
+                if (!entry) return null;
                 const text = String(value ?? "");
                 const available = Number(width) - LABEL_PADDING_LEFT - LABEL_PADDING_RIGHT;
                 const display = truncateToWidth(text, available);

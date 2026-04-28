@@ -1,13 +1,18 @@
 "use server";
 
 import type { RegisterUserData } from "@/features/user/register/register-user.interactor";
-import type { CompleteOnboardingWizardData } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { SeedOnboardingData } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Status } from "@/generated/prisma";
 
-import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor, getUserService } from "@/core/di";
+import {
+  getCompleteOnboardingWizardInteractor,
+  getRegisterUserInteractor,
+  getSeedOnboardingDataInteractor,
+  getUserService,
+} from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function registerProfileAction(data: RegisterUserData) {
@@ -22,8 +27,12 @@ export async function registerProfileAction(data: RegisterUserData) {
   return result;
 }
 
-export async function completeOnboardingWizardAction(data: CompleteOnboardingWizardData) {
-  const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke(data));
+export async function seedOnboardingDataAction(data: SeedOnboardingData) {
+  return serializeResult(getSeedOnboardingDataInteractor().invoke(data));
+}
+
+export async function completeOnboardingWizardAction() {
+  const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
   if (result.ok) redirect("/");
   return result;
 }

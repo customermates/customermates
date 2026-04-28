@@ -100,6 +100,7 @@ import { DeleteManyTasksInteractor } from "@/features/tasks/delete/delete-many-t
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import { SeedOnboardingDataInteractor } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
 import { UpdateUserSettingsInteractor } from "@/features/user/upsert/update-user-settings.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
@@ -584,8 +585,10 @@ export const getRegisterUserInteractor = () =>
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getCompleteOnboardingWizardInteractor = () =>
-  new CompleteOnboardingWizardInteractor(getUserRepo(), getWidgetService());
+export const getSeedOnboardingDataInteractor = () =>
+  new SeedOnboardingDataInteractor(getUserRepo(), getWidgetService());
+
+export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
 
 export const getUpdateUserSettingsInteractor = () => new UpdateUserSettingsInteractor(getUserRepo());
 

@@ -3,7 +3,7 @@ import { SalesType } from "@/generated/prisma";
 
 import type { RootStore } from "@/core/stores/root.store";
 
-export const WIZARD_STEPS = ["profile", "entities", "company", "ai", "invite"] as const;
+export const WIZARD_STEPS = ["profile", "entities", "company", "invite", "ai"] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
 
 type BeforeNextHandler = () => Promise<boolean> | boolean;
@@ -47,6 +47,10 @@ export class OnboardingWizardStore {
   setInitialStep = (index: number) => {
     this.minStepIndex = index;
     if (this.currentStepIndex < index) this.currentStepIndex = index;
+  };
+
+  setMinStepIndex = (index: number) => {
+    this.minStepIndex = index;
   };
 
   next = async () => {

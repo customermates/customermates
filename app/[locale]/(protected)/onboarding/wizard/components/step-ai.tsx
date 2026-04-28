@@ -12,6 +12,8 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
 import { getMcpSetupPrompt } from "@/features/docs/mcp-setup-prompt";
 
+import { completeOnboardingWizardAction } from "../actions";
+
 import type { StepAiChoice } from "./step-ai.store";
 
 const CHOICES: StepAiChoice[] = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini", "skip"];
@@ -111,20 +113,14 @@ export const StepAi = observer(() => {
 
       <div className="flex justify-end gap-4 pt-2">
         <Button
-          disabled={onboardingWizardStore.isSubmitting}
-          type="button"
-          variant="outline"
-          onClick={onboardingWizardStore.back}
-        >
-          {tw("back")}
-        </Button>
-
-        <Button
           disabled={!canContinue || onboardingWizardStore.isSubmitting}
           type="button"
-          onClick={() => void onboardingWizardStore.next()}
+          onClick={() => {
+            onboardingWizardStore.setIsSubmitting(true);
+            void completeOnboardingWizardAction().finally(() => onboardingWizardStore.setIsSubmitting(false));
+          }}
         >
-          {tw("next")}
+          {tw("finish")}
         </Button>
       </div>
     </div>

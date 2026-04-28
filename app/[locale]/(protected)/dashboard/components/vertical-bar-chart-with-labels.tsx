@@ -49,6 +49,7 @@ export const VerticalBarChartWithLabels = observer(
               content={(props) => {
                 const { x, width, y, height, value, index } = props;
                 const entry = chartData[index as number];
+                if (!entry) return null;
                 return (
                   <text
                     dominantBaseline="middle"

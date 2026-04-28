@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 import { InviteByEmailForm } from "../../../company/components/company-invite/invite-by-email-form";
 import { getOrCreateInviteTokenAction } from "../../../company/actions";
+import { seedOnboardingDataAction } from "../actions";
 
 export const InviteLink = () => {
   const t = useTranslations("OnboardingWizard.invite");
@@ -97,6 +98,20 @@ const DemoDataChoice = observer(() => {
 
 export const StepInvite = observer(() => {
   const t = useTranslations("OnboardingWizard.invite");
+  const { onboardingWizardStore } = useRootStore();
+
+  useEffect(() => {
+    onboardingWizardStore.setBeforeNext(async () => {
+      const result = await seedOnboardingDataAction({
+        salesType: onboardingWizardStore.salesType,
+        keepDemoData: onboardingWizardStore.keepDemoData,
+      });
+      if (!result.ok) return false;
+      onboardingWizardStore.setMinStepIndex(onboardingWizardStore.currentStepIndex + 1);
+      return true;
+    });
+    return () => onboardingWizardStore.setBeforeNext(null);
+  }, [onboardingWizardStore]);
 
   return (
     <div className="flex flex-col gap-5">

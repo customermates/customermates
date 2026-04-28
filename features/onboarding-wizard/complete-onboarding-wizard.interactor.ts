@@ -1,49 +1,24 @@
-import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { WidgetService } from "@/features/widget/widget.service";
-
 import { z } from "zod";
-import { SalesType } from "@/generated/prisma";
 
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
-import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
-const Schema = z.object({
-  salesType: z.enum(SalesType),
-  keepDemoData: z.boolean().default(true),
-});
-
-export type CompleteOnboardingWizardData = Data<typeof Schema>;
-
 export abstract class CompleteOnboardingWizardRepo {
-  abstract markOnboardingWizardCompletedAndSeedDashboard(args: {
-    userId: string;
-    salesType: SalesType;
-    keepDemoData: boolean;
-  }): Promise<{ alreadySeeded: boolean }>;
+  abstract markOnboardingWizardCompleted(args: { userId: string }): Promise<void>;
 }
 
 @TentantInteractor()
-export class CompleteOnboardingWizardInteractor extends BaseInteractor<CompleteOnboardingWizardData, null> {
-  constructor(
-    private repo: CompleteOnboardingWizardRepo,
-    private widgetService: WidgetService,
-  ) {
+export class CompleteOnboardingWizardInteractor extends BaseInteractor<void, null> {
+  constructor(private repo: CompleteOnboardingWizardRepo) {
     super();
   }
 
-  @Validate(Schema)
   @ValidateOutput(z.null())
-  async invoke(data: CompleteOnboardingWizardData): Validated<null> {
+  async invoke(): Promise<{ ok: true; data: null }> {
     const { id } = getTenantUser();
-    const result = await this.repo.markOnboardingWizardCompletedAndSeedDashboard({
-      userId: id,
-      salesType: data.salesType,
-      keepDemoData: data.keepDemoData,
-    });
-    if (!result.alreadySeeded) await this.widgetService.recalculateUserWidgets();
+    await this.repo.markOnboardingWizardCompleted({ userId: id });
     return { ok: true as const, data: null };
   }
 }

@@ -1032,6 +1032,7 @@
     "inactiveUser": "Your account is currently inactive. Please contact your administrator to reactivate your account.",
     "invalidInviteLink": "The invitation link you used is not valid or may have been altered. Please reach out to your administrator to request a new, valid invitation link so you can proceed with your registration.",
     "inviteLinkExpired": "The invitation link you tried to use has expired and can no longer be used. Please contact your administrator and ask them to generate a fresh invitation link for you to complete your account setup.",
+    "retry": "Try again",
     "subtitle": "Oops! Something went wrong",
     "title": "Well, that's awkward",
     "unexpectedError": "An unexpected error occurred. Don't worry though, we've been notified and are on it!"

@@ -6,6 +6,7 @@ import type { UpdateUserSettingsRepo } from "@/features/user/upsert/update-user-
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { SeedOnboardingDataRepo } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
@@ -61,6 +62,7 @@ export class PrismaUserRepo
     SendTrialInactivationReminderActionRepo,
     DeactivateTrialUsersAndSendNoticeRepo,
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
+    SeedOnboardingDataRepo,
     CompleteOnboardingWizardRepo
 {
   private get extendedUserSelect() {
@@ -165,23 +167,25 @@ export class PrismaUserRepo
   }
 
   @Transaction
-  async markOnboardingWizardCompletedAndSeedDashboard(args: {
-    userId: string;
-    salesType: SalesType;
-    keepDemoData: boolean;
-  }) {
+  async seedOnboardingData(args: { userId: string; salesType: SalesType; keepDemoData: boolean }) {
     const { companyId } = this.user;
     const { userId, salesType, keepDemoData } = args;
 
-    await this.prisma.user.updateMany({
-      data: { onboardingWizardCompletedAt: new Date() },
-      where: { id: userId, companyId },
-    });
     await this.prisma.company.update({ where: { id: companyId }, data: { salesType } });
 
     if (!keepDemoData) return { alreadySeeded: false };
 
     return this.seedCompanyDashboard(userId, salesType);
+  }
+
+  @Transaction
+  async markOnboardingWizardCompleted(args: { userId: string }) {
+    const { companyId } = this.user;
+
+    await this.prisma.user.updateMany({
+      data: { onboardingWizardCompletedAt: new Date() },
+      where: { id: args.userId, companyId },
+    });
   }
 
   private async seedCompanyDashboard(userId: string, salesType: SalesType) {

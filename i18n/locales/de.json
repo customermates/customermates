@@ -1032,6 +1032,7 @@
     "inactiveUser": "Ihr Konto ist derzeit inaktiv. Bitte kontaktieren Sie Ihren Administrator, um Ihr Konto zu reaktivieren.",
     "invalidInviteLink": "Der Einladungslink, den Sie verwendet haben, ist ungültig oder möglicherweise manipuliert. Bitte kontaktieren Sie Ihren Administrator, um einen neuen, gültigen Einladungslink zu erhalten, damit Sie Ihre Registrierung fortsetzen können.",
     "inviteLinkExpired": "Der Einladungslink, den Sie verwendet haben, ist abgelaufen und kann nicht mehr verwendet werden. Bitte kontaktieren Sie Ihren Administrator und fragen Sie sie, einen neuen, gültigen Einladungslink für Sie zu generieren, damit Sie Ihre Kontoeinrichtung abschließen können.",
+    "retry": "Erneut versuchen",
     "subtitle": "Ups! Etwas ist schiefgelaufen",
     "title": "Das ist jetzt peinlich",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Aber keine Sorge, wir wurden benachrichtigt und kümmern uns darum!"
