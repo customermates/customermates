@@ -18,6 +18,7 @@ import { validateCustomFieldCurrency } from "@/core/validation/validate-custom-f
 import { validateCustomFieldSingleSelect } from "@/core/validation/validate-custom-field-single-select";
 import { validateCustomFieldLink } from "@/core/validation/validate-custom-field-link";
 import { validateCustomFieldDate } from "@/core/validation/validate-custom-field-date";
+import { validateCustomFieldDateTime } from "@/core/validation/validate-custom-field-date-time";
 import { validateCustomColumnExists } from "@/core/validation/validate-custom-column-exists";
 import { validateDate } from "@/core/validation/validate-date";
 import { validateEvent } from "@/core/validation/validate-event";
@@ -151,9 +152,23 @@ export class ValidateQueryParamsValidator {
             break;
           }
 
-          case CustomColumnType.date:
-          case CustomColumnType.dateTime: {
+          case CustomColumnType.date: {
             validateCustomFieldDate(value, ctx, valuePath);
+            break;
+          }
+
+          case CustomColumnType.dateTime: {
+            validateCustomFieldDateTime(value, ctx, valuePath);
+            break;
+          }
+
+          case CustomColumnType.dateRange: {
+            validateCustomFieldDate(value, ctx, valuePath);
+            break;
+          }
+
+          case CustomColumnType.dateTimeRange: {
+            validateCustomFieldDateTime(value, ctx, valuePath);
             break;
           }
 

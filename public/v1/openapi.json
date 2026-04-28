@@ -1196,6 +1196,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -1761,6 +1883,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -2333,6 +2470,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -2691,6 +2950,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -3104,6 +3378,128 @@
                               "type": {
                                 "type": "string",
                                 "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
                               },
                               "options": {
                                 "anyOf": [
@@ -5113,6 +5509,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -5678,6 +6196,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -6241,6 +6774,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -6599,6 +7254,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -7003,6 +7673,128 @@
                               "type": {
                                 "type": "string",
                                 "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
                               },
                               "options": {
                                 "anyOf": [
@@ -9098,6 +9890,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -9663,6 +10577,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -10264,6 +11193,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -10622,6 +11673,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -11064,6 +12130,128 @@
                               "type": {
                                 "type": "string",
                                 "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
                               },
                               "options": {
                                 "anyOf": [
@@ -13045,6 +14233,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -13610,6 +14920,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -14151,6 +15476,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -14509,6 +15956,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -14891,6 +16353,128 @@
                               "type": {
                                 "type": "string",
                                 "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
                               },
                               "options": {
                                 "anyOf": [
@@ -16719,6 +18303,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -17284,6 +18990,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -17807,6 +19528,128 @@
                             "additionalProperties": false
                           },
                           {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
                             "title": "Link",
                             "type": "object",
                             "properties": {
@@ -18165,6 +20008,21 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "columnType": {
+                            "type": "string",
+                            "enum": [
+                              "currency",
+                              "date",
+                              "dateRange",
+                              "dateTime",
+                              "dateTimeRange",
+                              "email",
+                              "plain",
+                              "link",
+                              "phone",
+                              "singleSelect"
+                            ]
                           }
                         },
                         "required": [
@@ -18529,6 +20387,128 @@
                               "type": {
                                 "type": "string",
                                 "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "title": "DateTimeRange",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
                               },
                               "options": {
                                 "anyOf": [

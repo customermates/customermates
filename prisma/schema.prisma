@@ -323,6 +323,8 @@ model CustomFieldValue {
   entityType     EntityType
   columnId       String
   value          String?
+  rangeStart     String?          @default(dbgenerated("custom_field_range_start(value)"))
+  rangeEnd       String?          @default(dbgenerated("custom_field_range_end(value)"))
   numericValue   Decimal?         @db.Decimal(20, 4)
   type           CustomColumnType
   createdAt      DateTime         @default(now())
@@ -345,6 +347,8 @@ model CustomFieldValue {
   @@index([columnId])
   @@index([columnId, value])
   @@index([value])
+  @@index([rangeStart])
+  @@index([rangeEnd])
   @@index([companyId])
   @@index([contactId])
   @@index([organizationId])
@@ -911,7 +915,9 @@ enum TaskType {
 enum CustomColumnType {
   currency
   date
+  dateRange
   dateTime
+  dateTimeRange
   email
   plain
   link

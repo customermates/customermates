@@ -8,6 +8,7 @@ import type {
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { z } from "zod";
+import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
@@ -128,7 +129,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
       if (!isFilterValueWellFormed(filter, fieldConfig.operators)) continue;
 
-      result.push(maybeExpandDateEqualsToDayRange(filter, fieldConfig.operators));
+      result.push(filter);
     }
 
     return result;
@@ -175,7 +176,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const filterableFields = await this.getFilterableFields();
     const validFilters = this.validateFilters(filters, filterableFields);
 
-    for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields);
+    const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.getCustomColumns() : [];
+    const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
+
+    for (const filter of validFilters) this.applyFieldFilter(where, filter, filterableFields, customColumnTypeById);
 
     const searchGroup = this.buildSearchGroup(searchTerm);
 
@@ -228,13 +232,18 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     where: WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>,
     filter: Filter,
     filterableFields: FilterableField[],
+    customColumnTypeById: Map<string, CustomColumnType>,
   ): void {
     const isCustom = isCustomField(filter.field);
 
     if (isCustom) {
       const fieldConfig = filterableFields.find((f) => f.field === filter.field);
+      const columnType = customColumnTypeById.get(filter.field);
+      const isRange = columnType === CustomColumnType.dateRange || columnType === CustomColumnType.dateTimeRange;
       const valueField = fieldConfig && isNumericField(fieldConfig.operators) ? "numericValue" : "value";
-      const condition = this.buildFilterCondition(filter, valueField);
+      const condition = isRange
+        ? this.buildRangeRelationFilterCondition(filter)
+        : this.buildFilterCondition(filter, valueField);
       where.AND = [...(where.AND ?? []), this.createClause("customFieldValues", condition)];
       return;
     }
@@ -262,6 +271,39 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     where.AND = [...(where.AND ?? []), this.createClause(filter.field, fieldCondition)];
 
     return;
+  }
+
+  private buildRangeRelationFilterCondition(filter: Filter) {
+    const columnIdClause = { columnId: filter.field };
+
+    switch (filter.operator) {
+      case FilterOperatorKey.isNull:
+        return { none: { AND: [columnIdClause, { value: { not: null } }] } };
+      case FilterOperatorKey.isNotNull:
+        return { some: { AND: [columnIdClause, { value: { not: null } }] } };
+      case FilterOperatorKey.contains:
+        return {
+          some: {
+            AND: [columnIdClause, { rangeStart: { lte: filter.value } }, { rangeEnd: { gte: filter.value } }],
+          },
+        };
+      case FilterOperatorKey.gt:
+        return { some: { AND: [columnIdClause, { rangeStart: { gt: filter.value } }] } };
+      case FilterOperatorKey.gte:
+        return { some: { AND: [columnIdClause, { rangeStart: { gte: filter.value } }] } };
+      case FilterOperatorKey.lt:
+        return { some: { AND: [columnIdClause, { rangeEnd: { lt: filter.value } }] } };
+      case FilterOperatorKey.lte:
+        return { some: { AND: [columnIdClause, { rangeEnd: { lte: filter.value } }] } };
+      case FilterOperatorKey.between:
+        return {
+          some: {
+            AND: [columnIdClause, { rangeStart: { gte: filter.value[0] } }, { rangeEnd: { lte: filter.value[1] } }],
+          },
+        };
+      default:
+        throw new Error(`Operator ${filter.operator} is not supported for range custom columns`);
+    }
   }
 
   private buildArrayFilterCondition(filter: Filter) {
@@ -472,21 +514,4 @@ function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorK
     return values.every((v) => v !== "" && v !== null && v !== undefined && !Number.isNaN(Number(v)));
 
   return true;
-}
-
-function maybeExpandDateEqualsToDayRange(filter: Filter, fieldOperators: FilterOperatorKey[]): Filter {
-  if (filter.operator !== FilterOperatorKey.equals || !isDateLikeField(fieldOperators)) return filter;
-  const value = "value" in filter ? filter.value : undefined;
-  if (typeof value !== "string" || !value.endsWith("T00:00:00Z")) return filter;
-
-  const start = new Date(value);
-  if (Number.isNaN(start.getTime())) return filter;
-  const end = new Date(start);
-  end.setUTCHours(23, 59, 59, 999);
-
-  return {
-    field: filter.field,
-    operator: FilterOperatorKey.between,
-    value: [start.toISOString(), end.toISOString()],
-  };
 }

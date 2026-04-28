@@ -14,6 +14,7 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
+import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
 import { Icon } from "@/components/shared/icon";
 import { Favicon } from "@/components/shared/favicon";
 import { copyToClipboard } from "@/lib/clipboard";
@@ -158,6 +159,26 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
     case CustomColumnType.dateTime:
       return (
         <FormIsoDatePicker
+          dateOnly={false}
+          displayFormat={column.options?.displayFormat ?? undefined}
+          id={id ?? inputId}
+          label={formLabel}
+        />
+      );
+
+    case CustomColumnType.dateRange:
+      return (
+        <FormIsoDateRangePicker
+          dateOnly
+          displayFormat={column.options?.displayFormat ?? undefined}
+          id={id ?? inputId}
+          label={formLabel}
+        />
+      );
+
+    case CustomColumnType.dateTimeRange:
+      return (
+        <FormIsoDateRangePicker
           dateOnly={false}
           displayFormat={column.options?.displayFormat ?? undefined}
           id={id ?? inputId}

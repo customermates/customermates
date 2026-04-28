@@ -45,6 +45,26 @@ export const DateTimeSchema = BaseSchema.extend({
     .optional(),
 });
 
+export const DateRangeSchema = BaseSchema.extend({
+  type: z.literal(CustomColumnType.dateRange),
+  options: z
+    .object({
+      displayFormat: z.enum(DATE_DISPLAY_FORMATS),
+    })
+    .nullable()
+    .optional(),
+});
+
+export const DateTimeRangeSchema = BaseSchema.extend({
+  type: z.literal(CustomColumnType.dateTimeRange),
+  options: z
+    .object({
+      displayFormat: z.enum(DATE_DISPLAY_FORMATS),
+    })
+    .nullable()
+    .optional(),
+});
+
 export const LinkSchema = BaseSchema.extend({
   type: z.literal(CustomColumnType.link),
   options: z.object({
@@ -87,6 +107,8 @@ export const CustomColumnDtoSchema = z.discriminatedUnion("type", [
   PlainSchema.meta({ title: "Plain" }),
   DateSchema.meta({ title: "Date" }),
   DateTimeSchema.meta({ title: "DateTime" }),
+  DateRangeSchema.meta({ title: "DateRange" }),
+  DateTimeRangeSchema.meta({ title: "DateTimeRange" }),
   LinkSchema.meta({ title: "Link" }),
   CurrencySchema.meta({ title: "Currency" }),
   SingleSelectSchema.meta({ title: "SingleSelect" }),

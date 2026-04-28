@@ -47,6 +47,18 @@ const CreateDateTimeCustomColumnSchema = z.object({
   displayFormat: DateFormatSchema.optional(),
 });
 
+const CreateDateRangeCustomColumnSchema = z.object({
+  entityType: EntityTypeSchema,
+  label: z.string().min(1),
+  displayFormat: DateFormatSchema.optional(),
+});
+
+const CreateDateTimeRangeCustomColumnSchema = z.object({
+  entityType: EntityTypeSchema,
+  label: z.string().min(1),
+  displayFormat: DateFormatSchema.optional(),
+});
+
 const CreateCurrencyCustomColumnSchema = z.object({
   entityType: EntityTypeSchema,
   label: z.string().min(1),
@@ -110,6 +122,18 @@ const UpdateDateCustomColumnSchema = z.object({
 });
 
 const UpdateDateTimeCustomColumnSchema = z.object({
+  id: z.uuid(),
+  label: z.string().min(1),
+  displayFormat: DateFormatSchema.optional(),
+});
+
+const UpdateDateRangeCustomColumnSchema = z.object({
+  id: z.uuid(),
+  label: z.string().min(1),
+  displayFormat: DateFormatSchema.optional(),
+});
+
+const UpdateDateTimeRangeCustomColumnSchema = z.object({
   id: z.uuid(),
   label: z.string().min(1),
   displayFormat: DateFormatSchema.optional(),
@@ -283,6 +307,48 @@ export const updateDateTimeCustomColumnTool = {
       id,
       label,
       type: CustomColumnType.dateTime,
+      entityType: loaded.column.entityType,
+      options: displayFormat ? { displayFormat } : undefined,
+    });
+  },
+};
+
+export const updateDateRangeCustomColumnTool = {
+  name: "update_date_range_custom_column",
+  description:
+    "Update a date range (no time) custom column. " +
+    "Required: id, label. Optional: displayFormat. " +
+    "Type and entityType are immutable.",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  inputSchema: UpdateDateRangeCustomColumnSchema,
+  execute: async ({ id, label, displayFormat }: z.infer<typeof UpdateDateRangeCustomColumnSchema>) => {
+    const loaded = await loadColumnOrError(id, CustomColumnType.dateRange);
+    if (!loaded.ok) return loaded.error;
+    return runCustomColumnUpdate({
+      id,
+      label,
+      type: CustomColumnType.dateRange,
+      entityType: loaded.column.entityType,
+      options: displayFormat ? { displayFormat } : undefined,
+    });
+  },
+};
+
+export const updateDateTimeRangeCustomColumnTool = {
+  name: "update_datetime_range_custom_column",
+  description:
+    "Update a date+time range custom column. " +
+    "Required: id, label. Optional: displayFormat. " +
+    "Type and entityType are immutable.",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  inputSchema: UpdateDateTimeRangeCustomColumnSchema,
+  execute: async ({ id, label, displayFormat }: z.infer<typeof UpdateDateTimeRangeCustomColumnSchema>) => {
+    const loaded = await loadColumnOrError(id, CustomColumnType.dateTimeRange);
+    if (!loaded.ok) return loaded.error;
+    return runCustomColumnUpdate({
+      id,
+      label,
+      type: CustomColumnType.dateTimeRange,
       entityType: loaded.column.entityType,
       options: displayFormat ? { displayFormat } : undefined,
     });
@@ -472,6 +538,46 @@ export const createDateTimeCustomColumnTool = {
     const result = await getUpsertCustomColumnInteractor().invoke({
       label: params.label,
       type: CustomColumnType.dateTime,
+      entityType: params.entityType,
+      options: params.displayFormat ? { displayFormat: params.displayFormat } : undefined,
+    });
+    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    return successResponse(result.data);
+  },
+};
+
+export const createDateRangeCustomColumnTool = {
+  name: "create_date_range_custom_column",
+  description:
+    "Create a date range (no time) column on an entity type. " +
+    "Values are stored as 'YYYY-MM-DD,YYYY-MM-DD' (start,end). " +
+    "Required: entityType, label. Optional: displayFormat.",
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  inputSchema: CreateDateRangeCustomColumnSchema,
+  execute: async (params: z.infer<typeof CreateDateRangeCustomColumnSchema>) => {
+    const result = await getUpsertCustomColumnInteractor().invoke({
+      label: params.label,
+      type: CustomColumnType.dateRange,
+      entityType: params.entityType,
+      options: params.displayFormat ? { displayFormat: params.displayFormat } : undefined,
+    });
+    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    return successResponse(result.data);
+  },
+};
+
+export const createDateTimeRangeCustomColumnTool = {
+  name: "create_datetime_range_custom_column",
+  description:
+    "Create a date+time range column on an entity type. " +
+    "Values are stored as full ISO 8601 datetimes joined by a comma (e.g. 2024-01-15T09:00:00Z,2024-01-15T17:00:00Z). " +
+    "Required: entityType, label. Optional: displayFormat.",
+  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  inputSchema: CreateDateTimeRangeCustomColumnSchema,
+  execute: async (params: z.infer<typeof CreateDateTimeRangeCustomColumnSchema>) => {
+    const result = await getUpsertCustomColumnInteractor().invoke({
+      label: params.label,
+      type: CustomColumnType.dateTimeRange,
       entityType: params.entityType,
       options: params.displayFormat ? { displayFormat: params.displayFormat } : undefined,
     });

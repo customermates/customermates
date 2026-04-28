@@ -11,6 +11,9 @@ import { validateCustomFieldPhone } from "../validate-custom-field-phone";
 import { validateCustomFieldCurrency } from "../validate-custom-field-currency";
 import { validateCustomFieldLink } from "../validate-custom-field-link";
 import { validateCustomFieldDate } from "../validate-custom-field-date";
+import { validateCustomFieldDateTime } from "../validate-custom-field-date-time";
+import { validateCustomFieldDateRange } from "../validate-custom-field-date-range";
+import { validateCustomFieldDateTimeRange } from "../validate-custom-field-date-time-range";
 import { validateCustomFieldSingleSelect } from "../validate-custom-field-single-select";
 import { validateCustomColumnExists } from "../validate-custom-column-exists";
 import { validateEvent } from "../validate-event";
@@ -142,24 +145,110 @@ describe("validateCustomFieldLink", () => {
 });
 
 describe("validateCustomFieldDate", () => {
-  it("passes for a valid ISO datetime string", () => {
+  it("accepts a date-only string", () => {
     const ctx = createMockCtx();
-    validateCustomFieldDate("2024-01-15T10:30:00Z", ctx, ["value"]);
+    validateCustomFieldDate("2024-01-15", ctx, ["value"]);
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 
-  it("adds issue for an invalid date string", () => {
+  it("accepts a full ISO datetime (lenient inbound for UI submissions)", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDate("2024-01-15T00:00:00Z", ctx, ["value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid string with customFieldInvalidDate", () => {
     const ctx = createMockCtx();
     validateCustomFieldDate("not-a-date", ctx, ["value"]);
     expect(ctx.addIssue).toHaveBeenCalledWith(
       expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDate } }),
     );
   });
+});
 
-  it("adds issue for a date-only string (no time component)", () => {
+describe("validateCustomFieldDateTime", () => {
+  it("accepts a full ISO datetime", () => {
     const ctx = createMockCtx();
-    validateCustomFieldDate("2024-01-15", ctx, ["value"]);
-    expect(ctx.addIssue).toHaveBeenCalled();
+    validateCustomFieldDateTime("2024-01-15T10:30:00Z", ctx, ["value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("rejects a date-only string with customFieldInvalidDateTime", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateTime("2024-01-15", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateTime } }),
+    );
+  });
+
+  it("rejects an invalid string with customFieldInvalidDateTime", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateTime("not-a-date", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateTime } }),
+    );
+  });
+});
+
+describe("validateCustomFieldDateRange", () => {
+  it("accepts two date-only strings comma-separated", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateRange("2024-01-15,2024-01-22", ctx, ["value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("accepts two ISO datetimes comma-separated (lenient inbound)", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateRange("2024-01-15T00:00:00Z,2024-01-22T00:00:00Z", ctx, ["value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("rejects when start is after end", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateRange("2024-01-22,2024-01-15", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateRange } }),
+    );
+  });
+
+  it("rejects a single value (no comma)", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateRange("2024-01-15", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateRange } }),
+    );
+  });
+
+  it("rejects when one half is invalid", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateRange("2024-01-15,not-a-date", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateRange } }),
+    );
+  });
+});
+
+describe("validateCustomFieldDateTimeRange", () => {
+  it("accepts two ISO datetimes comma-separated", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateTimeRange("2024-01-15T09:00:00Z,2024-01-15T17:00:00Z", ctx, ["value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("rejects date-only strings with customFieldInvalidDateTimeRange", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateTimeRange("2024-01-15,2024-01-22", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateTimeRange } }),
+    );
+  });
+
+  it("rejects when start is after end", () => {
+    const ctx = createMockCtx();
+    validateCustomFieldDateTimeRange("2024-01-15T17:00:00Z,2024-01-15T09:00:00Z", ctx, ["value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.customFieldInvalidDateTimeRange } }),
+    );
   });
 });
 

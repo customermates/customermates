@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import {
   Calendar,
+  CalendarRange,
   FileText,
   DollarSign,
   List,
@@ -56,6 +57,8 @@ const COLUMN_TYPES = [
   { value: CustomColumnType.plain, icon: FileText },
   { value: CustomColumnType.date, icon: Calendar },
   { value: CustomColumnType.dateTime, icon: Clock },
+  { value: CustomColumnType.dateRange, icon: CalendarRange },
+  { value: CustomColumnType.dateTimeRange, icon: CalendarRange },
   { value: CustomColumnType.currency, icon: DollarSign },
   { value: CustomColumnType.link, icon: Globe },
   { value: CustomColumnType.email, icon: Mail },
@@ -257,6 +260,32 @@ export const CustomColumnModal = observer(() => {
             )}
 
             {form.type === CustomColumnType.dateTime && (
+              <FormSelect
+                id="options.displayFormat"
+                items={DATE_DISPLAY_FORMATS.map((key) => {
+                  const exampleDate = new Date("1970-01-01T12:30:00");
+                  const formatFn = intlStore.dateTimeFormatMap[key];
+                  const label = key === "relative" ? formatFn(new Date(Date.now() - 86400000)) : formatFn(exampleDate);
+                  return { value: key, label };
+                })}
+                label={t("Common.inputs.options.displayFormat")}
+              />
+            )}
+
+            {form.type === CustomColumnType.dateRange && (
+              <FormSelect
+                id="options.displayFormat"
+                items={DATE_DISPLAY_FORMATS.map((key) => {
+                  const exampleDate = new Date("1970-01-01");
+                  const formatFn = intlStore.dateFormatMap[key];
+                  const label = key === "relative" ? formatFn(new Date(Date.now() - 86400000)) : formatFn(exampleDate);
+                  return { value: key, label };
+                })}
+                label={t("Common.inputs.options.displayFormat")}
+              />
+            )}
+
+            {form.type === CustomColumnType.dateTimeRange && (
               <FormSelect
                 id="options.displayFormat"
                 items={DATE_DISPLAY_FORMATS.map((key) => {

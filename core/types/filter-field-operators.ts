@@ -10,7 +10,6 @@ const relationOperators = [
 ];
 
 const dateOperators = [
-  FilterOperatorKey.equals,
   FilterOperatorKey.gt,
   FilterOperatorKey.gte,
   FilterOperatorKey.lt,

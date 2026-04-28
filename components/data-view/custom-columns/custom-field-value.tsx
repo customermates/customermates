@@ -186,6 +186,34 @@ export const CustomFieldValue = observer(
           return <span className="block truncate">{formattedDateTime}</span>;
         }
 
+        case CustomColumnType.dateRange: {
+          if (!value) return <span />;
+
+          const [startStr, endStr] = value.split(",").map((s) => s.trim());
+          const start = startStr ? new Date(startStr) : undefined;
+          const end = endStr ? new Date(endStr) : undefined;
+
+          if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return <span />;
+
+          const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
+          const formatFn = intlStore.dateFormatMap[displayFormat];
+          return <span className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>;
+        }
+
+        case CustomColumnType.dateTimeRange: {
+          if (!value) return <span />;
+
+          const [startStr, endStr] = value.split(",").map((s) => s.trim());
+          const start = startStr ? new Date(startStr) : undefined;
+          const end = endStr ? new Date(endStr) : undefined;
+
+          if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return <span />;
+
+          const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
+          const formatFn = intlStore.dateTimeFormatMap[displayFormat];
+          return <span className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>;
+        }
+
         case CustomColumnType.plain:
           return <span className="block truncate">{value}</span>;
 

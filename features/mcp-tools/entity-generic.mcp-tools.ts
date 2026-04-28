@@ -395,6 +395,7 @@ export const updateEntityCustomFieldsTool = {
     "Each customFieldValues entry is { columnId, value }. " +
     "Per-column merge: ONLY columns you include are changed. Columns you omit keep their current value. " +
     "To clear a column pass { columnId, value: null } (or empty string). " +
+    "Date columns accept YYYY-MM-DD or full ISO 8601 datetime; dateTime columns require full ISO 8601 (e.g. 2026-05-01T14:30:00Z). " +
     "Call get_entity_configuration or list_custom_columns to discover column ids.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateCustomFieldEntitySchema,

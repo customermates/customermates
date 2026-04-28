@@ -69,12 +69,14 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
         case "currency":
           return <FilterInputNumber id={id} isValidFilter={isValidFilter} />;
         case "date":
+        case "dateRange":
           return isBetween ? (
             <FilterInputIsoDateRange granularity="day" id={id} isValidFilter={isValidFilter} />
           ) : (
             <FilterInputIsoDate granularity="day" id={id} isValidFilter={isValidFilter} />
           );
         case "dateTime":
+        case "dateTimeRange":
           return isBetween ? (
             <FilterInputIsoDateRange granularity="minute" id={id} isValidFilter={isValidFilter} />
           ) : (

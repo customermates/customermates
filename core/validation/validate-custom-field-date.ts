@@ -7,13 +7,15 @@ export function validateCustomFieldDate(value: string | string[], ctx: z.Refinem
   const isArray = Array.isArray(value);
 
   for (let i = 0; i < values.length; i++) {
-    const dateResult = z.iso.datetime().safeParse(values[i]);
-    if (!dateResult.success) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.customFieldInvalidDate },
-        path: isArray ? [...basePath, i] : basePath,
-      });
-    }
+    const candidate = values[i];
+    const dateOnlyOk = z.iso.date().safeParse(candidate).success;
+    const datetimeOk = z.iso.datetime().safeParse(candidate).success;
+    if (dateOnlyOk || datetimeOk) continue;
+
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.customFieldInvalidDate },
+      path: isArray ? [...basePath, i] : basePath,
+    });
   }
 }

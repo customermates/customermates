@@ -9,6 +9,9 @@ import { validateCustomFieldCurrency } from "@/core/validation/validate-custom-f
 import { validateCustomFieldSingleSelect } from "@/core/validation/validate-custom-field-single-select";
 import { validateCustomFieldLink } from "@/core/validation/validate-custom-field-link";
 import { validateCustomFieldDate } from "@/core/validation/validate-custom-field-date";
+import { validateCustomFieldDateTime } from "@/core/validation/validate-custom-field-date-time";
+import { validateCustomFieldDateRange } from "@/core/validation/validate-custom-field-date-range";
+import { validateCustomFieldDateTimeRange } from "@/core/validation/validate-custom-field-date-time-range";
 import { validateCustomColumnExists } from "@/core/validation/validate-custom-column-exists";
 
 export { FindCustomColumnRepo } from "../../features/custom-column/find-custom-column.repo";
@@ -59,9 +62,23 @@ export function validateCustomFieldValues(
         break;
       }
 
-      case CustomColumnType.date:
-      case CustomColumnType.dateTime: {
+      case CustomColumnType.date: {
         validateCustomFieldDate(value, ctx, valuePath);
+        break;
+      }
+
+      case CustomColumnType.dateTime: {
+        validateCustomFieldDateTime(value, ctx, valuePath);
+        break;
+      }
+
+      case CustomColumnType.dateRange: {
+        validateCustomFieldDateRange(value, ctx, valuePath);
+        break;
+      }
+
+      case CustomColumnType.dateTimeRange: {
+        validateCustomFieldDateTimeRange(value, ctx, valuePath);
         break;
       }
 

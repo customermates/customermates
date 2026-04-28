@@ -74,6 +74,8 @@ export const SORT_SYNTAX = {
     currency: "numeric",
     date: "chronological",
     dateTime: "chronological",
+    dateRange: "chronological by start date, then by end date",
+    dateTimeRange: "chronological by start datetime, then by end datetime",
     plain: "locale-aware string",
     email: "locale-aware string",
     phone: "locale-aware string",

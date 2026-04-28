@@ -2,15 +2,18 @@
 
 import type { DateDisplayFormat } from "@/constants/date-format";
 
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { addMonths, addWeeks, addYears, startOfMonth } from "date-fns";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { TimeInput } from "./time-input";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -27,6 +30,13 @@ type Props = {
   containerClassName?: string;
 };
 
+const PRESETS: ReadonlyArray<{ key: string; compute: (today: Date) => Date }> = [
+  { key: "today", compute: (d) => d },
+  { key: "inAWeek", compute: (d) => addWeeks(d, 1) },
+  { key: "inAMonth", compute: (d) => addMonths(d, 1) },
+  { key: "inAYear", compute: (d) => addYears(d, 1) },
+];
+
 export const FormIsoDatePicker = observer(
   ({
     id,
@@ -38,7 +48,8 @@ export const FormIsoDatePicker = observer(
     className,
     containerClassName,
   }: Props) => {
-    const t = useTranslations("Common.inputs");
+    const t = useTranslations();
+    const tInputs = useTranslations("Common.inputs");
     const store = useAppForm();
     const { intlStore } = useRootStore();
 
@@ -48,9 +59,15 @@ export const FormIsoDatePicker = observer(
     const errors = store?.getError(id);
     const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
 
-    const resolvedLabel = label === null ? undefined : (label ?? safeTranslate(t, id));
+    const resolvedLabel = label === null ? undefined : (label ?? safeTranslate(tInputs, id));
 
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
+
+    const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(parsed ?? new Date()));
+
+    useEffect(() => {
+      if (parsed) setCurrentMonth(startOfMonth(parsed));
+    }, [parsed?.getTime()]);
 
     function commit(date: Date | undefined) {
       if (!date) {
@@ -58,6 +75,7 @@ export const FormIsoDatePicker = observer(
         return;
       }
       store?.onChange(id, toIso(date, dateOnly));
+      setCurrentMonth(startOfMonth(date));
     }
 
     function handleSelect(next: Date | undefined) {
@@ -66,28 +84,35 @@ export const FormIsoDatePicker = observer(
         return;
       }
 
-      if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), 0, 0);
+      if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
 
       commit(next);
     }
 
     function handleTimeChange(value: string) {
-      const [hh, mm] = value.split(":");
-      const hours = Number(hh);
-      const minutes = Number(mm);
-      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return;
+      const segments = value.split(":").map((p) => Number(p));
+      const [hours, minutes, seconds = 0] = segments;
+      if (![hours, minutes, seconds].every((n) => Number.isFinite(n))) return;
       const base = parsed ?? new Date();
       const next = new Date(base);
-      next.setHours(hours, minutes, 0, 0);
+      next.setHours(hours, minutes, seconds, 0);
+      commit(next);
+    }
+
+    function handlePreset(compute: (today: Date) => Date) {
+      const today = new Date();
+      const baseToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const next = compute(baseToday);
+      if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
       commit(next);
     }
 
     const timeValue = parsed
-      ? `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}`
+      ? `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}:${String(parsed.getSeconds()).padStart(2, "0")}`
       : "";
 
     return (
-      <div className={cn("space-y-1.5", containerClassName)}>
+      <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
           <FormLabel htmlFor={id}>
             {resolvedLabel}
@@ -116,22 +141,56 @@ export const FormIsoDatePicker = observer(
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent align="start" className="w-auto p-0">
-            <Calendar autoFocus disabled={store?.isDisabled} mode="single" selected={parsed} onSelect={handleSelect} />
+          <PopoverContent
+            align="start"
+            className="w-auto max-h-[var(--radix-popover-content-available-height)] overflow-y-auto p-0"
+          >
+            <Calendar
+              autoFocus
+              disabled={store?.isDisabled}
+              mode="single"
+              month={currentMonth}
+              selected={parsed}
+              onMonthChange={setCurrentMonth}
+              onSelect={handleSelect}
+            />
 
             {!dateOnly && (
-              <div className="flex items-center gap-2 border-t border-border p-3">
-                <span className="text-xs text-muted-foreground">Time</span>
+              <>
+                <Separator />
 
-                <Input
-                  className="h-8 w-32"
-                  disabled={store?.isDisabled}
-                  type="time"
-                  value={timeValue}
-                  onChange={(e) => handleTimeChange(e.target.value)}
-                />
-              </div>
+                <div className="flex flex-col gap-2 p-3">
+                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${id}-time`}>
+                    {t("Common.datePresets.startTime")}
+                  </FormLabel>
+
+                  <TimeInput
+                    disabled={store?.isDisabled}
+                    id={`${id}-time`}
+                    use12Hour={intlStore.use12Hour}
+                    value={timeValue}
+                    onChange={handleTimeChange}
+                  />
+                </div>
+              </>
             )}
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {PRESETS.map((preset) => (
+                <Button
+                  key={preset.key}
+                  disabled={store?.isDisabled}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={() => handlePreset(preset.compute)}
+                >
+                  {t(`Common.datePresets.${preset.key}`)}
+                </Button>
+              ))}
+            </div>
           </PopoverContent>
         </Popover>
       </div>
@@ -150,7 +209,7 @@ function toIso(date: Date, dateOnly: boolean): string {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}T00:00:00Z`;
+    return `${y}-${m}-${d}`;
   }
   return date.toISOString();
 }

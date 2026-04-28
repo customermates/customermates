@@ -36,6 +36,13 @@ export class IntlStore {
     }
   }
 
+  get use12Hour(): boolean {
+    const sample = new Intl.DateTimeFormat(this.formattingLocale, { hour: "numeric", minute: "numeric" }).format(
+      new Date(2000, 0, 1, 13, 0, 0),
+    );
+    return /AM|PM|am|pm/.test(sample);
+  }
+
   get dateFormatMap(): Record<DateDisplayFormat, (date: Date) => string> {
     return {
       numericalLong: (date) => this.formatNumericalLongDate(date),

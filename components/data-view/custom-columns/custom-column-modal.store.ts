@@ -101,6 +101,9 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
         linkOptions: column.type === CustomColumnType.link ? column.options : undefined,
         dateOptions: column.type === CustomColumnType.date ? (column.options ?? undefined) : undefined,
         dateTimeOptions: column.type === CustomColumnType.dateTime ? (column.options ?? undefined) : undefined,
+        dateRangeOptions: column.type === CustomColumnType.dateRange ? (column.options ?? undefined) : undefined,
+        dateTimeRangeOptions:
+          column.type === CustomColumnType.dateTimeRange ? (column.options ?? undefined) : undefined,
       }),
     );
     this.open();
@@ -254,6 +257,12 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     dateTimeOptions?: {
       displayFormat?: DateDisplayFormat;
     };
+    dateRangeOptions?: {
+      displayFormat?: DateDisplayFormat;
+    };
+    dateTimeRangeOptions?: {
+      displayFormat?: DateDisplayFormat;
+    };
   }): UpsertCustomColumnData {
     const base = {
       id: params.id,
@@ -336,6 +345,22 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
           type: CustomColumnType.dateTime,
           options: {
             displayFormat: params.dateTimeOptions?.displayFormat ?? "descriptiveLong",
+          },
+        };
+      case CustomColumnType.dateRange:
+        return {
+          ...base,
+          type: CustomColumnType.dateRange,
+          options: {
+            displayFormat: params.dateRangeOptions?.displayFormat ?? "descriptiveLong",
+          },
+        };
+      case CustomColumnType.dateTimeRange:
+        return {
+          ...base,
+          type: CustomColumnType.dateTimeRange,
+          options: {
+            displayFormat: params.dateTimeRangeOptions?.displayFormat ?? "descriptiveLong",
           },
         };
     }
