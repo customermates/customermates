@@ -172,7 +172,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
           <SlidersHorizontal className="size-3.5" />
 
           {hasActiveOption && (
-            <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-primary" />
+            <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
           )}
         </Button>
       </PopoverTrigger>

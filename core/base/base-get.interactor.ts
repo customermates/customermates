@@ -59,6 +59,9 @@ export abstract class BaseGetInteractor<T> {
     let pagination = params.pagination;
     let filters = params.filters;
 
+    const hasUrlQueryState =
+      filters !== undefined || searchTerm !== undefined || sortDescriptor !== undefined || pagination !== undefined;
+
     let columnOrder: string[] | undefined = undefined;
     let columnWidths: Record<string, number> | undefined = undefined;
     let hiddenColumns: string[] | undefined = undefined;
@@ -71,10 +74,12 @@ export abstract class BaseGetInteractor<T> {
       const p13nData = await this.p13nRepo.getP13n(p13nId);
 
       if (p13nData) {
-        filters = filters ?? p13nData.filters;
-        searchTerm = searchTerm ?? p13nData.searchTerm;
-        sortDescriptor = sortDescriptor ?? p13nData.sortDescriptor;
-        pagination = pagination ?? p13nData.pagination;
+        if (!hasUrlQueryState) {
+          filters = p13nData.filters;
+          searchTerm = p13nData.searchTerm;
+          sortDescriptor = p13nData.sortDescriptor;
+          pagination = p13nData.pagination;
+        }
 
         columnOrder = p13nData.columnOrder;
         columnWidths = p13nData.columnWidths;
@@ -85,10 +90,12 @@ export abstract class BaseGetInteractor<T> {
       }
     }
 
-    filters = filters ?? this.defaultParams?.filters;
-    searchTerm = searchTerm ?? this.defaultParams?.searchTerm;
-    sortDescriptor = sortDescriptor ?? this.defaultParams?.sortDescriptor;
-    pagination = pagination ?? this.defaultParams?.pagination;
+    if (!hasUrlQueryState) {
+      filters = filters ?? this.defaultParams?.filters;
+      searchTerm = searchTerm ?? this.defaultParams?.searchTerm;
+      sortDescriptor = sortDescriptor ?? this.defaultParams?.sortDescriptor;
+      pagination = pagination ?? this.defaultParams?.pagination;
+    }
 
     const [filterableFields, customColumns] = await Promise.all([
       this.repo.getFilterableFields(),

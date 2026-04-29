@@ -52,22 +52,29 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
       {!expandedMobile && (
         <Button
           aria-label={placeholder}
-          className="lg:hidden size-8"
+          className="lg:hidden size-8 relative"
           size="icon-sm"
           type="button"
           variant="outline"
           onClick={handleExpand}
         >
           <Search className="size-3.5" />
+
+          {value && <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />}
         </Button>
       )}
 
       <div className={cn("relative", "lg:block lg:w-56 xl:w-64", expandedMobile ? "block w-full min-w-36" : "hidden")}>
-        <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+        <Search
+          className={cn(
+            "pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-3.5",
+            value ? "text-primary" : "text-muted-foreground",
+          )}
+        />
 
         <Input
           ref={inputRef}
-          className={cn("h-8 pl-7.5 text-sm", expandedMobile && "pr-7.5 md:pr-2")}
+          className={cn("h-8 pl-7.5 text-sm", expandedMobile && "pr-7.5 md:pr-2", value && "border-primary")}
           placeholder={placeholder}
           type="search"
           value={value}
