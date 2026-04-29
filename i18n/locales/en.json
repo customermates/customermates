@@ -1114,7 +1114,8 @@
     "hintOpen": "Open",
     "loading": "Searching...",
     "noResults": "No results found",
-    "placeholder": "Search..."
+    "placeholder": "Search...",
+    "staleItem": "This item no longer exists and was removed from your recent items."
   },
   "HomepageClipTerminal": {
     "connected": "connected · 12 tools · customermates@mcp",

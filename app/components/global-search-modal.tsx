@@ -8,8 +8,10 @@ import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Search, Users }
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { EntityType } from "@/generated/prisma";
 
+import { checkSearchResultExistsAction } from "@/app/[locale]/(protected)/search/actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { AppCard } from "@/components/card/app-card";
@@ -57,14 +59,24 @@ export const GlobalSearchModal = observer(() => {
     openEntity(TYPE_META[item.type].entityType, item.id);
   };
 
+  const openRecentItem = (item: GlobalSearchResultItem) => {
+    void (async () => {
+      const exists = await checkSearchResultExistsAction({ type: item.type, id: item.id });
+      if (!exists) {
+        globalSearchModalStore.removeRecentItem(item.id);
+        toast.error(t("staleItem"));
+        return;
+      }
+      openItem(item);
+    })();
+  };
+
   const groupedResults = useMemo((): { type: GlobalSearchResultItem["type"]; items: SelectableItem[] }[] => {
     const source = hasQuery ? (results?.results ?? []) : recentItems;
     if (source.length === 0) return [];
 
-    if (!hasQuery) {
-      // Recent items are ordered newest-first already; show as a single group.
-      return [{ type: "contact", items: source.map((item) => ({ ...item, onSelect: () => openItem(item) })) }];
-    }
+    if (!hasQuery)
+      return [{ type: "contact", items: source.map((item) => ({ ...item, onSelect: () => openRecentItem(item) })) }];
 
     const buckets: Record<GlobalSearchResultItem["type"], SelectableItem[]> = {
       contact: [],
@@ -76,7 +88,7 @@ export const GlobalSearchModal = observer(() => {
     return (Object.keys(buckets) as GlobalSearchResultItem["type"][])
       .map((type) => ({ type, items: buckets[type] }))
       .filter((g) => g.items.length > 0);
-  }, [results, recentItems, hasQuery, globalSearchModalStore, openEntity]);
+  }, [results, recentItems, hasQuery, globalSearchModalStore, openEntity, t]);
 
   const flatItems = useMemo(() => groupedResults.flatMap((g) => g.items), [groupedResults]);
 
