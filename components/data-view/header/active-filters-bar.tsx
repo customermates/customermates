@@ -4,7 +4,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { XIcon } from "lucide-react";
+import { BookmarkIcon, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
@@ -71,7 +71,27 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
   const { editFiltersModalStore } = useRootStore();
 
   const filters = store.filters ?? [];
-  if (filters.length === 0) return null;
+  const presets = store.savedFilterPresets ?? [];
+
+  if (filters.length === 0) {
+    if (presets.length === 0) return null;
+
+    return (
+      <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
+        {presets.map((preset) => (
+          <ClickableChip
+            key={preset.id}
+            className="max-w-md"
+            startContent={<BookmarkIcon className="size-3 opacity-70" />}
+            variant="outline"
+            onClick={() => store.changeFilterPreset(preset.id)}
+          >
+            <span className="truncate text-[11px]">{preset.name}</span>
+          </ClickableChip>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
