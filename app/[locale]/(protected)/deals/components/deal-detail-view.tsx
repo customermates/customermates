@@ -69,13 +69,13 @@ export const DealDetailView = observer(function DealDetailView({ layout = "drawe
         </FormAutocomplete>
       )}
 
-      {customColumns.map((column, index) => (
-        <CustomFieldValueInput key={column.id} column={column} index={index} isEditing={isEditingCustomField} />
-      ))}
-
       {userStore.canAccess(Resource.tasks) && (
         <TasksAutocompleteField entityId={fetchedEntity?.id} entityType="deal" tasks={fetchedEntity?.tasks ?? []} />
       )}
+
+      {customColumns.map((column, index) => (
+        <CustomFieldValueInput key={column.id} column={column} index={index} isEditing={isEditingCustomField} />
+      ))}
 
       <FormAutocompleteAvatar
         getItems={getUsersAction}
