@@ -4,6 +4,8 @@ import type { SortableField } from "./base-query-builder";
 import { z } from "zod";
 import { CustomColumnType } from "@/generated/prisma";
 
+import { FilterOperatorKey } from "./base-query-builder";
+
 import type { EntityType } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -89,7 +91,9 @@ export class ValidateQueryParamsValidator {
   private async validateFilterValue(filter: Filter, filterIndex: number, entityType: EntityType, ctx: z.RefinementCtx) {
     if (!("value" in filter)) return;
 
-    if ((filter as { operator: string }).operator === "contains") return;
+    if (filter.operator === FilterOperatorKey.contains) return;
+
+    if (filter.operator === FilterOperatorKey.inLastDays) return;
 
     const fieldPath = ["filters", filterIndex, "value"];
 

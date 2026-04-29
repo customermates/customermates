@@ -319,6 +319,9 @@
       "apply": "Apply",
       "clearAll": "Clear All",
       "closeFilters": "Close Filters",
+      "daysPlaceholder": "Days",
+      "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
+      "daysSuffix": "days",
       "editCurrent": "Edit filters",
       "fields": {
         "assignedUserId": "Assigned",
@@ -347,6 +350,7 @@
         "hasNone": "has none",
         "hasSome": "has some",
         "in": "in",
+        "inLastDays": "in last",
         "isNotNull": "is not empty",
         "isNull": "is empty",
         "lt": "<",

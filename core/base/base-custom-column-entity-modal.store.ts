@@ -141,7 +141,6 @@ export abstract class BaseCustomColumnEntityModalStore<
     this.fetchedEntity = null;
     this.initialize();
     this.setIsLoading(true);
-    this.open();
 
     try {
       const result = await this.actions.getById({ id });

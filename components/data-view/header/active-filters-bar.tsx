@@ -12,6 +12,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { isCustomField, isStandaloneOperator } from "@/components/data-view/table-view.utils";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   type FilterSelectItem,
@@ -45,11 +46,17 @@ const FilterChipValue = observer(function FilterChipValue({
   filter: Filter;
   customColumns: CustomColumnDto[] | undefined;
 }) {
+  const t = useTranslations("Common.filters");
   const { items, isLoading } = useFilterSelectItems(filter, customColumns);
   const { intlStore } = useRootStore();
 
   if (isStandaloneOperator(filter.operator)) return null;
   if (isLoading) return <span className="opacity-70">…</span>;
+
+  if (filter.operator === FilterOperatorKey.inLastDays) {
+    const count = Number("value" in filter ? filter.value : 0) || 0;
+    return <>{t("daysPreset", { count })}</>;
+  }
 
   const values = normalizeValues("value" in filter ? filter.value : undefined);
   const labels = values.map((value) => {

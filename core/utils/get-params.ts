@@ -136,6 +136,8 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.isNotNull:
       return undefined;
+    case FilterOperatorKey.inLastDays:
+      return value === undefined || value === null ? undefined : String(value);
     default:
       return value === undefined || value === null ? undefined : String(value);
   }
@@ -165,6 +167,9 @@ function decodeFilterToken(token: string): Filter | undefined {
       case FilterOperatorKey.isNull:
       case FilterOperatorKey.isNotNull:
         value = undefined;
+        break;
+      case FilterOperatorKey.inLastDays:
+        value = rest ? Number(rest) : undefined;
         break;
       default:
         value = rest || undefined;

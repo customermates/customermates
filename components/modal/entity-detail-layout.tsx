@@ -229,12 +229,14 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
           </div>
 
           <div className="flex flex-col bg-background xl:min-h-0 xl:overflow-hidden">
-            <EntityNotesPanel store={store} />
+            <EntityNotesPanel key={entityId} store={store} />
           </div>
 
           {canSeeHistory && (
             <div className="md:col-span-2 xl:col-span-1 flex flex-col bg-background xl:min-h-0 xl:overflow-hidden">
-              {hasMounted && <EntityAuditLogPanel entityId={entityId} refreshKey={store.fetchedEntity} />}
+              {hasMounted && (
+                <EntityAuditLogPanel key={entityId} entityId={entityId} refreshKey={store.fetchedEntity} />
+              )}
             </div>
           )}
         </div>

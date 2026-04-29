@@ -19,6 +19,7 @@ import { FilterInputNumber } from "@/components/data-view/filter-modal/inputs/fi
 import { FilterInputText } from "@/components/data-view/filter-modal/inputs/filter-input-text";
 import { FilterInputIsoDate } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date";
 import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date-range";
+import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
 import { Button } from "@/components/ui/button";
 import { FormLabel } from "@/components/forms/form-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -54,6 +55,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
   const renderFilterFieldBody = useCallback((): ReactElement => {
     const id = `${baseId}.value`;
     const isBetween = operator === FilterOperatorKey.between;
+    const isInLastDays = operator === FilterOperatorKey.inLastDays;
     const isCustomField_ = isCustomField(filter.field);
 
     if (isCustomField_) {
@@ -70,6 +72,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
           return <FilterInputNumber id={id} isValidFilter={isValidFilter} />;
         case "date":
         case "dateRange":
+          if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
           return isBetween ? (
             <FilterInputIsoDateRange granularity="day" id={id} isValidFilter={isValidFilter} />
           ) : (
@@ -77,6 +80,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
           );
         case "dateTime":
         case "dateTimeRange":
+          if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
           return isBetween ? (
             <FilterInputIsoDateRange granularity="minute" id={id} isValidFilter={isValidFilter} />
           ) : (
@@ -106,6 +110,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
 
     const dateFields = [FilterFieldKey.updatedAt, FilterFieldKey.createdAt];
     if (dateFields.includes(filter.field as FilterFieldKey)) {
+      if (isInLastDays) return <FilterInputDaysCount id={id} isValidFilter={isValidFilter} />;
       return isBetween ? (
         <FilterInputIsoDateRange granularity="minute" id={id} isValidFilter={isValidFilter} />
       ) : (

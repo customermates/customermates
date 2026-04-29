@@ -8,6 +8,7 @@ import type {
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { z } from "zod";
+import { startOfDay, subDays } from "date-fns";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -40,6 +41,7 @@ export enum FilterOperatorKey {
   isNotNull = "isNotNull",
   hasNone = "hasNone",
   hasSome = "hasSome",
+  inLastDays = "inLastDays",
 }
 
 type LogicalGroup<T> = { OR: T[] } | { AND: Array<{ OR: T[] }> };
@@ -302,6 +304,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
             AND: [columnIdClause, { rangeStart: { gte: filter.value[0] } }, { rangeEnd: { lte: filter.value[1] } }],
           },
         };
+      case FilterOperatorKey.inLastDays: {
+        const cutoff = startOfDay(subDays(new Date(), Number(filter.value)));
+        return { some: { AND: [columnIdClause, { rangeEnd: { gte: cutoff } }] } };
+      }
       default:
         throw new Error(`Operator ${filter.operator} is not supported for range custom columns`);
     }
@@ -402,6 +408,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         return { lte: filter.value };
       case FilterOperatorKey.between:
         return { gte: filter.value[0], lte: filter.value[1] };
+      case FilterOperatorKey.inLastDays:
+        return { gte: startOfDay(subDays(new Date(), Number(filter.value))) };
       case FilterOperatorKey.isNull:
         return null;
       case FilterOperatorKey.isNotNull:
@@ -499,6 +507,11 @@ function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorK
   if (filter.operator === FilterOperatorKey.isNull || filter.operator === FilterOperatorKey.isNotNull) return true;
 
   const rawValue: unknown = "value" in filter ? filter.value : undefined;
+
+  if (filter.operator === FilterOperatorKey.inLastDays) {
+    const n = Number(rawValue);
+    return Number.isInteger(n) && n > 0;
+  }
 
   if (filter.operator === FilterOperatorKey.between) {
     if (!Array.isArray(rawValue) || rawValue.length !== 2) return false;

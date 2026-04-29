@@ -1047,6 +1047,30 @@
                             "field",
                             "operator"
                           ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
                         }
                       ],
                       "type": "object"
@@ -1885,6 +1909,31 @@
                               "operator"
                             ],
                             "additionalProperties": false
+                          },
+                          {
+                            "title": "Relative window filter",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "title": "inLastDays",
+                                "type": "string",
+                                "const": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           }
                         ],
                         "type": "object"
@@ -1984,7 +2033,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -2144,6 +2194,31 @@
                                   "required": [
                                     "field",
                                     "operator"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "title": "Relative window filter",
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "title": "inLastDays",
+                                      "type": "string",
+                                      "const": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
                                   ],
                                   "additionalProperties": false
                                 }
@@ -3083,7 +3158,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -5576,6 +5652,30 @@
                             "field",
                             "operator"
                           ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
                         }
                       ],
                       "type": "object"
@@ -6414,6 +6514,31 @@
                               "operator"
                             ],
                             "additionalProperties": false
+                          },
+                          {
+                            "title": "Relative window filter",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "title": "inLastDays",
+                                "type": "string",
+                                "const": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           }
                         ],
                         "type": "object"
@@ -6513,7 +6638,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -6673,6 +6799,31 @@
                                   "required": [
                                     "field",
                                     "operator"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "title": "Relative window filter",
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "title": "inLastDays",
+                                      "type": "string",
+                                      "const": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
                                   ],
                                   "additionalProperties": false
                                 }
@@ -7603,7 +7754,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -10173,6 +10325,30 @@
                             "field",
                             "operator"
                           ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
                         }
                       ],
                       "type": "object"
@@ -11011,6 +11187,31 @@
                               "operator"
                             ],
                             "additionalProperties": false
+                          },
+                          {
+                            "title": "Relative window filter",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "title": "inLastDays",
+                                "type": "string",
+                                "const": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           }
                         ],
                         "type": "object"
@@ -11110,7 +11311,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -11270,6 +11472,31 @@
                                   "required": [
                                     "field",
                                     "operator"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "title": "Relative window filter",
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "title": "inLastDays",
+                                      "type": "string",
+                                      "const": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
                                   ],
                                   "additionalProperties": false
                                 }
@@ -12238,7 +12465,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -14732,6 +14960,30 @@
                             "field",
                             "operator"
                           ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
                         }
                       ],
                       "type": "object"
@@ -15570,6 +15822,31 @@
                               "operator"
                             ],
                             "additionalProperties": false
+                          },
+                          {
+                            "title": "Relative window filter",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "title": "inLastDays",
+                                "type": "string",
+                                "const": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           }
                         ],
                         "type": "object"
@@ -15669,7 +15946,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -15829,6 +16107,31 @@
                                   "required": [
                                     "field",
                                     "operator"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "title": "Relative window filter",
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "title": "inLastDays",
+                                      "type": "string",
+                                      "const": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
                                   ],
                                   "additionalProperties": false
                                 }
@@ -16737,7 +17040,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -19216,6 +19520,30 @@
                             "field",
                             "operator"
                           ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
                         }
                       ],
                       "type": "object"
@@ -20054,6 +20382,31 @@
                               "operator"
                             ],
                             "additionalProperties": false
+                          },
+                          {
+                            "title": "Relative window filter",
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "title": "inLastDays",
+                                "type": "string",
+                                "const": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false
                           }
                         ],
                         "type": "object"
@@ -20153,7 +20506,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },
@@ -20313,6 +20667,31 @@
                                   "required": [
                                     "field",
                                     "operator"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "title": "Relative window filter",
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "title": "inLastDays",
+                                      "type": "string",
+                                      "const": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
                                   ],
                                   "additionalProperties": false
                                 }
@@ -21269,7 +21648,8 @@
                                 "isNull",
                                 "isNotNull",
                                 "hasNone",
-                                "hasSome"
+                                "hasSome",
+                                "inLastDays"
                               ]
                             }
                           },

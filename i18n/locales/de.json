@@ -319,6 +319,9 @@
       "apply": "Anwenden",
       "clearAll": "Alle entfernen",
       "closeFilters": "Filter schließen",
+      "daysPlaceholder": "Tage",
+      "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
+      "daysSuffix": "Tage",
       "editCurrent": "Filter bearbeiten",
       "fields": {
         "assignedUserId": "Zugewiesen",
@@ -347,6 +350,7 @@
         "hasNone": "hat keine",
         "hasSome": "hat welche",
         "in": "ist in",
+        "inLastDays": "in den letzten",
         "isNotNull": "ist nicht leer",
         "isNull": "ist leer",
         "lt": "<",

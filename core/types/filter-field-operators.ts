@@ -15,6 +15,7 @@ const dateOperators = [
   FilterOperatorKey.lt,
   FilterOperatorKey.lte,
   FilterOperatorKey.between,
+  FilterOperatorKey.inLastDays,
 ];
 
 const stringArrayOperators = [FilterOperatorKey.equals, FilterOperatorKey.isNull, FilterOperatorKey.isNotNull];

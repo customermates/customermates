@@ -54,6 +54,13 @@ export const FilterSchema = z.discriminatedUnion("operator", [
       ]),
     })
     .meta({ title: "Standalone filter" }),
+  z
+    .object({
+      field: z.string(),
+      operator: z.literal(FilterOperatorKey.inLastDays).meta({ title: "inLastDays" }),
+      value: z.coerce.number().int().positive(),
+    })
+    .meta({ title: "Relative window filter" }),
 ]);
 export type Filter = Data<typeof FilterSchema>;
 
