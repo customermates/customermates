@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
 import { AppForm } from "@/components/forms/form-context";
+import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -81,12 +81,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
           <Filter className="size-3.5" />
 
           {activeFilterCount > 0 && (
-            <span
-              aria-hidden="true"
-              className="absolute -right-0.5 -top-0.5 min-w-3.5 h-3.5 px-1 flex items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground tabular-nums"
-            >
-              {activeFilterCount}
-            </span>
+            <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
           )}
         </Button>
       </PopoverTrigger>
@@ -95,12 +90,12 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
         <AppForm store={modalStore}>
           <PopoverSection label={t("filters.presets.label")}>
             {isCreatingPreset ? (
-              <Input
+              <FormInput
                 autoFocus
                 className="h-8"
+                id="name"
+                label={null}
                 placeholder={t("filters.presets.namePlaceholder")}
-                value={modalStore.form.name ?? ""}
-                onChange={(e) => modalStore.onChange("name", e.target.value)}
               />
             ) : (
               <div className="flex items-center gap-1">
