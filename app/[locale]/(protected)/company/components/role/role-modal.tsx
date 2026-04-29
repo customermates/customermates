@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { Resource } from "@/generated/prisma";
 
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -97,6 +98,8 @@ export const RoleModal = observer(({ store }: Props) => {
           </AppCardHeader>
 
           <AppCardBody>
+            {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
+
             {isSystemRole ? (
               <Input disabled readOnly id="name" value={t("RoleModal.systemName")} />
             ) : (

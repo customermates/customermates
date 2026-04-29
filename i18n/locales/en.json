@@ -1388,6 +1388,7 @@
       "users": "Users & Roles",
       "widgets": "Dashboard & Charts"
     },
+    "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
     "title": "Role",

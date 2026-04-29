@@ -1388,6 +1388,7 @@
       "users": "Benutzer & Rollen",
       "widgets": "Dashboard & Diagramme"
     },
+    "systemAlert": "Dies ist eine System-Rolle und kann nicht bearbeitet oder gelöscht werden.",
     "systemDescription": "Voller Zugriff auf alle Funktionen und Einstellungen. Kann nicht geändert oder gelöscht werden.",
     "systemName": "Admin",
     "title": "Rolle",
