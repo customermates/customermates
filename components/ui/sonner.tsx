@@ -30,7 +30,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       toastOptions={{
         classNames: {
-          toast: "whitespace-pre-line leading-relaxed",
+          toast: "whitespace-pre-line leading-relaxed items-start",
+          content: "max-h-[40vh] overflow-y-auto",
         },
       }}
       {...props}
