@@ -43,12 +43,16 @@ export const DealServicesSelection = observer(() => {
 
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
-      <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(40px,68px)_minmax(0,max-content)_40px] gap-2 gap-y-3 items-center">
-        <label className="text-x-md truncate min-w-0 text-muted-foreground">{t("DealModal.servicesLabel")}</label>
+      <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,130px)_40px] gap-2 gap-y-3 items-center">
+        <div className="flex items-center w-full min-w-0">
+          <label className="flex-1 text-x-md truncate min-w-0 text-muted-foreground">
+            {t("DealModal.servicesLabel")}
+          </label>
 
-        <label className="text-x-md text-right pr-3 truncate min-w-0 text-muted-foreground">
-          {t("DealModal.quantityLabel")}
-        </label>
+          <label className="text-x-md text-right truncate min-w-0 text-muted-foreground pl-2">
+            {t("DealModal.quantityLabel")}
+          </label>
+        </div>
 
         <label className="text-x-md text-right truncate min-w-0 text-muted-foreground">
           {t("DealModal.valueLabel")}
@@ -73,46 +77,75 @@ export const DealServicesSelection = observer(() => {
 
           return (
             <Fragment key={index}>
-              <FormAutocomplete
-                required
-                filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
-                getItems={getServiceOptions}
-                id={`services[${index}].serviceId`}
-                items={fetchedEntity?.services.filter((it) => !selectedServiceIds.includes(it.id)) ?? []}
-                label={null}
-                renderValue={(items) =>
-                  items.map((item, idx) => (
-                    <AppChip key={item?.data?.id ?? item?.key ?? idx}>{item?.data?.name}</AppChip>
-                  ))
-                }
-                onChipClick={(id) => openEntity(EntityType.service, id)}
-                onCreate={createServiceOption}
+              <div className="flex items-stretch w-full">
+                <FormAutocomplete
+                  required
+                  className="rounded-r-none border-r-0"
+                  containerClassName="flex-1 min-w-0"
+                  filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
+                  getItems={getServiceOptions}
+                  id={`services[${index}].serviceId`}
+                  items={fetchedEntity?.services.filter((it) => !selectedServiceIds.includes(it.id)) ?? []}
+                  label={null}
+                  popoverFitContent={true}
+                  renderValue={(items) =>
+                    items.map((item, idx) => {
+                      const unitAmount = item?.data?.amount ?? 0;
+                      return (
+                        <AppChip
+                          key={item?.data?.id ?? item?.key ?? idx}
+                          endContent={
+                            unitAmount > 0 ? (
+                              <span className="flex shrink-0 items-center gap-1">
+                                <span className="opacity-60">·</span>
+
+                                <span className="tabular-nums">{intlStore.formatCurrency(unitAmount)}</span>
+                              </span>
+                            ) : undefined
+                          }
+                        >
+                          {item?.data?.name}
+                        </AppChip>
+                      );
+                    })
+                  }
+                  onChipClick={(id) => openEntity(EntityType.service, id)}
+                  onCreate={createServiceOption}
+                >
+                  {(service) =>
+                    FormAutocompleteItem({
+                      textValue: service.name,
+
+                      children: (
+                        <div className="flex w-full items-center gap-3 whitespace-nowrap">
+                          <span className="text-sm">{service.name}</span>
+
+                          <span className="opacity-60">·</span>
+
+                          <span className="text-xs tabular-nums text-muted-foreground">
+                            {intlStore.formatCurrency(service.amount)}
+                          </span>
+                        </div>
+                      ),
+                    })
+                  }
+                </FormAutocomplete>
+
+                <FormNumberInput
+                  hideStepper
+                  required
+                  className="rounded-l-none border-l-0 text-right font-mono tabular-nums"
+                  containerClassName="w-20 shrink-0"
+                  id={`services[${index}].quantity`}
+                  label={null}
+                  size="sm"
+                />
+              </div>
+
+              <span
+                className="text-x-md text-right font-mono tabular-nums text-foreground/80 truncate min-w-0"
+                title={lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : undefined}
               >
-                {(service) =>
-                  FormAutocompleteItem({
-                    textValue: service.name,
-
-                    children: (
-                      <div className="flex w-full flex-col space-y-2 items-start">
-                        <span className="text-small">{service.name}</span>
-
-                        <AppChip>{intlStore.formatCurrency(service.amount)}</AppChip>
-                      </div>
-                    ),
-                  })
-                }
-              </FormAutocomplete>
-
-              <FormNumberInput
-                hideStepper
-                required
-                className="text-right font-mono tabular-nums"
-                id={`services[${index}].quantity`}
-                label={null}
-                size="sm"
-              />
-
-              <span className="text-x-md text-right font-mono tabular-nums text-foreground/80 truncate min-w-0">
                 {lineTotal > 0 ? intlStore.formatCurrency(lineTotal) : ""}
               </span>
 
@@ -135,13 +168,23 @@ export const DealServicesSelection = observer(() => {
 
         {(form.services || []).length > 0 && (
           <>
-            <span className="text-x-md text-right text-muted-foreground pt-1 pr-3">{t("DealModal.totalLabel")}</span>
+            <div className="flex items-center w-full min-w-0 gap-2">
+              <span className="flex-1 text-x-md text-right text-muted-foreground pt-1 truncate min-w-0">
+                {t("DealModal.totalLabel")}
+              </span>
 
-            <span className="text-x-md text-right font-mono tabular-nums font-medium pt-1 pr-3">
-              {intlStore.formatNumber(totalQuantity)}
-            </span>
+              <span
+                className="text-x-md text-right font-mono tabular-nums font-medium pt-1 truncate min-w-0 px-3"
+                title={intlStore.formatNumber(totalQuantity)}
+              >
+                {intlStore.formatNumber(totalQuantity)}
+              </span>
+            </div>
 
-            <span className="text-x-md text-right font-mono tabular-nums font-medium truncate min-w-0 pt-1">
+            <span
+              className="text-x-md text-right font-mono tabular-nums font-medium truncate min-w-0 pt-1"
+              title={intlStore.formatCurrency(totalValue)}
+            >
               {intlStore.formatCurrency(totalValue)}
             </span>
 

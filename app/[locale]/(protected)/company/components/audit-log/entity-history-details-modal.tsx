@@ -83,7 +83,7 @@ export const EntityHistoryDetailsModal = observer(() => {
               id: item.id,
               label:
                 typeof item.quantity === "number" && typeof item.amount === "number"
-                  ? `${item.name} – ${intlStore.formatCurrency(item.amount * item.quantity)}`
+                  ? `${item.name} · ${intlStore.formatCurrency(item.amount)} × ${intlStore.formatNumber(item.quantity)}`
                   : item.name,
             }))}
             size="sm"

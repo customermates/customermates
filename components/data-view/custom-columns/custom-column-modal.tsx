@@ -40,6 +40,7 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal, ModalFooter } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,9 +50,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AppChip } from "@/components/chip/app-chip";
 import { CURRENCIES } from "@/constants/currencies";
-import { CHIP_COLORS } from "@/constants/chip-colors";
+import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { cn } from "@/lib/utils";
+
+const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
+  default: "bg-primary",
+  secondary: "bg-foreground/60",
+  destructive: "bg-destructive",
+  success: "bg-success",
+  warning: "bg-warning",
+  info: "bg-info",
+};
 
 const COLUMN_TYPES = [
   { value: CustomColumnType.plain, icon: FileText },
@@ -114,15 +125,16 @@ const SortableOptionItem = observer(
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
+                aria-label={t(`Common.colors.${option.color}`)}
                 className="rounded-l-none border-l-0"
                 disabled={isDisabled}
                 size="icon"
                 type="button"
-                variant="secondary"
+                variant="outline"
               >
-                <AppChip className="size-3 min-w-3 min-h-3 p-0 rounded-full" variant={option.color}>
+                <span className={cn("size-3 inline-block rounded-full", COLOR_DOT_CLASSES[option.color])}>
                   <span className="sr-only">{t(`Common.colors.${option.color}`)}</span>
-                </AppChip>
+                </span>
               </Button>
             </DropdownMenuTrigger>
 
@@ -144,20 +156,24 @@ const SortableOptionItem = observer(
         </div>
 
         <Button
+          className={cn(
+            option.isDefault && "bg-primary/15 border-primary text-primary hover:text-primary hover:bg-primary/25",
+          )}
           disabled={isDisabled}
           size="sm"
           type="button"
-          variant={option.isDefault ? "default" : "secondary"}
+          variant="outline"
           onClick={() => toggleDefaultOption(option)}
         >
           {t("Common.default")}
         </Button>
 
         <Button
+          className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
           disabled={isDisabled}
           size="icon"
           type="button"
-          variant="destructive"
+          variant="outline"
           onClick={() => deleteOption(option)}
         >
           <Icon icon={Trash2} />
@@ -202,15 +218,25 @@ export const CustomColumnModal = observer(() => {
             </h2>
 
             {form.id && (
-              <Button
-                disabled={store.isDisabled}
-                size="sm"
-                type="button"
-                variant="destructive"
-                onClick={() => showDeleteConfirmation(() => store.deleteColumn(), form.label)}
-              >
-                {t("Common.actions.deleteCustomFields")}
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label={t("Common.actions.deleteCustomFields")}
+                      className="size-8"
+                      disabled={store.isDisabled}
+                      size="icon"
+                      type="button"
+                      variant="destructive"
+                      onClick={() => showDeleteConfirmation(() => store.deleteColumn(), form.label)}
+                    >
+                      <Icon icon={Trash2} />
+                    </Button>
+                  </TooltipTrigger>
+
+                  <TooltipContent>{t("Common.actions.deleteCustomFields")}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </AppCardHeader>
 
@@ -223,6 +249,7 @@ export const CustomColumnModal = observer(() => {
                 label: t(`Common.customColumnTypes.${item.value}`),
               }))}
               label={t("Common.inputs.type")}
+              readOnly={Boolean(form.id)}
               onValueChange={(next) => store.changeType(next as CustomColumnType)}
             />
 

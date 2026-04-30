@@ -25,6 +25,7 @@ type Props = {
   label?: string | null;
   placeholder?: string;
   required?: boolean;
+  readOnly?: boolean;
   items?: FormSelectItem[];
   children?: ReactNode;
   className?: string;
@@ -33,7 +34,18 @@ type Props = {
 };
 
 export const FormSelect = observer(
-  ({ id, label, placeholder, required, items, children, className, containerClassName, onValueChange }: Props) => {
+  ({
+    id,
+    label,
+    placeholder,
+    required,
+    readOnly,
+    items,
+    children,
+    className,
+    containerClassName,
+    onValueChange,
+  }: Props) => {
     const store = useAppForm();
     const t = useTranslations("Common.inputs");
     const resolvedLabel = label === null ? undefined : (label ?? t(id));
@@ -42,7 +54,7 @@ export const FormSelect = observer(
     const errors = store?.getError(id);
     const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
     const selectedItem = items?.find((it) => it.value === value);
-    const isReadOnly = store?.isReadOnly ?? false;
+    const isReadOnly = (store?.isReadOnly ?? false) || Boolean(readOnly);
     const isLoading = store?.isLoading ?? false;
 
     return (

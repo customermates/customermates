@@ -66,7 +66,7 @@ export const DealsCard = observer(({ deals }: Props) => {
           <AppChipStack
             items={row.original.services.map((service) => ({
               id: service.id,
-              label: `${service.name} – ${intlStore.formatCurrency(service.amount * service.quantity)}`,
+              label: `${service.name} · ${intlStore.formatCurrency(service.amount * service.quantity)}`,
             }))}
             size="sm"
             onChipClick={(service) => openEntity(EntityType.service, service.id)}

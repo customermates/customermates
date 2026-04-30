@@ -38,6 +38,7 @@ type Props<T extends Identifiable> = {
   readOnly?: boolean;
   className?: string;
   containerClassName?: string;
+  popoverFitContent?: boolean;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -76,6 +77,7 @@ export const FormAutocomplete = observer(
     readOnly,
     className,
     containerClassName,
+    popoverFitContent = false,
   }: Props<T>) => {
     const store = useAppForm();
     const t = useTranslations("Common.inputs");
@@ -287,7 +289,15 @@ export const FormAutocomplete = observer(
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
+          <PopoverContent
+            align="start"
+            className={cn(
+              "p-0",
+              popoverFitContent
+                ? "min-w-(--radix-popover-trigger-width) max-w-(--radix-popover-content-available-width) w-max"
+                : "w-(--radix-popover-trigger-width)",
+            )}
+          >
             <Command shouldFilter={false}>
               <CommandInput
                 autoFocus
