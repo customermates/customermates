@@ -12,12 +12,14 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData> {
   tableStore?: BaseDataViewStore<HasId>;
+  expandedField: string | undefined = undefined;
 
   constructor(public readonly rootStore: RootStore) {
     super(rootStore, { filters: [], presetId: undefined, name: "", p13nId: "" });
 
     makeObservable(this, {
       tableStore: observable,
+      expandedField: observable,
 
       savedPresets: computed,
       isEditingPreset: computed,
@@ -26,6 +28,7 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       openFor: action,
       onSubmit: action,
       deletePreset: action,
+      setExpandedField: action,
     });
 
     reaction(
@@ -33,6 +36,10 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       (id) => this.updateFormFromPresetId(id),
     );
   }
+
+  setExpandedField = (field: string | undefined) => {
+    this.expandedField = field;
+  };
 
   get isEditingPreset() {
     return this.form.presetId !== undefined && this.form.presetId !== "new";
@@ -100,7 +107,7 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
     }
   };
 
-  openFor = (tableStore: BaseDataViewStore<any>) => {
+  openFor = (tableStore: BaseDataViewStore<any>, expandField?: string) => {
     this.tableStore = tableStore;
     const filterableFields = this.tableStore?.filterableFields ?? [];
     const currentFilters = tableStore.filters ?? [];
@@ -113,6 +120,7 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       presetId: undefined,
       name: "",
     });
+    this.expandedField = expandField;
     this.open();
   };
 

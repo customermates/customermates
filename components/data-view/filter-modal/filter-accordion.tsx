@@ -16,6 +16,8 @@ type Props = {
   filterableFields: FilterableField[];
   customColumns?: CustomColumnDto[];
   nested?: boolean;
+  value?: string;
+  onValueChange?: (value: string) => void;
 };
 
 export const FilterAccordion = observer(function FilterAccordion({
@@ -24,13 +26,15 @@ export const FilterAccordion = observer(function FilterAccordion({
   filterableFields,
   customColumns,
   nested = false,
+  value,
+  onValueChange,
 }: Props) {
   const t = useTranslations("Common");
 
   const itemClassName = nested ? "border-b-0" : "border-b last:border-b-0 px-3";
 
   return (
-    <Accordion collapsible className="flex flex-col" type="single">
+    <Accordion collapsible className="flex flex-col" type="single" value={value} onValueChange={onValueChange}>
       {filters.map((filter, index) => {
         const isCustom = isCustomField(filter.field);
         const customColumn = isCustom ? customColumns?.find((col) => col.id === filter.field) : null;

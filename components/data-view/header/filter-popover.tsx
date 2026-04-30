@@ -164,6 +164,8 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
               customColumns={customColumns}
               filterableFields={store.filterableFields}
               filters={modalStore.form.filters}
+              value={modalStore.expandedField ?? ""}
+              onValueChange={modalStore.setExpandedField}
             />
           </div>
 

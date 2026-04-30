@@ -125,7 +125,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
               </button>
             }
             variant="default"
-            onClick={() => editFiltersModalStore.openFor(store)}
+            onClick={() => editFiltersModalStore.openFor(store, filter.field)}
           >
             <span className="truncate text-[11px]">
               <span className="font-medium">{label}</span>
