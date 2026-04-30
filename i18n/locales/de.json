@@ -102,6 +102,7 @@
       "selectOption": "Option auswählen",
       "switchToCardView": "Zur Kartenansicht wechseln",
       "switchToKanbanView": "Zur Kanban-Ansicht wechseln",
+      "switchToKanbanViewDisabled": "Füge ein Einzelauswahl-Feld hinzu, um die Kanban-Ansicht zu aktivieren",
       "switchToTableView": "Zur Tabellenansicht wechseln",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipAdd": "Hinzufügen",

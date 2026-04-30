@@ -95,6 +95,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const isCardView = store.viewMode === ViewMode.card;
   const sortable = store.columnsDefinition.filter((col) => col.sortable);
   const singleSelectColumns = store.customColumns.filter((col) => col.type === CustomColumnType.singleSelect);
+  const canUseKanban = singleSelectColumns.length > 0;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
   const currentSortDirection = store.sortDescriptor?.direction ?? "asc";
@@ -221,6 +222,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         <TabsTrigger
                           aria-label={t("ariaLabels.switchToKanbanView")}
                           className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                          disabled={!canUseKanban}
                           value="kanban"
                         >
                           <LayoutList className="size-3.5" />
@@ -228,7 +230,9 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                       </span>
                     </TooltipTrigger>
 
-                    <TooltipContent>{t("ariaLabels.switchToKanbanView")}</TooltipContent>
+                    <TooltipContent>
+                      {canUseKanban ? t("ariaLabels.switchToKanbanView") : t("ariaLabels.switchToKanbanViewDisabled")}
+                    </TooltipContent>
                   </Tooltip>
                 </TabsList>
               </Tabs>

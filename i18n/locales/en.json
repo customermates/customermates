@@ -102,6 +102,7 @@
       "selectOption": "Select an option",
       "switchToCardView": "Switch to card view",
       "switchToKanbanView": "Switch to kanban view",
+      "switchToKanbanViewDisabled": "Add a single-select custom field to enable kanban view",
       "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipAdd": "Add",
