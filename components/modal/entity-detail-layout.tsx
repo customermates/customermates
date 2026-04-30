@@ -197,16 +197,15 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
-      <div className="flex flex-col w-full flex-1 min-h-0 overflow-y-auto xl:overflow-y-visible">
+      <div className="@container/detail flex flex-col w-full flex-1 min-h-0 overflow-y-auto @4xl/detail:overflow-y-visible">
         <div
           className={cn(
-            "grid grid-cols-1 md:grid-cols-2 gap-px bg-border",
-            canSeeHistory
-              ? "xl:flex-1 xl:min-h-0 xl:grid-cols-[1fr_1fr_360px]"
-              : "md:flex-1 md:min-h-0 md:grid-rows-1 xl:grid-cols-2",
+            "grid grid-cols-1 gap-px bg-border",
+            "@4xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] @4xl/detail:flex-1 @4xl/detail:min-h-0",
+            canSeeHistory && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
           )}
         >
-          <div className="flex flex-col bg-background xl:min-h-0 xl:overflow-auto">
+          <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-auto">
             <div className="flex items-center gap-2 px-4 pt-3 pb-1 shrink-0 min-h-8">
               <Icon className="size-3.5 text-muted-foreground" icon={SquarePen} />
 
@@ -215,7 +214,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               </span>
             </div>
 
-            <div className="p-4 pt-2 xl:flex-1 xl:min-h-0">
+            <div className="p-4 pt-2 @4xl/detail:flex-1 @4xl/detail:min-h-0">
               {masterData}
 
               {isEditingCustomField && canManage && (
@@ -228,15 +227,21 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             </div>
           </div>
 
-          <div className="flex flex-col bg-background xl:min-h-0 xl:overflow-hidden">
-            <EntityNotesPanel key={entityId} store={store} />
-          </div>
+          {canSeeHistory ? (
+            <div className="flex flex-col gap-px bg-border @4xl/detail:min-h-0 @6xl/detail:contents">
+              <div className="flex flex-col bg-background @4xl/detail:flex-2 @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
+                <EntityNotesPanel key={entityId} store={store} />
+              </div>
 
-          {canSeeHistory && (
-            <div className="md:col-span-2 xl:col-span-1 flex flex-col bg-background xl:min-h-0 xl:overflow-hidden">
               {hasMounted && (
-                <EntityAuditLogPanel key={entityId} entityId={entityId} refreshKey={store.fetchedEntity} />
+                <div className="flex flex-col bg-background @4xl/detail:flex-1 @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
+                  <EntityAuditLogPanel key={entityId} entityId={entityId} refreshKey={store.fetchedEntity} />
+                </div>
               )}
+            </div>
+          ) : (
+            <div className="flex flex-col bg-background @4xl/detail:min-h-0 @4xl/detail:overflow-hidden">
+              <EntityNotesPanel key={entityId} store={store} />
             </div>
           )}
         </div>
