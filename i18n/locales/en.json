@@ -412,6 +412,8 @@
         "horizontal": "Show horizontally",
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
+        "showFilters": "Show filters",
+        "showLegend": "Show legend",
         "useGroupColors": "Use option colors",
         "vertical": "Show vertically"
       },

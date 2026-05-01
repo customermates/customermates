@@ -14,7 +14,10 @@
       "barColors": ["secondary1"],
       "displayType": "doughnutChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [
       {
@@ -32,102 +35,34 @@
       "lg": {
         "h": 2,
         "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
-        "w": 2,
-        "x": 6,
-        "y": 3
-      },
-      "md": {
-        "h": 3,
-        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
-        "w": 2,
-        "x": 2,
-        "y": 4
-      },
-      "sm": {
-        "h": 3,
-        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
-        "w": 1,
-        "x": 1,
-        "y": 4
-      },
-      "xs": {
-        "h": 2,
-        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
-        "w": 1,
-        "x": 1,
-        "y": 11
-      }
-    },
-    "name": "# Sold Hardware",
-    "updatedAt": "2026-04-28T11:46:07.289Z",
-    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
-  },
-  {
-    "aggregationType": "count",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-24T10:48:25.413Z",
-    "data": [
-      {
-        "label": "Total",
-        "value": 10
-      }
-    ],
-    "dealFilters": [],
-    "displayOptions": {
-      "barColors": ["default2"],
-      "displayType": "doughnutChart",
-      "reverseXAxis": false,
-      "reverseYAxis": false
-    },
-    "entityFilters": [
-      {
-        "field": "ee3c1793-3c0a-4325-bda1-ceda10e2b368",
-        "operator": "in",
-        "value": ["eea27d41-f9ea-461f-b994-8f57cfe9891e"]
-      },
-      {
-        "field": "userIds",
-        "operator": "in",
-        "value": ["f637539f-fa74-4af1-b473-b5d19ef4cbe7"]
-      }
-    ],
-    "entityType": "contact",
-    "groupByCustomColumnId": null,
-    "groupByType": "none",
-    "id": "61805201-3a8a-445f-b026-25415bca151c",
-    "isTemplate": false,
-    "layout": {
-      "lg": {
-        "h": 2,
-        "i": "61805201-3a8a-445f-b026-25415bca151c",
-        "w": 2,
-        "x": 2,
+        "w": 3,
+        "x": 3,
         "y": 0
       },
       "md": {
         "h": 2,
-        "i": "61805201-3a8a-445f-b026-25415bca151c",
+        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
         "w": 2,
-        "x": 6,
-        "y": 3
+        "x": 2,
+        "y": 2
       },
       "sm": {
         "h": 2,
-        "i": "61805201-3a8a-445f-b026-25415bca151c",
+        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
         "w": 1,
-        "x": 3,
-        "y": 3
+        "x": 1,
+        "y": 2
       },
       "xs": {
         "h": 2,
-        "i": "61805201-3a8a-445f-b026-25415bca151c",
+        "i": "135c2934-9bd8-4c42-8cb8-2a13d0799ef5",
         "w": 1,
         "x": 1,
-        "y": 7
+        "y": 9
       }
     },
-    "name": "# Contacts (New)",
-    "updatedAt": "2026-04-28T11:46:07.284Z",
+    "name": "Sold Hardware",
+    "updatedAt": "2026-05-01T15:16:20.733Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -170,10 +105,13 @@
     ],
     "dealFilters": [],
     "displayOptions": {
-      "barColors": ["default1", "default2"],
+      "barColors": ["primary1", "primary2", "primary3"],
       "displayType": "horizontalBarChartWithLabels",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [],
     "entityType": "organization",
@@ -208,11 +146,11 @@
         "i": "847c9509-db5b-4430-b151-799b6cd09036",
         "w": 2,
         "x": 0,
-        "y": 4
+        "y": 2
       }
     },
-    "name": "Deal Value | Organizations",
-    "updatedAt": "2026-04-28T11:46:07.283Z",
+    "name": "Deal Value By Organizations",
+    "updatedAt": "2026-05-01T15:16:20.732Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -256,7 +194,10 @@
       "barColors": ["default1", "default2", "primary1", "primary2", "secondary1", "secondary2"],
       "displayType": "doughnutChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": false
     },
     "entityFilters": [],
     "entityType": "contact",
@@ -266,36 +207,36 @@
     "isTemplate": false,
     "layout": {
       "lg": {
-        "h": 2,
+        "h": 3,
         "i": "8c6ff2c8-e291-493c-bde2-913100b6421d",
-        "w": 2,
-        "x": 0,
-        "y": 0
+        "w": 4,
+        "x": 8,
+        "y": 2
       },
       "md": {
         "h": 2,
         "i": "8c6ff2c8-e291-493c-bde2-913100b6421d",
-        "w": 2,
+        "w": 4,
         "x": 4,
         "y": 3
       },
       "sm": {
         "h": 2,
         "i": "8c6ff2c8-e291-493c-bde2-913100b6421d",
-        "w": 1,
+        "w": 2,
         "x": 2,
         "y": 3
       },
       "xs": {
         "h": 2,
         "i": "8c6ff2c8-e291-493c-bde2-913100b6421d",
-        "w": 1,
+        "w": 2,
         "x": 0,
-        "y": 7
+        "y": 5
       }
     },
     "name": "Sales Pipeline",
-    "updatedAt": "2026-04-28T11:46:07.290Z",
+    "updatedAt": "2026-05-01T15:16:20.737Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -324,7 +265,10 @@
       "barColors": ["success1", "warning1", "danger1"],
       "displayType": "doughnutChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [
       {
@@ -342,8 +286,8 @@
       "lg": {
         "h": 2,
         "i": "c91d3b67-bc92-4744-ac47-871027d53fa1",
-        "w": 2,
-        "x": 10,
+        "w": 3,
+        "x": 6,
         "y": 0
       },
       "md": {
@@ -368,8 +312,8 @@
         "y": 0
       }
     },
-    "name": "Σ Deal Value",
-    "updatedAt": "2026-04-28T11:46:07.295Z",
+    "name": "Total Deal Value",
+    "updatedAt": "2026-05-01T15:16:20.735Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -393,7 +337,10 @@
       "barColors": ["secondary1", "secondary2"],
       "displayType": "verticalBarChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [],
     "entityType": "service",
@@ -407,105 +354,32 @@
         "i": "e1317ffc-9eb2-4dd8-90f5-ec336214ffd7",
         "w": 4,
         "x": 4,
-        "y": 0
+        "y": 2
       },
       "md": {
         "h": 2,
         "i": "e1317ffc-9eb2-4dd8-90f5-ec336214ffd7",
         "w": 4,
-        "x": 4,
-        "y": 5
+        "x": 0,
+        "y": 4
       },
       "sm": {
         "h": 2,
         "i": "e1317ffc-9eb2-4dd8-90f5-ec336214ffd7",
         "w": 2,
-        "x": 2,
-        "y": 5
+        "x": 0,
+        "y": 4
       },
       "xs": {
         "h": 2,
         "i": "e1317ffc-9eb2-4dd8-90f5-ec336214ffd7",
         "w": 2,
         "x": 0,
-        "y": 9
+        "y": 7
       }
     },
-    "name": "Services / Hardware Value",
-    "updatedAt": "2026-04-28T11:46:07.293Z",
-    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
-  },
-  {
-    "aggregationType": "dealValue",
-    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
-    "createdAt": "2026-03-24T10:55:21.933Z",
-    "data": [
-      {
-        "label": "Open",
-        "optionColor": "warning",
-        "value": 725500
-      },
-      {
-        "label": "Won",
-        "optionColor": "success",
-        "value": 545500
-      },
-      {
-        "label": "Lost",
-        "optionColor": "destructive",
-        "value": 538500
-      },
-      {
-        "label": "Abandoned",
-        "optionColor": "secondary",
-        "value": 156400
-      }
-    ],
-    "dealFilters": [],
-    "displayOptions": {
-      "barColors": ["warning1", "success1", "danger1", "default1"],
-      "displayType": "verticalBarChart",
-      "reverseXAxis": true,
-      "reverseYAxis": false
-    },
-    "entityFilters": [],
-    "entityType": "deal",
-    "groupByCustomColumnId": "8c5dedf6-a2be-43fa-ae0e-936da4403215",
-    "groupByType": "customColumn",
-    "id": "e22d2059-226b-4caa-a745-4841e135e9d5",
-    "isTemplate": false,
-    "layout": {
-      "lg": {
-        "h": 3,
-        "i": "e22d2059-226b-4caa-a745-4841e135e9d5",
-        "w": 4,
-        "x": 8,
-        "y": 2
-      },
-      "md": {
-        "h": 2,
-        "i": "e22d2059-226b-4caa-a745-4841e135e9d5",
-        "w": 4,
-        "x": 0,
-        "y": 2
-      },
-      "sm": {
-        "h": 2,
-        "i": "e22d2059-226b-4caa-a745-4841e135e9d5",
-        "w": 2,
-        "x": 0,
-        "y": 2
-      },
-      "xs": {
-        "h": 2,
-        "i": "e22d2059-226b-4caa-a745-4841e135e9d5",
-        "w": 2,
-        "x": 0,
-        "y": 2
-      }
-    },
-    "name": "Deal Value | State",
-    "updatedAt": "2026-04-28T11:46:07.294Z",
+    "name": "Deal Value By Type",
+    "updatedAt": "2026-05-01T15:16:20.734Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -534,7 +408,10 @@
       "barColors": ["success1", "warning1", "danger1"],
       "displayType": "verticalBarChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [
       {
@@ -552,8 +429,8 @@
       "lg": {
         "h": 2,
         "i": "e6af922e-b70f-43ad-903f-2d2377833c47",
-        "w": 2,
-        "x": 8,
+        "w": 3,
+        "x": 9,
         "y": 0
       },
       "md": {
@@ -578,8 +455,8 @@
         "y": 0
       }
     },
-    "name": "# Deals",
-    "updatedAt": "2026-04-28T11:46:07.294Z",
+    "name": "Deal Overview",
+    "updatedAt": "2026-05-01T15:16:20.736Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   },
   {
@@ -603,7 +480,10 @@
       "barColors": ["primary1", "secondary1"],
       "displayType": "doughnutChart",
       "reverseXAxis": false,
-      "reverseYAxis": false
+      "reverseYAxis": false,
+      "showFilters": true,
+      "showLegend": true,
+      "useGroupColors": true
     },
     "entityFilters": [],
     "entityType": "organization",
@@ -615,34 +495,34 @@
       "lg": {
         "h": 2,
         "i": "f05e992f-e513-4eb9-ad90-e513288908d6",
-        "w": 2,
-        "x": 4,
-        "y": 3
+        "w": 3,
+        "x": 0,
+        "y": 0
       },
       "md": {
-        "h": 3,
+        "h": 2,
         "i": "f05e992f-e513-4eb9-ad90-e513288908d6",
         "w": 2,
         "x": 0,
-        "y": 4
+        "y": 2
       },
       "sm": {
-        "h": 3,
+        "h": 2,
         "i": "f05e992f-e513-4eb9-ad90-e513288908d6",
         "w": 1,
         "x": 0,
-        "y": 4
+        "y": 2
       },
       "xs": {
         "h": 2,
         "i": "f05e992f-e513-4eb9-ad90-e513288908d6",
         "w": 1,
         "x": 0,
-        "y": 11
+        "y": 9
       }
     },
-    "name": "# Organizations",
-    "updatedAt": "2026-04-28T11:46:07.290Z",
+    "name": "Organizations",
+    "updatedAt": "2026-05-01T15:16:20.731Z",
     "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
   }
 ]

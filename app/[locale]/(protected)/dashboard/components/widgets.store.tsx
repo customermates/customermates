@@ -61,7 +61,7 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
 
   setItems(args: GetResult<ExtendedWidget>) {
     this.items = args.items;
-    this.customColumns = args.customColumns ?? [];
+    if (args.customColumns) this.customColumns = args.customColumns;
 
     const layouts: MutableLayouts = { xs: [], sm: [], md: [], lg: [] };
 

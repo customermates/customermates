@@ -52,8 +52,8 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
   useEffect(() => {
-    widgetsStore.setItems({ items: widgets });
-  }, [widgets]);
+    widgetsStore.setItems({ items: widgets, customColumns });
+  }, [widgets, customColumns]);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
@@ -70,7 +70,11 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
       if (!pointerStart.current) return;
       const { id, x, y } = pointerStart.current;
       pointerStart.current = null;
-      if (Math.abs(e.clientX - x) < 8 && Math.abs(e.clientY - y) < 8) void widgetModalStore.loadById(id);
+      if (Math.abs(e.clientX - x) < 8 && Math.abs(e.clientY - y) < 8) {
+        widgetModalStore.setExpandedSection("config");
+        widgetModalStore.setExpandedFilterField(undefined);
+        void widgetModalStore.loadById(id);
+      }
     }
     document.addEventListener("pointerup", onPointerUp);
     return () => document.removeEventListener("pointerup", onPointerUp);

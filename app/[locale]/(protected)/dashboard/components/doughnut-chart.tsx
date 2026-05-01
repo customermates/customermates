@@ -13,9 +13,10 @@ type Props = {
   chartData: ChartDataPoint[];
   colors: string[];
   textColor: string;
+  showLegend?: boolean;
 };
 
-export const DoughnutChart = observer(({ aggregationType, chartData }: Props) => {
+export const DoughnutChart = observer(({ aggregationType, chartData, showLegend = true }: Props) => {
   return (
     <div className="flex size-full flex-col gap-3 min-h-0">
       <div className="flex-1 min-h-0">
@@ -32,15 +33,17 @@ export const DoughnutChart = observer(({ aggregationType, chartData }: Props) =>
         </ResponsiveContainer>
       </div>
 
-      <div className="flex flex-wrap gap-x-3 gap-y-1 shrink-0">
-        {chartData.map((entry, index) => (
-          <div key={index} className="flex items-center gap-1.5 text-xs min-w-0">
-            <div className="size-2 rounded-sm shrink-0" style={{ backgroundColor: entry.fill }} />
+      {showLegend && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1 shrink-0">
+          {chartData.map((entry, index) => (
+            <div key={index} className="flex items-center gap-1.5 text-xs min-w-0">
+              <div className="size-2 rounded-sm shrink-0" style={{ backgroundColor: entry.fill }} />
 
-            <span className="text-muted-foreground truncate max-w-40">{entry.label}</span>
-          </div>
-        ))}
-      </div>
+              <span className="text-muted-foreground truncate max-w-40">{entry.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 });

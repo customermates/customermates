@@ -5920,6 +5920,51 @@
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+    "createdAt": "2026-05-01T15:17:03.491Z",
+    "entityId": "540b062c-7961-487c-af39-bcd37903ac2f",
+    "event": "custom_column.updated",
+    "eventData": {
+      "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
+      "entityId": "540b062c-7961-487c-af39-bcd37903ac2f",
+      "payload": {
+        "changes": {
+          "label": {
+            "current": "Type",
+            "previous": "Service / Hardware"
+          }
+        },
+        "customColumn": {
+          "entityType": "service",
+          "id": "540b062c-7961-487c-af39-bcd37903ac2f",
+          "label": "Type",
+          "options": {
+            "options": [
+              {
+                "color": "secondary",
+                "index": 0,
+                "isDefault": true,
+                "label": "Service",
+                "value": "c64bf802-6600-4f19-b93d-a6be0460a716"
+              },
+              {
+                "color": "secondary",
+                "index": 1,
+                "isDefault": false,
+                "label": "Hardware",
+                "value": "a1fc15bb-065b-4564-85eb-ac1c75ab945a"
+              }
+            ]
+          },
+          "type": "singleSelect"
+        }
+      },
+      "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+    },
+    "id": "61eca817-6e7e-4b9b-b6fa-86d3cf49037c",
+    "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
+  },
+  {
+    "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:07:59.482Z",
     "entityId": "3b17ecf8-829d-48ff-8496-8c812040cf49",
     "event": "deal.updated",

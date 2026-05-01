@@ -16,10 +16,14 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 
+export type WidgetModalSection = "config" | "filters" | "dealFilters" | "display";
+
 export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
   public fetchedWidget: ExtendedWidget | null = null;
   public companyWideWidgets: CompanyWidget[] = [];
   public groupByValue: string = WidgetGroupByType.none;
+  public expandedSection: WidgetModalSection = "config";
+  public expandedFilterField: string | undefined = undefined;
   private skipReactions = false;
   public filterableFieldsByEntityType: Record<EntityType, FilterableField[]> = {
     [EntityType.contact]: [],
@@ -73,6 +77,8 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
         reverseXAxis: false,
         reverseYAxis: false,
         useGroupColors: true,
+        showLegend: true,
+        showFilters: true,
       } as DisplayOptions,
       groupByType: WidgetGroupByType.none,
       groupByCustomColumnId: undefined,
@@ -84,6 +90,8 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       fetchedWidget: observable,
       companyWideWidgets: observable,
       groupByValue: observable,
+      expandedSection: observable,
+      expandedFilterField: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
 
@@ -96,6 +104,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       onGroupByChange: action,
       setFilterableFields: action,
       setCustomColumns: action,
+      setExpandedSection: action,
+      setExpandedFilterField: action,
+      openWithFilter: action,
 
       groupBySelectOptions: computed,
       groupBySelectValue: computed,
@@ -199,8 +210,24 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
     this.groupByValue = value;
   };
 
+  setExpandedSection = (section: string) => {
+    this.expandedSection = (section as WidgetModalSection) || "config";
+  };
+
+  setExpandedFilterField = (field: string | undefined) => {
+    this.expandedFilterField = field;
+  };
+
+  openWithFilter = (id: string, section: WidgetModalSection, field?: string) => {
+    this.expandedSection = section;
+    this.expandedFilterField = field;
+    void this.loadById(id);
+  };
+
   add = () => {
     this.fetchedWidget = null;
+    this.expandedSection = "config";
+    this.expandedFilterField = undefined;
 
     const availableEntityTypes = this.availableEntityTypes;
     if (availableEntityTypes.length === 0) return;
@@ -222,6 +249,8 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
         reverseXAxis: false,
         reverseYAxis: false,
         useGroupColors: true,
+        showLegend: true,
+        showFilters: true,
       },
       groupByType: WidgetGroupByType.none,
       groupByCustomColumnId: undefined,
@@ -288,6 +317,8 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
               reverseXAxis: widget.displayOptions?.reverseXAxis ?? false,
               reverseYAxis: widget.displayOptions?.reverseYAxis ?? false,
               useGroupColors: widget.displayOptions?.useGroupColors ?? true,
+              showLegend: widget.displayOptions?.showLegend ?? true,
+              showFilters: widget.displayOptions?.showFilters ?? true,
             },
             groupByType,
             groupByCustomColumnId,
@@ -327,6 +358,8 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
             reverseXAxis: widget.displayOptions?.reverseXAxis ?? false,
             reverseYAxis: widget.displayOptions?.reverseYAxis ?? false,
             useGroupColors: widget.displayOptions?.useGroupColors ?? true,
+            showLegend: widget.displayOptions?.showLegend ?? true,
+            showFilters: widget.displayOptions?.showFilters ?? true,
           },
           groupByType,
           groupByCustomColumnId,

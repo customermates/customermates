@@ -82,7 +82,13 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
           </AppCardHeader>
 
           <AppCardBody>
-            <Accordion collapsible className="w-full" defaultValue="config" type="single">
+            <Accordion
+              collapsible
+              className="w-full"
+              type="single"
+              value={widgetModalStore.expandedSection}
+              onValueChange={widgetModalStore.setExpandedSection}
+            >
               <AccordionItem value="config">
                 <AccordionTrigger>{t("Dashboard.tabs.config")}</AccordionTrigger>
 
@@ -211,6 +217,10 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                     customColumns={widgetModalStore.customColumns}
                     filterableFields={widgetModalStore.filterableFields}
                     filters={widgetModalStore.form.entityFilters ?? []}
+                    value={
+                      widgetModalStore.expandedSection === "filters" ? widgetModalStore.expandedFilterField : undefined
+                    }
+                    onValueChange={widgetModalStore.setExpandedFilterField}
                   />
                 </AccordionContent>
               </AccordionItem>
@@ -236,6 +246,12 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                       customColumns={widgetModalStore.customColumnsByEntityType[EntityType.deal]}
                       filterableFields={widgetModalStore.dealFilterableFields}
                       filters={widgetModalStore.form.dealFilters ?? []}
+                      value={
+                        widgetModalStore.expandedSection === "dealFilters"
+                          ? widgetModalStore.expandedFilterField
+                          : undefined
+                      }
+                      onValueChange={widgetModalStore.setExpandedFilterField}
                     />
                   </AccordionContent>
                 </AccordionItem>
@@ -332,6 +348,12 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                         />
                       </>
                     )}
+
+                  {form.displayOptions?.displayType === DisplayType.doughnutChart && (
+                    <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
+                  )}
+
+                  <FormSwitch id="displayOptions.showFilters" label={t("Common.inputs.displayOptions.showFilters")} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

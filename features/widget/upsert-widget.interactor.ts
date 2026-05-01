@@ -21,6 +21,8 @@ const DisplayOptionsSchema = z
     reverseXAxis: z.boolean().optional(),
     reverseYAxis: z.boolean().optional(),
     useGroupColors: z.boolean().optional(),
+    showLegend: z.boolean().optional(),
+    showFilters: z.boolean().optional(),
   })
   .optional();
 

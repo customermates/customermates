@@ -17,7 +17,7 @@
     "createdAt": "2026-03-24T09:05:07.079Z",
     "entityType": "service",
     "id": "540b062c-7961-487c-af39-bcd37903ac2f",
-    "label": "Service / Hardware",
+    "label": "Type",
     "options": {
       "options": [
         {
@@ -37,7 +37,7 @@
       ]
     },
     "type": "singleSelect",
-    "updatedAt": "2026-03-24T09:05:07.079Z"
+    "updatedAt": "2026-05-01T15:17:03.480Z"
   },
   {
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",

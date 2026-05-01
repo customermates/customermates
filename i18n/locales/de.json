@@ -412,6 +412,8 @@
         "horizontal": "Horizontal anzeigen",
         "reverseXAxis": "X-Achse umkehren",
         "reverseYAxis": "Y-Achse umkehren",
+        "showFilters": "Filter anzeigen",
+        "showLegend": "Legende anzeigen",
         "useGroupColors": "Optionsfarben verwenden",
         "vertical": "Vertikal anzeigen"
       },
