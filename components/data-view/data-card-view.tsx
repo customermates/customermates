@@ -8,6 +8,7 @@ import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   columns: ColumnDef<E>[];
   onCardClick?: (item: E) => void;
+  cardHref?: (item: E) => string | undefined;
   renderCard?: (item: E) => ReactNode;
   className?: string;
 };
@@ -25,9 +27,11 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   store,
   columns,
   onCardClick,
+  cardHref,
   renderCard,
   className,
 }: Props<E>) {
+  const navigateToHref = useNavigateToHref();
   const hidden = new Set(store.hiddenColumns);
   const visibleColumns = columns.filter((c) => !hidden.has((c as { id?: string }).id ?? ""));
 
@@ -44,20 +48,37 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   return (
     <div className={cn("", className)} data-slot="card-grid">
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-4">
-        {table.getRowModel().rows.map((row) => (
-          <Card
-            key={row.id}
-            className={cn("gap-3 py-4", onCardClick && "interactive-surface")}
-            onClick={(e) => {
-              if (isInteractiveClick(e)) return;
-              onCardClick?.(row.original);
-            }}
-          >
-            <CardContent className="px-4">
-              {renderCard ? renderCard(row.original) : <DataCardBody row={row} />}
-            </CardContent>
-          </Card>
-        ))}
+        {table.getRowModel().rows.map((row) => {
+          const href = cardHref?.(row.original);
+          return (
+            <Card
+              key={row.id}
+              className={cn("gap-3 py-4 relative", (onCardClick || href) && "interactive-surface")}
+              onClick={(e) => {
+                if (isInteractiveClick(e)) return;
+                onCardClick?.(row.original);
+              }}
+            >
+              {href && (
+                <a
+                  aria-label="Open"
+                  className="absolute inset-0"
+                  href={href}
+                  tabIndex={-1}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                    e.preventDefault();
+                    if (!onCardClick) navigateToHref(href);
+                  }}
+                />
+              )}
+
+              <CardContent className="px-4">
+                {renderCard ? renderCard(row.original) : <DataCardBody row={row} />}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

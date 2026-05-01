@@ -16,7 +16,7 @@ import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 
 type Props = {
@@ -28,6 +28,7 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
 
   const { tasksStore, intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
 
   useDataViewSync(tasksStore, tasks);
 
@@ -64,9 +65,9 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
         id: "contacts",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(c) => entityHref(EntityType.contact, c.id)}
             items={row.original.contacts.map((c) => ({ id: c.id, label: `${c.firstName} ${c.lastName}`.trim() }))}
             size="sm"
-            onChipClick={(c) => openEntity(EntityType.contact, c.id)}
           />
         ),
       },
@@ -74,9 +75,9 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
         id: "organizations",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(o) => entityHref(EntityType.organization, o.id)}
             items={row.original.organizations.map((o) => ({ id: o.id, label: o.name }))}
             size="sm"
-            onChipClick={(o) => openEntity(EntityType.organization, o.id)}
           />
         ),
       },
@@ -84,9 +85,9 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
         id: "deals",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(d) => entityHref(EntityType.deal, d.id)}
             items={row.original.deals.map((d) => ({ id: d.id, label: d.name }))}
             size="sm"
-            onChipClick={(d) => openEntity(EntityType.deal, d.id)}
           />
         ),
       },
@@ -94,22 +95,22 @@ export const TasksCardComponent = observer(({ tasks }: Props) => {
         id: "services",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(s) => entityHref(EntityType.service, s.id)}
             items={row.original.services.map((s) => ({ id: s.id, label: s.name }))}
             size="sm"
-            onChipClick={(s) => openEntity(EntityType.service, s.id)}
           />
         ),
       },
       ...standardTailColumns({ store: tasksStore, intlStore, userModalStore }),
     ];
-  }, [t, tasksStore.customColumns, intlStore, userModalStore, openEntity]);
+  }, [t, tasksStore.customColumns, intlStore, userModalStore, openEntity, entityHref]);
 
   return (
     <DataViewContainer
       columns={columns}
+      rowHref={(item) => entityHref(EntityType.task, item.id)}
       store={tasksStore}
       onAdd={() => openEntity(EntityType.task, "new")}
-      onRowClick={(item) => openEntity(EntityType.task, item.id)}
     />
   );
 });

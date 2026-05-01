@@ -19,7 +19,7 @@ import { FormInputChips } from "@/components/forms/form-input-chips";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { copyToClipboard } from "@/lib/clipboard";
 
@@ -29,7 +29,7 @@ type Props = {
 
 export const ContactDetailView = observer(function ContactDetailView({ layout = "drawer" }: Props) {
   const { contactDetailStore, userStore, userModalStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   const { isEditingCustomField, customColumns, fetchedEntity } = contactDetailStore;
@@ -57,6 +57,7 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
 
       {userStore.canAccess(Resource.organizations) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.organization, id)}
           getItems={getOrganizationsAction}
           id="organizationIds"
           items={fetchedEntity?.organizations ?? []}
@@ -69,7 +70,6 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.organization, id)}
           onCreate={(name) => createOrganizationByNameAction(name, userStore.user?.id)}
         >
           {(item) => FormAutocompleteItem({ children: item.name })}
@@ -78,6 +78,7 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
 
       {userStore.canAccess(Resource.deals) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.deal, id)}
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
@@ -86,7 +87,6 @@ export const ContactDetailView = observer(function ContactDetailView({ layout = 
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.deal, id)}
           onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
         >
           {(deal) => FormAutocompleteItem({ children: deal.name })}

@@ -11,6 +11,7 @@ import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ type Props<T extends Identifiable> = {
   className?: string;
   containerClassName?: string;
   popoverFitContent?: boolean;
+  chipHref?: (key: string) => string | undefined;
 };
 
 function keyOf<T extends Identifiable>(item: T): string {
@@ -78,8 +80,10 @@ export const FormAutocomplete = observer(
     className,
     containerClassName,
     popoverFitContent = false,
+    chipHref,
   }: Props<T>) => {
     const store = useAppForm();
+    const navigateToHref = useNavigateToHref();
     const t = useTranslations("Common.inputs");
     const tCommon = useTranslations("Common");
     const isReq = required;
@@ -219,26 +223,52 @@ export const FormAutocomplete = observer(
               })
             : el;
 
-        if (!onChipClick) {
+        const href = chipHref?.(itemKey);
+
+        if (!onChipClick && !href) {
           return (
             <span key={itemKey} className="inline-flex min-w-0 max-w-full">
               {withClose}
             </span>
           );
         }
+
+        if (href) {
+          return (
+            <a
+              key={itemKey}
+              className="relative inline-flex min-w-0 max-w-full cursor-pointer"
+              href={href}
+              onClick={(e) => {
+                if ((e.target as HTMLElement).closest('[aria-label="Remove"]')) {
+                  e.preventDefault();
+                  return;
+                }
+                e.stopPropagation();
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                e.preventDefault();
+                if (onChipClick) onChipClick(itemKey);
+                else navigateToHref(href);
+              }}
+            >
+              {withClose}
+            </a>
+          );
+        }
+
         return (
           <span
             key={itemKey}
-            className="inline-flex min-w-0 max-w-full cursor-pointer"
+            className="relative inline-flex min-w-0 max-w-full cursor-pointer"
             role="button"
             tabIndex={0}
             onClick={(e) => {
               if ((e.target as HTMLElement).closest('[aria-label="Remove"]')) return;
               e.stopPropagation();
-              onChipClick(itemKey);
+              onChipClick?.(itemKey);
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onChipClick(itemKey);
+              if (e.key === "Enter") onChipClick?.(itemKey);
             }}
           >
             {withClose}

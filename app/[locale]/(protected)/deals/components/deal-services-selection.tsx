@@ -13,7 +13,7 @@ import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Icon } from "@/components/shared/icon";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 
@@ -21,7 +21,7 @@ export const DealServicesSelection = observer(() => {
   const { dealDetailStore, intlStore, userStore } = useRootStore();
   const { form, fetchedEntity, canManage, addService, deleteService, serviceAmountById, totalQuantity, totalValue } =
     dealDetailStore;
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   if (!userStore.canAccess(Resource.services)) return null;
@@ -80,6 +80,7 @@ export const DealServicesSelection = observer(() => {
               <div className="flex items-stretch w-full">
                 <FormAutocomplete
                   required
+                  chipHref={(id) => entityHref(EntityType.service, id)}
                   className="rounded-r-none border-r-0"
                   containerClassName="flex-1 min-w-0"
                   filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
@@ -109,7 +110,6 @@ export const DealServicesSelection = observer(() => {
                       );
                     })
                   }
-                  onChipClick={(id) => openEntity(EntityType.service, id)}
                   onCreate={createServiceOption}
                 >
                   {(service) =>

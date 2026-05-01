@@ -26,6 +26,7 @@ type Props<E extends HasId> = {
   title?: ReactNode;
   embedded?: boolean;
   onRowClick?: (item: E) => void;
+  rowHref?: (item: E) => string | undefined;
   onAdd?: () => void;
   renderCard?: (item: E) => ReactNode;
   actions?: ReactNode;
@@ -40,6 +41,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   title,
   embedded,
   onRowClick,
+  rowHref,
   onAdd,
   renderCard,
   actions,
@@ -85,11 +87,23 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   const isKanban = store.viewMode === ViewMode.card && Boolean(store.groupingColumnId);
 
   const body = isTable ? (
-    <DataTable columns={resolvedColumns} store={store} onRowClick={onRowClick} />
+    <DataTable columns={resolvedColumns} store={store} onRowClick={onRowClick} onRowHref={rowHref} />
   ) : isKanban ? (
-    <DataKanbanView columns={resolvedColumns} renderCard={renderCard} store={store} onCardClick={onRowClick} />
+    <DataKanbanView
+      cardHref={rowHref}
+      columns={resolvedColumns}
+      renderCard={renderCard}
+      store={store}
+      onCardClick={onRowClick}
+    />
   ) : (
-    <DataCardView columns={resolvedColumns} renderCard={renderCard} store={store} onCardClick={onRowClick} />
+    <DataCardView
+      cardHref={rowHref}
+      columns={resolvedColumns}
+      renderCard={renderCard}
+      store={store}
+      onCardClick={onRowClick}
+    />
   );
 
   const toolbar = (

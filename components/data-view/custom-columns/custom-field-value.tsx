@@ -92,7 +92,7 @@ export const CustomFieldValue = observer(
 
           return (
             // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- stops clicks on the radix dropdown (trigger + portaled items) from bubbling to the parent card's navigation handler
-            <span onClick={(event) => event.stopPropagation()}>
+            <span className="relative" onClick={(event) => event.stopPropagation()}>
               <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <span>

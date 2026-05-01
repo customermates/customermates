@@ -17,7 +17,7 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
 
@@ -27,7 +27,7 @@ type Props = {
 
 export const DealDetailView = observer(function DealDetailView({ layout = "drawer" }: Props) {
   const { dealDetailStore, userModalStore, userStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const { isEditingCustomField, customColumns, fetchedEntity } = dealDetailStore;
 
   return (
@@ -36,6 +36,7 @@ export const DealDetailView = observer(function DealDetailView({ layout = "drawe
 
       {userStore.canAccess(Resource.contacts) && (
         <FormAutocompleteAvatar
+          chipHref={(id) => entityHref(EntityType.contact, id)}
           getItems={getContactsAction}
           id="contactIds"
           items={fetchedEntity?.contacts ?? []}
@@ -43,13 +44,13 @@ export const DealDetailView = observer(function DealDetailView({ layout = "drawe
             <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="deal" targetEntityType="contact" />
           }
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.contact, id)}
           onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
         />
       )}
 
       {userStore.canAccess(Resource.organizations) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.organization, id)}
           getItems={getOrganizationsAction}
           id="organizationIds"
           items={fetchedEntity?.organizations ?? []}
@@ -62,7 +63,6 @@ export const DealDetailView = observer(function DealDetailView({ layout = "drawe
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.organization, id)}
           onCreate={(name) => createOrganizationByNameAction(name, userStore.user?.id)}
         >
           {(org) => FormAutocompleteItem({ children: org.name })}

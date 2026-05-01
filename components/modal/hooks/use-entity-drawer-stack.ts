@@ -104,3 +104,16 @@ export function useOpenEntity() {
     [pushEntity, router],
   );
 }
+
+export function useEntityHref() {
+  return useCallback((entityType: EntityType, id: string): string => {
+    if (id === "new") return "";
+    const segment = ENTITY_URL_SEGMENT[entityType];
+    return `/${segment}/${id}`;
+  }, []);
+}
+
+export function useNavigateToHref() {
+  const router = useGuardedIntlRouter();
+  return useCallback((href: string) => router.push(href), [router]);
+}

@@ -11,7 +11,7 @@ import { OpenRelationLink } from "@/components/modal/open-relation-link";
 import { TasksAutocompleteField } from "@/components/modal/tasks-autocomplete-field";
 import { FormInput } from "@/components/forms/form-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
@@ -25,7 +25,7 @@ type Props = {
 
 export const ServiceDetailView = observer(function ServiceDetailView({ layout = "drawer" }: Props) {
   const { serviceDetailStore, userModalStore, intlStore, userStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const { isEditingCustomField, customColumns, fetchedEntity } = serviceDetailStore;
 
   return (
@@ -49,6 +49,7 @@ export const ServiceDetailView = observer(function ServiceDetailView({ layout = 
 
       {userStore.canAccess(Resource.deals) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.deal, id)}
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
@@ -57,7 +58,6 @@ export const ServiceDetailView = observer(function ServiceDetailView({ layout = 
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.deal, id)}
           onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
         >
           {(deal) => FormAutocompleteItem({ children: deal.name })}

@@ -25,6 +25,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ type Props<E extends HasCustomFieldValues> = {
   store: BaseDataViewStore<E>;
   columns: ColumnDef<E>[];
   onCardClick?: (item: E) => void;
+  cardHref?: (item: E) => string | undefined;
   renderCard?: (item: E) => ReactNode;
   className?: string;
 };
@@ -65,13 +67,16 @@ function KanbanCard({
   itemId,
   children,
   onClick,
+  href,
   className,
 }: {
   itemId: string;
   children: ReactNode;
   onClick?: () => void;
+  href?: string;
   className?: string;
 }) {
+  const navigateToHref = useNavigateToHref();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: itemId });
 
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
@@ -80,8 +85,8 @@ function KanbanCard({
     <Card
       ref={setNodeRef}
       className={cn(
-        "gap-2 py-3 touch-none select-none",
-        onClick && !isDragging && "interactive-surface",
+        "gap-2 py-3 touch-none select-none relative",
+        (onClick || href) && !isDragging && "interactive-surface",
         isDragging && "z-50 cursor-grabbing shadow-lg shadow-black/20 ring-1 ring-border/60",
         className,
       )}
@@ -93,6 +98,20 @@ function KanbanCard({
       {...listeners}
       {...attributes}
     >
+      {href && !isDragging && (
+        <a
+          aria-label="Open"
+          className="absolute inset-0"
+          href={href}
+          tabIndex={-1}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+            e.preventDefault();
+            if (!onClick) navigateToHref(href);
+          }}
+        />
+      )}
+
       {children}
     </Card>
   );
@@ -158,6 +177,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   store,
   columns,
   onCardClick,
+  cardHref,
   renderCard,
   className,
 }: Props<E>) {
@@ -262,7 +282,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 {items.map((item) => {
                   const row = rowsById.get(item.id);
                   return (
-                    <KanbanCard key={item.id} itemId={item.id} onClick={() => onCardClick?.(item)}>
+                    <KanbanCard
+                      key={item.id}
+                      href={cardHref?.(item)}
+                      itemId={item.id}
+                      onClick={onCardClick ? () => onCardClick(item) : undefined}
+                    >
                       <CardContent className="px-3">
                         {renderCard ? renderCard(item) : row ? <DataCardBody row={row} /> : null}
                       </CardContent>

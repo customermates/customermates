@@ -12,7 +12,7 @@ import { EntityType, TaskType } from "@/generated/prisma";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
@@ -23,6 +23,7 @@ type Props = {
 export const OrganizationsCard = observer(({ organizations }: Props) => {
   const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
@@ -46,9 +47,9 @@ export const OrganizationsCard = observer(({ organizations }: Props) => {
         id: "deals",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
             items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
             size="sm"
-            onChipClick={(deal) => openEntity(EntityType.deal, deal.id)}
           />
         ),
       },
@@ -56,26 +57,26 @@ export const OrganizationsCard = observer(({ organizations }: Props) => {
         id: "tasks",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(task) => entityHref(EntityType.task, task.id)}
             items={row.original.tasks.map((task) => {
               const nameKey = getSystemTaskNameTranslationKey(task.type);
               const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
               return { id: task.id, label };
             })}
             size="sm"
-            onChipClick={(task) => openEntity(EntityType.task, task.id)}
           />
         ),
       },
       ...standardTailColumns({ store: organizationsStore, intlStore, userModalStore }),
     ];
-  }, [organizationsStore, organizationsStore.customColumns, openEntity, userModalStore, intlStore, t]);
+  }, [organizationsStore, organizationsStore.customColumns, openEntity, entityHref, userModalStore, intlStore, t]);
 
   return (
     <DataViewContainer
       columns={columns}
+      rowHref={(item) => entityHref(EntityType.organization, item.id)}
       store={organizationsStore}
       onAdd={() => openEntity(EntityType.organization, "new")}
-      onRowClick={(item) => openEntity(EntityType.organization, item.id)}
     />
   );
 });

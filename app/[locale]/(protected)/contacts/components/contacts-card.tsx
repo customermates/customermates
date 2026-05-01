@@ -13,7 +13,7 @@ import { EntityType, TaskType } from "@/generated/prisma";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { copyToClipboard } from "@/lib/clipboard";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
@@ -32,6 +32,7 @@ function getInitials(name: string): string {
 export const ContactsCard = observer(({ contacts }: Props) => {
   const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
@@ -73,9 +74,9 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         id: "organizations",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(org) => entityHref(EntityType.organization, org.id)}
             items={row.original.organizations.map((org) => ({ id: org.id, label: org.name }))}
             size="sm"
-            onChipClick={(org) => openEntity(EntityType.organization, org.id)}
           />
         ),
       },
@@ -83,9 +84,9 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         id: "deals",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
             items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
             size="sm"
-            onChipClick={(deal) => openEntity(EntityType.deal, deal.id)}
           />
         ),
       },
@@ -93,26 +94,26 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         id: "tasks",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(task) => entityHref(EntityType.task, task.id)}
             items={row.original.tasks.map((task) => {
               const nameKey = getSystemTaskNameTranslationKey(task.type);
               const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
               return { id: task.id, label };
             })}
             size="sm"
-            onChipClick={(task) => openEntity(EntityType.task, task.id)}
           />
         ),
       },
       ...standardTailColumns({ store: contactsStore, intlStore, userModalStore }),
     ];
-  }, [contactsStore, contactsStore.customColumns, openEntity, userModalStore, intlStore, t]);
+  }, [contactsStore, contactsStore.customColumns, openEntity, entityHref, userModalStore, intlStore, t]);
 
   return (
     <DataViewContainer
       columns={columns}
+      rowHref={(item) => entityHref(EntityType.contact, item.id)}
       store={contactsStore}
       onAdd={() => openEntity(EntityType.contact, "new")}
-      onRowClick={(item) => openEntity(EntityType.contact, item.id)}
     />
   );
 });

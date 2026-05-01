@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 
 import { AppChip } from "./app-chip";
 
@@ -26,6 +27,7 @@ type AppChipProps = ComponentProps<typeof AppChip>;
 type Props<T extends ChipStackItem> = {
   items: T[];
   onChipClick?: (item: T) => void;
+  chipHref?: (item: T) => string | undefined;
   size?: AppChipProps["size"];
   variant?: AppChipProps["variant"];
   maxWidth?: number;
@@ -34,10 +36,12 @@ type Props<T extends ChipStackItem> = {
 export function AppChipStack<T extends ChipStackItem>({
   items,
   onChipClick,
+  chipHref,
   size = "sm",
   variant = "secondary",
   maxWidth,
 }: Props<T>) {
+  const navigateToHref = useNavigateToHref();
   const GAP_PX = 8;
   const RESERVE_PX = 16;
   const MAX_WIDTH_THRESHOLD = 5;
@@ -232,28 +236,48 @@ export function AppChipStack<T extends ChipStackItem>({
             isSingleVisibleWithOverflow && singleVisibleMaxWidth != null
               ? { maxWidth: `${singleVisibleMaxWidth}px` }
               : {};
+          const href = chipHref?.(item);
+          const chip = (
+            <AppChip
+              className="max-w-full min-w-0 shrink cursor-pointer"
+              size={size}
+              startContent={item.startContent}
+              style={style}
+              variant={variant}
+            >
+              <span className="truncate whitespace-nowrap">{item.label}</span>
+            </AppChip>
+          );
 
           return (
             <Tooltip key={item.id}>
               <TooltipTrigger asChild>
-                <button
-                  className="inline-flex min-w-0 shrink"
-                  type="button"
-                  onClick={(e) => {
-                    onChipClick?.(item);
-                    e.stopPropagation();
-                  }}
-                >
-                  <AppChip
-                    className="max-w-full min-w-0 shrink cursor-pointer"
-                    size={size}
-                    startContent={item.startContent}
-                    style={style}
-                    variant={variant}
+                {href ? (
+                  <a
+                    className="relative inline-flex min-w-0 shrink"
+                    href={href}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                      e.preventDefault();
+                      if (onChipClick) onChipClick(item);
+                      else navigateToHref(href);
+                    }}
                   >
-                    <span className="truncate whitespace-nowrap">{item.label}</span>
-                  </AppChip>
-                </button>
+                    {chip}
+                  </a>
+                ) : (
+                  <button
+                    className="relative inline-flex min-w-0 shrink"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onChipClick?.(item);
+                    }}
+                  >
+                    {chip}
+                  </button>
+                )}
               </TooltipTrigger>
 
               <TooltipContent>{item.label}</TooltipContent>
@@ -273,19 +297,48 @@ export function AppChipStack<T extends ChipStackItem>({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto">
-            {ensuredHiddenItems.map((item) => (
-              <DropdownMenuItem
-                key={item.id}
-                onSelect={() => {
-                  onChipClick?.(item);
-                  setDropdownOpen(false);
-                }}
-              >
-                {item.startContent}
+            {ensuredHiddenItems.map((item) => {
+              const href = chipHref?.(item);
+              return (
+                <DropdownMenuItem
+                  key={item.id}
+                  asChild={Boolean(href)}
+                  onSelect={(event) => {
+                    if (href) {
+                      event.preventDefault();
+                      if (onChipClick) onChipClick(item);
+                      else navigateToHref(href);
+                    } else onChipClick?.(item);
 
-                {item.label}
-              </DropdownMenuItem>
-            ))}
+                    setDropdownOpen(false);
+                  }}
+                >
+                  {href ? (
+                    <a
+                      href={href}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                        e.preventDefault();
+                        if (onChipClick) onChipClick(item);
+                        else navigateToHref(href);
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      {item.startContent}
+
+                      {item.label}
+                    </a>
+                  ) : (
+                    <>
+                      {item.startContent}
+
+                      {item.label}
+                    </>
+                  )}
+                </DropdownMenuItem>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

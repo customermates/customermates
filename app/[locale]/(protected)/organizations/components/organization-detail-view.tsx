@@ -15,7 +15,7 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
 import { AppChip } from "@/components/chip/app-chip";
 
@@ -25,7 +25,7 @@ type Props = {
 
 export const OrganizationDetailView = observer(function OrganizationDetailView({ layout = "drawer" }: Props) {
   const { organizationDetailStore, userModalStore, userStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const { isEditingCustomField, customColumns, fetchedEntity } = organizationDetailStore;
 
   return (
@@ -39,6 +39,7 @@ export const OrganizationDetailView = observer(function OrganizationDetailView({
 
       {userStore.canAccess(Resource.contacts) && (
         <FormAutocompleteAvatar
+          chipHref={(id) => entityHref(EntityType.contact, id)}
           getItems={getContactsAction}
           id="contactIds"
           items={fetchedEntity?.contacts ?? []}
@@ -50,13 +51,13 @@ export const OrganizationDetailView = observer(function OrganizationDetailView({
             />
           }
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.contact, id)}
           onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
         />
       )}
 
       {userStore.canAccess(Resource.deals) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.deal, id)}
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
@@ -69,7 +70,6 @@ export const OrganizationDetailView = observer(function OrganizationDetailView({
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.deal, id)}
           onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
         >
           {(deal) => FormAutocompleteItem({ children: deal.name })}

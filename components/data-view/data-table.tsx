@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import type { Prisma } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +21,16 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   columns: ColumnDef<E>[];
   onRowClick?: (item: E) => void;
+  onRowHref?: (item: E) => string | undefined;
 };
 
-export const DataTable = observer(function DataTable<E extends HasId>({ store, columns, onRowClick }: Props<E>) {
+export const DataTable = observer(function DataTable<E extends HasId>({
+  store,
+  columns,
+  onRowClick,
+  onRowHref,
+}: Props<E>) {
+  const navigateToHref = useNavigateToHref();
   const sorting: SortingState = useMemo(
     () =>
       store.sortDescriptor ? [{ id: store.sortDescriptor.field, desc: store.sortDescriptor.direction === "desc" }] : [],
@@ -201,7 +209,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({ store, c
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn(onRowClick && "cursor-pointer")}
+              className={cn((onRowClick || onRowHref) && "cursor-pointer")}
               data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
               onClick={(e) => {
                 if (isInteractiveClick(e)) return;
@@ -210,21 +218,49 @@ export const DataTable = observer(function DataTable<E extends HasId>({ store, c
                   else store.selectedIds.add(row.original.id);
                   return;
                 }
-                onRowClick?.(row.original);
+                if (onRowClick) {
+                  onRowClick(row.original);
+                  return;
+                }
+                const href = onRowHref?.(row.original);
+                if (href) navigateToHref(href);
               }}
             >
               {row.getVisibleCells().map((cell) => {
                 const isSelectionCell = cell.column.id === "__select";
+                const isNameCell = cell.column.id === "name";
                 const persistedWidth = store.columnWidths[cell.column.id];
                 const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+                const rowHref = onRowHref?.(row.original);
+                const wrapped =
+                  isNameCell && rowHref ? (
+                    <a
+                      className="block truncate text-inherit hover:underline"
+                      href={rowHref}
+                      onClick={(e) => {
+                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                        if (store.selectedIds.size > 0 && canBulkAct) {
+                          e.preventDefault();
+                          return;
+                        }
+                        e.preventDefault();
+                        if (onRowClick) onRowClick(row.original);
+                        else navigateToHref(rowHref);
+                      }}
+                    >
+                      {content}
+                    </a>
+                  ) : (
+                    content
+                  );
                 return (
                   <TableCell key={cell.id} className={isSelectionCell ? "w-10" : undefined}>
                     {persistedWidth != null && !isSelectionCell ? (
                       <div className="truncate" style={{ width: persistedWidth - 24 }}>
-                        {content}
+                        {wrapped}
                       </div>
                     ) : (
-                      content
+                      wrapped
                     )}
                   </TableCell>
                 );

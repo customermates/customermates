@@ -12,7 +12,7 @@ import { EntityType, TaskType } from "@/generated/prisma";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 type Props = {
@@ -22,6 +22,7 @@ type Props = {
 export const ServicesCard = observer(({ services }: Props) => {
   const { servicesStore, dealsStore, intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   useDataViewSync(servicesStore, services, [dealsStore]);
@@ -40,9 +41,9 @@ export const ServicesCard = observer(({ services }: Props) => {
         id: "deals",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
             items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
             size="sm"
-            onChipClick={(deal) => openEntity(EntityType.deal, deal.id)}
           />
         ),
       },
@@ -50,26 +51,26 @@ export const ServicesCard = observer(({ services }: Props) => {
         id: "tasks",
         cell: ({ row }) => (
           <AppChipStack
+            chipHref={(task) => entityHref(EntityType.task, task.id)}
             items={row.original.tasks.map((task) => {
               const nameKey = getSystemTaskNameTranslationKey(task.type);
               const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;
               return { id: task.id, label };
             })}
             size="sm"
-            onChipClick={(task) => openEntity(EntityType.task, task.id)}
           />
         ),
       },
       ...standardTailColumns({ store: servicesStore, intlStore, userModalStore }),
     ];
-  }, [servicesStore, servicesStore.customColumns, intlStore, openEntity, userModalStore, t]);
+  }, [servicesStore, servicesStore.customColumns, intlStore, openEntity, entityHref, userModalStore, t]);
 
   return (
     <DataViewContainer
       columns={columns}
+      rowHref={(item) => entityHref(EntityType.service, item.id)}
       store={servicesStore}
       onAdd={() => openEntity(EntityType.service, "new")}
-      onRowClick={(item) => openEntity(EntityType.service, item.id)}
     />
   );
 });

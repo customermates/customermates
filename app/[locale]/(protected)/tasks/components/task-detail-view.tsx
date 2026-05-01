@@ -19,7 +19,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { CustomFieldValueInput } from "@/components/data-view/custom-columns/custom-field-value-input";
 import { AppChip } from "@/components/chip/app-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
 
@@ -30,7 +30,7 @@ type Props = {
 export const TaskDetailView = observer(function TaskDetailView({ layout = "drawer" }: Props) {
   const t = useTranslations("");
   const { taskDetailStore, userModalStore, userStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const { form, fetchedEntity, customColumns, isEditingCustomField, isCustomTask, isDisabled, systemTaskAlertConfig } =
     taskDetailStore;
 
@@ -54,6 +54,7 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
 
       {userStore.canAccess(Resource.contacts) && (
         <FormAutocompleteAvatar
+          chipHref={(id) => entityHref(EntityType.contact, id)}
           getItems={getContactsAction}
           id="contactIds"
           items={fetchedEntity?.contacts ?? []}
@@ -61,13 +62,13 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
             <OpenRelationLink currentEntityId={fetchedEntity?.id} currentEntityType="task" targetEntityType="contact" />
           }
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.contact, id)}
           onCreate={(name) => createContactByNameAction(name, userStore.user?.id)}
         />
       )}
 
       {userStore.canAccess(Resource.organizations) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.organization, id)}
           getItems={getOrganizationsAction}
           id="organizationIds"
           items={fetchedEntity?.organizations ?? []}
@@ -80,7 +81,6 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.organization, id)}
           onCreate={(name) => createOrganizationByNameAction(name, userStore.user?.id)}
         >
           {(org) => FormAutocompleteItem({ children: org.name })}
@@ -89,6 +89,7 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
 
       {userStore.canAccess(Resource.deals) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.deal, id)}
           getItems={getDealsAction}
           id="dealIds"
           items={fetchedEntity?.deals ?? []}
@@ -97,7 +98,6 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.deal, id)}
           onCreate={(name) => createDealByNameAction(name, userStore.user?.id)}
         >
           {(deal) => FormAutocompleteItem({ children: deal.name })}
@@ -106,6 +106,7 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
 
       {userStore.canAccess(Resource.services) && (
         <FormAutocomplete
+          chipHref={(id) => entityHref(EntityType.service, id)}
           getItems={getServicesAction}
           id="serviceIds"
           items={fetchedEntity?.services ?? []}
@@ -114,7 +115,6 @@ export const TaskDetailView = observer(function TaskDetailView({ layout = "drawe
           }
           renderValue={(items) => items.map((item) => <AppChip key={item.key}>{item.data?.name}</AppChip>)}
           selectionMode="multiple"
-          onChipClick={(id) => openEntity(EntityType.service, id)}
           onCreate={(name) => createServiceByNameAction(name, userStore.user?.id)}
         >
           {(service) => FormAutocompleteItem({ children: service.name })}

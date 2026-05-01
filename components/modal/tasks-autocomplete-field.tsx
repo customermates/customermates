@@ -15,7 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { OpenRelationLink } from "@/components/modal/open-relation-link";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type RelatedEntityType = "contact" | "organization" | "deal" | "service";
@@ -30,7 +30,7 @@ type Props = {
 
 export const TasksAutocompleteField = observer(function TasksAutocompleteField({ entityType, entityId, tasks }: Props) {
   const { userStore } = useRootStore();
-  const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
   const t = useTranslations("");
 
   const renderItemLabel = (data: TaskReference | undefined): ReactNode => {
@@ -41,6 +41,7 @@ export const TasksAutocompleteField = observer(function TasksAutocompleteField({
 
   return (
     <FormAutocomplete
+      chipHref={(id) => entityHref(EntityType.task, id)}
       getItems={getTasksAction}
       id="taskIds"
       items={tasks}
@@ -49,7 +50,6 @@ export const TasksAutocompleteField = observer(function TasksAutocompleteField({
       }
       renderValue={(items) => items.map((item) => <AppChip key={item.key}>{renderItemLabel(item.data)}</AppChip>)}
       selectionMode="multiple"
-      onChipClick={(id) => openEntity(EntityType.task, id)}
       onCreate={(name) => createTaskByNameAction(name, userStore.user?.id)}
     >
       {(task) => {
