@@ -1,0 +1,132 @@
+---
+title: "Copilot CRM Explained: Microsoft, Homeworks, and AI Agents in 2026"
+description: "Three different products are called Copilot CRM. This guide explains each, the AI options, and where an MCP-based agent CRM fits in for small teams."
+
+hero:
+  title: "Copilot CRM: What It Means in 2026"
+  description: "\"Copilot CRM\" can mean three different things. Here is what each one is and which fits your situation."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-04-29
+  tags:
+    - Copilot CRM
+    - Microsoft Copilot
+    - AI Agents
+---
+
+# Copilot CRM Explained
+
+The phrase "Copilot CRM" is doing a lot of work in 2026. Three different products live behind that search, plus a fourth pattern that is newer and likely the one you actually want. This guide separates them and shows when each makes sense.
+
+The three products called Copilot CRM:
+
+- **Microsoft Copilot for Dynamics 365.** AI assistant embedded in Microsoft's enterprise CRM (Dynamics 365 Sales, Service, Marketing).
+- **Homeworks (formerly Copilot CRM).** A field-service CRM for home-service businesses (lawn care, landscaping, cleaning). Rebranded from Copilot CRM in early 2026.
+- **Microsoft 365 Copilot for Sales.** A Microsoft 365 add-in that surfaces CRM context inside Outlook and Teams, also known as Sales Copilot.
+
+The fourth pattern is **agent-native CRMs operated through MCP**. Customermates is one example: instead of an AI assistant inside the CRM UI, the agent sits outside (Claude, Codex, ChatGPT) and operates the CRM directly through 57 [MCP](/features/api) tools.
+
+## Microsoft Copilot for Dynamics 365
+
+This is what most enterprise searchers mean by "Copilot CRM." It is an AI assistant baked into Microsoft Dynamics 365 across Sales, Customer Service, and Marketing apps. It drafts emails, summarizes meetings, generates content, and surfaces insights inside the Dynamics UI.
+
+Pricing: $20 per user per month for Microsoft 365 Copilot, plus a separate $50 per user per month for Copilot for Sales (the CRM-aware variant). Dynamics 365 Sales itself starts at $65 per user per month, so the all-in cost lands in the $135 range per user per month before discounting.
+
+When it makes sense: you are already on Dynamics 365, you have Microsoft 365 enterprise licenses, and your IT team manages the rollout. The integration with Outlook, Teams, and SharePoint is genuinely tight, which is the main reason to choose this stack.
+
+When it does not: the per-user math does not work for small teams (a 5-person team is ~$675/month), and the AI is bounded by what Microsoft surfaces. You cannot easily point an external Claude or Codex agent at the CRM.
+
+## Homeworks (formerly Copilot CRM)
+
+Homeworks is a CRM and operations platform for home-service businesses. It rebranded from "Copilot CRM" in February 2026 according to [Lawn & Landscape coverage](https://www.lawnandlandscape.com/news/copilot-crm-rebrands-homeworks/). The product covers scheduling, dispatching, invoicing, and customer communication for landscaping, cleaning, pest control, and similar verticals.
+
+Pricing: roughly $116 to $166 per month based on contact tier (Solo free up to 50 contacts, Starter $116, Pro $166).
+
+When it makes sense: you run a home-service business with crews in the field, and you need scheduling and invoicing alongside CRM. This is the right tool.
+
+When it does not: you are a solo founder, software team, agency, or services business not in the home-service vertical. The product is built for a specific use case and the search overlap with the Microsoft term is mostly accidental.
+
+## Microsoft 365 Copilot for Sales
+
+A narrower add-in that surfaces CRM data (Dynamics 365 or Salesforce) inside Outlook and Teams. The pitch is that reps stop switching tabs to update the CRM. Copilot reads the email, suggests CRM updates, and the rep accepts or edits.
+
+Pricing: $50 per user per month, on top of the underlying CRM license.
+
+When it makes sense: you are on Salesforce or Dynamics, your reps live in Outlook, and you have the budget. This is the closest "Microsoft CRM Copilot" experience for the daily-rep workflow.
+
+When it does not: same as above, the per-user cost stacks fast on small teams.
+
+## The fourth pattern: agent-native CRMs (MCP)
+
+The newest pattern in 2026 is to flip the model: instead of an AI assistant inside the CRM, the agent operates the CRM from outside. Claude, ChatGPT, or Codex points at the CRM through Model Context Protocol and reads or writes records directly.
+
+Customermates ships a built-in MCP server with [57 tools covering every CRM operation](/features/api) (create deals, update notes, link entities, configure custom columns, run filters). The configuration is one JSON block in your agent settings:
+
+```json
+{
+  "mcpServers": {
+    "customermates": {
+      "type": "http",
+      "url": "https://customermates.com/api/v1/mcp",
+      "headers": { "x-api-key": "YOUR_API_KEY" }
+    }
+  }
+}
+```
+
+After that, sending Claude an email and saying "update the CRM" is enough. The agent picks the right tools and executes. There is no separate Copilot license, no add-on, no SaaS-side feature gate.
+
+The math: Customermates is €9 per user per month on the yearly plan, all-in. A 5-person team is €45 per month with the agent integration included. Compared to Dynamics 365 + Copilot for Sales at roughly $675 per month for the same team, the gap is large.
+
+## Comparison: which "Copilot CRM" fits which situation?
+
+| Situation | Best fit | Approximate cost (5 users) |
+|---|---|---|
+| Enterprise on Microsoft stack | Microsoft Copilot for Dynamics 365 | ~$675/month + Dynamics base |
+| Reps live in Outlook, on Salesforce | Microsoft 365 Copilot for Sales | ~$250/month + Salesforce base |
+| Home-service business (landscaping, cleaning) | Homeworks (was Copilot CRM) | ~$116–$166/month |
+| Small team using Claude / ChatGPT daily | Customermates + MCP | €45/month, agent included |
+| Building a custom AI workflow on a CRM | Customermates or open-source CRM with MCP | Free (self-hosted) to €45/month |
+
+## What "Copilot CRM" actually solves
+
+All four options address the same root problem: reps avoid entering data into the CRM. The CRM goes stale. Pipeline forecasts get untrusted. Adoption stalls.
+
+Microsoft's Copilot solves it by surfacing CRM updates in the tools reps already use (Outlook, Teams). The agent-native pattern solves it by removing the rep from the loop entirely, the AI agent reads the email or transcript and writes the record itself. Both work. The difference is per-user cost and how much your AI workflow already exists outside the CRM.
+
+If your daily tools are Microsoft 365 and you have IT to deploy Copilot, the Microsoft path is the natural one. If you are a small team that already lives inside Claude or ChatGPT, the agent-native pattern is cheaper, more flexible, and works with the AI you already pay for.
+
+## How to evaluate Copilot CRM options
+
+Six questions to ask before paying:
+
+1. **Is the AI included or a paid add-on?** Microsoft Copilot for Sales is $50 per user per month on top of the CRM. Customermates ships it included.
+2. **Does the AI write to the CRM, or only suggest?** Suggestions still need a human to type. Direct writes save the work.
+3. **Can my own AI tools operate the CRM?** MCP, an open API, and webhooks tell you yes.
+4. **What is the per-user cost at my team size?** Stack the CRM base, Copilot add-on, and any premium tier. Then compare per-user totals.
+5. **Where is data hosted?** EU residency matters when CRM data includes EU contacts. Customermates is EU-hosted; Dynamics 365 offers EU residency on enterprise tiers.
+6. **What is the exit story?** Open-source and self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) give you a real exit. Closed SaaS with a vendor-locked AI tier does not.
+
+## Conclusion
+
+"Copilot CRM" is three different products plus a newer pattern. For Microsoft enterprise customers, [Copilot for Dynamics 365](https://learn.microsoft.com/en-us/dynamics365/copilot/ai-get-started) is the natural fit. For home-service businesses, [Homeworks (formerly Copilot CRM)](https://www.home.works) is the right vertical tool. For small teams that already use Claude, ChatGPT, or Codex daily, the agent-native pattern through MCP is faster to set up, cheaper, and works with the AI tools you already pay for. [Customermates](/pricing) is one option there, with the MCP server and agent integration built in at €9 per user per month.
+
+## Frequently asked questions
+
+**What is Copilot in CRM?**
+"Copilot in CRM" most often refers to Microsoft Copilot embedded in Dynamics 365 Sales, Customer Service, and Marketing apps. It is an AI assistant that drafts emails, summarizes meetings, generates content, and surfaces insights inside the Dynamics UI. The phrase is also used for "Copilot CRM" the home-service product (now rebranded to Homeworks) and for the broader pattern of AI agents operating CRMs from outside via MCP.
+
+**How much does Copilot CRM cost?**
+Microsoft 365 Copilot is $20 per user per month, plus Copilot for Sales at $50 per user per month, plus the underlying Dynamics 365 license starting at $65 per user per month — roughly $135 per user per month all-in. Homeworks (formerly Copilot CRM) is $0 to $166 per month based on contact volume. Customermates includes agent integration via MCP at €9 per user per month with no add-ons.
+
+**Does Microsoft 365 have a CRM tool?**
+Yes, Dynamics 365 is Microsoft's CRM platform, with separate apps for Sales, Customer Service, Marketing, and Field Service. Copilot is the AI layer on top. Microsoft 365 itself (Word, Excel, Outlook, Teams) is the productivity suite; the CRM lives in Dynamics 365 with separate licensing.
+
+**Is Copilot CRM the same as Microsoft Dynamics?**
+No. "Copilot" is the AI assistant brand. "Dynamics 365" is the CRM (and ERP) platform. Microsoft Copilot for Dynamics 365 is the AI assistant inside Dynamics. There is also a separate product called "Copilot CRM" by Homeworks for home-service businesses, which is unrelated to Microsoft.
+
+**What is the cheapest Copilot CRM alternative for small teams?**
+For teams that already use Claude, ChatGPT, or Codex, the agent-native pattern through MCP is significantly cheaper than Microsoft's stack. [Customermates](/pricing) is €9 per user per month all-in (€45 monthly for a 5-person team) with the MCP server, n8n node, and 15 webhook events included. Compared to ~$675 per month for the same team on Dynamics 365 + Copilot for Sales, the gap is large.
