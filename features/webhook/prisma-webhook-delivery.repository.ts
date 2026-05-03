@@ -124,7 +124,12 @@ export class PrismaWebhookDeliveryRepo
     return prisma.$queryRaw<PendingDeliveryRow[]>`
       WITH c AS (
         SELECT id FROM "WebhookDelivery"
-        WHERE "status" = 'pending'::"WebhookDeliveryStatus"
+        WHERE
+          "status" = 'pending'::"WebhookDeliveryStatus"
+          OR (
+            "status" = 'processing'::"WebhookDeliveryStatus"
+            AND ("lockedAt" IS NULL OR "lockedAt" < NOW() - INTERVAL '1 minute')
+          )
         ORDER BY "createdAt" ASC
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED

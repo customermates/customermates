@@ -39,7 +39,7 @@ services:
       WEBHOOK_CRON_URL: http://app:4000/api/cron/webhook-deliveries
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - 'while true; do curl -sf -H "Authorization: Bearer $${CRON_SECRET}" "$${WEBHOOK_CRON_URL}" || true; sleep 5; done'
+      - 'while true; do code=$$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $${CRON_SECRET}" "$${WEBHOOK_CRON_URL}"); case "$${code}" in 2*) ;; *) echo "[webhook-worker] $$(date -u +%H:%M:%SZ) cron returned $${code}" ;; esac; sleep 5; done'
 
 volumes:
   postgres-data:

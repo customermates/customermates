@@ -3,7 +3,7 @@ title: Self-Hosting
 description: Customermates auf eigener Infra betreiben. Wann Self-Host sinnvoll ist, wie du es mit Docker Compose in unter 15 Minuten installierst, und wie du es betreibst.
 ---
 
-Self-Hosting ist ein `docker compose up -d`, sobald du ein paar Env-Variablen gesetzt hast. Diese Seite deckt die Entscheidung vs Cloud, die Installation und den Tagesbetrieb (Update, Restart, Reset, Backup) ab.
+Self-Hosting sind zwei Dateien (`docker-compose.yml` und `.env`) plus `docker compose up -d`. Beide Dateien liegen im [Customermates-Repo](https://github.com/customermates/customermates) und du holst sie mit `curl`. Kein `git clone`, kein Build-Schritt. Das veröffentlichte Image unter `ghcr.io/customermates/customermates:latest` führt Migrationen beim ersten Boot aus und ist sofort einsatzbereit.
 
 ## Self-Host vs Cloud
 
@@ -22,7 +22,7 @@ Beide haben denselben Funktionsumfang.
 |---|---|---|
 | Setup-Zeit | 2 Minuten | ~15 Minuten |
 | Infra, die du managst | keine | Docker, Postgres, Proxy, TLS, Backups |
-| Updates | automatisch | `selfhost-update.sh` |
+| Updates | automatisch | `docker compose pull && docker compose up -d` |
 | EU-gehostet | ✓ | wo du willst |
 | Backups | automatisch täglich | du konfigurierst |
 | Support-SLA | inkl. in Paid-Plans | Community |
@@ -43,21 +43,21 @@ Du kannst zwischen beiden wechseln. Export von einem, Import ins andere. Identis
 - Domain-Name, falls du TLS willst (lokal nicht nötig).
 - ~2 GB RAM und ein paar GB Disk pro tausend Records.
 
-### 1. Clonen und konfigurieren
+### 1. Verzeichnis anlegen und beide Config-Dateien holen
 
 ```bash
-git clone https://github.com/customermates/customermates.git
-cd customermates
-./scripts/selfhost-setup.sh
+mkdir customermates && cd customermates
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
 ```
 
-Das Setup-Script kopiert `.env.selfhost.template` nach `.env`. Die wichtigen Werte editieren:
+Anschließend `.env` mit echten Werten editieren:
 
 - `BETTER_AUTH_SECRET`: langer Zufallsstring (`openssl rand -hex 32`).
-- `CRON_SECRET`: ein weiterer Zufallsstring.
+- `CRON_SECRET`: weiterer Zufallsstring. Der `webhook-worker`-Sidecar nutzt ihn, um sich gegen `/api/cron/webhook-deliveries` zu authentifizieren. Mismatch heißt: Webhooks bleiben für immer in `pending` hängen.
 - `POSTGRES_PASSWORD`: default ändern.
 - `BASE_URL`: deine Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
-- `RESEND_API_KEY` und `RESEND_FROM_EMAIL`: nötig für Signup- und Einladungs-Mails.
+- `RESEND_API_KEY` und `RESEND_FROM_EMAIL`: nötig für Signup-Verifizierung, Passwort-Reset und Einladungs-Mails.
 
 ### 2. Starten
 
@@ -75,7 +75,7 @@ Wenn die App ready ist, `http://localhost:4000` öffnen (oder dein eigenes `APP_
 
 ### 3. Erster Account
 
-URL öffnen. Mit E-Mail registrieren. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
+URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klicken, dann Workspace-Namen wählen. Weitere User und Rollen verwalten über Unternehmen → Benutzer und Unternehmen → Rollen.
 
 ### 4. Reverse-Proxy und TLS
 
@@ -98,35 +98,40 @@ Profil → API Keys → Neuer Key. Genau wie in der Cloud. Siehe [API-Keys](/doc
 ### Update
 
 ```bash
-./scripts/selfhost-update.sh
+docker compose pull
+docker compose up -d
 ```
 
-Pullt das neueste App-Image, lässt `prisma migrate deploy` laufen und startet die Services `app` und `webhook-worker` neu. Status mit `docker compose ps` prüfen.
+Pullt das neueste App-Image und startet die betroffenen Services neu. Migrationen laufen beim Container-Boot automatisch. Status mit `docker compose ps` prüfen.
 
 ### Neu starten
 
 ```bash
-./scripts/selfhost-restart.sh
+docker compose restart
 ```
 
-Startet den Stack ohne Migrationen neu. Nach `.env`- oder Config-Änderungen.
+Startet den Stack ohne neues Image-Pull neu. Nach `.env`-Änderungen.
 
 ### Logs und Troubleshooting
 
 ```bash
 docker compose logs -f app
 docker compose logs -f postgres
+docker compose logs -f webhook-worker
 docker compose ps
 docker compose exec app sh
 ```
 
+Der `webhook-worker`-Container bleibt bei Erfolg still und loggt jede Nicht-2xx-Antwort (`[webhook-worker] HH:MM:SSZ cron returned 401`). Wenn solche Zeilen auftauchen, passt das `CRON_SECRET` des Workers nicht zum App-Container, oder die Cron-Route ist sonstwie nicht erreichbar. Hängen Deliveries in `pending` und die Worker-Logs sind leer, ist der Worker gesund.
+
 ### Alle Daten zurücksetzen
 
 ```bash
-./scripts/selfhost-reset.sh
+docker compose down -v
+docker compose up -d
 ```
 
-Verlangt explizite `RESET`-Bestätigung, bevor Volumes gelöscht werden. IRREVERSIBLE.
+`-v` löscht das Postgres-Volume. IRREVERSIBLE. Vorher Backup ziehen, falls die Daten benötigt werden.
 
 ## Backups
 

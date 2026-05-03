@@ -1,7 +1,7 @@
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const MAX_CONCURRENCY = 10;
-const MAX_JOBS = 500;
+const MAX_JOBS = 50;
 const MAX_DURATION_MS = 15_000;
 const HTTP_TIMEOUT_MS = 5000;
 
