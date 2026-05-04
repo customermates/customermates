@@ -3,10 +3,18 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, Status } from "@/generated/prisma";
 
-function toHumanDateTime(date: Date | null): string {
-  if (!date) return "No activity";
+function toHumanDate(date: Date | null): string {
+  if (!date) return "—";
+  return date.toLocaleDateString("en", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
 
-  const formatter = new Intl.DateTimeFormat("en", {
+function toHumanDateTime(date: Date | null): string {
+  if (!date) return "Never";
+  return date.toLocaleString("en", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -14,15 +22,23 @@ function toHumanDateTime(date: Date | null): string {
     minute: "2-digit",
     hour12: false,
   });
+}
 
-  const parts = formatter.formatToParts(date);
-  const day = parts.find((item) => item.type === "day")?.value ?? "";
-  const month = parts.find((item) => item.type === "month")?.value ?? "";
-  const year = parts.find((item) => item.type === "year")?.value ?? "";
-  const hour = parts.find((item) => item.type === "hour")?.value ?? "";
-  const minute = parts.find((item) => item.type === "minute")?.value ?? "";
+function trialLabel(trialEndDate: Date | null, status: string): string {
+  if (status !== "trial") return status;
+  if (!trialEndDate) return "trial (no end date)";
 
-  return `${day}. ${month} ${year}, ${hour}:${minute}`;
+  const now = Date.now();
+  const diffMs = trialEndDate.getTime() - now;
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 0) return `trial · ${diffDays}d left (ends ${toHumanDate(trialEndDate)})`;
+  if (diffDays === 0) return `trial · expires today`;
+  return `trial expired ${Math.abs(diffDays)}d ago`;
+}
+
+function pad(str: string, len: number): string {
+  return str.length >= len ? str : str + " ".repeat(len - str.length);
 }
 
 async function main(): Promise<void> {
@@ -30,9 +46,7 @@ async function main(): Promise<void> {
   if (!databaseUrl) throw new Error("DATABASE_URL is not configured");
 
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({
-      connectionString: databaseUrl,
-    }),
+    adapter: new PrismaPg({ connectionString: databaseUrl }),
   });
 
   try {
@@ -47,20 +61,17 @@ async function main(): Promise<void> {
       }),
       prisma.company.findMany({
         where: {
-          users: {
-            some: {
-              status: {
-                not: Status.inactive,
-              },
-            },
-          },
+          users: { some: { status: { not: Status.inactive } } },
         },
         select: {
           id: true,
           name: true,
+          createdAt: true,
           subscription: {
             select: {
               status: true,
+              trialEndDate: true,
+              currentPeriodEnd: true,
             },
           },
           users: {
@@ -69,6 +80,7 @@ async function main(): Promise<void> {
               lastName: true,
               email: true,
               lastActiveAt: true,
+              createdAt: true,
             },
             orderBy: [{ lastActiveAt: "desc" }, { email: "asc" }],
           },
@@ -87,30 +99,44 @@ async function main(): Promise<void> {
       }),
     ]);
 
-    const summary = {
-      generatedAt: new Date().toISOString(),
-      activeUsersLast24Hours,
-      companies: companies.map((company) => ({
-        companyId: company.id,
-        companyName: company.name ?? "Unnamed company",
-        subscriptionStatus: company.subscription?.status ?? null,
-        entityCounts: {
-          users: company._count.users,
-          contacts: company._count.contacts,
-          organizations: company._count.organizations,
-          deals: company._count.deals,
-          services: company._count.services,
-          tasks: company._count.tasks,
-        },
-        users: company.users.map((user) => ({
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
-          lastActivity: toHumanDateTime(user.lastActiveAt),
-        })),
-      })),
-    };
+    const sep = "─".repeat(60);
 
-    console.log(JSON.stringify(summary, null, 2));
+    console.log(`\nGenerated: ${toHumanDateTime(new Date())}`);
+    console.log(`Active users (last 24h): ${activeUsersLast24Hours}`);
+    console.log(`Companies: ${companies.length}\n`);
+
+    for (const company of companies) {
+      const sub = company.subscription;
+      const status = sub?.status ?? "no subscription";
+      const label = sub ? trialLabel(sub.trialEndDate, status) : status;
+
+      console.log(sep);
+      console.log(`  ${company.name ?? "Unnamed company"}  [${label}]`);
+      console.log(`  Signed up: ${toHumanDate(company.createdAt)}`);
+      if (sub?.currentPeriodEnd && status !== "trial")
+        console.log(`  Current period ends: ${toHumanDate(sub.currentPeriodEnd)}`);
+
+      const c = company._count;
+      console.log(
+        `  Data: ${c.users} users · ${c.contacts} contacts · ` +
+          `${c.organizations} orgs · ${c.deals} deals · ` +
+          `${c.services} services · ${c.tasks} tasks`,
+      );
+
+      if (company.users.length > 0) {
+        console.log();
+        for (const user of company.users) {
+          const name = pad(`${user.firstName} ${user.lastName}`, 24);
+          const email = pad(`<${user.email}>`, 36);
+          const activity = toHumanDateTime(user.lastActiveAt);
+          console.log(`  ${name} ${email} Last active: ${activity}`);
+        }
+      }
+
+      console.log();
+    }
+
+    if (companies.length === 0) console.log("No active companies found.");
   } finally {
     await prisma.$disconnect();
   }

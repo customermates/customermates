@@ -724,6 +724,7 @@ export class PrismaUserRepo
         status: Status.active,
         companyId: company.id,
         roleId: adminRole.id,
+        lastActiveAt: new Date(),
       },
     });
 
