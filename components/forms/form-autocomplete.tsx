@@ -206,6 +206,7 @@ export const FormAutocomplete = observer(
                     role="button"
                     tabIndex={-1}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       handleRemove(itemKey);
                     }}

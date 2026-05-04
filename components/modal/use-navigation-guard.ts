@@ -44,8 +44,11 @@ export function useNavigationGuard(store: BaseFormStore): void {
       if (event.button !== 0) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
-      const anchor = (event.target as HTMLElement | null)?.closest("a");
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest("a");
       if (!anchor) return;
+      const innerInteractive = target?.closest('button, [role="button"]');
+      if (innerInteractive && innerInteractive !== anchor && anchor.contains(innerInteractive)) return;
       const href = anchor.getAttribute("href");
       if (!href || href.startsWith("#")) return;
       if (anchor.target && anchor.target !== "_self") return;
