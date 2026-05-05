@@ -7,6 +7,7 @@ import { Footer } from "../../components/footer";
 
 import { HomepageHero } from "./components/homepage-hero";
 import { HomepageStatsRow } from "./components/homepage-stats-row";
+import { HomepageWalkthrough } from "./components/homepage-walkthrough";
 import { HomepageHowItWorks } from "./components/homepage-how-it-works";
 import { HomepageBenefits } from "./components/homepage-benefits";
 import { HomepagePricing } from "./components/homepage-pricing";
@@ -27,13 +28,15 @@ export default async function HomePage() {
 
   if (!homepagePage) notFound();
 
-  const { hero, howItWorks, benefits, features, faq, cta } = homepagePage.data;
+  const { hero, howItWorks, walkthrough, benefits, features, faq, cta } = homepagePage.data;
 
   return (
     <div className="flex flex-col items-center">
       <HomepageHero heroSection={hero} />
 
       <HomepageStatsRow />
+
+      {walkthrough && <HomepageWalkthrough walkthrough={walkthrough} />}
 
       {howItWorks && (
         <HomepageHowItWorks

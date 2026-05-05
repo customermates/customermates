@@ -26,6 +26,14 @@ export function FeatureSection({ badge, features, subtitle, title }: Props) {
     <section className="relative isolate w-full max-w-6xl px-4 py-14 md:py-20" id="features">
       <WaveDecoration className="-right-40 top-10 hidden w-[min(820px,70%)] md:block" opacity={0.3} variant="wave-2" />
 
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-20 top-1/3 size-[340px] rounded-full bg-[rgba(94,74,227,0.13)] blur-[110px]" />
+
+        <div className="absolute right-[12%] bottom-[10%] size-[280px] rounded-full bg-[rgba(217,70,239,0.11)] blur-[90px]" />
+
+        <div className="absolute left-1/2 top-1/4 size-[220px] -translate-x-1/2 rounded-full bg-[rgba(244,114,182,0.09)] blur-[80px]" />
+      </div>
+
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 z-5 h-80 bg-[radial-gradient(ellipse_60%_70%_at_50%_45%,var(--background)_0%,color-mix(in_oklab,var(--background)_80%,transparent)_40%,transparent_95%)]"

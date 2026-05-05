@@ -3,6 +3,7 @@ import type { ClipTerminal } from "@/core/fumadocs/schemas/homepage";
 import { getTranslations } from "next-intl/server";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { WaveDecoration } from "@/components/marketing/wave-decoration";
 
 import { HomepageClipTerminal } from "./homepage-clip-terminal";
 
@@ -18,7 +19,27 @@ type Props = {
 export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }: Props) {
   const t = await getTranslations("HomepageHowItWorks");
   return (
-    <section className="w-full px-4 py-14 md:py-20">
+    <section className="relative w-full overflow-hidden px-4 py-14 md:py-20">
+      <WaveDecoration
+        className="-top-10 right-0 hidden w-[min(560px,40%)] -scale-x-100 opacity-50 md:block"
+        opacity={0.18}
+        variant="wave-2"
+      />
+
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-12 left-[6%] size-[380px] rounded-full bg-[rgba(6,182,212,0.13)] blur-[110px]" />
+
+        <div className="absolute bottom-[8%] right-[10%] size-[300px] rounded-full bg-[rgba(139,92,246,0.13)] blur-[90px]" />
+
+        <div
+          className="absolute inset-0 opacity-[0.28] bg-[radial-gradient(circle_at_1px_1px,rgba(6,182,212,0.10)_1px,transparent_0)] bg-size-[26px_26px]"
+          style={{
+            maskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 85%)",
+          }}
+        />
+      </div>
+
       <Card className="relative mx-auto w-full max-w-[1100px] overflow-hidden py-10 md:py-14">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -left-16 top-0 size-[360px] rounded-full bg-[rgba(94,74,227,0.12)] blur-[90px]" />

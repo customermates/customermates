@@ -17,7 +17,7 @@
 
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/e759d0dc-8f7e-4ef4-80da-c7a407aa1b56" width="1200" autoplay loop muted playsinline></video>
+  <video src="https://github.com/user-attachments/assets/55de82e3-34ac-40db-9d00-ff601cf1639c" width="1200" autoplay loop muted playsinline></video>
 </p>
 
 Customermates is a CRM for modern teams that want a clear system for contacts, organizations, deals, services, and tasks without the usual enterprise-heavy setup. It combines practical CRM workflows with API access, webhooks, n8n automation, MCP-based tooling, and AI-agent workflows.
@@ -47,7 +47,7 @@ Docs entry points:
 - Webhooks and event-driven integrations
 - n8n workflows and automation support
 - MCP support for agent tooling and structured tool calling
-- Cloud-only enterprise features: Audit Logging, Single Sign-On, and Whitelabeling
+- Enterprise features (Audit Logging, Single Sign-On, Whitelabeling) on Cloud paid plans or self-host with a license key
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
 - Cloud pricing from **€9**
@@ -58,52 +58,59 @@ Customermates supports both cloud and self-hosted deployment models.
 
 | Criterion | Cloud | Self-Hosted |
 | --- | --- | --- |
-| Pricing | €9 | Infrastructure and ops costs vary |
-| Setup Time | 2 minutes | 60 - 120 minutes |
-| Maintenance Required | None | Regular updates |
-| Privacy friendly | ✅ | ✅ |
+| Pricing | from €9/seat | free core + infra costs |
+| Setup Time | 2 minutes | ~15 minutes |
+| Maintenance Required | None | Docker, Postgres, proxy, TLS, backups |
+| Updates | Automatic | `docker compose pull && docker compose up -d` |
+| EU-hosted | ✅ | wherever you put it |
+| Backups | Automatic daily | You configure |
 | API and integrations | ✅ | ✅ |
 | Unlimited Users | ✅ | ✅ |
 | Unlimited Records | ✅ | ✅ |
 | n8n and automation workflows | ✅ | ✅ |
-| Audit Logging | ✅ | ❌ |
-| Single Sign-On | ✅ | ❌ |
-| Whitelabeling | ✅ | ❌ |
+| Enterprise (Audit Log, SSO, Whitelabeling) | Paid plan | Paid license key |
 
 If you want the full decision guide, see the [Self-hosting docs](https://customermates.com/docs/self-hosting).
 
 ## 🐳 Self-Hosting
 
-Customermates can be deployed on your own infrastructure with Docker Compose.
+Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. No `git clone`, no build step. The published image at `ghcr.io/customermates/customermates:latest` runs migrations on first boot.
 
 ### Prerequisites
 
-- A VPS with Docker Engine and Docker Compose installed
-- A domain pointing to your server
-- PostgreSQL via Docker Compose
-- A reverse proxy with HTTPS termination for production usage
+- Docker and Docker Compose v2.
+- A domain name if you want TLS (optional for local).
+- ~2 GB RAM and a couple of GB of disk per thousand records.
 
 ### Setup
 
-No need to clone the repo. Download the required files and run the setup script:
-
 ```bash
 mkdir customermates && cd customermates
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template
-curl -O https://raw.githubusercontent.com/customermates/customermates/main/scripts/selfhost-setup.sh
-mv .env.selfhost.template .env
-# edit .env with your values
-chmod +x selfhost-setup.sh
-./selfhost-setup.sh
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+# edit .env with real values
+docker compose up -d
 ```
 
-Useful self-hosting scripts:
+Required `.env` values:
 
-- `scripts/selfhost-setup.sh`
-- `scripts/selfhost-update.sh`
-- `scripts/selfhost-restart.sh`
-- `scripts/selfhost-reset.sh`
+- `BETTER_AUTH_SECRET`: long random string (`openssl rand -hex 32`).
+- `CRON_SECRET`: long random string used by the `webhook-worker` sidecar.
+- `POSTGRES_PASSWORD`: change the default.
+- `BASE_URL`: your public URL (e.g. `https://crm.example.com`).
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`: for signup verification, password reset, and invitation emails.
+
+First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `http://localhost:4000` (or your `APP_PORT`).
+
+### Day-to-day
+
+```bash
+docker compose pull && docker compose up -d   # update
+docker compose restart                         # restart after .env changes
+docker compose logs -f app                     # logs
+```
+
+Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS. Customermates sets secure cookies when `BASE_URL` uses `https://` — make sure the proxy forwards `X-Forwarded-Proto`.
 
 More docs:
 

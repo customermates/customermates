@@ -21,7 +21,11 @@ export function AgplGithubBadge({ className }: Props) {
 
       <span className="font-semibold">{label}</span>
 
-      <span aria-hidden className="size-1.5 rounded-full bg-[#34c759]" />
+      <span aria-hidden className="relative inline-flex size-1.5">
+        <span className="absolute inset-0 animate-ping rounded-full bg-[#34c759] opacity-75" />
+
+        <span className="relative size-1.5 rounded-full bg-[#34c759]" />
+      </span>
     </AppLink>
   );
 }

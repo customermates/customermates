@@ -26,12 +26,9 @@ const DEALS = [
 ];
 
 const CONFIG_LINES = [
-  "{",
-  '  "customermates": {',
-  '    "url": "https://customermates.com/api/v1/mcp",',
-  '    "apiKey": "cm_live_a7f3b2c9…"',
-  "  }",
-  "}",
+  "claude mcp add --transport http customermates \\",
+  "  https://customermates.com/api/v1/mcp \\",
+  '  --header "x-api-key: cm_live_a7f3b2c9…"',
 ].join("\n");
 
 function useClipClock(duration: number) {

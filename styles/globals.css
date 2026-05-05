@@ -212,6 +212,7 @@
   html {
     --scrollbar-thumb: #d4d4d8;
     --scrollbar-track: #f4f4f500;
+    scroll-behavior: smooth;
   }
 
   html.dark {

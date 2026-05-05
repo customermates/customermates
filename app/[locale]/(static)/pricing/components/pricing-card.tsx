@@ -1,13 +1,8 @@
-"use client";
-
 import type { PricingCard } from "@/core/fumadocs/schemas/pricing";
 
 import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { Icon } from "@/components/shared/icon";
+import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 
 type Props = {
@@ -15,63 +10,47 @@ type Props = {
   displayPrice: string;
 };
 
-function mapButtonVariant(
-  heroVariant: "bordered" | "shadow" | "solid",
-  heroColor: "default" | "primary",
-): "default" | "outline" | "secondary" {
-  if (heroVariant === "bordered") return "outline";
-  if (heroColor === "default") return "secondary";
-  return "default";
-}
-
 export function PricingCardComponent({ card, displayPrice }: Props) {
-  const transformedFeatures = card.features.map((text) => ({
-    icon: Check,
-    text,
-  }));
-
-  const buttonVariant = mapButtonVariant(card.buttonVariant, card.buttonColor);
-  const hasShadow = card.buttonVariant === "shadow";
+  const featured = Boolean(card.badge);
+  const buttonVariant = card.buttonVariant === "bordered" ? "outline" : "default";
 
   return (
-    <AppCard className={`h-full ${card.cardClassName || ""}`}>
-      <AppCardBody>
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-x-xl">{card.title}</h3>
+    <div
+      className={`relative flex h-full flex-col rounded-xl bg-card p-6 shadow-xs ${
+        featured ? "border-2 border-primary" : ""
+      }`}
+    >
+      <div className="mb-1 flex items-center justify-between">
+        <h3 className="m-0 text-[19px] font-semibold">{card.title}</h3>
 
-            {card.badge && (
-              <span className="px-2 py-0.5 text-x-xs bg-primary/20 text-primary rounded-full font-medium">
-                {card.badge}
-              </span>
-            )}
-          </div>
+        {card.badge && (
+          <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+            {card.badge}
+          </span>
+        )}
+      </div>
 
-          <p className="text-x-sm text-subdued h-10">{card.description}</p>
-        </div>
+      <p className="m-0 min-h-[40px] text-[13px] leading-[1.55] text-muted-foreground">{card.description}</p>
 
-        <div className="mb-6">
-          <div>
-            <span className="text-x-3xl">{displayPrice}</span>
+      <div className="my-4">
+        <span className="text-[34px] font-bold tracking-[-0.02em]">{displayPrice}</span>
 
-            {card.priceSubtext && <span className="ml-1 text-muted-foreground">{card.priceSubtext}</span>}
-          </div>
-        </div>
+        {card.priceSubtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{card.priceSubtext}</span>}
+      </div>
 
-        <Button asChild className={`w-full ${hasShadow ? "shadow-lg" : ""}`} size="lg" variant={buttonVariant}>
-          <AppLink href={card.buttonHref}>{card.buttonText}</AppLink>
-        </Button>
+      <Button asChild className="w-full" variant={buttonVariant}>
+        <AppLink href={card.buttonHref}>{card.buttonText}</AppLink>
+      </Button>
 
-        <div className="mt-6 mb-1 space-y-3">
-          {transformedFeatures.map((feature, featureIndex) => (
-            <div key={featureIndex} className="flex items-center">
-              <Icon className="text-primary dark:text-primary mr-3 shrink-0" icon={feature.icon} size="sm" />
+      <ul className="m-0 mt-4 flex flex-col gap-2 p-0">
+        {card.features.map((feature, index) => (
+          <li key={index} className="flex items-start gap-2 text-[13px] text-foreground">
+            <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.5} />
 
-              <span className="text-x-sm">{feature.text}</span>
-            </div>
-          ))}
-        </div>
-      </AppCardBody>
-    </AppCard>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

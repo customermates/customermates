@@ -57,6 +57,21 @@ export const howItWorksSchema = z.object({
 });
 export type HowItWorks = z.infer<typeof howItWorksSchema>;
 
+export const walkthroughBulletSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
+
+export const walkthroughSchema = z.object({
+  badge: z.string(),
+  title: z.string(),
+  titleAccent: z.string(),
+  videoSrc: z.string().optional(),
+  posterSrc: z.string().optional(),
+  bullets: z.array(walkthroughBulletSchema),
+});
+export type Walkthrough = z.infer<typeof walkthroughSchema>;
+
 export const pricingTitleSchema = z.object({
   subtitle: z.string(),
   title: z.string(),
@@ -82,6 +97,7 @@ export const homepageSchema = frontmatterSchema.extend({
   howItWorks: howItWorksSchema.optional(),
   pricing: pricingDataSchema.optional(),
   pricingTitle: pricingTitleSchema.optional(),
+  walkthrough: walkthroughSchema.optional(),
   rootMetadata: rootMetadataSchema,
   title: z.string(),
 });

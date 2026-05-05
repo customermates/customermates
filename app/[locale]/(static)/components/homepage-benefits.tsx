@@ -13,6 +13,16 @@ type Props = {
 export function HomepageBenefits({ benefitsSection }: Props) {
   return (
     <section className="relative py-14 md:py-20 w-full max-w-[1200px] px-4 mx-auto" id="benefits">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(16,185,129,0.10)_1px,transparent_0)] bg-size-[28px_28px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent_75%)]" />
+
+        <div className="absolute -top-12 right-[8%] size-[300px] rounded-full bg-[rgba(18,148,144,0.16)] blur-[90px]" />
+
+        <div className="absolute bottom-[8%] left-[6%] size-[320px] rounded-full bg-[rgba(16,185,129,0.13)] blur-[100px]" />
+
+        <div className="absolute top-1/3 right-[18%] size-[200px] rounded-full bg-[rgba(245,158,11,0.10)] blur-[80px]" />
+      </div>
+
       <div className="text-center mb-10 md:mb-16">
         <SectionBadge className="mb-4">{benefitsSection.badge}</SectionBadge>
 

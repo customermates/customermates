@@ -1,5 +1,7 @@
 import type { Hero } from "@/core/fumadocs/schemas/homepage";
 
+import { ChevronDown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
@@ -14,10 +16,10 @@ type Props = {
 
 export function HomepageHero({ heroSection }: Props) {
   return (
-    <section className="relative isolate w-full overflow-hidden pt-14 pb-10 md:pt-20 md:pb-12">
+    <section className="relative isolate w-full overflow-hidden pt-16 pb-14 md:pt-24 md:pb-16">
       <WaveDecoration
         className="-top-20 -left-40 w-[min(900px,92vw)] md:-top-20 md:-left-40"
-        opacity={0.5}
+        opacity={0.25}
         variant="wave-1"
       />
 
@@ -42,26 +44,34 @@ export function HomepageHero({ heroSection }: Props) {
 
           {heroSection.titleAccent ? (
             <div
-              className="mt-1.5 text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
+              className="mt-3 text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
               style={{ fontFamily: "var(--font-serif)" }}
             >
               {heroSection.titleAccent}
             </div>
           ) : null}
 
-          <p className="mx-auto mt-4 max-w-[680px] text-[15px] leading-normal text-muted-foreground md:text-[17px]">
+          <p className="mx-auto mt-6 max-w-[680px] text-[15px] leading-normal text-muted-foreground md:text-[17px]">
             {heroSection.subtitle}
           </p>
 
-          <div className="my-[22px] flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+          <div className="my-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
             <Button asChild className="w-full shadow-[0_6px_14px_-4px_rgba(94,74,227,0.45)] sm:w-auto" size="lg">
               <AppLink href={heroSection.buttonLeftHref}>{heroSection.buttonLeftText}</AppLink>
             </Button>
 
             <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
-              <AppLink external href={heroSection.buttonRightHref}>
-                {heroSection.buttonRightText}
-              </AppLink>
+              {heroSection.buttonRightHref.startsWith("#") ? (
+                <a href={heroSection.buttonRightHref}>
+                  {heroSection.buttonRightText}
+
+                  <ChevronDown className="size-4" />
+                </a>
+              ) : (
+                <AppLink external href={heroSection.buttonRightHref}>
+                  {heroSection.buttonRightText}
+                </AppLink>
+              )}
             </Button>
           </div>
 

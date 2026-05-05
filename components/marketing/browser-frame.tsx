@@ -78,10 +78,7 @@ export function BrowserFrame({ src, title }: Props) {
   }, []);
 
   return (
-    <div
-      className="relative mx-auto w-full shadow-[0_22px_48px_-14px_rgba(0,0,0,0.22)]"
-      style={{ perspective: "1400px" }}
-    >
+    <div className="relative mx-auto w-full" style={{ perspective: "1400px" }}>
       <div aria-hidden className="pointer-events-none absolute -inset-12 -z-10">
         <div className="absolute -left-8 top-0 size-[300px] rounded-full bg-[rgba(94,74,227,0.3)] blur-[70px]" />
 
@@ -90,7 +87,7 @@ export function BrowserFrame({ src, title }: Props) {
 
       <div
         ref={tiltRef}
-        className="relative overflow-hidden rounded-[14px] border border-border bg-card transition-transform duration-200 ease-out will-change-transform [transform-style:preserve-3d] [backface-visibility:hidden]"
+        className="relative overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_22px_48px_-14px_rgba(0,0,0,0.22)] transition-transform duration-200 ease-out will-change-transform [transform-style:preserve-3d] [backface-visibility:hidden]"
         style={{ transform: "rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0)" }}
       >
         <div className="flex h-[34px] items-center gap-1.5 border-b border-border bg-muted/50 px-3">
