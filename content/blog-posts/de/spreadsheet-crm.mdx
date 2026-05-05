@@ -1,0 +1,238 @@
+---
+title: "Excel CRM 2026: Vorlage, Aufbau und wann ein echtes CRM Sinn ergibt"
+description: "Excel CRM aufbauen: kostenlose Vorlage, die richtigen Spalten, Pipeline-Struktur in Tabellen. Plus: ab wann eine richtige CRM-Software die bessere Wahl ist."
+
+hero:
+  title: "Excel CRM 2026: Kostenlose Vorlage und der Weg zum echten CRM"
+  description: Eine Excel-Tabelle als CRM nutzen, mit kostenloser Vorlage. Plus klare Schwellen, ab wann ein richtiges CRM-System die bessere Wahl ist.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-04-14
+  tags:
+    - Excel CRM
+    - CRM Vorlage
+    - Kundenverwaltung
+    - Open Source
+    - KI-Agenten
+---
+
+# Excel CRM 2026: Kostenlose Vorlage und der Weg zum echten CRM
+
+Ein Excel CRM ist eine Tabellenkalkulation, die als Kundenverwaltung dient. Spalten für Name, Firma, E-Mail, Telefon, Status und Notizen, eine Zeile pro Kontakt, ein zweites Tabellenblatt für Deals, Filter und ein paar Pivot-Tabellen für die Pipeline-Übersicht. So fangen die meisten Solo-Founder, Freelancer und kleinen Vertriebsteams an, bevor sie zu einer richtigen CRM-Software wechseln.
+
+Ich baue Customermates, ein Open-Source-CRM aus Deutschland, und habe selbst jahrelang mit Excel-CRMs gearbeitet. Dieser Beitrag liefert beides: eine sofort einsatzbereite Excel-CRM-Vorlage und eine ehrliche Einordnung, ab wann der Wechsel zu einem richtigen CRM-System Sinn ergibt. Wenn Sie unter 50 Kontakten arbeiten, reicht eine gute Vorlage. Wenn Sie darüber hinauswachsen, werden Sie hier auch finden, wie der Übergang aussieht.
+
+## Was ist ein Excel CRM?
+
+Ein Excel CRM ist Tabellenkalkulation, die als Customer Relationship Management System genutzt wird. In der einfachsten Form besteht es aus drei Tabellenblättern:
+
+- **Kontakte**: ein Datensatz pro Person mit Name, Firma, E-Mail, Telefon, Status, Notizen.
+- **Deals**: ein Datensatz pro Verkaufschance mit zugeordnetem Kontakt, Wert, Phase, voraussichtlichem Abschlussdatum.
+- **Aktivitäten**: Anrufe, E-Mails, Termine, Follow-ups, jeweils mit Datum, Kontakt und Notiz.
+
+Optional kommen Dashboards mit Pivot-Tabellen für Pipeline-Stand und Aktivitätsübersichten hinzu. Wer Google Sheets statt Excel nutzt, baut die gleiche Struktur, mit dem Vorteil, dass mehrere Personen gleichzeitig auf der Tabelle arbeiten können.
+
+Excel-CRMs eignen sich für die Anfangsphase: ein bis fünf Personen, weniger als 100 aktive Kontakte, einfache Vertriebsprozesse ohne komplexe Automatisierung. Sobald Multi-User-Workflows, Erinnerungen, E-Mail-Integration oder größere Datenmengen ins Spiel kommen, stoßen Tabellen an strukturelle Grenzen.
+
+## Kostenlose Excel-CRM-Vorlage
+
+Hier die Spaltenstruktur, die in der Praxis funktioniert. Sie können diese Vorlage in 15 Minuten in Excel oder Google Sheets nachbauen.
+
+**Tabellenblatt „Kontakte":**
+
+| Spalte | Typ | Beispiel |
+|---|---|---|
+| ID | Zahl, fortlaufend | 1, 2, 3 |
+| Vorname | Text | Anna |
+| Nachname | Text | Schmidt |
+| E-Mail | Text | anna@beispiel.de |
+| Telefon | Text | +49 30 12345678 |
+| Firma | Text | Beispiel GmbH |
+| Position | Text | Geschäftsführerin |
+| Lead-Quelle | Dropdown | LinkedIn, Empfehlung, Website, Veranstaltung |
+| Status | Dropdown | Lead, Qualifiziert, Aktiv, Inaktiv |
+| Verantwortlich | Text | Mitarbeitername |
+| Letzter Kontakt | Datum | 2026-04-15 |
+| Notizen | Text | freie Eingabe |
+
+**Tabellenblatt „Deals":**
+
+| Spalte | Typ | Beispiel |
+|---|---|---|
+| Deal-ID | Zahl | 1, 2, 3 |
+| Deal-Name | Text | Implementierung Q3 |
+| Kontakt-ID | Zahl (Verknüpfung) | 1 |
+| Firma | Text | Beispiel GmbH |
+| Phase | Dropdown | Erstgespräch, Angebot, Verhandlung, Abschluss, Verloren |
+| Wert | Währung | 15.000 € |
+| Wahrscheinlichkeit | Prozent | 70% |
+| Voraussichtlicher Abschluss | Datum | 2026-08-30 |
+| Verantwortlich | Text | Mitarbeitername |
+| Nächster Schritt | Text | Angebot überarbeiten |
+| Nächste Aktion am | Datum | 2026-05-12 |
+
+**Tabellenblatt „Aktivitäten":**
+
+| Spalte | Typ | Beispiel |
+|---|---|---|
+| Datum | Datum | 2026-05-05 |
+| Kontakt-ID | Zahl | 1 |
+| Typ | Dropdown | Anruf, E-Mail, Termin, Demo |
+| Ergebnis | Text | freie Eingabe |
+| Nächster Schritt | Text | Folgetermin vereinbaren |
+
+Mit dieser Struktur haben Sie eine funktionsfähige Kundenverwaltung, die für 1 bis 3 Vertriebsmitarbeiter und bis zu 100 aktive Kontakte tragfähig ist.
+
+## Excel CRM in 4 Schritten aufbauen
+
+1. **Tabellenblätter anlegen**: drei Blätter mit den oben genannten Spaltenüberschriften. Erste Zeile fett, freezen über „Ansicht > Fenster fixieren" für die Kopfzeile.
+2. **Datenvalidierung**: für die Spalten Status, Phase, Lead-Quelle, Typ Dropdowns einrichten über „Daten > Datenüberprüfung > Liste". So vermeiden Sie Tippfehler und behalten saubere Filtermöglichkeiten.
+3. **Bedingte Formatierung**: Phase-Spalte in den Deals farbig markieren (Erstgespräch grau, Angebot gelb, Verhandlung blau, Abschluss grün, Verloren rot). Spalten mit überfälligen nächsten Aktionen automatisch rot einfärben.
+4. **Pivot-Tabelle für Pipeline-Dashboard**: vierte Tabellenblatt „Dashboard" mit Pivot-Tabelle aus „Deals". Zeilen: Phase, Werte: Summe Wert. Diagramm darüber. Aktualisierung mit Rechtsklick > Aktualisieren.
+
+Schritt 3 und 4 sind optional, machen aber den Unterschied zwischen einer Liste und einem brauchbaren Vertriebs-Tool.
+
+## Google Tabellen Schritt für Schritt
+
+Excel und Google Tabellen teilen sich die Grundkonzepte, aber Menüs und Tastenkürzel weichen weit genug ab, dass eine Sheets-spezifische Anleitung zwanzig Minuten Klickarbeit erspart.
+
+1. **Neue Tabelle aus Vorlage anlegen**: in Google Drive Rechtsklick, `Google Tabellen > Aus Vorlage`, leere Tabelle wählen. Vier Tabellenblätter anlegen (Kontakte, Deals, Aktivitäten, Dashboard) mit der oben gezeigten Struktur.
+2. **Datenvalidierung mit benannten Bereichen**: ein verstecktes Blatt `Listen` anlegen, je Dropdown eine Spalte (Status, Phase, Lead-Quelle, Aktivitätstyp). Spalte markieren, `Daten > Benannte Bereiche` und benennen. In Kontakten und Deals die Spalte markieren, `Daten > Datenvalidierung > Dropdown (aus einem Bereich)`, den benannten Bereich referenzieren. Einmal pflegen, alle Dropdowns aktualisieren sich.
+3. **Kontakte und Deals mit SVERWEIS verknüpfen**: im Deals-Tab eine Spalte `Kontaktname` mit `=SVERWEIS(C2; Kontakte!A:C; 2; FALSCH) & " " & SVERWEIS(C2; Kontakte!A:C; 3; FALSCH)` ergänzen, wobei C2 die Kontakt-ID enthält. Dieselbe Logik löst den Firmennamen auf.
+4. **Bedingte Formatierung einrichten**: Phase-Spalte markieren, `Format > Bedingte Formatierung`, eine Regel pro Phase. Für überfällige Follow-ups eine Formelregel auf `Nächste Aktion am`: `=UND(K2<HEUTE(); K2<>"")` mit rotem Hintergrund.
+5. **Geteilte Bearbeitung und geschützte Bereiche**: über `Freigeben` das Team einbinden. Über `Daten > Tabellen und Bereiche schützen` Kopfzeile, `Listen`-Tab und Dashboard-Formeln sperren. Alle bearbeiten Daten, niemand löscht versehentlich Formeln.
+6. **Apps Script für Follow-up-Erinnerungen (optional)**: `Erweiterungen > Apps Script` öffnen. Ein täglicher Trigger sendet eine E-Mail-Übersicht überfälliger Aktionen. Wann sich das lohnt, steht weiter unten.
+7. **Anbindung an Looker Studio (optional)**: `looker.google.com`, neuer Bericht, `Google Tabellen` als Datenquelle, Deals-Blatt verbinden. Looker übernimmt sheet-übergreifende Joins, Zeitreihen und richtige Filter. Kostenlos für die ersten fünf Berichte.
+
+Wer nach Schritt 5 stoppt, hat ein funktionsfähiges Multi-User-CRM. Schritt 6 und 7 schließen die Lücke zu Mid-Tier-CRM-Tools, ohne das Google-Ökosystem zu verlassen.
+
+## Vertriebsaktivitäten in Excel tracken
+
+Das Aktivitäten-Tabellenblatt ist die unterschätzteste Komponente. Wer es führt, hat eine vollständige Historie der Kundenkontakte und kann Reportings wie „wie viele Anrufe pro Woche pro Mitarbeiter" oder „durchschnittliche Reaktionszeit auf Leads" auswerten. Wer es nicht führt, weiß am Quartalsende nicht, woher die guten Quartale kamen und woher die schlechten.
+
+Praxistipp: tragen Sie jede Aktivität direkt nach dem Termin ein, nicht am Ende des Tages aus dem Gedächtnis. Eine Minute Aufwand pro Aktivität, dafür eine vollständige und korrekte Datengrundlage. Bei Multi-User-Setups in Google Sheets sehen Sie auch live, was die Kollegen tun.
+
+## Praxisbeispiele aus dem Alltag
+
+Genug Theorie. So sieht das Excel-CRM in drei Setups aus, die mir regelmäßig begegnen. Alle drei nutzen die gleiche Vorlage, zeigen aber jeweils, wo die Struktur trägt und wo sie zu knirschen anfängt.
+
+**Szenario 1: Solo-Beraterin, 80 Interessenten, 4 Leistungen.** Eine freiberufliche Markenstrategin verkauft Markenaudit, Rebuild, Naming-Sprint und laufende Betreuung. Sie führt ein Deals-Blatt mit einer Spalte `Leistung` (singleSelect) und filtert pro Leistung. Die Pipeline-Phasen sind über alle Leistungen identisch (Erstgespräch, Scoping, Angebot, unterschrieben). Aus den Aktivitäten sieht sie, dass Audits in 2 Wochen schließen, Rebuilds 3 Monate brauchen, und plant ihren Forecast entsprechend. Aufwand: 15 Minuten pro Tag.
+
+**Szenario 2: Zweier-Agentur, 30 Kunden und 20 Interessenten.** Eine Gründerin und ihr Partner führen eine kleine Content-Agentur, beide bearbeiten Google Sheets live. Im Kontakte-Blatt gibt es Zusatzspalten `Account Manager` (singleSelect) und `MRR` (Währung), sie splitten Interessenten per Filteransicht. Freitags-Standup vor dem Dashboard-Tab. Konflikte sind selten, weil beide selten dieselbe Zeile bearbeiten. Einmal pro Quartal nervt, dass Pivots im geteilten Modus einen manuellen Refresh brauchen.
+
+**Szenario 3: Fünfköpfiges SaaS-Vertriebsteam, 600 Kontakte, 150 offene Deals.** Hier fängt die Tabelle an zu brechen. Gleichzeitige Bearbeitung führt zu überschriebenen Formeln, Aktivitäten driften, das Dashboard braucht 8 Sekunden zum Filtern. Zwei Vertriebler arbeiten mobil, die Sheets-App ist zum Tippen unbrauchbar. Innerhalb eines Sprints werden drei Follow-ups verpasst. Im dritten Monat rechnet die Geschäftsführung nach: 5 Mitarbeiter × 1 Stunde wöchentliche Datenpflege × 60 €/h = 1.200 €/Monat. Ein 45 €/Monat-CRM hat sich in der ersten Woche bezahlt gemacht.
+
+Das Muster: Tabellen funktionieren hervorragend, bis eine der Grenzen (Multi-User-Konkurrenz, mobile Arbeit, verpasste Follow-ups, Dateigröße) gerissen wird. Szenario 1 bleibt für immer auf Sheets. Szenario 2 bleibt 1 bis 2 Jahre. Szenario 3 hätte gestern wechseln sollen.
+
+## Pipeline-Dashboard in Excel
+
+Das Dashboard ist das, was die Geschäftsführung sehen will, ohne sich durch Listen zu klicken. Vier Pivot-Tabellen reichen:
+
+1. **Pipeline nach Phase**: Summe der Deal-Werte pro Phase. Sofortige Antwort auf „wie viel ist offen?".
+2. **Pipeline nach Verantwortlichem**: gleiche Zahl, aber pro Vertriebsmitarbeiter aufgeschlüsselt.
+3. **Aktivitäten der Woche**: Anzahl Aktivitäten pro Mitarbeiter und Typ in den letzten 7 Tagen.
+4. **Forecast**: Summe (Deal-Wert × Wahrscheinlichkeit) gefiltert auf voraussichtlicher Abschluss innerhalb des Quartals.
+
+Mit Diagrammen darüber wird das Dashboard zum Tool für Wochenbesprechungen. Aktualisierung mit Rechtsklick > Aktualisieren oder über Makros bei jedem Öffnen.
+
+## Best Practices für Excel CRMs
+
+Sechs Regeln, die in der Praxis den Unterschied machen:
+
+- **Niemals Spalten umbenennen, nachdem die Tabelle in Nutzung ist**: das bricht Pivot-Tabellen, Formeln und bedingte Formatierung.
+- **Backups automatisieren**: Google Drive macht das automatisch, Excel-Nutzer sollten OneDrive oder eine wöchentliche manuelle Sicherung einrichten.
+- **Eine Zeile pro Datensatz, ein Datensatz pro Zeile**: kein Verschachteln, keine Zellen mit mehreren Werten getrennt durch Komma.
+- **IDs vergeben**: jede Zeile bekommt eine eindeutige ID. Sonst werden Verknüpfungen zwischen Kontakten und Deals unzuverlässig.
+- **Formatierte Tabellen verwenden**: Strg+T (Cmd+T auf Mac) macht aus dem Bereich eine Tabelle. Sortierung, Filter und automatische Formelausweitung funktionieren dann zuverlässig.
+- **Maximal 10.000 Datensätze pro Tabellenblatt**: darüber wird Excel langsam und Google Sheets unzuverlässig.
+
+## Typische Fehler beim Excel-CRM
+
+Ich habe genug kaputte Excel-CRMs gesehen, um die immer gleichen acht Fehler zu erkennen. Jeder hat eine schnelle Lösung.
+
+1. **Mehrzeilige Kontakte**: zwei E-Mails auf separate Zeilen unter dem gleichen Kontakt schreiben. Filter und Pivots brechen. Lösung: ein Kontakt pro Zeile, lieber Spalten wie `E-Mail 2` ergänzen.
+2. **Freitext-Status**: `qualifiziert`, `Qualifiziert` und `qualifizirt` in dieselbe Spalte. Pivots zeigen drei Status. Lösung: Dropdowns über Datenvalidierung.
+3. **Keine Verknüpfung Deal-Kontakt**: Kontaktnamen als Text speichern, statt eine Kontakt-ID zu referenzieren. Bei Namensänderung bricht die Verknüpfung still. Lösung: per ID verknüpfen, den Namen mit SVERWEIS auflösen.
+4. **Manuelle Deal-Wert-Summen**: „45.000 €" eintippen. Beim nächsten Phasenwechsel ist die Zahl veraltet. Lösung: `=SUMMEWENN(Deals!E:E; "Angebot"; Deals!F:F)` für Live-Summen.
+5. **Keine Versionierung**: produktiv direkt bearbeiten ohne Änderungshistorie. Lösung: Google Sheets bietet `Datei > Versionsverlauf`. Excel auf OneDrive ebenso. Reines Desktop-Excel wöchentlich in Git committen.
+6. **Offene Bearbeitungsrechte für alle**: jeder hat Zugriff auf jede Zelle, inklusive Formeln. Lösung: Kopfzeile, Formel-Spalten und Referenz-Tabs über `Daten > Tabellen und Bereiche schützen` sperren.
+7. **Keine Backup-Strategie**: Cloud-Sync als Backup verstehen. Sync repliziert auch Löschungen. Lösung: wöchentlicher automatisierter Download oder ein 5-zeiliges Apps Script, das eine Kopie per E-Mail schickt.
+8. **Kein konsistentes Datumsformat**: `04.05.2026`, `5. April 2026` und `April 5` mischen. Sortierung scheitert, Filter scheitern. Lösung: ISO 8601 (`2026-04-05`) überall.
+
+Wer diese acht Fehler abstellt, verlängert die Nutzungsdauer eines Excel-CRMs erfahrungsgemäß um 6 bis 12 Monate.
+
+## Wann automatisierte Erinnerungen nötig werden
+
+Wenn der Engpass nicht mehr die Pipeline-Übersicht ist, sondern vergessene Follow-ups, hat die Vorlage ihre Grenze erreicht. Excel und Google Tabellen bieten keine eingebauten Erinnerungen, die Spalte `Nächste Aktion am` hilft nur, wenn sie aktiv konsultiert wird. In Solo-Setups klappt das, ab 5 Personen passiert es regelmäßig, dass Termine durchrutschen.
+
+Ab hier gibt es zwei Wege. Der pragmatische: ein Apps Script, das täglich überfällige Aktionen scannt und eine E-Mail an den Verantwortlichen schickt. 25 Zeilen Code, reicht für 1 bis 5 Personen. Der saubere: Wechsel auf ein CRM mit eingebauten Erinnerungen und mobiler App. Spätestens wenn Erinnerungen pro Phase unterschiedlich getriggert werden sollen, baut man im Skript ein halbes CRM nach. Dann kostet ein richtiges CRM weniger als die Pflege des Skripts.
+
+## Wo Excel als CRM an seine Grenzen stößt
+
+Excel ist eine wundervolle Tabellenkalkulation und ein passables CRM bis zu einem gewissen Punkt. Die strukturellen Grenzen:
+
+- **Multi-User**: Excel-Dateien sind nicht für gleichzeitige Bearbeitung durch mehrere Personen ausgelegt. Google Sheets schon, aber auch dort werden Konflikte bei mehr als 5 gleichzeitigen Nutzern unangenehm.
+- **Erinnerungen und Aufgaben**: Tabellen erinnern niemanden an Follow-ups. Sie müssen die Tabelle aktiv konsultieren.
+- **E-Mail-Integration**: keine native Verbindung zwischen Tabelle und Outlook oder Gmail. Aktivitäten werden nicht automatisch eingetragen.
+- **Datenintegrität**: ein versehentlich gelöschter Bereich, ein verschobener Filter, eine überschriebene Formel können die ganze Datenbasis kompromittieren.
+- **Reporting**: Pivot-Tabellen sind mächtig, aber jede Auswertung über die Standard-Pipeline hinaus braucht manuelle Konfiguration.
+- **Skalierbarkeit**: über 1.000 aktive Kontakte oder 500 Deals wird die Performance spürbar schlechter, und das Risiko von Inkonsistenzen wächst exponentiell.
+
+Konkrete Schwellen, ab denen ein richtiges CRM die bessere Wahl ist:
+
+- Mehr als 5 Personen arbeiten parallel mit der Tabelle.
+- Mehr als 500 aktive Kontakte oder 200 offene Deals.
+- Sie verpassen regelmäßig Follow-ups oder Termine.
+- Sie brauchen automatische Erinnerungen, E-Mail-Templates oder Pipeline-Automatisierung.
+- Reporting wird komplexer als „Pipeline pro Phase".
+- Sie wollen mobil arbeiten und brauchen verlässliche App-Funktionalität.
+
+## Wann ein richtiges CRM Sinn ergibt
+
+Wenn drei oder mehr der oben genannten Schwellen auf Sie zutreffen, lohnt sich der Wechsel zu einem dedizierten CRM-System. Die meisten modernen Tools sind in einer halben Stunde aufgesetzt und in einem Tag mit den Excel-Daten befüllt.
+
+Drei Kriterien für die Wahl:
+
+- **Vertriebs-orientiert mit Pipeline-Fokus**: Pipedrive ab 14 Euro pro Nutzer, einfaches Onboarding.
+- **Marketing-Inbound-Anbindung gewünscht**: HubSpot CRM Free, später Marketing Hub.
+- **Open Source, EU-Hosting, KI-Agent-Steuerung**: Customermates ab 9 Euro pro Nutzer im Cloud-Tarif, kostenlos selbst hostbar.
+
+## Vom Excel-CRM zur Open-Source-Alternative
+
+Customermates ist gebaut für genau diesen Übergang. Die Tabellen-Ansicht (eine von zwei Standard-Ansichten neben der Kanban-Karten-Ansicht) fühlt sich für Excel-Nutzer vertraut an: Spalten, Zeilen, Filter, Sortierung. Acht typisierte Custom-Field-Typen (plain, date, datetime, currency, singleSelect, link, email, phone) bilden die meisten Spalten ab, die Sie aus Excel mitbringen, jetzt allerdings mit Validierung und Such-Indexierung.
+
+Der entscheidende Unterschied zur Excel-Welt: Customermates lässt sich von KI-Agenten bedienen. Über einen eingebauten [MCP-Server](https://modelcontextprotocol.io) mit 57 Tools können Claude, ChatGPT oder Codex direkt im CRM lesen und schreiben. Praktisch heißt das: Sie leiten eine E-Mail an Claude weiter, und Claude legt den Kontakt an, schreibt die Notiz, aktualisiert den Deal-Status. Die Datenpflege, die in Excel manuell laufen muss, übernimmt der Agent.
+
+Cloud-Hosting in Deutschland ab 9 Euro pro Nutzer pro Monat im Jahresplan, Self-Hosting via `docker compose up -d` kostenlos unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration von Excel: CSV-Export, CSV-Import in Customermates, Custom Fields anpassen. Mit einem KI-Agenten ist auch die Migration in einem Vormittag erledigt.
+
+## Fazit
+
+Excel als CRM funktioniert für die ersten 50 bis 100 Kontakte und ein bis drei Vertriebsmitarbeiter. Mit der richtigen Vorlage (Kontakte, Deals, Aktivitäten, Dashboard) bekommen Sie eine tragfähige Lösung in 15 Minuten. Wenn Sie über die strukturellen Grenzen hinauswachsen (Multi-User, mehr als 500 Kontakte, Erinnerungsbedarf, mobile Nutzung, komplexes Reporting), lohnt der Wechsel zu einem richtigen CRM-System.
+
+Mein Vorschlag: testen Sie zwei moderne Self-Serve-CRMs (Pipedrive, HubSpot Free, Customermates) vier Wochen lang mit echten Daten. Wenn der Mehrwert die zusätzliche Komplexität rechtfertigt, wechseln Sie. Wenn nicht, bleiben Sie bei Excel und kommen in einem Jahr nochmal vorbei.
+
+## Häufig gestellte Fragen
+
+**Kann ich Excel als CRM nutzen?**
+Ja, bis etwa 50 bis 100 aktive Kontakte und 1 bis 3 Vertriebsmitarbeiter funktioniert das gut. Mit drei Tabellenblättern (Kontakte, Deals, Aktivitäten) und einem Pivot-Dashboard haben Sie ein tragfähiges Setup. Über dieser Schwelle stoßen Sie an Multi-User-, Erinnerungs- und Skalierungsgrenzen.
+
+**Wann sollte ich von Excel auf ein CRM umsteigen?**
+Wenn drei oder mehr dieser Punkte zutreffen: mehr als 5 Personen arbeiten parallel, mehr als 500 aktive Kontakte, Sie verpassen Follow-ups, Sie brauchen automatische Erinnerungen oder E-Mail-Integration, Reporting wird komplex, Sie arbeiten viel mobil. Der Wechsel kostet einen Tag, das System bringt das in zwei bis vier Wochen wieder rein.
+
+**Welche Spalten gehören in eine CRM-Vorlage?**
+Im Kontakte-Blatt: ID, Vorname, Nachname, E-Mail, Telefon, Firma, Position, Lead-Quelle, Status, Verantwortlich, Letzter Kontakt, Notizen. Im Deals-Blatt: Deal-ID, Deal-Name, Kontakt-ID, Firma, Phase, Wert, Wahrscheinlichkeit, Voraussichtlicher Abschluss, Verantwortlich, Nächster Schritt. Im Aktivitäten-Blatt: Datum, Kontakt-ID, Typ, Ergebnis, Nächster Schritt.
+
+**Ist Google Sheets besser als Excel für ein CRM?**
+Für Multi-User-Setups ja, weil Google Sheets von Haus aus für gleichzeitige Bearbeitung gebaut ist. Excel ist mächtiger bei Pivot-Tabellen, Makros und Performance bei großen Datenmengen. Für Solo-Founder ohne Multi-User-Bedarf sind beide etwa gleichwertig. Für 2 bis 5 Personen empfehle ich Google Sheets.
+
+**Gibt es ein kostenloses Open-Source-CRM?**
+Ja. Customermates ist unter AGPL-3.0 lizenziert und kostenlos selbst hostbar via `docker compose up -d`. Drei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei 9 Euro pro Nutzer pro Monat im Jahresplan und ist in Deutschland gehostet.
+
+**Brauche ich Apps Script für ein Excel-CRM?**
+Nein, nicht zwingend. Die Vorlage funktioniert ohne jede Skripterweiterung für 1 bis 3 Personen. Sinnvoll wird Apps Script erst, wenn Sie regelmäßig Follow-ups verpassen oder eine automatische E-Mail-Übersicht überfälliger Aktionen wollen. Wer mit dem Code nicht hantieren will, sollte stattdessen direkt zu einem CRM-System wechseln, das Erinnerungen nativ mitbringt.
+
+**Was ist der günstigste Weg von Excel zu einem echten CRM?**
+Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, kostenlos unter AGPL-3.0, einzige Kosten sind der Server. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab 9 Euro pro Nutzer pro Monat im Jahresplan. Pipedrive startet bei 14 Euro, Salesforce bei 25 Euro.

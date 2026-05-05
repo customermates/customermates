@@ -1,0 +1,272 @@
+---
+title: "Spreadsheet CRM 2026: Free Template, Setup Guide, and Upgrade Path"
+description: "Build a spreadsheet CRM that actually works: free template, the right columns, sales tracking sheet structure. Plus when a real CRM beats your spreadsheet."
+
+hero:
+  title: "Spreadsheet CRM 2026: Free Template and the Path to a Real CRM"
+  description: How to use a spreadsheet as a CRM, with a free template. Plus clear thresholds where moving to a real CRM system pays off.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to blog
+  by: by Benjamin Wagner
+  date: 2026-04-14
+  tags:
+    - Spreadsheet CRM
+    - Sales Tracking Spreadsheet
+    - Excel CRM
+    - Open Source
+    - AI Agents
+---
+
+# Spreadsheet CRM 2026: Free Template and the Path to a Real CRM
+
+A spreadsheet CRM is a Google Sheets or Excel file that doubles as customer relationship management. Columns for name, company, email, phone, status, and notes, one row per contact, a second tab for deals, filters, and a pivot table for the pipeline view. That's how most solo founders, freelancers, and small sales teams start before switching to a real CRM.
+
+I run Customermates, an open-source CRM built in Germany, and I worked with spreadsheet CRMs myself for years. This post gives you both: a ready-to-use spreadsheet CRM template and an honest take on when switching to a real CRM system pays off. If you're under 50 contacts, a good template is enough. If you're growing past that, you'll find the upgrade path here too.
+
+## What is a spreadsheet CRM?
+
+A spreadsheet CRM is a Google Sheets or Excel file used as a customer relationship management system. In its simplest form, it's three tabs:
+
+- **Contacts**: one row per person with name, company, email, phone, status, notes.
+- **Deals**: one row per opportunity with linked contact, value, stage, expected close date.
+- **Activities**: calls, emails, meetings, follow-ups, each with date, contact, and notes.
+
+Optional dashboards with pivot tables show the pipeline status and activity overview. Google Sheets users get the same structure with the advantage of multiple people editing in real time.
+
+Spreadsheet CRMs work well in the early stage: one to five people, fewer than 100 active contacts, simple sales processes without complex automation. Once multi-user workflows, reminders, email integration, or larger data volumes come into play, spreadsheets hit structural limits.
+
+## Free spreadsheet CRM template
+
+Here's the column structure that works in practice. You can rebuild this template in Google Sheets or Excel in 15 minutes.
+
+**Contacts tab:**
+
+| Column | Type | Example |
+|---|---|---|
+| ID | Number, auto-increment | 1, 2, 3 |
+| First Name | Text | Anna |
+| Last Name | Text | Smith |
+| Email | Text | anna@example.com |
+| Phone | Text | +1 415 555 0100 |
+| Company | Text | Example Inc. |
+| Role | Text | CEO |
+| Lead Source | Dropdown | LinkedIn, Referral, Website, Event |
+| Status | Dropdown | Lead, Qualified, Active, Inactive |
+| Owner | Text | Rep name |
+| Last Contact | Date | 2026-04-15 |
+| Notes | Text | free entry |
+
+**Deals tab:**
+
+| Column | Type | Example |
+|---|---|---|
+| Deal ID | Number | 1, 2, 3 |
+| Deal Name | Text | Q3 Implementation |
+| Contact ID | Number (link) | 1 |
+| Company | Text | Example Inc. |
+| Stage | Dropdown | First Call, Proposal, Negotiation, Closed Won, Closed Lost |
+| Value | Currency | $15,000 |
+| Probability | Percent | 70% |
+| Expected Close | Date | 2026-08-30 |
+| Owner | Text | Rep name |
+| Next Step | Text | Revise proposal |
+| Next Action Date | Date | 2026-05-12 |
+
+**Activities tab:**
+
+| Column | Type | Example |
+|---|---|---|
+| Date | Date | 2026-05-05 |
+| Contact ID | Number | 1 |
+| Type | Dropdown | Call, Email, Meeting, Demo |
+| Outcome | Text | free entry |
+| Next Step | Text | Schedule follow-up |
+
+With this structure, you have a working customer database that scales to 1 to 3 reps and up to 100 active contacts.
+
+## Building a spreadsheet CRM in 4 steps
+
+1. **Create the tabs**: three sheets with the column headers above. First row bold, freeze the header row through "View > Freeze > 1 row" (Sheets) or "View > Freeze Panes" (Excel).
+2. **Data validation**: add dropdowns for Status, Stage, Lead Source, and Type via "Data > Data Validation > List of items". This prevents typos and keeps filters clean.
+3. **Conditional formatting**: color-code the Stage column (First Call gray, Proposal yellow, Negotiation blue, Won green, Lost red). Highlight overdue Next Action Date cells in red automatically.
+4. **Pivot table dashboard**: a fourth tab "Dashboard" with pivot tables drawing from the Deals sheet. Rows: Stage, Values: Sum of Value. Add a chart on top. Refresh with right-click > Refresh.
+
+Steps 3 and 4 are optional but make the difference between a list and a working sales tool.
+
+## Google Sheets-specific walkthrough
+
+Excel and Google Sheets share the basic concepts, but menus and shortcuts diverge enough that a Sheets-specific walkthrough saves twenty minutes of clicking around.
+
+1. **Create a new sheet from the template**: in Google Drive right-click, `Google Sheets > From a template`, blank sheet. Add four tabs (Contacts, Deals, Activities, Dashboard) using the column structure above.
+2. **Set up data validation with named ranges**: create a hidden tab `Lists` with one column per dropdown (Status, Stage, Lead Source, Activity Type). Select each column, `Data > Named ranges`, name it. In Contacts and Deals select the column, `Data > Data validation > Dropdown (from a range)`, reference the named range. Edit once, all dropdowns update.
+3. **Link contacts and deals with VLOOKUP**: in the Deals tab add a `Contact Name` column with `=VLOOKUP(C2, Contacts!A:C, 2, FALSE) & " " & VLOOKUP(C2, Contacts!A:C, 3, FALSE)` where C2 holds the Contact ID. Same pattern resolves company names.
+4. **Build conditional formatting rules**: select the Stage column, `Format > Conditional formatting`, one rule per stage. For overdue follow-ups, custom formula on `Next Action Date`: `=AND(K2<TODAY(), K2<>"")` with red background.
+5. **Set up shared editing and protected ranges**: `Share` your team in. Protect structural ranges via `Data > Protect sheets and ranges`: header row, `Lists` tab, Dashboard formulas. Everyone edits data, no one deletes formulas.
+6. **Add Apps Script for follow-up reminders (optional)**: `Extensions > Apps Script`, paste the snippet below. A daily trigger emails overdue Next Action Dates to the deal owner.
+7. **Connect to Looker Studio (optional)**: `looker.google.com`, new report, `Google Sheets` as source, Deals tab. Looker handles cross-sheet joins, time-series charts, and proper filters that pivots cannot. Free for the first five reports.
+
+If you stop after step 5 you have a working multi-user CRM. Steps 6 and 7 close the gap to mid-tier CRM tools without leaving Google's ecosystem.
+
+## Tracking sales activity in your spreadsheet
+
+The Activities tab is the most underrated component. Teams that fill it have a complete history of customer touches and can produce reports like "calls per week per rep" or "average response time on leads". Teams that don't fill it can't tell at quarter-end where the good quarters came from or where the bad ones did.
+
+Practical tip: log every activity right after the meeting, not at the end of the day from memory. One minute per activity buys you complete and accurate data. In multi-user Google Sheets setups, you also see your colleagues' activity in real time, which works as a soft accountability layer.
+
+## Real workflow examples
+
+Theory aside, here's how the spreadsheet CRM actually works for three setups I see often. Each scenario is built on the same template and shows where the structure holds and where it starts to creak.
+
+**Scenario 1: solo consultant, 80 prospects across 4 services.** A freelance brand strategist sells brand audit, full rebuild, naming sprint, and ongoing retainer. She uses one Deals tab with a `Service` column (singleSelect) and filters per service. Pipeline stages are shared across all services because the sales motion is identical (intro call, scoping, proposal, signed). The Activities tab shows that audits close in 2 weeks while rebuilds take 3 months, which informs her quarterly forecast. Effort: 15 minutes per day.
+
+**Scenario 2: two-person agency, 30 active clients and 20 prospects.** A founder and her partner run a small content agency in Google Sheets so both can edit live. The Contacts tab gets two extra columns: `Account Manager` (singleSelect) and `MRR` (currency). They split prospects by manager via a filter view. Friday standups happen with the Dashboard tab on screen. Conflicts are rare because they rarely edit the same row. Once a quarter pivot tables don't auto-refresh in shared mode and need a manual right-click. Workable.
+
+**Scenario 3: 5-person SaaS sales team, 600 contacts, 150 open deals.** This is where the spreadsheet starts breaking. Concurrent edits overwrite formulas. Reps forget to log activities and the data drifts. The Dashboard takes 8 seconds to filter at 4MB file size. Two reps work mostly from mobile and the Sheets app is painful for typing notes. The team misses three follow-ups in a single sprint. By month three, leadership runs the math: 5 reps × 1 hour weekly cleanup × €60/h = €1,200/month wasted. A €45/month CRM pays itself back in week one.
+
+The pattern: spreadsheets work great until any of the constraints (multi-user concurrency, mobile-heavy work, missed follow-ups, file size) crosses a threshold. Scenario 1 stays on Sheets forever. Scenario 2 stays for 1 to 2 years. Scenario 3 should switch yesterday.
+
+## Building a sales tracking spreadsheet dashboard
+
+The dashboard is what leadership wants to see without clicking through lists. Four pivot tables are enough:
+
+1. **Pipeline by stage**: sum of deal values per stage. Instant answer to "how much is open?".
+2. **Pipeline by rep**: same number, broken out per salesperson.
+3. **Activities this week**: count of activities per rep and type for the last 7 days.
+4. **Forecast**: sum of (Deal Value × Probability) filtered to expected close within the quarter.
+
+With charts on top, the dashboard becomes the tool for weekly sales meetings. Refresh with right-click > Refresh, or via macros on every open.
+
+## Best practices for spreadsheet CRMs
+
+Six rules that separate working setups from broken ones:
+
+- **Never rename columns once the spreadsheet is in use**: it breaks pivot tables, formulas, and conditional formatting.
+- **Automate backups**: Google Drive does it automatically, Excel users should set up OneDrive sync or weekly manual backups.
+- **One row per record, one record per row**: no nesting, no cells with multiple values comma-separated.
+- **Use IDs**: every row gets a unique ID. Without them, links between contacts and deals become unreliable.
+- **Use formatted tables**: Ctrl+T (Cmd+T on Mac) turns the range into a table. Sorting, filtering, and automatic formula extension then work reliably.
+- **Cap at 10,000 rows per sheet**: above that, Excel slows down and Google Sheets gets unreliable.
+
+## Common spreadsheet CRM mistakes
+
+I've reviewed enough broken spreadsheet CRMs to spot the same eight mistakes on repeat. Each one has a quick fix.
+
+1. **Multi-row contacts**: putting two emails on separate rows under the same contact. Filters and pivots break. Fix: one contact per row, add columns like `Email 2` if needed.
+2. **Free-text status field**: `qualified`, `Qualified`, and `qualifid` into the same column. Pivots show three statuses. Fix: dropdowns via Data validation, always.
+3. **No deal-contact link**: storing contact names as text instead of a Contact ID. When the name changes, the link silently breaks. Fix: link by ID, render the name with VLOOKUP.
+4. **Manual deal value sums**: typing "€45,000" next to "Pipeline Q3". Stale at the next stage move. Fix: `=SUMIF(Deals!E:E, "Proposal", Deals!F:F)`.
+5. **No version control**: editing production with no rollback. Fix: Google Sheets `File > Version history`. Excel on OneDrive same. Desktop-only Excel: commit the file weekly to a Git repo.
+6. **Open access to all**: every member can edit any cell, including formulas. Fix: protect header row, formula columns, and reference tabs via `Data > Protect sheets and ranges`.
+7. **No backup strategy**: cloud sync replicates accidental deletions. Fix: a weekly automated download or a 5-line Apps Script that emails a copy.
+8. **No date format consistency**: mixing `04/05/2026`, `5. April 2026`, and `April 5`. Sorting and filters fail. Fix: ISO 8601 (`2026-04-05`) everywhere.
+
+Fixing these eight extends the useful life of a spreadsheet CRM by 6 to 12 months in my experience.
+
+## Apps Script: automated follow-up reminders
+
+If your bottleneck is forgetting follow-ups, you don't need a CRM yet, you need 25 lines of Apps Script. The snippet scans the Deals tab daily, finds overdue `Next Action Date` rows, and emails a summary to the deal owner. Open `Extensions > Apps Script` and paste:
+
+```js
+function sendOverdueFollowups() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Deals');
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const ownerCol = headers.indexOf('Owner');
+  const nextDateCol = headers.indexOf('Next Action Date');
+  const dealCol = headers.indexOf('Deal Name');
+  const stageCol = headers.indexOf('Stage');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const overdueByOwner = {};
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const nextDate = row[nextDateCol];
+    const stage = row[stageCol];
+    if (!nextDate || stage === 'Closed Won' || stage === 'Closed Lost') continue;
+    if (new Date(nextDate) < today) {
+      const owner = row[ownerCol];
+      if (!overdueByOwner[owner]) overdueByOwner[owner] = [];
+      overdueByOwner[owner].push(`- ${row[dealCol]} (${row[stageCol]}, due ${nextDate.toISOString().slice(0, 10)})`);
+    }
+  }
+
+  for (const owner in overdueByOwner) {
+    const body = `Overdue follow-ups:\n\n${overdueByOwner[owner].join('\n')}`;
+    MailApp.sendEmail(`${owner.toLowerCase()}@yourcompany.com`, 'Overdue follow-ups', body);
+  }
+}
+```
+
+Add a daily trigger: `Triggers > Add Trigger > sendOverdueFollowups > Time-driven > Day timer > 8am to 9am`. Save. Done.
+
+This is enough when your team is 1 to 5 people, owners map cleanly to email addresses, and one daily summary covers your cadence. You've outgrown it when you need per-stage reminder logic, when intervals depend on deal value, when activity logging should update the date automatically, or when reminders should go to Slack. At that point you're rebuilding a CRM in Apps Script and a real CRM costs less than your engineering time.
+
+## Where Excel and Sheets break as a CRM
+
+A spreadsheet is a wonderful piece of software and a passable CRM up to a point. The structural limits:
+
+- **Multi-user**: Excel files aren't built for simultaneous editing. Google Sheets is, but conflicts get unpleasant above 5 concurrent editors.
+- **Reminders and tasks**: spreadsheets don't remind anyone of follow-ups. You have to actively check the file.
+- **Email integration**: no native link between sheet and Outlook or Gmail. Activities don't auto-log.
+- **Data integrity**: an accidentally deleted range, a moved filter, an overwritten formula can compromise the whole dataset.
+- **Reporting**: pivot tables are powerful, but every report beyond the standard pipeline needs manual configuration.
+- **Scalability**: above 1,000 active contacts or 500 deals, performance degrades noticeably and inconsistencies grow exponentially.
+
+Concrete thresholds where a real CRM is the better choice:
+
+- More than 5 people work on the spreadsheet in parallel.
+- More than 500 active contacts or 200 open deals.
+- You regularly miss follow-ups or appointments.
+- You need automatic reminders, email templates, or pipeline automation.
+- Reporting goes beyond "pipeline per stage".
+- You work mobile a lot and need reliable app functionality.
+
+## When a real CRM is worth it
+
+If three or more of the thresholds above apply, switching to a dedicated CRM pays off. Most modern tools are set up in 30 minutes and populated with your spreadsheet data within a day.
+
+Three picks based on your priorities:
+
+- **Sales-led with pipeline focus**: Pipedrive from $14 per user, simple onboarding.
+- **Marketing inbound funnel**: HubSpot CRM Free, with a path to Marketing Hub.
+- **Open source, EU hosting, AI agent control**: Customermates from €9 per user per month yearly, free to self-host.
+
+## From spreadsheet CRM to an open-source alternative
+
+Customermates is built for exactly this transition. The Table view (one of two default views alongside the Card/Kanban view) feels familiar to spreadsheet users: columns, rows, filters, sorting. Eight typed custom field types (plain, date, datetime, currency, singleSelect, link, email, phone) cover most columns you bring from Excel, now with validation and search indexing.
+
+The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with 57 tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
+
+Cloud hosting in Germany from €9 per user per month yearly. Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: CSV export, CSV import into Customermates, configure custom fields. With an AI agent, the migration runs in one morning.
+
+## Bottom line
+
+Spreadsheet CRMs work for the first 50 to 100 contacts and one to three reps. With the right template (Contacts, Deals, Activities, Dashboard), you get a workable solution in 15 minutes. If you grow past the structural limits (multi-user, more than 500 contacts, reminder needs, mobile use, complex reporting), switching to a real CRM is worth it.
+
+My recommendation: test two modern self-serve CRMs (Pipedrive, HubSpot Free, Customermates) for four weeks with real data. If the value justifies the added complexity, switch. If not, stay on your spreadsheet and revisit in a year.
+
+## Frequently asked questions
+
+**Can I use Excel as a CRM?**
+Yes, up to about 50 to 100 active contacts and 1 to 3 reps it works well. With three tabs (Contacts, Deals, Activities) and a pivot dashboard you have a workable setup. Beyond that, you hit multi-user, reminder, and scalability limits.
+
+**When should I switch from a spreadsheet to a CRM?**
+When three or more of these apply: more than 5 people working in parallel, more than 500 active contacts, regularly missing follow-ups, needing automatic reminders or email integration, complex reporting, mobile-heavy work. The switch costs a day, the system pays it back in two to four weeks.
+
+**What columns should a sales tracking spreadsheet have?**
+Contacts tab: ID, First Name, Last Name, Email, Phone, Company, Role, Lead Source, Status, Owner, Last Contact, Notes. Deals tab: Deal ID, Deal Name, Contact ID, Company, Stage, Value, Probability, Expected Close, Owner, Next Step, Next Action Date. Activities tab: Date, Contact ID, Type, Outcome, Next Step.
+
+**Is Google Sheets better than Excel for a CRM?**
+For multi-user setups yes, because Sheets is built for concurrent editing. Excel is more powerful at pivot tables, macros, and performance on large datasets. For solo founders without multi-user needs, they're roughly equivalent. For 2 to 5 people, I recommend Sheets.
+
+**Is there a free open-source CRM I can use instead?**
+Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €9 per user per month yearly and is hosted in Germany.
+
+**How many users can collaborate on a Google Sheets CRM?**
+Up to about 5 active editors, in practice. Google Sheets technically supports 100 simultaneous editors, but conflicts on filter views, pivot table refreshes, and concurrent cell edits get unpleasant past 5. For 2 to 3 editors it works smoothly. For 4 to 5 editors, set up protected ranges and clear ownership rules. Above 5, the spreadsheet has aged out and a real CRM saves more time than it costs.
+
+**What's the cheapest path from spreadsheet to a real CRM?**
+Self-host an open-source CRM. Customermates runs on a €5/month VPS via `docker compose up -d`, free under AGPL-3.0, your only cost is the server. EspoCRM, SuiteCRM, and Krayin work the same way. If you don't want to manage a server, the cheapest cloud option among modern CRMs is HubSpot Free (genuinely free for up to 1,000 contacts) or Customermates Cloud at €9 per user per month yearly. Pipedrive starts at $14, Salesforce at $25.
