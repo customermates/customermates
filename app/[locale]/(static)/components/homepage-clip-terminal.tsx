@@ -1,7 +1,8 @@
 "use client";
 
+import type { ClipTerminal } from "@/core/fumadocs/schemas/homepage";
+
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
 
 const DURATION_MS = 10_000;
 
@@ -90,20 +91,19 @@ function Equalizer({ t, count = 14 }: { t: number; count?: number }) {
   );
 }
 
-export function HomepageClipTerminal() {
+export function HomepageClipTerminal({ strings }: { strings: ClipTerminal }) {
   const t = useClipClock(DURATION_MS);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const tr = useTranslations("HomepageClipTerminal");
 
   const linesEnd = BEATS.paste[0] + 0.14;
   const pasted = stream(CONFIG_LINES, t, [BEATS.paste[0] + 0.005, linesEnd]);
   const connected = t > linesEnd + 0.02;
 
-  const promptText = stream(tr("prompt"), t, BEATS.prompt);
+  const promptText = stream(strings.prompt, t, BEATS.prompt);
   const toolText = stream(TOOL_CALL, t, [BEATS.tool[0], BEATS.tool[0] + 0.07]);
   const showResult = t >= BEATS.result[0] - 0.01;
-  const followQ = stream(tr("followQ"), t, [BEATS.follow[0], BEATS.follow[0] + 0.06]);
-  const followOk = stream(tr("followOk"), t, [BEATS.follow[0] + 0.065, BEATS.follow[0] + 0.14]);
+  const followQ = stream(strings.followQ, t, [BEATS.follow[0], BEATS.follow[0] + 0.06]);
+  const followOk = stream(strings.followOk, t, [BEATS.follow[0] + 0.065, BEATS.follow[0] + 0.14]);
   const doneShow = t >= BEATS.done[0];
 
   const activeBeat = phaseIndex(t);
@@ -147,7 +147,7 @@ export function HomepageClipTerminal() {
         {connected && (
           <div className="mb-4 flex items-center gap-1.5 text-[12px] text-[#34c759]">
             <span className="size-1.5 rounded-full bg-[#34c759]" style={{ boxShadow: "0 0 8px #34c759" }} />
-            {tr("connected")}
+            {strings.connected}
           </div>
         )}
 
@@ -178,7 +178,7 @@ export function HomepageClipTerminal() {
 
         {showResult && (
           <div className="mb-3 text-[12px]">
-            <div className="mb-1 text-[#888]">{tr("resultSummary")}</div>
+            <div className="mb-1 text-[#888]">{strings.resultSummary}</div>
 
             <div className="grid grid-cols-[1fr_0.7fr_0.5fr] gap-x-4 gap-y-0.5 text-[#d4d4d8]">
               {DEALS.map((d) => (
@@ -209,7 +209,7 @@ export function HomepageClipTerminal() {
         )}
         {/* eslint-enable react/jsx-newline */}
 
-        {doneShow && <div className="text-[12px] text-[#34c759]">{tr("done")}</div>}
+        {doneShow && <div className="text-[12px] text-[#34c759]">{strings.done}</div>}
       </div>
 
       <div className="pointer-events-none absolute bottom-3.5 right-3.5 flex gap-[3px]">

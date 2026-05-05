@@ -1124,14 +1124,6 @@
     "placeholder": "Search...",
     "staleItem": "This item no longer exists and was removed from your recent items."
   },
-  "HomepageClipTerminal": {
-    "connected": "connected · 12 tools · customermates@mcp",
-    "done": "✓ 3 drafts saved to your inbox · ready for review",
-    "followOk": "yes, save them as drafts in my inbox",
-    "followQ": "Draft 3 follow-up emails now?",
-    "prompt": "Which deals are stuck > 14 days? Draft follow-up emails for each. Also, who still owes me a reply?",
-    "resultSummary": "→ 3 deals · €32,000 idle"
-  },
   "HomepageHowItWorks": {
     "loopCaption": "▶ silent · loops · 10s",
     "tailCaption": "one snippet · your AI"

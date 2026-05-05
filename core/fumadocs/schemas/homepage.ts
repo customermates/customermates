@@ -39,10 +39,21 @@ export const howItWorksStepSchema = z.object({
   description: z.string(),
 });
 
+export const clipTerminalSchema = z.object({
+  connected: z.string(),
+  done: z.string(),
+  followOk: z.string(),
+  followQ: z.string(),
+  prompt: z.string(),
+  resultSummary: z.string(),
+});
+export type ClipTerminal = z.infer<typeof clipTerminalSchema>;
+
 export const howItWorksSchema = z.object({
   eyebrow: z.string(),
   title: z.string(),
   steps: z.array(howItWorksStepSchema),
+  clipTerminal: clipTerminalSchema,
 });
 export type HowItWorks = z.infer<typeof howItWorksSchema>;
 

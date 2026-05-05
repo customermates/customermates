@@ -1,3 +1,5 @@
+import type { ClipTerminal } from "@/core/fumadocs/schemas/homepage";
+
 import { getTranslations } from "next-intl/server";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,9 +12,10 @@ type Props = {
   eyebrow: string;
   title: string;
   steps: Step[];
+  clipTerminal: ClipTerminal;
 };
 
-export async function HomepageHowItWorks({ eyebrow, title, steps }: Props) {
+export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }: Props) {
   const t = await getTranslations("HomepageHowItWorks");
   return (
     <section className="w-full px-4 py-14 md:py-20">
@@ -50,7 +53,7 @@ export async function HomepageHowItWorks({ eyebrow, title, steps }: Props) {
             </ol>
 
             <div className="relative">
-              <HomepageClipTerminal />
+              <HomepageClipTerminal strings={clipTerminal} />
 
               <div className="mt-2.5 flex items-center justify-between px-1 font-mono text-[11px] text-muted-foreground">
                 <span>{t("loopCaption")}</span>

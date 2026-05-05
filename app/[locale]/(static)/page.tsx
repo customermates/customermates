@@ -36,7 +36,12 @@ export default async function HomePage() {
       <HomepageStatsRow />
 
       {howItWorks && (
-        <HomepageHowItWorks eyebrow={howItWorks.eyebrow} steps={howItWorks.steps} title={howItWorks.title} />
+        <HomepageHowItWorks
+          clipTerminal={howItWorks.clipTerminal}
+          eyebrow={howItWorks.eyebrow}
+          steps={howItWorks.steps}
+          title={howItWorks.title}
+        />
       )}
 
       <HomepageBenefits benefitsSection={benefits} />

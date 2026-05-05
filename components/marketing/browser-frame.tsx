@@ -29,16 +29,22 @@ export function BrowserFrame({ src, title }: Props) {
   const hostname = getHostname(src);
 
   useEffect(() => {
-    type RIC = (cb: () => void, opts?: { timeout?: number }) => number;
-    const idle = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback;
-    const handle = idle
-      ? idle(() => setShouldMount(true), { timeout: 1500 })
-      : window.setTimeout(() => setShouldMount(true), 200);
-    return () => {
-      const cancel = (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback;
-      if (idle && cancel) cancel(handle);
-      else window.clearTimeout(handle);
-    };
+    const el = tiltRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setShouldMount(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShouldMount(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
