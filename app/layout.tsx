@@ -176,7 +176,7 @@ export default async function RootLayout({ children }: Props) {
 
         <Analytics />
 
-        <Script id="lemon-squeezy-affiliate-config" strategy="beforeInteractive">
+        <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
           {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
         </Script>
 

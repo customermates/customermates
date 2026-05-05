@@ -55,6 +55,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
             <Avatar className="size-4" size="sm">
               <AvatarImage
                 alt={t("imageAlt.countryFlag", { country: currentLocaleLabel })}
+                loading="lazy"
                 src={`https://flagcdn.com/${LOCALE_TO_FLAG[currentLocale].toLowerCase()}.svg`}
               />
 

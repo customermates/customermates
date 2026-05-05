@@ -43,7 +43,7 @@ function UneedBadge() {
       target="_blank"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt="Featured on Uneed" height="54" loading="eager" src={badgeSrc} width="140" />
+      <img alt="Featured on Uneed" height="54" loading="lazy" src={badgeSrc} width="140" />
     </a>
   );
 }
