@@ -21,7 +21,7 @@ export function WaveDecoration({ variant = "wave-1", className, opacity = 0.6 }:
 
   return (
     <div aria-hidden className={cn("pointer-events-none absolute select-none", className)} style={{ opacity }}>
-      <Image alt="" className="size-full" height={height} priority={false} src={src} width={width} />
+      <Image priority alt="" className="size-full" fetchPriority="high" height={height} src={src} width={width} />
     </div>
   );
 }

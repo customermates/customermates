@@ -34,15 +34,12 @@ export function BrowserFrame({ src, title }: Props) {
       setShouldMount(true);
       return;
     }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setShouldMount(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" },
-    );
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        setShouldMount(true);
+        observer.disconnect();
+      }
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
