@@ -150,7 +150,9 @@ export default async function RootLayout({ children }: Props) {
       className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
       lang={displayLanguage}
     >
-      <head />
+      <head>
+        <link href="https://demo.customermates.com" rel="preconnect" />
+      </head>
 
       <body className="h-screen flex flex-col font-sans antialiased">
         <Providers
