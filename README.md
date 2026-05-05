@@ -12,12 +12,13 @@
   <a href="https://customermates.com">Website</a> |
   <a href="https://demo.customermates.com">Demo</a> |
   <a href="https://customermates.com/docs">Documentation</a> |
-  <a href="https://github.com/customermates/customermates">GitHub</a>
+  <a href="https://github.com/customermates/customermates">GitHub</a> |
+  <a href="https://youtu.be/A7juUe3Iaco">Walkthrough</a>
 </p>
 
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/55de82e3-34ac-40db-9d00-ff601cf1639c" width="1200" autoplay loop muted playsinline></video>
+  <img src="public/customermates-promo.gif" alt="Customermates: 57 second walkthrough" width="1200">
 </p>
 
 Customermates is a CRM for modern teams that want a clear system for contacts, organizations, deals, services, and tasks without the usual enterprise-heavy setup. It combines practical CRM workflows with API access, webhooks, n8n automation, MCP-based tooling, and AI-agent workflows.

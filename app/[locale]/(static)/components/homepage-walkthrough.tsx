@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function HomepageWalkthrough({ walkthrough }: Props) {
-  const { badge, title, titleAccent, videoSrc, posterSrc, bullets } = walkthrough;
+  const { badge, title, titleAccent, videoSrc, bullets } = walkthrough;
 
   return (
     <section className="relative w-full overflow-hidden px-4 py-20 md:py-28" id="walkthrough">
@@ -56,11 +56,6 @@ export function HomepageWalkthrough({ walkthrough }: Props) {
 
             <div className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)]">
               <div className="relative aspect-video w-full bg-[#0a0a0f]">
-                {posterSrc && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img alt="" className="absolute inset-0 size-full object-cover" loading="lazy" src={posterSrc} />
-                )}
-
                 {videoSrc && (
                   <video
                     autoPlay
@@ -69,7 +64,6 @@ export function HomepageWalkthrough({ walkthrough }: Props) {
                     muted
                     playsInline
                     className="absolute inset-0 size-full object-cover"
-                    poster={posterSrc}
                     preload="metadata"
                     src={videoSrc}
                   />

@@ -67,7 +67,6 @@ export const walkthroughSchema = z.object({
   title: z.string(),
   titleAccent: z.string(),
   videoSrc: z.string().optional(),
-  posterSrc: z.string().optional(),
   bullets: z.array(walkthroughBulletSchema),
 });
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
