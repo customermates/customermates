@@ -113,7 +113,7 @@ export function HomepageClipTerminal({ strings }: { strings: ClipTerminal }) {
   }, [t]);
 
   return (
-    <div className="relative aspect-16/10 w-full overflow-hidden rounded-xl border border-white/5 bg-[#0a0a0f] font-mono text-[13px] leading-[1.55] text-[#d4d4d8] shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)]">
+    <div className="relative aspect-16/10 w-full overflow-hidden rounded-xl border border-white/5 bg-[#0a0a0f] font-mono text-[10px] leading-[1.55] text-[#d4d4d8] shadow-[0_24px_60px_-22px_rgba(0,0,0,0.55)] sm:text-[12px] md:text-[13px]">
       <div className="flex h-[26px] items-center gap-1.5 border-b border-white/5 bg-[#0f0f14] px-3">
         <span className="size-2 rounded-full bg-[#ff5f56]" />
 
@@ -131,7 +131,7 @@ export function HomepageClipTerminal({ strings }: { strings: ClipTerminal }) {
 
       <div
         ref={scrollRef}
-        className="relative box-border h-[calc(100%-26px)] overflow-y-hidden px-5 py-4"
+        className="relative box-border h-[calc(100%-26px)] overflow-y-hidden p-3 sm:px-5 sm:py-4"
         style={{ scrollBehavior: "smooth" }}
       >
         <div className="mb-2.5 whitespace-pre-wrap text-[#a78bfa]">
