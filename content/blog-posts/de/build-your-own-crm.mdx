@@ -1,0 +1,173 @@
+---
+title: "CRM selbst erstellen 2026: 3 ehrliche Wege (mit Kosten)"
+description: "Drei Wege, ein CRM selbst zu erstellen: programmieren, No-Code-Plattform oder Open-Source-CRM forken. Mit ehrlichen Kosten, Zeitrahmen, DSGVO-Bewertung."
+
+hero:
+  title: "CRM selbst erstellen: 3 Wege, echte Kosten, eine Empfehlung"
+  description: Die meisten Teams, die ihr CRM selbst erstellen wollen, brauchen eigentlich eines, das zu ihrem Workflow passt. Drei ehrliche Wege dorthin und der Weg, den ich in den meisten Fällen wählen würde.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-04-21
+  tags:
+    - CRM selbst erstellen
+    - Open Source
+    - Eigenes CRM
+    - DSGVO
+    - Mittelstand
+---
+
+# CRM selbst erstellen: 3 Wege, echte Kosten, eine Empfehlung
+
+Wer „CRM selbst erstellen" googelt, hat meistens einen von zwei Gründen. Entweder hat er sich HubSpot, Pipedrive und Salesforce angesehen und festgestellt, dass keines davon zu seinem tatsächlichen Geschäftsablauf passt. Oder er hat einen so spezifischen internen Prozess, den kein Standard-CRM sauber abbildet, und fragt sich, ob ein eigenes CRM realistisch ist.
+
+Ich baue Customermates, ein Open-Source-CRM aus Deutschland, und führe diese Gespräche jede Woche. Die ehrliche Antwort lautet fast nie „ja, von Grund auf programmieren". Sie lautet einer von drei Wegen, und der günstigste Weg, der das Problem tatsächlich löst, gewinnt.
+
+Dieser Artikel zeigt die drei Wege mit realistischen Kosten, Zeitrahmen und Kompromissen, nennt den Weg, den ich in den meisten Fällen empfehle, und beschreibt die wenigen Fälle, in denen wirklich von Grund auf bauen die richtige Entscheidung ist.
+
+## Die drei Wege
+
+Wer „CRM selbst erstellen" sagt, meint praktisch immer einen dieser drei Wege, auch wenn er sie noch nicht voneinander getrennt hat:
+
+1. **Komplett selbst programmieren.** Sie engagieren einen Entwickler oder eine Agentur. Datenbankschema, Formulare, Authentifizierung, Pipeline-UI, E-Mail- und Kalenderintegration, Reports, Wartung für die nächsten Jahre.
+2. **No-Code- oder Low-Code-Plattform nutzen.** Airtable, Ninox, Seatable, Softr, Notion. Sie konfigurieren Tabellen, Ansichten und Automatisierungen. Die Plattform betreibt das System, Sie besitzen die Konfiguration.
+3. **Open-Source-CRM forken oder selbst hosten.** Customermates, EspoCRM, SuiteCRM, Twenty. Sie starten mit einem fertigen CRM, betreiben es auf Ihrem eigenen Server und passen das an, was Sie brauchen.
+
+Welcher Weg richtig ist, hängt von drei Fragen ab: Wie einzigartig ist Ihr Workflow wirklich, wie viel Entwicklerzeit haben Sie, und wie wichtig ist Ihnen Datenhoheit.
+
+## Weg 1: Komplett selbst programmieren
+
+Das ist der Weg, den die meisten meinen, wenn sie „CRM selbst erstellen" sagen. Es ist auch der Weg, der am häufigsten scheitert.
+
+**Was Sie tatsächlich bauen.** Ein CRM ist nicht nur eine Kontaktliste. Es sind Kontakte, Unternehmen, Deals, Pipelines, Aktivitäten, Custom Fields, Reports, rollenbasierte Berechtigungen, eine E-Mail-Integration, Kalendersync, Mobiltauglichkeit, Volltextsuche, Audit-Logs und eine API für die Integrationen, an die Sie heute noch nicht denken. Das sind zwölf Monate fokussierte Arbeit für ein zweiköpfiges Entwicklerteam, bevor Sie die Iterationen einrechnen, die nach den ersten echten Nutzern kommen.
+
+**Realistische Kosten in DACH.** Eine kleine Agentur in Deutschland berechnet für ein „einfaches Custom CRM" zwischen 60.000 € und 180.000 €. Eine Software-Schmiede mit Senior-Entwicklern liegt zwischen 120.000 € und 300.000 €. Rechnen Sie 20 % pro Jahr für Wartung, Sicherheits-Patches und Funktionen, die sich erst im Betrieb zeigen.
+
+**Zeitrahmen.** Sechs bis zwölf Monate bis zur ersten brauchbaren Version. Zwölf bis vierundzwanzig Monate bis zu der Funktionstiefe, die Sie für 30 € pro User pro Monat hätten mieten können.
+
+**Wann sich dieser Weg lohnt.** Drei enge Fälle:
+
+- Sie sind selbst CRM-Anbieter. Das CRM ist Ihr Produkt, kein internes Werkzeug.
+- Ihr Workflow ist so branchenspezifisch, dass kein bestehendes CRM ihn ohne Verzerrung abbildet. Beispiele: Studienkoordination in der klinischen Forschung, regulierte Finanzberatung mit BaFin-spezifischen Reporting-Pflichten, mehrgewerkliche Bauprojekt-Steuerung. Die meisten „spezifischen" Workflows sind nicht so spezifisch, wie sie sich anfühlen.
+- Sie haben einen strategischen Grund, den Quellcode im Haus zu halten, und ein internes Team, das ohnehin Software entwickelt.
+
+Wenn Ihr Grund „Standard-CRMs fühlen sich überladen an" ist, müssen Sie nichts bauen. Sie brauchen ein einfacheres CRM, und das ist Weg 2 oder 3.
+
+## Weg 2: No-Code- und Low-Code-Plattformen
+
+Das ist der Weg, in den das meiste Marketing zum Thema „CRM selbst erstellen" Sie hineindrängt. Airtable, Ninox, Seatable, Softr, Notion, Caspio, Bubble und ähnliche Plattformen erlauben es, etwas CRM-artiges zusammenzuklicken, ohne Code zu schreiben.
+
+**Was Sie tatsächlich bauen.** Tabellen für Kontakte, Deals und Aktivitäten. Ansichten, Filter und Formulare. Automatisierungen auf Trigger wie „neuer Deal". Berechtigungen pro Nutzer. Ein Dashboard mit Diagrammen.
+
+**Realistische Kosten.** 25 € bis 180 € pro User pro Monat, je nach Plattform und Funktionsumfang. Kostenlose Stufen existieren, deckeln aber Zeilen, Automatisierungen oder Nutzer so, dass Sie innerhalb weniger Wochen echter Nutzung in die Bezahlstufe rutschen. Rechnen Sie 20 € bis 100 € pro Monat für eine Integrationsplattform wie Zapier oder Make hinzu, falls Sie E-Mail-, Kalender- oder Webhook-Anbindung brauchen, die die Basisplattform nicht abdeckt.
+
+**Zeitrahmen.** Zwei bis sechs Wochen bis zu einem funktionierenden Setup, wenn Sie beim Scope diszipliniert bleiben. Drei bis sechs Monate, wenn Sie jedes Mal eine neue Tabelle hinzufügen, sobald jemand fragt „kann das auch X?".
+
+**Wo es funktioniert.** Ein Team von drei bis fünfzehn Personen, leichter Vertriebsprozess, Bereitschaft, sich an die UI-Konventionen der Plattform zu halten. Sie stoßen an drei Decken: komplexe Berechtigungslogik, sehr große Datenbestände (über 50.000 Deals) und Integrationen, die echte APIs statt Webhooks brauchen.
+
+**Wo es bricht.** Die versteckten Kosten sind das Hauptmuster, das ich sehe. Aus 30 € pro User werden 80 €, sobald Sie ein Dashboard-Add-on, ein externes Formular-Tool und ein Automatisierungs-Upgrade brauchen. Daten-Export wird umständlich. Eigene Domain auf dem Kundenportal kostet extra. Und die Preise der Plattformen ändern sich alle zwei Jahre in einer Richtung, die nicht zu Ihren Gunsten ist.
+
+**Hosting und DSGVO.** Die meisten No-Code-Plattformen sind US-gehostet und DSGVO-grenzwertig. Ninox bietet eine EU-Option, Seatable hostet in Deutschland, Airtable nicht. Wenn Datenresidenz für Sie zählt, schrumpft die Auswahl deutlich.
+
+## Weg 3: Open-Source-CRM forken
+
+Das ist der Weg, den die meisten überspringen, weil sie nicht wissen, dass es ihn gibt. Es existiert eine kleine, aber solide Auswahl von Open-Source-CRMs, die Kontakte, Unternehmen, Deals, Pipelines, Aktivitäten, Custom Fields, Reports und Berechtigungen bereits abbilden, mit dem Quellcode auf GitHub. Sie hosten sie selbst, passen an, was Sie brauchen, und sind fertig.
+
+**Realistische Optionen:**
+
+- **Customermates** (das CRM, das ich baue): moderner Stack, EU-gehostete Cloud oder selbst gehostet, Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node. Modernes Pipedrive-Pendant.
+- **EspoCRM**: PHP-basiert, ausgereift, viele Module, etwas in die Jahre gekommen bei der UI.
+- **SuiteCRM**: SugarCRM-Fork, enterprise-tauglich, betrieblich aufwendiger.
+- **Twenty**: sehr moderne Oberfläche, jüngeres Projekt, noch weniger Funktionsumfang.
+
+**Was Sie tatsächlich bauen.** Für das Basis-CRM fast nichts. Sie installieren es, konfigurieren Custom Fields, passen die Pipeline-Stufen an, verbinden E-Mail und Kalender. Wenn Sie wirklich einen einzigartigen Workflow haben, schreiben Sie eine kleine Erweiterung oder einen Webhook-Handler, nicht ein ganzes CRM.
+
+**Realistische Kosten.** Selbst gehostet: Serverkosten (20 € bis 200 € pro Monat je nach Teamgröße) plus Ihre eigene Zeit für den Betrieb. Cloud-gehostet vom Projekt: meist 9 € bis 15 € pro User pro Monat, im gleichen Bereich wie kommerzielle CRMs, aber mit dem Quellcode als Exit-Option. Anpassungen: null bis 5.000 € für eine spezifische Erweiterung durch einen freien Entwickler.
+
+**Zeitrahmen.** Lauffähige Installation an einem Tag. Konfiguriert für Ihr Team in einer Woche. Eigene Erweiterungen, wenn Sie sie brauchen, ohne das ganze CRM neu zu schreiben.
+
+**Der DSGVO-Aspekt.** Selbst gehostet auf einem deutschen oder EU-Server ist der einzige Weg, der Ihnen volle Datenhoheit ohne Compliance-Akrobatik gibt. Kein Auftragsverarbeitungs-Vertrag mit einem US-Anbieter, keine Schrems-II-Analyse, keine Sorge um den US CLOUD Act. Diese Compliance-Einfachheit allein rechtfertigt den Weg für viele Mittelständler im DACH-Raum.
+
+**Wo es funktioniert.** Kleine bis mittelgroße Teams, die ein echtes CRM wollen, Datenhoheit schätzen und Linux-Server-Grundkenntnisse mitbringen (oder Budget für Managed Hosting). Teams, die einem No-Code-Setup entwachsen sind und die Preisentwicklung der No-Code-Plattform nicht weitertragen wollen.
+
+**Wo es nicht passt.** Wenn Sie kein technisches Personal haben und kein Managed Hosting wollen, ist Selbsthosting Aufwand, den Sie nicht brauchen. Nehmen Sie stattdessen die Cloud-Variante des gleichen Open-Source-CRMs oder bleiben Sie bei No-Code.
+
+## Die KI-Abkürzung: Claude oder Codex erweitern Ihr CRM
+
+Das ist der Aspekt, der sich in den letzten zwölf Monaten verändert hat und in jedem anderen Leitfaden zu diesem Thema fehlt. KI-Coding-Assistenten wie Claude Code, Codex und Cursor können heute Erweiterungen für ein bestehendes CRM schneller schreiben, als Sie eine No-Code-Plattform konfigurieren können.
+
+Das Muster: Sie starten mit einem Open-Source-CRM (Weg 3), das einen MCP-Server, eine REST-API oder Webhooks hat. Sie beschreiben die gewünschte Erweiterung in normaler Sprache. Die KI schreibt den Code, führt ihn gegen die API aus, und liefert. Ich habe das mehrfach von „wir brauchen einen eigenen Workflow" zu funktionierender Erweiterung in 90 Minuten gesehen.
+
+Was das praktisch bedeutet: Die Grenze zwischen „No-Code-Plattform konfigurieren" und „CRM selbst programmieren" ist für die mittlere Lücke verschwunden. Wenn Sie den Workflow beschreiben können, können Sie ihn bauen lassen. Das CRM, mit dem Sie starten, zählt mehr als die Build-Skills, weil es bestimmt, gegen welche API-Oberfläche die KI arbeiten kann.
+
+Customermates stellt 54 MCP-Tools, 15 Webhook-Events und eine vollständige REST-API genau aus diesem Grund bereit. Claude oder Codex, auf das CRM gerichtet, kann Deals lesen, Follow-ups entwerfen, Notizen aktualisieren und eigene Workflows ausführen, ohne dass ich selbst ins CRM tippe. Das ist „CRM selbst erstellen" in der Bedeutung, auf die es immer ankam: Das System beugt sich Ihrem Workflow, nicht umgekehrt.
+
+## Realistischer Kostenvergleich
+
+| Weg | Kosten Jahr 1 (10 User) | Zeit bis Live | Quellcode |
+|---|---|---|---|
+| Komplett selbst programmieren | 80.000 € bis 250.000 € | 6 bis 12 Monate | Ihrer |
+| No-Code-Plattform | 5.000 € bis 25.000 € | 2 bis 6 Wochen | der Plattform |
+| Open-Source selbst gehostet | 1.500 € bis 5.000 € | 1 Woche | Ihrer |
+| Open-Source Cloud | 1.000 € bis 2.000 € | 1 Tag | öffentlich auf GitHub |
+
+Die Kostendifferenz zwischen dem günstigsten und teuersten Weg liegt bei zwei Größenordnungen. Die Funktionsdifferenz für die meisten Mittelständler liegt das nicht.
+
+## DSGVO und Datenhoheit: warum Open-Source der saubere Weg ist
+
+Für DACH-Unternehmen kommt zur Frage „welcher Weg lohnt sich" eine zweite Frage hinzu: Welcher Weg ist DSGVO-rechtlich tragfähig?
+
+- **Selbst programmieren auf eigenen Servern**: maximale Datenhoheit, aber dafür voller Wartungsaufwand und eigene Verantwortung für Sicherheit, Backups, Verschlüsselung und Audit-Logs.
+- **No-Code US-Plattform**: AVV nötig, Schrems-II-Analyse, Risiko bei jedem Datenschutz-Vorfall. Funktioniert, ist aber mit Aufwand verbunden, den Sie als Geschäftsführer dauerhaft tragen.
+- **Open-Source selbst gehostet in Deutschland oder der EU**: kein AVV mit Drittlandanbieter, klare Datenresidenz, Quellcode auditierbar. Der einfachste Weg zur DSGVO-Konformität, den ich kenne.
+
+Das ist kein Marketing-Argument, sondern eine rechtliche Realität. Wenn Sie im Mittelstand sind, mit Personalakten oder sensiblen Geschäftspartner-Daten arbeiten, oder einfach keine Lust auf laufende Compliance-Diskussionen haben, ist Open-Source-Selbst-Hosting der pragmatische Weg.
+
+## Häufige Fehler bei CRM-Eigenbau-Projekten
+
+Fünf Muster, die ich immer wieder sehe:
+
+- **Alles vorab spezifizieren wollen.** Ein CRM ist kein Software-Projekt mit festem Lastenheft. Anforderungen ändern sich pro Quartal. Wählen Sie einen Weg, der inkrementelle Änderungen unterstützt.
+- **Daten-Import unterschätzen.** Bestehende CSV bereinigen, Felder mappen, Kontakte deduplizieren, Aktivitätshistorie nachbefüllen, das ist die halbe Arbeit. Planen Sie Zeit dafür ein.
+- **Kein Berechtigungsmodell.** „Alle sehen alles" funktioniert für drei Nutzer und bricht bei zwölf.
+- **Reports bauen, die niemand verlangt hat.** Vertriebsteams wollen Pipeline, Aktivität und Conversion. Marketing-Teams wollen Quellen-Attribution. Mehr nicht. Sparen Sie sich den Rest.
+- **Mobile vergessen.** Ihre Vertriebler sind im Auto. Wenn die Mobil-Erfahrung nicht funktioniert, wird das CRM nicht genutzt, und der Weg, den Sie gewählt haben, scheitert.
+
+## Wann selbst programmieren tatsächlich sinnvoll ist
+
+Drei ehrliche Fälle:
+
+1. Sie sind selbst CRM-Anbieter oder werden gerade einer.
+2. Ihr Workflow ist tatsächlich so einzigartig, dass eine Investition von 100.000 € sich gegenüber einem 10-Jahres-Abo einer Standard-Lösung rechnet. Das ist selten. Rechnen Sie nach.
+3. Sie haben ein internes Entwicklerteam, das ohnehin Software baut, und brauchen ein CRM-artiges internes Werkzeug. Selbst dann ist ein geforktes Open-Source-CRM in der Regel günstiger als ein Neuanfang.
+
+Wenn keiner dieser Fälle zutrifft, ist die Antwort Weg 2 (No-Code) für die einfachsten Fälle oder Weg 3 (Open Source) für alles andere.
+
+## Fazit
+
+Wenn Ihr Team unter fünf Personen ist und Ihr Vertriebsprozess leicht, fangen Sie mit einer No-Code-Plattform wie Airtable oder Notion an und akzeptieren Sie deren Preisentwicklung.
+
+Wenn Sie zwischen fünf und fünfzig Personen sind, Datenhoheit wertschätzen oder im DACH-Raum operieren und DSGVO ernst nehmen, fangen Sie mit einem Open-Source-CRM an. [Customermates](/) ist die moderne Option, die ich baue, aber [EspoCRM](https://www.espocrm.com/de/) und [SuiteCRM](https://suitecrm.com/) sind ehrliche Alternativen mit längerem Track Record.
+
+Wenn Sie überzeugt sind, dass Sie von Grund auf programmieren müssen, sprechen Sie zuerst mit jemandem, der das schon einmal getan hat. Meistens endet das Gespräch damit, dass Sie zu Weg 3 zurückkehren und sich sechs Monate sparen.
+
+Das CRM, das zu Ihrem Geschäft passt, ist das, das Sie tatsächlich nutzen werden. Wählen Sie den Weg, der Sie am schnellsten dort hinbringt.
+
+## Häufig gestellte Fragen
+
+**Ist es günstiger, ein CRM selbst zu bauen, als eines zu kaufen?**
+Im ersten Jahr fast nie. Manchmal im fünften Jahr, wenn Sie sehr spezifische Anforderungen haben. Rechnen Sie inklusive Wartung, nicht nur die initialen Build-Kosten.
+
+**Wie lange dauert es, ein CRM von Grund auf zu programmieren?**
+Sechs bis zwölf Monate für ein kleines Entwicklerteam, länger für einen Einzelentwickler. Rechnen Sie drei bis sechs Monate für die Iteration nach den ersten echten Nutzern dazu.
+
+**Welches Open-Source-CRM eignet sich am besten zum Forken?**
+Hängt von Ihrem Stack ab. [Customermates](/) ist die moderne Option (TypeScript, Postgres, Agent-nativ). EspoCRM ist ausgereift und PHP-basiert. Twenty ist das jüngste mit der modernsten UI, aber weniger Funktionen.
+
+**Kann ich ein CRM mit No-Code-Tools bauen?**
+Ja, für kleine Teams mit leichten Vertriebsprozessen. Airtable, Ninox, Seatable, Softr und Notion funktionieren alle. Achten Sie auf die Preisentwicklung und die Decken bei Berechtigungen und Integrationen.
+
+**Sollte ich KI nutzen, um mein CRM zu bauen?**
+Nutzen Sie KI, um ein bestehendes CRM zu erweitern, nicht um eines von Grund auf zu schreiben. Der Hebel ist enorm, wenn die KI eine API zum Arbeiten hat. Customermates bietet [54 MCP-Tools, Webhooks und eine REST-API](/docs) genau dafür.

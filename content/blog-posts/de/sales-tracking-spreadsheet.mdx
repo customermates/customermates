@@ -1,0 +1,222 @@
+---
+title: "Vertrieb Excel-Vorlage 2026: Kostenlos + 5 Wechselsignale"
+description: "Kostenlose Excel-Vorlage für Vertriebs-Tracking, plus die ehrlichen Signale, die zeigen, dass Sie aus der Tabelle herausgewachsen sind und ein CRM brauchen."
+
+hero:
+  title: "Vertrieb Excel-Vorlage: Kostenlose Vorlage + wann Sie aufhören sollten"
+  description: Eine praktische Excel-Vorlage für Vertriebs-Tracking mit den Spalten, die zählen, plus den fünf Signalen, die zeigen, dass Sie herausgewachsen sind.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-05-05
+  tags:
+    - Vertriebs-Tracking
+    - Excel-Vorlage
+    - Vertriebs-Pipeline
+    - Mittelstand
+    - DSGVO
+---
+
+# Vertrieb Excel-Vorlage: Kostenlose Vorlage + wann Sie aufhören sollten
+
+Eine Excel-Tabelle für den Vertrieb ist die richtige Antwort, bis sie es nicht mehr ist. Für Solo-Gründer und winzige Teams schlägt eine gut strukturierte Google-Tabelle jedes CRM in Sachen Einfachheit, Kosten und Geschwindigkeit beim Start. Der Fehler ist, sie zu lange zu nutzen. Die [Microsoft-Excel-Vorlagen-Galerie](https://create.microsoft.com/de-de/templates/excel) und die [Google-Sheets-Vorlagen](https://docs.google.com/spreadsheets/u/0/?ftv=1&tgif=d) bieten beide Vertriebs-Tracking-Starter, sind aber meist überfrachtet für das, was Sie tatsächlich brauchen.
+
+Ich baue Customermates, ein CRM, das oft an Teams verkauft wird, die ihrer Tabelle sechs Monate zu spät entwachsen sind. Ich habe dasselbe Muster dutzendfach gesehen: Der Geschäftsführer sagt „wir tracken in Excel", niemand pflegt die Datei, Deals fallen durchs Raster, und das Team verliert die Erinnerung daran, was wem versprochen wurde.
+
+Dieser Artikel ist die Vorlage, die ich tatsächlich nutzen würde, die Spalten, die zählen, und die fünf Signale, die zeigen, dass es Zeit ist aufzuhören.
+
+## Was eine Vertriebs-Tabelle wirklich braucht
+
+Vergessen Sie die 47-Spalten-Vorlagen, die auf jeder Smartsheet- und HubSpot-Seite auftauchen. Eine funktionierende Vertriebs-Tracking-Tabelle hat diese Spalten und keine mehr:
+
+- **Deal-Name** (z. B. „Acme GmbH — Q3-Verlängerung")
+- **Unternehmen**
+- **Hauptkontakt** (Name + E-Mail)
+- **Stufe** (Auswahl: Lead / Qualifiziert / Angebot / Verhandlung / Gewonnen / Verloren)
+- **Betrag** (€)
+- **Wahrscheinlichkeit** (%)
+- **Erwartetes Abschlussdatum**
+- **Datum der letzten Aktivität**
+- **Nächster Schritt** (freier Text, ein Satz)
+- **Verantwortlich** (welcher Vertriebler)
+
+Optional, aber nützlich:
+
+- **Quelle** (z. B. LinkedIn, Empfehlung, Inbound)
+- **Notizen** (freier Text, letzte 1 bis 3 Zeilen)
+
+Mehr nicht. Elf Spalten. Alles darüber wird zu Daten, die niemand pflegt.
+
+## Die Zwei-Tabellen-Struktur, die wirklich funktioniert
+
+Ein funktionierendes Setup hat zwei Tabellenblätter in derselben Datei:
+
+**Blatt 1: Deals.** Die elf Spalten oben, eine Zeile pro Deal. Sortierbar nach Stufe, Verantwortlich, Erwartetem Abschluss.
+
+**Blatt 2: Aktivitäten.** Datum, Deal (Verweis auf Blatt 1), Typ (Anruf/E-Mail/Meeting), Notizen (1 bis 2 Sätze). Eine Zeile pro Aktivität.
+
+Diese Trennung ist wichtig. Ohne sie wird Ihr „Deals"-Blatt zu einem Mix aus Aktivitätshistorie und Pipeline-Stand. Mit ihr beantworten Sie zwei verschiedene Fragen: „Was steckt in der Pipeline?" (Deals) und „Was haben wir diese Woche getan?" (Aktivitäten).
+
+## Kostenlose Vorlage (die Spaltenkopfzeilen zum Übernehmen)
+
+Kopieren Sie diese Spaltenkopfzeilen in eine neue Google-Tabelle oder Excel-Datei:
+
+**Blatt 1 (Deals):**
+```
+Deal-Name | Unternehmen | Kontakt | E-Mail | Stufe | Betrag (€) | Wahrscheinlichkeit % | Erwarteter Abschluss | Letzte Aktivität | Nächster Schritt | Verantwortlich | Quelle | Notizen
+```
+
+**Blatt 2 (Aktivitäten):**
+```
+Datum | Deal-Name | Typ | Notizen
+```
+
+Fügen Sie ein Dropdown auf der Stufe-Spalte mit den Werten hinzu: Lead, Qualifiziert, Angebot, Verhandlung, Gewonnen, Verloren.
+Fügen Sie ein Dropdown auf der Typ-Spalte hinzu: Anruf, E-Mail, Meeting, Demo, Notiz.
+
+Bedingte Formatierung auf der Stufe (Farbe je Stufe) und auf der Letzten Aktivität (rot, wenn älter als 14 Tage). Pivot-Tabelle auf den Deals nach Stufe für eine einfache Pipeline-Ansicht.
+
+Dieser Aufbau dauert 30 Minuten und ist nützlicher als 80 % der Vorlagen, die ich kursieren sehe.
+
+## Formeln und Struktur, die die Tabelle nützlich machen
+
+Eine Tabelle ohne Formeln ist eine Liste. Eine Tabelle mit den richtigen Formeln ist ein Werkzeug. Fünf Formeln, die die obige Vorlage in etwas tatsächlich Nützliches verwandeln:
+
+**Gewichtete Pipeline (Deals-Blatt, Hilfsspalte):** `=Betrag * Wahrscheinlichkeit/100`. Summieren Sie diese Spalte und Sie haben Ihren gewichteten Forecast. Diese eine Zahl sagt Ihnen, ob Sie dieses Quartal neue Deals jagen oder bestehende abschließen sollen.
+
+**Tage seit letzter Aktivität (Deals-Blatt):** `=HEUTE() - LetzteAktivitätDatum`. Bedingt formatieren auf rot, wenn >14, orange wenn >7. Das ist Ihr Stale-Deal-Alarm.
+
+**Aktivitäten pro Woche (Aktivitäten-Blatt):** `=ZÄHLENWENNS(Datum, ">="&HEUTE()-7, Verantwortlich, "Bernd")`. Tracken Sie, wie viele Aktivitäten jeder Vertriebler pro Woche erfasst. Unter einem Schwellwert nutzt das Team das System nicht oder arbeitet nicht.
+
+**Stufen-Conversion (separates Blatt):** Pivot-Tabelle auf Stufe, Anzahl der Deals pro Stufe. Schauen Sie auf wöchentliche Veränderungen. Wenn „Lead" flach bleibt und „Qualifiziert" wächst, ist der vordere Pipeline-Teil gesund. Wenn „Lead" wächst und sonst nichts sich bewegt, generieren Sie Leads, qualifizieren sie aber nicht.
+
+**Forecast vs. Ist:** Eine einzelne Zelle `=SUMMEWENNS(Betrag, Stufe, "Gewonnen", AbschlussDatum, ">="&MonatsAnfang)` geteilt durch Ihr Monatsziel. Die Zahl, die auf einem Bildschirm in Ihrem Büro leben sollte.
+
+Wenn Sie diese Formeln nicht in 30 Minuten bauen können, sind Sie auch noch nicht reif für ein CRM. Verbringen Sie eine Woche damit, diese in der Tabelle zum Laufen zu bringen.
+
+## Typische Fehler beim Tabellen-Vertriebs-Tracking
+
+Fünf Muster, die eine funktionierende Tabelle in eine kaputte verwandeln:
+
+- **Eine Tabelle, viele Rollen.** Marketing fügt eine Spalte für „Kampagne" hinzu, Vertrieb für „Einwand", Operations für „Lieferdatum". Sechs Monate später hat die Tabelle 32 Spalten und niemand pflegt sie. Jede Funktion sollte eigene Daten tracken, mit einer einzigen geteilten Deal-ID als Bindeglied.
+- **Keine Pflichtfelder erzwungen.** Tabellen können Pflichtfelder nicht so erzwingen wie CRMs. Der Workaround ist bedingte Formatierung (rote Zeile, wenn Stufe oder Verantwortlich leer). Nutzen Sie das konsequent.
+- **Aktivitäten in Zellen begraben.** Manche Teams fügen Notizen in eine einzelne Zelle ein („angerufen 5/3, gemailt 5/5, Meeting 5/8") statt das Aktivitäten-Blatt zu nutzen. Ergebnis: Suche unmöglich, Historie fragil, Zelle wird zu 800 Zeichen unstrukturierten Text. Nutzen Sie ein echtes Aktivitäten-Blatt.
+- **Manuelle Dateneingabe, die automatisch sein sollte.** Deal-Infos aus E-Mails manuell in die Tabelle kopieren. Nach 50 Deals wird das zum Engpass. Akzeptieren Sie die Reibung (kleines Team, OK) oder wechseln Sie zu einem CRM, das automatisch aus E-Mails erfasst.
+- **Mehrere Versionen im Umlauf.** Bernd hat seine eigene Kopie. Anna hat ihre eigene Kopie. Sie haben den Master. Der Master ist falsch. Nutzen Sie eine geteilte Tabelle, niemals mehrere. Wenn das Team auf einer Tabelle nicht zusammenarbeiten kann, ohne sich zu überschreiben, kann es auch auf einem CRM nicht zusammenarbeiten.
+
+## Was Tabellen-Tracking gut kann
+
+Für Solo-Gründer und Teams unter drei Personen schlägt eine Tabelle ein CRM bei:
+
+- **Kosten.** Kostenlos.
+- **Aufsetzen.** 30 Minuten statt Tage.
+- **Anpassbarkeit.** Spalte hinzufügen, fertig.
+- **Teilen.** Ein Google-Sheets-Link schlägt CRM-Berechtigungsregeln für winzige Teams.
+- **Lernkurve.** Jeder kann Excel.
+
+Für 1- bis 3-Personen-Teams mit unter 50 aktiven Deals ist das tatsächlich das richtige Werkzeug. Wechseln Sie nicht zu früh.
+
+## Die fünf Signale, dass Sie herausgewachsen sind
+
+Fünf klare Signale, dass die Tabelle zum Engpass geworden ist:
+
+**1. Die Tabelle wird nicht mehr gepflegt.** Wenn Ihre „Letzte Aktivität"-Spalte bei den meisten Zeilen über zwei Wochen alt ist, hat das Team aufgehört, sie zu nutzen. Tabellen versagen still. CRMs versagen laut, weil sie erinnern. Wechseln Sie, wenn Sie den Daten nicht mehr trauen.
+
+**2. Zwei Vertriebler überschneiden sich beim selben Deal.** Bernd ruft den Kunden am Dienstag an, Anna am Mittwoch, keiner wusste es. Die Tabelle erzwingt keine Verantwortlichkeit und warnt nicht bei Aktivitäten-Überschneidungen. CRMs schon.
+
+**3. Sie haben einen Deal verloren, weil niemand nachgefasst hat.** Ein echter 10.000-€-Deal wird 30 Tage still, weil der Erinnerungs-Termin nur in Ihrem Kopf lebte. Die Kosten dieses einen verlorenen Deals zahlen zwei Jahre CRM.
+
+**4. Reports brauchen über 30 Minuten.** Pipeline nach Quelle, Stufe oder Monat zu ziehen, erfordert eine 30-minütige Pivot-Übung statt eines Klicks. CRMs liefern das frei mit.
+
+**5. Jemand pflegt die Tabelle mobil im Außendienst.** Mobile Tabellen-Bedienung ist schlecht. Vertriebler werden Aktivitäten am Telefon in einer Google-Tabelle nicht erfassen. In einem CRM mit funktionierender mobiler App schon.
+
+Wenn zwei oder mehr davon heute zutreffen, kostet Sie die Tabelle Geld. Wechseln Sie.
+
+## Der ehrliche CRM-Graduierungspfad
+
+Der realistische Aufstieg für ein Team unter 15 Personen:
+
+1. **Solo- oder 2-Personen-Team:** Google-Tabelle mit den Spalten oben
+2. **3- bis 10-Personen-Team:** schlankes CRM ([Customermates](/) zu 9 €, Pipedrive Essential zu 14 €, HubSpot Free)
+3. **10- bis 25-Personen-Team:** Mittelklasse-CRM (Pipedrive Advanced, [Customermates](/), HubSpot Sales Starter)
+4. **25+ Personen-Team:** Vollausstattungs-CRM (Pipedrive Advanced, HubSpot Sales Hub Pro, Salesforce mit Admin-Budget)
+
+Jede Stufe ist eine echte Graduierung, keine Marketing-Leiter. Wechseln Sie, wenn die Kosten der aktuellen Stufe die Upgrade-Kosten übersteigen.
+
+## Praxisbeispiel: 12-Monats-Übergang von Excel zum CRM
+
+Ein zusammengesetzter Fall aus Teams, mit denen ich gearbeitet habe, gezeichnet, um den Übergangszeitpunkt konkret zu machen.
+
+**Monat 1 bis 3 (nur Tabelle).** Geschäftsführer verkauft allein, 8 Deals in der Pipeline. Eine Google-Tabelle mit den oben gezeigten Spalten ist tatsächlich schneller als jedes CRM. Einrichtungszeit: 30 Minuten. Update-Zeit: 5 Minuten pro Tag. Nichts fällt durchs Raster, weil der Geschäftsführer die ganze Pipeline im Arbeitsgedächtnis hat.
+
+**Monat 4 bis 6 (immer noch Tabelle, Hire Nr. 1).** Geschäftsführer stellt ersten Vertriebler ein. Pipeline wächst auf 35 Deals. Die Tabelle hat jetzt eine „Verantwortlich"-Spalte. Deals beginnen sich zu überschneiden; Geschäftsführer ruft einen Kunden an, den der neue Vertriebler bereits gebucht hat. Reibung steigt, aber die Tabelle funktioniert noch, wenn beide täglich pflegen.
+
+**Monat 7 bis 9 (Risse zeigen sich).** Pipeline bei 75 Deals. Reporting dauert wöchentlich über 30 Minuten. Zwei verpasste Follow-ups in 60 Tagen, einer davon ein 15.000-€-Deal. Manager-Dashboard („welche Deals sind alt, welche überfällig, welche Vertriebler hängen bei Aktivität hinterher") braucht jeden Montagmorgen eine 45-minütige Pivot-Übung. Das Team beginnt, CRMs in Erwägung zu ziehen, sträubt sich aber, weil „die Tabelle ja noch funktioniert".
+
+**Monat 10 (Auslöser-Ereignis).** Der dritte verpasste Follow-up kostet eine echte Kundenbeziehung. Das Team verpflichtet sich in Woche 41 zu einer CRM-Evaluation.
+
+**Monat 11 bis 12 (Übergang).** Wählen Sie ein CRM, das CSV sauber importiert: Pipedrive, [Customermates](/), HubSpot. Migration dauert 4 bis 6 Stunden fokussierte Arbeit. Die ersten 30 Tage im CRM sind langsamer als die Tabelle, weil das Team neues UX lernt. Bis Monat 13 ist das CRM tatsächlich schneller als die Tabelle vorher war, besonders für Reporting und Erinnerungen.
+
+Das Muster: **Die meisten Teams wechseln 2 bis 3 Monate später als sie sollten.** Die Tabelle fühlt sich an, als würde sie funktionieren, weil Fehlermodi still sind (verpasste Deals melden sich nicht). Das CRM ist lauter, was Teil davon ist, warum es besser funktioniert.
+
+## Was sich ändert, wenn Sie zu einem echten CRM wechseln
+
+Die vier Dinge, die sich verschieben, in der Reihenfolge der Wirkung:
+
+- **Aktivitätserfassung wird automatisch.** Echte bidirektionale E-Mail- und Kalendersynchronisation bedeutet, dass Aktivitäten ohne Tippen erscheinen.
+- **Erinnerungen überleben das Gedächtnis.** „Freitag nachfassen" lebt im System, nicht in Ihrem Kopf.
+- **Reports brauchen einen Klick.** Pipeline nach Stufe, Quelle oder Verantwortlichem ist eingebaut.
+- **Mobil funktioniert wirklich.** Vertriebler erfassen Aktivitäten aus dem Auto. Daten bleiben aktuell.
+
+Der neue Aspekt für 2026: KI-Tools (Claude, Codex, ChatGPT) können das CRM direkt über MCP oder API steuern. [Customermates](/) stellt 54 MCP-Tools bereit, sodass Claude Deals lesen, Follow-ups entwerfen und Notizen aus einem Transkript schreiben kann, ohne dass der Vertriebler ins CRM tippt. Das ist die Tabellen-Ersatz-Erfahrung, die endlich gut wird.
+
+## Wann dauerhaft auf der Tabelle bleiben legitim ist
+
+Drei legitime Fälle, in denen das Bleiben auf der Tabelle ein CRM schlägt:
+
+- **Sie sind Solo-Gründer mit unter 10 Deals pro Jahr.** Ein CRM ist Overkill.
+- **Ihr Vertriebsprozess ist so einfach, dass 5 Spalten ihn abdecken.** Einige Geschäfte sind tatsächlich so einfach.
+- **Sie sind keine echte Geschäftsbetrieb (Verein, Hobby-Projekt) mit informellem Tracking.**
+
+Wenn Sie ein echtes B2B-Geschäft führen, mehrere Personen in Vertriebsgespräche eingebunden sind und Sie über 50 aktive Deals haben, trifft keiner dieser Fälle zu.
+
+## DSGVO-Hinweis für DACH-Teams
+
+Die [offizielle DSGVO-Verordnung](https://eur-lex.europa.eu/eli/reg/2016/679/oj) regelt die Verarbeitung personenbezogener Daten und gilt auch für Excel-Tabellen mit Kundendaten.
+
+
+
+Eine Excel- oder Google-Tabelle mit Kundendaten ist DSGVO-rechtlich heikel:
+
+- **Excel lokal:** OK, aber kein Audit-Pfad, kein Berechtigungsmodell, kein Lösch-Workflow für Auskunfts- oder Löschanträge.
+- **Google Sheets:** US-Hosting, AVV mit Google nötig, Schrems-II-Analyse erforderlich.
+- **Microsoft 365 EU:** besser, aber immer noch ein US-Anbieter mit AVV-Pflicht.
+
+Wenn Sie Vertriebsdaten von DACH-Kunden tracken, ist eine Excel-Tabelle bestenfalls eine Übergangslösung. Open-Source-CRM selbst gehostet auf einem deutschen oder EU-Server ist der saubere Pfad. [Customermates](/) selbst gehostet kostet 20 € bis 100 €/Monat Server und löst die DSGVO-Frage strukturell.
+
+## Was ich tatsächlich tun würde
+
+Wenn Sie heute starten: Bauen Sie die Tabellenvorlage oben (30 Minuten), nutzen Sie sie 4 bis 12 Wochen. Achten Sie auf die fünf Signale.
+
+Wenn zwei der fünf Signale auslösen, wechseln Sie. Wählen Sie ein CRM, das Ihre CSV sauber importiert: Pipedrive, [Customermates](/), HubSpot Free. Vermeiden Sie Salesforce für kleine Teams.
+
+Die Tabelle ist ein Starter. Sie soll ersetzt werden. Behandeln Sie sie so, und Sie wechseln zum richtigen Zeitpunkt.
+
+## Häufig gestellte Fragen
+
+**Reicht eine Excel-Tabelle für den Vertrieb im Mittelstand?**
+Für Solo-Gründer und 2- bis 3-Personen-Teams mit unter 50 aktiven Deals ja. Darüber hinaus wird die Tabelle eher Engpass als Werkzeug. Die Wechselsignale sind oben gelistet.
+
+**Was ist die beste kostenlose Vertriebs-Excel-Vorlage?**
+Bauen Sie Ihre eigene mit den elf oben aufgeführten Spalten. Die meisten öffentlichen Vorlagen sind überfrachtet mit Spalten, die niemand pflegt. Die minimale passt auf einen Bildschirm und bleibt nützlich.
+
+**Soll ich Excel oder Google Sheets für Vertriebs-Tracking nutzen?**
+Google Sheets. Echtzeit-Zusammenarbeit, Link-basiertes Teilen und mobiler Zugriff zählen in dieser Größenordnung mehr als die fortgeschrittenen Excel-Funktionen.
+
+**Wann sollte ich von der Tabelle zu einem CRM wechseln?**
+Wenn mindestens zwei der folgenden Signale zutreffen: Die Tabelle wird nicht gepflegt, Vertriebler überschneiden sich, ein Follow-up wurde verpasst, Reports brauchen über 30 Minuten, oder mobile Pflege ist defekt.
+
+**Welches CRM kommt der Tabelle am nächsten?**
+[Customermates](/) und Pipedrive bleiben beide nah an Tabellen-Einfachheit. Folk lehnt sich noch stärker an Tabellen an, fokussiert auf Kontaktverwaltung. Wenn das Tabellen-Gefühl am wichtigsten ist, schauen Sie zuerst dort.

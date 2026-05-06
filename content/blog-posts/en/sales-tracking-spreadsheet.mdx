@@ -1,0 +1,224 @@
+---
+title: "Sales Tracking Spreadsheet: Free Template + 5 Move Signals"
+description: "Free sales tracking spreadsheet for Excel and Google Sheets, plus the five honest signals that say it is time to move from a sheet to a real sales CRM in 2026."
+
+hero:
+  title: "Sales Tracking Spreadsheet: Free Template + When to Stop Using It"
+  description: A practical sales tracking spreadsheet template with the columns that matter, plus the five signals that say you have outgrown it.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to blog
+  by: by Benjamin Wagner
+  date: 2026-05-05
+  tags:
+    - Sales Tracking
+    - Spreadsheet
+    - Excel
+    - Google Sheets
+    - Sales Pipeline
+---
+
+# Sales Tracking Spreadsheet: Free Template + When to Stop Using It
+
+A sales tracking spreadsheet is the right answer until it isn't. For solo founders and tiny teams, a well-structured Google Sheet beats every CRM on simplicity, cost, and getting started. The mistake is using one for too long. The [Google Sheets template gallery](https://docs.google.com/spreadsheets/u/0/?ftv=1&tgif=d) and [Microsoft Excel template gallery](https://create.microsoft.com/en-us/templates/excel) both include sales-tracking starters worth knowing about, though they are usually overbuilt for what you actually need.
+
+I run Customermates, a CRM that gets sold to teams who outgrew their spreadsheet six months too late. I have watched the same pattern dozens of times: the founder says "we just track in a sheet," nobody updates it, deals fall through cracks, and the team runs out of memory of what was promised to whom.
+
+This post is the spreadsheet template I would actually use, the columns that matter, and the five signals that say it is time to stop.
+
+## What a sales tracking spreadsheet actually needs
+
+Forget the 47-column templates that show up on every Smartsheet and HubSpot page. A working sales tracking sheet has these columns and nothing more:
+
+- **Deal name** (e.g., "Acme Corp — Q3 Renewal")
+- **Company**
+- **Primary contact** (name + email)
+- **Stage** (dropdown: Lead / Qualified / Proposal / Negotiation / Closed Won / Closed Lost)
+- **Amount** (€)
+- **Probability** (%)
+- **Expected close date**
+- **Last activity date**
+- **Next step** (free text, one sentence)
+- **Owner** (which rep)
+
+Optional but useful:
+
+- **Source** (e.g., LinkedIn, referral, inbound)
+- **Notes** (free text, last 1-3 lines)
+
+That is it. Eleven columns. Anything more becomes data nobody updates.
+
+## The two-sheet structure that actually works
+
+A working setup has two sheets in the same workbook:
+
+**Sheet 1: Deals.** The eleven columns above, one row per deal. Sortable by Stage, Owner, Expected close.
+
+**Sheet 2: Activities.** Date, Deal (lookup to Sheet 1), Type (Call/Email/Meeting), Notes (1-2 sentences). One row per activity.
+
+This separation matters. Without it, your "Deals" sheet becomes a mess of activity history and pipeline state mixed together. With it, you can answer two distinct questions: "what's in the pipeline?" (Deals) and "what did we do this week?" (Activities).
+
+## Free template (the columns to copy into your sheet)
+
+Copy these column headers into a new Google Sheet or Excel workbook:
+
+**Sheet 1 (Deals):**
+```
+Deal Name | Company | Contact | Email | Stage | Amount (€) | Probability % | Expected Close | Last Activity | Next Step | Owner | Source | Notes
+```
+
+**Sheet 2 (Activities):**
+```
+Date | Deal Name | Type | Notes
+```
+
+Add a dropdown on Stage column with values: Lead, Qualified, Proposal, Negotiation, Closed Won, Closed Lost.
+Add a dropdown on Type column: Call, Email, Meeting, Demo, Note.
+
+Conditional formatting on Stage (color by stage) and on Last Activity (red if older than 14 days). Pivot table on Deals by Stage for a basic pipeline view.
+
+That setup takes 30 minutes to build and is more useful than 80% of the templates I see floating around.
+
+## Formulas and structure that make the sheet useful
+
+A spreadsheet without formulas is a list. A spreadsheet with the right formulas is a working tool. Five formulas that turn the template above into something actually useful:
+
+**Weighted pipeline (Deals sheet, helper column):** `=Amount * Probability/100`. Sum this column and you have your weighted forecast. This single number tells you whether to chase new deals this quarter or close existing ones.
+
+**Days since last activity (Deals sheet):** `=TODAY() - LastActivityDate`. Conditional format to red if >14, orange if >7. This is your stale-deal alert.
+
+**Activities per week (Activities sheet):** `=COUNTIFS(Date, ">="&TODAY()-7, Owner, "Bob")`. Track how many activities each rep is logging per week. Below a threshold means they are not using the system or not working.
+
+**Stage conversion (separate sheet):** Pivot table on Stage, count of deals at each stage. Look at week-over-week changes. If "Lead" stays flat and "Qualified" grows, the front of pipeline is healthy. If "Lead" grows and nothing else moves, you are getting leads but not qualifying them.
+
+**Forecast vs actual:** A single cell `=SUMIFS(Amount, Stage, "Closed Won", CloseDate, ">="&StartOfMonth)` divided by your monthly target. The number that should live on a screen in your office.
+
+If you cannot build these in 30 minutes, you are not yet ready for a CRM either. Spend a week getting these working in the sheet first.
+
+## What spreadsheet tracking does well
+
+For solo founders and teams under three people, a sheet beats a CRM on:
+
+- **Cost.** Free.
+- **Setup time.** 30 minutes vs days.
+- **Customization.** Add a column, done.
+- **Sharing.** A Google Sheets link beats CRM permission rules for tiny teams.
+- **Discovery curve.** Everyone knows how to use a spreadsheet.
+
+For 1-3 person teams with under 50 active deals, this is genuinely the right tool. Do not graduate prematurely.
+
+## The five signals that say you have outgrown it
+
+Five clear signals that the spreadsheet has become the bottleneck:
+
+**1. The sheet is not getting updated.** If your "Last Activity" column is more than two weeks stale on most rows, the team has stopped using it. Spreadsheets fail silently. CRMs fail loudly because they remind you. Move when you stop trusting the data.
+
+**2. Two reps overlap on the same deal.** Bob calls the customer on Tuesday, Alice calls Wednesday, neither knew. The sheet does not enforce ownership or alert on activity overlap. CRMs do.
+
+**3. You missed a deal because nobody followed up.** A real €10,000 deal goes silent for 30 days because the next-step reminder lived only in your head. The cost of that one missed deal pays for two years of CRM.
+
+**4. Reporting takes more than 30 minutes.** Pulling pipeline by source, by stage, by month requires a 30-minute pivot exercise instead of a click. CRMs include this view for free.
+
+**5. Anyone is editing the sheet on mobile in the field.** Mobile spreadsheet UX is bad. Reps will not log activities on a phone in a Google Sheet. They will in a CRM with a working mobile app.
+
+If two or more of these are true for you today, the spreadsheet is costing you money. Move.
+
+## The honest CRM graduation path
+
+The realistic graduation path for a sub-15-person team is:
+
+1. **Solo or 2-person team:** Google Sheet with the columns above
+2. **3-10 person team:** lightweight CRM ([Customermates](/) at €9, Pipedrive Essential at $14, HubSpot Free)
+3. **10-25 person team:** mid-tier CRM (Pipedrive Advanced, [Customermates](/), HubSpot Sales Starter)
+4. **25+ person team:** full-featured CRM (Pipedrive Advanced, HubSpot Sales Hub Pro, Salesforce if you have admin budget)
+
+Each step is a real graduation, not a marketing ladder. Move when the cost of the current step exceeds the upgrade cost.
+
+## Common spreadsheet sales-tracking mistakes
+
+Five patterns that turn a working sheet into a broken one:
+
+**1. One sheet, many roles.** Marketing adds a column for "campaign," sales adds a column for "objection," operations adds a column for "fulfillment date." Six months later the sheet has 32 columns and nobody updates anything. Each function should track its own data, with a single shared deal ID linking them.
+
+**2. No required fields enforced.** Spreadsheets cannot enforce required fields the way CRMs can. The workaround is conditional formatting (red row if Stage or Owner is blank). Use it religiously.
+
+**3. Activities buried in cells.** Some teams add notes to a single cell ("called 5/3, emailed 5/5, meeting 5/8") instead of using the activities sheet. The result: search is impossible, history is fragile, and the cell becomes 800 characters of unstructured text. Use a real activities sheet.
+
+**4. Manual data entry that should be automatic.** Pasting deal info from email into the sheet, manually. After 50 deals this becomes the bottleneck. Either accept the friction (small team, fine) or move to a CRM that auto-captures from email.
+
+**5. Multiple versions in the wild.** Bob has his own copy. Alice has her own copy. You have the master. The master is wrong. Use one shared sheet, never multiple. If the team cannot collaborate on one sheet without overwriting each other, they cannot collaborate on a CRM either.
+
+## How big can a spreadsheet really get?
+
+Practical limits on a sales-tracking spreadsheet:
+
+- **Active deals:** ~200 before search and pivot get sluggish in Google Sheets, ~500 in Excel.
+- **Total deals (history):** ~5,000 before the file becomes unwieldy. Archive older deals to a separate sheet.
+- **Activities:** ~10,000 rows before the activities sheet slows down. Same archive strategy.
+- **Users editing simultaneously:** 3-5 in Google Sheets without conflict. More than that, you need real permission rules.
+- **Custom fields:** ~15-20 before columns become unmanageable on screen. CRMs handle 50+ custom fields cleanly because they have form-based entry.
+
+If any of these limits hit you, the spreadsheet has done its job. Move.
+
+## Real-world: a 12-month spreadsheet-to-CRM transition
+
+A composite case from teams I've worked with, drawn to make the transition timing concrete.
+
+**Month 1-3 (spreadsheet only).** Founder sells alone, 8 deals in pipeline. A Google Sheet with the columns above is genuinely faster than any CRM. Setup time: 30 minutes. Update time: 5 minutes per day. Nothing falls through cracks because the founder has the whole pipeline in working memory.
+
+**Month 4-6 (still spreadsheet, hire #1).** Founder hires first salesperson. Pipeline grows to 35 deals. The sheet now has a "Owner" column. Deals are starting to overlap; founder calls a customer that the new rep already booked. Friction increases but the sheet still works if both people update it daily.
+
+**Month 7-9 (cracks showing).** Pipeline at 75 deals. Reporting takes 30+ minutes weekly. Two missed follow-ups in 60 days, one of which was a €15K deal. Manager dashboard ("which deals are stale, which deals are over expected close, which reps are behind on activity") takes a 45-minute pivot exercise every Monday morning. The team starts considering CRMs but resists because "the sheet still works."
+
+**Month 10 (the trigger event).** The third missed follow-up costs a real customer relationship. The team commits to a CRM evaluation in week 41.
+
+**Month 11-12 (transition).** Pick a CRM that imports CSV cleanly: Pipedrive, [Customermates](/), HubSpot. Migration takes 4-6 hours of focused work. The first 30 days in the CRM are slower than the spreadsheet because the team is learning new UX. By month 13, the CRM is genuinely faster than the sheet was, especially for reporting and reminders.
+
+The pattern: **most teams transition 2-3 months later than they should.** The spreadsheet feels like it works because failure modes are silent (missed deals don't announce themselves). The CRM is louder, which is part of why it works better.
+
+## What changes when you move to a real CRM
+
+The four things that shift, in order of impact:
+
+- **Activity logging gets automatic.** Real two-way email and calendar sync means activities appear without anyone typing.
+- **Reminders survive memory.** "Follow up Friday" lives in the system, not your head.
+- **Reporting takes one click.** Pipeline by stage, source, or owner is built in.
+- **Mobile actually works.** Reps log activity from the car. The data stays current.
+
+The new modern angle for 2026: AI tools (Claude, Codex, ChatGPT) can drive the CRM directly via MCP or API. [Customermates](/) exposes 54 MCP tools so Claude can read deals, draft follow-ups, and update notes from a transcript without the rep typing into the CRM. That is the spreadsheet-replacement experience finally getting good.
+
+## When to stay on a spreadsheet permanently
+
+Three legitimate cases where staying on a spreadsheet beats moving to a CRM:
+
+- **You are a solo founder doing fewer than 10 deals per year.** A CRM is overkill.
+- **Your sales process is so simple that 5 columns cover it.** Some businesses really are this simple.
+- **You are a non-business operation (volunteer org, hobby project) where tracking is informal.**
+
+If you are running a real B2B business with multiple people in sales conversations and more than 50 active deals, none of these apply.
+
+## What I would actually do
+
+If you are starting today: build the spreadsheet template above (30 minutes), use it for 4-12 weeks. Watch for the five signals.
+
+When two of the five signals fire, move. Pick a CRM that imports your CSV cleanly: Pipedrive, [Customermates](/), HubSpot Free. Avoid Salesforce for small teams.
+
+The spreadsheet is a starter. It is supposed to get replaced. Treat it that way and you will move at the right time.
+
+## Frequently asked questions
+
+**Is a sales tracking spreadsheet enough for a small business?**
+For solo founders and 2-3 person teams with under 50 active deals, yes. Past that, the spreadsheet becomes a bottleneck rather than a tool. The signals to move are listed above.
+
+**What is the best free sales tracking template?**
+Build your own with the eleven columns listed above. Most public templates over-engineer with columns nobody updates. The minimal one fits one screen and stays useful.
+
+**Should I use Excel or Google Sheets for sales tracking?**
+Google Sheets. Real-time collaboration, link-based sharing, and mobile access matter more than Excel's advanced features at this scale.
+
+**When should I move from a spreadsheet to a CRM?**
+When at least two of these are true: the sheet is not getting updated, reps overlap on deals, you missed a follow-up, reporting takes 30+ minutes, or mobile updating is broken.
+
+**What CRM is closest to a spreadsheet experience?**
+[Customermates](/) and Pipedrive both keep close to spreadsheet simplicity. Folk leans even more spreadsheet-like for contact management. If the spreadsheet feel matters most, look there first.
