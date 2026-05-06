@@ -192,9 +192,10 @@ export class WidgetDataFetcher extends BaseRepository {
 
   async getContacts(filters: Filter[] | undefined) {
     const params: GetQueryParams = { filters };
-    const args = await getContactRepo().buildQueryArgs(params, this.accessWhere("contact"));
+    const { where, orderBy } = await getContactRepo().buildQueryArgs(params, this.accessWhere("contact"));
     return await this.prisma.contact.findMany({
-      ...args,
+      where,
+      orderBy,
       select: {
         id: true,
         firstName: true,
@@ -205,9 +206,10 @@ export class WidgetDataFetcher extends BaseRepository {
 
   async getOrganizations(filters: Filter[] | undefined) {
     const params: GetQueryParams = { filters };
-    const args = await getOrganizationRepo().buildQueryArgs(params, this.accessWhere("organization"));
+    const { where, orderBy } = await getOrganizationRepo().buildQueryArgs(params, this.accessWhere("organization"));
     return await this.prisma.organization.findMany({
-      ...args,
+      where,
+      orderBy,
       select: {
         id: true,
         name: true,
@@ -217,9 +219,10 @@ export class WidgetDataFetcher extends BaseRepository {
 
   async getDealsList(filters: Filter[] | undefined) {
     const params: GetQueryParams = { filters };
-    const args = await getDealRepo().buildQueryArgs(params, this.accessWhere("deal"));
+    const { where, orderBy } = await getDealRepo().buildQueryArgs(params, this.accessWhere("deal"));
     return await this.prisma.deal.findMany({
-      ...args,
+      where,
+      orderBy,
       select: {
         id: true,
         name: true,
@@ -229,9 +232,10 @@ export class WidgetDataFetcher extends BaseRepository {
 
   async getServices(filters: Filter[] | undefined) {
     const params: GetQueryParams = { filters };
-    const args = await getServiceRepo().buildQueryArgs(params, this.accessWhere("service"));
+    const { where, orderBy } = await getServiceRepo().buildQueryArgs(params, this.accessWhere("service"));
     return await this.prisma.service.findMany({
-      ...args,
+      where,
+      orderBy,
       select: {
         id: true,
         name: true,
@@ -241,9 +245,10 @@ export class WidgetDataFetcher extends BaseRepository {
 
   async getTasks(filters: Filter[] | undefined) {
     const params: GetQueryParams = { filters };
-    const args = await getTaskRepo().buildQueryArgs(params, this.accessWhere("task"));
+    const { where, orderBy } = await getTaskRepo().buildQueryArgs(params, this.accessWhere("task"));
     return await this.prisma.task.findMany({
-      ...args,
+      where,
+      orderBy,
       select: {
         id: true,
         name: true,
