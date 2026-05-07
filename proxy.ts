@@ -7,7 +7,17 @@ import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "
 import { IS_DEMO_MODE } from "./constants/env";
 import { auth } from "./core/auth/better-auth";
 
-const intlMiddleware = createMiddleware(routing);
+const intlMiddlewareRaw = createMiddleware(routing);
+
+function intlMiddleware(req: NextRequest) {
+  const response = intlMiddlewareRaw(req);
+  if (response.status !== 307) return response;
+  const location = response.headers.get("location");
+  if (!location) return response;
+  const permanent = NextResponse.redirect(location, 308);
+  for (const cookie of response.cookies.getAll()) permanent.cookies.set(cookie);
+  return permanent;
+}
 
 function hasSessionCookie(req: NextRequest): boolean {
   const cookieHeader = req.headers.get("cookie") ?? "";
