@@ -2,7 +2,7 @@ import { getLocale } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
 
-import { compareSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import { comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
 
 // Top SEO opportunities per section (by optimization score from knowledge base)
 const FOOTER_COMPARE = new Set([
@@ -35,7 +35,7 @@ const FOOTER_FEATURES = new Set([
 export async function Footer() {
   const locale = await getLocale();
 
-  const competitors = compareSource
+  const competitors = comparePagesSource
     .getPages(locale)
     .map((page) => {
       const slug = page.url?.split("/").pop() || "";

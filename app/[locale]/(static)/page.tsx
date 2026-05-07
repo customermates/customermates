@@ -14,8 +14,10 @@ import { HomepagePricing } from "./components/homepage-pricing";
 import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureSection } from "@/components/marketing/feature-section";
+import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { homepageSource } from "@/core/fumadocs/source";
+import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -32,6 +34,15 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col items-center">
+      <JsonLd schema={organizationSchema()} />
+
+      <JsonLd
+        schema={softwareApplicationSchema({
+          description: homepagePage.data.description,
+          locale,
+        })}
+      />
+
       <HomepageHero heroSection={hero} />
 
       <HomepageStatsRow />

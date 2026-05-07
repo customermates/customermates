@@ -7,11 +7,14 @@ import {
   automationSource,
   blogPostsSource,
   blogSource,
+  comparePagesSource,
   compareSource,
   docsSource,
   featurePagesSource,
+  featuresAllSource,
   featuresSource,
   forPagesSource,
+  forSource,
   helpAndFeedbackSource,
   homepageSource,
   legalSource,
@@ -25,11 +28,14 @@ type Loader =
   | typeof automationSource
   | typeof blogPostsSource
   | typeof blogSource
+  | typeof comparePagesSource
   | typeof compareSource
   | typeof docsSource
   | typeof featurePagesSource
+  | typeof featuresAllSource
   | typeof featuresSource
   | typeof forPagesSource
+  | typeof forSource
   | typeof helpAndFeedbackSource
   | typeof homepageSource
   | typeof legalSource
@@ -49,6 +55,10 @@ export const ROUTE_SOURCE_MAP: Record<
   "/features": {
     source: featuresSource,
     path: ["features"],
+  },
+  "/features/all": {
+    source: featuresAllSource,
+    path: ["all"],
   },
   "/pricing": {
     source: pricingSource,
@@ -98,9 +108,17 @@ export const ROUTE_SOURCE_MAP: Record<
     source: blogPostsSource,
     path: [":slug"],
   },
-  "/compare/:competitor": {
+  "/compare": {
     source: compareSource,
+    path: ["compare"],
+  },
+  "/compare/:competitor": {
+    source: comparePagesSource,
     path: [":competitor"],
+  },
+  "/for": {
+    source: forSource,
+    path: ["for"],
   },
   "/for/:industry": {
     source: forPagesSource,
@@ -128,14 +146,13 @@ export function getSourceFromRoute(
   route: keyof typeof ROUTE_SOURCE_MAP,
   params: Record<string, string> = {},
 ): { source: Loader; path: string[] } | null {
-  if (route in ROUTE_SOURCE_MAP) {
-    const mapping = ROUTE_SOURCE_MAP[route];
-    if (Object.keys(params).length > 0) {
-      const path = mapping.path.map((part) => (part.startsWith(":") ? params[part.slice(1)] : part));
-      return { source: mapping.source, path };
-    }
-    return mapping;
+  const mapping = ROUTE_SOURCE_MAP[route];
+  if (!mapping) return null;
+
+  if (Object.keys(params).length > 0) {
+    const path = mapping.path.map((part) => (part.startsWith(":") ? params[part.slice(1)] : part));
+    return { source: mapping.source, path };
   }
 
-  return null;
+  return mapping;
 }

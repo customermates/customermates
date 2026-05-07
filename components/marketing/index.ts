@@ -4,6 +4,8 @@ export type { ComparisonFeature, ComparisonSection, ComparisonTableProps } from 
 export { CTASection } from "./cta-section";
 export { FAQSection } from "./faq-section";
 export { FeatureSection } from "./feature-section";
+export { HubGrid } from "./hub-grid";
+export type { HubGridItem } from "./hub-grid";
 export { PageHero } from "./page-hero";
 export { SectionBadge } from "./section-badge";
 export { ShowcaseFrame } from "./showcase-frame";

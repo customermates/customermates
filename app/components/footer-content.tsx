@@ -163,6 +163,12 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
                   </AppLink>
                 </li>
               ))}
+
+              <li>
+                <AppLink className="text-subdued" href="/features/all">
+                  {t("featuresViewAll")}
+                </AppLink>
+              </li>
             </ul>
           </div>
 
@@ -177,6 +183,12 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
                   </AppLink>
                 </li>
               ))}
+
+              <li>
+                <AppLink className="text-subdued" href="/for">
+                  {t("solutionsViewAll")}
+                </AppLink>
+              </li>
             </ul>
           </div>
 
@@ -185,6 +197,12 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
 
             <ul className="space-y-2">
               <CompetitorLinks competitors={competitors} />
+
+              <li>
+                <AppLink className="text-subdued" href="/compare">
+                  {t("compareViewAll")}
+                </AppLink>
+              </li>
             </ul>
           </div>
 

@@ -12,10 +12,12 @@ import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
 import { Footer } from "@/app/components/footer";
 import { Icon } from "@/components/shared/icon";
 import { AppChip } from "@/components/chip/app-chip";
+import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { Toc } from "@/components/shared/toc";
 import { AppImage } from "@/components/shared/app-image";
+import { articleSchema, breadcrumbListSchema } from "@/core/seo/schemas";
 
 export async function generateMetadata({
   params,
@@ -57,6 +59,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="relative flex flex-col items-center justify-center">
+      <JsonLd
+        schema={articleSchema({
+          authorName: blogPost.author,
+          datePublished: new Date(blogPost.date).toISOString(),
+          dateModified: new Date(page.data.lastModified ?? blogPost.date).toISOString(),
+          description: page.data.description,
+          headline: page.data.title,
+          locale,
+          slug,
+        })}
+      />
+
+      <JsonLd
+        schema={breadcrumbListSchema([
+          { name: "Home", path: `/${locale}` },
+          { name: "Blog", path: `/${locale}/blog` },
+          { name: hero.title, path: `/${locale}/blog/${slug}` },
+        ])}
+      />
+
       <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
         <article className="max-w-6xl mx-auto px-4 flex-1">
           <Link className="inline-flex items-center text-subdued mb-8" href={`/${locale}/blog`}>

@@ -1087,9 +1087,11 @@
   "Footer": {
     "blog": "Blog",
     "compare": "Vergleich",
+    "compareViewAll": "Alle Vergleiche ansehen",
     "copyright": "@ Customermates",
     "copyrightText": "© {year} Customermates. Alle Rechte vorbehalten.",
     "features": "Features",
+    "featuresViewAll": "Alle Features ansehen",
     "helpAndFeedback": "Hilfe",
     "imprint": "Impressum",
     "legal": "Rechtliches",
@@ -1097,6 +1099,7 @@
     "product": "Produkt",
     "resources": "Ressourcen",
     "solutions": "Lösungen",
+    "solutionsViewAll": "Alle Branchen ansehen",
     "terms": "AGB"
   },
   "ForgotPasswordForm": {

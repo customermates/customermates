@@ -14,6 +14,7 @@ import { featuresSchema } from "./schemas/features";
 import { forPagesSchema } from "./schemas/for-pages";
 import { helpAndFeedbackSchema } from "./schemas/help-and-feedback";
 import { homepageSchema } from "./schemas/homepage";
+import { hubSchema } from "./schemas/hub";
 import { legalSchema } from "./schemas/legal";
 import { pricingSchema } from "./schemas/pricing";
 
@@ -56,7 +57,19 @@ export const apiOverview = defineCollections({
 export const compare = defineCollections({
   type: "doc",
   dir: "content/compare",
+  schema: hubSchema,
+});
+
+export const comparePages = defineCollections({
+  type: "doc",
+  dir: "content/compare-pages",
   schema: compareSchema,
+});
+
+export const forHub = defineCollections({
+  type: "doc",
+  dir: "content/for",
+  schema: hubSchema,
 });
 
 export const pricing = defineCollections({
@@ -75,6 +88,12 @@ export const features = defineCollections({
   type: "doc",
   dir: "content/features",
   schema: featuresSchema,
+});
+
+export const featuresAll = defineCollections({
+  type: "doc",
+  dir: "content/features-all",
+  schema: hubSchema,
 });
 
 export const forPages = defineCollections({

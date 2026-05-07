@@ -14,6 +14,7 @@ export const heroSchema = z.object({
   description: z.string(),
   hint: z.string(),
   title: z.string(),
+  titleAccent: z.string().optional(),
 });
 export type Hero = z.infer<typeof heroSchema>;
 

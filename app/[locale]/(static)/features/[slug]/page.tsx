@@ -8,10 +8,12 @@ import { PageHero } from "@/components/marketing/page-hero";
 import { CTASection } from "@/components/marketing/cta-section";
 import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
 import { AppImage } from "@/components/shared/app-image";
+import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { Toc } from "@/components/shared/toc";
+import { breadcrumbListSchema } from "@/core/seo/schemas";
 
 interface Props {
   params: Promise<{
@@ -42,6 +44,14 @@ export default async function FeaturePage({ params }: Props) {
 
   return (
     <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
+      <JsonLd
+        schema={breadcrumbListSchema([
+          { name: "Home", path: `/${locale}` },
+          { name: "Features", path: `/${locale}/features` },
+          { name: page.data.featureName, path: `/${locale}/features/${slug}` },
+        ])}
+      />
+
       <PageHero {...page.data.hero} />
 
       <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
