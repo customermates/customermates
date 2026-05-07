@@ -1,0 +1,194 @@
+---
+title: "Agentforce 2026: Was es ist, Kosten, Alternativen"
+description: "Agentforce ist Salesforces KI-Agenten-Plattform. Was sie kann, was sie kostet, wo sie passt, und die Open-Source-Alternative für Teams ohne Salesforce."
+
+hero:
+  title: "Agentforce: Was es ist, wo es passt, was es kostet"
+  description: "Agentforce ist Salesforces Wette auf autonome KI-Agenten im CRM. Der ehrliche Leitfaden für Teams, die es bewerten oder einen Ausstieg prüfen."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-05-07
+  tags:
+    - Agentforce
+    - Salesforce
+    - KI-Agenten
+    - CRM-Vergleich
+    - Open Source
+---
+
+# Agentforce 2026: Was es ist, Kosten, Alternativen
+
+Agentforce ist Salesforces Plattform für den Aufbau und Einsatz autonomer KI-Agenten innerhalb des Salesforce-Ökosystems. Statt eines Chatbots, der Fragen beantwortet, planen und handeln Agentforce-Agenten: Sie bearbeiten Supportfälle, qualifizieren eingehende Leads, entwerfen Outbound-Nachrichten und aktualisieren CRM-Datensätze, alles ohne dass ein Mensch jeden Knopf drückt.
+
+Ich baue Customermates, ein Open-Source-CRM, das ebenfalls auf KI-Agenten setzt (eine andere Architektur, ein anderer Preispunkt). Ich führe wöchentlich Gespräche mit Geschäftsführern, die entscheiden müssen, ob Agentforce die richtige Wette ist, ob sie ihre bestehende Salesforce-Installation damit erweitern oder eine Alternative ohne Salesforce-Vertrag suchen sollten. Dieser Artikel ist der ehrliche Leitfaden zu Agentforce: was es ist, was es kostet und wo es passt.
+
+## Was Agentforce eigentlich ist
+
+Agentforce sitzt auf der bestehenden Salesforce-Plattform auf. Es nutzt Salesforces Datenschicht (Customer 360, Data Cloud), das Sicherheitsmodell (Einstein Trust Layer) und das Integrations-Tooling (MuleSoft), um KI-Agenten die Eingaben zu geben, die sie brauchen: Kundendatensätze, Wissensdatenbankartikel, Echtzeitaktivitäten, Drittanbieterdaten über Konnektoren.
+
+Drei Komponenten zählen in der Praxis am meisten:
+
+**Agent Builder.** Eine Low-Code-Schnittstelle zur Definition von Agenten. Sie beschreiben die Rolle des Agenten, die Themen, die er abdeckt, die Aktionen, die er ausführen darf, und die Daten, auf die er zugreifen kann. Kein Modell-Finetuning nötig; der Agent nutzt Salesforces gehostetes LLM (oder ein externes über BYOM).
+
+**Atlas Reasoning Engine.** Die Orchestrierungsschicht, die Nutzerintentionen in einen Plan überführt: welche Daten abrufen, welche Aktionen in welcher Reihenfolge aufrufen, wann stoppen und den Menschen fragen. Das ist der Kern davon, dass Agentforce-Agenten autonom handeln und nicht nur antworten.
+
+**Einstein Trust Layer.** Eine Schutzschicht über dem Datenfluss: PII-Maskierung, Output-Prüfung, Audit-Protokolle, Halluzinationsschutz. Die Aussage: Ein Agentforce-Agent kann Kundendaten nicht so leaken wie ein rohes LLM.
+
+Die Architektur ist für Großunternehmen, die ohnehin in Salesforce leben, gut durchdacht. Die Wirtschaftlichkeit hängt aber davon ab, ob Sie bereits Salesforce-Kunde sind.
+
+## Agentforce-Kosten 2026
+
+Salesforce hat zwei Preismodelle für Agentforce ausprobiert. Beide sind weiter im Markt, und beide kommen zusätzlich zu Ihrer bestehenden Salesforce-Rechnung.
+
+**Konversationsbasierte Abrechnung.** 2 US-Dollar pro Konversation. Eine Konversation ist eine Nutzer-Interaktion mit einem Agenten über eine Sitzung, unabhängig von der Anzahl der Wechsel. Sinnvoll bei vorhersagbaren Kundenservice-Volumina.
+
+**Flex Credits.** 0,10 US-Dollar pro Agent-Aktion, in Paketen von 100.000 Credits zu 5.000 US-Dollar Mindestabnahme. Eine Aktion ist grob ein Tool-Aufruf: einen Datensatz lesen, ein Feld aktualisieren, eine E-Mail senden. Sinnvoll bei variablen internen Workloads, bei denen die Konversationszahl schwer vorhersagbar ist.
+
+Für ein typisches Mittelstands-Vertriebsteam mit Agentforce-SDR im Outbound:
+- Konversationen pro Tag: 50 bis 200 Interessenten
+- Aktionen pro Konversation: 5 bis 15 (Recherche, Entwurf, Versand, Protokoll)
+- Tägliche Aktionen: 250 bis 3.000
+- Monatliche Kosten bei 0,10 €/Aktion: 750 bis 9.000 € allein für Agentforce, zusätzlich zur Sales-Cloud-Lizenz
+
+Für Kundenservice:
+- Tickets pro Tag: 100 bis 500
+- Konversationskosten: 200 bis 1.000 €/Tag, 6.000 bis 30.000 €/Monat
+
+**Wichtiger Kontext:** Agentforce setzt Sales Cloud, Service Cloud oder Data Cloud als Plattform voraus. Sales Cloud Pro startet bei 165 € pro Nutzer pro Monat. Ein 25-Personen-Team mit Sales Cloud Pro plus Agentforce gibt realistisch 5.000 bis 15.000 € pro Monat aus, vor Implementierungskosten.
+
+Die Implementierung läuft typisch zwischen 30.000 und 150.000 € für einen Salesforce-Partner, der Agentforce neben einer bestehenden Salesforce-Installation einrichtet.
+
+## Wo Agentforce gut passt
+
+Drei Kontexte, in denen Agentforce sinnvoll ist:
+
+**Bestehende Salesforce-Kunden mit reifer Datenlage.** Wenn Ihr Unternehmen bereits auf Salesforce läuft und Ihre Daten gut strukturiert sind, fügt sich Agentforce sauber ein. Die Agenten erben Ihr Sicherheitsmodell, Ihre Integrationen, Ihr Reporting. Agentforce hinzuzufügen ist inkrementeller Aufwand auf einem System, das bereits funktioniert.
+
+**Enterprise-Kundenservice in hohem Volumen.** Der Agentforce Service Agent hat echte Ergebnisse für Hochvolumen-Support gezeigt: 70 bis 80 Prozent Deflektion gängiger Tickets, schnelleres Routing komplexer Fälle. Wer täglich Tausende von Supportfällen verarbeitet, bei dem stimmt die Konversationspreis-Wirtschaftlichkeit.
+
+**Regulierte Branchen mit strengen Datenkontrollen.** Banken, Gesundheitsdienstleister und öffentliche Auftraggeber, die detaillierte Audit-Trails über jede KI-Entscheidung brauchen, profitieren vom Einstein Trust Layer. Datenmaskierung, Output-Prüfung und Audit-Logging sind hier Compliance-Funktionen, keine Marketing-Funktionen.
+
+## Wo Agentforce nicht passt
+
+Drei Kontexte, in denen es die falsche Wahl ist:
+
+**Kleine bis mittelständische Teams ohne bestehendes Salesforce.** Die Gesamtkosten zum Einstieg (Sales Cloud + Agentforce + Implementierungspartner) starten bei rund 50.000 € pro Jahr für ein kleines Team. Zum Vergleich: Ein kleines Team mit Customermates plus Claude-API kostet etwa 1.500 bis 3.000 € pro Jahr all-in. Die Lücke ist nicht klein.
+
+**Teams, die ihr bevorzugtes KI-Modell nutzen wollen.** Agentforce nutzt standardmäßig Salesforces gehostete Modelle. BYOM (bring your own model) gibt es, fügt aber Aufwand und Kosten hinzu. Wer Claude bereits intern nutzt und denselben Modell-Stack im CRM-Agenten haben will, bekommt das mit einem Open-Source-CRM samt [MCP-Unterstützung](/features/api) nativ.
+
+**Teams, die das Salesforce-Ökosystem irgendwann verlassen wollen.** Wenn Sie Agentforce-Workflows auf Sales Cloud aufbauen, sind Datenmodell, Agenten und Integrationen alle Salesforce-geformt. Die Migration weg von Salesforce wird zu einem mehrjährigen Projekt. Wenn Optionalität für Sie zählt, ist das relevant.
+
+## Agentforce vs. Open-Source-Alternativen
+
+Der Markt hat sich auf drei Architekturen für KI-Agenten im CRM eingependelt:
+
+**Salesforce Agentforce.** Closed Source, gehostet, in die Salesforce-Plattform integriert. Beste Wahl für Enterprise-Salesforce-Häuser mit Budget. Preis: 2 €/Konversation oder 0,10 €/Aktion plus Salesforce-Lizenz.
+
+**HubSpot Breeze Agents.** Closed Source, gehostet, in HubSpot integriert. Kleinerer Funktionsumfang als Agentforce, einfacher aufzusetzen. Preis: enthalten ab Sales Hub Pro. Eingeschränkte Sprachunterstützung außerhalb Englisch.
+
+**Open-Source-CRM + externes LLM über MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex oder ein beliebiges MCP-fähiges Modell. Open Source unter AGPL-3.0, selbst hostbar, EU-gehostete Cloud-Option. Preis: 9 €/Nutzer/Monat fürs CRM plus KI-API-Kosten (typisch 5 bis 50 €/Monat für kleine Teams).
+
+Der architektonische Unterschied: Agentforce und Breeze packen den Agenten in den CRM-Anbieter-Stack. Open Source plus MCP hält den Agenten getrennt vom CRM, sodass Sie Modelle tauschen, Anbieter wechseln und die Datenschicht selbst besitzen können.
+
+Für die meisten Teams unter 100 Nutzern liefert der Open-Source-Pfad 80 bis 90 Prozent der Agent-Funktionalität zu 5 bis 10 Prozent der Kosten. Für Enterprise mit bestehender Salesforce-Investition erweitert Agentforce das Vorhandene, statt es zu ersetzen.
+
+## Customermates als Open-Source-Agentforce-Alternative
+
+Customermates stellt 54 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen beliebigen anderen MCP-fähigen Agenten das vollständige CRM bedienen lassen:
+
+**Lese-Operationen.** Kontakte, Unternehmen, Deals, Aufgaben, Services durchsuchen. Filter nach beliebigem Feld. Kommunikationshistorie abrufen. Pipeline-Status abfragen.
+
+**Schreib-Operationen.** Datensätze anlegen oder aktualisieren. Aktivitäten protokollieren. Deal-Stufen verschieben. Aufgaben zuweisen. Webhooks auslösen.
+
+**Workflow-Operationen.** Mehrstufige Sequenzen. Bedingte Logik. Zeitversetzte Aktionen. Der Agent kann einen mehrstufigen Ablauf planen und Schritt für Schritt ausführen.
+
+Die Agenten-Schicht ist Ihre Wahl: Claude Sonnet für kostengünstige Routinearbeit, Claude Opus für komplexe Schlussfolgerungen, GPT-4o für spezifische Anwendungsfälle, lokale Modelle wie Mistral oder Llama für vollständige Datensouveränität.
+
+Das CRM ist Open Source unter AGPL-3.0. Self-Hosted kostet die Servermiete (Hetzner CX21 für 5 €/Monat reicht für ein 20-Personen-Team). Cloud-gehostet startet die [Preisgestaltung](/pricing) bei 9 €/Nutzer/Monat im Jahresplan, mit EU-Hosting (Deutschland) als Standard.
+
+Der Trade-off ist ehrlich: Salesforce hat einen 25-Jahres-Vorsprung bei Enterprise-Integrationen, branchenspezifischen Funktionen und Partner-Ökosystem. Customermates hat einen kleineren Funktionsumfang, weniger Integrationen und ein jüngeres Produkt. Für Vertriebsteams, die Agent-natives CRM ohne Salesforces Preisschild und Lock-in wollen, fällt der Trade-off zugunsten Customermates aus. Für Großunternehmen mit komplexer Salesforce-Installation ist Agentforce die natürliche Erweiterung.
+
+## Agentforce vs. ChatGPT im Vertrieb
+
+Eine häufige Verwechslung 2026: Leute vergleichen Agentforce mit ChatGPT für Vertriebsaufgaben. Sie sind nicht in derselben Kategorie.
+
+**ChatGPT** (oder Claude, oder ein anderer Verbraucher-LLM) ist eine universelle KI, die über eine Chat-Oberfläche oder API zugänglich ist. Sie können sie für Vertriebsvorbereitung, Outreach-Entwürfe, Anrufzusammenfassungen nutzen. Sie verbindet sich nicht nativ mit Ihrem CRM, außer Sie bauen die Integration.
+
+**Agentforce** ist eine CRM-integrierte Agenten-Plattform: Die Agenten haben nativen Zugriff auf Salesforce-Daten, die Aktionen, die sie ausführen, sind vorkonfigurierte Salesforce-Operationen, und die Agenten laufen auf Salesforce-Infrastruktur mit Salesforce-Sicherheit.
+
+Der richtige Vergleich: ChatGPT plus ein CRM, das [MCP-Tools](/features/api) bereitstellt, liefert den Großteil der Agentforce-Erfahrung zu einem Bruchteil des Preises. Mehr dazu im [ChatGPT-für-Vertrieb-Leitfaden](/blog/chatgpt-for-sales).
+
+## Realistischer Agentforce-Implementierungs-Zeitplan
+
+Agentforce-Käufer überschätzen routinemäßig die Geschwindigkeit, mit der Wert eintritt. Das ist der ehrliche Zeitplan für mittlere Mittelstandsumsetzungen:
+
+**Wochen 1 bis 4: Datenbereinigung.** Salesforce-Felder konsolidieren, doppelte Datensätze deduplizieren, Pflichtfelder bestimmen, Berechtigungsmodell prüfen. Ohne sauberen Untergrund halluziniert der Agent. Diese Phase ist unglamourös und nicht abkürzbar.
+
+**Wochen 5 bis 8: Agent-Konfiguration.** Im Agent Builder Topics, Actions und Trigger definieren. Erste Agenten als Sandbox laufen lassen. Beispielanfragen durch das System schicken und Outputs prüfen. Erwartung: Wöchentliche Iterationszyklen, kein „set and forget".
+
+**Wochen 9 bis 12: Supervised Mode.** Agenten in echten Workflows einsetzen, aber jeder Output durch einen Menschen prüfen. False Positives, Tonfallabweichungen, Sonderfälle in der Qualifizierungslogik dokumentieren und ins Briefing zurückspeisen.
+
+**Wochen 13 bis 16: Schrittweise Autonomie.** Aktionen, die zuverlässig laufen, autonom freischalten. Hochrisiko-Aktionen (Outbound, Verträge) im Human-Review halten. Erste Wertmetriken werden messbar.
+
+Das Ergebnis: Vier Monate vom Vertragsabschluss bis zu konsistentem Wert. Vendor-Versprechen von „Wert in einer Woche" sind im B2B-Kontext fast immer unrealistisch.
+
+## DSGVO-Hinweis für deutsche Teams
+
+Salesforce hat detaillierte Auftragsverarbeitungsverträge und EU-Datenresidenz-Optionen für Agentforce. Der Einstein Trust Layer fügt spezifische Schutzmechanismen hinzu (PII-Maskierung, Audit-Logging), die die Compliance-Position vereinfachen. Für die meisten Anwendungsfälle ist Agentforce DSGVO-tauglich; für regulierte Sektoren mit strengen Datensouveränitäts-Anforderungen bleibt Self-Hosting auf EU-Infrastruktur die sauberste Option.
+
+Für deutsche Mittelständler in Banken, Versicherungen oder Gesundheitswesen ist Customermates Self-Hosted auf einem deutschen Server (Hetzner, IONOS) der einzige Weg ohne Drittland-Datentransfer. Schrems-II-Risiko entfällt strukturell.
+
+## Häufige Fehler bei der Agentforce-Bewertung
+
+Drei Muster, die ich bei Agentforce-Evaluierungen wiederholt sehe und die Budget verbrennen:
+
+**Die Plattform-Steuer unterschätzen.** Käufer fokussieren auf den Agentforce-Preis pro Konversation (2 €/Konversation) und vergessen, dass die zugrundeliegende Sales-Cloud- oder Service-Cloud-Lizenz der eigentliche Kostentreiber ist. Ein 25-Nutzer-Team mit Sales Cloud Pro plus Agentforce gibt realistisch 5.000 bis 15.000 € pro Monat aus, bevor der erste Agent live geht. Der Agentforce-Posten ist selten der größte. Budgets immer für den vollen Salesforce-Stack rechnen.
+
+**Vor der Datenarbeit kaufen.** Agentforce-Agenten sind nur so klug wie die Salesforce-Datenschicht unter ihnen. Wer Agentforce auf eine halb-bereinigte Salesforce-Instanz packt, bekommt Agenten, die halluzinieren oder bei fehlenden Feldern hängenbleiben. Die Datenvorbereitung, oft vier bis acht Wochen Bereinigung bevor irgendein Agent deployt wird, ist die unglamouröse Voraussetzung, die entscheidet, ob die Agenten tatsächlich funktionieren.
+
+**Den Human-in-the-Loop-Kalibrierungsphase überspringen.** Agentforce-Agenten in der ersten Woche brauchen fast immer Supervision: False-Positive-Antworten, falscher Tonfall, Sonderfälle in der Qualifizierungslogik. Teams, die die Kalibrierungsphase überspringen („der Agent läuft ab Tag eins autonom"), verbrennen Kunden-Goodwill schneller, als sie Vertriebler-Zeit sparen. Vier bis sechs Wochen supervised Mode einplanen, bevor Autonomie schrittweise entsperrt wird.
+
+Das richtige Framing: Agentforce funktioniert für Salesforce-Häuser, die ihre Daten-Hygiene gemacht haben, Budget für die Plattform plus einen Implementierungspartner haben, und bereit sind, zwei bis drei Monate zu investieren, bevor konsistenter Wert landet. Teams, die eine dieser drei Voraussetzungen überspringen, bekommen ein schlechteres Ergebnis, als wenn sie einfach einen weiteren SDR einstellen würden.
+
+## Häufig gestellte Fragen
+
+**Ist Agentforce nur ein Chatbot?**
+
+Nein. Die Orchestrierungsschicht (Atlas Reasoning Engine) plant mehrstufige Aktionen: einen Interessenten recherchieren, eine personalisierte E-Mail entwerfen, sie senden, die Aktivität protokollieren, das Follow-up planen. Chatbots reagieren auf Nachrichten; Agentforce-Agenten handeln über Systeme hinweg.
+
+**Funktioniert Agentforce ohne Salesforce?**
+
+Nicht wirklich. Agentforce sitzt auf der Salesforce-Datenschicht. Ohne Sales Cloud, Service Cloud oder Data Cloud als Host können Sie Agentforce nicht ausrollen. Salesforce kündigt gelegentlich eigenständige Funktionen an, aber die Kernarchitektur setzt eine Salesforce-Plattform darunter voraus.
+
+**Wie unterscheidet sich Agentforce von Einstein?**
+
+Einstein ist Salesforces ältere KI-Suite: prädiktive Funktionen, Scoring, GPT-artige Inhaltserzeugung in Sales Cloud und Service Cloud. Agentforce ist die neuere, autonomere Kategorie: Agenten, die mehrstufige Aktionen ausführen, nicht nur Vorhersagen oder generierte Inhalte. Einstein existiert weiter; Agentforce ist die strategische Priorität auf Salesforces KI-Roadmap.
+
+**Kann ich Claude oder GPT mit Agentforce nutzen?**
+
+Über BYOM (bring your own model) ja, aber nicht standardmäßig. Salesforce hostet einen eigenen LLM-Stack und routet die meisten Anfragen darüber. BYOM bringt Konfigurationsaufwand und Kosten mit.
+
+**Was ist die beste Agentforce-Alternative für kleine Teams?**
+
+Für Teams unter 50 Nutzern ohne bestehendes Salesforce ist die kosteneffizienteste Alternative ein Open-Source-CRM mit MCP-Unterstützung plus Ihr bevorzugtes LLM. [Customermates](/blog/open-source-crm) plus Claude oder ChatGPT liefert den Großteil der Agent-Erfahrung zu 5 bis 10 Prozent der Agentforce-Kosten. Der Trade-off ist das kleinere Integrations-Ökosystem; für viele kleine Teams ist das nicht die bindende Begrenzung.
+
+**Was kostet Agentforce für kleine Teams?**
+
+Die realistische Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 € pro Monat für Sales Cloud Pro plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich: dasselbe Team auf Customermates plus Claude-API läuft bei rund 100 bis 200 € pro Monat.
+
+**Wie migriere ich später von Agentforce, falls nötig?**
+
+Migration weg von Agentforce bedeutet Migration weg von Salesforce, was ein Mehr-Quartals-Projekt ist. Der Datenexport ist unkompliziert (Salesforce unterstützt ihn gut), aber das Neuaufbauen von Agenten, Integrationen und Workflows auf einer neuen Plattform ist der langsame Teil. Planen Sie 3 bis 9 Monate für eine mittelgroße Migration mit Partner.
+
+**Ist Agentforce DSGVO-konform?**
+
+Salesforce hat detaillierte AVVs und EU-Datenresidenz-Optionen für Agentforce. Der Einstein Trust Layer ergänzt spezifische Schutzfunktionen (PII-Maskierung, Audit-Logging), die die Compliance-Lage vereinfachen. Für die meisten Anwendungsfälle ist Agentforce DSGVO-tauglich; für regulierte Sektoren mit strikten Datensouveränitäts-Anforderungen bleibt Self-Hosting auf EU-Infrastruktur der sauberste Weg.
+
+**Wohin entwickelt sich Agentforce?**
+
+Salesforces erklärte Roadmap setzt Agentforce als strategische Priorität: mehr vorgefertigte Agenten (Sales Coach, Personal Shopper, IT Service Agent), tiefere Slack- und Tableau-Integration, Marktplatz für Drittanbieter-Agenten. Das Tempo neuer Funktionen ist hoch. Die Kostenentwicklung ist die offene Frage; das Pricing wurde in 18 Monaten zweimal geändert und wird sich vermutlich weiter ändern.
+
+Die ehrliche Einordnung: Wer ohnehin Salesforce nutzt, sollte Agentforce als die natürliche Agenten-Schicht für die bestehende Investition prüfen. Wer Salesforce nicht nutzt, sollte es gegen Open-Source-Alternativen abwägen, die 80 bis 90 Prozent des Werts zu deutlich geringeren Kosten liefern.

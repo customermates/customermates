@@ -1,0 +1,421 @@
+---
+title: "AI SDR 2026: What They Do, How Much They Cost, What to Pick"
+description: "An AI SDR is software that automates outbound prospecting end to end. What they actually do, what they cost, where they fit, and the right way to evaluate them."
+
+hero:
+  title: "AI SDR: The Honest Guide for 2026"
+  description: "Half the AI SDR market is hype. The other half changed B2B outbound for good. Here is how to tell the difference and pick the right one."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to blog
+  by: by Benjamin Wagner
+  date: 2026-05-07
+  tags:
+    - AI SDR
+    - AI Sales Agent
+    - Outbound Sales
+    - SDR Automation
+    - Sales Tools
+---
+
+# AI SDR 2026: What They Do, How Much They Cost, What to Pick
+
+An AI SDR is software that automates the work of a Sales Development Representative end to end: prospect research, list building, personalized outreach, follow-up sequences, reply qualification, meeting booking, and CRM updates. The category exploded in 2024-2025 as LLMs became reliable enough to draft messages that sound human. By 2026 the question is not whether AI SDRs work but where they actually deliver and where they are wasted spend.
+
+I run Customermates, an open-source CRM. Half the buyers I talk to are evaluating an AI SDR or have one and want to know if they are getting their money's worth. This post is the honest guide: what AI SDRs actually do, what they cost in 2026, where they fit, and the cheaper open-source path that handles most of the work for teams that do not need a dedicated platform.
+
+## What an AI SDR actually does
+
+A modern AI SDR (the platform, not just the term) handles five things:
+
+**Prospect identification and enrichment.** The AI SDR pulls prospects matching your ICP from databases (Apollo, Clay, ZoomInfo, LinkedIn) and enriches them with job changes, technology stack, recent funding, and other intent signals. The output is a researched list, not a scraped one.
+
+**Personalized first-touch drafting.** Instead of variable substitution in a template, the AI reads each prospect's LinkedIn, company news, and recent posts to write a first-touch email that references something specific. Quality varies dramatically by platform; the best feel hand-written, the worst feel like a Mad Lib.
+
+**Multi-channel sequencing.** Email, LinkedIn, sometimes phone or SMS. The AI runs the sequence on a cadence (day 1, day 3, day 7) and adjusts based on whether the prospect opened, clicked, or replied.
+
+**Reply qualification.** When a prospect replies, the AI parses the response, scores intent (positive, neutral, negative), and either continues the conversation autonomously or escalates to a human.
+
+**CRM and meeting integration.** Every touchpoint logs to the CRM as an activity. Positive replies get scheduled meetings via Calendly or Chili Piper. The handoff to human reps happens through CRM tasks.
+
+The good AI SDRs do all five well. The mediocre ones do two or three. The bad ones are sequencing tools with an "AI" sticker.
+
+## What an AI SDR actually costs in 2026
+
+Pricing in this market changes quickly. As of mid-2026, three patterns dominate:
+
+**Per-seat or per-rep pricing.** $1,000-$3,000/month per "AI SDR" seat. Replaces or augments a human SDR ($60K-$120K/year fully loaded). Examples: Artisan ($1,200/month entry), Regie.ai ($1,500/month entry), Conversica (custom but typically $2,000+/month).
+
+**Usage-based pricing.** $0.10-$1 per message sent, per qualified meeting, or per credit. Better for variable workloads. Examples: Clay (credit-based for enrichment), Apollo (per-seat for the platform plus AI add-ons).
+
+**Platform-included AI.** AI SDR features bundled into a sales execution platform. Outreach, Salesloft, Apollo all ship some AI SDR capability inside their main product, typically priced per seat ($150-$500/month).
+
+Total realistic annual budget for a team of 3 reps using a dedicated AI SDR: $40K-$100K/year. Compared to one human SDR at $80K-$120K, the math works out only if the AI SDR replaces hiring rather than adds to existing headcount.
+
+**The hidden costs:** every AI SDR needs a CRM as the system of record (separate from the SDR platform), an email infrastructure with proper warm-up, a domain reputation strategy, and human review of high-stakes messages. The platform license is rarely the largest line item.
+
+## Where AI SDRs actually deliver
+
+Three contexts where the math works:
+
+**High-volume outbound to a clear ICP.** If you have 10,000+ named accounts that match your ICP and you can articulate the trigger events that make them ready to buy, an AI SDR is faster and cheaper than humans for the first-touch and follow-up work. The conversion rate is lower per touch, but the volume more than compensates.
+
+**Specialized verticals where personalization matters.** B2B SaaS to specific industries (healthtech, fintech, dev tools) where the prospect can spot a templated email immediately. Good AI SDRs that read and reference real prospect signals outperform humans who do not have the time to research at scale.
+
+**Sales motions where the SDR-to-AE handoff is structured.** If your AE team has clear "what makes a qualified meeting" criteria and the AI SDR can hand off cleanly, the AE conversion rate stays high. If the handoff is fuzzy, AI SDR meetings tend to be lower quality and AE engagement drops.
+
+## Where AI SDRs are oversold
+
+Three contexts where the cheaper path wins:
+
+**Small teams under 10 reps.** The minimum platform cost ($1K-$2K/month) plus the data and domain infrastructure usually exceed what a single experienced SDR could do manually. Below 10 active reps, an open-source CRM plus Claude or ChatGPT for outreach drafts is dramatically cheaper.
+
+**Complex, relationship-led B2B with long cycles.** Enterprise sales with 6-12 month cycles, multiple stakeholders, and high-touch ABM. AI SDRs are tuned for transactional or velocity sales; they underperform on the long-cycle, named-account work.
+
+**Sectors with strict compliance.** GDPR-regulated B2B in Europe, healthcare, financial services. AI SDR platforms are mostly US-hosted with consent and data-handling models that fit US norms. EU-based teams targeting EU contacts need self-hosted infrastructure or specific EU-residency platforms.
+
+## How AI SDRs work under the hood
+
+Three architectural patterns dominate the market:
+
+**Closed-platform agents (Artisan, Regie.ai, Conversica).** Vendor-owned LLM, vendor-owned data layer, vendor-owned execution. You buy a configured agent that does the full workflow. Strongest UX, weakest flexibility. If the platform's prompt engineering does not fit your tone, you cannot fix it without vendor support.
+
+**Composable workflow agents (Clay, Gumloop, Lindy).** Visual workflow builders that connect data sources to LLMs to outreach tools. You build the AI SDR rather than buying one pre-built. Best for teams with technical capacity that want full control. Steeper learning curve.
+
+**Open-source CRM plus general-purpose LLM (Customermates plus Claude or ChatGPT via MCP).** The CRM is the data layer, the LLM is the agent, MCP is the integration. You build a workflow per use case. Most flexible, lowest per-touch cost, requires DIY to get started. The architecture pattern that is winning quietly among technical sales teams.
+
+The right architecture depends on your team's technical capacity and how much you value vendor lock-in vs. platform polish.
+
+## Customermates as the open-source AI SDR foundation
+
+Customermates is not an AI SDR platform. It is the data layer that lets a general-purpose LLM operate as your AI SDR.
+
+**The setup:** Connect Claude (or ChatGPT, or any MCP-compatible LLM) to Customermates via [MCP](/features/api). The agent has 54 tools to read contacts, create outreach drafts, log activities, and update deal stages. You configure a Claude Project with your ICP, your tone, your case studies, and your qualification criteria. The agent runs the SDR workflow against the CRM.
+
+**What you get:**
+- Full control over the LLM model (Claude Sonnet for cost-effective, Claude Opus for complex reasoning, GPT-4o for specific use cases, local models for full data sovereignty)
+- Open-source CRM with no per-seat tax for AI usage
+- EU-hosted or self-hosted, your choice
+- Pricing: €9/user/month for the CRM plus your AI API costs (typically $20-$200/month for a small team)
+
+**What you do not get:**
+- A pre-built UI specifically for SDR work (you use the CRM's normal interface)
+- A vendor-supplied data source (you bring Apollo, Clay, or your own list)
+- 24/7 vendor support tuned for SDR teams
+
+For technical teams or AI-fluent operators, the open-source path delivers most of the AI SDR value at 5-10% of the cost. For non-technical teams that want a full-service SDR platform, the closed-platform vendors (Artisan, Regie.ai) are easier to start with.
+
+## The 10 most-evaluated AI SDR tools in 2026, reviewed
+
+The platforms that show up in actual buyer evaluations, with honest strengths and weaknesses for each.
+
+### 1. Artisan (Ava)
+
+**What it does.** Fully autonomous outbound SDR. You define the ICP and the offer; Ava sources prospects from a built-in database, drafts personalized emails, runs sequences, qualifies replies, and books meetings. Multi-channel (email + LinkedIn).
+
+**Pricing.** Custom-quote, typical entry around $1,200-$1,500/user/month plus volume-based costs. Annual contracts standard. Implementation included in higher tiers.
+
+**Strengths.** The most autonomous of the closed-platform vendors; once configured, Ava genuinely runs without daily intervention. Personalization quality is consistently above the category average. The ICP definition workflow forces buyers to clarify targeting before launching.
+
+**Weaknesses.** Pricing is opaque; small teams routinely get quoted $30K-$50K/year. Limited control over the prompt engineering inside Ava; if the tone does not fit your brand, fixing it requires vendor support. Reply qualification has improved but still misses nuanced "later not now" responses.
+
+**Best for.** Mid-market B2B companies (50-500 employees) with a clear ICP, an existing email infrastructure, and budget for a six-figure-year tool. Teams that want to reduce SDR headcount, not augment it.
+
+**Honest verdict.** The best in the closed-platform category if you have the budget and a clean ICP. Smaller teams over-buy here; the platform's value scales with volume, and below 1,000 prospects per month the math does not work.
+
+### 2. Clay
+
+**What it does.** Composable workflow platform that combines 150+ data sources for prospect enrichment with LLM-driven personalization. Not a turnkey AI SDR; you build the workflow yourself by chaining data lookups, AI prompts, and outreach actions.
+
+**Pricing.** Credit-based, $149-$2,000+/month depending on enrichment volume. Annual discounts available. Most teams start at the $349 tier.
+
+**Strengths.** The deepest data layer in the category. Waterfall enrichment (try Clearbit, fall back to Apollo, fall back to LinkedIn) gets contact data filled to 90%+ completion. The LLM-driven personalization, when configured well, beats every templated outreach tool.
+
+**Weaknesses.** Steep learning curve; the first three weeks involve building workflows that other platforms ship pre-built. Credit consumption is unpredictable for new teams. No native sending infrastructure; you need to plug Clay into Smartlead, Instantly, or another sender.
+
+**Best for.** Technical sales ops teams that want full control over the data and prompt layer. Companies with an in-house "growth engineer" role. Not a fit for non-technical sales managers.
+
+**Honest verdict.** The most powerful tool in the category for teams that can use it. The same teams could build similar workflows on Customermates plus Claude through MCP at lower per-touch cost, but Clay's data layer is genuinely best-in-class.
+
+### 3. Apollo.io
+
+**What it does.** All-in-one prospecting platform with a 300M+ contact database, sequence automation, and AI-assisted personalization. Closer to a "complete SDR stack" than a pure AI SDR.
+
+**Pricing.** $59-$149/user/month (Basic to Organization). Free tier exists with limited credits. AI features included in higher tiers.
+
+**Strengths.** Best price-to-feature ratio in the category. The contact database is extensive (though accuracy varies). Native sequencing, dialer, and email tools eliminate the need for separate tools. CRM-like features cover the basics if you do not have a separate CRM.
+
+**Weaknesses.** Database accuracy is inconsistent; expect 15-25% bounce rate without additional verification. The AI personalization is notably weaker than Clay or Artisan; templates leak through. No native MCP or agent-friendly API for advanced integrations.
+
+**Best for.** Outbound-focused SMBs that want one platform instead of a stack. Teams scaling from 0 to 5 reps that need a starting point without committing to Salesforce or HubSpot.
+
+**Honest verdict.** The pragmatic starting point if you have nothing today. Most teams outgrow Apollo within 18 months and migrate to Clay (for personalization) or a dedicated CRM (for data ownership). Worth the entry-level investment.
+
+### 4. Reply.io (Jason AI)
+
+**What it does.** Multi-channel sequencing platform with an embedded AI SDR called Jason. Email, LinkedIn, calls, SMS, and WhatsApp in one tool. Jason handles inbox management and reply qualification autonomously.
+
+**Pricing.** $59-$166/user/month for the platform; Jason AI add-on $300+/month. Annual discounts standard.
+
+**Strengths.** True multi-channel orchestration is rare in this category. Jason's reply qualification is genuinely good for clear positive or negative replies. The platform has been mature for longer than most competitors, so edge cases have been ironed out.
+
+**Weaknesses.** Email deliverability tooling is weaker than dedicated senders (Smartlead, Instantly). Jason struggles on nuanced replies and tends to default to "schedule a call" too aggressively. UI feels dated compared to newer tools.
+
+**Best for.** Teams running multi-channel sequences that include phone or SMS, not just email. Mid-market and enterprise where the brand wants channel breadth.
+
+**Honest verdict.** A solid all-rounder, especially for non-email channels. Email-only teams should look at Apollo or AiSDR first; Reply.io's strength shows up when you actually use the multi-channel features.
+
+### 5. AiSDR
+
+**What it does.** Full-service autonomous AI SDR similar to Artisan. Built-in prospect database, AI-driven personalization, multi-channel sequences, reply handling. Sells itself as "1-3 demos per 100 leads."
+
+**Pricing.** $750-$1,500/user/month range. Annual contracts.
+
+**Strengths.** Faster onboarding than Artisan; teams are sending real outbound within 1-2 weeks. The prospect database is reasonable for mid-market US-focused outbound. Reply qualification is competitive with the category leaders.
+
+**Weaknesses.** Outside the US, the prospect database is thin. EU contact coverage is poor. The "AI" aspect is genuine but the platform leans heavily on templated personalization patterns under the hood.
+
+**Best for.** US-focused mid-market B2B teams with $30K-$50K/year of dedicated outbound budget.
+
+**Honest verdict.** Solid execution at the price point but not differentiated enough to be a category leader. Teams choosing between AiSDR and Artisan should pick Artisan unless setup speed is the deciding factor.
+
+### 6. 11x.ai (Alice)
+
+**What it does.** AI sales agent (Alice) for autonomous outbound. Pitched specifically as a digital SDR that replaces a human hire.
+
+**Pricing.** Enterprise-focused, custom pricing typically starting at $4,000-$8,000/month per "agent." Annual contracts.
+
+**Strengths.** The marketing positioning is sharp; CMOs and revenue leaders find the "headcount replacement" framing easy to sell internally. The platform itself is solid on outbound execution.
+
+**Weaknesses.** Pricing is significantly above category average without proportional capability advantage. Reports of high customer churn in the first year (deals signed on the headcount-replacement promise that did not deliver). Lock-in is high once you train Alice on your ICP.
+
+**Best for.** Enterprise sales orgs with a strategic mandate to replace SDR roles, not augment them. Teams with budget approval at the C-level.
+
+**Honest verdict.** Buy with eyes open. The capability is real but the marketing oversells it. Teams that buy without a clear conversion-rate baseline often disappoint internal stakeholders.
+
+### 7. Regie.ai
+
+**What it does.** AI-powered outbound platform with strong personalization at the message level. Combines prospect research, message drafting, and sequence orchestration.
+
+**Pricing.** $1,500+/user/month in the entry tier. Annual contracts.
+
+**Strengths.** Best-in-class personalization quality at the per-message level. Long-form research summaries that genuinely inform the outreach. Native CRM integration with Salesforce and HubSpot is mature.
+
+**Weaknesses.** Setup is heavier than Artisan or AiSDR; expect 6-8 weeks to consistent meetings. The reply-handling is weaker than the outreach drafting; Regie excels at sending, less at the conversation that follows.
+
+**Best for.** Marketing-led B2B SaaS companies that prioritize quality of first-touch over volume. Teams running ABM motions where every account matters.
+
+**Honest verdict.** Quality over volume in a category that mostly competes on volume. The right pick if your conversion rate matters more than your touch count.
+
+### 8. Salesforge (Agent Frank)
+
+**What it does.** AI SDR (Agent Frank) plus an unlimited-volume email sending platform. Targets the "high-volume cold email" use case explicitly.
+
+**Pricing.** $48-$150/user/month for the platform; Agent Frank add-on varies. Significantly cheaper than most competitors.
+
+**Strengths.** The cheapest serious AI SDR in the category. The unlimited sending model is unusual; most competitors meter sending volume. Email deliverability tooling is genuinely good.
+
+**Weaknesses.** Personalization quality is below category average; templates show through more visibly. The data layer is thin; you bring your own list. Deliverability tooling is good but not as deep as Smartlead.
+
+**Best for.** Volume-focused outbound teams that send 5,000+ cold emails per month and need cost-effective sending plus light AI personalization.
+
+**Honest verdict.** Cost-effective for volume, weak for quality. Pair it with Clay for the personalization layer if you can afford the credit costs.
+
+### 9. Qualified (Piper)
+
+**What it does.** Inbound-focused AI SDR. Piper engages website visitors in real-time conversational chat, qualifies them, and books meetings with the right rep. Different from outbound-focused tools above.
+
+**Pricing.** $2,000+/month entry. Salesforce-tight integration; assumes you are already a Salesforce customer.
+
+**Strengths.** Best-in-class for inbound qualification on the website. The conversation flow feels natural. Reduces inbound lead response time from hours to seconds. Tight integration with Salesforce makes the SDR-to-AE handoff seamless.
+
+**Weaknesses.** Outbound features are minimal; if you need outbound, this is not the tool. Salesforce dependency is hard. Pricing assumes enterprise budget.
+
+**Best for.** Salesforce shops with significant inbound traffic that lose leads to slow response times. Marketing-led B2B companies running heavy paid acquisition.
+
+**Honest verdict.** A category leader for the specific use case (inbound on a Salesforce stack) and the wrong tool for everyone else. Buy if your inbound conversion is leaking from response time; skip otherwise.
+
+### 10. Saleshandy
+
+**What it does.** Email outreach platform with AI-assisted personalization. Lighter than Apollo or Reply.io; focused on cold email mechanics rather than full SDR replacement.
+
+**Pricing.** $36-$199/user/month range. Annual discounts available.
+
+**Strengths.** The cheapest serious option for cold email at scale. Good email deliverability tooling. Simple UX; reps are productive in a day. AI personalization features have improved noticeably over the last year.
+
+**Weaknesses.** Not a full AI SDR; reply handling is manual. No native CRM features; you need a separate CRM. Limited to email; no LinkedIn or phone channels.
+
+**Best for.** Solo founders and small teams running cold email at sub-1,000-emails/month volume. Teams with an existing CRM that need a focused outreach tool, not a stack.
+
+**Honest verdict.** Right-sized for early-stage outbound. Teams that scale past 5,000 emails per month outgrow it within a year and migrate to Apollo, Smartlead, or Salesforge for sending depth.
+
+### 11. Cognism
+
+**What it does.** B2B prospecting database with AI-assisted personalization layered on top. EU-strong on contact coverage; not a full SDR replacement but the data foundation many AI SDRs run on.
+
+**Pricing.** Custom-quote, typically $1,500-$3,000/user/year for Platinum tier. No free trial; gated demo only.
+
+**Strengths.** Best-in-class EU contact coverage including DACH, Nordics, Benelux. GDPR-compliant data sourcing with documented consent trails. Phone-verified mobile numbers, which most US-first databases lack for European prospects.
+
+**Weaknesses.** The AI features are thin compared to category leaders; this is primarily a data tool with personalization tacked on. UI is functional but dated. The pricing is opaque and skewed toward enterprise contracts.
+
+**Best for.** EU-based or EU-targeting B2B teams that need reliable European contact data more than they need an autonomous outreach agent. Teams pairing Cognism's data layer with a separate AI SDR (Clay, Salesforge, or an MCP setup).
+
+**Honest verdict.** A data tool, not an AI SDR. If your bottleneck is European contact accuracy, Cognism plus any sender beats most US-first AI SDRs operating on stale EU data.
+
+### 12. Lavender
+
+**What it does.** AI email coach that scores and rewrites outreach in real time inside your inbox. Not a full AI SDR; sits between the SDR and the send button to improve message quality.
+
+**Pricing.** $29-$79/user/month for individual tiers; $89/user/month for team tier with admin features.
+
+**Strengths.** The most reliable email-quality scoring in the category. Works as a Gmail/Outlook plugin, so reps see scores and rewrites in the natural workflow. Personalization research panel pulls LinkedIn and company data into the side rail. Pricing is genuinely affordable for individuals.
+
+**Weaknesses.** Not a sequencing tool; you still need Apollo, Outreach, or Salesloft underneath. The AI rewrites can feel formulaic on B2B technical accounts. Value drops if your reps already write strong cold emails.
+
+**Best for.** Mid-market sales teams whose AEs and SDRs draft their own emails and want a coaching layer. Sales managers wanting reply-rate uplift without replacing the existing stack.
+
+**Honest verdict.** Best-in-class for what it does. Works alongside other AI SDR tools rather than replacing them. If your reps' email quality is uneven, Lavender pays back in 30 days.
+
+### 13. Lindy
+
+**What it does.** General-purpose AI agent platform with sales-specific templates. Build an SDR agent visually by chaining triggers, data lookups, LLM prompts, and outreach actions. Closer in spirit to Zapier-meets-Claude than to a packaged AI SDR.
+
+**Pricing.** $49.99/month (Pro) to $299.99/month (Business) plus credit costs. Free tier available.
+
+**Strengths.** The most flexible platform in the category. You can build agents for SDR work, customer success, hiring, support, ops; reuse the same primitives across departments. Native integrations with Gmail, Calendar, HubSpot, Notion. The "agent that runs continuously and pings you on signals" pattern is a genuine fit for prospect monitoring.
+
+**Weaknesses.** No native prospecting database; you bring contacts from Apollo, Clay, or LinkedIn. The general-purpose framing means SDR-specific patterns require building from scratch. Reply qualification is weaker than dedicated SDR platforms because the prompt is generic.
+
+**Best for.** Founders and ops teams building lightweight automations across multiple workflows. Companies that already invest in agent infrastructure and want SDR work as one of many use cases.
+
+**Honest verdict.** A close cousin of the open-source CRM plus general-purpose LLM pattern. If you want a hosted alternative to building agents on Customermates plus Claude through MCP, Lindy is the closest match.
+
+### 14. Outreach (Smart Email Assist)
+
+**What it does.** Outreach is the dominant sales engagement platform; Smart Email Assist is the embedded AI layer that drafts and improves outreach messages inside the existing Outreach workflow.
+
+**Pricing.** Outreach platform $100-$200/user/month; Smart Email Assist included in higher tiers.
+
+**Strengths.** The platform itself is the gold standard for sales engagement; sequence orchestration, dialer, analytics, and CRM sync are all mature. Smart Email Assist works inside that proven engine rather than asking you to migrate. Existing Outreach customers get AI capability without a parallel rollout.
+
+**Weaknesses.** The AI is not differentiated; the message-quality is comparable to Apollo or Salesloft, not to category leaders like Clay or Regie.ai. Pricing is a real commitment. The platform is enterprise-tuned, so SMBs find the friction high.
+
+**Best for.** Existing Outreach customers wanting to add AI without changing platforms. Mid-market and enterprise B2B with mature sales engagement processes already in place.
+
+**Honest verdict.** The right choice if you are already on Outreach. Not the right reason to migrate to Outreach. Treat it as a feature of the platform, not a standalone AI SDR purchase.
+
+## Picking the right AI SDR (or AI SDR alternative)
+
+Six criteria that separate good fits from expensive mistakes:
+
+**1. ICP clarity.** Without a clear ICP, no AI SDR works. The AI multiplies whatever you give it; bad targeting leads to bad outreach faster, not slower. Spend two weeks defining ICP before evaluating tools.
+
+**2. Existing CRM compatibility.** The AI SDR needs to read from and write to your CRM. Evaluate the integration depth before signing. Closed CRMs (HubSpot lower tiers, some legacy systems) make this hard. [Open CRMs with MCP](/features/api) make it easy.
+
+**3. Domain warm-up and email infrastructure.** Without proper sender reputation, even the best AI SDR fails. Most platforms require 4-6 weeks of warm-up before production sending. If your team does not have a strategy for this, the AI SDR sits idle.
+
+**4. Reply qualification quality.** Send the platform 20 sample replies (positive, negative, neutral, "ask me later") and see how it scores them. The reply qualification is the make-or-break feature; the rest is sequencing.
+
+**5. Compliance fit.** GDPR for EU contacts, CAN-SPAM for US, specific opt-in rules in regulated sectors. Verify the platform's compliance documentation before sending a single email.
+
+**6. Exit options.** What happens to your prospect data, your sequences, your reply patterns when you leave the platform? Some vendors make export easy; others make it slow and lossy.
+
+## A 90-day AI SDR rollout playbook
+
+The pattern that consistently delivers booked meetings inside a quarter, regardless of which platform you pick. Most failed AI SDR rollouts skip step 1 or step 4 and burn the budget before the system is ready.
+
+**Days 1-14: ICP definition and data foundation.** Before signing a contract, write a one-page ICP document: industry, company size, geography, role, the trigger event that makes a buyer ready, the disqualifier that wastes everyone's time. Pull a sample list of 200 companies that match perfectly and 200 that look right but should be excluded. Validate the list with an AE who has actually closed deals; if more than 20% of the matched list looks wrong to them, your ICP is not specific enough yet. The teams that win at AI SDR define the ICP before evaluating tools, not after.
+
+**Days 7-21: tool selection and contract.** With a clear ICP, run 2-3 vendors through a pilot script: 50 prospects from your validated list, the same first-touch goal, identical follow-up cadence. Score each vendor on personalization quality (rate 20 emails on a 1-5 scale), data accuracy (verify 30 contacts manually), and reply qualification (send 20 replies, see how the AI scores them). Pick the winner on the qualification scores, not on the demo polish. Sign annual only if you have already validated through pilot; never sign annual on a sales-call demo.
+
+**Days 14-42: domain warm-up and infrastructure.** While the ICP work continues, set up the email infrastructure: dedicated sending domain (not your primary), warm-up via Smartlead or Instantly (4-6 weeks to reach 100 emails/day cleanly), DKIM/SPF/DMARC records configured, custom tracking domain for click metrics. The AI SDR cannot write its way out of bad sender reputation. Most rollouts that fail in week 8 actually failed in week 2 when the team skipped warm-up.
+
+**Days 21-42: ICP-to-platform configuration.** Configure the platform with your ICP, your tone, your case studies, your qualification criteria. Most platforms ship a generic prompt template; replace every line with your specifics. Run 200 generated emails past an AE before sending a single one to a real prospect; if more than 20% sound off-brand, fix the prompt before launching. The first 200 sent emails set your domain reputation for the next 6 months.
+
+**Days 42-60: production launch with daily review.** Send 20-50 emails per day, review every reply, adjust the platform configuration weekly based on what is converting. The AE doing the qualification and the marketer or RevOps lead running the platform should meet every Friday for a 30-minute review of: reply rate, positive reply rate, meeting booking rate, AE acceptance rate of booked meetings. If any number drops, find the cause inside one week, not one month.
+
+**Days 60-90: scale and tier.** Once the metrics are stable for two weeks, scale volume to 100-300 emails per day. Tier the prospect list by ICP fit: tier 1 gets the most personalized AI sequence plus human intervention on positive replies, tier 2 gets the standard AI sequence, tier 3 gets a simpler nurture sequence. The AI SDR is at its best when 80% of touches are at tier 2-3 volume and the human team's attention concentrates on tier 1.
+
+**The numbers to expect by day 90.** Cold email reply rate: 3-8% on a clean ICP, with the strongest 1-2% being positive replies. Cost per qualified meeting: $30-$150 depending on platform and volume. Time-to-first-meeting from a cold prospect: 7-30 days. AE acceptance rate of booked meetings: 60-80% on a well-tuned platform. If you are below those ranges in week 12, the issue is almost always ICP or sender reputation, not the AI.
+
+**The two failure modes to watch for.** First, scope creep: sales managers pile new ICPs and new sequences onto the platform without retiring old ones, the AI loses focus, conversion drops. Second, AE disengagement: AEs lose trust in AI-booked meetings after a string of weak ones, stop accepting them, the funnel quietly breaks. Both are organizational failures dressed as platform problems. The fix is process discipline, not buying a different vendor.
+
+## AI SDR vs. human SDR: the actual comparison
+
+The honest comparison in 2026:
+
+| Dimension | AI SDR | Human SDR |
+|---|---|---|
+| First-touch volume | 200-500/day | 50-100/day |
+| Personalization quality | High at volume; varies by platform | Higher per-message but lower volume |
+| Reply handling | Good for clear yes/no, weak on nuance | Strong on nuance, slow on volume |
+| Meeting booking conversion | 0.5-2% typical | 1-3% typical |
+| Cost per qualified meeting | $30-$150 | $80-$200 |
+| Setup time | 4-12 weeks | 2-4 weeks (training) |
+| Maintenance | Constant prompt and sequence iteration | Standard 1-on-1 coaching |
+
+The pattern: AI SDRs win on raw volume and cost-per-touch. Humans win on nuance and relationship building. Most successful teams in 2026 use both: AI SDRs for the top of the funnel, human SDRs for accounts above a certain ACV threshold or in late-stage qualification.
+
+## Key AI SDR metrics that actually matter
+
+Most platform dashboards track 30+ metrics. Five matter for the budget review.
+
+**Cost per qualified meeting (CPQM).** Take the total monthly platform spend plus data costs plus the share of human reviewer time, divided by the number of meetings the AE accepts as qualified. This is the single number that decides whether the AI SDR pays back. Healthy benchmark: $30-$150 in B2B SaaS, $50-$300 in regulated verticals. Above $300 sustained, the AI SDR is more expensive than a human alternative for the same workload.
+
+**Positive reply rate, not reply rate.** Total replies inflate when prospects respond with "unsubscribe" or "wrong contact." Positive reply rate (interested, asking questions, willing to schedule) is the real signal of message-market fit. Healthy benchmark: 1-2% of cold sends. Below 0.5%, the message or the ICP is wrong, regardless of what the platform says about open rates.
+
+**AE acceptance rate of booked meetings.** Of the meetings the AI SDR books, what percentage do AEs treat as worth showing up for? Below 60%, the qualification logic is loose and AE trust erodes within weeks. Above 80%, the platform is well-tuned. This metric matters more than booked-meeting count because a bad meeting destroys an hour of expensive AE time and trains them to ignore future bookings.
+
+**Domain reputation and inbox placement.** Sender reputation determines whether emails land in the inbox or the promotions folder. Tools like GlockApps or Mailgenius score this independently. Healthy benchmark: above 8/10. Below 5/10 means most of your sends never get read; no AI SDR can save you from a damaged sender reputation.
+
+**Time-to-meeting from first touch.** How many days from first email to scheduled meeting? Healthy benchmark: 14-30 days for B2B SaaS. Above 60 days, the sequence is too long or the personalization is missing the buying intent. Below 7 days suggests inbound contamination (people who were going to buy anyway found you through another channel).
+
+**The trap metrics.** Open rate is the most quoted and the least useful in 2026; iOS Mail Privacy Protection and corporate email security inflate it artificially. Reply count without sentiment is misleading. "Engagement score" is a vendor invention and rarely correlates with revenue. If your QBR slides lead with these, you are reporting on the wrong thing.
+
+## What about AI BDR?
+
+Functionally identical category, different job title. BDRs in some companies focus on outbound to strategic accounts; SDRs focus on inbound or volume outbound. AI BDR software (Artisan calls their product an AI BDR; some vendors split BDR/SDR distinctions) covers the same workflow. Pick the platform based on the workflow you need, not the job title.
+
+## Frequently asked questions
+
+**What is an AI SDR?**
+
+Software that automates the work of a Sales Development Representative: researching prospects, drafting personalized outreach, running follow-up sequences, qualifying replies, and booking meetings. The AI does the volume work; humans handle complex objections and high-touch accounts.
+
+**How much does an AI SDR cost?**
+
+Range: $1,000-$3,000/month per seat for closed-platform vendors (Artisan, Regie.ai, Conversica). Composable platforms (Clay, Gumloop) are usage-based, typically $200-$2,000/month depending on volume. Open-source alternatives (Customermates plus Claude API) run $50-$500/month total for a small team.
+
+**Is an AI SDR worth it?**
+
+For high-volume outbound at a clear ICP, yes. For small teams or relationship-led enterprise, usually no. The math works when AI SDR cost is below the cost of human SDR you would otherwise hire and the conversion rate stays acceptable.
+
+**What is the best AI SDR in 2026?**
+
+Depends on your stack. For teams already on Salesforce: [Agentforce](/blog/agentforce) extends what you have. For technical teams: Clay or Gumloop give the most control. For full-service SDR replacement: Artisan and Regie.ai dominate. For open-source-friendly teams: Customermates plus Claude over MCP delivers most of the value at a fraction of the cost.
+
+**Can an AI SDR really replace a human SDR?**
+
+For volume top-of-funnel work, yes. For complex objection handling, relationship building, and judgment calls, no. Most successful teams use both: AI for volume, humans for nuance.
+
+**How does an AI SDR connect to my CRM?**
+
+Three patterns: native CRM integration (the SDR platform writes to your CRM via API), webhook-based handoff (the SDR platform pushes events you handle in your CRM), or shared data layer (the SDR platform and CRM share a contact database via tools like Clay). [MCP-based integration](/features/api) is the newest and lowest-friction; supported by some open-source CRMs but not yet most closed platforms.
+
+**What is the difference between an AI SDR and an [AI sales agent](/blog/ai-sales-agent)?**
+
+Overlapping categories. "AI sales agent" is the broader term for any AI that performs sales tasks autonomously. "AI SDR" specifically refers to the prospecting and qualification stage of the sales process. Most AI SDRs are AI sales agents with a focused role; most AI sales agents do more than just SDR work (some handle inbound qualification, customer success, even closing).
+
+**Are AI SDRs GDPR-compliant?**
+
+Depends on the platform. Most US-headquartered AI SDR vendors offer DPAs, EU data residency options, and consent management features. The bigger compliance question is the prospecting data source (Apollo, ZoomInfo) and the sender domain compliance, not the AI itself. Self-hosted setups (Customermates plus a local model or EU-hosted LLM) eliminate most Schrems-II concerns.
+
+**How long does it take to get an AI SDR live?**
+
+Realistic timeline: 4-12 weeks from contract to consistent meetings booked. Domain warm-up is 4-6 weeks. ICP and sequence configuration is 1-3 weeks. Iteration cycle to get the messaging working is 2-4 weeks. Vendors who promise "live in a week" are usually understating the work.
+
+**What is the future of AI SDRs?**
+
+Three trends in 2026: voice AI for outbound calls (still nascent, regulatory headwinds in EU), multi-agent coordination (research agent + outreach agent + qualification agent), and tighter CRM integration through MCP and similar protocols. The category will consolidate; expect 30% of standalone AI SDR vendors to be acquired or shut down by 2027.
