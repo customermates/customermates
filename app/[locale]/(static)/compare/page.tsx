@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 
-import { existsSync, statSync } from "node:fs";
-import path from "node:path";
-
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -24,19 +21,6 @@ function tagForCompareSlug(slug: string): string {
   return "Review";
 }
 
-function imageIfExists(slug: string, locale: string): string | undefined {
-  const candidate = path.join(process.cwd(), "public", "images", "light", locale, `${slug}.png`);
-  return existsSync(candidate) ? `${slug}.png` : undefined;
-}
-
-function lastModifiedISO(filePath: string): string | undefined {
-  try {
-    return statSync(filePath).mtime.toISOString();
-  } catch {
-    return undefined;
-  }
-}
-
 export default async function CompareHubPage() {
   const locale = await getLocale();
   const page = compareSource.getPage(["compare"], locale);
@@ -54,13 +38,10 @@ export default async function CompareHubPage() {
       if (slug.includes("-vs-") && competitor2) title = `${p.data.competitorName} vs ${competitor2}`;
       else if (slug.endsWith("-alternative")) title = `${p.data.competitorName} alternative`;
 
-      const filePath = path.join(process.cwd(), "content", "compare-pages", locale, `${slug}.mdx`);
-
       return {
-        date: lastModifiedISO(filePath),
         description: p.data.description,
         href: `/compare/${slug}`,
-        imageSrc: imageIfExists(slug, locale),
+        imageSrc: `${slug}.png`,
         tag: tagForCompareSlug(slug),
         title,
       };

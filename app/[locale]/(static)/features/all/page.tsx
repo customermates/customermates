@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 
-import { existsSync, statSync } from "node:fs";
-import path from "node:path";
-
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -16,19 +13,6 @@ import { breadcrumbListSchema } from "@/core/seo/schemas";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return generateMetadataFromMeta({ locale, route: "/features/all" });
-}
-
-function imageIfExists(slug: string, locale: string): string | undefined {
-  const candidate = path.join(process.cwd(), "public", "images", "light", locale, `${slug}.png`);
-  return existsSync(candidate) ? `${slug}.png` : undefined;
-}
-
-function lastModifiedISO(filePath: string): string | undefined {
-  try {
-    return statSync(filePath).mtime.toISOString();
-  } catch {
-    return undefined;
-  }
 }
 
 export default async function FeaturesAllHubPage() {
@@ -45,13 +29,10 @@ export default async function FeaturesAllHubPage() {
       const slug = p.url?.split("/").pop() ?? "";
       if (!slug) return null;
 
-      const filePath = path.join(process.cwd(), "content", "feature-pages", locale, `${slug}.mdx`);
-
       return {
-        date: lastModifiedISO(filePath),
         description: p.data.description,
         href: `/features/${slug}`,
-        imageSrc: imageIfExists(slug, locale),
+        imageSrc: `${slug}.png`,
         tag: tagLabel,
         title: p.data.featureName,
       };
