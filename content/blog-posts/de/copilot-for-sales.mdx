@@ -1,0 +1,211 @@
+---
+title: "Copilot for Sales: Preise, Funktionen und Alternativen 2026"
+description: "Microsoft Copilot for Sales erklärt: echte Kosten, Lizenzvoraussetzungen, Umbenennung in Sales Agent und schlankere Open-Source-Alternativen ohne Lizenzstapel."
+
+hero:
+  title: "Copilot for Sales: Preise, Voraussetzungen, Alternativen"
+  description: "Was Microsoft Copilot for Sales wirklich kostet (es sind nicht nur 50 USD), wie er in Outlook und Teams funktioniert, und die Open-Source-Alternative ohne Lizenzstapel."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-04-30
+  tags:
+    - copilot-for-sales
+    - microsoft-copilot
+    - KI-Vertrieb
+    - CRM
+    - Open Source
+---
+
+# Copilot for Sales: Preise, Funktionen und Alternativen 2026
+
+Microsoft Copilot for Sales ist ein KI-Assistent, der innerhalb von Outlook, Teams und Word lebt, Kontext aus einem angebundenen CRM (Dynamics 365 Sales oder Salesforce Sales Cloud) zieht und Vertriebsmitarbeitern hilft, E-Mails zu entwerfen, Meetings zusammenzufassen, sich auf Anrufe vorzubereiten und CRM-Datensätze zu aktualisieren, ohne den Posteingang zu verlassen. Anfang 2026 hat Microsoft das Produkt innerhalb von Microsoft 365 Copilot in "Sales Agent" umbenannt, was die Richtung zeigt: vom Copilot, der vorschlägt, zum Agent, der handelt.
+
+Wenn du Copilot for Sales evaluierst, sind die wirklich wichtigen Fragen nicht "funktioniert es", sondern "was kostet es tatsächlich", "welche Lizenzen brauche ich, bevor es überhaupt läuft" und "ist es das richtige Werkzeug für ein kleines Team". Dieser Leitfaden beantwortet das, mit ausgerechneter Preismathematik und einem Vergleich zu den schlankeren Alternativen, die kleine Teams tatsächlich einsetzen.
+
+## Was ist Microsoft Copilot for Sales?
+
+Microsoft Copilot for Sales ist eine vertriebsfokussierte Erweiterung von Microsoft 365 Copilot. Sie verbindet sich direkt mit Dynamics 365 Sales (Microsofts eigenem CRM) oder Salesforce Sales Cloud und zeigt CRM-Daten innerhalb von Outlook, Teams und Word an Copilot. Die meistgenutzten Flows sind:
+
+- Entwerfen von Follow-up-E-Mails, geerdet im verbundenen CRM-Datensatz
+- Erzeugen von Meeting-Vorbereitungen aus vergangener Aktivität und Notizen
+- Zusammenfassung von Teams-Meetings in Aktionspunkte, synchronisiert ins CRM
+- Logging von E-Mail- und Meeting-Aktivität als strukturierte CRM-Datensätze
+- Beantworten von "Was ist der aktuelle Stand bei Acme" direkt in Outlook
+
+Das offizielle Produkt heißt "Microsoft 365 Copilot for Sales", und ab März 2026 verweisen die Microsoft-Learn-Dokumente darauf als "Sales Agent" — dasselbe Produkt, neu positioniert als Teil von Microsofts breiterem agentischem Wandel innerhalb von Microsoft 365 Copilot.
+
+## Ist Copilot for Sales ein CRM?
+
+Nein. Copilot for Sales ist eine KI-Schicht, die auf einem bestehenden CRM aufsitzt. Du brauchst weiterhin Dynamics 365 Sales oder Salesforce Sales Cloud darunter, damit überhaupt etwas funktioniert. Der Copilot ist der Assistent, das CRM ist die Datenbank, das Entitätsmodell und das System of Record.
+
+Das ist ein häufiger Verwechslungspunkt in Preisgesprächen: Käufer sehen "Copilot for Sales: 50 USD pro Nutzer pro Monat" und nehmen an, sie bekommen ein CRM mit KI. Tatsächlich bekommen sie ein KI-Add-on, das ein separates CRM-Abo zur Funktion benötigt.
+
+## Wie funktioniert Copilot im Vertrieb?
+
+Die Architektur ist überschaubar und sollte vor jeder Vertragsunterschrift verstanden sein.
+
+**Innerhalb der Microsoft 365 Apps.** Copilot for Sales erscheint im Outlook-Lesebereich (zeigt CRM-Kontext neben einer E-Mail), im Outlook-Verfassen-Fenster (entwirft Antworten mit CRM-Bezug), in Teams (Anruf-Zusammenfassungen, Aktionspunkte, Meeting-Recaps) und in Word (Angebotsentwürfe aus CRM-Datensätzen).
+
+**Anbindung an das CRM.** Copilot for Sales verbindet sich entweder mit Dynamics 365 Sales oder Salesforce Sales Cloud über einen konfigurierten Konnektor. Der Konnektor definiert die Feld-Mappings (welches Salesforce- oder Dynamics-Feld auf welchen Copilot-Datensatztyp abbildet) und die Sicherheitsgrenzen (welche Datensätze der Nutzer sehen darf).
+
+**Der Grounding-Flow.** Wenn ein Nutzer Copilot um Hilfe bittet, geht die Anfrage durch Microsofts Copilot-Orchestrierungs-Schicht, die den relevanten CRM-Kontext abruft, einen geerdeten Prompt zusammensetzt, das zugrundeliegende Sprachmodell aufruft und die Antwort zurückgibt. Das Muster entspricht Retrieval-Augmented Generation, mit dem CRM als Retrieval-Quelle.
+
+**Logging zurück ins CRM.** Wenn der Nutzer einen Entwurf, eine Zusammenfassung oder ein Update akzeptiert, kann Copilot die Aktivität als strukturierte Notiz, E-Mail-Log oder Aufgabe ins CRM zurückschreiben. Genau das ist der Teil, den die meisten Evaluierenden wollen, und der in der Praxis am variabelsten ist.
+
+## Voraussetzungen: Microsoft 365 Plan plus Dynamics 365 oder Salesforce
+
+Hier beginnen die Preisüberraschungen. Copilot for Sales funktioniert nicht isoliert. Du brauchst mindestens drei Dinge, bevor der Assistent überhaupt etwas zu tun hat.
+
+**1. Einen Microsoft 365 Plan.** Copilot for Sales setzt ein aktives Microsoft 365 Abonnement mit Outlook, Teams und Word voraus. Geeignete Pläne sind Microsoft 365 Business Standard, Business Premium und Enterprise E3/E5/F1/F3 sowie Education A3/A5. Microsoft 365 Basic reicht nicht.
+
+**2. Eine CRM-Lizenz.** Entweder Dynamics 365 Sales (jede Stufe ab Sales Professional) oder Salesforce Sales Cloud (Professional Edition oder höher). Die Kosten des CRM laufen separat und können den Copilot-Anteil dominieren.
+
+**3. Eine Copilot for Sales Lizenz.** Das ist der 50 USD pro Nutzer pro Monat Posten. Jährliche Laufzeit, monatlich abgerechnet. Mit der Konsolidierung der Sales-Funktionen in Microsoft 365 Copilot zahlen Kunden, die bereits eine Microsoft 365 Copilot Lizenz halten, zusätzlich nur 20 USD pro Nutzer pro Monat. Kunden mit Dynamics 365 Sales Premium zahlen zusätzlich 30 USD pro Nutzer pro Monat.
+
+**4. Microsoft 365 Copilot (oft).** Während Microsoft Copilot for Sales in das breitere Produkt Microsoft 365 Copilot überführt, sind manche Sales-Funktionen nur mit Microsoft 365 Copilot Lizenz im Bundle verfügbar, was selbst 30 USD pro Nutzer pro Monat kostet. Die genaue Lizenzmatrix hat sich 2025 und in 2026 mit der Konsolidierung verändert.
+
+## Preise und Lizenzmodell
+
+Der ausgewiesene Preis lautet 50 USD pro Nutzer pro Monat, das ist aber selten, was eine Organisation tatsächlich zahlt, sobald die Voraussetzungen gestapelt sind.
+
+Die realistische Gesamtkostenrechnung für ein 10-Sitze-Team:
+
+| Komponente | Pro Nutzer / Monat | Hinweise |
+|---|---|---|
+| Microsoft 365 Business Standard | 12,50 USD | Minimum für Outlook, Teams, Word |
+| Microsoft 365 Copilot | 30 USD | Erforderlich für vollen Sales-Agent-Funktionsumfang |
+| Dynamics 365 Sales Professional | 65 USD | Minimum CRM-Stufe, oder Salesforce Sales Cloud auf ähnlichem Niveau |
+| Copilot for Sales Add-on | 20 USD | Wenn Microsoft 365 Copilot bereits gehalten |
+| **Summe** | **~127,50 USD/Nutzer/Monat** | Vor Steuer, mit Jahresbindung |
+
+Für ein 10-Sitze-Team sind das rund 1.275 USD pro Monat oder 15.300 USD pro Jahr, vor jeder Implementierung. Der beworbene Standalone-Preis von 50 USD ist eine Marketing-Referenz. Die tatsächlichen Vollkosten liegen bei 100 bis 170 USD pro Nutzer, je nach Plan-Mix.
+
+Wenn dein CRM Salesforce statt Dynamics ist, ersetze die Dynamics-Zeile durch Salesforce Sales Cloud Professional (80 USD pro Nutzer pro Monat) für eine ähnliche Summe.
+
+## Funktionen im Vertriebsalltag
+
+Was Vertriebsmitarbeiter mit Copilot for Sales tatsächlich tun, fällt in vier Muster.
+
+**E-Mail-Entwurf in Outlook.** Der Vertriebler liest eine E-Mail vom Interessenten, drückt "Antwort entwerfen", Copilot zieht den passenden CRM-Datensatz, schlägt drei Antwortvarianten vor (kurz, ausführlich, mit nächstem Schritt), der Vertriebler wählt eine und passt sie an.
+
+**Meeting-Vorbereitung in Outlook.** Vor einem Termin generiert Copilot ein Briefing aus den letzten Aktivitäten, dem Deal-Status und den jüngsten E-Mails. Das spart die typischen 10-15 Minuten Vor-Check.
+
+**Anruf-Zusammenfassung in Teams.** Nach einem Teams-Meeting fasst Copilot die wichtigsten Punkte zusammen, schlägt Aktionspunkte vor und kann diese ins CRM als Aufgaben oder Notizen schreiben.
+
+**CRM-Update aus dem Posteingang.** "Setze Acme Deal auf Proposal Sent" direkt aus Outlook heraus, Copilot führt das Update gegen Dynamics oder Salesforce aus.
+
+Die Stärke ist die Integration in den Workflow, der ohnehin in Microsoft 365 stattfindet. Die Schwäche ist die strikte Bindung an genau diesen Workflow.
+
+## Wie aktiviere ich Copilot for Sales in Dynamics 365 Sales?
+
+Die Deployment-Sequenz ist gut dokumentiert, aber kein Ein-Klick-Erlebnis, sondern ein mehrstufiger Admin-Aufwand.
+
+**Schritt 1: Lizenzen prüfen.** Microsoft 365 Plan-Eignung bestätigen, Copilot for Sales Lizenzen den richtigen Nutzern zuweisen, CRM-Sitzplatzverteilung verifizieren.
+
+**Schritt 2: Konnektor konfigurieren.** Im Power Platform Admin Center oder direkt aus den Sales Hub-Einstellungen die Verbindung zwischen Microsoft 365 und dem CRM einrichten. Dazu gehören Feld-Mappings, Sicherheitsrollen und die Wahl, welche Datensätze für Copilot sichtbar werden.
+
+**Schritt 3: Copilot for Sales Add-in ausrollen.** Das Outlook- und Teams-Add-in muss über das Microsoft 365 Admin Center bereitgestellt werden. Die meisten Unternehmen tun das über bestehende App-Deployment-Richtlinien, kleinere Organisationen müssen es ggf. manuell pro Nutzer aktivieren.
+
+**Schritt 4: Verkäufer schulen.** Das Produkt ist nur so nützlich, wie die Prompts, die das Team zu stellen lernt. Erfolgreiche Rollouts beinhalten in der Regel ein einstündiges Kickoff plus wöchentliche Tipps in den ersten 60 Tagen.
+
+**Schritt 5: Adoption messen.** Microsoft liefert Nutzungs-Analytik im Sales Hub. Ziel: tägliche aktive Nutzung über 60 % innerhalb von 90 Tagen. Darunter bricht die ROI-Rechnung.
+
+## Copilot "for" Sales vs. Copilot "in" Sales: der Unterschied
+
+Das ist die Falle, die die meisten Käufer übersehen. Microsoft verkauft zwei verwandte Produkte mit verwirrend ähnlichen Namen.
+
+**Copilot in Sales** ist die KI direkt in Dynamics 365 Sales. Wenn du Dynamics 365 Sales Enterprise oder Premium hast, ist Copilot in Sales enthalten. Es funktioniert nur innerhalb der Dynamics-365-Web- und Mobile-App, nicht innerhalb von Outlook oder Teams.
+
+**Copilot for Sales** ist das breitere Produkt, das innerhalb der Microsoft-365-Apps (Outlook, Teams, Word) erscheint, mit Anbindung ans CRM. Es ist das separat lizenzierte Add-on, das oben beschrieben wurde.
+
+Wenn dein Team in Outlook und Teams lebt, willst du Copilot for Sales (oder Microsoft 365 Copilot mit den Sales-Funktionen im Bundle). Wenn dein Team in der Dynamics-365-Web-App lebt, reicht Copilot in Sales und ist mit deiner Stufe schon enthalten.
+
+Das zu verwechseln kostet Geld. Wir sehen Organisationen, die unnötig beides bezahlen.
+
+## Lohnt sich Copilot for Sales?
+
+Die ehrliche Antwort hängt davon ab, auf welcher Seite zweier Schwellen du stehst.
+
+**Lohnt sich, wenn:**
+- Du bist ohnehin tief in Microsoft 365 (E3/E5) und Dynamics 365 oder Salesforce
+- Deine Verkäufer verbringen den Großteil des Tages in Outlook und Teams
+- Du hast einen Salesforce- oder Dynamics-Admin, der den Konnektor konfigurieren und pflegen kann
+- Du hast mindestens 25 bis 50 Verkäufer (die Pro-Sitz-Mathematik wird darunter schwierig)
+- Dein bestehendes CRM ist System of Record und das ändert sich nicht
+
+**Lohnt sich nicht, wenn:**
+- Du bist ein kleines Team (unter 20 Verkäufern) ohne Microsoft-365-Admin
+- Du hast kein Dynamics 365 oder Salesforce und willst dich auf keines festlegen
+- Deine Verkäufer arbeiten außerhalb von Outlook und Teams (Gmail, Slack, eigene Tools)
+- Du willst das "KI im CRM"-Erlebnis ohne den gestapelten Lizenzturm
+- Du willst eine Open-Source- oder selbst hostbare Option für Datensouveränität
+
+Für die zweite Liste ist die richtige Antwort nicht Copilot for Sales, sondern ein CRM, in dem die KI nativ ist und der Lizenzturm eine Zeile umfasst.
+
+## DSGVO und Datenresidenz
+
+Für DACH-Käufer ist Datenresidenz nicht optional. Microsoft 365 hat EU-Rechenzentrums-Optionen, Copilot for Sales ebenfalls. Allerdings:
+
+- Generative Anfragen können je nach Modellanbieter US-Endpoints treffen, sofern nicht explizit konfiguriert
+- Auftragsverarbeitung mit Microsoft ist Standard, Subprozessoren ändern sich gelegentlich
+- Daten in Dynamics 365 oder Salesforce liegen je nach gewählter Region in der EU oder den USA, das CRM-Setup ist die kritische Stelle, nicht der Copilot
+
+Wer harte Datensouveränität braucht (selbst hostbar, AGPL-3.0, Daten verlassen die eigene Infrastruktur nie), findet das bei Microsoft nicht. Open-Source-CRMs mit nativer KI-Anbindung sind die Antwort darauf, siehe nächster Abschnitt.
+
+## Alternativen: schlanke, offene KI im CRM
+
+Für Teams, die nicht in den Microsoft-Stack passen, gibt es drei realistische Alternativen mit sehr unterschiedlichen Profilen.
+
+**[Salesforce Einstein](/blog/salesforce-einstein) und Agentforce.** Die Spiegelbild-Option: Salesforce statt Microsoft, mit der KI im CRM statt in den Produktivitäts-Apps. Vergleichbarer Lizenzturm (Sales Cloud plus Einstein-Add-on oder Einstein 1 Edition), ähnliche Pro-Nutzer-Ökonomie. Details im [Agentforce-Erklärartikel](/blog/agentforce).
+
+**HubSpot Breeze AI.** HubSpots gebündelte KI-Funktionen in Sales Hub, Service Hub und Marketing Hub. Leichter als die Microsoft- oder Salesforce-Optionen, setzt aber Pro- oder Enterprise-Stufen voraus, um die meisten KI-Fähigkeiten zu nutzen. Die Trade-offs stehen im [HubSpot-Alternative-Vergleich](/compare/hubspot-alternative).
+
+**[Customermates](/).** Die Open-Source-Alternative für Teams, die KI im CRM wollen, ohne den Lizenzturm. Customermates ist ein Open-Source-CRM mit 57 nativen [MCP-Tools](/features/api), die Claude, ChatGPT und Gemini direkt Kontakte, Unternehmen, Deals, Services und Aufgaben lesen und schreiben lassen. Statt 50 USD pro Nutzer für die KI-Schicht plus 80 USD pro Nutzer für ein CRM zu zahlen, zahlst du 9 EUR pro Nutzer pro Monat für das CRM und bringst deinen eigenen KI-Assistenten mit (für den die meisten Teams ohnehin schon ein Abo haben). Das Ergebnis ist dieselbe Wirkung — entworfene E-Mails, zusammengefasste Meetings, aktualisierte Datensätze, alles aus dem KI-Assistenten heraus, den dein Team nutzt — bei rund einem Zehntel der Sitz-Kosten und ohne Microsoft- oder Salesforce-Lock-in.
+
+Der entscheidende architektonische Unterschied: Copilot for Sales setzt die KI in Microsoft 365 und greift ins CRM. Customermates stellt das CRM in die Mitte und lässt jeden KI-Assistenten es bedienen. Für Teams, die nicht ohnehin tief im Microsoft-Stack sind, ist das zweite Muster leichter, günstiger und flexibler.
+
+## Was Customermates leistet, das Copilot for Sales auch leistet
+
+Damit der Vergleich konkret wird: was Copilot for Sales Vertrieblern erlaubt, und der entsprechende Flow in Customermates.
+
+| Aufgabe | Copilot for Sales | Customermates |
+|---|---|---|
+| Follow-up-E-Mail entwerfen | "Antwort an John bei Acme entwerfen" in Outlook | Gleicher Prompt an Claude oder ChatGPT, mit [CRM-Kontext](/features/lead-management) via MCP |
+| Teams-Meeting zusammenfassen | Auto-Zusammenfassung in Teams mit CRM-Logging | Transkript an Claude geben, der via MCP den Deal aktualisiert und Aufgaben erstellt |
+| Deal-Stage aktualisieren | In Outlook klicken, Stage wählen, speichern | "Setze Acme Deal auf Proposal Sent" im Chat, Claude führt das via MCP aus |
+| Meeting-Vorbereitung holen | Copilot zieht aus dem CRM, entwirft Briefing | Claude liest CRM via MCP, entwirft Briefing im Chat |
+| Kundenanruf protokollieren | In Teams klicken, Aktivität speichern | Claude erzählen was passiert ist, strukturierte Notiz plus Aufgabe |
+
+Das Nutzererlebnis unterscheidet sich (in-app bei Copilot, im-Chat bei Customermates), das Deal-Datensatz-Ergebnis ist dasselbe. Der Kostenunterschied liegt rund eine Größenordnung, das Plattform-Commitment dramatisch niedriger.
+
+## Häufige Fragen
+
+**Was ist Microsoft Copilot for Sales?**
+Ein KI-Assistent, der innerhalb von Outlook, Teams und Word lebt, sich mit Dynamics 365 Sales oder Salesforce Sales Cloud verbindet und Vertriebsmitarbeitern hilft, E-Mails zu entwerfen, Meetings zusammenzufassen, sich auf Anrufe vorzubereiten und das CRM zu aktualisieren, ohne Microsoft 365 zu verlassen.
+
+**Wie funktioniert Copilot im Vertrieb?**
+Über einen konfigurierten Konnektor zu Dynamics 365 oder Salesforce, mit Grounding der Prompts auf CRM-Daten und Aktionen, die zurück ins CRM geschrieben werden.
+
+**Ist Copilot für den Vertrieb jetzt in Copilot enthalten?**
+Ja. Microsoft konsolidiert Copilot for Sales in Microsoft 365 Copilot. Kunden mit Microsoft 365 Copilot Lizenz zahlen für die Sales-Funktionen ein zusätzliches Add-on (rund 20 USD pro Nutzer pro Monat). Standalone-Copilot-for-Sales-Lizenzen werden ausgesteuert.
+
+**Wie aktiviere ich Copilot für Sales in Dynamics 365 Sales?**
+Lizenzzuweisung im Microsoft 365 Admin Center, Konnektor-Konfiguration im Power Platform oder Sales Hub, Add-in-Bereitstellung über App-Richtlinien, Schulung der Verkäufer. Typische Rollouts dauern zwei bis vier Wochen für eine kleine Organisation, länger im Enterprise.
+
+**Was kostet Copilot for Sales?**
+Listenpreis 50 USD pro Nutzer pro Monat, plus bestehender Microsoft 365 Plan plus bestehende CRM-Lizenz. Realistische Vollkosten liegen bei 100 bis 170 USD pro Nutzer pro Monat für ein kleines Team, je nach Stufen-Mix. Für Organisationen, die bereits Microsoft 365 Copilot halten, kostet das Add-on 20 USD pro Nutzer pro Monat.
+
+**Mit welchen CRMs funktioniert Copilot for Sales?**
+Microsoft Dynamics 365 Sales (jede Stufe ab Sales Professional) oder Salesforce Sales Cloud (Professional Edition oder höher).
+
+**Funktioniert Copilot for Sales außerhalb des Microsoft-Stacks?**
+Begrenzt. Das Kernerlebnis benötigt Microsoft 365 (Outlook, Teams, Word). Salesforce als CRM wird unterstützt, Gmail, Slack und andere Nicht-Microsoft-Produktivitätstools nicht.
+
+**Lohnt sich Copilot for Sales?**
+Für Organisationen, die ohnehin tief in Microsoft 365 und Dynamics 365 oder Salesforce sind, mit 25 oder mehr Verkäufern, ja. Für kleinere Teams oder Teams außerhalb des Microsoft-Stacks rechnen sich schlankere Alternativen besser.
+
+**Was ist die Open-Source-Alternative zu Copilot for Sales?**
+[Customermates](/) ist ein Open-Source-CRM mit 57 nativen MCP-Tools, die Claude, ChatGPT und Gemini das CRM direkt bedienen lassen. Es liefert dieselben Workflow-Ergebnisse (entworfene E-Mails, Meeting-Zusammenfassungen, Deal-Updates) ohne den gestapelten Microsoft-Lizenzturm. Self-Hosting via Docker kostenlos, EU-Cloud ab 9 EUR pro Nutzer pro Monat.

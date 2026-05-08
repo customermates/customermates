@@ -1,0 +1,220 @@
+---
+title: "Salesforce Einstein: Was es kann, was es kostet, Alternativen 2026"
+description: "Salesforce Einstein ist die KI in Salesforce. Funktionen, Lizenzmodell, echte Kosten, DSGVO und schlankere Alternativen für kleine Teams im DACH-Raum."
+
+hero:
+  title: "Salesforce Einstein: Was es kann, was es kostet, Alternativen"
+  description: "Ein ehrlicher Leitfaden zu Salesforce Einstein: Funktionen, Preise, Trust Layer, Agentforce-Umbenennung und wann sich der Aufwand für kleine Teams nicht lohnt."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-04-22
+  tags:
+    - salesforce-einstein
+    - einstein-gpt
+    - Salesforce
+    - KI-CRM
+    - DSGVO
+---
+
+# Salesforce Einstein: Was es kann, was es kostet, Alternativen 2026
+
+Salesforce Einstein ist die KI-Technologie, die in der Salesforce Customer 360 Plattform eingebaut ist. Sie zieht sich quer durch Sales Cloud, Service Cloud, Marketing Cloud und Commerce Cloud als Schicht aus prädiktivem Scoring, generativer KI und konversationeller Assistenz, und sie wird mit den CRM-Daten trainiert, die ohnehin in Salesforce liegen.
+
+Konkret bewertet Einstein Leads, fasst Anrufe zusammen, entwirft E-Mails, klassifiziert Service-Cases und beantwortet Fragen zur Pipeline. Es ist die Antwort, die Salesforce gibt, wenn Käufer fragen "kann Salesforce KI". Die Antwort lautet ja, allerdings mit einem Stapel aus Lizenzstufen, Add-ons und Voraussetzungen darunter, der auf den Marketingseiten nicht offensichtlich ist.
+
+Dieser Leitfaden erklärt, was Salesforce Einstein 2026 wirklich ist, wie es funktioniert, was es kostet, wo der Trust Layer hingehört, was sich mit der Umbenennung von Einstein Copilot zu Agentforce geändert hat, und welche Alternativen sich für kleine Teams oder preissensible Käufer lohnen.
+
+## Was ist Salesforce Einstein?
+
+Salesforce Einstein ist eine Sammlung von KI-Funktionen, die in der gesamten Salesforce-Plattform eingebettet sind. Es kombiniert maschinelles Lernen, natürliche Sprachverarbeitung, prädiktive Analytik und Large Language Models zu einer einzigen Schicht, die auf den bereits in Salesforce gespeicherten Kundendaten arbeitet. Salesforce hat die Marke Einstein 2016 eingeführt und mit jeder Release-Welle erweitert.
+
+Die aktuelle Einstein 1 Plattform vereint vier Bestandteile: das Salesforce CRM-Datenmodell (Customer 360), die Data Cloud (eine Echtzeit-Kundendatenplattform), die KI-Schicht (Einstein) und Hyperforce (die Cloud-Infrastruktur). Einstein für sich ist die KI-Schicht. Einstein 1 ist der Marketingname für alles, was unterhalb der Anwendung läuft und Einstein speist.
+
+Eine kurze, brauchbare Definition: **Salesforce Einstein ist die KI, die innerhalb von Salesforce lebt, mit deinen CRM-Daten gefüttert wird und über Vorhersage-Scores, generierte Inhalte und konversationelle Oberflächen in jeder Salesforce-Cloud erscheint.**
+
+## Wie Salesforce Einstein funktioniert
+
+Einstein arbeitet in drei Modi, und die meisten Salesforce-Kunden nutzen am Ende alle drei.
+
+**Prädiktive KI** ist das ursprüngliche Einstein. Es scort Leads, scort Opportunities, prognostiziert Abwanderung, empfiehlt die nächste beste Aktion und sagt Umsatz voraus. Die Modelle werden auf deiner historischen CRM-Datenlage plus aggregierten Salesforce-Modellen trainiert. Dieser Teil läuft seit 2018 stabil im produktiven Einsatz.
+
+**Generative KI** ist Einstein GPT plus der Prompt Builder. Damit werden E-Mails entworfen, Datensätze zusammengefasst, Produktbeschreibungen erstellt und Inhalte aus deinen CRM-Daten plus einem angebundenen Sprachmodell erzeugt. Salesforce nutzt je nach Anwendungsfall eine Mischung aus OpenAI, Anthropic und eigenen Modellen und routet jeden Aufruf vor dem Verlassen der Salesforce-Umgebung durch den Einstein Trust Layer.
+
+**Konversationelle KI** ist Einstein Copilot, den Salesforce Anfang 2025 in Agentforce Assistant umbenannt hat. Das ist die Chat-Oberfläche, die Pipeline-Fragen beantwortet, Aufgaben ausführt und mehrstufige Aktionen orchestriert. Alles, was du früher zusammenklicken musstest, kannst du jetzt in natürlicher Sprache anfordern.
+
+Hinter allen drei Modi sitzt die Data Cloud, die Echtzeit-Datenintegrationsschicht. Sie ermöglicht Einstein, Kontext aus Quellen außerhalb des CRM zu lesen, ohne eine fragile ETL-Pipeline. Ohne angebundene Data Cloud arbeitet Einstein weiterhin auf Salesforce-nativen Datensätzen, viele der cloud-übergreifenden Versprechen aus dem Marketing-Material setzen sie aber voraus.
+
+## Salesforce Einstein für Vertrieb (Sales Cloud)
+
+Einstein für Sales Cloud ist das Paket, das die meisten CRM-Käufer zuerst evaluieren. Die wichtigsten Funktionen:
+
+- **Einstein Lead Scoring und Opportunity Scoring**: Machine-Learning-Modelle, die Leads und Opportunities nach Konversions- bzw. Abschlusswahrscheinlichkeit ranken, kontinuierlich aktualisiert
+- **Einstein Aktivitätserfassung**: automatisches Mitschreiben von E-Mails und Kalenderereignissen in Salesforce-Kontakte, Opportunities und Accounts
+- **Einstein Conversation Insights**: Anruf-Transkription mit Themen-Erkennung (Wettbewerber, Preise, Einwände), die in Coaching- und Forecast-Ansichten einfließt
+- **Einstein Forecasting**: rollierender Umsatz-Forecast, trainiert auf Pipeline-Bewegung, Deal-Geschwindigkeit und historischen Abschlussraten
+- **Vertriebs-E-Mails und generative Entwurfsfunktion**: persönliche E-Mails direkt aus dem CRM-Datensatz heraus verfassen und versenden
+- **Einstein Relationship Insights**: Verbindungen zwischen Kontakten, Accounts und den Netzwerken deiner Vertriebsmitarbeiter sichtbar machen
+
+Diese Funktionen leben alle in der Sales Cloud und setzen entweder Sales Cloud Einstein (Add-on pro Nutzer) oder die Einstein 1 Sales Edition (höherpreisige All-in-Stufe) voraus.
+
+## Einstein für Service, Marketing und Commerce
+
+Einstein für Service wird dominiert von Einstein Bots (Chatbots zur Case-Ablenkung), Service Replies (Antwortvorschläge für Agenten), Article Recommendations (Vorschläge aus der Wissensdatenbank) und dem Case-Klassifikationsmodell. Die neueren Bausteine sind Anrufzusammenfassung und die Vorhersage von Kundenabsichten.
+
+Einstein für Marketing fokussiert auf Send Time Optimization (das Modell, das pro Empfänger den besten Versandzeitpunkt wählt), Engagement Scoring, Inhaltserzeugung und Audience-Segmentierung aus Data-Cloud-Signalen.
+
+Einstein für Commerce umfasst Produktempfehlungen auf B2C-Storefronts, Predictive Sort und automatische Erzeugung von Produktbeschreibungen. Die meisten Commerce-Käufer evaluieren zusätzlich Personalization (die Ausgliederung dessen, was früher Einstein Personalization war).
+
+Das Muster über alle vier Clouds ist dasselbe: einige reife prädiktive Modelle, die seit Jahren laufen, plus eine dünnere Schicht neuerer generativer Funktionen, die von Einstein GPT und Data Cloud abhängen.
+
+## Einstein Copilot, Prompt Builder und Model Builder
+
+2024 hat Salesforce drei Werkzeuge eingeführt, mit denen Admins und Entwickler Einstein über das Standardpaket hinaus erweitern können.
+
+**Einstein Copilot**, jetzt [Agentforce](/blog/agentforce) Assistant, ist die konversationelle Oberfläche in jeder Salesforce-App. Sie beantwortet Fragen, führt vordefinierte Aktionen aus und kettet sie miteinander. Die Umbenennung 2025 war eine Positionierung, kein Funktionswechsel: Agentforce ist der Plattformname, Agenten sind die Einheiten, und der Begriff Copilot wurde abgekündigt.
+
+**Prompt Builder** ist ein Low-Code-Studio zum Erstellen wiederverwendbarer KI-Prompts, die in CRM-Daten verankert sind. Admins schreiben eine Prompt-Vorlage, binden sie an Datensatzfelder und stellen sie als Button oder Flow-Aktion bereit. So fügen die meisten Salesforce-Orgs eigene generative KI-Erlebnisse hinzu, ohne Code zu schreiben.
+
+**Model Builder** erlaubt es Organisationen, eigene Modelle einzubringen, entweder durch Training auf Data Cloud oder durch Anbindung eines externen LLM-Endpoints (Azure OpenAI, AWS Bedrock, Google Vertex). Das ist relevant für Käufer mit strikten Anforderungen an Datenresidenz oder Modellauswahl.
+
+## Der Einstein Trust Layer
+
+Der Einstein Trust Layer ist Salesforces Antwort auf die offensichtliche Enterprise-Sorge bei generativer KI: wo gehen meine Daten hin und was passiert mit ihnen. Er sitzt zwischen jeder generativen Einstein-Anfrage und dem zugrundeliegenden Sprachmodell.
+
+Der Trust Layer leistet fünf Dinge:
+
+1. **Sichere Datenabfrage**: nur Daten, die der anfragende Nutzer sehen darf, fließen in den Prompt
+2. **Dynamische Verankerung**: der Prompt wird zur Laufzeit mit relevantem CRM-Kontext angereichert
+3. **Datenmaskierung**: PII und sensible Felder können vor dem Verlassen von Salesforce tokenisiert werden
+4. **Zero Data Retention**: vertragliche Zusicherung der Modellanbieter, dass Prompt- und Antwortdaten nicht gespeichert oder zum Training genutzt werden
+5. **Toxicity Detection und Audit-Logging**: jede generative Anfrage wird protokolliert, bewertet und für Compliance-Reviews verfügbar gehalten
+
+Der Trust Layer ist in den Einstein 1 Editionen und Agentforce-SKUs enthalten, die Maskierungsregeln und Audit-Aufbewahrung variieren je nach Edition.
+
+## Was kostet Salesforce Einstein wirklich?
+
+Das Preismodell von Salesforce Einstein ist der Teil, der die meisten Käufer überrascht, weil es keinen einzelnen Listenpreis gibt. Du bezahlst durch drei Türen, oft gleichzeitig.
+
+**Pro-Nutzer-Add-ons.** Sales Cloud Einstein und Service Cloud Einstein werden pro Nutzer und Monat zusätzlich zur Basis-CRM-Lizenz berechnet. Öffentliche Listenpreise lagen historisch bei etwa 50 bis 75 USD pro Nutzer pro Monat für Sales Cloud Einstein, mit erheblichen Enterprise-Rabatten.
+
+**Gebündelte Editionen.** Einstein 1 Sales Edition und Einstein 1 Service Edition sind höherpreisige Stufen, die Einstein, Sales/Service Cloud und Slack zu einem einzigen Pro-Nutzer-Tarif bündeln. Öffentliche Listenpreise liegen bei rund 500 USD pro Nutzer pro Monat für Einstein 1 Sales Edition, ebenfalls verhandelbar.
+
+**Verbrauchsabhängige generative KI.** Einstein GPT und Agentforce kommen mit nutzungsabhängigen Verbrauchskosten obendrauf. Generative Aktionen werden pro "Einstein Request" oder pro Flex Credit abgerechnet, und große Deployments können je nach Anzahl an E-Mails, Zusammenfassungen und Agenten-Aktionen schnell fünfstellige Monatsrechnungen produzieren.
+
+**Erforderliche Voraussetzungen.** Die meisten nützlichen Einstein-Funktionen setzen Data Cloud voraus, ein eigenständiges Produkt mit eigenem Verbrauchstarif. Ohne Data Cloud bekommst du die älteren prädiktiven Funktionen, aber nicht die cloud-übergreifende Verankerung, die Salesforce heute bewirbt.
+
+Der ehrliche Einstiegspunkt für ein kleines Team, das echten Einstein-Mehrwert will (Sales Cloud + Einstein-Add-on + eine Starter-Allokation Data Cloud), liegt nach Rabatten realistisch bei 200 bis 400 USD pro Nutzer pro Monat. Das ist die Zahl, die nicht auf den Marketingseiten steht, aber bei der Budgetierung relevant ist.
+
+Eine vollständige Aufschlüsselung pro Edition findest du im [Salesforce Pricing Vergleich](/compare/salesforce-pricing).
+
+## Salesforce Einstein vs. Agentforce
+
+Agentforce ist kein Ersatz für Einstein. Es ist die Plattformschicht oberhalb von Einstein, mit der du autonome KI-Agenten baust und ausrollst. Einstein bleibt die zugrundeliegende KI-Funktionalität, Agentforce ist, wie du Einstein in Agenten-Workflows orchestrierst.
+
+| Begriff | Was es ist | Wann du es brauchst |
+|---|---|---|
+| Einstein | Die KI-Schicht (prädiktiv, generativ, konversationell) | Eingebettete Scores, entworfene E-Mails, Zusammenfassungen in jeder Salesforce-App |
+| Einstein Copilot | Der alte Name für den Chat-Assistenten | Ersetzt durch Agentforce Assistant |
+| Agentforce Assistant | Die konversationelle KI in jeder Salesforce-App | Fragen stellen, Aktionen ausführen, Zusammenfassungen abrufen |
+| Agentforce Service Agent | Ein deploybarer autonomer Service-Agent | Tickets End-to-End ohne Mensch im Loop |
+| Agentforce Sales Agent | Ein deploybarer autonomer Vertriebs-Agent | Inbound qualifizieren, Outbound entwerfen, Termine buchen |
+
+Die ausführliche Aufschlüsselung steht im [Agentforce Erklärartikel](/blog/agentforce). Kurzfassung: wer 2023 Einstein gekauft hat, hat das meiste schon. Der Agentforce-Launch hat Agenten-Orchestrierung dazugelegt, keine neue Kernfunktion.
+
+## DSGVO und Datenresidenz
+
+Für DACH-Mittelstand und Compliance-getriebene Käufer ist die Frage nicht "kann Einstein DSGVO", sondern "wie sauber".
+
+Einstein läuft auf Hyperforce, der Salesforce-Cloud-Infrastruktur, die EU-Regionen einschließlich Frankfurt anbietet. Generative Anfragen können konfiguriert werden, um EU-Endpoints zu treffen, allerdings nur, wenn der gewählte Modellanbieter dort einen EU-Inferenzpunkt anbietet (das schließt einige Modelle aus oder erzwingt einen Modellwechsel).
+
+Der Trust Layer enthält PII-Maskierung als konfigurierbare Funktion, nicht als Standard. Du musst die zu maskierenden Felder explizit deklarieren. Die Datenverarbeitungsvereinbarung (AVV) ist Standard bei Salesforce Enterprise-Verträgen, die Auftragsverarbeitung pro Subprozessor (insbesondere Modellanbieter) ist die Stelle, an der Compliance-Teams zweimal hinschauen sollten.
+
+Die saubere DSGVO-Antwort für sehr datensensible Organisationen ist Self-Hosting. Salesforce bietet das nicht an. Wer Self-Hosting als Option auf dem Tisch haben will, muss zu einer [Open-Source-Lösung](/blog/open-source-crm) wechseln, die das unterstützt.
+
+## Wann sich Salesforce Einstein für kleine Teams nicht lohnt
+
+Einstein ist für Organisationen gebaut, die ohnehin auf Salesforce laufen. Wenn du ein Fünf-Personen-Team mit Pipedrive bist, eine Fünfzehn-Personen-Beratung mit Notion, oder ein Founder-Led-Unternehmen ganz ohne CRM, dann ist Einstein der falsche Startpunkt. Die Gründe sind einfach:
+
+**Einstiegspreis.** Wie oben: realistisch 200 bis 400 USD pro Nutzer pro Monat. Für ein zehnköpfiges Team sind das 2.000 bis 4.000 USD pro Monat, bevor irgendeine Anpassung passiert ist.
+
+**Implementierungs-Overhead.** Eine sinnvolle Einstein-Einführung dauert mit Partner typischerweise 60 bis 90 Tage, zwischen Data-Cloud-Setup, Modell-Tuning und Admin-Schulung. Kleine Teams haben keinen Salesforce-Admin.
+
+**Daten-Voraussetzungen.** Prädiktive Modelle brauchen Historie. Generative Verankerung braucht Datenqualität. Beides ist in einer brandneuen Pipeline schwach.
+
+**Lock-in und Ausstiegskosten.** Salesforce-Daten sind auf dem Papier portabel, in der Praxis teuer zu bewegen. Migrationsprojekte aus Salesforce dauern routiniert 6 bis 12 Monate. Der richtige Zeitpunkt, diesen Lock-in zu bewerten, ist vor dem ersten Vertrag, nicht danach.
+
+Für Teams mit einem dieser Profile ist der richtige Schritt ein CRM mit nativer KI-Anbindung, das eine Größenordnung weniger kostet, im Zweifel via [Open Source](/blog/open-source-crm) im Eigentum, wenn Datenhoheit zählt.
+
+## Salesforce Einstein Alternativen für kleine Teams
+
+Es gibt eine mittlere Schicht von Produkten, die das meiste von dem liefern, was Einstein bietet (KI im CRM, agentengetriebene Dateneingabe, generative Entwürfe), zu einem Bruchteil der Kosten und ohne die Plattform-Verpflichtung.
+
+**HubSpot Breeze AI.** HubSpots Pendant zu Einstein, gebündelt über Sales Hub, Service Hub und Marketing Hub. Stark im Marketing-Bereich, schwächer bei eigenen Agenten-Workflows. Bleibt eine 50- bis 100-USD-pro-Sitz-Antwort, sobald man Pro/Enterprise erreicht. Den Funktionsabgleich liefert der [HubSpot-Alternative-Vergleich](/compare/hubspot-alternative).
+
+**Pipedrive AI Assistant.** Ein leichteres Angebot mit Fokus auf Vertriebsmitarbeiter: deal-bezogene KI-Vorschläge, E-Mail-Verfassung und Forecasting. Weniger ehrgeizig als Einstein, aber für reine Vertriebsteams angemessen. Der Trade-off steht im [Pipedrive-Alternative-Vergleich](/compare/pipedrive-alternative).
+
+**[Customermates](/).** Ein Open-Source-CRM, in dem die KI-Schicht das LLM ist, das du ohnehin nutzt. Über 57 native MCP-Tools lesen und schreiben Claude, ChatGPT und Gemini direkt Kontakte, Unternehmen, Deals, Services und Aufgaben. Es gibt keine separate KI-Schicht zu lizenzieren, keine Data Cloud, keinen Trust Layer einzukalkulieren. Das CRM stellt sein Datenmodell über ein standardisiertes Protokoll bereit, und jeder kompatible KI-Agent bedient es. Auf EU-Cloud kostet das 9 EUR pro Nutzer pro Monat (jährlich), Self-Hosting via Docker ist kostenlos.
+
+Der architektonische Unterschied zählt: Einstein ist eine geschlossene KI-Schicht innerhalb einer geschlossenen Plattform. Der MCP-basierte Ansatz ist ein CRM, das jede KI bedienen kann, und die KI, die du mitbringst, wird besser, ohne dass du auf einen Salesforce-Release warten musst.
+
+## Realistischer Salesforce Einstein Implementierungs-Zeitplan
+
+Ein nutzbares Einstein-Deployment ist ein Projekt, kein Schalter, den man umlegt. Die Form eines 60- bis 90-Tage-Rollouts für ein 25- bis 100-köpfiges Vertriebsteam, das schon auf Sales Cloud läuft:
+
+**Tag 1 bis 14: Lizenzen und Zugriffe.** Einkauf zeichnet das Einstein-Add-on oder upgraded auf eine Einstein 1 Edition. Admin weist Einstein-Permission-Sets zu. Wenn Data Cloud Teil des Deals ist, wird die Data-Cloud-Sandbox provisioniert und mit der Sales-Cloud-Produktiv-Org verbunden. Stakeholder einigen sich auf Erfolgsmetriken: Forecast-Genauigkeit, Deal-Geschwindigkeit, Rep-Adoption, Ticket-Deflection-Rate, je nach Anwendung.
+
+**Tag 15 bis 30: Datengrundlage.** Einstein-Scoring-Modelle trainieren auf historischen Opportunity-Daten. Der Trust Layer wird mit PII-Maskierungsregeln konfiguriert. Data Cloud (sofern vorhanden) zieht externe Quellen ein: Marketing Automation, Kundensupport, Transaktionssysteme. Das Team legt fest, welche Felder die KI lesen darf und welche nicht. Genau dieser Schritt zieht sich am längsten, weil echte CRM-Daten unsauberer sind als die Demo-Daten, die das Vertriebsteam gesehen hat.
+
+**Tag 31 bis 60: Workflow-Integration.** Sales-Manager und Admins konfigurieren Prompt-Vorlagen im Prompt Builder (oder im Agentforce Builder für neuere Agenten-Flows). Vertriebler bekommen Hands-on-Training auf der konversationellen Oberfläche. Einstein-Aktivitätserfassung wird ausgerollt. Lead Scoring und Opportunity Scoring wechseln von "rein informativ" zu "Automatisierung auslösen", sobald Manager dem Signal vertrauen.
+
+**Tag 61 bis 90: Tuning und Adoption.** Generative-KI-Nutzung wird pro Rep gemessen. Prompt-Vorlagen mit schwachem Output werden überarbeitet. Modelle, die konsistent falsch scoren, werden nachtrainiert. Bis Tag 90 sollte die tägliche aktive Nutzung über 60 % liegen. Liegt sie darunter, ist das Deployment gefährdet und das Gespräch wechselt von "Einstein ausrollen" zu "warum nutzen die Reps Einstein nicht" — ein anderes und schwierigeres Problem.
+
+Das Überlauf-Muster ist konsistent. Teams, die das in 30 Tage pressen, landen bei schlechter Datenqualität und kaputtem Vertrauen. Teams, die 90 Tage für die erste Welle und eine zweite Welle für zusätzliche Fähigkeiten (eigene Prompts, Agenten-Flows, Drittanbieter-Connectoren) ansetzen, berichten am häufigsten, dass sich Einstein innerhalb eines Jahres rechnet.
+
+## So evaluierst du Salesforce Einstein für dein Team
+
+Wenn du Einstein ernsthaft erwägst, sind die Fragen vor Vertragsschluss konkret und beantwortbar.
+
+1. **Was ist unser Einstein-Einstiegspreis?** Sales Cloud Pro + Einstein-Add-on + Data-Cloud-Starter, in tatsächlich vertraglich vereinbarten Dollar pro Nutzer pro Monat, nach Rabatt.
+2. **Welche Funktionen sind prädiktiv vs. generativ?** Prädiktives Einstein läuft seit Jahren stabil. Generatives Einstein ist neuer und volatiler.
+3. **Haben wir 12 Monate saubere Pipeline-Daten?** Wenn nicht, produziert Scoring kein Signal.
+4. **Wer ist unser Salesforce-Admin?** Implementierung ohne Admin scheitert konsistent.
+5. **Wie sieht der Ausstieg aus?** Datenexport und Vertragsbedingungen schriftlich, vor der Unterschrift.
+6. **Haben wir leichtere Alternativen geprüft?** Insbesondere wenn das Ziel "KI in unserem CRM" lautet und nicht "Salesforce konkret".
+
+Einstein ist ein starkes Produkt, wenn diese Antworten zusammenpassen. Wenn nicht, ist es das falsche Werkzeug.
+
+## Häufige Fragen
+
+**Was ist Salesforce Einstein in einfachen Worten?**
+Die KI in Salesforce. Sie scort Leads, entwirft E-Mails, fasst Anrufe zusammen und beantwortet Fragen zur Pipeline. Die Funktionen verteilen sich auf Sales, Service, Marketing und Commerce Cloud.
+
+**Ist Salesforce Einstein dasselbe wie Einstein GPT?**
+Einstein GPT ist der generative Teil von Einstein. Einstein ist der breitere Sammelbegriff, der auch prädiktives Scoring und konversationelle Assistenz umfasst.
+
+**Was ist der Unterschied zwischen Einstein und Agentforce?**
+Einstein ist die KI-Schicht. Agentforce ist die Plattform, auf der man Agenten oberhalb dieser Schicht baut. Einstein Copilot wurde Anfang 2025 in Agentforce Assistant umbenannt.
+
+**Was kostet Salesforce Einstein?**
+Es gibt keinen einzelnen Preis. Pro-Nutzer-Add-ons liegen bei 50 bis 75 USD pro Nutzer pro Monat. Gebündelte Einstein 1 Editionen liegen bei rund 500 USD pro Nutzer pro Monat als Listenpreis. Generative Nutzung und Data Cloud werden separat abgerechnet. Realistischer Wert-Einstiegspunkt nach Rabatt: 200 bis 400 USD pro Nutzer pro Monat.
+
+**Funktioniert Salesforce Einstein mit unseren bestehenden Daten?**
+Prädiktive Funktionen brauchen mindestens 12 Monate CRM-Historie. Generative Funktionen profitieren von angebundener Data Cloud. Ohne Historie oder saubere Daten liefert Einstein schwache Ergebnisse.
+
+**Ist Salesforce Einstein in der EU verfügbar und DSGVO-konform?**
+Ja. Einstein läuft auf Hyperforce-Regionen einschließlich EU, der Trust Layer setzt Datenmaskierung durch. DSGVO-Konformität hängt weiterhin von der konkreten Konfiguration und der Auftragsverarbeitung ab.
+
+**Kann ich Einstein ohne Data Cloud nutzen?**
+Ja, für die älteren prädiktiven Funktionen. Die meisten neueren generativen und Verankerungs-Fähigkeiten erwarten eine angebundene Data Cloud.
+
+**Gibt es Open-Source-Alternativen zu Salesforce Einstein?**
+[Customermates](/) kommt dem Konzept am nächsten: ein Open-Source-CRM, in dem jeder MCP-kompatible KI-Agent (Claude, ChatGPT, Gemini) Datensätze direkt über 57 native Tools liest und schreibt. Self-Hosting kostenlos, EU-Cloud 9 EUR pro Nutzer pro Monat, DSGVO-nativ.
+
+**Welches ist das kleinste Team, das von Einstein profitiert?**
+Realistisch Organisationen mit 25 oder mehr bezahlten Sales-Cloud-Sitzen und einem Admin. Darunter übersteigen Kosten und Implementierungsaufwand den Mehrwert.
+
+**Wurde Einstein umbenannt?**
+Einstein bleibt der Name der Plattform-KI-Schicht. Einstein Copilot wurde Anfang 2025 in Agentforce Assistant umbenannt, die zugrundeliegende Funktionalität hat sich nicht geändert.
