@@ -18,6 +18,7 @@ type LinkItem = {
 };
 
 type FooterProps = {
+  blogPosts?: LinkItem[];
   competitors?: LinkItem[];
   featureLinks?: LinkItem[];
   industries?: LinkItem[];
@@ -48,7 +49,7 @@ function UneedBadge() {
   );
 }
 
-export function FooterContent({ competitors = [], featureLinks = [], industries = [] }: FooterProps) {
+export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations("Footer");
   const tNav = useTranslations("NavigationBar");
 
@@ -58,7 +59,7 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
   return (
     <footer className="bg-muted dark:bg-card mt-auto w-full text-x-sm">
       <div className="max-w-[1300px] mx-auto px-6 py-12">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">
             <AppLink aria-label={`${tCommon("imageAlt.logo")} ${tUserAvatar("home")}`} href="/">
               <AppImage alt={tCommon("imageAlt.logo")} height={27} src="customermates.svg" width={156} />
@@ -139,12 +140,6 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
               </li>
 
               <li>
-                <AppLink className="text-subdued" href="/blog">
-                  {tNav("blog")}
-                </AppLink>
-              </li>
-
-              <li>
                 <AppLink className="text-subdued" href="/affiliate">
                   {tNav("affiliate")}
                 </AppLink>
@@ -201,6 +196,26 @@ export function FooterContent({ competitors = [], featureLinks = [], industries 
               <li>
                 <AppLink className="text-subdued" href="/compare">
                   {t("compareViewAll")}
+                </AppLink>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-foreground">{t("resources")}</h3>
+
+            <ul className="space-y-2">
+              {blogPosts.map(({ slug, displayName }) => (
+                <li key={slug}>
+                  <AppLink className="text-subdued line-clamp-1" href={`/blog/${slug}`}>
+                    {displayName}
+                  </AppLink>
+                </li>
+              ))}
+
+              <li>
+                <AppLink className="text-subdued" href="/blog">
+                  {t("blogViewAll")}
                 </AppLink>
               </li>
             </ul>

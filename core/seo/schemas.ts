@@ -8,6 +8,7 @@ const ORGANIZATION_SAME_AS = [
   "https://x.com/benjiwagn",
 ];
 const FOUNDER_NAME = "Benjamin Wagner";
+const FOUNDER_URL = "https://www.linkedin.com/in/wagner-benjamin/";
 
 export function organizationSchema() {
   return {
@@ -45,6 +46,7 @@ export function softwareApplicationSchema(params: { description: string; locale:
 
 export function articleSchema(params: {
   authorName?: string;
+  authorUrl?: string;
   datePublished: string;
   dateModified?: string;
   description: string;
@@ -67,6 +69,7 @@ export function articleSchema(params: {
     author: {
       "@type": "Person",
       name: params.authorName ?? FOUNDER_NAME,
+      url: params.authorUrl ?? FOUNDER_URL,
     },
     publisher: {
       "@type": "Organization",

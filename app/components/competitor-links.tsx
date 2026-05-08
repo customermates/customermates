@@ -19,7 +19,7 @@ export function CompetitorLinks({ competitors }: Props) {
       {competitors.map(({ slug, displayName }) => (
         <li key={slug}>
           <AppLink className="text-subdued" href={`/compare/${slug}`}>
-            vs {displayName}
+            {displayName}
           </AppLink>
         </li>
       ))}

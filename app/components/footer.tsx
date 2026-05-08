@@ -2,34 +2,42 @@ import { getLocale } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
 
-import { comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import { blogPostsSource, comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
 
-// Top SEO opportunities per section (by optimization score from knowledge base)
 const FOOTER_COMPARE = new Set([
-  "hubspot-alternative",
-  "pipedrive-alternative",
-  "zoho-crm-alternative",
+  "gohighlevel",
   "notion-alternative",
-  "cobra-alternative",
+  "hubspot-vs-salesforce",
   "vtiger-alternative",
+  "folk",
+  "cobra-alternative",
 ]);
 
 const FOOTER_FOR = new Set([
   "healthcare",
   "ecommerce",
-  "property-management",
+  "recruiting",
+  "construction",
   "manufacturing",
-  "marketing",
-  "agencies",
+  "property-management",
 ]);
 
 const FOOTER_FEATURES = new Set([
   "cloud-crm",
-  "contact-management",
+  "sales-tracking",
   "lead-management",
   "sales-automation",
-  "workflow-automation",
-  "self-hosted",
+  "contact-management",
+  "reporting",
+]);
+
+const FOOTER_BLOG_POSTS = new Set([
+  "customer-interaction-management",
+  "customer-retention-management",
+  "crm-examples",
+  "customer-communication-management",
+  "crm-software",
+  "agentic-ai",
 ]);
 
 export async function Footer() {
@@ -40,7 +48,11 @@ export async function Footer() {
     .map((page) => {
       const slug = page.url?.split("/").pop() || "";
       if (!FOOTER_COMPARE.has(slug)) return null;
-      return { slug, displayName: page.data.competitorName };
+      const competitor2 = page.data.comparison?.competitor2Name;
+      let displayName = page.data.competitorName;
+      if (slug.includes("-vs-") && competitor2) displayName = `${page.data.competitorName} vs ${competitor2}`;
+      else if (slug.endsWith("-alternative")) displayName = `${page.data.competitorName} alternative`;
+      return { slug, displayName };
     })
     .filter((item): item is { slug: string; displayName: string } => item !== null);
 
@@ -62,5 +74,21 @@ export async function Footer() {
     })
     .filter((item): item is { slug: string; displayName: string } => item !== null);
 
-  return <FooterContent competitors={competitors} featureLinks={featureLinks} industries={industries} />;
+  const blogPosts = blogPostsSource
+    .getPages(locale)
+    .map((page) => {
+      const slug = page.url?.split("/").pop() || "";
+      if (!FOOTER_BLOG_POSTS.has(slug)) return null;
+      return { slug, displayName: page.data.hero.title };
+    })
+    .filter((item): item is { slug: string; displayName: string } => item !== null);
+
+  return (
+    <FooterContent
+      blogPosts={blogPosts}
+      competitors={competitors}
+      featureLinks={featureLinks}
+      industries={industries}
+    />
+  );
 }

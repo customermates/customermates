@@ -5,7 +5,7 @@ import { getLocale } from "next-intl/server";
 import { BlogPostCard } from "./blog-post-card";
 
 import { Footer } from "@/app/components/footer";
-import { PageHero } from "@/components/marketing/page-hero";
+import { PostGridShell } from "@/components/marketing/post-grid-shell";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { blogPostsSource, blogSource } from "@/core/fumadocs/source";
 
@@ -28,26 +28,20 @@ export default async function BlogPage() {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
-      <PageHero {...page.data.hero} />
-
-      <section className="relative pb-16 md:pb-24 w-full">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {sortedPosts.map((post) => (
-              <div key={post.url} className="min-w-0">
-                <BlogPostCard
-                  {...post.data.blogPost}
-                  description={post.data.description}
-                  locale={locale}
-                  title={post.data.title}
-                  url={post.url}
-                />
-              </div>
-            ))}
+    <div className="flex flex-col items-center justify-center">
+      <PostGridShell hero={page.data.hero}>
+        {sortedPosts.map((post) => (
+          <div key={post.url} className="min-w-0">
+            <BlogPostCard
+              {...post.data.blogPost}
+              description={post.data.description}
+              locale={locale}
+              title={post.data.title}
+              url={post.url}
+            />
           </div>
-        </div>
-      </section>
+        ))}
+      </PostGridShell>
 
       <Footer />
     </div>

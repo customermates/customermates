@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
+import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
+import { AppImage } from "@/components/shared/app-image";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { comparePagesSource } from "@/core/fumadocs/source";
@@ -40,6 +45,7 @@ export default async function CompetitorComparePage({ params }: Props) {
 
   const MDX = page.data.body;
   const components = getMDXComponents();
+  const imageExists = existsSync(path.join(process.cwd(), "public", "images", "light", locale, `${competitor}.png`));
 
   return (
     <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
@@ -52,6 +58,22 @@ export default async function CompetitorComparePage({ params }: Props) {
       />
 
       <PageHero {...page.data.hero} />
+
+      {imageExists ? (
+        <div className="relative w-full max-w-6xl mx-auto px-4 mb-8">
+          <ShowcaseFrame className="mb-0">
+            <AppImage
+              isLocalized
+              alt={page.data.hero.title}
+              className="w-full h-auto rounded-none"
+              height={1080}
+              loading="eager"
+              src={`${competitor}.png`}
+              width={1920}
+            />
+          </ShowcaseFrame>
+        </div>
+      ) : null}
 
       <ComparisonTable
         competitor2Name={page.data.comparison.competitor2Name}
