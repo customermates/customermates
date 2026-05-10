@@ -1272,8 +1272,7 @@
       "title": "Demo data"
     },
     "entities": {
-      "intro": "Pick whichever fits best. We'll tailor your starter pipeline, services and dashboard widgets to match.",
-      "outro": "You can change column types and rename anything later — this just decides the starter shape.",
+      "description": "Pick whichever fits best. We'll tailor your starter pipeline, services and dashboard widgets to match. You can change column types and rename anything later, this just decides the starter shape.",
       "product": {
         "description": "You sell physical or digital things in units. We'll add fields for article numbers and stock.",
         "example": "A starter kit with SKUs, quantities, and stock counts.",
@@ -1287,8 +1286,7 @@
     },
     "finish": "Finish",
     "invite": {
-      "emailCount": "{current} of {max} emails",
-      "emailDescription": "Separate addresses with a comma or press Enter. Max 20.",
+      "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
       "emailPlaceholder": "colleague@example.com",
       "linkDescription": "Anyone with this link can join your team.",
       "linkFailed": "Could not create the invite link.",
@@ -1313,6 +1311,10 @@
         "placeholder": "Company form placeholder",
         "subtitle": "A few details so invites and emails look right.",
         "title": "Your company"
+      },
+      "demoData": {
+        "subtitle": "Start with example contacts, deals and tasks, or begin with an empty workspace.",
+        "title": "Demo data"
       },
       "entities": {
         "subtitle": "Tell us what you sell — we'll set up your workspace to match.",

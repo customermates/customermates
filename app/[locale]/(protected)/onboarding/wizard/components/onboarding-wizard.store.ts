@@ -3,7 +3,7 @@ import { SalesType } from "@/generated/prisma";
 
 import type { RootStore } from "@/core/stores/root.store";
 
-export const WIZARD_STEPS = ["profile", "entities", "company", "invite", "ai"] as const;
+export const WIZARD_STEPS = ["profile", "company", "entities", "demoData", "invite", "ai"] as const;
 export type WizardStep = (typeof WIZARD_STEPS)[number];
 
 type BeforeNextHandler = () => Promise<boolean> | boolean;

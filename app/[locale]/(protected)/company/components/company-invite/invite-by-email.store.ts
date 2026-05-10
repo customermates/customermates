@@ -12,22 +12,14 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 
 export const MAX_INVITE_EMAILS = 20;
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
   constructor(public readonly rootStore: RootStore) {
     super(rootStore, { emails: [] }, Resource.users);
 
     makeObservable(this, {
       onSubmit: action,
-      setEmails: action,
     });
   }
-
-  setEmails = (emails: string[]) => {
-    const valid = emails.map((e) => e.trim().toLowerCase()).filter((e) => EMAIL_REGEX.test(e));
-    this.form.emails = Array.from(new Set(valid)).slice(0, MAX_INVITE_EMAILS);
-  };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();

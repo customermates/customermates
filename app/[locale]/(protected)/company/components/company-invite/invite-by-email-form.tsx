@@ -18,15 +18,7 @@ export const InviteByEmailForm = observer(() => {
 
   return (
     <AppForm className="flex flex-col gap-2" store={store}>
-      <p className="text-xs text-muted-foreground">{t("emailDescription")}</p>
-
-      <FormInputChips
-        allowMultiple
-        id="emails"
-        placeholder={form.emails.length === 0 ? t("emailPlaceholder") : ""}
-        value={form.emails.join(",")}
-        onValueChange={(v) => store.setEmails(v ? v.split(",") : [])}
-      />
+      <FormInputChips arrayMode id="emails" placeholder={form.emails.length === 0 ? t("emailPlaceholder") : ""} />
 
       <p className="text-xs text-muted-foreground">
         {t("emailCount", { current: form.emails.length, max: MAX_INVITE_EMAILS })}

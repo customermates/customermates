@@ -1272,8 +1272,7 @@
       "title": "Beispieldaten"
     },
     "entities": {
-      "intro": "Wähle, was am besten passt. Wir richten Pipeline, Services und Dashboard-Widgets passend ein.",
-      "outro": "Spaltentypen und Bezeichnungen kannst du später jederzeit ändern — das bestimmt nur die Startform.",
+      "description": "Wähle, was am besten passt. Wir richten Pipeline, Services und Dashboard-Widgets passend ein. Spaltentypen und Bezeichnungen kannst du später jederzeit ändern, das bestimmt nur die Startform.",
       "product": {
         "description": "Du verkaufst physische oder digitale Dinge in Stückzahlen. Wir ergänzen Felder für Artikelnummer und Bestand.",
         "example": "Ein Starter-Paket mit Artikelnummern, Mengen und Bestand.",
@@ -1287,8 +1286,7 @@
     },
     "finish": "Fertig",
     "invite": {
-      "emailCount": "{current} von {max} E-Mails",
-      "emailDescription": "Trenne Adressen mit Komma oder drücke Enter. Maximal 20.",
+      "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
       "emailPlaceholder": "kollegin@beispiel.de",
       "linkDescription": "Jede Person mit diesem Link kann deinem Team beitreten.",
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
@@ -1313,6 +1311,10 @@
         "placeholder": "Platzhalter Unternehmensformular",
         "subtitle": "Ein paar Details, damit Einladungen und E-Mails richtig aussehen.",
         "title": "Dein Unternehmen"
+      },
+      "demoData": {
+        "subtitle": "Mit Beispielkontakten, Deals und Aufgaben starten oder mit einem leeren Workspace.",
+        "title": "Beispieldaten"
       },
       "entities": {
         "subtitle": "Sag uns, was du verkaufst — wir richten den Workspace passend ein.",

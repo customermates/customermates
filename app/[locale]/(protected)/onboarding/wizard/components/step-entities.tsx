@@ -28,7 +28,7 @@ export const StepEntities = observer(function StepEntities() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-muted-foreground">{t("intro")}</p>
+      <p className="text-xs text-muted-foreground">{t("description")}</p>
 
       <div className="grid gap-2 sm:grid-cols-2">
         {CHOICES.map(({ value, icon: Icon, tint }) => {
@@ -59,8 +59,6 @@ export const StepEntities = observer(function StepEntities() {
           );
         })}
       </div>
-
-      <p className="text-xs text-muted-foreground">{t("outro")}</p>
     </div>
   );
 });

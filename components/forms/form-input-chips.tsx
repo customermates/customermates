@@ -90,10 +90,24 @@ export const FormInputChips = observer(
       commit([...chipValues, trimmed]);
     }
 
+    function handleInputChange(value: string) {
+      if (!/[,;]/.test(value)) {
+        setInputValue(value);
+        return;
+      }
+      const parts = value
+        .split(/[,;]/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+      const newChips = parts.filter((p) => !chipValues.includes(p));
+      if (newChips.length > 0) commit([...chipValues, ...newChips]);
+      else setInputValue("");
+    }
+
     function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
       const key = event.key;
 
-      if (key === "Enter" || key === ",") {
+      if (key === "Enter" || key === "," || key === ";") {
         event.preventDefault();
         commitInput();
       }
@@ -182,7 +196,7 @@ export const FormInputChips = observer(
               placeholder={placeholder}
               value={inputValue}
               onBlur={commitInput}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={onKeyDown}
             />
           )}

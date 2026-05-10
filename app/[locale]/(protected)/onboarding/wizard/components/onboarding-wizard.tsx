@@ -16,6 +16,7 @@ import { WIZARD_STEPS } from "./onboarding-wizard.store";
 import { StepProfile } from "./step-profile";
 import { StepEntities } from "./step-entities";
 import { StepCompany } from "./step-company";
+import { StepDemoData } from "./step-demo-data";
 import { StepAi } from "./step-ai";
 import { StepInvite } from "./step-invite";
 
@@ -67,6 +68,8 @@ export const OnboardingWizard = observer(
           return <StepEntities />;
         case "company":
           return initialCompany ? <StepCompany initialCompany={initialCompany} /> : null;
+        case "demoData":
+          return <StepDemoData />;
         case "ai":
           return <StepAi />;
         case "invite":
