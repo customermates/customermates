@@ -14,6 +14,21 @@ type Props = {
   heroSection: Hero;
 };
 
+const germanyFlag = (
+  <svg
+    aria-label="Germany"
+    className="ml-1 inline-block h-[0.85em] w-auto -translate-y-[0.08em] rounded-[2px] align-middle ring-1 ring-border"
+    role="img"
+    viewBox="0 0 5 3"
+  >
+    <rect fill="#000" height="1" width="5" y="0" />
+
+    <rect fill="#dd0000" height="1" width="5" y="1" />
+
+    <rect fill="#ffce00" height="1" width="5" y="2" />
+  </svg>
+);
+
 export function HomepageHero({ heroSection }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden pt-16 pb-14 md:pt-24 md:pb-16">
@@ -52,7 +67,8 @@ export function HomepageHero({ heroSection }: Props) {
           ) : null}
 
           <p className="mx-auto mt-6 max-w-[680px] text-[15px] leading-normal text-muted-foreground md:text-[17px]">
-            {heroSection.subtitle}
+            {/* eslint-disable-next-line react/jsx-newline */}
+            {heroSection.subtitle} {germanyFlag}
           </p>
 
           <div className="my-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">

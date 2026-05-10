@@ -1,5 +1,5 @@
-import { Github } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Github, Star } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 import { AppLink } from "@/components/shared/app-link";
 
@@ -7,25 +7,45 @@ type Props = {
   className?: string;
 };
 
-export function AgplGithubBadge({ className }: Props) {
-  const t = useTranslations("AgplGithubBadge");
+async function getStarCount(): Promise<number | null> {
+  try {
+    const res = await fetch("https://api.github.com/repos/customermates/customermates", {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.stargazers_count === "number" ? data.stargazers_count : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function AgplGithubBadge({ className }: Props) {
+  const t = await getTranslations("AgplGithubBadge");
   const label = t("label");
+  const starCount = await getStarCount();
 
   return (
-    <AppLink
-      external
-      className={`mb-[18px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs shadow-[var(--shadow-xs)] transition-shadow hover:shadow-sm ${className ?? ""}`}
-      href="https://github.com/customermates/customermates"
+    <div
+      className={`mb-[18px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs text-foreground ${className ?? ""}`}
     >
-      <Github aria-hidden className="size-3.5" />
+      <AppLink
+        external
+        className="inline-flex items-center gap-2 text-foreground hover:text-primary hover:no-underline"
+        href="https://github.com/customermates/customermates"
+      >
+        <Github aria-hidden className="size-3.5" />
 
-      <span className="font-semibold">{label}</span>
+        <span className="font-semibold">{label}</span>
+      </AppLink>
 
-      <span aria-hidden className="relative inline-flex size-1.5">
-        <span className="absolute inset-0 animate-ping rounded-full bg-[#34c759] opacity-75" />
+      {starCount !== null && (
+        <span className="flex items-center gap-1">
+          <Star aria-hidden className="size-3 fill-current text-yellow-400" />
 
-        <span className="relative size-1.5 rounded-full bg-[#34c759]" />
-      </span>
-    </AppLink>
+          <span>{starCount.toLocaleString("en-US")}</span>
+        </span>
+      )}
+    </div>
   );
 }

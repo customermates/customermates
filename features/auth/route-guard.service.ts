@@ -32,10 +32,7 @@ export class RouteGuardService {
 
     if (!user) redirect("/onboarding/wizard");
 
-    if (user.status !== Status.active) {
-      const path = RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin";
-      redirect(path);
-    }
+    if (user.status !== Status.active) redirect(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
 
     if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
       redirect("/onboarding/wizard");
@@ -62,8 +59,7 @@ export class RouteGuardService {
     const user = await this.userService.getUser();
     if (!user) return;
 
-    if (user.status === Status.pendingAuthorization) redirect("/auth/pending");
-    if (user.status === Status.inactive) redirect("/auth/error?type=inactiveUser");
+    if (user.status !== Status.active) redirect(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
 
     if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) redirect("/onboarding/wizard");
 

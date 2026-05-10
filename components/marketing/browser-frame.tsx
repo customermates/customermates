@@ -97,9 +97,17 @@ export function BrowserFrame({ src, title }: Props) {
 
           <span className="size-2.5 rounded-full bg-[#27c93f]" />
 
-          <span className="flex-1 text-center font-mono text-[11px] text-muted-foreground">
-            {/* eslint-disable-next-line react/jsx-newline */}
-            {hostname} · {t("live")}
+          <span className="flex flex-1 items-center justify-center gap-1.5 font-mono text-[11px] text-muted-foreground">
+            <span>
+              {/* eslint-disable-next-line react/jsx-newline */}
+              {hostname} · {t("live")}
+            </span>
+
+            <span aria-hidden className="relative inline-flex size-1.5">
+              <span className="absolute inset-0 animate-ping rounded-full bg-[#34c759] opacity-75" />
+
+              <span className="relative size-1.5 rounded-full bg-[#34c759]" />
+            </span>
           </span>
 
           <a
