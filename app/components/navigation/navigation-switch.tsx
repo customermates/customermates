@@ -20,6 +20,7 @@ type Props = {
   isAuthenticated: boolean;
   company: Company | null;
   subscriptionStatus: SubscriptionStatus | null;
+  trialDaysLeft: number | null;
   systemTaskCount: number;
   user: ExtendedUser | null;
   defaultSidebarOpen?: boolean;
@@ -30,6 +31,7 @@ export function NavigationSwitch({
   isAuthenticated,
   company,
   subscriptionStatus,
+  trialDaysLeft,
   systemTaskCount,
   user,
   defaultSidebarOpen = true,
@@ -81,7 +83,12 @@ export function NavigationSwitch({
 
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen}>
-      <AppSidebar subscriptionStatus={subscriptionStatus} systemTaskCount={systemTaskCount} user={user} />
+      <AppSidebar
+        subscriptionStatus={subscriptionStatus}
+        systemTaskCount={systemTaskCount}
+        trialDaysLeft={trialDaysLeft}
+        user={user}
+      />
 
       <SidebarInset className="min-w-0 overflow-x-clip">
         <TopBarActionsProvider>

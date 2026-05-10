@@ -30,6 +30,7 @@ import { updateThemeAction } from "@/app/[locale]/(protected)/dashboard/actions"
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Icon } from "@/components/shared/icon";
@@ -46,9 +47,15 @@ type Props = {
   systemTaskCount: number;
   user: ExtendedUser | null;
   subscriptionStatus: SubscriptionStatus | null;
+  trialDaysLeft: number | null;
 };
 
-export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, subscriptionStatus }: Props) {
+export const AppSidebar = observer(function AppSidebar({
+  user,
+  systemTaskCount,
+  subscriptionStatus,
+  trialDaysLeft,
+}: Props) {
   const t = useTranslations("");
   const pathname = usePathname();
   const intlPathname = useIntlPathname();
@@ -285,7 +292,7 @@ export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, 
 
   if (isDocsRoute) return null;
 
-  const planLabel = buildPlanLabel(subscriptionStatus, t);
+  const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, t);
 
   return (
     <>
@@ -293,7 +300,7 @@ export const AppSidebar = observer(function AppSidebar({ user, systemTaskCount, 
         <NavHeader
           addLabel={t("Common.actions.add")}
           brandName="Customermates"
-          brandSubtitle={planLabel}
+          brandSubtitle={planSubtitle}
           homeHref={rootStore.isDemoMode ? "https://customermates.com" : "/"}
           logoAlt={t("Common.imageAlt.logo")}
           searchLabel={t("NavigationBar.search")}
@@ -386,16 +393,29 @@ function AddPickerDrawer({
   );
 }
 
-function buildPlanLabel(status: SubscriptionStatus | null, t: (key: string) => string): string | undefined {
-  if (!status) return undefined;
+function buildPlanSubtitle(
+  status: SubscriptionStatus | null,
+  trialDaysLeft: number | null,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): React.ReactNode {
+  if (!status || status === "active") return undefined;
 
-  const base = "Pro";
+  if (status === "trial") {
+    const text =
+      trialDaysLeft != null
+        ? t("subscription.status.trialDaysLeft", { days: trialDaysLeft })
+        : t("subscription.status.trial");
+    const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
+    return (
+      <AppChip className="h-[18px] px-1.5 text-[10px]" variant={variant}>
+        {text}
+      </AppChip>
+    );
+  }
 
-  if (status === "trial") return `${base} · ${t("subscription.status.trial")}`;
-  if (status === "cancelled") return `${base} · ${t("subscription.status.cancelled")}`;
-  if (status === "pastDue") return `${base} · ${t("subscription.status.pastDue")}`;
-  if (status === "unPaid") return `${base} · ${t("subscription.status.unPaid")}`;
-  if (status === "expired") return `${base} · ${t("subscription.status.expired")}`;
-
-  return base;
+  return (
+    <AppChip className="h-[18px] px-1.5 text-[10px]" variant="destructive">
+      {t(`subscription.status.${status}`)}
+    </AppChip>
+  );
 }

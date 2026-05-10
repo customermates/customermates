@@ -1066,7 +1066,7 @@
   },
   "FeaturesCTA": {
     "description": "Start with Customermates today and manage your customer relationships efficiently",
-    "noCreditCard": "No credit card required • Cancel anytime • First 3 days free",
+    "noCreditCard": "No credit card required • Cancel anytime • First 7 days free",
     "title": "Ready to get started?"
   },
   "FeaturesHero": {
@@ -1438,7 +1438,7 @@
     "emailLabel": "E-Mail",
     "inviteSubtitle": "You have been invited to join <bold>{company}</bold>. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
-    "newCompanySubtitle": "Register a new company and test Customermates for free for 3 days. No credit card required.",
+    "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
     "or": "OR",
     "passwordConfirmLabel": "Confirm Password",
     "passwordLabel": "Password",
@@ -1460,6 +1460,7 @@
       "expired": "Expired",
       "pastDue": "Past Due",
       "trial": "Trial",
+      "trialDaysLeft": "Trial · {days, plural, =0 {ends today} one {# day left} other {# days left}}",
       "trialExpired": "Trial Expired",
       "unPaid": "Unpaid"
     },

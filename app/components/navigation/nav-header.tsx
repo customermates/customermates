@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import NextLink from "next/link";
 import { Plus, Search } from "lucide-react";
 
@@ -9,7 +11,7 @@ import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "
 type Props = {
   homeHref: string;
   brandName: string;
-  brandSubtitle?: string;
+  brandSubtitle?: ReactNode;
   logoAlt: string;
   searchLabel: string;
   addLabel: string;
@@ -42,10 +44,12 @@ export function NavHeader({
                 width={32}
               />
 
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="flex flex-1 flex-col gap-1 text-left text-sm leading-tight min-w-0">
                 <span className="truncate font-semibold">{brandName}</span>
 
-                {brandSubtitle && <span className="truncate text-xs text-muted-foreground">{brandSubtitle}</span>}
+                {brandSubtitle && (
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">{brandSubtitle}</span>
+                )}
               </div>
             </NextLink>
           </SidebarMenuButton>

@@ -1066,7 +1066,7 @@
   },
   "FeaturesCTA": {
     "description": "Starte noch heute mit Customermates und verwalte deine Kundenbeziehungen effizient",
-    "noCreditCard": "Keine Kreditkarte benötigt • Jederzeit kündbar • Erste 3 Tage kostenlos",
+    "noCreditCard": "Keine Kreditkarte benötigt • Jederzeit kündbar • Erste 7 Tage kostenlos",
     "title": "Bereit loszulegen?"
   },
   "FeaturesHero": {
@@ -1438,7 +1438,7 @@
     "emailLabel": "E-Mail",
     "inviteSubtitle": "Du wurdest eingeladen, <bold>{company}</bold> beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",
-    "newCompanySubtitle": "Registriere ein neues Unternehmen und teste Customermates kostenlos für 2 Wochen. Keine Kreditkarte erforderlich.",
+    "newCompanySubtitle": "Registriere ein neues Unternehmen und teste Customermates kostenlos für 7 Tage. Keine Kreditkarte erforderlich.",
     "or": "ODER",
     "passwordConfirmLabel": "Passwort bestätigen",
     "passwordLabel": "Passwort",
@@ -1460,6 +1460,7 @@
       "expired": "Abgelaufen",
       "pastDue": "Überfällig",
       "trial": "Testphase",
+      "trialDaysLeft": "Testphase · {days, plural, =0 {endet heute} one {noch # Tag} other {noch # Tage}}",
       "trialExpired": "Testphase abgelaufen",
       "unPaid": "Unbezahlt"
     },

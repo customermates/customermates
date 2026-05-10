@@ -697,7 +697,7 @@ export class PrismaUserRepo
     });
 
     const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + 3);
+    trialEndDate.setDate(trialEndDate.getDate() + 7);
 
     await this.prisma.subscription.create({
       data: IS_CLOUD_HOSTED

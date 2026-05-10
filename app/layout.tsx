@@ -127,6 +127,7 @@ export default async function RootLayout({ children }: Props) {
   let systemTaskCount = 0;
   let company: Company | null = null;
   let subscriptionStatus: SubscriptionStatus | null = null;
+  let trialDaysLeft: number | null = null;
   let isAuthenticated = false;
 
   if (isRegistered) {
@@ -141,6 +142,8 @@ export default async function RootLayout({ children }: Props) {
       company = companyResult.data;
       systemTaskCount = systemTaskCountResult.data;
       subscriptionStatus = subscriptionResult.data?.status ?? null;
+      const trialEndDate = subscriptionResult.data?.trialEndDate ?? null;
+      trialDaysLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000)) : null;
     }
   }
 
@@ -170,6 +173,7 @@ export default async function RootLayout({ children }: Props) {
             isAuthenticated={isAuthenticated}
             subscriptionStatus={subscriptionStatus}
             systemTaskCount={systemTaskCount}
+            trialDaysLeft={trialDaysLeft}
             user={user}
           >
             {children}
