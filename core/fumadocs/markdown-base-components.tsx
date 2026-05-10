@@ -5,6 +5,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AppLink } from "@/components/shared/app-link";
+import { MarketingTableFrame } from "@/components/marketing/marketing-table-frame";
 import { cn } from "@/lib/utils";
 
 export const markdownBaseComponents: Pick<
@@ -92,19 +93,11 @@ export const markdownBaseComponents: Pick<
   ),
   pre: defaultMdxComponents.pre,
   table: ({ className, children, ...props }) => (
-    <div className="not-prose my-6 overflow-x-auto rounded-xl bg-card">
-      <table
-        className={cn(
-          "w-full border-separate border-spacing-0 text-sm",
-          "[&_td]:border-0! [&_th]:border-0! [&_tr]:border-0! [&_tbody]:border-0! [&_thead]:border-0!",
-          "[&_tbody_tr>*]:border-t [&_tbody_tr>*]:border-border/50",
-          className,
-        )}
-        {...props}
-      >
+    <MarketingTableFrame className="not-prose my-6">
+      <table className={cn("w-full border-separate border-spacing-0 text-sm", className)} {...props}>
         {children}
       </table>
-    </div>
+    </MarketingTableFrame>
   ),
   thead: ({ className, children, ...props }) => (
     <thead className={cn("bg-muted/20 dark:bg-muted/40", className)} {...props}>
@@ -127,7 +120,7 @@ export const markdownBaseComponents: Pick<
     </th>
   ),
   td: ({ className, children, ...props }) => (
-    <td className={cn("px-6 py-3 text-x-sm text-foreground align-top", className)} {...props}>
+    <td className={cn("px-6 py-3 text-x-sm text-foreground align-top border-t border-border/50", className)} {...props}>
       {children}
     </td>
   ),

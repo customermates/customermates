@@ -5,9 +5,9 @@ import type { ComparisonTable } from "@/core/fumadocs/schemas/pricing";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import { AppCard } from "@/components/card/app-card";
 import { Icon } from "@/components/shared/icon";
 import { AppLink } from "@/components/shared/app-link";
+import { MarketingTableFrame } from "@/components/marketing/marketing-table-frame";
 
 type Props = ComparisonTable;
 
@@ -34,7 +34,7 @@ export function PricingComparisonTable({ header, plans, sections }: Props) {
   return (
     <section className="relative pb-8 w-full">
       <div className="max-w-7xl mx-auto px-4 overflow-x-auto">
-        <AppCard className="min-w-[600px] overflow-hidden">
+        <MarketingTableFrame className="min-w-[600px]">
           <div className="grid grid-cols-3 gap-0 py-6">
             <div className="flex items-center px-6 text-x-xl font-semibold">{header}</div>
 
@@ -91,7 +91,7 @@ export function PricingComparisonTable({ header, plans, sections }: Props) {
               ))}
             </div>
           ))}
-        </AppCard>
+        </MarketingTableFrame>
       </div>
     </section>
   );

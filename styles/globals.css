@@ -339,14 +339,4 @@ path:focus {
     padding-inline-end: 1em !important;
   }
 
-  /* Kill prose-injected table borders inside our custom .not-prose wrapper. */
-  .not-prose table,
-  .not-prose thead,
-  .not-prose tbody,
-  .not-prose tfoot,
-  .not-prose tr,
-  .not-prose th,
-  .not-prose td {
-    border-width: 0 !important;
-  }
 }
