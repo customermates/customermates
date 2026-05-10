@@ -14,7 +14,12 @@ import { Icon } from "@/components/shared/icon";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-export const PublicNavbar = observer(() => {
+type Props = {
+  isAuthenticated: boolean;
+  onboardingComplete: boolean;
+};
+
+export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: Props) => {
   const t = useTranslations("");
   const { layoutStore } = useRootStore();
   const pathname = usePathname();
@@ -51,7 +56,14 @@ export const PublicNavbar = observer(() => {
     </AppLink>
   );
 
-  const signInButton = (
+  const ctaTarget = !isAuthenticated ? "/auth/signin" : onboardingComplete ? "/" : "/onboarding/wizard";
+  const ctaLabel = !isAuthenticated
+    ? t("Common.actions.signIn")
+    : onboardingComplete
+      ? t("Common.actions.openApp")
+      : t("Common.actions.continueSetup");
+  const showCta = pathname !== ctaTarget;
+  const ctaButton = showCta ? (
     <Button
       asChild
       className="bg-primary/15 text-primary hover:bg-primary/25 dark:bg-primary/20 dark:hover:bg-primary/30"
@@ -59,9 +71,9 @@ export const PublicNavbar = observer(() => {
       variant="secondary"
       onClick={closeMenu}
     >
-      <NextLink href="/auth/signin">{t("Common.actions.signIn")}</NextLink>
+      <NextLink href={ctaTarget}>{ctaLabel}</NextLink>
     </Button>
-  );
+  ) : null;
 
   const contactButton = (
     <Button asChild className="bg-transparent shadow-none" size="sm" variant="outline" onClick={closeMenu}>
@@ -99,7 +111,7 @@ export const PublicNavbar = observer(() => {
 
           {contactButton}
 
-          {signInButton}
+          {ctaButton}
         </div>
 
         <div className="md:hidden flex items-center w-full justify-between">
@@ -133,7 +145,7 @@ export const PublicNavbar = observer(() => {
 
                 {contactButton}
 
-                {signInButton}
+                {ctaButton}
               </div>
             </SheetContent>
           </Sheet>

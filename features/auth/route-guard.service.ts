@@ -55,6 +55,21 @@ export class RouteGuardService {
     redirect("/");
   }
 
+  async ensureUnauthenticatedOrRedirect(): Promise<void> {
+    const session = await this.authService.getSession();
+    if (!session) return;
+
+    const user = await this.userService.getUser();
+    if (!user) return;
+
+    if (user.status === Status.pendingAuthorization) redirect("/auth/pending");
+    if (user.status === Status.inactive) redirect("/auth/error?type=inactiveUser");
+
+    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) redirect("/onboarding/wizard");
+
+    redirect("/");
+  }
+
   private async checkSubscriptionAndRedirect(companyId: string): Promise<void> {
     const subscription = await this.subscriptionRepo.getSubscriptionOrThrow(companyId);
 

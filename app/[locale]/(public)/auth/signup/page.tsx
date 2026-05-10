@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { SignUpForm } from "./sign-up-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { getInviteTokenValidationInteractor } from "@/core/di";
+import { getInviteTokenValidationInteractor, getRouteGuardService } from "@/core/di";
 import { IS_CLOUD_HOSTED } from "@/constants/env";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
@@ -15,6 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function SignUpPage() {
+  await getRouteGuardService().ensureUnauthenticatedOrRedirect();
+
   const cookiesStore = await cookies();
   const token = cookiesStore.get("inviteToken")?.value;
   const result = await getInviteTokenValidationInteractor().invoke({ token });

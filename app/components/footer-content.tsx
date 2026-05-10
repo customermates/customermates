@@ -112,7 +112,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
               <li>
                 <AppLink className="text-subdued" href="/affiliate">
-                  {tNav("affiliate")}
+                  {tNav("affiliate")} (35%)
                 </AppLink>
               </li>
             </ul>

@@ -18,6 +18,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
   isAuthenticated: boolean;
+  onboardingComplete: boolean;
   company: Company | null;
   subscriptionStatus: SubscriptionStatus | null;
   trialDaysLeft: number | null;
@@ -30,6 +31,7 @@ type Props = {
 
 export function NavigationSwitch({
   isAuthenticated,
+  onboardingComplete,
   company,
   subscriptionStatus,
   trialDaysLeft,
@@ -42,7 +44,8 @@ export function NavigationSwitch({
   const pathname = usePathname();
   const isDocsRoute = pathname === "/docs" || pathname.startsWith("/docs/");
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
-  const hideAppShell = !isAuthenticated || isOnboardingWizard;
+  const isAuthRoute = pathname.startsWith("/auth/");
+  const hideAppShell = !isAuthenticated || isOnboardingWizard || isAuthRoute;
   const { layoutStore, userStore, companyStore } = useRootStore();
   const shouldShowNavbar = hideAppShell && !isDocsRoute;
 
@@ -74,7 +77,7 @@ export function NavigationSwitch({
       <div className="h-screen flex">
         <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
           <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
-            <PublicNavbar />
+            <PublicNavbar isAuthenticated={isAuthenticated} onboardingComplete={onboardingComplete} />
           </header>
 
           <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>
@@ -97,7 +100,7 @@ export function NavigationSwitch({
         <TopBarActionsProvider>
           <AppTopBar />
 
-          {children}
+          <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
         </TopBarActionsProvider>
       </SidebarInset>
     </SidebarProvider>

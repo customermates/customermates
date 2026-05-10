@@ -131,6 +131,7 @@ export default async function RootLayout({ children }: Props) {
   let trialDaysLeft: number | null = null;
   let emailVerified: boolean | null = null;
   let isAuthenticated = false;
+  const onboardingComplete = user?.onboardingWizardCompletedAt != null;
 
   if (isRegistered) {
     isAuthenticated = user?.status === Status.active;
@@ -176,6 +177,7 @@ export default async function RootLayout({ children }: Props) {
             defaultSidebarOpen={initialSidebarOpen}
             emailVerified={emailVerified}
             isAuthenticated={isAuthenticated}
+            onboardingComplete={onboardingComplete}
             subscriptionStatus={subscriptionStatus}
             systemTaskCount={systemTaskCount}
             trialDaysLeft={trialDaysLeft}

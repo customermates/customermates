@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { ResetPasswordForm } from "./reset-password-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
+import { getRouteGuardService } from "@/core/di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 type Props = {
@@ -17,6 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function ResetPasswordPage({ searchParams }: Props) {
+  await getRouteGuardService().ensureUnauthenticatedOrRedirect();
+
   const params = await searchParams;
   const error = params.error;
   if (error === "INVALID_TOKEN") redirect("/auth/forgot-password?info=RESET_LINK_INVALID");
