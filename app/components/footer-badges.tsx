@@ -96,7 +96,7 @@ function BadgeLink({ badge, isDark, ariaHidden }: BadgeLinkProps) {
     <a
       aria-hidden={ariaHidden || undefined}
       aria-label={ariaHidden ? undefined : badge.alt}
-      className="shrink-0 opacity-80 hover:opacity-100 transition-opacity"
+      className="shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0"
       href={badge.href}
       rel="noopener noreferrer"
       tabIndex={ariaHidden ? -1 : undefined}

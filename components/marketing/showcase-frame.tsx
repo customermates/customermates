@@ -49,7 +49,7 @@ export function ShowcaseFrame({
           contentClassName,
         )}
       >
-        {children}
+        <div className="overflow-hidden rounded-xl">{children}</div>
       </div>
     </div>
   );
