@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 
 import { CompetitorLinks } from "./competitor-links";
+import { FooterBadges } from "./footer-badges";
 
-import { useServerTheme } from "@/components/server-theme-provider";
 import { LanguageSelector } from "@/components/shared/language-selector";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
@@ -23,31 +21,6 @@ type FooterProps = {
   featureLinks?: LinkItem[];
   industries?: LinkItem[];
 };
-
-function UneedBadge() {
-  const serverTheme = useServerTheme();
-  const { resolvedTheme, systemTheme } = useTheme();
-  const [isDark, setIsDark] = useState(serverTheme === "dark");
-
-  useEffect(() => {
-    const theme = resolvedTheme === "system" ? systemTheme : resolvedTheme;
-    setIsDark(theme === "dark");
-  }, [resolvedTheme, systemTheme]);
-
-  const badgeSrc = isDark ? "https://www.uneed.best/POTW1A.png" : "https://www.uneed.best/POTW1.png";
-
-  return (
-    <a
-      aria-label="Featured on Uneed"
-      href="https://www.uneed.best/tool/customermates"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt="Featured on Uneed" height="54" loading="lazy" src={badgeSrc} width="140" />
-    </a>
-  );
-}
 
 export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
   const t = useTranslations("Footer");
@@ -66,8 +39,6 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
               <span className="sr-only">{`${tCommon("imageAlt.logo")} ${tUserAvatar("home")}`}</span>
             </AppLink>
-
-            <UneedBadge />
 
             <div className="flex gap-4">
               <a
@@ -252,10 +223,56 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
           </div>
         </div>
 
+        <FooterBadges />
+
         <div className="pt-8">
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 md:gap-4">
-            <div className="text-subdued text-center md:text-left">
-              {t("copyrightText", { year: new Date().getFullYear() })}
+            <div className="text-xs text-subdued text-center md:text-left">
+              <span>{t("copyrightText", { year: new Date().getFullYear() })}</span>
+
+              {" · "}
+
+              <a
+                className="hover:text-foreground transition-colors"
+                href="https://viesearch.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Viesearch - The Human-curated Search Engine
+              </a>
+
+              {" · "}
+
+              <a
+                className="hover:text-foreground transition-colors"
+                href="https://www.promotebusinessdirectory.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://www.promotebusinessdirectory.com/
+              </a>
+
+              {" · "}
+
+              <a
+                className="hover:text-foreground transition-colors"
+                href="http://www.usawebsitesdirectory.com/computers_and_internet/"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                http://www.usawebsitesdirectory.com/computers_and_internet/
+              </a>
+
+              {" · "}
+
+              <a
+                className="hover:text-foreground transition-colors"
+                href="https://www.bestsitesindex.com/submit.php"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://www.bestsitesindex.com/submit.php
+              </a>
             </div>
 
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 md:gap-4">
