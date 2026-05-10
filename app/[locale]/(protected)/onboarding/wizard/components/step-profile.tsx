@@ -47,22 +47,14 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
       <div className="flex flex-col gap-3">
         <FormInput readOnly id="email" type="email" />
 
-        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-          <FormInput required id="firstName" />
+        <div className="flex w-full items-end gap-3">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormInput required id="firstName" />
 
-          <FormInput required id="lastName" />
-        </div>
+            <FormInput required id="lastName" />
+          </div>
 
-        <FormAutocompleteCountry required id="country" />
-
-        <div className="flex w-full items-start gap-3">
-          <FormInput
-            containerClassName="flex-1 min-w-0"
-            description={t("OnboardingWizard.avatarDescription")}
-            id="avatarUrl"
-          />
-
-          <Avatar className="size-9 shrink-0 border mt-5.5">
+          <Avatar className="size-10 shrink-0 border">
             {form.avatarUrl && <AvatarImage alt="avatar" src={form.avatarUrl} />}
 
             <AvatarFallback className="text-xs">
@@ -70,6 +62,8 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
             </AvatarFallback>
           </Avatar>
         </div>
+
+        <FormAutocompleteCountry required id="country" />
 
         <FormCheckbox
           required
