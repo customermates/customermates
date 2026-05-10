@@ -46,14 +46,20 @@ export const StepCompany = observer(({ initialCompany }: Props) => {
   return (
     <AppForm id={formId} store={companyDetailsStore} onSubmit={(e) => void companyDetailsStore.onSubmit(e)}>
       <div className="flex flex-col gap-3">
-        <FormInput required description={t("OnboardingWizard.companyNameDescription")} id="name" />
+        <FormInput
+          required
+          autoComplete="organization"
+          description={t("OnboardingWizard.companyNameDescription")}
+          id="name"
+          name="organization"
+        />
 
-        <FormInput required id="street" />
+        <FormInput autoComplete="street-address" id="street" name="street-address" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormInput required id="postalCode" />
+          <FormInput autoComplete="postal-code" id="postalCode" name="postal-code" />
 
-          <FormInput required id="city" />
+          <FormInput autoComplete="address-level2" id="city" name="address-level2" />
         </div>
 
         <FormAutocompleteCountry required id="country" />

@@ -45,13 +45,13 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
   return (
     <AppForm store={store}>
       <div className="flex flex-col gap-3">
-        <FormInput readOnly id="email" type="email" />
+        <FormInput readOnly autoComplete="email" id="email" name="email" type="email" />
 
         <div className="flex w-full items-end gap-3">
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormInput required id="firstName" />
+            <FormInput required autoComplete="given-name" id="firstName" name="given-name" />
 
-            <FormInput required id="lastName" />
+            <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
           </div>
 
           <Avatar className="size-10 shrink-0 border">

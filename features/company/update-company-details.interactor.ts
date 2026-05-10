@@ -15,9 +15,9 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
   name: z.string().min(1),
-  street: z.string().min(1),
-  city: z.string().min(1),
-  postalCode: z.string().min(1),
+  street: z.string(),
+  city: z.string(),
+  postalCode: z.string(),
   country: z.enum(CountryCode),
   currency: z.enum(Currency).default(Currency.eur),
 });
