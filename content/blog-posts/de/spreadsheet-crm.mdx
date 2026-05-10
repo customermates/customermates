@@ -123,7 +123,7 @@ Genug Theorie. So sieht das Excel-CRM in drei Setups aus, die mir regelmäßig b
 
 **Szenario 2: Zweier-Agentur, 30 Kunden und 20 Interessenten.** Eine Gründerin und ihr Partner führen eine kleine Content-Agentur, beide bearbeiten Google Sheets live. Im Kontakte-Blatt gibt es Zusatzspalten `Account Manager` (singleSelect) und `MRR` (Währung), sie splitten Interessenten per Filteransicht. Freitags-Standup vor dem Dashboard-Tab. Konflikte sind selten, weil beide selten dieselbe Zeile bearbeiten. Einmal pro Quartal nervt, dass Pivots im geteilten Modus einen manuellen Refresh brauchen.
 
-**Szenario 3: Fünfköpfiges SaaS-Vertriebsteam, 600 Kontakte, 150 offene Deals.** Hier fängt die Tabelle an zu brechen. Gleichzeitige Bearbeitung führt zu überschriebenen Formeln, Aktivitäten driften, das Dashboard braucht 8 Sekunden zum Filtern. Zwei Vertriebler arbeiten mobil, die Sheets-App ist zum Tippen unbrauchbar. Innerhalb eines Sprints werden drei Follow-ups verpasst. Im dritten Monat rechnet die Geschäftsführung nach: 5 Mitarbeiter × 1 Stunde wöchentliche Datenpflege × 60 €/h = 1.200 €/Monat. Ein 45 €/Monat-CRM hat sich in der ersten Woche bezahlt gemacht.
+**Szenario 3: Fünfköpfiges SaaS-Vertriebsteam, 600 Kontakte, 150 offene Deals.** Hier fängt die Tabelle an zu brechen. Gleichzeitige Bearbeitung führt zu überschriebenen Formeln, Aktivitäten driften, das Dashboard braucht 8 Sekunden zum Filtern. Zwei Vertriebler arbeiten mobil, die Sheets-App ist zum Tippen unbrauchbar. Innerhalb eines Sprints werden drei Follow-ups verpasst. Im dritten Monat rechnet die Geschäftsführung nach: 5 Mitarbeiter × 1 Stunde wöchentliche Datenpflege × 60 €/h = 1.200 €/Monat. Ein 35 €/Monat-CRM hat sich in der ersten Woche bezahlt gemacht.
 
 Das Muster: Tabellen funktionieren hervorragend, bis eine der Grenzen (Multi-User-Konkurrenz, mobile Arbeit, verpasste Follow-ups, Dateigröße) gerissen wird. Szenario 1 bleibt für immer auf Sheets. Szenario 2 bleibt 1 bis 2 Jahre. Szenario 3 hätte gestern wechseln sollen.
 
@@ -198,7 +198,7 @@ Drei Kriterien für die Wahl:
 
 - **Vertriebs-orientiert mit Pipeline-Fokus**: Pipedrive ab 14 Euro pro Nutzer, einfaches Onboarding.
 - **Marketing-Inbound-Anbindung gewünscht**: HubSpot CRM Free, später Marketing Hub.
-- **Open Source, EU-Hosting, KI-Agent-Steuerung**: Customermates ab 9 Euro pro Nutzer im Cloud-Tarif, kostenlos selbst hostbar.
+- **Open Source, EU-Hosting, KI-Agent-Steuerung**: Customermates ab 7 Euro pro Nutzer im Cloud-Tarif, kostenlos selbst hostbar.
 
 ## Vom Excel-CRM zur Open-Source-Alternative
 
@@ -206,7 +206,7 @@ Customermates ist gebaut für genau diesen Übergang. Die Tabellen-Ansicht (eine
 
 Der entscheidende Unterschied zur Excel-Welt: Customermates lässt sich von KI-Agenten bedienen. Über einen eingebauten [MCP-Server](https://modelcontextprotocol.io) mit 57 Tools können Claude, ChatGPT oder Codex direkt im CRM lesen und schreiben. Praktisch heißt das: Sie leiten eine E-Mail an Claude weiter, und Claude legt den Kontakt an, schreibt die Notiz, aktualisiert den Deal-Status. Die Datenpflege, die in Excel manuell laufen muss, übernimmt der Agent.
 
-Cloud-Hosting in Deutschland ab 9 Euro pro Nutzer pro Monat im Jahresplan, Self-Hosting via `docker compose up -d` kostenlos unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration von Excel: CSV-Export, CSV-Import in Customermates, Custom Fields anpassen. Mit einem KI-Agenten ist auch die Migration in einem Vormittag erledigt.
+Cloud-Hosting in Deutschland ab 7 Euro pro Nutzer pro Monat im Jahresplan, Self-Hosting via `docker compose up -d` kostenlos unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration von Excel: CSV-Export, CSV-Import in Customermates, Custom Fields anpassen. Mit einem KI-Agenten ist auch die Migration in einem Vormittag erledigt.
 
 ## Fazit
 
@@ -229,10 +229,10 @@ Im Kontakte-Blatt: ID, Vorname, Nachname, E-Mail, Telefon, Firma, Position, Lead
 Für Multi-User-Setups ja, weil Google Sheets von Haus aus für gleichzeitige Bearbeitung gebaut ist. Excel ist mächtiger bei Pivot-Tabellen, Makros und Performance bei großen Datenmengen. Für Solo-Founder ohne Multi-User-Bedarf sind beide etwa gleichwertig. Für 2 bis 5 Personen empfehle ich Google Sheets.
 
 **Gibt es ein kostenloses Open-Source-CRM?**
-Ja. Customermates ist unter AGPL-3.0 lizenziert und kostenlos selbst hostbar via `docker compose up -d`. Drei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei 9 Euro pro Nutzer pro Monat im Jahresplan und ist in Deutschland gehostet.
+Ja. Customermates ist unter AGPL-3.0 lizenziert und kostenlos selbst hostbar via `docker compose up -d`. Drei Container laufen, in 30 Minuten ist das System einsatzbereit. Andere Optionen: EspoCRM, SuiteCRM, Krayin. Die Cloud-Variante von Customermates startet bei 7 Euro pro Nutzer pro Monat im Jahresplan und ist in Deutschland gehostet.
 
 **Brauche ich Apps Script für ein Excel-CRM?**
 Nein, nicht zwingend. Die Vorlage funktioniert ohne jede Skripterweiterung für 1 bis 3 Personen. Sinnvoll wird Apps Script erst, wenn Sie regelmäßig Follow-ups verpassen oder eine automatische E-Mail-Übersicht überfälliger Aktionen wollen. Wer mit dem Code nicht hantieren will, sollte stattdessen direkt zu einem CRM-System wechseln, das Erinnerungen nativ mitbringt.
 
 **Was ist der günstigste Weg von Excel zu einem echten CRM?**
-Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, kostenlos unter AGPL-3.0, einzige Kosten sind der Server. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab 9 Euro pro Nutzer pro Monat im Jahresplan. Pipedrive startet bei 14 Euro, Salesforce bei 25 Euro.
+Self-Hosting eines Open-Source-CRMs. Customermates läuft auf einem 5-Euro-VPS via `docker compose up -d`, kostenlos unter AGPL-3.0, einzige Kosten sind der Server. EspoCRM, SuiteCRM und Krayin funktionieren genauso. Wer keinen Server pflegen möchte, findet die günstigste Cloud-Option in HubSpot Free (für bis zu 1.000 Kontakte tatsächlich kostenlos) oder Customermates Cloud ab 7 Euro pro Nutzer pro Monat im Jahresplan. Pipedrive startet bei 14 Euro, Salesforce bei 25 Euro.

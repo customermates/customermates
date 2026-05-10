@@ -133,11 +133,11 @@ The mid-tier vertical tools (Manatal, Recruiterflow, JobAdder, Zoho Recruit, plu
 
 ### Customermates
 
-The CRM I build. Open-source, EU-hosted or self-hosted. €9/user/month yearly or self-hosted for server cost. Configurable: define candidate, job, submission, placement entities with custom fields. Agent-native via MCP, full REST API, n8n community node, 15 webhook events. Best for: boutique agencies (1-15 recruiters), in-house TA teams that want data ownership, agencies that value AI tools (Claude, Codex) driving the CRM directly.
+The CRM I build. Open-source, EU-hosted or self-hosted. €7/user/month yearly or self-hosted for server cost. Configurable: define candidate, job, submission, placement entities with custom fields. Agent-native via MCP, full REST API, n8n community node, 15 webhook events. Best for: boutique agencies (1-15 recruiters), in-house TA teams that want data ownership, agencies that value AI tools (Claude, Codex) driving the CRM directly.
 
 **Concrete recruiting setup with Customermates.** Day 1: install on a small EU VPS or sign up for the cloud version. Day 2: configure custom entities — Candidate (name, email, skills, status, last contact), Client (company hiring), Job (the open role with requirements, status, fee structure), Submission (links candidate to job at a stage). Day 3: import your existing candidate spreadsheet, deduplicate, set up the placement pipeline stages. Day 5: connect [email](/features/email-integration) and [calendar](/features/follow-up) for two-way sync. Week 2: have Claude or Codex write a custom workflow ("when a placement closes, automatically generate the invoice draft in Lexoffice and ping the back office in Slack"). Total setup time: under two weeks for a mid-size boutique agency. See [self-hosted](/features/self-hosted) for the hosting model and the [pipeline feature](/features/pipeline) for the underlying mechanics.
 
-**Concrete cost over 3 years (8 recruiters).** Cloud at €9/user × 8 = €72/month → €2,592 over 3 years. Self-hosted on a Hetzner CX21 EU VPS at €5/month + admin time (~30 hours total) → €180 in server cost + maybe €1,500 in time at €50/hour = €1,680. Either way, multiples cheaper than Bullhorn ($14,000+) or Recruit CRM ($9,600+) at the same headcount. The trade-off is the smaller community and fewer pre-built recruiting-specific integrations.
+**Concrete cost over 3 years (8 recruiters).** Cloud at €7/user × 8 = €56/month → €2,592 over 3 years. Self-hosted on a Hetzner CX21 EU VPS at €5/month + admin time (~30 hours total) → €180 in server cost + maybe €1,500 in time at €50/hour = €1,680. Either way, multiples cheaper than Bullhorn ($14,000+) or Recruit CRM ($9,600+) at the same headcount. The trade-off is the smaller community and fewer pre-built recruiting-specific integrations.
 
 ### Pipedrive (configured)
 
@@ -167,7 +167,7 @@ For agencies with under 1,000 candidates, the differences are small. For agencie
 
 Three failure modes I see repeatedly:
 
-**Failure 1: Buying Bullhorn before you need it.** A 5-recruiter agency signs a $99/user contract because the demo was great. Year-one cost is $5,940 in license alone. The same agency would have run on Recruit CRM at $40/user (~$2,400) or [Customermates](/) at €9/user (~€540) and spent the difference on actual marketing.
+**Failure 1: Buying Bullhorn before you need it.** A 5-recruiter agency signs a $99/user contract because the demo was great. Year-one cost is $5,940 in license alone. The same agency would have run on Recruit CRM at $40/user (~$2,400) or [Customermates](/) at €7/user (~€420) and spent the difference on actual marketing.
 
 **Failure 2: Buying a sales CRM and never configuring it for recruiting.** A team buys Pipedrive, customizes nothing, and tries to use generic deal stages for the placement pipeline. After six months, the data is messy, the activities don't capture what recruiters actually need to log, and the team migrates anyway. The CRM was not the problem; the absence of configuration was.
 

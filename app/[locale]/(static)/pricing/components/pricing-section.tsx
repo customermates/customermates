@@ -10,8 +10,8 @@ import { PricingCardComponent } from "./pricing-card";
 
 type Props = Pricing;
 
-const MONTHLY_PER_USER = 12;
-const YEARLY_MONTHLY_EQUIVALENT_PER_USER = 9;
+const MONTHLY_PER_USER = 9;
+const YEARLY_MONTHLY_EQUIVALENT_PER_USER = 7;
 const YEARLY_DISCOUNT_PERCENT = Math.round((1 - YEARLY_MONTHLY_EQUIVALENT_PER_USER / MONTHLY_PER_USER) * 100);
 
 export function PricingSection({

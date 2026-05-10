@@ -68,7 +68,7 @@ Pattern across all three: the agent does the typing. The human reviews and decid
 | **Zoho Zia** | Lead scoring, anomaly detection, voice assistant | Included on higher Zoho tiers | Zoho ecosystem users |
 | **Microsoft Copilot for Dynamics 365** | Embedded across Sales, Service, Marketing | $20–$30/user/month add-on | Microsoft-stack companies |
 | **Folk AI** | Drafting and enrichment assistants | Credits on Standard / Premium | LinkedIn-first solo / small teams |
-| **Customermates** | Native MCP server, agent operates CRM directly | €9/user/month, all-in | Teams already using Claude / ChatGPT |
+| **Customermates** | Native MCP server, agent operates CRM directly | €7/user/month, all-in | Teams already using Claude / ChatGPT |
 
 The split that matters: vendors with embedded AI keep you in their UI; agent-native CRMs let your AI tools operate the CRM from outside, which is the model you want if you already use Claude, ChatGPT, or Codex daily.
 
@@ -107,7 +107,7 @@ Six questions cut through the marketing:
 3. **Can my own AI tools operate the CRM?** MCP, an open API, and webhooks tell you yes. A closed AI sidebar tells you no.
 4. **What does the data exit look like?** If the AI vendor is the same as the CRM vendor, you cannot leave easily. Open formats and self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) give you an exit.
 5. **GDPR and data residency.** EU-hosted matters when CRM data includes EU contacts. Customermates is EU-hosted and AGPL-licensed; Salesforce and HubSpot offer EU residency on higher tiers.
-6. **Pricing math at your team size.** A 5-person team on Pipedrive + AI add-on is roughly $90–$150/month. The same team on Customermates is €45/month with the agent integration included.
+6. **Pricing math at your team size.** A 5-person team on Pipedrive + AI add-on is roughly $90–$150/month. The same team on Customermates is €35/month with the agent integration included.
 
 ## Common objections, addressed honestly
 
@@ -127,7 +127,7 @@ No. The AI replaces the data entry that reps avoid, not the conversations and ju
 
 Artificial intelligence in customer relationship management has moved from "summarize this contact" features to agents that actually operate the CRM. The new pattern is simple: pick a CRM with a real MCP server or open API, point your existing Claude or ChatGPT at it, let the agent do the typing. The CRM stays current, adoption stops being a problem, and the team works in the tools they already use.
 
-If you want to try this end-to-end, [Customermates](/pricing) ships with the MCP server, n8n node, and webhooks built in at €9 per user per month. The first seven days are free, no credit card. The same architecture works on [Salesforce](https://www.salesforce.com/eu/crm/ai-crm/), [HubSpot](https://www.hubspot.com/products/crm/ai), and [Microsoft Dynamics](https://learn.microsoft.com/en-us/dynamics365/copilot/ai-get-started) if you are already on those platforms; the integration story is just less direct.
+If you want to try this end-to-end, [Customermates](/pricing) ships with the MCP server, n8n node, and webhooks built in at €7 per user per month. The first seven days are free, no credit card. The same architecture works on [Salesforce](https://www.salesforce.com/eu/crm/ai-crm/), [HubSpot](https://www.hubspot.com/products/crm/ai), and [Microsoft Dynamics](https://learn.microsoft.com/en-us/dynamics365/copilot/ai-get-started) if you are already on those platforms; the integration story is just less direct.
 
 ## Frequently asked questions
 
@@ -138,7 +138,7 @@ AI in CRM is the use of machine learning, large language models, and AI agents t
 Three concrete ways: (1) data freshness goes up because the AI logs interactions instead of waiting for a human, (2) follow-ups get drafted faster and more consistently, (3) reps spend their time on conversations and judgment instead of typing. The classic adoption ceiling on CRM rollouts is reps not entering data, and AI agents that can write to the CRM remove that friction.
 
 **What is the best AI CRM in 2026?**
-Depends on your stack. For Microsoft enterprises, Dynamics 365 with Copilot for Sales is natural. For marketing-led teams, HubSpot with Breeze. For sales-first SMBs, Pipedrive's AI Sales Assistant. For teams already using Claude or ChatGPT daily who want the agent to operate the CRM directly, [Customermates](/pricing) at €9 per user per month with native MCP server, n8n node, and 15 webhook events is the cheapest agent-native option.
+Depends on your stack. For Microsoft enterprises, Dynamics 365 with Copilot for Sales is natural. For marketing-led teams, HubSpot with Breeze. For sales-first SMBs, Pipedrive's AI Sales Assistant. For teams already using Claude or ChatGPT daily who want the agent to operate the CRM directly, [Customermates](/pricing) at €7 per user per month with native MCP server, n8n node, and 15 webhook events is the cheapest agent-native option.
 
 **Is AI in CRM safe for my data?**
 It can be, with the right setup. Risks: hallucinated edits, prompt injection, leaking data to a third-party AI vendor. Mitigations: choose a CRM with audit logs and webhook events on every write, prefer agents that call read-back tools to verify their changes, host the CRM in a region that matches your data sovereignty needs (EU for GDPR contacts). Open-source self-hosting (Customermates, [SuiteCRM](https://suitecrm.com)) removes the vendor-side data exposure entirely.

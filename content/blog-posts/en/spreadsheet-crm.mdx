@@ -123,7 +123,7 @@ Theory aside, here's how the spreadsheet CRM actually works for three setups I s
 
 **Scenario 2: two-person agency, 30 active clients and 20 prospects.** A founder and her partner run a small content agency in Google Sheets so both can edit live. The Contacts tab gets two extra columns: `Account Manager` (singleSelect) and `MRR` (currency). They split prospects by manager via a filter view. Friday standups happen with the Dashboard tab on screen. Conflicts are rare because they rarely edit the same row. Once a quarter pivot tables don't auto-refresh in shared mode and need a manual right-click. Workable.
 
-**Scenario 3: 5-person SaaS sales team, 600 contacts, 150 open deals.** This is where the spreadsheet starts breaking. Concurrent edits overwrite formulas. Reps forget to log activities and the data drifts. The Dashboard takes 8 seconds to filter at 4MB file size. Two reps work mostly from mobile and the Sheets app is painful for typing notes. The team misses three follow-ups in a single sprint. By month three, leadership runs the math: 5 reps × 1 hour weekly cleanup × €60/h = €1,200/month wasted. A €45/month CRM pays itself back in week one.
+**Scenario 3: 5-person SaaS sales team, 600 contacts, 150 open deals.** This is where the spreadsheet starts breaking. Concurrent edits overwrite formulas. Reps forget to log activities and the data drifts. The Dashboard takes 8 seconds to filter at 4MB file size. Two reps work mostly from mobile and the Sheets app is painful for typing notes. The team misses three follow-ups in a single sprint. By month three, leadership runs the math: 5 reps × 1 hour weekly cleanup × €60/h = €1,200/month wasted. A €35/month CRM pays itself back in week one.
 
 The pattern: spreadsheets work great until any of the constraints (multi-user concurrency, mobile-heavy work, missed follow-ups, file size) crosses a threshold. Scenario 1 stays on Sheets forever. Scenario 2 stays for 1 to 2 years. Scenario 3 should switch yesterday.
 
@@ -232,7 +232,7 @@ Three picks based on your priorities:
 
 - **Sales-led with pipeline focus**: Pipedrive from $14 per user, simple onboarding.
 - **Marketing inbound funnel**: HubSpot CRM Free, with a path to Marketing Hub.
-- **Open source, EU hosting, AI agent control**: Customermates from €9 per user per month yearly, free to self-host.
+- **Open source, EU hosting, AI agent control**: Customermates from €7 per user per month yearly, free to self-host.
 
 ## From spreadsheet CRM to an open-source alternative
 
@@ -240,7 +240,7 @@ Customermates is built for exactly this transition. The Table view (one of two d
 
 The decisive difference from spreadsheet world: Customermates can be operated by AI agents. Through a built-in [MCP server](https://modelcontextprotocol.io) with 57 tools, Claude, ChatGPT, or Codex can read and write inside the CRM directly. In practice: you forward an email to Claude, and Claude creates the contact, writes the note, updates the deal stage. The data hygiene that's manual in a spreadsheet runs through the agent instead.
 
-Cloud hosting in Germany from €9 per user per month yearly. Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: CSV export, CSV import into Customermates, configure custom fields. With an AI agent, the migration runs in one morning.
+Cloud hosting in Germany from €7 per user per month yearly. Self-hosting via `docker compose up -d` is free under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Migration from Excel: CSV export, CSV import into Customermates, configure custom fields. With an AI agent, the migration runs in one morning.
 
 ## Bottom line
 
@@ -263,10 +263,10 @@ Contacts tab: ID, First Name, Last Name, Email, Phone, Company, Role, Lead Sourc
 For multi-user setups yes, because Sheets is built for concurrent editing. Excel is more powerful at pivot tables, macros, and performance on large datasets. For solo founders without multi-user needs, they're roughly equivalent. For 2 to 5 people, I recommend Sheets.
 
 **Is there a free open-source CRM I can use instead?**
-Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €9 per user per month yearly and is hosted in Germany.
+Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €7 per user per month yearly and is hosted in Germany.
 
 **How many users can collaborate on a Google Sheets CRM?**
 Up to about 5 active editors, in practice. Google Sheets technically supports 100 simultaneous editors, but conflicts on filter views, pivot table refreshes, and concurrent cell edits get unpleasant past 5. For 2 to 3 editors it works smoothly. For 4 to 5 editors, set up protected ranges and clear ownership rules. Above 5, the spreadsheet has aged out and a real CRM saves more time than it costs.
 
 **What's the cheapest path from spreadsheet to a real CRM?**
-Self-host an open-source CRM. Customermates runs on a €5/month VPS via `docker compose up -d`, free under AGPL-3.0, your only cost is the server. EspoCRM, SuiteCRM, and Krayin work the same way. If you don't want to manage a server, the cheapest cloud option among modern CRMs is HubSpot Free (genuinely free for up to 1,000 contacts) or Customermates Cloud at €9 per user per month yearly. Pipedrive starts at $14, Salesforce at $25.
+Self-host an open-source CRM. Customermates runs on a €5/month VPS via `docker compose up -d`, free under AGPL-3.0, your only cost is the server. EspoCRM, SuiteCRM, and Krayin work the same way. If you don't want to manage a server, the cheapest cloud option among modern CRMs is HubSpot Free (genuinely free for up to 1,000 contacts) or Customermates Cloud at €7 per user per month yearly. Pipedrive starts at $14, Salesforce at $25.

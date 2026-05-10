@@ -51,7 +51,7 @@ Die meisten „beste Recruiting-CRM"-Listen vergleichen zehn vertikale Tools (Bu
 | Job-Board-Integrationen | Eingebaut (LinkedIn, Indeed, StepStone) | Über API oder Zapier |
 | Reports | Recruiting-spezifisch (Time-to-Fill, Quelle) | Generisch, Sie bauen sie |
 | Vendor-Lock-in | Hoch (Datenexport ist mühsam) | Niedrig (offene Formate, API) |
-| Preis | 99 € bis 299 €/User/Monat typisch | 9 € bis 30 €/User/Monat oder selbst gehostet |
+| Preis | 99 € bis 299 €/User/Monat typisch | 7 € bis 30 €/User/Monat oder selbst gehostet |
 | Anpassung an nicht-standardmäßigen Prozess | Begrenzt | Vollständig |
 | Jahre vertikaler Funktionen | 5 bis 20 | 0 |
 
@@ -121,11 +121,11 @@ Im DACH-Markt zusätzlich relevant: onlyfy (XING-eigenes ATS, gut für deutschen
 
 ### Customermates
 
-Das CRM, das ich baue. Open Source, EU-gehostet oder selbst gehostet. 9 €/User/Monat (jährlich) oder selbst gehostet nur Serverkosten. Konfigurierbar: Sie definieren Kandidaten, Stellen, Vorstellungen, Vermittlungen als Entitäten mit Custom Fields. Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node, 15 Webhook-Events. Geeignet für: Boutique-Agenturen (1 bis 15 Recruiter), interne TA-Teams, die Datenhoheit wollen, Agenturen, die KI-Tools (Claude, Codex) das CRM direkt steuern lassen wollen.
+Das CRM, das ich baue. Open Source, EU-gehostet oder selbst gehostet. 7 €/User/Monat (jährlich) oder selbst gehostet nur Serverkosten. Konfigurierbar: Sie definieren Kandidaten, Stellen, Vorstellungen, Vermittlungen als Entitäten mit Custom Fields. Agent-nativ über MCP, vollständige REST-API, n8n-Community-Node, 15 Webhook-Events. Geeignet für: Boutique-Agenturen (1 bis 15 Recruiter), interne TA-Teams, die Datenhoheit wollen, Agenturen, die KI-Tools (Claude, Codex) das CRM direkt steuern lassen wollen.
 
 **Konkretes Recruiting-Setup mit Customermates.** Tag 1: Installation auf einem kleinen EU-VPS oder Anmeldung für die Cloud-Version. Tag 2: Custom-Entitäten konfigurieren — Kandidat (Name, E-Mail, Skills, Status, letzter Kontakt), Kunde (einstellendes Unternehmen), Stelle (offene Rolle mit Anforderungen, Status, Honorarstruktur), Vorstellung (verbindet Kandidat mit Stelle in einer Stufe). Tag 3: Bestehende Kandidaten-Excel importieren, deduplizieren, Vermittlungs-Pipeline-Stufen aufsetzen. Tag 5: [E-Mail](/features/email-integration) und [Kalender](/features/follow-up) für bidirektionale Synchronisation verbinden. Woche 2: Claude oder Codex einen Custom-Workflow schreiben lassen („wenn eine Vermittlung abschließt, automatisch den Rechnungsentwurf in lexoffice generieren und das Back Office in Slack pingen"). Gesamt-Setup-Zeit: unter zwei Wochen für eine mittelgroße Boutique-Agentur. Siehe [Self-Hosted](/features/self-hosted) für das Hosting-Modell und die [Pipeline-Feature-Seite](/features/pipeline) für die zugrunde liegende Mechanik.
 
-**Konkrete Kosten über 3 Jahre (8 Recruiter).** Cloud zu 9 € × 8 = 72 €/Monat → 2.592 € über 3 Jahre. Selbst gehostet auf einem Hetzner-CX21-EU-VPS zu 5 €/Monat + Admin-Zeit (~30 Stunden gesamt) → 180 € Serverkosten + etwa 1.500 € Zeit bei 50 €/Stunde = 1.680 €. So oder so ein Vielfaches günstiger als Bullhorn (über 14.000 €) oder Recruit CRM (über 9.600 €) bei gleicher Personalstärke. Der Kompromiss ist die kleinere Community und weniger vorgefertigte recruiting-spezifische Integrationen.
+**Konkrete Kosten über 3 Jahre (8 Recruiter).** Cloud zu 7 € × 8 = 56 €/Monat → 2.592 € über 3 Jahre. Selbst gehostet auf einem Hetzner-CX21-EU-VPS zu 5 €/Monat + Admin-Zeit (~30 Stunden gesamt) → 180 € Serverkosten + etwa 1.500 € Zeit bei 50 €/Stunde = 1.680 €. So oder so ein Vielfaches günstiger als Bullhorn (über 14.000 €) oder Recruit CRM (über 9.600 €) bei gleicher Personalstärke. Der Kompromiss ist die kleinere Community und weniger vorgefertigte recruiting-spezifische Integrationen.
 
 ### Pipedrive (konfiguriert)
 
@@ -155,7 +155,7 @@ Für Agenturen mit unter 1.000 Kandidaten sind die Unterschiede klein. Für Agen
 
 Drei Fehlermuster, die ich wiederholt sehe:
 
-**Fehler 1: Bullhorn kaufen, bevor Sie es brauchen.** Eine 5-Recruiter-Agentur unterzeichnet einen 99 €/User-Vertrag, weil die Demo gut war. Jahres-1-Kosten allein für Lizenzen sind 5.940 €. Dieselbe Agentur hätte mit Recruit CRM zu 40 €/User (~2.400 €) oder [Customermates](/) zu 9 €/User (~540 €) laufen können und die Differenz in echtes Marketing investieren können.
+**Fehler 1: Bullhorn kaufen, bevor Sie es brauchen.** Eine 5-Recruiter-Agentur unterzeichnet einen 99 €/User-Vertrag, weil die Demo gut war. Jahres-1-Kosten allein für Lizenzen sind 5.940 €. Dieselbe Agentur hätte mit Recruit CRM zu 40 €/User (~2.400 €) oder [Customermates](/) zu 7 €/User (~420 €) laufen können und die Differenz in echtes Marketing investieren können.
 
 **Fehler 2: Vertriebs-CRM kaufen und nie für Recruiting konfigurieren.** Ein Team kauft Pipedrive, passt nichts an und versucht, generische Deal-Stufen für die Vermittlungs-Pipeline zu nutzen. Nach sechs Monaten sind die Daten chaotisch, die Aktivitäten erfassen nicht das, was Recruiter eigentlich loggen müssen, und das Team migriert ohnehin. Das CRM war nicht das Problem; die fehlende Konfiguration war es.
 
@@ -292,4 +292,4 @@ Für Agenturen mit 10+ Recruitern, standardisierten Prozessen und Admin-Budget j
 Loxo und Recruit CRM bewerben KI stark. In der Praxis gewinnt [Customermates](/) konfiguriert mit Claude oder Codex bei Agenturen, die KI-Tools bereits nutzen, weil die KI das CRM direkt über MCP steuert, statt auf Anbieter-KI-Funktionen zu warten.
 
 **Was kostet ein Recruiting-CRM?**
-Vertikale Tools: 35 € bis 300 €/User/Monat typisch. Horizontales CRM für Recruiting konfiguriert: 9 € bis 40 €/User/Monat. Selbst gehostete Open-Source-Variante: nur Serverkosten (20 € bis 200 €/Monat fürs ganze Team).
+Vertikale Tools: 35 € bis 300 €/User/Monat typisch. Horizontales CRM für Recruiting konfiguriert: 7 € bis 40 €/User/Monat. Selbst gehostete Open-Source-Variante: nur Serverkosten (20 € bis 200 €/Monat fürs ganze Team).

@@ -22,7 +22,7 @@ comparison:
         source: 2 Minuten
         competitor: Stunden bis Tage (Implementierungspartner üblich)
       - name: Einstiegspreis
-        source: 9 € / User / Monat (jährlich)
+        source: 7 € / User / Monat (jährlich)
         competitor: Kostenlos für eine App, sonst 19,90 € / User / Monat (jährlich)
       - name: Mittlere Stufe
         source: Gleicher Pro-Tarif, alles inklusive
@@ -111,7 +111,7 @@ Odoo trennt zwei Editionen. Die Community Edition steht unter LGPLv3 auf [GitHub
 
 ## Was ist Customermates?
 
-Customermates ist ein CRM, das sich selbst aktualisiert, wenn du bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzt. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz mit fünf Entitäten (Kontakte, Unternehmen, Deals, Services, Aufgaben), zwei Ansichten (Tabelle und Kanban-Karten), acht Custom-Field-Typen und einer vollständigen REST-API. Open Source unter AGPL-3.0, kostenlos selbst hostbar via Docker, in der Cloud EU-gehostet ab 9 € pro User pro Monat im Jahresplan.
+Customermates ist ein CRM, das sich selbst aktualisiert, wenn du bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzt. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz mit fünf Entitäten (Kontakte, Unternehmen, Deals, Services, Aufgaben), zwei Ansichten (Tabelle und Kanban-Karten), acht Custom-Field-Typen und einer vollständigen REST-API. Open Source unter AGPL-3.0, kostenlos selbst hostbar via Docker, in der Cloud EU-gehostet ab 7 € pro User pro Monat im Jahresplan.
 
 Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit 57 Tools, ein n8n-Community-Node, 15 Webhook-Events und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`.
 
@@ -119,13 +119,13 @@ Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server m
 
 | Plan | Odoo CRM | Customermates |
 |---|---|---|
-| Einstieg jährlich | One App Free (nur eine App) oder Standard 19,90 €/User | Pro 9 €/User/Monat |
-| Einstieg monatlich | Standard 24,90 €/User/Monat | Pro 12 €/User/Monat |
+| Einstieg jährlich | One App Free (nur eine App) oder Standard 19,90 €/User | Pro 7 €/User/Monat |
+| Einstieg monatlich | Standard 24,90 €/User/Monat | Pro 9 €/User/Monat |
 | API-Zugriff | Erst ab Custom 29,90 €/User/Monat (jährlich) | Ab Pro inklusive |
 | Kostenloser Start | One App Free dauerhaft, eine App | 7 Tage Pro, keine Kreditkarte |
 | Self-Hosting | Community-Edition oder Custom-Plan | Kostenlos, Docker Compose |
 
-Ein Fünfer-Team auf Odoo Standard zahlt 99,50 € pro Monat im Jahresplan, allerdings ohne externe API. Wer die API braucht (für n8n, Zapier oder eigene Integrationen), landet bei Custom auf 149,50 € pro Monat. Dasselbe Team auf Customermates zahlt 45 € im Jahresplan, mit voller REST-API, MCP-Server, n8n-Node und 15 Webhook-Events vom ersten Tag an.
+Ein Fünfer-Team auf Odoo Standard zahlt 99,50 € pro Monat im Jahresplan, allerdings ohne externe API. Wer die API braucht (für n8n, Zapier oder eigene Integrationen), landet bei Custom auf 149,50 € pro Monat. Dasselbe Team auf Customermates zahlt 35 € im Jahresplan, mit voller REST-API, MCP-Server, n8n-Node und 15 Webhook-Events vom ersten Tag an.
 
 ## Setup und Onboarding
 
@@ -159,7 +159,7 @@ Der Lizenz-Unterschied ist subtil, aber relevant. AGPL-3.0 zwingt SaaS-Anbieter,
 
 Odoos Integrationsstrategie ist Suite-zentriert. CRM-Daten fließen automatisch nach Sales, Buchhaltung, Inventory und POS, weil alles dasselbe System ist. Externe Integrationen über REST-API stehen erst im Custom-Tarif zur Verfügung. Wer Odoo nutzt und externe Tools wie n8n, Zapier oder eigene Skripte anbinden will, zahlt 29,90 € pro User pro Monat im Jahresplan oder bleibt auf interne Module beschränkt.
 
-Customermates setzt auf offene Schnittstellen ab dem ersten Plan. REST-API mit OpenAPI 3.1, MCP-Server mit 57 Tools, ein n8n-Community-Node und 15 Webhook-Events sind im Pro-Tarif für 9 € pro User pro Monat enthalten. Webhooks decken alle CRUD-Operationen über alle fünf Entitäten ab, sodass externe Systeme synchron bleiben, ohne pollen zu müssen.
+Customermates setzt auf offene Schnittstellen ab dem ersten Plan. REST-API mit OpenAPI 3.1, MCP-Server mit 57 Tools, ein n8n-Community-Node und 15 Webhook-Events sind im Pro-Tarif für 7 € pro User pro Monat enthalten. Webhooks decken alle CRUD-Operationen über alle fünf Entitäten ab, sodass externe Systeme synchron bleiben, ohne pollen zu müssen.
 
 ## Wann Odoo CRM die bessere Wahl ist
 
@@ -167,7 +167,7 @@ Wenn du eine integrierte Business-Suite suchst, die CRM, ERP, Buchhaltung, Inven
 
 ## Wann Customermates die bessere Wahl ist
 
-Wenn du ein fokussiertes CRM willst und keine 80 Module brauchst, wurde Customermates dafür gebaut. Wenn du Claude, ChatGPT oder Codex bereits nutzt und willst, dass ein KI-Agent das CRM tatsächlich bedient (nicht nur Leads bewertet), bietet Odoo das nicht. Wenn du Open Source unter AGPL, Self-Hosting via Docker und EU-Hosting in Deutschland brauchst, ohne auf den Custom-Tarif zu wechseln, ist Customermates der direkte Treffer. Wenn du 9 € pro User statt 19,90 € (oder 29,90 € für API-Zugriff) zahlen willst und volle API, MCP, n8n und Webhooks ab Tag eins willst, ist die Rechnung klar.
+Wenn du ein fokussiertes CRM willst und keine 80 Module brauchst, wurde Customermates dafür gebaut. Wenn du Claude, ChatGPT oder Codex bereits nutzt und willst, dass ein KI-Agent das CRM tatsächlich bedient (nicht nur Leads bewertet), bietet Odoo das nicht. Wenn du Open Source unter AGPL, Self-Hosting via Docker und EU-Hosting in Deutschland brauchst, ohne auf den Custom-Tarif zu wechseln, ist Customermates der direkte Treffer. Wenn du 7 € pro User statt 19,90 € (oder 29,90 € für API-Zugriff) zahlen willst und volle API, MCP, n8n und Webhooks ab Tag eins willst, ist die Rechnung klar.
 
 ## Fazit
 
@@ -182,7 +182,7 @@ Teilweise. Odoo bietet einen One App Free Tarif, der dauerhaft kostenlos eine ei
 Ja, vor allem für Unternehmen, die ohnehin die Odoo-Suite einsetzen. Lead Management, Pipeline, Angebotserstellung und KI-Lead-Scoring sind ausgereift. Schwächen: keine native KI-Agent-Integration, REST-API erst im Custom-Tarif, und das CRM ist als Modul innerhalb einer großen Suite konzipiert, was für Teams ohne Bedarf an ERP oder Buchhaltung Overhead bedeutet.
 
 **Was ist die beste Odoo-Alternative?**
-Hängt vom Bedarf ab. Wer die ERP-Suite nutzt, bleibt sinnvollerweise bei Odoo. Wer ein fokussiertes CRM mit nativer KI-Agent-Integration sucht, findet in Customermates eine Open-Source-Alternative ab 9 € pro User pro Monat mit voller API ab Plan eins. Für klassische CRM-Alternativen siehe die [Pipedrive-Alternative](/compare/pipedrive-alternative) und [HubSpot-Alternative](/compare/hubspot-alternative) Seiten.
+Hängt vom Bedarf ab. Wer die ERP-Suite nutzt, bleibt sinnvollerweise bei Odoo. Wer ein fokussiertes CRM mit nativer KI-Agent-Integration sucht, findet in Customermates eine Open-Source-Alternative ab 7 € pro User pro Monat mit voller API ab Plan eins. Für klassische CRM-Alternativen siehe die [Pipedrive-Alternative](/compare/pipedrive-alternative) und [HubSpot-Alternative](/compare/hubspot-alternative) Seiten.
 
 **Konkurriert Odoo mit Salesforce?**
 Indirekt. Odoo positioniert sich als integrierte Suite gegen das Salesforce-Ökosystem aus Sales Cloud, Service Cloud, Marketing Cloud, Pardot und vielen Add-ons. Funktional decken beide ähnliche Use Cases ab, allerdings mit unterschiedlichen Preismodellen. Salesforce ist meist kostspieliger und implementierungsaufwendiger. Odoo ist günstiger pro User, dafür mit eigener Suite-Komplexität.
@@ -191,4 +191,4 @@ Indirekt. Odoo positioniert sich als integrierte Suite gegen das Salesforce-Öko
 Ja, über die Community-Edition unter LGPLv3 oder über den Custom-Tarif der Enterprise-Edition mit Self-Host-Option. Die Community-Edition läuft auf eigener Infrastruktur, deckt aber nur einen Teil der Enterprise-Module ab. Customermates ist unter AGPL-3.0 in voller Funktionalität selbst hostbar via `docker compose up -d`.
 
 **Hat Odoo CRM eine API?**
-Ja, allerdings nur im Custom-Tarif (29,90 € pro User pro Monat im Jahresplan). Im Standard-Tarif ist die externe REST-API nicht enthalten. Customermates liefert eine vollständige REST-API mit OpenAPI 3.1, einen MCP-Server mit 57 Tools und 15 Webhook-Events ab dem 9 €-Pro-Tarif.
+Ja, allerdings nur im Custom-Tarif (29,90 € pro User pro Monat im Jahresplan). Im Standard-Tarif ist die externe REST-API nicht enthalten. Customermates liefert eine vollständige REST-API mit OpenAPI 3.1, einen MCP-Server mit 57 Tools und 15 Webhook-Events ab dem 7 €-Pro-Tarif.

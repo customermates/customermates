@@ -32,7 +32,7 @@ export function softwareApplicationSchema(params: { description: string; locale:
     operatingSystem: "Web, macOS, Windows, Linux",
     offers: {
       "@type": "Offer",
-      price: "9",
+      price: "7",
       priceCurrency: "EUR",
       url: `${BASE_URL}/${params.locale}/pricing`,
     },

@@ -68,7 +68,7 @@ Muster über alle drei: Der Agent tippt. Der Mensch prüft und entscheidet. Das 
 | **Zoho Zia** | Lead-Scoring, Anomalie-Erkennung, Sprachassistent | In höheren Zoho-Tarifen enthalten | Zoho-Ökosystem-Nutzer |
 | **Microsoft Copilot for Dynamics 365** | Eingebettet in Sales, Service, Marketing | $20–$30/User/Monat Add-on | Microsoft-Stack-Unternehmen |
 | **Folk AI** | Entwurfs- und Anreicherungsassistenten | Credits in Standard / Premium | LinkedIn-first Solo / Kleinteam |
-| **Customermates** | Nativer MCP-Server, Agent bedient CRM direkt | 9 €/User/Monat, alles inklusive | Teams, die Claude / ChatGPT bereits nutzen |
+| **Customermates** | Nativer MCP-Server, Agent bedient CRM direkt | 7 €/User/Monat, alles inklusive | Teams, die Claude / ChatGPT bereits nutzen |
 
 Die wesentliche Trennlinie: Anbieter mit eingebetteter KI halten dich in ihrem UI. Agent-native CRMs erlauben deinen KI-Tools, das CRM von außen zu bedienen, was das Modell ist, das du willst, wenn du Claude, ChatGPT oder Codex täglich nutzt.
 
@@ -127,7 +127,7 @@ Nein. Die KI ersetzt die Dateneingabe, die Reps vermeiden, nicht die Gespräche 
 
 Künstliche Intelligenz im Kundenbeziehungsmanagement hat sich von „Fasse diesen Kontakt zusammen"-Funktionen zu Agenten entwickelt, die das CRM tatsächlich bedienen. Das neue Muster ist einfach: Wähle ein CRM mit echtem MCP-Server oder offener API, richte deinen vorhandenen Claude oder ChatGPT darauf, lass den Agenten tippen. Das CRM bleibt aktuell, Adoption ist kein Problem mehr, und das Team arbeitet in den Tools, die es ohnehin nutzt.
 
-Wenn du das End-to-End ausprobieren willst, [Customermates](/pricing) liefert MCP-Server, n8n-Node und Webhooks eingebaut für 9 € pro User pro Monat. Die ersten sieben Tage sind kostenlos, keine Kreditkarte. Dieselbe Architektur funktioniert auf [Salesforce](https://www.salesforce.com/de/crm/ai-crm/), [HubSpot](https://www.hubspot.de/products/crm/ai-crm) und [Microsoft Dynamics](https://learn.microsoft.com/de-de/dynamics365/copilot/ai-get-started), wenn du schon auf diesen Plattformen bist; die Integration ist nur weniger direkt.
+Wenn du das End-to-End ausprobieren willst, [Customermates](/pricing) liefert MCP-Server, n8n-Node und Webhooks eingebaut für 7 € pro User pro Monat. Die ersten sieben Tage sind kostenlos, keine Kreditkarte. Dieselbe Architektur funktioniert auf [Salesforce](https://www.salesforce.com/de/crm/ai-crm/), [HubSpot](https://www.hubspot.de/products/crm/ai-crm) und [Microsoft Dynamics](https://learn.microsoft.com/de-de/dynamics365/copilot/ai-get-started), wenn du schon auf diesen Plattformen bist; die Integration ist nur weniger direkt.
 
 ## Häufig gestellte Fragen
 
@@ -138,7 +138,7 @@ KI im CRM ist der Einsatz von Machine Learning, Large Language Models und KI-Age
 Drei konkrete Wege: (1) Datenaktualität steigt, weil die KI Interaktionen loggt statt auf einen Menschen zu warten, (2) Follow-ups werden schneller und konsistenter entworfen, (3) Reps verbringen ihre Zeit mit Gesprächen und Urteilen statt mit Tippen. Die klassische Adoption-Decke bei CRM-Rollouts ist, dass Reps keine Daten eingeben, und KI-Agenten, die ins CRM schreiben können, eliminieren diese Reibung.
 
 **Welches ist das beste KI-CRM 2026?**
-Hängt vom Stack ab. Für Microsoft-Enterprises ist Dynamics 365 mit Copilot for Sales natürlich. Für marketing-getriebene Teams HubSpot mit Breeze. Für vertriebsorientierte KMU Pipedrives KI-Vertriebsassistent. Für Teams, die Claude oder ChatGPT bereits täglich nutzen und wollen, dass der Agent das CRM direkt bedient, ist [Customermates](/pricing) zu 9 € pro User pro Monat mit nativem MCP-Server, n8n-Node und 15 Webhook-Events die günstigste Agent-native Option.
+Hängt vom Stack ab. Für Microsoft-Enterprises ist Dynamics 365 mit Copilot for Sales natürlich. Für marketing-getriebene Teams HubSpot mit Breeze. Für vertriebsorientierte KMU Pipedrives KI-Vertriebsassistent. Für Teams, die Claude oder ChatGPT bereits täglich nutzen und wollen, dass der Agent das CRM direkt bedient, ist [Customermates](/pricing) zu 7 € pro User pro Monat mit nativem MCP-Server, n8n-Node und 15 Webhook-Events die günstigste Agent-native Option.
 
 **Ist KI im CRM sicher für meine Daten?**
 Kann sie sein, mit dem richtigen Setup. Risiken: halluzinierte Bearbeitungen, Prompt Injection, Leaking von Daten an einen Drittanbieter-KI-Vendor. Gegenmaßnahmen: Wähle ein CRM mit Audit-Logs und Webhook-Events bei jedem Schreibvorgang, bevorzuge Agenten, die Read-Back-Tools aufrufen, um ihre Änderungen zu verifizieren, hoste das CRM in einer Region, die deinen Datensouveränitäts-Anforderungen entspricht (EU für DSGVO-Kontakte). Open-Source-Self-Hosting (Customermates, [SuiteCRM](https://suitecrm.com)) eliminiert die vendor-seitige Datenexposition komplett.
