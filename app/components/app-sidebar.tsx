@@ -7,6 +7,7 @@ import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
 import { useEffect, useMemo, useState } from "react";
+import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -48,6 +49,7 @@ type Props = {
   user: ExtendedUser | null;
   subscriptionStatus: SubscriptionStatus | null;
   trialDaysLeft: number | null;
+  emailVerified: boolean | null;
 };
 
 export const AppSidebar = observer(function AppSidebar({
@@ -55,6 +57,7 @@ export const AppSidebar = observer(function AppSidebar({
   systemTaskCount,
   subscriptionStatus,
   trialDaysLeft,
+  emailVerified,
 }: Props) {
   const t = useTranslations("");
   const pathname = usePathname();
@@ -292,7 +295,7 @@ export const AppSidebar = observer(function AppSidebar({
 
   if (isDocsRoute) return null;
 
-  const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, t);
+  const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, emailVerified, t);
 
   return (
     <>
@@ -396,26 +399,61 @@ function AddPickerDrawer({
 function buildPlanSubtitle(
   status: SubscriptionStatus | null,
   trialDaysLeft: number | null,
+  emailVerified: boolean | null,
   t: (key: string, values?: Record<string, string | number>) => string,
 ): React.ReactNode {
-  if (!status || status === "active") return undefined;
+  const planChip = (() => {
+    if (!status || status === "active") return null;
 
-  if (status === "trial") {
-    const text =
-      trialDaysLeft != null
-        ? t("subscription.status.trialDaysLeft", { days: trialDaysLeft })
-        : t("subscription.status.trial");
-    const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
+    if (status === "trial") {
+      const text =
+        trialDaysLeft != null
+          ? t("subscription.status.trialDaysLeft", { days: trialDaysLeft })
+          : t("subscription.status.trial");
+      const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
+      return (
+        <NextLink
+          className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          href="/company/details"
+        >
+          <AppChip className="h-[18px] px-1.5 text-[10px]" variant={variant}>
+            {text}
+          </AppChip>
+        </NextLink>
+      );
+    }
+
     return (
-      <AppChip className="h-[18px] px-1.5 text-[10px]" variant={variant}>
-        {text}
-      </AppChip>
+      <NextLink
+        className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        href="/company/details"
+      >
+        <AppChip className="h-[18px] px-1.5 text-[10px]" variant="destructive">
+          {t(`subscription.status.${status}`)}
+        </AppChip>
+      </NextLink>
     );
-  }
+  })();
+
+  const verificationChip =
+    emailVerified === false ? (
+      <NextLink
+        className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        href="/profile/details"
+      >
+        <AppChip className="h-[18px] px-1.5 text-[10px]" variant="warning">
+          {t("EmailVerification.notVerified")}
+        </AppChip>
+      </NextLink>
+    ) : null;
+
+  if (!planChip && !verificationChip) return undefined;
 
   return (
-    <AppChip className="h-[18px] px-1.5 text-[10px]" variant="destructive">
-      {t(`subscription.status.${status}`)}
-    </AppChip>
+    <>
+      {planChip}
+
+      {verificationChip}
+    </>
   );
 }

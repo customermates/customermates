@@ -1,16 +1,16 @@
 import { UserDetailsForm } from "../components/user-details-form";
 
-import { getGetUserDetailsInteractor, getRouteGuardService } from "@/core/di";
+import { getAuthService, getGetUserDetailsInteractor, getRouteGuardService } from "@/core/di";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileDetailsPage() {
   await getRouteGuardService().ensureAccessOrRedirect();
 
-  const result = await getGetUserDetailsInteractor().invoke();
+  const [result, session] = await Promise.all([getGetUserDetailsInteractor().invoke(), getAuthService().getSession()]);
 
   return (
     <PageContainer>
-      <UserDetailsForm userDetails={result.data} />
+      <UserDetailsForm emailVerified={session?.user?.emailVerified ?? false} userDetails={result.data} />
     </PageContainer>
   );
 }

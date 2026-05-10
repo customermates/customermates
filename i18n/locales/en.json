@@ -1032,6 +1032,13 @@
     "urlPlaceholder": "Enter URL...",
     "urlPrompt": "URL"
   },
+  "EmailVerification": {
+    "notVerified": "Email not verified",
+    "resend": "Resend verification email",
+    "resending": "Sending…",
+    "resendSuccess": "Verification email sent.",
+    "verified": "Email verified"
+  },
   "ErrorCard": {
     "contactSupport": "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
     "ctaLabel": "Back to home",

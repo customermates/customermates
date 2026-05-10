@@ -23,6 +23,7 @@ type Props = {
   trialDaysLeft: number | null;
   systemTaskCount: number;
   user: ExtendedUser | null;
+  emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
   children: React.ReactNode;
 };
@@ -34,6 +35,7 @@ export function NavigationSwitch({
   trialDaysLeft,
   systemTaskCount,
   user,
+  emailVerified,
   defaultSidebarOpen = true,
   children,
 }: Props) {
@@ -84,6 +86,7 @@ export function NavigationSwitch({
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen}>
       <AppSidebar
+        emailVerified={emailVerified}
         subscriptionStatus={subscriptionStatus}
         systemTaskCount={systemTaskCount}
         trialDaysLeft={trialDaysLeft}

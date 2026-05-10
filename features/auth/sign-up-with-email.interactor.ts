@@ -55,6 +55,6 @@ export class SignUpWithEmailInteractor {
         error,
       };
     }
-    redirect("/auth/verify-email");
+    redirect("/");
   }
 }

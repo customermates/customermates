@@ -1,3 +1,4 @@
+import type { AuthService } from "./auth.service";
 import type { UserService } from "../user/user.service";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 
@@ -10,6 +11,7 @@ import { IS_DEMO_MODE } from "@/constants/env";
 
 export class RouteGuardService {
   constructor(
+    private authService: AuthService,
     private userService: UserService,
     private subscriptionRepo: GetSubscriptionRepo,
   ) {}
@@ -24,6 +26,8 @@ export class RouteGuardService {
     skipSubscriptionCheck?: boolean;
     skipOnboardingWizardCheck?: boolean;
   }): Promise<void> {
+    await this.authService.getSessionOrRedirect();
+
     const user = await this.userService.getUser();
 
     if (!user) redirect("/onboarding/wizard");

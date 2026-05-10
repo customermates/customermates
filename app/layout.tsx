@@ -17,6 +17,7 @@ import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
 
 import {
+  getAuthService,
   getUserService,
   getGetCompanyDetailsInteractor,
   getCountSystemTasksInteractor,
@@ -128,10 +129,13 @@ export default async function RootLayout({ children }: Props) {
   let company: Company | null = null;
   let subscriptionStatus: SubscriptionStatus | null = null;
   let trialDaysLeft: number | null = null;
+  let emailVerified: boolean | null = null;
   let isAuthenticated = false;
 
   if (isRegistered) {
     isAuthenticated = user?.status === Status.active;
+    const authSession = await getAuthService().getSession();
+    emailVerified = authSession?.user?.emailVerified ?? false;
 
     if (isAuthenticated) {
       const [companyResult, systemTaskCountResult, subscriptionResult] = await Promise.all([
@@ -170,6 +174,7 @@ export default async function RootLayout({ children }: Props) {
           <NavigationSwitch
             company={company}
             defaultSidebarOpen={initialSidebarOpen}
+            emailVerified={emailVerified}
             isAuthenticated={isAuthenticated}
             subscriptionStatus={subscriptionStatus}
             systemTaskCount={systemTaskCount}

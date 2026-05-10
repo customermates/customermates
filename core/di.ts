@@ -113,6 +113,7 @@ import { SignUpWithEmailInteractor } from "@/features/auth/sign-up-with-email.in
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
+import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
 // Company interactors
 import { GetCompanyDetailsInteractor } from "@/features/company/get-company-details.interactor";
@@ -198,7 +199,7 @@ export const getAuditLogRepo = () => new PrismaAuditLogRepo();
 export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
-export const getRouteGuardService = () => new RouteGuardService(getUserService(), getCompanyRepo());
+export const getRouteGuardService = () => new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo());
 export const getTaskService = () => new TaskService(getTaskRepo());
 export const getValidateQueryParams = () => new ValidateQueryParamsValidator();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskService());
@@ -621,6 +622,8 @@ export const getResetPasswordInteractor = () => new ResetPasswordInteractor(getA
 
 export const getContinueWithSocialsInteractor = () =>
   new ContinueWithSocialsInteractor(getAuthService(), getUserRepo());
+
+export const getResendVerificationEmailInteractor = () => new ResendVerificationEmailInteractor(getAuthService());
 
 export const getSignOutInteractor = () => new SignOutInteractor(getAuthService());
 

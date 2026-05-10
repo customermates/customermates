@@ -7,6 +7,7 @@ import { useEffect, useId, useMemo } from "react";
 import { Status } from "@/generated/prisma";
 
 import { UserDetailsAvatar } from "./user-details-avatar";
+import { VerifyEmailAction } from "./verify-email-action";
 
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
@@ -17,9 +18,10 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
   userDetails: UserDetails;
+  emailVerified: boolean;
 };
 
-export const UserDetailsForm = observer(({ userDetails }: Props) => {
+export const UserDetailsForm = observer(({ userDetails, emailVerified }: Props) => {
   const formId = useId();
   const { userDetailsStore, userStore } = useRootStore();
   const { savedState } = userDetailsStore;
@@ -34,8 +36,14 @@ export const UserDetailsForm = observer(({ userDetails }: Props) => {
   }, [userDetails]);
 
   const topBarActions = useMemo(
-    () => <FormActions formId={formId} store={userDetailsStore} variant="topbar" />,
-    [formId, userDetailsStore],
+    () => (
+      <div className="flex items-center gap-2">
+        {!emailVerified && <VerifyEmailAction />}
+
+        <FormActions formId={formId} store={userDetailsStore} variant="topbar" />
+      </div>
+    ),
+    [formId, userDetailsStore, emailVerified],
   );
   useSetTopBarActions(topBarActions);
 
@@ -45,6 +53,7 @@ export const UserDetailsForm = observer(({ userDetails }: Props) => {
         <UserDetailsAvatar
           avatarUrl={savedState.avatarUrl ?? undefined}
           email={userStore.user?.email ?? ""}
+          emailVerified={emailVerified}
           firstName={savedState.firstName}
           lastName={savedState.lastName}
           roleName={userStore.user?.role?.name ?? ""}

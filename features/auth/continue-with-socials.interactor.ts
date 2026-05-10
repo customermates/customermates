@@ -8,6 +8,8 @@ import { z } from "zod";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
+import { mustVerifyEmail } from "./email-verification-grace";
+
 const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
   callbackURL: z.string().optional(),
@@ -36,7 +38,7 @@ export class ContinueWithSocialsInteractor {
         });
       }
 
-      if (!res.user.emailVerified) redirect("/auth/verify-email");
+      if (mustVerifyEmail(res.user)) redirect("/auth/verify-email");
     }
 
     if (res.redirect) redirect(res.url ?? data.callbackURL ?? "/");

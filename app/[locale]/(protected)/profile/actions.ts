@@ -11,6 +11,7 @@ import {
   getCreateApiKeyInteractor,
   getDeleteApiKeyInteractor,
   getGetApiKeysInteractor,
+  getResendVerificationEmailInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -33,4 +34,8 @@ export async function deleteApiKeyAction(data: DeleteApiKeyData) {
 export async function refreshApiKeysAction() {
   const result = await getGetApiKeysInteractor().invoke();
   return result.data;
+}
+
+export async function resendVerificationEmailFromAppAction(): Promise<{ ok: boolean }> {
+  return await getResendVerificationEmailInteractor().invoke();
 }

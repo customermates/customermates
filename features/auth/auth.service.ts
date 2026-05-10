@@ -10,6 +10,7 @@ import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { auth } from "@/core/auth/better-auth";
+import { mustVerifyEmail } from "./email-verification-grace";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { BASE_URL, RESEND_FROM_EMAIL } from "@/constants/env";
 
@@ -34,7 +35,7 @@ export class AuthService {
 
     const session = await auth.api.getSession({ headers: headersList });
     if (!session) redirect("/auth/signin");
-    if (!session.user?.emailVerified) redirect("/auth/verify-email");
+    if (mustVerifyEmail(session.user)) redirect("/auth/verify-email");
 
     return session;
   }
@@ -86,13 +87,13 @@ export class AuthService {
     await auth.api.resetPassword({ headers: await headers(), body: args });
   }
 
-  async resendVerificationEmail(email: string): Promise<void> {
+  async resendVerificationEmail(email: string, options?: { keepSession?: boolean }): Promise<void> {
     await auth.api.sendVerificationEmail({
       headers: await headers(),
       body: { email, callbackURL: "/" },
     });
 
-    await auth.api.signOut({ headers: await headers() });
+    if (!options?.keepSession) await auth.api.signOut({ headers: await headers() });
   }
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
