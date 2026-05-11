@@ -25,6 +25,7 @@ import { secureUrlSchema } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Icon } from "@/components/shared/icon";
 import { copyToClipboard } from "@/lib/clipboard";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { updateEntityCustomFieldValueAction } from "@/app/actions";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
@@ -66,6 +67,7 @@ export const CustomFieldValue = observer(
           customFieldValues,
         });
         if (result.ok) await store.upsertItem(result.data as unknown as E);
+        else toastZodErrorTree(result.error);
       } finally {
         setIsDropdownOpen(false);
       }

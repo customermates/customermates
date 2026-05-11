@@ -108,20 +108,15 @@ export async function bulkUpdateCustomFieldValuesAction(data: {
   const items = entityIds.map((id) => ({ id, customFieldValues }));
   switch (entityType) {
     case EntityType.contact:
-      await getUpdateManyContactsInteractor().invoke({ contacts: items });
-      break;
+      return serializeResult(getUpdateManyContactsInteractor().invoke({ contacts: items }));
     case EntityType.organization:
-      await getUpdateManyOrganizationsInteractor().invoke({ organizations: items });
-      break;
+      return serializeResult(getUpdateManyOrganizationsInteractor().invoke({ organizations: items }));
     case EntityType.deal:
-      await getUpdateManyDealsInteractor().invoke({ deals: items });
-      break;
+      return serializeResult(getUpdateManyDealsInteractor().invoke({ deals: items }));
     case EntityType.service:
-      await getUpdateManyServicesInteractor().invoke({ services: items });
-      break;
+      return serializeResult(getUpdateManyServicesInteractor().invoke({ services: items }));
     case EntityType.task:
-      await getUpdateManyTasksInteractor().invoke({ tasks: items });
-      break;
+      return serializeResult(getUpdateManyTasksInteractor().invoke({ tasks: items }));
   }
 }
 

@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
@@ -278,7 +279,10 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         customFieldValues: [{ columnId: groupingColumnId, value: nextValue }],
       });
       if (result?.ok) await store.upsertItem(result.data as unknown as E);
-      else revert();
+      else {
+        revert();
+        toastZodErrorTree(result?.error);
+      }
     } catch (err) {
       revert();
       handleApplicationError(err);

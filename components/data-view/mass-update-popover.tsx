@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { bulkUpdateCustomFieldValuesAction } from "@/app/actions";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -49,11 +50,17 @@ export const MassUpdatePopover = observer(function MassUpdatePopover<E extends H
 
     setIsLoading(true);
     try {
-      await bulkUpdateCustomFieldValuesAction({
+      const res = await bulkUpdateCustomFieldValuesAction({
         entityType,
         entityIds,
         customFieldValues: [{ columnId: column.id, value: option.value }],
       });
+      if (res && !res.ok) {
+        if (!toastZodErrorTree(res.error)) toast.error(t("Common.notifications.unexpectedError"));
+        await store.refresh();
+        return;
+      }
+      store.clearSelection();
       await store.refresh();
       toast.success(t("Common.notifications.updated"));
       setOpen(false);

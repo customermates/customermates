@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { bulkDeleteEntitiesAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { MassUpdatePopover } from "./mass-update-popover";
 
@@ -33,19 +34,9 @@ export const MassActionsBar = observer(function MassActionsBar<E extends HasId>(
     try {
       const res = await bulkDeleteEntitiesAction({ entityType, ids });
       if (res && !res.ok) {
-        const tree = res.error as
-          | {
-              errors?: string[];
-              properties?: { ids?: { errors?: string[]; items?: Array<{ errors?: string[] } | undefined> } };
-            }
-          | undefined;
-        const firstItemError = tree?.properties?.ids?.items?.find((it) => it?.errors?.length)?.errors?.[0];
-        const message =
-          firstItemError ??
-          tree?.errors?.[0] ??
-          tree?.properties?.ids?.errors?.[0] ??
-          t("Common.notifications.unexpectedError");
-        throw new Error(message);
+        const announced = toastZodErrorTree(res.error);
+        await store.refresh();
+        throw new Error(announced ? "" : t("Common.notifications.unexpectedError"));
       }
       store.clearSelection();
       await store.refresh();
