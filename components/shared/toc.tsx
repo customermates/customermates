@@ -2,15 +2,10 @@
 
 import { ScrollProvider, type TOCItemType } from "fumadocs-core/toc";
 import { type ReactNode, useEffect, useRef } from "react";
-import { observer } from "mobx-react-lite";
 import * as TocClerk from "fumadocs-ui/components/toc/clerk";
 import * as FumaToc from "fumadocs-ui/components/toc/index";
 
-import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
-
-export const Toc = observer(({ items, children }: { items: TOCItemType[]; children: ReactNode }) => {
-  const { layoutStore } = useRootStore();
+export function Toc({ items, children }: { items: TOCItemType[]; children: ReactNode }) {
   const tocScrollRef = useRef<HTMLDivElement>(null);
   const contentScrollRef = useRef<HTMLElement>(null);
 
@@ -55,14 +50,11 @@ export const Toc = observer(({ items, children }: { items: TOCItemType[]; childr
 
         <aside
           ref={tocScrollRef}
-          className={cn(
-            "hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky max-h-screen min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]",
-            layoutStore.isNavbarVisible ? "top-20" : "top-0",
-          )}
+          className="hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky top-0 max-h-screen min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]"
         >
           <TocClerk.TOCItems />
         </aside>
       </div>
     </FumaToc.TOCProvider>
   );
-});
+}
