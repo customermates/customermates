@@ -44,15 +44,15 @@ export function NavHeader({
                 width={32}
               />
 
-              <span className="truncate font-semibold text-sm leading-tight min-w-0 flex-1">{brandName}</span>
+              <span className="flex flex-col min-w-0 flex-1 leading-tight">
+                <span className="truncate font-semibold text-sm">{brandName}</span>
+
+                <span className="flex items-center gap-1 min-h-[18px] min-w-0 max-w-full text-xs text-muted-foreground animate-fade-in group-data-[collapsible=icon]:hidden">
+                  {brandSubtitle}
+                </span>
+              </span>
             </NextLink>
           </SidebarMenuButton>
-
-          {brandSubtitle && (
-            <div className="flex items-center gap-1 px-2 pt-1 min-w-0 max-w-full text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-              {brandSubtitle}
-            </div>
-          )}
         </SidebarMenuItem>
       </SidebarMenu>
 

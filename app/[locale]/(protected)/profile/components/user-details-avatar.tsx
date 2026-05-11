@@ -40,15 +40,15 @@ export function UserDetailsAvatar({ email, firstName, lastName, roleName, status
           <span className="text-sm text-subdued truncate">{email}</span>
 
           <div className="flex w-full gap-2 items-center justify-start flex-wrap">
-            <AppChip variant={USER_STATUS_COLORS_MAP[status]}>{t(`userStatuses.${status}`)}</AppChip>
-
-            {roleName && <AppChip variant="outline">{roleName}</AppChip>}
-
             {emailVerified !== undefined && (
               <AppChip variant={emailVerified ? "success" : "warning"}>
                 {emailVerified ? tEmail("verified") : tEmail("notVerified")}
               </AppChip>
             )}
+
+            <AppChip variant={USER_STATUS_COLORS_MAP[status]}>{t(`userStatuses.${status}`)}</AppChip>
+
+            {roleName && <AppChip>{roleName}</AppChip>}
           </div>
         </div>
       </div>

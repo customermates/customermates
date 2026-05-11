@@ -7,9 +7,8 @@ import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
 import { useEffect, useMemo, useState } from "react";
-import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { usePathname as useIntlPathname } from "@/i18n/navigation";
+import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useTheme } from "next-themes";
@@ -62,6 +61,7 @@ export const AppSidebar = observer(function AppSidebar({
   const t = useTranslations("");
   const pathname = usePathname();
   const intlPathname = useIntlPathname();
+  const router = useRouter();
   const rootStore = useRootStore();
   const { userStore, globalSearchModalStore, feedbackModalStore } = rootStore;
 
@@ -295,7 +295,7 @@ export const AppSidebar = observer(function AppSidebar({
 
   if (isDocsRoute) return null;
 
-  const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, emailVerified, t);
+  const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, emailVerified, t, router.push);
 
   return (
     <>
@@ -401,7 +401,22 @@ function buildPlanSubtitle(
   trialDaysLeft: number | null,
   emailVerified: boolean | null,
   t: (key: string, values?: Record<string, string | number>) => string,
+  navigate: (href: string) => void,
 ): React.ReactNode {
+  const chipButton = (href: string, children: React.ReactNode) => (
+    <button
+      className="flex min-w-0 shrink rounded-md outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate(href);
+      }}
+    >
+      {children}
+    </button>
+  );
+
   const planChip = (() => {
     if (!status || status === "active") return null;
 
@@ -411,41 +426,31 @@ function buildPlanSubtitle(
           ? t("subscription.status.trialDaysLeft", { days: trialDaysLeft })
           : t("subscription.status.trial");
       const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
-      return (
-        <NextLink
-          className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          href="/company/details"
-        >
-          <AppChip className="h-[18px] px-1.5 text-[10px]" variant={variant}>
-            {text}
-          </AppChip>
-        </NextLink>
+      return chipButton(
+        "/company/details",
+        <AppChip className="h-[16px] px-1 text-[10px]" variant={variant}>
+          {text}
+        </AppChip>,
       );
     }
 
-    return (
-      <NextLink
-        className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        href="/company/details"
-      >
-        <AppChip className="h-[18px] px-1.5 text-[10px]" variant="destructive">
-          {t(`subscription.status.${status}`)}
-        </AppChip>
-      </NextLink>
+    return chipButton(
+      "/company/details",
+      <AppChip className="h-[16px] px-1 text-[10px]" variant="destructive">
+        {t(`subscription.status.${status}`)}
+      </AppChip>,
     );
   })();
 
   const verificationChip =
-    emailVerified === false ? (
-      <NextLink
-        className="flex min-w-0 shrink rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        href="/profile/details"
-      >
-        <AppChip className="h-[18px] px-1.5 text-[10px]" variant="warning">
-          {t("EmailVerification.notVerified")}
-        </AppChip>
-      </NextLink>
-    ) : null;
+    emailVerified === false
+      ? chipButton(
+          "/profile/details",
+          <AppChip className="h-[16px] px-1 text-[10px]" variant="warning">
+            {t("EmailVerification.notVerified")}
+          </AppChip>,
+        )
+      : null;
 
   if (!planChip && !verificationChip) return undefined;
 

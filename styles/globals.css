@@ -58,6 +58,12 @@
   --animate-collapsible-up: collapsible-up 200ms ease-out;
   --animate-accordion-down: collapsible-down 200ms ease-out;
   --animate-accordion-up: collapsible-up 200ms ease-out;
+  --animate-fade-in: fade-in 300ms ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes collapsible-down {
