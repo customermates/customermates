@@ -1134,6 +1134,34 @@
                       "page",
                       "pageSize"
                     ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
                   }
                 }
               }
@@ -5738,6 +5766,34 @@
                     "required": [
                       "page",
                       "pageSize"
+                    ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
                     ]
                   }
                 }
@@ -10412,6 +10468,34 @@
                       "page",
                       "pageSize"
                     ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
                   }
                 }
               }
@@ -15047,6 +15131,34 @@
                       "page",
                       "pageSize"
                     ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
                   }
                 }
               }
@@ -19607,6 +19719,34 @@
                       "page",
                       "pageSize"
                     ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
                   }
                 }
               }
@@ -23240,6 +23380,34 @@
                     "required": [
                       "page",
                       "pageSize"
+                    ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
                     ]
                   }
                 }

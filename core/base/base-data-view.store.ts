@@ -2,7 +2,7 @@ import type { IReactionDisposer, ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { Filter, FilterableField, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { GetQueryParams, GroupedPaginationRequest } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 
@@ -16,6 +16,7 @@ import { decodeGetParams, encodeGetParams } from "../utils/get-params";
 
 import { ViewMode } from "./base-query-builder";
 
+import { KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { upsertP13nAction, getCustomColumnsByEntityTypeAction } from "@/app/actions";
 
 export interface HasId {
@@ -50,6 +51,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
   viewMode: ViewMode = ViewMode.table;
   groupingColumnId?: string | null;
   selectedIds: ObservableSet<string> = observable.set();
+
+  groupCounts: Record<string, number> = {};
+  groupedTakeOverrides: Record<string, number> = {};
 
   public readonly resource?: Resource;
   public readonly rootStore?: RootStore;
@@ -89,6 +93,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
       groupingColumnId: observable,
       selectedIds: observable,
 
+      groupCounts: observable,
+      groupedTakeOverrides: observable,
+
       orderedColumns: computed,
       headerColumns: computed,
       visibleColumnsCount: computed,
@@ -102,6 +109,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
       hasSelection: computed,
       selectedCount: computed,
       singleSelectCustomColumns: computed,
+      isKanbanMode: computed,
+      kanbanGroupingKey: computed,
 
       setViewOptions: action,
       setQueryOptions: action,
@@ -118,7 +127,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
       setItems: action,
       setSelectedIds: action,
       clearSelection: action,
+      loadMoreInGroup: action,
+      resetGroupedTakeOverrides: action,
+      transferItemBetweenGroups: action,
     });
+  }
+
+  get isKanbanMode(): boolean {
+    return this.viewMode === ViewMode.card && Boolean(this.groupingColumnId);
+  }
+
+  get kanbanGroupingKey(): string {
+    return this.isKanbanMode ? `${this.groupingColumnId}` : "";
   }
 
   get visibleColumnsCount() {
@@ -237,11 +257,36 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.savedFilterPresets = args.savedFilterPresets;
     this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
-    this.viewMode = args.viewMode ?? ViewMode.table;
-    this.groupingColumnId = args.groupingColumnId;
+    if (!this.isReady) {
+      this.viewMode = args.viewMode ?? ViewMode.table;
+      this.groupingColumnId = args.groupingColumnId;
+    }
+    this.groupCounts = args.groupCounts ?? {};
 
     this.isReady = true;
   }
+
+  loadMoreInGroup = (groupKey: string): void => {
+    const current = this.groupedTakeOverrides[groupKey] ?? KANBAN_PER_GROUP_DEFAULT;
+    this.groupedTakeOverrides = { ...this.groupedTakeOverrides, [groupKey]: current + KANBAN_PER_GROUP_DEFAULT };
+    void this.persistQueryOptions();
+  };
+
+  resetGroupedTakeOverrides = (): void => {
+    if (Object.keys(this.groupedTakeOverrides).length === 0) return;
+    this.groupedTakeOverrides = {};
+  };
+
+  transferItemBetweenGroups = (fromGroupKey: string, toGroupKey: string): void => {
+    if (fromGroupKey === toGroupKey) return;
+    const fromCount = this.groupCounts[fromGroupKey] ?? 0;
+    const toCount = this.groupCounts[toGroupKey] ?? 0;
+    this.groupCounts = {
+      ...this.groupCounts,
+      [fromGroupKey]: Math.max(0, fromCount - 1),
+      [toGroupKey]: toCount + 1,
+    };
+  };
 
   setViewOptions = (updates: {
     columnOrder?: string[];
@@ -252,6 +297,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     groupingColumnId?: string;
   }) => {
     let hasChanges = false;
+    const groupingBefore = this.kanbanGroupingKey;
 
     if (updates.columnOrder) {
       const newColumnOrder = updates.columnOrder.filter((uid) => uid !== "name");
@@ -301,7 +347,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
       hasChanges = true;
     }
 
+    const groupingChanged = groupingBefore !== this.kanbanGroupingKey;
+    if (groupingChanged) this.resetGroupedTakeOverrides();
+
     if (hasChanges) this.persistViewOptions();
+    if (groupingChanged) void this.persistQueryOptions();
   };
 
   setQueryOptions = (updates: {
@@ -312,11 +362,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     forceRefresh?: boolean;
   }) => {
     let hasChanges = false;
+    let queryShapeChanged = false;
 
     if (updates.filters !== undefined && !deepEqual(this.filters, updates.filters)) {
       this.filters = updates.filters;
-      this.resetPaginationPage();
       hasChanges = true;
+      queryShapeChanged = true;
     }
 
     if (updates.pagination) {
@@ -332,14 +383,19 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
 
     if ("sortDescriptor" in updates && !deepEqual(this.sortDescriptor, updates.sortDescriptor)) {
       this.sortDescriptor = updates.sortDescriptor;
-      this.resetPaginationPage();
       hasChanges = true;
+      queryShapeChanged = true;
     }
 
     if (updates.searchTerm !== undefined && (this.searchTerm || undefined) !== (updates.searchTerm || undefined)) {
       this.searchTerm = updates.searchTerm;
-      this.resetPaginationPage();
       hasChanges = true;
+      queryShapeChanged = true;
+    }
+
+    if (queryShapeChanged) {
+      this.resetPaginationPage();
+      this.resetGroupedTakeOverrides();
     }
 
     if (hasChanges || updates.forceRefresh) void this.persistQueryOptions();
@@ -369,16 +425,36 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
   };
 
   refresh = async (): Promise<void> => {
+    const groupedPagination = this.buildGroupedPaginationRequest();
+
     const res = await this.refreshAction({
       p13nId: this.p13nId,
       filters: toJS(this.filters),
       searchTerm: toJS(this.searchTerm),
       sortDescriptor: toJS(this.sortDescriptor),
       pagination: this.pagination ? { page: this.pagination.page, pageSize: this.pagination.pageSize } : undefined,
+      groupedPagination,
+      viewMode: this.viewMode,
+      groupingColumnId: this.groupingColumnId ?? undefined,
     });
 
     this.setItems(res);
   };
+
+  private buildGroupedPaginationRequest(): GroupedPaginationRequest | undefined {
+    if (!this.isKanbanMode || !this.groupingColumnId) return undefined;
+
+    const groupingColumn = this.customColumns.find((c) => c.id === this.groupingColumnId);
+    if (!groupingColumn || groupingColumn.type !== CustomColumnType.singleSelect) return undefined;
+
+    const overrides = Object.keys(this.groupedTakeOverrides).length > 0 ? toJS(this.groupedTakeOverrides) : undefined;
+
+    return {
+      groupingColumnId: this.groupingColumnId,
+      perGroup: KANBAN_PER_GROUP_DEFAULT,
+      overrides,
+    };
+  }
 
   upsertItem = async (target: Entity): Promise<void> => {
     this.upsertItemLocal(target);

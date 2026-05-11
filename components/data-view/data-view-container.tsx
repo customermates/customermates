@@ -142,7 +142,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
 
           <div>{body}</div>
 
-          <DataViewPagination store={store} />
+          {!isKanban && <DataViewPagination store={store} />}
         </div>
       </div>
     );
@@ -161,7 +161,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         {body}
       </div>
 
-      <DataViewPagination className="border-t border-border" store={store} />
+      {!isKanban && <DataViewPagination className="border-t border-border" store={store} />}
     </div>
   );
 });

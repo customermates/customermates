@@ -21,8 +21,10 @@ import { useTranslations } from "next-intl";
 
 import { updateEntityCustomFieldValueAction } from "@/app/actions";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
+import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
@@ -42,7 +44,6 @@ type Props<E extends HasCustomFieldValues> = {
   className?: string;
 };
 
-const EMPTY_GROUP_KEY = "__empty__";
 const EMPTY_GROUP_LABEL = "No value";
 
 function getGroupValue<E extends HasId>(
@@ -51,7 +52,7 @@ function getGroupValue<E extends HasId>(
 ): string {
   const custom = item.customFieldValues?.find((cfv) => cfv.columnId === groupingColumnId)?.value;
   const raw = custom ?? (item as unknown as Record<string, unknown>)[groupingColumnId];
-  if (raw == null || raw === "") return EMPTY_GROUP_KEY;
+  if (raw == null || raw === "") return KANBAN_EMPTY_GROUP_KEY;
   if (typeof raw === "object") return JSON.stringify(raw);
   return String(raw);
 }
@@ -117,12 +118,15 @@ function KanbanCard({
   );
 }
 
+type LoadMoreAction = { label: string; isLoading: boolean; onClick: () => void };
+
 function KanbanColumn({
   id,
   label,
   count,
   option,
   onHeaderClick,
+  loadMore,
   children,
 }: {
   id: string;
@@ -130,6 +134,7 @@ function KanbanColumn({
   count: number;
   option?: CustomColumnOption;
   onHeaderClick?: () => void;
+  loadMore?: LoadMoreAction;
   children: ReactNode;
 }) {
   const { setNodeRef } = useDroppable({ id });
@@ -169,6 +174,21 @@ function KanbanColumn({
       </div>
 
       <div className="flex flex-1 flex-col gap-3 min-h-20">{children}</div>
+
+      {loadMore && (
+        <div className="my-2">
+          <Button
+            className="w-full"
+            disabled={loadMore.isLoading}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={loadMore.onClick}
+          >
+            {loadMore.label}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -214,7 +234,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   if (groupingCustomColumn?.options?.options)
     for (const opt of groupingCustomColumn.options.options) groups.set(opt.value, []);
 
-  groups.set(EMPTY_GROUP_KEY, []);
+  groups.set(KANBAN_EMPTY_GROUP_KEY, []);
 
   for (const item of store.items) {
     const key = getGroupValue(item, groupingColumnId);
@@ -240,10 +260,16 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     const currentValue = getGroupValue(item, groupingColumnId);
     if (currentValue === targetGroup) return;
 
-    const nextValue = targetGroup === EMPTY_GROUP_KEY ? null : targetGroup;
+    const nextValue = targetGroup === KANBAN_EMPTY_GROUP_KEY ? null : targetGroup;
 
     const optimisticItem = patchCustomFieldValue(item, groupingColumnId, nextValue);
     store.upsertItemLocal(optimisticItem);
+    store.transferItemBetweenGroups(currentValue, targetGroup);
+
+    const revert = () => {
+      store.upsertItemLocal(item);
+      store.transferItemBetweenGroups(targetGroup, currentValue);
+    };
 
     try {
       const result = await updateEntityCustomFieldValueAction({
@@ -252,14 +278,16 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         customFieldValues: [{ columnId: groupingColumnId, value: nextValue }],
       });
       if (result?.ok) await store.upsertItem(result.data as unknown as E);
-      else store.upsertItemLocal(item);
+      else revert();
     } catch (err) {
-      store.upsertItemLocal(item);
+      revert();
       handleApplicationError(err);
     }
   }
 
   if (groups.size === 0) return <div className="py-12 text-center text-sm text-muted-foreground">No items found.</div>;
+
+  const loadMoreLabel = t("Common.actions.loadMore");
 
   return (
     <DndContext sensors={sensors} onDragEnd={(event) => void handleDragEnd(event)}>
@@ -267,13 +295,19 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         <div className="flex min-w-max flex-1 items-stretch gap-4 px-4">
           {Array.from(groups.entries()).map(([key, items]) => {
             const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
-            const label = key === EMPTY_GROUP_KEY ? EMPTY_GROUP_LABEL : (option?.label ?? key);
+            const label = key === KANBAN_EMPTY_GROUP_KEY ? EMPTY_GROUP_LABEL : (option?.label ?? key);
+            const total = store.groupCounts?.[key] ?? items.length;
+            const loadMore =
+              total > items.length
+                ? { label: loadMoreLabel, isLoading: store.isRefreshing, onClick: () => store.loadMoreInGroup(key) }
+                : undefined;
             return (
               <KanbanColumn
                 key={key}
-                count={items.length}
+                count={total}
                 id={key}
                 label={label}
+                loadMore={loadMore}
                 option={option}
                 onHeaderClick={
                   groupingCustomColumn ? () => customColumnModalStore.openWithColumn(groupingCustomColumn) : undefined

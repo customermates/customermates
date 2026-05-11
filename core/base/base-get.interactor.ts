@@ -1,11 +1,23 @@
 import type { Validated } from "../validation/validation.utils";
-import type { SortableField, SearchableField, ViewMode } from "./base-query-builder";
+import type { SortableField, SearchableField } from "./base-query-builder";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { P13nEntry, SavedFilterPreset } from "@/features/p13n/prisma-p13n.repository";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
-import type { FilterableField, Filter, GetQueryParams, SortDescriptor, PaginationResponse } from "./base-get.schema";
+import type {
+  FilterableField,
+  Filter,
+  GetQueryParams,
+  GroupedPaginationRequest,
+  PaginationRequest,
+  PaginationResponse,
+  SortDescriptor,
+} from "./base-get.schema";
+
+import { CustomColumnType } from "@/generated/prisma";
 
 import { IS_DEMO_MODE } from "@/constants/env";
+import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
+import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -22,6 +34,7 @@ export interface GetResult<T> {
   savedFilterPresets?: SavedFilterPreset[];
   viewMode?: ViewMode;
   groupingColumnId?: string;
+  groupCounts?: Record<string, number>;
 }
 
 export abstract class P13nRepo {
@@ -43,6 +56,12 @@ export abstract class BaseGetRepo<T> {
     customColumns?: CustomColumnDto[],
   ): SortDescriptor | undefined;
 }
+
+type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
+
+type SingleSelectColumn = Extract<CustomColumnDto, { type: typeof CustomColumnType.singleSelect }>;
+
+type FetchResult<T> = { items: T[]; total: number; groupCounts?: Record<string, number> };
 
 export abstract class BaseGetInteractor<T> {
   constructor(
@@ -67,7 +86,6 @@ export abstract class BaseGetInteractor<T> {
     let hiddenColumns: string[] | undefined = undefined;
     let viewMode: ViewMode | undefined = undefined;
     let groupingColumnId: string | undefined = undefined;
-
     let savedFilterPresets: SavedFilterPreset[] | undefined = undefined;
 
     if (p13nId) {
@@ -90,6 +108,9 @@ export abstract class BaseGetInteractor<T> {
       }
     }
 
+    if (params.viewMode !== undefined) viewMode = params.viewMode as ViewMode;
+    if (params.groupingColumnId !== undefined) groupingColumnId = params.groupingColumnId ?? undefined;
+
     if (!hasUrlQueryState) {
       filters = filters ?? this.defaultParams?.filters;
       searchTerm = searchTerm ?? this.defaultParams?.searchTerm;
@@ -108,7 +129,7 @@ export abstract class BaseGetInteractor<T> {
 
     if (p13nId && !IS_DEMO_MODE) {
       await this.p13nRepo.upsertP13n({
-        p13nId: p13nId ?? null,
+        p13nId,
         filters: filters ?? null,
         searchTerm: searchTerm ?? null,
         sortDescriptor: sortDescriptor ?? null,
@@ -116,12 +137,16 @@ export abstract class BaseGetInteractor<T> {
       });
     }
 
-    const baseParams = { filters, searchTerm, sortDescriptor };
+    const baseQuery: BaseQuery = { filters, searchTerm, sortDescriptor };
+    const groupingColumn = pickGroupingColumn(params.groupedPagination, viewMode, groupingColumnId, customColumns);
 
-    const items = await this.repo.getItems({ ...baseParams, pagination });
-    const total = await this.repo.getCount({ filters, searchTerm });
-    const pageSize = pagination?.pageSize || 100;
-    const page = pagination?.page || 1;
+    const { items, total, groupCounts } = groupingColumn
+      ? await this.fetchGrouped(
+          baseQuery,
+          params.groupedPagination ?? defaultGroupedPagination(groupingColumn),
+          groupingColumn,
+        )
+      : await this.fetchFlat(baseQuery, pagination);
 
     return {
       ok: true,
@@ -139,13 +164,74 @@ export abstract class BaseGetInteractor<T> {
         savedFilterPresets,
         viewMode,
         groupingColumnId,
-        pagination: {
-          page,
-          pageSize,
-          totalPages: Math.ceil(total / pageSize),
-          total,
-        },
+        groupCounts,
+        pagination: buildPaginationResponse(pagination, total),
       },
     };
   }
+
+  private async fetchFlat(baseQuery: BaseQuery, pagination: PaginationRequest | undefined): Promise<FetchResult<T>> {
+    const [items, total] = await Promise.all([
+      this.repo.getItems({ ...baseQuery, pagination }),
+      this.repo.getCount({ filters: baseQuery.filters, searchTerm: baseQuery.searchTerm }),
+    ]);
+    return { items, total };
+  }
+
+  private async fetchGrouped(
+    baseQuery: BaseQuery,
+    groupedPagination: GroupedPaginationRequest,
+    groupingColumn: SingleSelectColumn,
+  ): Promise<FetchResult<T>> {
+    const groupKeys = [...groupingColumn.options.options.map((o) => o.value), KANBAN_EMPTY_GROUP_KEY];
+
+    const takeFor = (groupKey: string) =>
+      groupedPagination.overrides?.[groupKey] ?? groupedPagination.perGroup ?? KANBAN_PER_GROUP_DEFAULT;
+
+    const results = await Promise.all(
+      groupKeys.map(async (groupKey) => {
+        const filters = [...(baseQuery.filters ?? []), buildGroupFilter(groupingColumn.id, groupKey)];
+        const [items, count] = await Promise.all([
+          this.repo.getItems({ ...baseQuery, filters, take: takeFor(groupKey), skip: 0 }),
+          this.repo.getCount({ filters, searchTerm: baseQuery.searchTerm }),
+        ]);
+        return { groupKey, items, count };
+      }),
+    );
+
+    const items = results.flatMap((r) => r.items);
+    const groupCounts = Object.fromEntries(results.map((r) => [r.groupKey, r.count]));
+    const total = results.reduce((sum, r) => sum + r.count, 0);
+
+    return { items, total, groupCounts };
+  }
+}
+
+function pickGroupingColumn(
+  groupedPagination: GroupedPaginationRequest | undefined,
+  viewMode: ViewMode | undefined,
+  groupingColumnId: string | undefined,
+  customColumns: CustomColumnDto[],
+): SingleSelectColumn | undefined {
+  const targetColumnId =
+    groupedPagination?.groupingColumnId ?? (viewMode === ViewMode.card ? groupingColumnId : undefined);
+  if (!targetColumnId) return undefined;
+
+  const column = customColumns.find((c) => c.id === targetColumnId);
+  return column?.type === CustomColumnType.singleSelect ? column : undefined;
+}
+
+function defaultGroupedPagination(column: SingleSelectColumn): GroupedPaginationRequest {
+  return { groupingColumnId: column.id, perGroup: KANBAN_PER_GROUP_DEFAULT };
+}
+
+function buildGroupFilter(groupingColumnId: string, groupKey: string): Filter {
+  if (groupKey === KANBAN_EMPTY_GROUP_KEY) return { field: groupingColumnId, operator: FilterOperatorKey.isNull };
+  return { field: groupingColumnId, operator: FilterOperatorKey.in, value: [groupKey] };
+}
+
+function buildPaginationResponse(pagination: PaginationRequest | undefined, total: number): PaginationResponse {
+  const pageSize = pagination?.pageSize || 100;
+  const page = pagination?.page || 1;
+  return { page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)), total } as PaginationResponse;
 }

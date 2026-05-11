@@ -87,6 +87,17 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
+export const KANBAN_PER_GROUP_MAX = 500;
+export const KANBAN_PER_GROUP_DEFAULT = 10;
+export const KANBAN_EMPTY_GROUP_KEY = "__empty__";
+
+export const GroupedPaginationRequestSchema = z.object({
+  groupingColumnId: z.string(),
+  perGroup: z.number().int().min(1).max(KANBAN_PER_GROUP_MAX),
+  overrides: z.record(z.string(), z.number().int().min(1).max(KANBAN_PER_GROUP_MAX)).optional(),
+});
+export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
+
 export const SavedFilterPresetSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
@@ -112,13 +123,19 @@ export const GetQueryParamsApiSchema = z.object({
   searchTerm: z.string().optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
+  groupedPagination: GroupedPaginationRequestSchema.optional(),
 });
 export type GetQueryParamsApi = Data<typeof GetQueryParamsApiSchema>;
 
 export const GetQueryParamsSchema = GetQueryParamsApiSchema.extend({
   p13nId: z.string().optional(),
 });
-export type GetQueryParams = Data<typeof GetQueryParamsSchema>;
+export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
+  take?: number;
+  skip?: number;
+  viewMode?: "table" | "card";
+  groupingColumnId?: string | null;
+};
 
 export const GetConfigurationSchema = z.object({
   customColumns: z.array(CustomColumnDtoSchema),
@@ -162,5 +179,6 @@ export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     savedFilterPresets: z.array(z.any()).optional(),
     viewMode: z.string().optional(),
     groupingColumnId: z.string().optional(),
+    groupCounts: z.record(z.string(), z.number()).optional(),
   });
 }

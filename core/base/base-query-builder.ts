@@ -106,7 +106,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     const customColumns = await this.getCustomColumns();
     const customSort = resolveCustomSort(params.sortDescriptor, customColumns);
     const orderBy = customSort ? [] : this.buildOrderBy({ sortDescriptor: params.sortDescriptor });
-    const pagination = this.buildPagination(params.pagination);
+    const pagination =
+      params.take !== undefined || params.skip !== undefined
+        ? { skip: params.skip ?? 0, take: params.take ?? 100 }
+        : this.buildPagination(params.pagination);
 
     return { where, orderBy, customSort, ...pagination };
   }
