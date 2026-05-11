@@ -306,10 +306,9 @@ export function AppChipStack<T extends ChipStackItem>({
                   onSelect={(event) => {
                     if (href) {
                       event.preventDefault();
-                      if (onChipClick) onChipClick(item);
-                      else navigateToHref(href);
-                    } else onChipClick?.(item);
-
+                      return;
+                    }
+                    onChipClick?.(item);
                     setDropdownOpen(false);
                   }}
                 >
@@ -318,7 +317,10 @@ export function AppChipStack<T extends ChipStackItem>({
                       href={href}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+                          setDropdownOpen(false);
+                          return;
+                        }
                         e.preventDefault();
                         if (onChipClick) onChipClick(item);
                         else navigateToHref(href);

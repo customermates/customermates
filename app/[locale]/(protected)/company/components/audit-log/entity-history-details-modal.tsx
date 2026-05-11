@@ -24,7 +24,7 @@ import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-f
 import { Icon } from "@/components/shared/icon";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 
@@ -38,6 +38,7 @@ export const EntityHistoryDetailsModal = observer(() => {
   const t = useTranslations("");
   const { entityHistoryDetailsModalStore: store, intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
+  const entityHref = useEntityHref();
 
   if (!store.item) return null;
   const item = store.item;
@@ -64,14 +65,23 @@ export const EntityHistoryDetailsModal = observer(() => {
       case "contacts":
         return (
           <AvatarStack
+            avatarHref={(contact) => entityHref(EntityType.contact, contact.id)}
             items={value as AvatarItem[]}
             onAvatarClick={(contact) => openEntity(EntityType.contact, contact.id)}
           />
         );
       case "organizations":
+        return (
+          <AppChipStack
+            chipHref={(org) => entityHref(EntityType.organization, org.id)}
+            items={(value as { id: string; name: string }[]).map((item) => ({ id: item.id, label: item.name }))}
+            size="sm"
+          />
+        );
       case "deals":
         return (
           <AppChipStack
+            chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
             items={(value as { id: string; name: string }[]).map((item) => ({ id: item.id, label: item.name }))}
             size="sm"
           />
@@ -79,6 +89,7 @@ export const EntityHistoryDetailsModal = observer(() => {
       case "services":
         return (
           <AppChipStack
+            chipHref={(service) => entityHref(EntityType.service, service.id)}
             items={(value as { id: string; name: string; quantity?: number; amount?: number }[]).map((item) => ({
               id: item.id,
               label:
@@ -92,6 +103,7 @@ export const EntityHistoryDetailsModal = observer(() => {
       case "tasks":
         return (
           <AppChipStack
+            chipHref={(task) => entityHref(EntityType.task, task.id)}
             items={(value as { id: string; name: string; type: TaskType }[]).map((task) => {
               const nameKey = getSystemTaskNameTranslationKey(task.type);
               const label = nameKey && task.type !== TaskType.custom ? t(nameKey) : task.name;

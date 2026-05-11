@@ -38,6 +38,7 @@ export const OrganizationsCard = observer(({ organizations }: Props) => {
         id: "contacts",
         cell: ({ row }) => (
           <AvatarStack
+            avatarHref={(contact) => entityHref(EntityType.contact, contact.id)}
             items={row.original.contacts || []}
             onAvatarClick={(contact) => openEntity(EntityType.contact, contact.id)}
           />

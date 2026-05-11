@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
 import { cn } from "@/lib/utils";
 
 type AvatarStackItem = {
@@ -25,6 +26,7 @@ type Props<T extends AvatarStackItem> = {
   size?: "sm" | "default" | "lg";
   className?: string;
   onAvatarClick?: (item: T) => void;
+  avatarHref?: (item: T) => string | undefined;
 };
 
 function getInitials(firstName: string, lastName: string) {
@@ -37,16 +39,19 @@ export function AvatarStack<T extends AvatarStackItem>({
   size = "default",
   className = "",
   onAvatarClick,
+  avatarHref,
 }: Props<T>) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigateToHref = useNavigateToHref();
 
   if (!items?.length) return null;
 
   const visibleItems = items.slice(0, maxVisible);
   const remainingCount = items.length - maxVisible;
 
-  function handleAvatarClick(item: T) {
-    onAvatarClick?.(item);
+  function handleItemSelect(item: T, href: string | undefined) {
+    if (onAvatarClick) onAvatarClick(item);
+    else if (href) navigateToHref(href);
     setIsOpen(false);
   }
 
@@ -87,8 +92,9 @@ export function AvatarStack<T extends AvatarStackItem>({
         <DropdownMenuContent className="max-h-60 overflow-y-auto">
           {items.map((item) => {
             const name = `${item.firstName} ${item.lastName}`.trim();
-            return (
-              <DropdownMenuItem key={item.id} onSelect={() => handleAvatarClick(item)}>
+            const href = avatarHref?.(item);
+            const content = (
+              <>
                 <Avatar size="sm">
                   {item.avatarUrl && <AvatarImage alt={name} src={item.avatarUrl} />}
 
@@ -100,6 +106,39 @@ export function AvatarStack<T extends AvatarStackItem>({
 
                   {item.email && <span className="text-xs text-muted-foreground">{item.email}</span>}
                 </div>
+              </>
+            );
+
+            return (
+              <DropdownMenuItem
+                key={item.id}
+                asChild={Boolean(href)}
+                onSelect={(event) => {
+                  if (href) {
+                    event.preventDefault();
+                    return;
+                  }
+                  handleItemSelect(item, undefined);
+                }}
+              >
+                {href ? (
+                  <a
+                    href={href}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+                        setIsOpen(false);
+                        return;
+                      }
+                      e.preventDefault();
+                      handleItemSelect(item, href);
+                    }}
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  content
+                )}
               </DropdownMenuItem>
             );
           })}
