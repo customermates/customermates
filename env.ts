@@ -1,53 +1,47 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+function readBoolean(key: string): boolean {
+  return process.env[key] === "true";
+}
 
-export const env = createEnv({
-  server: {
-    DATABASE_URL: z.url(),
-    BETTER_AUTH_SECRET: z.string().min(32),
-    BASE_URL: z.url().default("http://localhost:4000"),
+function readEnum<T extends string>(key: string, values: readonly T[]): T | undefined {
+  const value = process.env[key];
+  return value && (values as readonly string[]).includes(value) ? (value as T) : undefined;
+}
 
-    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
-    NEXT_RUNTIME: z.enum(["nodejs", "edge"]).optional(),
-    CI: z.string().optional(),
+export const env = {
+  DATABASE_URL: process.env.DATABASE_URL as string,
+  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
+  BASE_URL: process.env.BASE_URL ?? "http://localhost:4000",
 
-    DEMO_MODE: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((v) => v === "true"),
-    CLOUD_HOSTED: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((v) => v === "true"),
+  NODE_ENV: readEnum("NODE_ENV", ["development", "test", "production"] as const) ?? "development",
+  VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  NEXT_RUNTIME: readEnum("NEXT_RUNTIME", ["nodejs", "edge"] as const),
+  CI: process.env.CI,
 
-    RESEND_API_KEY: z.string().optional(),
-    RESEND_OPERATOR_EMAIL: z.email(),
+  DEMO_MODE: readBoolean("DEMO_MODE"),
+  CLOUD_HOSTED: readBoolean("CLOUD_HOSTED"),
 
-    TRIGGER_SECRET_KEY: z.string().optional(),
-    TRIGGER_PROJECT_REF: z.string(),
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,
 
-    SENTRY_ORG: z.string().optional(),
-    SENTRY_PROJECT: z.string().optional(),
-    SENTRY_AUTH_TOKEN: z.string().optional(),
+  TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
+  TRIGGER_PROJECT_REF: process.env.TRIGGER_PROJECT_REF as string,
 
-    GOOGLE_CLIENT_ID: z.string().optional(),
-    GOOGLE_CLIENT_SECRET: z.string().optional(),
-    AZURE_AD_CLIENT_ID: z.string().optional(),
-    AZURE_AD_CLIENT_SECRET: z.string().optional(),
+  SENTRY_ORG: process.env.SENTRY_ORG,
+  SENTRY_PROJECT: process.env.SENTRY_PROJECT,
+  SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+  SENTRY_DSN: process.env.SENTRY_DSN,
 
-    LEMONSQUEEZY_API_KEY: z.string().optional(),
-    LEMONSQUEEZY_WEBHOOK_SECRET: z.string().optional(),
-    LEMONSQUEEZY_STORE_ID: z.string().optional(),
-    LEMONSQUEEZY_VARIANT_ID_MONTHLY: z.string().optional(),
-    LEMONSQUEEZY_VARIANT_ID_YEARLY: z.string().optional(),
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  AZURE_AD_CLIENT_ID: process.env.AZURE_AD_CLIENT_ID,
+  AZURE_AD_CLIENT_SECRET: process.env.AZURE_AD_CLIENT_SECRET,
 
-    DEMO_USER_EMAIL: z.email().optional(),
-    DEMO_USER_PASSWORD: z.string().optional(),
-  },
-  client: {},
-  shared: {
-    SENTRY_DSN: z.url().optional(),
-  },
-  runtimeEnv: process.env as Record<string, string | undefined>,
-});
+  LEMONSQUEEZY_API_KEY: process.env.LEMONSQUEEZY_API_KEY,
+  LEMONSQUEEZY_WEBHOOK_SECRET: process.env.LEMONSQUEEZY_WEBHOOK_SECRET,
+  LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID,
+  LEMONSQUEEZY_VARIANT_ID_MONTHLY: process.env.LEMONSQUEEZY_VARIANT_ID_MONTHLY,
+  LEMONSQUEEZY_VARIANT_ID_YEARLY: process.env.LEMONSQUEEZY_VARIANT_ID_YEARLY,
+
+  DEMO_USER_EMAIL: process.env.DEMO_USER_EMAIL,
+  DEMO_USER_PASSWORD: process.env.DEMO_USER_PASSWORD,
+};
