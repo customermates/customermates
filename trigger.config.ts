@@ -16,6 +16,7 @@ export default defineConfig({
   dirs: ["./trigger"],
   build: {
     conditions: ["react-server"],
+    keepNames: true,
     extensions: sentryConfigured
       ? [
           esbuildPlugin(

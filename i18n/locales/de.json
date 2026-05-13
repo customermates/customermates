@@ -1058,23 +1058,25 @@
     "backgroundError": {
       "description": "Stellt einen trigger.dev-Task in die Warteschlange, der wirft. Der onFailure-Hook sollte ihn an Sentry melden.",
       "title": "Hintergrund (Trigger.dev)",
-      "triggerBackgroundError": "Fehlerhaften trigger.dev-Task einreihen",
-      "triggering": "Dispatch läuft..."
+      "triggerBackgroundError": "Fehlerhaften trigger.dev-Task einreihen"
     },
     "clientSideErrors": {
-      "description": "Unbehandelte Würfe landen via globalem Handler des Browser-SDK in Sentry. captureException sendet ein Event ohne UI-Crash.",
+      "description": "Unbehandelte Würfe im Browser-Code. Im Dev-Modus fängt das Next.js-Error-Overlay sie ab; in Produktion landen sie via globalem Handler des Browser-SDK in Sentry und im UnexpectedErrorToaster.",
       "title": "Client-seitig",
-      "triggerCaptureException": "Client-captureException senden",
       "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
       "description": "Server-Action wirft → wird von onRequestError in instrumentation.ts gefangen → an Sentry gemeldet.",
       "title": "Server-Action",
-      "triggering": "Server-Action läuft...",
       "triggerServerError": "Server-Action-Fehler werfen"
     },
     "subtitle": "Absichtlich Dinge kaputt machen, für die Wissenschaft!",
-    "title": "Fehlertest"
+    "title": "Fehlertest",
+    "toast": {
+      "serverErrorThrown": "Server-Action hat geworfen: {message}",
+      "triggerDispatchFailed": "Dispatch des trigger-Tasks fehlgeschlagen: {message}",
+      "triggerQueued": "Fehlerhaften trigger.dev-Task eingereiht. Run-ID: {runId}"
+    }
   },
   "FAQSection": {
     "contactCta": "Kontakt aufnehmen →",

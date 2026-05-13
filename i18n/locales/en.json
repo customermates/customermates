@@ -1058,23 +1058,25 @@
     "backgroundError": {
       "description": "Queues a trigger.dev task that throws. The onFailure hook should report it to Sentry.",
       "title": "Background (Trigger.dev)",
-      "triggerBackgroundError": "Queue failing trigger.dev task",
-      "triggering": "Dispatching..."
+      "triggerBackgroundError": "Queue failing trigger.dev task"
     },
     "clientSideErrors": {
-      "description": "Uncaught throws hit Sentry via the browser SDK's global handler. captureException sends an event without crashing the UI.",
+      "description": "Uncaught throws in browser code. The Next.js error overlay catches them in dev; in production they hit Sentry via the browser SDK's global handler and the UnexpectedErrorToaster.",
       "title": "Client-Side",
-      "triggerCaptureException": "Send client captureException",
       "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
       "description": "Server action throw → caught by instrumentation.ts's onRequestError → reported to Sentry.",
       "title": "Server Action",
-      "triggering": "Calling server action...",
       "triggerServerError": "Throw server action error"
     },
     "subtitle": "Breaking things on purpose, for science!",
-    "title": "Error Testing"
+    "title": "Error Testing",
+    "toast": {
+      "serverErrorThrown": "Server action threw: {message}",
+      "triggerDispatchFailed": "Failed to dispatch trigger task: {message}",
+      "triggerQueued": "Queued trigger.dev failure task. Run id: {runId}"
+    }
   },
   "FAQSection": {
     "contactCta": "Contact us →",

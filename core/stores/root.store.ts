@@ -52,6 +52,7 @@ import { EntityHistoryDetailsModalStore } from "@/app/[locale]/(protected)/compa
 import { EntityHistoryModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-modal.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
 import { ContactStore } from "@/app/[locale]/(public)/contact/contact.store";
+import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
 
 import { NavigationGuardController } from "./navigation-guard.controller";
 
@@ -86,6 +87,7 @@ export class RootStore {
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _resetPasswordStore?: ResetPasswordStore;
   private _contactStore?: ContactStore;
+  private _errorTestStore?: ErrorTestStore;
   private _signInStore?: SignInStore;
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
@@ -225,6 +227,10 @@ export class RootStore {
 
   get contactStore() {
     return (this._contactStore ??= new ContactStore(this));
+  }
+
+  get errorTestStore() {
+    return (this._errorTestStore ??= new ErrorTestStore(this));
   }
 
   get signInStore() {
