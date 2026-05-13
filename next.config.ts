@@ -60,7 +60,6 @@ const sentryOptions = {
   project: env.SENTRY_PROJECT,
   authToken: env.SENTRY_AUTH_TOKEN,
   silent: !env.CI,
-  disableLogger: true,
   hideSourceMaps: true,
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
