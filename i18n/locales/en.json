@@ -1073,8 +1073,6 @@
     "subtitle": "Breaking things on purpose, for science!",
     "title": "Error Testing",
     "toast": {
-      "serverErrorThrown": "Server action threw: {message}",
-      "triggerDispatchFailed": "Failed to dispatch trigger task: {message}",
       "triggerQueued": "Queued trigger.dev failure task. Run id: {runId}"
     }
   },

@@ -22,10 +22,11 @@ function containsString(error: unknown, searchString: string): boolean {
   }
 }
 
-function isFromApplication(error: unknown): boolean {
-  if (!error) return false;
-  if (containsString(error, "NEXT_REDIRECT")) return false;
-  return containsString(error, "The specific message is omitted in production builds");
+function isNoise(error: unknown): boolean {
+  if (!error) return true;
+  if (containsString(error, "NEXT_REDIRECT")) return true;
+  if (containsString(error, "ResizeObserver loop")) return true;
+  return false;
 }
 
 export function useApplicationErrorHandler(): (error: unknown) => void {
@@ -33,7 +34,7 @@ export function useApplicationErrorHandler(): (error: unknown) => void {
 
   return useCallback(
     (error: unknown) => {
-      if (!isFromApplication(error)) return;
+      if (isNoise(error)) return;
       if (isDemoEnvironment()) {
         toast.warning(
           t.rich("demoModeError", {

@@ -13,26 +13,14 @@ export class ErrorTestStore {
 
   triggerUnexpectedServerError = async () => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      try {
-        await triggerServerErrorAction();
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        toast.info(this.rootStore.localeStore.getTranslation("ErrorTestPage.toast.serverErrorThrown", { message }));
-      }
+      await triggerServerErrorAction();
     });
   };
 
   triggerBackgroundFailure = async () => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      try {
-        const { runId } = await dispatchTriggerFailureAction();
-        toast.success(this.rootStore.localeStore.getTranslation("ErrorTestPage.toast.triggerQueued", { runId }));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        toast.error(
-          this.rootStore.localeStore.getTranslation("ErrorTestPage.toast.triggerDispatchFailed", { message }),
-        );
-      }
+      const { runId } = await dispatchTriggerFailureAction();
+      toast.success(this.rootStore.localeStore.getTranslation("ErrorTestPage.toast.triggerQueued", { runId }));
     });
   };
 }

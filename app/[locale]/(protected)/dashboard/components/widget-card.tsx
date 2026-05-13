@@ -212,7 +212,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
         <h2 className="text-x-md truncate w-full">{widget.name}</h2>
 
         {showSubheaderRow && (
-          <p className="text-xs text-muted-foreground w-full">
+          <p className="text-xs text-muted-foreground w-full line-clamp-2 wrap-break-word">
             {subheader}
 
             {inlineFilters.map((f) => (

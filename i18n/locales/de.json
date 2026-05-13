@@ -1073,8 +1073,6 @@
     "subtitle": "Absichtlich Dinge kaputt machen, für die Wissenschaft!",
     "title": "Fehlertest",
     "toast": {
-      "serverErrorThrown": "Server-Action hat geworfen: {message}",
-      "triggerDispatchFailed": "Dispatch des trigger-Tasks fehlgeschlagen: {message}",
       "triggerQueued": "Fehlerhaften trigger.dev-Task eingereiht. Run-ID: {runId}"
     }
   },

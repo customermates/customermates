@@ -1,5 +1,3 @@
-// NOTE: trigger.dev's CLI uses jiti to evaluate this config before `.env` is loaded,
-// so importing `./env` (which runs strict validation) fails at config-load time.
 import "dotenv/config";
 
 import { defineConfig } from "@trigger.dev/sdk/v3";
@@ -14,6 +12,7 @@ export default defineConfig({
   logLevel: "info",
   maxDuration: 300,
   dirs: ["./trigger"],
+  extraCACerts: "./certs/aws-rds-global-bundle.pem",
   build: {
     conditions: ["react-server"],
     keepNames: true,
