@@ -19,7 +19,6 @@
 # misc
 .DS_Store
 *.pem
-!certs/*.pem
 
 # debug
 npm-debug.log*

@@ -12,7 +12,6 @@ export default defineConfig({
   logLevel: "info",
   maxDuration: 300,
   dirs: ["./trigger"],
-  extraCACerts: "./certs/aws-rds-global-bundle.pem",
   build: {
     conditions: ["react-server"],
     keepNames: true,

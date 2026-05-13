@@ -4,8 +4,18 @@ import { PrismaClient } from "@/generated/prisma";
 import { getTenantUser, isTenantGuardBypassed } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 
+function isLocalDatabase(connectionString: string): boolean {
+  try {
+    const { hostname } = new URL(connectionString);
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+}
+
 const adapter = new PrismaPg({
   connectionString: env.DATABASE_URL,
+  ssl: isLocalDatabase(env.DATABASE_URL) ? false : { rejectUnauthorized: false },
 });
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
