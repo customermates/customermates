@@ -180,8 +180,8 @@
     "start": "next start -p 4000",
     "test": "vitest run",
     "test:watch": "vitest",
-    "trigger:deploy": "trigger deploy --env prod",
-    "trigger:deploy:staging": "trigger deploy --env staging",
+    "trigger:deploy": "trigger deploy --env prod --project-ref ${TRIGGER_PROJECT_REF}",
+    "trigger:deploy:staging": "trigger deploy --env staging --project-ref ${TRIGGER_PROJECT_REF}",
     "trigger:dev": "trigger dev",
     "vercel-build": "prisma generate && prisma migrate deploy && yarn openapi:generate && yarn raw-docs:generate && next build && yarn trigger:deploy",
     "vercel-preview-build": "prisma generate && yarn db:reset && yarn openapi:generate && yarn raw-docs:generate && next build && yarn trigger:deploy:staging"
