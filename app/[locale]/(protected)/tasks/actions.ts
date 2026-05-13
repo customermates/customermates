@@ -13,7 +13,7 @@ import {
   getCreateTaskInteractor,
   getUpdateTaskInteractor,
   getDeleteTaskInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function refreshTasksAction(params?: GetQueryParams) {

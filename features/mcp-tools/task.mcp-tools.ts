@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { encodeToToon, forbidNullFields, NO_NULL_WIPE_WARNING } from "./utils";
 
-import { getCreateManyTasksInteractor, getUpdateManyTasksInteractor } from "@/core/di";
+import { getCreateManyTasksInteractor, getUpdateManyTasksInteractor } from "@/core/app-di";
 import { BaseCreateTaskSchema } from "@/features/tasks/upsert/create-task-base.schema";
 import { BaseUpdateTaskSchema } from "@/features/tasks/upsert/update-task-base.schema";
 

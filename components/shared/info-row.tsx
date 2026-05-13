@@ -7,10 +7,10 @@ type Props = {
 
 export function InfoRow({ label, children }: Props) {
   return (
-    <div className="flex w-full items-center justify-between gap-3">
-      <span className="text-xs font-semibold text-muted-foreground uppercase">{label}</span>
+    <div className="flex w-full items-center justify-between gap-3 text-sm">
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
 
-      <span className="block truncate font-medium text-xs">{children}</span>
+      <span className="min-w-0 truncate text-right">{children}</span>
     </div>
   );
 }

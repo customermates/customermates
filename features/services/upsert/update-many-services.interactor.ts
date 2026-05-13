@@ -26,7 +26,7 @@ import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/cal
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/app-di";
 
 export const UpdateManyServicesSchema = z
   .object({

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { ResetPasswordForm } from "./reset-password-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { getRouteGuardService } from "@/core/di";
+import { getRouteGuardService } from "@/core/app-di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 type Props = {

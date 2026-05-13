@@ -3,7 +3,11 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor, getDeleteManyDealsInteractor } from "@/core/di";
+import {
+  getCreateManyDealsInteractor,
+  getUpdateManyDealsInteractor,
+  getDeleteManyDealsInteractor,
+} from "@/core/app-di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function POST(request: NextRequest) {

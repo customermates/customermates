@@ -14,7 +14,7 @@ import { BaseInteractor } from "@/core/base/base-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 
 const Schema = z.object({
@@ -47,7 +47,7 @@ export class InviteUsersByEmailInteractor extends BaseInteractor<InviteUsersByEm
       this.getCompanyDetails.invoke(),
     ]);
 
-    const inviteLink = `${BASE_URL}/invitation/${tokenResult.data.token}`;
+    const inviteLink = `${env.BASE_URL}/invitation/${tokenResult.data.token}`;
     const companyName = companyResult.data.name ?? "Customermates";
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 

@@ -2,16 +2,16 @@ import { Resource } from "@/generated/prisma";
 
 import { CompanyDetailsForm } from "../components/company-details/company-details-form";
 
-import { getGetCompanyDetailsInteractor, getGetSubscriptionInteractor, getRouteGuardService } from "@/core/di";
+import { getGetCompanyDetailsInteractor, getGetSubscriptionInteractor, getRouteGuardService } from "@/core/app-di";
 import { PageContainer } from "@/components/shared/page-container";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { env } from "@/env";
 
 export default async function CompanyDetailsPage() {
   await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.company });
 
   const [companyResult, subscriptionResult] = await Promise.all([
     getGetCompanyDetailsInteractor().invoke(),
-    IS_CLOUD_HOSTED ? getGetSubscriptionInteractor().invoke() : Promise.resolve({ ok: true as const, data: null }),
+    env.CLOUD_HOSTED ? getGetSubscriptionInteractor().invoke() : Promise.resolve({ ok: true as const, data: null }),
   ]);
 
   return (
@@ -19,7 +19,7 @@ export default async function CompanyDetailsPage() {
       <CompanyDetailsForm
         company={companyResult.data}
         initialSubscription={subscriptionResult.data}
-        showSubscription={IS_CLOUD_HOSTED}
+        showSubscription={env.CLOUD_HOSTED}
       />
     </PageContainer>
   );

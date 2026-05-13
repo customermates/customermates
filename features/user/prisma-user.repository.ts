@@ -34,7 +34,7 @@ import { getSeedData, PIPELINE_STAGES, type StageKey } from "@/features/onboardi
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { env } from "@/env";
 
 const TASK_STATUS_STATES = [
   { key: "open", color: "secondary", isDefault: true },
@@ -700,7 +700,7 @@ export class PrismaUserRepo
     trialEndDate.setDate(trialEndDate.getDate() + 7);
 
     await this.prisma.subscription.create({
-      data: IS_CLOUD_HOSTED
+      data: env.CLOUD_HOSTED
         ? {
             companyId: company.id,
             status: SubscriptionStatus.trial,
@@ -875,7 +875,8 @@ export class PrismaUserRepo
     });
   }
 
-  async claimWelcomeEmailSent(userId: string, sentAt: Date) {
+  async claimWelcomeEmailSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, welcomeEmailSentAt: null },
       data: { welcomeEmailSentAt: sentAt },
@@ -884,7 +885,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialExpiredOfferSent(userId: string, sentAt: Date) {
+  async claimTrialExpiredOfferSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialExpiredOfferSentAt: null },
       data: { trialExpiredOfferSentAt: sentAt },
@@ -893,7 +895,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialInactivationReminderSent(userId: string, sentAt: Date) {
+  async claimTrialInactivationReminderSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationReminderSentAt: null },
       data: { trialInactivationReminderSentAt: sentAt },
@@ -902,7 +905,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialInactivationNoticeSent(userId: string, sentAt: Date) {
+  async claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationNoticeSentAt: null },
       data: { trialInactivationNoticeSentAt: sentAt },

@@ -15,7 +15,7 @@ import type {
 
 import { CustomColumnType } from "@/generated/prisma";
 
-import { IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 
@@ -49,12 +49,12 @@ export abstract class BaseGetRepo<T> {
   abstract getSearchableFields(): SearchableField[];
   abstract getFilterableFields(): Promise<FilterableField[]>;
   abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  abstract validateFilters(filters: Filter[] | undefined, filterableFields: FilterableField[]): Filter[];
-  abstract validateSortDescriptor(
-    sortDescriptor: SortDescriptor | undefined,
-    sortableFields: SortableField[],
-    customColumns?: CustomColumnDto[],
-  ): SortDescriptor | undefined;
+  abstract validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[];
+  abstract validateSortDescriptor(args: {
+    sortDescriptor: SortDescriptor | undefined;
+    sortableFields: SortableField[];
+    customColumns?: CustomColumnDto[];
+  }): SortDescriptor | undefined;
 }
 
 type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
@@ -124,10 +124,10 @@ export abstract class BaseGetInteractor<T> {
     ]);
     const sortableFields = this.repo.getSortableFields();
 
-    filters = this.repo.validateFilters(filters, filterableFields);
-    sortDescriptor = this.repo.validateSortDescriptor(sortDescriptor, sortableFields, customColumns);
+    filters = this.repo.validateFilters({ filters, filterableFields });
+    sortDescriptor = this.repo.validateSortDescriptor({ sortDescriptor, sortableFields, customColumns });
 
-    if (p13nId && !IS_DEMO_MODE) {
+    if (p13nId && !env.DEMO_MODE) {
       await this.p13nRepo.upsertP13n({
         p13nId,
         filters: filters ?? null,

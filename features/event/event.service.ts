@@ -2,10 +2,14 @@ import type { DomainEvent, DomainEventMap } from "./domain-events";
 import type { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
+import type { deliverWebhook } from "@/trigger/webhook-deliveries";
+
+import { tasks } from "@trigger.dev/sdk/v3";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
-import { IS_DEVELOPMENT } from "@/constants/env";
+import { env } from "@/env";
+import { transactionStorage } from "@/core/decorators/transaction-context";
 
 export abstract class GetWebhooksForEventRepo {
   abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
@@ -66,7 +70,7 @@ export class EventService extends UserAccessor {
   }
 
   private logAndReturn(result: PublishResult): PublishResult {
-    if (IS_DEVELOPMENT) {
+    if (env.NODE_ENV !== "production") {
       const { event, skipped, listenerHandlers, webhookDeliveries } = result;
       const suffix = skipped ? ` skipped=${skipped}` : ` listeners=${listenerHandlers} webhooks=${webhookDeliveries}`;
       // eslint-disable-next-line no-console
@@ -90,6 +94,7 @@ export class EventService extends UserAccessor {
 
     if (webhooks.length === 0) return 0;
 
+    const { companyId } = this.user;
     const body = {
       event,
       data: payload,
@@ -102,7 +107,21 @@ export class EventService extends UserAccessor {
       requestBody: body as Record<string, unknown>,
     }));
 
-    await this.webhookDeliveryRepo.create(data);
+    const ids = await this.webhookDeliveryRepo.create(data);
+
+    const dispatches: (() => Promise<void>)[] = ids.map((deliveryId, idx) => async () => {
+      await tasks.trigger<typeof deliverWebhook>("deliver-webhook", {
+        deliveryId,
+        url: webhooks[idx].url,
+        companyId,
+        requestBody: body as Record<string, unknown>,
+      });
+    });
+
+    const store = transactionStorage.getStore();
+    if (store) store.afterCommit.push(...dispatches);
+    else await Promise.all(dispatches.map((fn) => fn()));
+
     return webhooks.length;
   }
 }

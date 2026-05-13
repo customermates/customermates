@@ -8,7 +8,7 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { type UserDto } from "../user.schema";
 
-import { getCompanyRepo, getValidateQueryParams } from "@/core/di";
+import { getCompanyRepo, getValidateQueryParams } from "@/core/app-di";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";

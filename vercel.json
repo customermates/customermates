@@ -1,15 +1,5 @@
 {
   "buildCommand": "if [ \"$VERCEL_ENV\" == \"preview\" ]; then yarn vercel-preview-build; else yarn vercel-build; fi",
-  "crons": [
-    {
-      "path": "/api/cron/lifecycle",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/webhook-deliveries",
-      "schedule": "* * * * *"
-    }
-  ],
   "git": {
     "deploymentEnabled": {
       "development": false,

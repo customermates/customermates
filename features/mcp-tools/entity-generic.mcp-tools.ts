@@ -27,7 +27,7 @@ import {
   getDeleteManyTasksInteractor,
   getGetTasksConfigurationInteractor,
   getUpdateManyTasksInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 
 const EntitySchema = z
   .enum(["contact", "organization", "deal", "service", "task"])

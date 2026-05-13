@@ -23,6 +23,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -34,7 +35,7 @@ import {
   getOrganizationRepo,
   getServiceRepo,
   getTaskRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const CreateDealSchema = BaseCreateDealSchema.superRefine(async (data, ctx) => {
   const organizationSet = new Set(data.organizationIds);
@@ -82,6 +83,7 @@ export class CreateDealInteractor extends BaseInteractor<CreateDealData, DealDto
 
   @Validate(CreateDealSchema)
   @ValidateOutput(DealDtoSchema)
+  @Transaction
   async invoke(data: CreateDealData): Validated<DealDto> {
     const relatedOrganizationIds = unique(data.organizationIds);
     const relatedContactIds = unique(data.contactIds);

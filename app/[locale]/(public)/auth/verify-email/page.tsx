@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { VerifyEmailCard } from "./verify-email-card";
 
-import { getAuthService } from "@/core/di";
+import { getAuthService } from "@/core/app-di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function VerifyEmailPage() {

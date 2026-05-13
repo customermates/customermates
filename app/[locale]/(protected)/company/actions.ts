@@ -33,7 +33,7 @@ import {
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
   getGetAuditLogsInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function createCheckoutSessionAction() {

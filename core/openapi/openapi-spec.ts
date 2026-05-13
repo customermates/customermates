@@ -73,7 +73,7 @@ import { UpdateManyContactsSchema } from "@/features/contacts/upsert/update-many
 import { WebhookContactCreatedSchema } from "@/features/contacts/webhooks/contact-created.openapi";
 import { WebhookContactUpdatedSchema } from "@/features/contacts/webhooks/contact-updated.openapi";
 import { WebhookContactDeletedSchema } from "@/features/contacts/webhooks/contact-deleted.openapi";
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import { DeleteDealSchema } from "@/features/deals/delete/delete-deal.interactor";
 import { DeleteOrganizationSchema } from "@/features/organizations/delete/delete-organization.interactor";
 import { DeleteServiceSchema } from "@/features/services/delete/delete-service.interactor";
@@ -126,7 +126,7 @@ export function generateOpenApiSpec() {
     },
     servers: [
       {
-        url: `${BASE_URL}/api`,
+        url: `${env.BASE_URL}/api`,
         description: "API Server",
       },
     ],

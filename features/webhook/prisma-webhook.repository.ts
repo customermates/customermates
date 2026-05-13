@@ -2,7 +2,6 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { GetWebhooksRepo } from "./get-webhooks.interactor";
 import type { UpsertWebhookRepo } from "./upsert-webhook.interactor";
 import type { DeleteWebhookRepo } from "./delete-webhook.interactor";
-import type { GetWebhookSecretRepo } from "./process-webhook-deliveries.interactor";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
 
@@ -17,7 +16,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
-  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo, GetWebhookSecretRepo
+  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo
 {
   private get baseSelect() {
     return {
@@ -140,15 +139,6 @@ export class PrismaWebhookRepo
     }
 
     return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
-  }
-
-  async getSecret(companyId: string, url: string): Promise<string | null> {
-    const websocket = await this.prisma.webhook.findFirst({
-      where: { companyId, url },
-      select: { secret: true },
-    });
-
-    return websocket?.secret ?? null;
   }
 
   async getWebhookByIdOrThrow(id: string) {

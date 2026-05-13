@@ -1,12 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { MOCK_ENV_MODULE, createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+import {
+  MOCK_ENV_MODULE,
+  createMockDiModule,
+  MOCK_ZOD_MODULE,
+  MOCK_PRISMA_DB_MODULE,
+} from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
 
-vi.mock("@/constants/env", () => MOCK_ENV_MODULE);
-vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/app-di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
+vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { UpdateCompanyDetailsInteractor } from "../update-company-details.interactor";
 import { DomainEvent } from "@/features/event/domain-events";

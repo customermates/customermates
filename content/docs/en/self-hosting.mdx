@@ -54,10 +54,10 @@ curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.e
 Then edit `.env` with real values:
 
 - `BETTER_AUTH_SECRET`: a long random string (`openssl rand -hex 32`).
-- `CRON_SECRET`: another long random string. The `webhook-worker` sidecar uses this to authenticate against `/api/cron/webhook-deliveries`. Mismatch means webhooks pile up in `pending` forever.
 - `POSTGRES_PASSWORD`: change the default.
 - `BASE_URL`: your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
-- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`: required for signup verification, password reset, and invitation emails.
+- `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a free [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
+- `TRIGGER_SECRET_KEY` and `TRIGGER_PROJECT_REF`: a free [Trigger.dev](https://trigger.dev) project. Required for background webhook deliveries and lifecycle jobs.
 
 ### 2. Start
 
@@ -117,12 +117,11 @@ Restarts the stack without pulling a new image. Use after `.env` changes.
 ```bash
 docker compose logs -f app
 docker compose logs -f postgres
-docker compose logs -f webhook-worker
 docker compose ps
 docker compose exec app sh
 ```
 
-The `webhook-worker` container stays quiet on success and prints any non-2xx response (`[webhook-worker] HH:MM:SSZ cron returned 401`). If you see those lines, the worker's `CRON_SECRET` doesn't match the app's, or the cron route is otherwise unreachable. If deliveries are stuck `pending` and the worker logs are empty, the worker is healthy.
+Background jobs (webhook deliveries, trial lifecycle) run on Trigger.dev. Inspect their runs in the Trigger.dev dashboard.
 
 ### Reset all data
 

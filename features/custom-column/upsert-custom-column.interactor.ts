@@ -11,6 +11,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
@@ -140,6 +141,7 @@ export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomCol
 
   @Validate(UpsertCustomColumnSchema)
   @ValidateOutput(CustomColumnDtoSchema)
+  @Transaction
   async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto> {
     const updatePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
       [EntityType.contact]: { resource: Resource.contacts, action: Action.update },

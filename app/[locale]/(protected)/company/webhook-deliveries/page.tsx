@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { WebhookDeliveriesCard } from "../components/webhook/webhook-deliveries-card";
 
-import { getGetWebhookDeliveriesInteractor, getRouteGuardService } from "@/core/di";
+import { getGetWebhookDeliveriesInteractor, getRouteGuardService } from "@/core/app-di";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function CompanyWebhookDeliveriesPage() {

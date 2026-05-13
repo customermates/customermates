@@ -12,6 +12,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import Feedback from "@/components/emails/feedback";
+import { env } from "@/env";
 
 const SUBJECT_MAP: Record<FeedbackType, string> = {
   general: "General Feedback",
@@ -32,7 +33,7 @@ export class SendFeedbackInteractor extends BaseInteractor<SendFeedbackData, Sen
     const subject = SUBJECT_MAP[data.type];
 
     await this.emailService.send({
-      to: "feedback@customermates.com",
+      to: env.RESEND_OPERATOR_EMAIL,
       subject: `${subject} from ${userName}`,
       react: React.createElement(Feedback, {
         feedback: data.feedback,

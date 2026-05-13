@@ -9,7 +9,7 @@ import {
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 
 const webhookEventValues = [
   "contact.created",

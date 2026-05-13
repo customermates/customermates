@@ -7,7 +7,7 @@ import {
   getDeleteOrganizationInteractor,
   getGetOrganizationByIdInteractor,
   getUpdateOrganizationInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

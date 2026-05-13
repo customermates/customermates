@@ -10,6 +10,7 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
@@ -39,6 +40,7 @@ export class UpdateCompanyDetailsInteractor extends BaseInteractor<UpdateCompany
 
   @Validate(Schema)
   @ValidateOutput(Schema)
+  @Transaction
   async invoke(data: UpdateCompanyDetailsData): Validated<UpdateCompanyDetailsData> {
     await this.repo.updateDetails({ ...data });
 

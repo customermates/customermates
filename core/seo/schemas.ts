@@ -1,7 +1,7 @@
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 
 const ORGANIZATION_NAME = "Customermates";
-const ORGANIZATION_LOGO = `${BASE_URL}/customermates.svg`;
+const ORGANIZATION_LOGO = `${env.BASE_URL}/customermates.svg`;
 const ORGANIZATION_SAME_AS = [
   "https://github.com/customermates/customermates",
   "https://www.linkedin.com/company/customermates/",
@@ -15,7 +15,7 @@ export function organizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: ORGANIZATION_NAME,
-    url: BASE_URL,
+    url: env.BASE_URL,
     logo: ORGANIZATION_LOGO,
     sameAs: ORGANIZATION_SAME_AS,
   };
@@ -26,7 +26,7 @@ export function softwareApplicationSchema(params: { description: string; locale:
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: ORGANIZATION_NAME,
-    url: `${BASE_URL}/${params.locale}`,
+    url: `${env.BASE_URL}/${params.locale}`,
     description: params.description,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, macOS, Windows, Linux",
@@ -34,12 +34,12 @@ export function softwareApplicationSchema(params: { description: string; locale:
       "@type": "Offer",
       price: "7",
       priceCurrency: "EUR",
-      url: `${BASE_URL}/${params.locale}/pricing`,
+      url: `${env.BASE_URL}/${params.locale}/pricing`,
     },
     publisher: {
       "@type": "Organization",
       name: ORGANIZATION_NAME,
-      url: BASE_URL,
+      url: env.BASE_URL,
     },
   };
 }
@@ -54,10 +54,10 @@ export function articleSchema(params: {
   locale: string;
   slug: string;
 }) {
-  const url = `${BASE_URL}/${params.locale}/blog/${params.slug}`;
-  const heroImage = `${BASE_URL}/images/light/${params.locale}/${params.slug}.png`;
+  const url = `${env.BASE_URL}/${params.locale}/blog/${params.slug}`;
+  const heroImage = `${env.BASE_URL}/images/light/${params.locale}/${params.slug}.png`;
   const ogImageParams = new URLSearchParams({ title: params.headline, description: params.description });
-  const ogImage = `${BASE_URL}/og/image.png?${ogImageParams.toString()}`;
+  const ogImage = `${env.BASE_URL}/og/image.png?${ogImageParams.toString()}`;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -94,7 +94,7 @@ export function breadcrumbListSchema(crumbs: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: index + 1,
       name: crumb.name,
-      item: `${BASE_URL}${crumb.path}`,
+      item: `${env.BASE_URL}${crumb.path}`,
     })),
   };
 }

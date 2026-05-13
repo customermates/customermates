@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { ContactsCard } from "./components/contacts-card";
 
-import { getGetContactsInteractor, getRouteGuardService } from "@/core/di";
+import { getGetContactsInteractor, getRouteGuardService } from "@/core/app-di";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 

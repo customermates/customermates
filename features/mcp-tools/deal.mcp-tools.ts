@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { encodeToToon, forbidNullFields, NO_NULL_WIPE_WARNING } from "./utils";
 
-import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor } from "@/core/di";
+import { getCreateManyDealsInteractor, getUpdateManyDealsInteractor } from "@/core/app-di";
 import { BaseCreateDealSchema } from "@/features/deals/upsert/create-deal-base.schema";
 import { BaseUpdateDealSchema } from "@/features/deals/upsert/update-deal-base.schema";
 

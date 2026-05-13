@@ -6,22 +6,22 @@ import { betterAuth } from "better-auth/minimal";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { BASE_URL, IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 
 const socialProviders = {
-  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+  ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
     ? {
         google: {
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
         },
       }
     : {}),
-  ...(process.env.AZURE_AD_CLIENT_ID && process.env.AZURE_AD_CLIENT_SECRET
+  ...(env.AZURE_AD_CLIENT_ID && env.AZURE_AD_CLIENT_SECRET
     ? {
         microsoft: {
-          clientId: process.env.AZURE_AD_CLIENT_ID,
-          clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
+          clientId: env.AZURE_AD_CLIENT_ID,
+          clientSecret: env.AZURE_AD_CLIENT_SECRET,
           tenantId: "common",
         },
       }
@@ -29,7 +29,7 @@ const socialProviders = {
 };
 
 export const auth = betterAuth({
-  baseURL: BASE_URL,
+  baseURL: env.BASE_URL,
 
   advanced: {
     cookiePrefix: "app",
@@ -39,7 +39,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [BASE_URL, `https://*.${process.env.VERCEL_PROJECT_PRODUCTION_URL}`],
+  trustedOrigins: [env.BASE_URL, `https://*.${env.VERCEL_PROJECT_PRODUCTION_URL}`],
 
   databaseHooks: {
     user: {
@@ -49,7 +49,7 @@ export const auth = betterAuth({
 
           if (!inviteToken) return { data };
 
-          const { getInviteTokenValidationInteractor } = await import("@/core/di");
+          const { getInviteTokenValidationInteractor } = await import("@/core/app-di");
           const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
           const res = result.data;
 
@@ -98,7 +98,7 @@ export const auth = betterAuth({
     modelName: "AuthSession",
     cookieCache: {
       enabled: true,
-      maxAge: IS_DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
+      maxAge: env.DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
     },
   },
 
@@ -110,7 +110,7 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
     sendResetPassword: async ({ user, url }) => {
-      const { getAuthService } = await import("@/core/di");
+      const { getAuthService } = await import("@/core/app-di");
       await getAuthService().sendResetPasswordEmail({ to: user.email, url });
     },
   },
@@ -122,7 +122,7 @@ export const auth = betterAuth({
       const verificationUrl = new URL(url);
       verificationUrl.searchParams.set("callbackURL", "/onboarding/wizard");
 
-      const { getAuthService } = await import("@/core/di");
+      const { getAuthService } = await import("@/core/app-di");
       await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });
     },
   },

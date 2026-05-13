@@ -114,7 +114,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return { where, orderBy, customSort, ...pagination };
   }
 
-  validateFilters(filters: Filter[] | undefined, filterableFields: FilterableField[]): Filter[] {
+  validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[] {
+    const { filters, filterableFields } = args;
     if (!Array.isArray(filters)) return [];
 
     const result: Filter[] = [];
@@ -141,11 +142,12 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return result;
   }
 
-  validateSortDescriptor(
-    sortDescriptor: SortDescriptor | undefined,
-    sortableFields: SortableField[],
-    customColumns: CustomColumnDto[] = [],
-  ): SortDescriptor | undefined {
+  validateSortDescriptor(args: {
+    sortDescriptor: SortDescriptor | undefined;
+    sortableFields: SortableField[];
+    customColumns?: CustomColumnDto[];
+  }): SortDescriptor | undefined {
+    const { sortDescriptor, sortableFields, customColumns = [] } = args;
     if (!sortDescriptor) return undefined;
     if (!sortDescriptor || typeof sortDescriptor !== "object") return undefined;
     if (!sortDescriptor.field || typeof sortDescriptor.field !== "string") return undefined;
@@ -180,7 +182,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   ): Promise<TWhereInput> {
     const where = { ...baseWhere } as WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>;
     const filterableFields = await this.getFilterableFields();
-    const validFilters = this.validateFilters(filters, filterableFields);
+    const validFilters = this.validateFilters({ filters, filterableFields });
 
     const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.getCustomColumns() : [];
     const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
@@ -198,7 +200,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     if (!sortDescriptor) return [];
 
     const sortableFields = this.getSortableFields();
-    const validatedSortDescriptor = this.validateSortDescriptor(sortDescriptor, sortableFields);
+    const validatedSortDescriptor = this.validateSortDescriptor({ sortDescriptor, sortableFields });
 
     if (!validatedSortDescriptor) return [];
 

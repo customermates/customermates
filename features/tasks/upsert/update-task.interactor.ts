@@ -37,7 +37,7 @@ import {
   getOrganizationRepo,
   getServiceRepo,
   getTaskRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const UpdateTaskSchema = BaseUpdateTaskSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds ?? []);

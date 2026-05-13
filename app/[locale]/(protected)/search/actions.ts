@@ -8,7 +8,7 @@ import {
   getGetOrganizationByIdInteractor,
   getGetDealByIdInteractor,
   getGetServiceByIdInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export async function globalSearchAction(data: GlobalSearchData) {
   const interactor = getGlobalSearchInteractor();

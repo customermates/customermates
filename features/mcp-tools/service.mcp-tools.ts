@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { encodeToToon, forbidNullFields, NO_NULL_WIPE_WARNING } from "./utils";
 
-import { getCreateManyServicesInteractor, getUpdateManyServicesInteractor } from "@/core/di";
+import { getCreateManyServicesInteractor, getUpdateManyServicesInteractor } from "@/core/app-di";
 import { BaseCreateServiceSchema } from "@/features/services/upsert/create-service-base.schema";
 import { BaseUpdateServiceSchema } from "@/features/services/upsert/update-service-base.schema";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getGetTasksConfigurationInteractor } from "@/core/di";
+import { getGetTasksConfigurationInteractor } from "@/core/app-di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function GET() {

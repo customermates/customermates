@@ -32,7 +32,7 @@ import {
   getUpsertP13nInteractor,
   getUpsertFilterPresetInteractor,
   getDeleteFilterPresetInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 import { type GetEntityChangeHistoryByIdData } from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 

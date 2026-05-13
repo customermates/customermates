@@ -19,7 +19,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getContactRepo } from "@/core/di";
+import { getContactRepo } from "@/core/app-di";
 
 export const DeleteManyContactsSchema = z
   .object({

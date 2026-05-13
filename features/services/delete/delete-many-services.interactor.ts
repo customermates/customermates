@@ -18,7 +18,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getServiceRepo } from "@/core/di";
+import { getServiceRepo } from "@/core/app-di";
 
 export const DeleteManyServicesSchema = z
   .object({

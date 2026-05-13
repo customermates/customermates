@@ -10,6 +10,7 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 
 export const DeleteWebhookSchema = z.object({
@@ -32,6 +33,7 @@ export class DeleteWebhookInteractor extends BaseInteractor<DeleteWebhookData, s
 
   @Validate(DeleteWebhookSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteWebhookData): Validated<string> {
     const webhook = await this.repo.deleteWebhookOrThrow(data.id);
 

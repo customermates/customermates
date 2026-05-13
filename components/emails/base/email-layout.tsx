@@ -4,7 +4,7 @@ import { Body, Container, Head, Heading, Html, Preview, Section, Tailwind, Text 
 
 import { EmailImage } from "./email-image";
 
-import { BASE_URL, IS_CLOUD_HOSTED, IS_DEVELOPMENT } from "@/constants/env";
+import { env } from "@/env";
 import { colorPalettes } from "@/styles/color-palettes";
 
 const config = {
@@ -17,7 +17,7 @@ const config = {
   },
 };
 
-const ICON_URL = `${BASE_URL}/images/email/customermates-icon@2x.png`;
+const ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 
 type Props = PropsWithChildren<{
   preview?: string;
@@ -55,7 +55,7 @@ export function EmailLayout({ preview, title, children }: Props) {
                 © {year} Customermates · The agentic, open-source CRM
               </Text>
 
-              {IS_DEVELOPMENT || IS_CLOUD_HOSTED ? (
+              {env.NODE_ENV !== "production" || env.CLOUD_HOSTED ? (
                 <Text className="mt-2 text-xs text-default-700">
                   <span>Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim, Germany · </span>
 

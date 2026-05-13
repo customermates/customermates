@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getAuthService, getInviteTokenValidationInteractor } from "@/core/di";
-import { IS_PRODUCTION } from "@/constants/env";
+import { getAuthService, getInviteTokenValidationInteractor } from "@/core/app-di";
+import { env } from "@/env";
 
 export async function GET(request: Request, context: { params: Promise<{ locale: string; token: string }> }) {
   const { locale, token } = await context.params;
@@ -22,7 +22,7 @@ export async function GET(request: Request, context: { params: Promise<{ locale:
 
   response.cookies.set("inviteToken", token, {
     httpOnly: true,
-    secure: IS_PRODUCTION,
+    secure: env.NODE_ENV === "production",
     path: "/",
   });
 

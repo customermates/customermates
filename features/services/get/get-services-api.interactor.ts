@@ -8,7 +8,7 @@ import { EntityType, Resource, Action } from "@/generated/prisma";
 
 import { type ServiceDto } from "../service.schema";
 
-import { getServiceRepo, getValidateQueryParams } from "@/core/di";
+import { getServiceRepo, getValidateQueryParams } from "@/core/app-di";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";

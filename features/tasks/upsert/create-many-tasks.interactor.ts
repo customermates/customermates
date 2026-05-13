@@ -36,7 +36,7 @@ import {
   getDealRepo,
   getOrganizationRepo,
   getServiceRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const CreateManyTasksSchema = z
   .object({

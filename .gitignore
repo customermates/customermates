@@ -54,3 +54,9 @@ generated/
 content/api/**/*.mdx
 
 .mcp.json
+
+# trigger.dev local build artifacts
+.trigger
+
+# Sentry Config File
+.env.sentry-build-plugin

@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { RolesCard } from "../components/role/roles-card";
 
-import { getGetRolesInteractor, getRouteGuardService } from "@/core/di";
+import { getGetRolesInteractor, getRouteGuardService } from "@/core/app-di";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function CompanyRolesPage() {

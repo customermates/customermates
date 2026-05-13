@@ -2,10 +2,10 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
 
 import { getTenantUser, isTenantGuardBypassed } from "@/core/decorators/tenant-context";
-import { IS_DEVELOPMENT } from "@/constants/env";
+import { env } from "@/env";
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
 });
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -109,7 +109,7 @@ const prisma = basePrisma.$extends({
   },
 });
 
-if (IS_DEVELOPMENT) globalForPrisma.prisma = basePrisma;
+if (env.NODE_ENV !== "production") globalForPrisma.prisma = basePrisma;
 
 export type AppPrismaClient = typeof prisma;
 

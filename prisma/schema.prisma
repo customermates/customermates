@@ -722,13 +722,11 @@ model WebhookDelivery {
   responseMessage String?
   success         Boolean               @default(false)
   status          WebhookDeliveryStatus @default(pending)
-  lockedAt        DateTime?
   deliveredAt     DateTime?
   createdAt       DateTime              @default(now())
 
   @@index([companyId])
   @@index([createdAt])
-  @@index([status, lockedAt])
   @@index([companyId, createdAt])
 }
 

@@ -15,7 +15,7 @@ import {
   getGetWidgetsInteractor,
   getRecalculateUserWidgetsInteractor,
   getUpdateUserSettingsInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function upsertWidgetAction(data: UpsertWidgetData) {

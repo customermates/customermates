@@ -21,11 +21,12 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo, getTaskRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getOrganizationRepo, getTaskRepo } from "@/core/app-di";
 
 export const CreateContactSchema = BaseCreateContactSchema.superRefine(async (data, ctx) => {
   const allOrgIds = new Set(data.organizationIds);
@@ -68,6 +69,7 @@ export class CreateContactInteractor extends BaseInteractor<CreateContactData, C
 
   @Validate(CreateContactSchema)
   @ValidateOutput(ContactDtoSchema)
+  @Transaction
   async invoke(data: CreateContactData): Validated<ContactDto> {
     const relatedOrganizationIds = unique(data.organizationIds);
     const relatedDealIds = unique(data.dealIds);

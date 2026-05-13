@@ -27,7 +27,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/di";
+import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/app-di";
 
 export const CreateManyOrganizationsSchema = z
   .object({

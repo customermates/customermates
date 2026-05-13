@@ -1,6 +1,6 @@
 import { UserDetailsForm } from "../components/user-details-form";
 
-import { getAuthService, getGetUserDetailsInteractor, getRouteGuardService } from "@/core/di";
+import { getAuthService, getGetUserDetailsInteractor, getRouteGuardService } from "@/core/app-di";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileDetailsPage() {

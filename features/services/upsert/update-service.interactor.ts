@@ -25,7 +25,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/app-di";
 
 export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds ?? []);

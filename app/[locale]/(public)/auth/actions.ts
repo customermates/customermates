@@ -14,7 +14,7 @@ import {
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getAuthService,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function signInWithEmailAction(data: EmailSignInData) {

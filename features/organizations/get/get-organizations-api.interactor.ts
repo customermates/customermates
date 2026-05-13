@@ -8,7 +8,7 @@ import { EntityType, Resource, Action } from "@/generated/prisma";
 
 import { type OrganizationDto } from "../organization.schema";
 
-import { getOrganizationRepo, getValidateQueryParams } from "@/core/di";
+import { getOrganizationRepo, getValidateQueryParams } from "@/core/app-di";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";

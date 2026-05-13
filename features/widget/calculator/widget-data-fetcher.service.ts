@@ -7,7 +7,7 @@ import { EntityType } from "@/generated/prisma";
 import type { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { getContactRepo, getOrganizationRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
+import { getContactRepo, getOrganizationRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/app-di";
 
 export class WidgetDataFetcher extends BaseRepository {
   async getEntityCount(entityType: EntityType, filters: Filter[] | undefined): Promise<number> {

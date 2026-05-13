@@ -19,11 +19,12 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/di";
+import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/app-di";
 
 export const CreateServiceSchema = BaseCreateServiceSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds);
@@ -62,6 +63,7 @@ export class CreateServiceInteractor extends BaseInteractor<CreateServiceData, S
 
   @Validate(CreateServiceSchema)
   @ValidateOutput(ServiceDtoSchema)
+  @Transaction
   async invoke(data: CreateServiceData): Validated<ServiceDto> {
     const relatedDealIds = unique(data.dealIds);
     const relatedTaskIds = unique(data.taskIds);

@@ -1,5 +1,10 @@
+import type { NextConfig } from "next";
+
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
+import { withSentryConfig } from "@sentry/nextjs";
+
+import { env } from "@/env";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -7,10 +12,10 @@ const withMDX = createMDX({
   configPath: "./core/fumadocs/source.config.ts",
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   env: {
     NEXT_INTL_CONFIG_PATH: "i18n/request.ts",
+    SENTRY_DSN: env.SENTRY_DSN,
   },
 
   htmlLimitedBots: /.*/,
@@ -35,8 +40,8 @@ const nextConfig = {
     ],
   },
 
-  async headers() {
-    return [
+  headers() {
+    return Promise.resolve([
       {
         source: "/:path*",
         headers: [
@@ -46,8 +51,21 @@ const nextConfig = {
           },
         ],
       },
-    ];
+    ]);
   },
 };
 
-export default withMDX(withNextIntl(nextConfig));
+const sentryOptions = {
+  org: env.SENTRY_ORG,
+  project: env.SENTRY_PROJECT,
+  authToken: env.SENTRY_AUTH_TOKEN,
+  silent: !env.CI,
+  disableLogger: true,
+  hideSourceMaps: true,
+  widenClientFileUpload: true,
+  tunnelRoute: "/monitoring",
+};
+
+const composed = withMDX(withNextIntl(nextConfig));
+
+export default env.SENTRY_DSN ? withSentryConfig(composed, sentryOptions) : composed;

@@ -6,7 +6,7 @@ import {
   getGetWidgetsInteractor,
   getGetWidgetFilterableFieldsInteractor,
   getGetCustomColumnsInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export default async function DashboardPage() {
   await getRouteGuardService().ensureAccessOrRedirect();

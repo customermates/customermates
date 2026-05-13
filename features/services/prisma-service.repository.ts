@@ -20,7 +20,7 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
-import { getCustomColumnRepo } from "@/core/di";
+import { getCustomColumnRepo } from "@/core/app-di";
 
 export class PrismaServiceRepo
   extends BaseRepository

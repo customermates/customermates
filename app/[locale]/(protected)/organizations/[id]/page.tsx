@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { OrganizationDetailPageView } from "./components/organization-detail-page-view";
 
-import { getRouteGuardService } from "@/core/di";
+import { getRouteGuardService } from "@/core/app-di";
 
 type Props = {
   params: Promise<{ id: string }>;

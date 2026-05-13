@@ -1,10 +1,12 @@
+import "dotenv/config";
+
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { generateFiles } from "fumadocs-openapi";
 import { createOpenAPI } from "fumadocs-openapi/server";
 
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 const spec = generateOpenApiSpec();
@@ -40,7 +42,7 @@ for (const file of files) {
   let content = readFileSync(filePath, "utf-8");
   content = content.replace(
     /document=\{"[^"]*\/public\/v1\/openapi\.json"\}/g,
-    `document={"${BASE_URL}/v1/openapi.json"}`,
+    `document={"${env.BASE_URL}/v1/openapi.json"}`,
   );
   writeFileSync(filePath, content, "utf-8");
 }

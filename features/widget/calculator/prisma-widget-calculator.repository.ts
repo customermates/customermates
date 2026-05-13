@@ -3,7 +3,7 @@ import type { ExtendedWidget, DiagramDataPoint } from "../widget.types";
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { getWidgetGroupingService, getWidgetDataFetcher } from "@/core/di";
+import { getWidgetGroupingService, getWidgetDataFetcher } from "@/core/app-di";
 
 export class PrismaWidgetCalculatorRepo extends BaseRepository {
   async calculateWidgetData(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {

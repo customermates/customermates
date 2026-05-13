@@ -4,7 +4,7 @@ import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 
 type Props = {
   inviteLink: string;
@@ -38,7 +38,7 @@ const previewCompanyName = "Acme Inc.";
 const previewInviterName = "Anna Müller";
 
 CompanyInvite.PreviewProps = {
-  inviteLink: `${BASE_URL}/invitation/example-token`,
+  inviteLink: `${env.BASE_URL}/invitation/example-token`,
   subject: t.subject.replace("{companyName}", previewCompanyName),
   preview: t.preview.replace("{inviterName}", previewInviterName).replace("{companyName}", previewCompanyName),
   intro: t.intro.replace("{inviterName}", previewInviterName),

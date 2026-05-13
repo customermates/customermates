@@ -31,7 +31,7 @@ import {
   getServiceRepo,
   getContactRepo,
   getCustomColumnRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export class ValidateQueryParamsValidator {
   async invoke(

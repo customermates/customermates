@@ -14,11 +14,12 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { validateDealIds } from "@/core/validation/validate-deal-ids";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getDealRepo } from "@/core/di";
+import { getDealRepo } from "@/core/app-di";
 
 export const DeleteDealSchema = z
   .object({
@@ -47,6 +48,7 @@ export class DeleteDealInteractor extends BaseInteractor<DeleteDealData, string>
 
   @Validate(DeleteDealSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteDealData): Validated<string> {
     const previousDeal = await this.repo.getOrThrowUnscoped(data.id);
 

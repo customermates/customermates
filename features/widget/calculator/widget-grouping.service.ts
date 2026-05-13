@@ -4,7 +4,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
-import { getCustomColumnRepo } from "@/core/di";
+import { getCustomColumnRepo } from "@/core/app-di";
 import { BaseRepository } from "@/core/base/base-repository";
 
 export class WidgetGroupingService extends BaseRepository {

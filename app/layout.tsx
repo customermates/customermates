@@ -22,8 +22,8 @@ import {
   getGetCompanyDetailsInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
-} from "@/core/di";
-import { BASE_URL, IS_CLOUD_HOSTED, IS_DEMO_MODE } from "@/constants/env";
+} from "@/core/app-di";
+import { env } from "@/env";
 import { homepageSource } from "@/core/fumadocs/source";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
 
@@ -57,11 +57,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const { rootMetadata } = page.data;
   const alternates: Record<string, string> = Object.fromEntries(
-    ROUTING_LOCALES.map((loc) => [loc, `${BASE_URL}/${loc}`]),
+    ROUTING_LOCALES.map((loc) => [loc, `${env.BASE_URL}/${loc}`]),
   );
-  alternates["x-default"] = `${BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
+  alternates["x-default"] = `${env.BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
 
-  const canonical = `${BASE_URL}/${locale}`;
+  const canonical = `${env.BASE_URL}/${locale}`;
   const params = new URLSearchParams({
     description: rootMetadata.defaultDescription,
     title: rootMetadata.defaultTitle,
@@ -74,7 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: rootMetadata.titleTemplate,
     },
     description: rootMetadata.defaultDescription,
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(env.BASE_URL),
     icons: {
       icon: rootMetadata.icon,
     },
@@ -168,8 +168,8 @@ export default async function RootLayout({ children }: Props) {
           displayLanguage={displayLanguage}
           initialNavbarVisible={!isAuthenticated}
           initialSidebarOpen={initialSidebarOpen}
-          isCloudHosted={IS_CLOUD_HOSTED}
-          isDemoMode={IS_DEMO_MODE}
+          isCloudHosted={env.CLOUD_HOSTED}
+          isDemoMode={env.DEMO_MODE}
           messages={messages}
         >
           <NavigationSwitch

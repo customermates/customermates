@@ -4,13 +4,14 @@ import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo } from "react";
 
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/shared/icon";
+import { Card, CardContent } from "@/components/ui/card";
+import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 
 type Props = {
@@ -19,7 +20,6 @@ type Props = {
 
 export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const t = useTranslations("");
-  const { showDeleteConfirmation } = useDeleteConfirmation();
   const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
   const { canManage } = apiKeysStore;
 
@@ -38,51 +38,45 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   );
   useSetTopBarActions(topBarActions);
 
+  if (apiKeysStore.items.length === 0) {
+    return (
+      <div className="flex w-full max-w-3xl flex-col gap-4">
+        <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
+
+        <p className="text-subdued text-x-md">{t("Common.table.emptyContent")}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-full max-w-3xl flex-col gap-4">
-      <p className="text-subdued text-sm">{t("ProfileSections.apiKeysDescription")}</p>
+      <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
 
-      {apiKeysStore.items.length === 0 ? (
-        <p className="text-subdued text-x-md">{t("Common.table.emptyContent")}</p>
-      ) : (
-        <div className="space-y-2">
-          {apiKeysStore.items.map((key) => (
-            <div key={key.id} className="flex items-center justify-between rounded-lg bg-card p-4 shadow-xs">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm">{key.name || t("ApiKeysCard.unnamed")}</p>
+      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+        {apiKeysStore.items.map((key) => (
+          <Card
+            key={key.id}
+            className="cursor-pointer gap-3 py-4 interactive-surface"
+            onClick={() => apiKeyModalStore.view(key)}
+          >
+            <CardContent className="space-y-2 px-4">
+              <p className="truncate text-sm font-medium">{key.name || t("ApiKeysCard.unnamed")}</p>
 
-                <div className="mt-1 flex flex-col gap-1 text-xs text-subdued">
-                  <span>
-                    {`${t("Common.table.columns.createdAt")}: ${intlStore.formatNumericalShortDateTime(key.createdAt)}`}
-                  </span>
+              <InfoRow label={t("Common.table.columns.createdAt")}>
+                {intlStore.formatNumericalShortDateTime(key.createdAt)}
+              </InfoRow>
 
-                  {key.expiresAt && (
-                    <span>
-                      {`${t("Common.table.columns.expiresAt")}: ${intlStore.formatNumericalShortDateTime(key.expiresAt)}`}
-                    </span>
-                  )}
+              <InfoRow label={t("Common.table.columns.expiresAt")}>
+                {key.expiresAt ? intlStore.formatNumericalShortDateTime(key.expiresAt) : "Never"}
+              </InfoRow>
 
-                  {key.lastRequest && (
-                    <span>
-                      {`${t("Common.table.columns.lastRequest")}: ${intlStore.formatNumericalShortDateTime(key.lastRequest)}`}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {canManage && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => showDeleteConfirmation(() => void apiKeysStore.delete(key.id), key.name ?? undefined)}
-                >
-                  <Icon className="text-destructive" icon={Trash2} />
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+              <InfoRow label={t("Common.table.columns.lastRequest")}>
+                {key.lastRequest ? intlStore.formatNumericalShortDateTime(key.lastRequest) : "Never"}
+              </InfoRow>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 });

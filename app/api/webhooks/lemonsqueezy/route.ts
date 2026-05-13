@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-import { getSubscriptionService } from "@/core/di";
+import { getSubscriptionService } from "@/core/app-di";
 
 export async function POST(request: NextRequest) {
   const signature = request.headers.get("x-signature");

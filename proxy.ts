@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
-import { IS_DEMO_MODE } from "./constants/env";
+import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 
 const intlMiddlewareRaw = createMiddleware(routing);
@@ -51,8 +51,11 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  if (IS_DEMO_MODE) {
-    const isNonDemoUser = isAuthenticated && session?.user?.email !== process.env.DEMO_USER_EMAIL;
+  if (env.DEMO_MODE) {
+    if (!env.DEMO_USER_EMAIL || !env.DEMO_USER_PASSWORD)
+      throw new Error("DEMO_USER_EMAIL and DEMO_USER_PASSWORD must be set when DEMO_MODE=true");
+
+    const isNonDemoUser = isAuthenticated && session?.user?.email !== env.DEMO_USER_EMAIL;
 
     if (isNonDemoUser) await auth.api.signOut({ headers: req.headers });
 
@@ -60,8 +63,8 @@ export default async function proxy(req: NextRequest) {
       await auth.api.signInEmail({
         headers: req.headers,
         body: {
-          email: process.env.DEMO_USER_EMAIL as string,
-          password: process.env.DEMO_USER_PASSWORD as string,
+          email: env.DEMO_USER_EMAIL,
+          password: env.DEMO_USER_PASSWORD,
           rememberMe: true,
         },
       });

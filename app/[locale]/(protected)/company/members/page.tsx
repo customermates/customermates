@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { UsersCard } from "../components/user/users-card";
 
-import { getGetRolesInteractor, getGetUsersInteractor, getRouteGuardService } from "@/core/di";
+import { getGetRolesInteractor, getGetUsersInteractor, getRouteGuardService } from "@/core/app-di";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 

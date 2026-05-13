@@ -15,7 +15,7 @@ import { type UpdateWidgetLayoutsData } from "./update-widget-layouts.interactor
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BREAKPOINTS } from "@/constants/breakpoints";
-import { getWidgetCalculatorRepo } from "@/core/di";
+import { getWidgetCalculatorRepo } from "@/core/app-di";
 
 export class PrismaWidgetRepo
   extends BaseRepository

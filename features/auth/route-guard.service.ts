@@ -7,7 +7,7 @@ import { Action, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import type { Resource } from "@/generated/prisma";
 
-import { IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 
 export class RouteGuardService {
   constructor(
@@ -37,7 +37,7 @@ export class RouteGuardService {
     if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
       redirect("/onboarding/wizard");
 
-    if (!options?.skipSubscriptionCheck && !IS_DEMO_MODE) await this.checkSubscriptionAndRedirect(user.companyId);
+    if (!options?.skipSubscriptionCheck && !env.DEMO_MODE) await this.checkSubscriptionAndRedirect(user.companyId);
 
     if (!options?.resource) return;
 

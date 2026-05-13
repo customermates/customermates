@@ -8,7 +8,7 @@ import {
   getGetCustomColumnsInteractor,
   getGetCustomColumnsByEntityTypeInteractor,
   getDeleteCustomColumnInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 

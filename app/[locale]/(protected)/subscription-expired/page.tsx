@@ -4,7 +4,7 @@ import { Resource } from "@/generated/prisma";
 
 import { SubscriptionExpiredView } from "./components/subscription-expired-view";
 
-import { getGetSubscriptionInteractor, getRouteGuardService } from "@/core/di";
+import { getGetSubscriptionInteractor, getRouteGuardService } from "@/core/app-di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function SubscriptionExpiredPage() {

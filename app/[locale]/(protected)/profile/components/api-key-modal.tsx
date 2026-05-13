@@ -6,20 +6,22 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { AppModal, ModalFooter } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
-import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { FormLabel } from "@/components/forms/form-label";
 import { useState } from "react";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
+import { Icon } from "@/components/shared/icon";
+import { InfoRow } from "@/components/shared/info-row";
 
 const ExpiresInPicker = observer(function ExpiresInPicker() {
   const t = useTranslations("ApiKeyModal");
@@ -70,19 +72,51 @@ const ExpiresInPicker = observer(function ExpiresInPicker() {
 
 export const ApiKeyModal = observer(() => {
   const t = useTranslations("");
-  const { apiKeyModalStore } = useRootStore();
-  const { createdKey, isLoading, close, hasUnsavedChanges } = apiKeyModalStore;
+  const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
+  const { createdKey, isLoading, close, hasUnsavedChanges, mode, viewingKey } = apiKeyModalStore;
+  const { showDeleteConfirmation } = useDeleteConfirmation();
+
+  const isView = mode === "view" && viewingKey !== null;
+  const title = isView ? viewingKey?.name || t("ApiKeysCard.unnamed") : t("ApiKeyModal.title");
 
   return (
-    <AppModal store={apiKeyModalStore} title={t("ApiKeyModal.title")}>
+    <AppModal store={apiKeyModalStore} title={title}>
       <AppForm store={apiKeyModalStore}>
         <AppCard>
-          <AppCardHeader>
-            <h2 className="text-x-lg">{t("ApiKeyModal.title")}</h2>
-          </AppCardHeader>
+          <div className="flex items-start justify-between gap-3 px-6 pt-6">
+            <h2 className="text-x-lg">{title}</h2>
+
+            {isView && viewingKey && (
+              <Button
+                size="icon"
+                title="Delete"
+                variant="destructive"
+                onClick={() =>
+                  showDeleteConfirmation(async () => {
+                    await apiKeysStore.delete(viewingKey.id);
+                    close();
+                  }, viewingKey.name ?? undefined)
+                }
+              >
+                <Icon icon={Trash2} />
+              </Button>
+            )}
+          </div>
 
           <AppCardBody>
-            {createdKey ? (
+            {isView && viewingKey ? (
+              <div className="flex flex-col gap-1">
+                <InfoRow label="Created at">{intlStore.formatNumericalShortDateTime(viewingKey.createdAt)}</InfoRow>
+
+                {viewingKey.expiresAt && (
+                  <InfoRow label="Expires at">{intlStore.formatNumericalShortDateTime(viewingKey.expiresAt)}</InfoRow>
+                )}
+
+                {viewingKey.lastRequest && (
+                  <InfoRow label="Last used">{intlStore.formatNumericalShortDateTime(viewingKey.lastRequest)}</InfoRow>
+                )}
+              </div>
+            ) : createdKey ? (
               <Alert hideIcon className="mb-4" color="success">
                 <div className="flex flex-col gap-2">
                   <p className="text-x-md">{t("ApiKeyModal.keyCreated")}</p>
@@ -101,7 +135,7 @@ export const ApiKeyModal = observer(() => {
             )}
           </AppCardBody>
 
-          {!createdKey && (
+          {!isView && !createdKey && (
             <ModalFooter className="p-6 pt-0">
               <Button disabled={isLoading} variant="secondary" onClick={close}>
                 {t("Common.actions.cancel")}
@@ -109,6 +143,14 @@ export const ApiKeyModal = observer(() => {
 
               <Button disabled={isLoading || !hasUnsavedChanges} type="submit">
                 {t("Common.actions.save")}
+              </Button>
+            </ModalFooter>
+          )}
+
+          {isView && (
+            <ModalFooter className="p-6 pt-0">
+              <Button variant="secondary" onClick={close}>
+                {t("Common.actions.close")}
               </Button>
             </ModalFooter>
           )}

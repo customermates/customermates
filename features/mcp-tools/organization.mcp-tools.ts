@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { encodeToToon, forbidNullFields, NO_NULL_WIPE_WARNING } from "./utils";
 
-import { getCreateManyOrganizationsInteractor, getUpdateManyOrganizationsInteractor } from "@/core/di";
+import { getCreateManyOrganizationsInteractor, getUpdateManyOrganizationsInteractor } from "@/core/app-di";
 import { BaseCreateOrganizationSchema } from "@/features/organizations/upsert/create-organization-base.schema";
 import { BaseUpdateOrganizationSchema } from "@/features/organizations/upsert/update-organization-base.schema";
 

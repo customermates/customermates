@@ -1055,16 +1055,23 @@
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Aber keine Sorge, wir wurden benachrichtigt und kümmern uns darum!"
   },
   "ErrorTestPage": {
+    "backgroundError": {
+      "description": "Stellt einen trigger.dev-Task in die Warteschlange, der wirft. Der onFailure-Hook sollte ihn an Sentry melden.",
+      "title": "Hintergrund (Trigger.dev)",
+      "triggerBackgroundError": "Fehlerhaften trigger.dev-Task einreihen",
+      "triggering": "Dispatch läuft..."
+    },
     "clientSideErrors": {
-      "description": "Sollte UnexpectedErrorToaster auslösen",
-      "title": "Client-seitige Fehler",
-      "triggerAsyncClientError": "Asynchronen Client-Fehler auslösen",
-      "triggerClientError": "Client-Fehler auslösen"
+      "description": "Unbehandelte Würfe landen via globalem Handler des Browser-SDK in Sentry. captureException sendet ein Event ohne UI-Crash.",
+      "title": "Client-seitig",
+      "triggerCaptureException": "Client-captureException senden",
+      "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
-      "description": "Sollte zur Fehlerseite weiterleiten",
-      "title": "Server-seitiger Fehler",
-      "triggerServerError": "Server-Fehler auslösen"
+      "description": "Server-Action wirft → wird von onRequestError in instrumentation.ts gefangen → an Sentry gemeldet.",
+      "title": "Server-Action",
+      "triggering": "Server-Action läuft...",
+      "triggerServerError": "Server-Action-Fehler werfen"
     },
     "subtitle": "Absichtlich Dinge kaputt machen, für die Wissenschaft!",
     "title": "Fehlertest"

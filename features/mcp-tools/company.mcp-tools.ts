@@ -3,7 +3,11 @@ import { CountryCode, Currency } from "@/generated/prisma";
 
 import { encodeToToon, enumHint } from "./utils";
 
-import { getGetCompanyDetailsInteractor, getGetRolesInteractor, getUpdateCompanyDetailsInteractor } from "@/core/di";
+import {
+  getGetCompanyDetailsInteractor,
+  getGetRolesInteractor,
+  getUpdateCompanyDetailsInteractor,
+} from "@/core/app-di";
 
 const countryValues = Object.values(CountryCode);
 const currencyValues = Object.values(Currency);

@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { WebhooksCard } from "../components/webhook/webhooks-card";
 
-import { getGetWebhooksInteractor, getRouteGuardService } from "@/core/di";
+import { getGetWebhooksInteractor, getRouteGuardService } from "@/core/app-di";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 

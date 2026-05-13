@@ -96,10 +96,10 @@ docker compose up -d
 Required `.env` values:
 
 - `BETTER_AUTH_SECRET`: long random string (`openssl rand -hex 32`).
-- `CRON_SECRET`: long random string used by the `webhook-worker` sidecar.
 - `POSTGRES_PASSWORD`: change the default.
 - `BASE_URL`: your public URL (e.g. `https://crm.example.com`).
-- `RESEND_API_KEY` and `RESEND_FROM_EMAIL`: for signup verification, password reset, and invitation emails.
+- `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: for signup verification, password reset, and invitation emails.
+- `TRIGGER_SECRET_KEY` and `TRIGGER_PROJECT_REF`: free [Trigger.dev](https://trigger.dev) project for background jobs.
 
 First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `http://localhost:4000` (or your `APP_PORT`).
 

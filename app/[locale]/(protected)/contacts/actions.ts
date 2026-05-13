@@ -12,7 +12,7 @@ import {
   getCreateContactInteractor,
   getUpdateContactInteractor,
   getDeleteContactInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function getContactsAction(params?: GetQueryParams) {

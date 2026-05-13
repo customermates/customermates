@@ -42,11 +42,10 @@ function pad(str: string, len: number): string {
 }
 
 async function main(): Promise<void> {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error("DATABASE_URL is not configured");
+  const { env } = await import("@/env");
 
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: databaseUrl }),
+    adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
   });
 
   try {

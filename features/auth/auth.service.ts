@@ -12,7 +12,7 @@ import NewUserNotification from "@/components/emails/new-user-notification";
 import { auth } from "@/core/auth/better-auth";
 import { mustVerifyEmail } from "./email-verification-grace";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { BASE_URL, RESEND_FROM_EMAIL } from "@/constants/env";
+import { env } from "@/env";
 
 type AuthUser = { id: string; email: string; name: string; emailVerified: boolean };
 export type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomErrorCode };
@@ -49,7 +49,7 @@ export class AuthService {
     try {
       const res = await auth.api.signInEmail({
         headers: await headers(),
-        body: { ...args, callbackURL: args.callbackURL ?? BASE_URL },
+        body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
       });
 
       return { ok: true, user: res.user } as const;
@@ -133,7 +133,7 @@ export class AuthService {
   async continueWithSocials(args: { provider: "google" | "microsoft"; callbackURL?: string }) {
     const res = await auth.api.signInSocial({
       headers: await headers(),
-      body: { ...args, callbackURL: args.callbackURL ?? BASE_URL },
+      body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
     });
 
     return res;
@@ -145,7 +145,7 @@ export class AuthService {
 
   async sendNewUserNotificationEmail(args: { email: string; name: string; provider?: string }): Promise<void> {
     await this.emailService.send({
-      to: RESEND_FROM_EMAIL,
+      to: env.RESEND_OPERATOR_EMAIL,
       subject: "New User Registration",
       react: React.createElement(NewUserNotification, {
         email: args.email,

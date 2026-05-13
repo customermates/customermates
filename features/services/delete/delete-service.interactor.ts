@@ -14,10 +14,11 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getServiceRepo } from "@/core/di";
+import { getServiceRepo } from "@/core/app-di";
 
 export const DeleteServiceSchema = z
   .object({
@@ -44,6 +45,7 @@ export class DeleteServiceInteractor extends BaseInteractor<DeleteServiceData, s
 
   @Validate(DeleteServiceSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteServiceData): Validated<string> {
     const previousService = await this.repo.getOrThrowUnscoped(data.id);
 

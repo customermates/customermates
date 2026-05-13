@@ -7,7 +7,7 @@ import {
   getCreateManyOrganizationsInteractor,
   getUpdateManyOrganizationsInteractor,
   getDeleteManyOrganizationsInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function POST(request: NextRequest) {

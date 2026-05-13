@@ -1055,16 +1055,23 @@
     "unexpectedError": "An unexpected error occurred. Don't worry though, we've been notified and are on it!"
   },
   "ErrorTestPage": {
+    "backgroundError": {
+      "description": "Queues a trigger.dev task that throws. The onFailure hook should report it to Sentry.",
+      "title": "Background (Trigger.dev)",
+      "triggerBackgroundError": "Queue failing trigger.dev task",
+      "triggering": "Dispatching..."
+    },
     "clientSideErrors": {
-      "description": "Should trigger UnexpectedErrorToaster",
-      "title": "Client-Side Errors",
-      "triggerAsyncClientError": "Trigger Async Client Error",
-      "triggerClientError": "Trigger Client Error"
+      "description": "Uncaught throws hit Sentry via the browser SDK's global handler. captureException sends an event without crashing the UI.",
+      "title": "Client-Side",
+      "triggerCaptureException": "Send client captureException",
+      "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
-      "description": "Should redirect to error page",
-      "title": "Server-Side Error",
-      "triggerServerError": "Trigger Server Error"
+      "description": "Server action throw → caught by instrumentation.ts's onRequestError → reported to Sentry.",
+      "title": "Server Action",
+      "triggering": "Calling server action...",
+      "triggerServerError": "Throw server action error"
     },
     "subtitle": "Breaking things on purpose, for science!",
     "title": "Error Testing"

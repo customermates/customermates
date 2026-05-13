@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getDeleteDealInteractor, getGetDealByIdInteractor, getUpdateDealInteractor } from "@/core/di";
+import { getDeleteDealInteractor, getGetDealByIdInteractor, getUpdateDealInteractor } from "@/core/app-di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

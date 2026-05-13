@@ -8,7 +8,7 @@ import {
   getGetWidgetsInteractor,
   getGetWidgetByIdInteractor,
   getDeleteWidgetInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { type UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { FilterSchema } from "@/core/base/base-get.schema";

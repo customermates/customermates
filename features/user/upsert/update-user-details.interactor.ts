@@ -8,6 +8,7 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
@@ -35,6 +36,7 @@ export class UpdateUserDetailsInteractor extends BaseInteractor<UpdateUserDetail
 
   @Validate(Schema)
   @ValidateOutput(Schema)
+  @Transaction
   async invoke(data: UpdateUserDetailsData): Validated<UpdateUserDetailsData> {
     const details = await this.repo.updateDetails(data);
 

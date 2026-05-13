@@ -8,7 +8,7 @@ import {
   getGetOrganizationsApiInteractor,
   getGetServicesApiInteractor,
   getGetTasksApiInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const EntityKindSchema = z.enum(["contact", "organization", "deal", "service", "task"]);
 export type EntityKind = z.infer<typeof EntityKindSchema>;

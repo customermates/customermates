@@ -31,3 +31,27 @@ export class NotFoundError extends AppError {
     super(message, 404);
   }
 }
+
+export class WebhookExternalFailure extends Error {
+  override name = "WebhookExternalFailure" as const;
+  constructor(
+    public readonly statusCode: number | null,
+    public readonly responseMessage: string | null,
+  ) {
+    super(`Webhook target responded ${statusCode ?? "no-status"} ${responseMessage ?? ""}`.trim());
+  }
+}
+
+export const EXPECTED_ERROR_NAMES: ReadonlySet<string> = new Set([
+  "AppError",
+  "AuthError",
+  "ForbiddenError",
+  "DemoModeError",
+  "NotFoundError",
+  "WebhookExternalFailure",
+  "WebhookPermanentFailure",
+]);
+
+export function isExpectedError(err: unknown): boolean {
+  return err instanceof Error && EXPECTED_ERROR_NAMES.has(err.name);
+}

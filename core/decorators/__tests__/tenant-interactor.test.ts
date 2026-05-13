@@ -4,11 +4,11 @@ import { ForbiddenError } from "@/core/errors/app-errors";
 
 const mockGetActiveUserOrThrow = vi.fn();
 
-vi.mock("@/core/di", () => ({
+vi.mock("@/core/app-di", () => ({
   getUserService: () => ({ getActiveUserOrThrow: mockGetActiveUserOrThrow }),
 }));
 
-vi.mock("@/constants/env", () => ({ IS_DEMO_MODE: false, BASE_URL: "http://localhost:4000" }));
+vi.mock("@/env", () => ({ env: { DEMO_MODE: false, BASE_URL: "http://localhost:4000" } }));
 
 const { TentantInteractor } = await import("../tenant-interactor.decorator");
 const { AllowInDemoMode } = await import("../allow-in-demo-mode.decorator");

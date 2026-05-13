@@ -1,11 +1,16 @@
 /**
- * Central dependency injection - single source of truth for all singletons and interactor creation.
+ * Application dependency injection - single source of truth for everything wired
+ * into the Next.js app (server actions, API routes, layouts).
  *
  * Structure:
  *   Section 1: Imports (concrete classes only, from specific files)
- *   Section 2: Repo singletons (lazy getters, cached with ??=)
- *   Section 3: Service singletons (lazy getters, depend on repos)
- *   Section 4: Interactor getters (fresh per call, deps are singletons)
+ *   Section 2: Repo getters (fresh per call)
+ *   Section 3: Service getters (fresh per call)
+ *   Section 4: Interactor getters (fresh per call, deps from getters)
+ *
+ * Trigger.dev worker tasks have their own DI in `trigger/worker-di.ts` to avoid
+ * pulling Next.js client-router code into the worker bundle (see that file's
+ * header for the full reasoning).
  */
 
 // ─── Section 1: Imports ─────────────────────────────────────────────────────
@@ -140,7 +145,6 @@ import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.inter
 import { DeleteWebhookInteractor } from "@/features/webhook/delete-webhook.interactor";
 import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-deliveries.interactor";
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
-import { ProcessWebhookDeliveriesInteractor } from "@/features/webhook/process-webhook-deliveries.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -169,12 +173,6 @@ import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.intera
 import { GetEntityChangeHistoryByIdInteractor } from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 // Validators
 import { ValidateQueryParamsValidator } from "@/core/base/validate-query-params.validator";
-// EE Lifecycle interactors
-import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
-import { SendTrialExtensionOfferInteractor } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
-import { SendTrialInactivationReminderInteractor } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
-import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
-import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
 
@@ -694,9 +692,6 @@ export const getGetWebhookDeliveriesInteractor = () =>
 export const getResendWebhookDeliveryInteractor = () =>
   new ResendWebhookDeliveryInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo());
 
-export const getProcessWebhookDeliveriesInteractor = () =>
-  new ProcessWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo(), getWebhookRepo());
-
 // --- Custom Column ---
 
 export const getGetCustomColumnsInteractor = () => new GetCustomColumnsInteractor(getCustomColumnRepo());
@@ -757,19 +752,3 @@ export const getGetAuditLogsInteractor = () => new GetAuditLogsInteractor(getAud
 
 export const getGetEntityChangeHistoryByIdInteractor = () =>
   new GetEntityChangeHistoryByIdInteractor(getAuditLogRepo(), getCustomColumnRepo());
-
-// --- EE Lifecycle ---
-
-export const getSendWelcomeAndDemoInteractor = () => new SendWelcomeAndDemoInteractor(getUserRepo(), getEmailService());
-
-export const getSendTrialExtensionOfferInteractor = () =>
-  new SendTrialExtensionOfferInteractor(getUserRepo(), getEmailService());
-
-export const getSendTrialInactivationReminderInteractor = () =>
-  new SendTrialInactivationReminderInteractor(getUserRepo(), getEmailService());
-
-export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
-  new DeactivateTrialUsersAndSendNoticeInteractor(getUserRepo(), getEmailService());
-
-export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
-  new DeactivateUsersAfterSubscriptionGracePeriodInteractor(getUserRepo(), getEmailService());

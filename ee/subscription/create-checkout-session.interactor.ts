@@ -10,7 +10,7 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 
 export abstract class CreateCheckoutCompanyRepo {
   abstract getDetails(): Promise<Company>;
@@ -36,7 +36,7 @@ export class CreateCheckoutSessionInteractor extends BaseInteractor<void, null> 
 
     if (company.postalCode) billingAddress.zip = company.postalCode;
 
-    const redirectUrl = `${BASE_URL}/company/details`;
+    const redirectUrl = `${env.BASE_URL}/company/details`;
 
     const checkout = await this.lemonSqueezyService.createCheckout({
       email: company.email || undefined,

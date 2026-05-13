@@ -8,7 +8,7 @@ import {
   getGetCompanyDetailsInteractor,
   getInviteTokenValidationInteractor,
   getUserService,
-} from "@/core/di";
+} from "@/core/app-di";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function OnboardingWizardPage() {

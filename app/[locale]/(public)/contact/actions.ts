@@ -2,7 +2,7 @@
 
 import type { SendContactInquiryData } from "@/features/contact/send-contact-inquiry.schema";
 
-import { getSendContactInquiryInteractor } from "@/core/di";
+import { getSendContactInquiryInteractor } from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function sendContactInquiryAction(data: SendContactInquiryData) {

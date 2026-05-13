@@ -35,7 +35,7 @@ import {
   getDealRepo,
   getOrganizationRepo,
   getTaskRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const UpdateManyContactsSchema = z
   .object({

@@ -15,10 +15,11 @@ import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BaseInteractor } from "@/core/base/base-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getOrganizationRepo } from "@/core/di";
+import { getOrganizationRepo } from "@/core/app-di";
 
 export const DeleteOrganizationSchema = z
   .object({
@@ -46,6 +47,7 @@ export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizat
 
   @Validate(DeleteOrganizationSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteOrganizationData): Validated<string> {
     const previousOrganization = await this.repo.getOrThrowUnscoped(data.id);
 

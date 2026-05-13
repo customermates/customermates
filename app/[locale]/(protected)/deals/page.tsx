@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma";
 
 import { DealsCard } from "./components/deals-card";
 
-import { getGetDealsInteractor, getRouteGuardService } from "@/core/di";
+import { getGetDealsInteractor, getRouteGuardService } from "@/core/app-di";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 

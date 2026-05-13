@@ -10,7 +10,7 @@ import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
 
 export abstract class SendWelcomeAndDemoActionRepo {
   abstract findProspectUsers(): Promise<User[]>;
-  abstract claimWelcomeEmailSent(userId: string, sentAt: Date): Promise<boolean>;
+  abstract claimWelcomeEmailSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -24,7 +24,7 @@ export class SendWelcomeAndDemoInteractor {
     const users = await this.repo.findProspectUsers();
 
     for (const user of users.filter((item) => !item.welcomeEmailSentAt)) {
-      const claimed = await this.repo.claimWelcomeEmailSent(user.id, new Date());
+      const claimed = await this.repo.claimWelcomeEmailSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
       const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;

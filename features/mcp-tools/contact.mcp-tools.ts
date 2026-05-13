@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { encodeToToon, forbidNullFields, NO_NULL_WIPE_WARNING } from "./utils";
 
-import { getCreateManyContactsInteractor, getUpdateManyContactsInteractor } from "@/core/di";
+import { getCreateManyContactsInteractor, getUpdateManyContactsInteractor } from "@/core/app-di";
 import { BaseCreateContactSchema } from "@/features/contacts/upsert/create-contact-base.schema";
 import { BaseUpdateContactSchema } from "@/features/contacts/upsert/update-contact-base.schema";
 

@@ -2,7 +2,7 @@ import { Resource } from "@/generated/prisma/client";
 
 import { ApiKeysCard } from "../components/api-keys-card";
 
-import { getGetApiKeysInteractor, getRouteGuardService } from "@/core/di";
+import { getGetApiKeysInteractor, getRouteGuardService } from "@/core/app-di";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileApiKeysPage() {

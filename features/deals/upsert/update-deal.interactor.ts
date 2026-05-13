@@ -37,7 +37,7 @@ import {
   getOrganizationRepo,
   getServiceRepo,
   getTaskRepo,
-} from "@/core/di";
+} from "@/core/app-di";
 
 export const UpdateDealSchema = BaseUpdateDealSchema.superRefine(async (data, ctx) => {
   const organizationSet = new Set(data.organizationIds ?? []);

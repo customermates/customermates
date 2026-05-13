@@ -16,8 +16,8 @@
  *
  *   const mockUser = createMockUser();
  *
- *   vi.mock("@/constants/env", () => MOCK_ENV_MODULE);
- *   vi.mock("@/core/di", () => createMockDiModule(mockUser));
+ *   vi.mock("@/env", () => MOCK_ENV_MODULE);
+ *   vi.mock("@/core/app-di", () => createMockDiModule(mockUser));
  *   vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
  *   vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
  */
@@ -26,16 +26,19 @@ import { vi } from "vitest";
 import type { ExtendedUser } from "@/features/user/user.types";
 
 // ---------------------------------------------------------------------------
-// @/constants/env
+// @/env
 // ---------------------------------------------------------------------------
 export const MOCK_ENV_MODULE = {
-  IS_PRODUCTION: false,
-  IS_DEVELOPMENT: true,
-  IS_DEMO_MODE: false,
-  IS_CLOUD_HOSTED: false,
-  IS_CLOUD_BUILD: false,
-  BASE_URL: "http://localhost:4000",
-  RESEND_FROM_EMAIL: "test@test.com",
+  env: {
+    NODE_ENV: "test" as const,
+    DEMO_MODE: false,
+    CLOUD_HOSTED: false,
+    BASE_URL: "http://localhost:4000",
+    RESEND_OPERATOR_EMAIL: "test@test.com",
+    DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+    BETTER_AUTH_SECRET: "0".repeat(32),
+    TRIGGER_PROJECT_REF: "proj_test",
+  },
 };
 
 // ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@ import {
   getCreateOrganizationInteractor,
   getUpdateOrganizationInteractor,
   getDeleteOrganizationInteractor,
-} from "@/core/di";
+} from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function getOrganizationsAction(params?: GetQueryParams) {
