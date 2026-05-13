@@ -10,15 +10,10 @@ type Props = {
 
 export function CenteredCardPage({ children, className }: Props) {
   return (
-    <div
-      className={cn(
-        "relative size-full flex flex-1 items-safe-center justify-center p-4 overflow-y-auto isolate",
-        className,
-      )}
-    >
+    <div className={cn("relative size-full overflow-y-auto isolate", className)}>
       <DotPattern />
 
-      <div className="relative z-10 w-full flex justify-center">{children}</div>
+      <div className="relative z-10 flex min-h-full w-full items-center justify-center p-4">{children}</div>
     </div>
   );
 }
