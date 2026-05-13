@@ -12,7 +12,7 @@ export function CenteredCardPage({ children, className }: Props) {
   return (
     <div
       className={cn(
-        "relative size-full flex flex-1 items-center justify-center p-4 overflow-hidden isolate",
+        "relative size-full flex flex-1 items-safe-center justify-center p-4 overflow-y-auto isolate",
         className,
       )}
     >
