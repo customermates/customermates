@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import * as Sentry from "@sentry/nextjs";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppLink } from "@/components/shared/app-link";
-import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { Button } from "@/components/ui/button";
 
@@ -20,20 +20,9 @@ type Props = {
   error?: Error;
   retryLabel?: string;
   onRetry?: () => void;
-  useNativeAnchor?: boolean;
 };
 
-export function ErrorPageView({
-  title,
-  subtitle,
-  body,
-  backHref,
-  backLabel,
-  error,
-  retryLabel,
-  onRetry,
-  useNativeAnchor = false,
-}: Props) {
+export function ErrorPageView({ title, subtitle, body, backHref, backLabel, error, retryLabel, onRetry }: Props) {
   useEffect(() => {
     if (error) Sentry.captureException(error);
   }, [error]);
@@ -43,7 +32,27 @@ export function ErrorPageView({
   return (
     <CenteredCardPage>
       <AppCard className="max-w-md">
-        <CardHeroHeader subtitle={subtitle} title={title} />
+        <AppCardHeader className="text-center flex-col gap-2">
+          <Image
+            alt={title}
+            className="inline-block rounded-lg object-contain select-none shadow-[0_0_10px_0] shadow-primary/10 dark:hidden"
+            height={48}
+            src="/images/light/customermates-square.svg"
+            width={48}
+          />
+
+          <Image
+            alt={title}
+            className="hidden rounded-lg object-contain select-none shadow-[0_0_10px_0] dark:inline-block dark:shadow-primary/20"
+            height={48}
+            src="/images/dark/customermates-square.svg"
+            width={48}
+          />
+
+          <h1 className="text-x-2xl mt-4">{title}</h1>
+
+          <span className="text-x-sm text-subdued">{subtitle}</span>
+        </AppCardHeader>
 
         <AppCardBody>
           <p className="text-x-sm text-center">{body}</p>
@@ -57,12 +66,8 @@ export function ErrorPageView({
           )}
 
           <Button asChild className="w-full" variant="destructive">
-            {useNativeAnchor ? (
-              // eslint-disable-next-line @next/next/no-html-link-for-pages -- callers set useNativeAnchor when next-intl provider isn't available (global-error)
-              <a href={backHref}>{backLabel}</a>
-            ) : (
-              <AppLink href={backHref}>{backLabel}</AppLink>
-            )}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ErrorPageView renders without provider context (global-error) */}
+            <a href={backHref}>{backLabel}</a>
           </Button>
         </AppCardFooter>
       </AppCard>
