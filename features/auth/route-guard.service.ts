@@ -1,13 +1,21 @@
 import type { AuthService } from "./auth.service";
 import type { UserService } from "../user/user.service";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
+import type { Redirect } from "./auth-outcome";
 
-import { redirect } from "next/navigation";
 import { Action, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import type { Resource } from "@/generated/prisma";
 
+import { isRedirect, redirectTo } from "./auth-outcome";
 import { env } from "@/env";
+
+export type AccessOptions = {
+  resource?: Resource;
+  allowedActions?: Action[];
+  skipSubscriptionCheck?: boolean;
+  skipOnboardingWizardCheck?: boolean;
+};
 
 export class RouteGuardService {
   constructor(
@@ -20,53 +28,54 @@ export class RouteGuardService {
     [Status.pendingAuthorization]: "/auth/pending",
   };
 
-  async ensureAccessOrRedirect(options?: {
-    resource?: Resource;
-    allowedActions?: Action[];
-    skipSubscriptionCheck?: boolean;
-    skipOnboardingWizardCheck?: boolean;
-  }): Promise<void> {
-    await this.authService.getSessionOrRedirect();
+  async resolveAccess(options?: AccessOptions): Promise<Redirect | null> {
+    const sessionResult = await this.authService.resolveSession();
+    if (isRedirect(sessionResult)) return sessionResult;
 
     const user = await this.userService.getUser();
 
-    if (!user) redirect("/onboarding/wizard");
+    if (!user) return redirectTo("/onboarding/wizard");
 
-    if (user.status !== Status.active) redirect(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
+    if (user.status !== Status.active)
+      return redirectTo(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
 
     if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
-      redirect("/onboarding/wizard");
+      return redirectTo("/onboarding/wizard");
 
-    if (!options?.skipSubscriptionCheck && !env.DEMO_MODE) await this.checkSubscriptionAndRedirect(user.companyId);
+    if (!options?.skipSubscriptionCheck && !env.DEMO_MODE) {
+      const subRedirect = await this.checkSubscription(user.companyId);
+      if (subRedirect) return subRedirect;
+    }
 
-    if (!options?.resource) return;
+    if (!options?.resource) return null;
 
-    if (user.role?.isSystemRole) return;
+    if (user.role?.isSystemRole) return null;
 
     const allowed = options.allowedActions ?? [Action.readOwn, Action.readAll];
 
     const hasRequiredPermission =
       user.role?.permissions?.some((p) => p.resource === options.resource && allowed.includes(p.action)) ?? false;
-    if (hasRequiredPermission) return;
+    if (hasRequiredPermission) return null;
 
-    redirect("/");
+    return redirectTo("/");
   }
 
-  async ensureUnauthenticatedOrRedirect(): Promise<void> {
+  async resolveUnauthenticated(): Promise<Redirect | null> {
     const session = await this.authService.getSession();
-    if (!session) return;
+    if (!session) return null;
 
     const user = await this.userService.getUser();
-    if (!user) return;
+    if (!user) return null;
 
-    if (user.status !== Status.active) redirect(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
+    if (user.status !== Status.active)
+      return redirectTo(RouteGuardService.STATUS_REDIRECTS[user.status] ?? "/auth/signin");
 
-    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) redirect("/onboarding/wizard");
+    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) return redirectTo("/onboarding/wizard");
 
-    redirect("/");
+    return redirectTo("/");
   }
 
-  private async checkSubscriptionAndRedirect(companyId: string): Promise<void> {
+  private async checkSubscription(companyId: string): Promise<Redirect | null> {
     const subscription = await this.subscriptionRepo.getSubscriptionOrThrow(companyId);
 
     const isExpired =
@@ -76,6 +85,7 @@ export class RouteGuardService {
         subscription.trialEndDate !== null &&
         subscription.trialEndDate < new Date());
 
-    if (isExpired) redirect("/subscription-expired");
+    if (isExpired) return redirectTo("/subscription-expired");
+    return null;
   }
 }

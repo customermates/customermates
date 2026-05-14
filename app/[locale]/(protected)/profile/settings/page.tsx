@@ -1,10 +1,10 @@
 import { UserSettingsForm } from "../components/user-settings-form";
 
-import { getRouteGuardService } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileSettingsPage() {
-  await getRouteGuardService().ensureAccessOrRedirect();
+  await requireAccess();
 
   return (
     <PageContainer>

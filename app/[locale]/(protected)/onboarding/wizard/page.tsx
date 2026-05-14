@@ -3,16 +3,12 @@ import { redirect } from "next/navigation";
 
 import { OnboardingWizard } from "./components/onboarding-wizard";
 
-import {
-  getAuthService,
-  getGetCompanyDetailsInteractor,
-  getInviteTokenValidationInteractor,
-  getUserService,
-} from "@/core/app-di";
+import { getGetCompanyDetailsInteractor, getInviteTokenValidationInteractor, getUserService } from "@/core/app-di";
+import { requireSession } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function OnboardingWizardPage() {
-  const session = await getAuthService().getSessionOrRedirect();
+  const session = await requireSession();
   const user = await getUserService().getUser();
 
   if (user) {

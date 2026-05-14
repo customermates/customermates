@@ -2,7 +2,6 @@ import type { CreateServiceRepo } from "./create-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -16,11 +15,11 @@ import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 import { BaseCreateServiceSchema } from "./create-service-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -46,17 +45,16 @@ export const CreateServiceSchema = BaseCreateServiceSchema.superRefine(async (da
 });
 export type CreateServiceData = Data<typeof CreateServiceSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.services,
   action: Action.create,
 })
-export class CreateServiceInteractor extends BaseInteractor<CreateServiceData, ServiceDto> {
+export class CreateServiceInteractor extends AuthenticatedInteractor<CreateServiceData, ServiceDto> {
   constructor(
     private repo: CreateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -103,7 +101,6 @@ export class CreateServiceInteractor extends BaseInteractor<CreateServiceData, S
         entityId: service.id,
         payload: service,
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: service };

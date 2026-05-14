@@ -9,7 +9,7 @@ import { EntityType, Resource, Action } from "@/generated/prisma";
 import { type TaskDto } from "../task.schema";
 
 import { getTaskRepo, getValidateQueryParams } from "@/core/app-di";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -22,7 +22,7 @@ const GetTasksQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (
 });
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.tasks, action: Action.readAll },
     { resource: Resource.tasks, action: Action.readOwn },

@@ -6,7 +6,7 @@ import {
   getSendTrialExtensionOfferInteractor,
   getSendTrialInactivationReminderInteractor,
   getSendWelcomeAndDemoInteractor,
-} from "./worker-di";
+} from "@/core/app-di";
 import { env } from "@/env";
 
 export const lifecycleDaily = schedules.task({

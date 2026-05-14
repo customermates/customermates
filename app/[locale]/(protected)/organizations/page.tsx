@@ -2,7 +2,8 @@ import { Resource } from "@/generated/prisma";
 
 import { OrganizationsCard } from "./components/organizations-card";
 
-import { getGetOrganizationsInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetOrganizationsInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default async function OrganizationsPage({ searchParams }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.organizations });
+  await requireAccess({ resource: Resource.organizations });
 
   const params = await searchParams;
   const organizationParams = decodeGetParams(params);

@@ -2,7 +2,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { FilterableField, SortableFieldDescriptor } from "./base-get.schema";
 import type { SortableField } from "./base-query-builder";
 
-import { BaseInteractor } from "./base-interactor";
+import { AuthenticatedInteractor } from "./authenticated-interactor";
 
 export interface GetConfigurationResult {
   customColumns: CustomColumnDto[];
@@ -16,7 +16,7 @@ export abstract class GetConfigurationRepo {
   abstract getSortableFields(): SortableField[];
 }
 
-export abstract class BaseGetConfigurationInteractor extends BaseInteractor<void, GetConfigurationResult> {
+export abstract class BaseGetConfigurationInteractor extends AuthenticatedInteractor<void, GetConfigurationResult> {
   constructor(protected repo: GetConfigurationRepo) {
     super();
   }

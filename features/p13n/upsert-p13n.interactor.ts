@@ -3,11 +3,11 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import {
   FilterSchema,
   SortDescriptorSchema,
@@ -49,8 +49,8 @@ export abstract class UpsertP13nRepo {
   abstract upsertP13n(data: UpsertP13nData): Promise<P13nEntry>;
 }
 
-@TentantInteractor()
-export class UpsertP13nInteractor extends BaseInteractor<UpsertP13nData, P13nEntry> {
+@TenantInteractor()
+export class UpsertP13nInteractor extends AuthenticatedInteractor<UpsertP13nData, P13nEntry> {
   constructor(private repo: UpsertP13nRepo) {
     super();
   }

@@ -39,7 +39,7 @@ export class PrismaRoleRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const roles = await this.prisma.userRole.findMany({
       ...args,
@@ -50,7 +50,7 @@ export class PrismaRoleRepo
   }
 
   async getCount() {
-    return await this.prisma.userRole.count({ where: { companyId: this.user.companyId } });
+    return await this.prisma.userRole.count({ where: { companyId: this.companyId } });
   }
 
   @Transaction

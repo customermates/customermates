@@ -1,15 +1,13 @@
 import type { DomainEvent, DomainEventMap } from "./domain-events";
-import type { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
+import type { DomainEventListener } from "./domain-event.listener";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 import type { deliverWebhook } from "@/trigger/webhook-deliveries";
-
-import { tasks } from "@trigger.dev/sdk/v3";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
-import { transactionStorage } from "@/core/decorators/transaction-context";
 
 export abstract class GetWebhooksForEventRepo {
   abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
@@ -37,10 +35,11 @@ function isNoOpUpdate(data: { payload: unknown }): boolean {
 
 export class EventService extends UserAccessor {
   constructor(
-    private readonly taskListeners: BaseTaskListener[],
+    private readonly eventListeners: DomainEventListener[],
     private webhookRepo: GetWebhooksForEventRepo,
     private webhookDeliveryRepo: CreateWebhookDeliveryRepo,
     private auditLogRepo: CreateAuditLogRepo,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -53,7 +52,7 @@ export class EventService extends UserAccessor {
 
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
 
-    const matchingListeners = this.taskListeners.filter((l) => l.handles(event));
+    const matchingListeners = this.eventListeners.filter((l) => l.handles(event));
 
     const [, , webhookDeliveries] = await Promise.all([
       Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
@@ -109,18 +108,16 @@ export class EventService extends UserAccessor {
 
     const ids = await this.webhookDeliveryRepo.create(data);
 
-    const dispatches: (() => Promise<void>)[] = ids.map((deliveryId, idx) => async () => {
-      await tasks.trigger<typeof deliverWebhook>("deliver-webhook", {
-        deliveryId,
-        url: webhooks[idx].url,
-        companyId,
-        requestBody: body as Record<string, unknown>,
-      });
-    });
-
-    const store = transactionStorage.getStore();
-    if (store) store.afterCommit.push(...dispatches);
-    else await Promise.all(dispatches.map((fn) => fn()));
+    await Promise.all(
+      ids.map((deliveryId, idx) =>
+        this.backgroundTaskService.dispatch<typeof deliverWebhook>("deliver-webhook", {
+          deliveryId,
+          url: webhooks[idx].url,
+          companyId,
+          requestBody: body as Record<string, unknown>,
+        }),
+      ),
+    );
 
     return webhooks.length;
   }

@@ -3,7 +3,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -11,12 +10,12 @@ import { z } from "zod";
 
 import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getOrganizationRepo } from "@/core/app-di";
@@ -32,15 +31,14 @@ export const DeleteManyOrganizationsSchema = z
   });
 export type DeleteManyOrganizationsData = Data<typeof DeleteManyOrganizationsSchema>;
 
-@TentantInteractor({ resource: Resource.organizations, action: Action.delete })
-export class DeleteManyOrganizationsInteractor extends BaseInteractor<DeleteManyOrganizationsData, string[]> {
+@TenantInteractor({ resource: Resource.organizations, action: Action.delete })
+export class DeleteManyOrganizationsInteractor extends AuthenticatedInteractor<DeleteManyOrganizationsData, string[]> {
   constructor(
     private repo: DeleteOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -109,7 +107,6 @@ export class DeleteManyOrganizationsInteractor extends BaseInteractor<DeleteMany
           payload: organization,
         }),
       ),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: data.ids };

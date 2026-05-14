@@ -1,6 +1,6 @@
 /**
  * Application dependency injection - single source of truth for everything wired
- * into the Next.js app (server actions, API routes, layouts).
+ * into the Next.js app AND the trigger.dev worker bundle.
  *
  * Structure:
  *   Section 1: Imports (concrete classes only, from specific files)
@@ -8,9 +8,19 @@
  *   Section 3: Service getters (fresh per call)
  *   Section 4: Interactor getters (fresh per call, deps from getters)
  *
- * Trigger.dev worker tasks have their own DI in `trigger/worker-di.ts` to avoid
- * pulling Next.js client-router code into the worker bundle (see that file's
- * header for the full reasoning).
+ * Trigger-safety contract:
+ * This module must stay loadable under esbuild's `react-server` package export
+ * condition (used by the trigger.dev worker bundler so `next-intl/server`
+ * resolves correctly). Under that condition `React.createContext` is undefined,
+ * so any module that touches it at load time crashes the worker. In practice
+ * that rules out `next/navigation`, `next/headers`-via-client-router, and the
+ * auth context chain. To keep this file safe:
+ *   - Auth services and interactors return `Redirect` outcomes instead of
+ *     calling `redirect()` from `next/navigation`. The translation back to
+ *     real redirects lives in `features/auth/next/require.ts`, which is only
+ *     imported by Next.js call sites.
+ *   - Never add an import here that pulls `next/navigation` (or anything that
+ *     evaluates `React.createContext`) at module load.
  */
 
 // ─── Section 1: Imports ─────────────────────────────────────────────────────
@@ -41,8 +51,10 @@ import { WidgetService } from "@/features/widget/widget.service";
 import { WidgetDataFetcher } from "@/features/widget/calculator/widget-data-fetcher.service";
 import { WidgetGroupingService } from "@/features/widget/calculator/widget-grouping.service";
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
+import { BackgroundTaskService } from "@/core/utils/background-task.service";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
+import { WidgetRecalcEventListener } from "@/features/widget/widget-recalc.listener";
 import { DomainEvent } from "@/features/event/domain-events";
 // Contacts interactors
 import { GetContactsInteractor } from "@/features/contacts/get/get-contacts.interactor";
@@ -167,6 +179,16 @@ import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.intera
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
+// EE Lifecycle interactors (trigger.dev cron consumers)
+import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
+import { SendTrialExtensionOfferInteractor } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
+import { SendTrialInactivationReminderInteractor } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
+import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
+import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+// Webhook delivery interactor (trigger.dev task consumer)
+import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
+// Widget recalc trigger.dev task consumer
+import { RecalculateCompanyWidgetsInteractor } from "@/features/widget/recalculate-company-widgets.interactor";
 // EE Audit Log interactors
 import { GetAuditLogsByEntityIdInteractor } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
 import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
@@ -200,22 +222,50 @@ export const getUserService = () => new UserService(getAuthService(), getUserRep
 export const getRouteGuardService = () => new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo());
 export const getTaskService = () => new TaskService(getTaskRepo());
 export const getValidateQueryParams = () => new ValidateQueryParamsValidator();
+export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskService());
+export const getWidgetRecalcEventListener = () => new WidgetRecalcEventListener(getBackgroundTaskService());
 
-const EXPECTED_TASK_LISTENER_HANDLERS = [
+const EXPECTED_EVENT_LISTENERS = [
   {
     factory: getUserPendingAuthorizationTaskListener,
     events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
   },
+  {
+    factory: getWidgetRecalcEventListener,
+    events: [
+      DomainEvent.CONTACT_CREATED,
+      DomainEvent.CONTACT_UPDATED,
+      DomainEvent.CONTACT_DELETED,
+      DomainEvent.ORGANIZATION_CREATED,
+      DomainEvent.ORGANIZATION_UPDATED,
+      DomainEvent.ORGANIZATION_DELETED,
+      DomainEvent.DEAL_CREATED,
+      DomainEvent.DEAL_UPDATED,
+      DomainEvent.DEAL_DELETED,
+      DomainEvent.SERVICE_CREATED,
+      DomainEvent.SERVICE_UPDATED,
+      DomainEvent.SERVICE_DELETED,
+      DomainEvent.TASK_CREATED,
+      DomainEvent.TASK_UPDATED,
+      DomainEvent.TASK_DELETED,
+      DomainEvent.ROLE_CREATED,
+      DomainEvent.ROLE_UPDATED,
+      DomainEvent.ROLE_DELETED,
+      DomainEvent.CUSTOM_COLUMN_CREATED,
+      DomainEvent.CUSTOM_COLUMN_UPDATED,
+      DomainEvent.CUSTOM_COLUMN_DELETED,
+    ],
+  },
 ] as const;
 
 export const getEventService = () => {
-  const listeners = EXPECTED_TASK_LISTENER_HANDLERS.map(({ factory, events }) => {
+  const listeners = EXPECTED_EVENT_LISTENERS.map(({ factory, events }) => {
     const listener = factory();
     for (const event of events) {
       if (!listener.handles(event)) {
         throw new Error(
-          `Task listener ${listener.constructor.name} is missing handler for "${event}". ` +
+          `Event listener ${listener.constructor.name} is missing handler for "${event}". ` +
             `Check its declarative \`handlers\` field.`,
         );
       }
@@ -223,7 +273,13 @@ export const getEventService = () => {
     return listener;
   });
 
-  return new EventService(listeners, getWebhookRepo(), getWebhookDeliveryRepo(), getAuditLogRepo());
+  return new EventService(
+    listeners,
+    getWebhookRepo(),
+    getWebhookDeliveryRepo(),
+    getAuditLogRepo(),
+    getBackgroundTaskService(),
+  );
 };
 export const getWidgetService = () => new WidgetService(getWidgetRepo());
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();
@@ -243,14 +299,7 @@ export const getGetContactsConfigurationInteractor = () => new GetContactsConfig
 export const getGetContactByIdInteractor = () => new GetContactByIdInteractor(getContactRepo(), getCustomColumnRepo());
 
 export const getCreateContactInteractor = () =>
-  new CreateContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new CreateContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getCreateManyContactsInteractor = () =>
   new CreateManyContactsInteractor(
@@ -259,18 +308,10 @@ export const getCreateManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateContactInteractor = () =>
-  new UpdateContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new UpdateContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateManyContactsInteractor = () =>
   new UpdateManyContactsInteractor(
@@ -279,18 +320,10 @@ export const getUpdateManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteContactInteractor = () =>
-  new DeleteContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new DeleteContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteManyContactsInteractor = () =>
   new DeleteManyContactsInteractor(
@@ -299,7 +332,6 @@ export const getDeleteManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Organizations ---
@@ -322,7 +354,6 @@ export const getCreateOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyOrganizationsInteractor = () =>
@@ -332,7 +363,6 @@ export const getCreateManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateOrganizationInteractor = () =>
@@ -342,7 +372,6 @@ export const getUpdateOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyOrganizationsInteractor = () =>
@@ -352,7 +381,6 @@ export const getUpdateManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteOrganizationInteractor = () =>
@@ -362,7 +390,6 @@ export const getDeleteOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyOrganizationsInteractor = () =>
@@ -372,7 +399,6 @@ export const getDeleteManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Deals ---
@@ -393,7 +419,6 @@ export const getCreateDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyDealsInteractor = () =>
@@ -404,7 +429,6 @@ export const getCreateManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateDealInteractor = () =>
@@ -415,7 +439,6 @@ export const getUpdateDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyDealsInteractor = () =>
@@ -426,7 +449,6 @@ export const getUpdateManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteDealInteractor = () =>
@@ -437,7 +459,6 @@ export const getDeleteDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyDealsInteractor = () =>
@@ -448,7 +469,6 @@ export const getDeleteManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Services ---
@@ -462,40 +482,22 @@ export const getGetServicesConfigurationInteractor = () => new GetServicesConfig
 export const getGetServiceByIdInteractor = () => new GetServiceByIdInteractor(getServiceRepo(), getCustomColumnRepo());
 
 export const getCreateServiceInteractor = () =>
-  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getCreateManyServicesInteractor = () =>
-  new CreateManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new CreateManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateServiceInteractor = () =>
-  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateManyServicesInteractor = () =>
-  new UpdateManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new UpdateManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteServiceInteractor = () =>
-  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteManyServicesInteractor = () =>
-  new DeleteManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new DeleteManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 // --- Tasks ---
 
@@ -519,7 +521,6 @@ export const getCreateTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyTasksInteractor = () =>
@@ -530,7 +531,6 @@ export const getCreateManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateTaskInteractor = () =>
@@ -541,7 +541,6 @@ export const getUpdateTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyTasksInteractor = () =>
@@ -552,7 +551,6 @@ export const getUpdateManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteTaskInteractor = () =>
@@ -563,7 +561,6 @@ export const getDeleteTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyTasksInteractor = () =>
@@ -574,7 +571,6 @@ export const getDeleteManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- User ---
@@ -645,13 +641,11 @@ export const getInviteTokenValidationInteractor = () => new InviteTokenValidatio
 
 // --- Role ---
 
-export const getUpsertRoleInteractor = () =>
-  new UpsertRoleInteractor(getRoleRepo(), getEventService(), getWidgetService());
+export const getUpsertRoleInteractor = () => new UpsertRoleInteractor(getRoleRepo(), getEventService());
 
 export const getGetRolesInteractor = () => new GetRolesInteractor(getRoleRepo(), getP13nRepo());
 
-export const getDeleteRoleInteractor = () =>
-  new DeleteRoleInteractor(getRoleRepo(), getEventService(), getWidgetService());
+export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleRepo(), getEventService());
 
 // --- Widget ---
 
@@ -690,7 +684,7 @@ export const getGetWebhookDeliveriesInteractor = () =>
   new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getP13nRepo());
 
 export const getResendWebhookDeliveryInteractor = () =>
-  new ResendWebhookDeliveryInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo());
+  new ResendWebhookDeliveryInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo(), getBackgroundTaskService());
 
 // --- Custom Column ---
 
@@ -703,7 +697,7 @@ export const getUpsertCustomColumnInteractor = () =>
   new UpsertCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getEventService());
 
 export const getDeleteCustomColumnInteractor = () =>
-  new DeleteCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getWidgetService(), getEventService());
+  new DeleteCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getEventService());
 
 // --- Search ---
 
@@ -752,3 +746,28 @@ export const getGetAuditLogsInteractor = () => new GetAuditLogsInteractor(getAud
 
 export const getGetEntityChangeHistoryByIdInteractor = () =>
   new GetEntityChangeHistoryByIdInteractor(getAuditLogRepo(), getCustomColumnRepo());
+
+// --- EE Lifecycle (trigger.dev cron) ---
+
+export const getSendWelcomeAndDemoInteractor = () => new SendWelcomeAndDemoInteractor(getUserRepo(), getEmailService());
+
+export const getSendTrialExtensionOfferInteractor = () =>
+  new SendTrialExtensionOfferInteractor(getUserRepo(), getEmailService());
+
+export const getSendTrialInactivationReminderInteractor = () =>
+  new SendTrialInactivationReminderInteractor(getUserRepo(), getEmailService());
+
+export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
+  new DeactivateTrialUsersAndSendNoticeInteractor(getUserRepo(), getEmailService());
+
+export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
+  new DeactivateUsersAfterSubscriptionGracePeriodInteractor(getUserRepo(), getEmailService());
+
+// --- Webhook delivery (trigger.dev task) ---
+
+export const getDeliverWebhookInteractor = () => new DeliverWebhookInteractor(getWebhookDeliveryRepo());
+
+// --- Widget recalc (trigger.dev task) ---
+
+export const getRecalculateCompanyWidgetsInteractor = () =>
+  new RecalculateCompanyWidgetsInteractor(getUserRepo(), getWidgetService());

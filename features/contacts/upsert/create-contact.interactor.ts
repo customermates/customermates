@@ -3,7 +3,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -18,11 +17,11 @@ import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 import { BaseCreateContactSchema } from "./create-contact-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -51,18 +50,17 @@ export const CreateContactSchema = BaseCreateContactSchema.superRefine(async (da
 });
 export type CreateContactData = Data<typeof CreateContactSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.contacts,
   action: Action.create,
 })
-export class CreateContactInteractor extends BaseInteractor<CreateContactData, ContactDto> {
+export class CreateContactInteractor extends AuthenticatedInteractor<CreateContactData, ContactDto> {
   constructor(
     private repo: CreateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -121,7 +119,6 @@ export class CreateContactInteractor extends BaseInteractor<CreateContactData, C
         entityId: contact.id,
         payload: contact,
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: contact };

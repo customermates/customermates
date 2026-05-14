@@ -5,8 +5,8 @@ import { EntityType } from "@/generated/prisma";
 
 import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -22,8 +22,8 @@ export abstract class GetCustomColumnsByEntityTypeRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class GetCustomColumnsByEntityTypeInteractor extends BaseInteractor<
+@TenantInteractor()
+export class GetCustomColumnsByEntityTypeInteractor extends AuthenticatedInteractor<
   GetCustomColumnsByEntityTypeData,
   CustomColumnDto[]
 > {

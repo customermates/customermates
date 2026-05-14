@@ -6,7 +6,6 @@ import type { InviteToken } from "@/generated/prisma";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const ValidatedInviteTokenSchema = z.discriminatedUnion("valid", [
@@ -38,10 +37,8 @@ export abstract class InviteTokenRepo {
 }
 
 @SystemInteractor
-export class InviteTokenValidationInteractor extends BaseInteractor<InviteTokenData, ValidatedInviteToken> {
-  constructor(private repo: InviteTokenRepo) {
-    super();
-  }
+export class InviteTokenValidationInteractor {
+  constructor(private repo: InviteTokenRepo) {}
 
   @Enforce(Schema)
   @ValidateOutput(ValidatedInviteTokenSchema)

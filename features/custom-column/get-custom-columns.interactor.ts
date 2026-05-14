@@ -2,8 +2,8 @@ import type { CustomColumnDto } from "./custom-column.schema";
 
 import { CustomColumnDtoSchema } from "./custom-column.schema";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -12,8 +12,8 @@ export abstract class GetCustomColumnsRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class GetCustomColumnsInteractor extends BaseInteractor<void, CustomColumnDto[]> {
+@TenantInteractor()
+export class GetCustomColumnsInteractor extends AuthenticatedInteractor<void, CustomColumnDto[]> {
   constructor(private repo: GetCustomColumnsRepo) {
     super();
   }

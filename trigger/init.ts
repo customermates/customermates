@@ -4,7 +4,9 @@ import * as Sentry from "@sentry/node";
 import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
 
-if (env.SENTRY_DSN) {
+const sentryEnabled = Boolean(env.SENTRY_DSN) && env.NODE_ENV === "production";
+
+if (sentryEnabled) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 0,
@@ -16,7 +18,7 @@ if (env.SENTRY_DSN) {
 }
 
 tasks.onFailure(async ({ payload, error, ctx }) => {
-  if (!env.SENTRY_DSN) return;
+  if (!sentryEnabled) return;
   if (isExpectedError(error)) return;
 
   Sentry.withScope((scope) => {

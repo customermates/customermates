@@ -1,15 +1,13 @@
 import type { SubscriptionService } from "./subscription.service";
+import type { Redirect } from "@/features/auth/auth-outcome";
 
-import { redirect } from "next/navigation";
-import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import type { Company } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 
 export abstract class CreateCheckoutCompanyRepo {
@@ -17,17 +15,14 @@ export abstract class CreateCheckoutCompanyRepo {
   abstract countActiveUsers(): Promise<number>;
 }
 
-@TentantInteractor({ resource: Resource.company, action: Action.update })
-export class CreateCheckoutSessionInteractor extends BaseInteractor<void, null> {
+@TenantInteractor({ resource: Resource.company, action: Action.update })
+export class CreateCheckoutSessionInteractor {
   constructor(
     private lemonSqueezyService: SubscriptionService,
     private repo: CreateCheckoutCompanyRepo,
-  ) {
-    super();
-  }
+  ) {}
 
-  @ValidateOutput(z.null())
-  async invoke(): Promise<{ ok: true; data: null }> {
+  async invoke(): Promise<Redirect> {
     const [company, activeUsersCount] = await Promise.all([this.repo.getDetails(), this.repo.countActiveUsers()]);
 
     const billingAddress: { country?: string; zip?: string } = {};
@@ -51,6 +46,6 @@ export class CreateCheckoutSessionInteractor extends BaseInteractor<void, null> 
       quantity: activeUsersCount,
     });
 
-    redirect(checkout.data.attributes.url);
+    return redirectTo(checkout.data.attributes.url);
   }
 }

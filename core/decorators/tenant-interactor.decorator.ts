@@ -16,7 +16,7 @@ interface PermissionRuleSet {
   condition: "AND" | "OR";
 }
 
-export function TentantInteractor<T extends { new (...args: any[]): object }>(
+export function TenantInteractor<T extends { new (...args: any[]): object }>(
   permissionRequirement?: PermissionRuleSet | Permission,
 ) {
   return function (constructor: T) {

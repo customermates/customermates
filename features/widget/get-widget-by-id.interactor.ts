@@ -6,8 +6,8 @@ import { z } from "zod";
 import { WidgetDtoSchema } from "./widget.schema";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -21,8 +21,8 @@ export abstract class GetWidgetByIdRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class GetWidgetByIdInteractor extends BaseInteractor<GetWidgetByIdData, ExtendedWidget | null> {
+@TenantInteractor()
+export class GetWidgetByIdInteractor extends AuthenticatedInteractor<GetWidgetByIdData, ExtendedWidget | null> {
   constructor(private repo: GetWidgetByIdRepo) {
     super();
   }

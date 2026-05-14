@@ -3,12 +3,12 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -36,8 +36,8 @@ export abstract class DeleteFilterPresetRepo {
   abstract upsertP13n(data: { p13nId: string; savedFilterPresets: SavedFilterPreset[] }): Promise<P13nEntry>;
 }
 
-@TentantInteractor()
-export class DeleteFilterPresetInteractor extends BaseInteractor<DeleteFilterPresetData, P13nEntry> {
+@TenantInteractor()
+export class DeleteFilterPresetInteractor extends AuthenticatedInteractor<DeleteFilterPresetData, P13nEntry> {
   constructor(private repo: DeleteFilterPresetRepo) {
     super();
   }

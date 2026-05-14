@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -10,8 +10,8 @@ export abstract class CountSystemTasksRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class CountSystemTasksInteractor extends BaseInteractor<void, number> {
+@TenantInteractor()
+export class CountSystemTasksInteractor extends AuthenticatedInteractor<void, number> {
   constructor(private repo: CountSystemTasksRepo) {
     super();
   }

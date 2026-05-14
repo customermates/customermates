@@ -1,12 +1,13 @@
 import type { AuthService } from "./auth.service";
+import type { Redirect } from "./auth-outcome";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 
 import { passwordSchema, type Data, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { redirectTo } from "./auth-outcome";
 
 const Schema = z
   .object({
@@ -30,13 +31,13 @@ export class ResetPasswordInteractor {
   constructor(private readonly authService: AuthService) {}
 
   @Validate(Schema)
-  async invoke(data: ResetPasswordData): Validated<ResetPasswordData> {
+  async invoke(data: ResetPasswordData): Promise<Awaited<Validated<ResetPasswordData>> | Redirect> {
     try {
       await this.authService.resetPassword({ newPassword: data.password, token: data.token });
     } catch {
-      redirect("/auth/forgot-password?info=RESET_LINK_INVALID");
+      return redirectTo("/auth/forgot-password?info=RESET_LINK_INVALID");
     }
 
-    redirect("/auth/signin");
+    return redirectTo("/auth/signin");
   }
 }

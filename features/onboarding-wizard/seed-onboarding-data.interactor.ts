@@ -4,8 +4,8 @@ import type { WidgetService } from "@/features/widget/widget.service";
 import { z } from "zod";
 import { SalesType } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
@@ -25,8 +25,8 @@ export abstract class SeedOnboardingDataRepo {
   }): Promise<{ alreadySeeded: boolean }>;
 }
 
-@TentantInteractor()
-export class SeedOnboardingDataInteractor extends BaseInteractor<SeedOnboardingData, null> {
+@TenantInteractor()
+export class SeedOnboardingDataInteractor extends AuthenticatedInteractor<SeedOnboardingData, null> {
   constructor(
     private repo: SeedOnboardingDataRepo,
     private widgetService: WidgetService,

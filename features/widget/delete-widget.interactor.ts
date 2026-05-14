@@ -3,8 +3,8 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const Schema = z.object({
@@ -16,8 +16,8 @@ export abstract class DeleteWidgetRepo {
   abstract deleteWidget(id: string): Promise<void>;
 }
 
-@TentantInteractor()
-export class DeleteWidgetInteractor extends BaseInteractor<DeleteWidgetData, string> {
+@TenantInteractor()
+export class DeleteWidgetInteractor extends AuthenticatedInteractor<DeleteWidgetData, string> {
   constructor(private repo: DeleteWidgetRepo) {
     super();
   }

@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -21,12 +20,12 @@ import { type DealDto, DealDtoSchema } from "../deal.schema";
 import { BaseUpdateDealSchema } from "./update-deal-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
 import {
@@ -77,11 +76,11 @@ export const UpdateDealSchema = BaseUpdateDealSchema.superRefine(async (data, ct
 });
 export type UpdateDealData = Data<typeof UpdateDealSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.deals,
   action: Action.update,
 })
-export class UpdateDealInteractor extends BaseInteractor<UpdateDealData, DealDto> {
+export class UpdateDealInteractor extends AuthenticatedInteractor<UpdateDealData, DealDto> {
   constructor(
     private dealsRepo: UpdateDealRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
@@ -89,7 +88,6 @@ export class UpdateDealInteractor extends BaseInteractor<UpdateDealData, DealDto
     private servicesRepo: GetUnscopedServiceRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -179,7 +177,6 @@ export class UpdateDealInteractor extends BaseInteractor<UpdateDealData, DealDto
           changes,
         },
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: deal };

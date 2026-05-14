@@ -4,13 +4,13 @@ import type { EventService } from "@/features/event/event.service";
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
@@ -25,8 +25,8 @@ export abstract class UpdateUserDetailsRepo {
   abstract updateDetails(args: UpdateUserDetailsData): Promise<UpdateUserDetailsData>;
 }
 
-@TentantInteractor()
-export class UpdateUserDetailsInteractor extends BaseInteractor<UpdateUserDetailsData, UpdateUserDetailsData> {
+@TenantInteractor()
+export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UpdateUserDetailsData> {
   constructor(
     private repo: UpdateUserDetailsRepo,
     private eventService: EventService,

@@ -4,8 +4,8 @@ import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export const ApiKeyDtoSchema = z.object({
@@ -25,8 +25,8 @@ export interface ApiKey {
 }
 
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.api, action: Action.readAll })
-export class GetApiKeysInteractor extends BaseInteractor<void, ApiKey[]> {
+@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+export class GetApiKeysInteractor extends AuthenticatedInteractor<void, ApiKey[]> {
   constructor(private readonly authService: AuthService) {
     super();
   }

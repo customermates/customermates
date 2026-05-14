@@ -9,8 +9,8 @@ import { createElement } from "react";
 import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
@@ -28,8 +28,11 @@ const ResultSchema = z.object({
 export type InviteUsersByEmailData = Data<typeof Schema>;
 export type InviteUsersByEmailResult = Data<typeof ResultSchema>;
 
-@TentantInteractor({ resource: Resource.users, action: Action.create })
-export class InviteUsersByEmailInteractor extends BaseInteractor<InviteUsersByEmailData, InviteUsersByEmailResult> {
+@TenantInteractor({ resource: Resource.users, action: Action.create })
+export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
+  InviteUsersByEmailData,
+  InviteUsersByEmailResult
+> {
   constructor(
     private readonly emailService: EmailService,
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,

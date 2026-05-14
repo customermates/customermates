@@ -189,7 +189,7 @@ export class PrismaCompanyRepo
 
   async countActiveUsers(): Promise<number> {
     return await this.prisma.user.count({
-      where: { companyId: this.user.companyId, status: Status.active },
+      where: { companyId: this.companyId, status: Status.active },
     });
   }
 }

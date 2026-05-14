@@ -1,9 +1,9 @@
 import type { EmailService } from "@/features/email/email.service";
+import type { Redirect } from "./auth-outcome";
 
 import React from "react";
 import { APIError } from "better-auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import ResetPassword from "@/components/emails/reset-password";
@@ -11,11 +11,15 @@ import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { auth } from "@/core/auth/better-auth";
 import { mustVerifyEmail } from "./email-verification-grace";
+import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 
 type AuthUser = { id: string; email: string; name: string; emailVerified: boolean };
 export type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomErrorCode };
+
+type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
+export type SessionOrRedirect = { session: Session } | Redirect;
 
 export class AuthService {
   constructor(private emailService: EmailService) {}
@@ -28,16 +32,16 @@ export class AuthService {
     return await auth.api.getSession({ headers: headersList });
   }
 
-  async getSessionOrRedirect() {
+  async resolveSession(): Promise<SessionOrRedirect> {
     const headersList = await headers();
 
-    if (!this.hasAuthToken(headersList)) redirect("/auth/signin");
+    if (!this.hasAuthToken(headersList)) return redirectTo("/auth/signin");
 
     const session = await auth.api.getSession({ headers: headersList });
-    if (!session) redirect("/auth/signin");
-    if (mustVerifyEmail(session.user)) redirect("/auth/verify-email");
+    if (!session) return redirectTo("/auth/signin");
+    if (mustVerifyEmail(session.user)) return redirectTo("/auth/verify-email");
 
-    return session;
+    return { session };
   }
 
   async signInWithEmail(args: {

@@ -49,7 +49,7 @@ export const EXPECTED_ERROR_NAMES: ReadonlySet<string> = new Set([
   "DemoModeError",
   "NotFoundError",
   "WebhookExternalFailure",
-  "WebhookPermanentFailure",
+  "AbortTaskRunError",
 ]);
 
 export function isExpectedError(err: unknown): boolean {

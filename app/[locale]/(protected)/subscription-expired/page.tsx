@@ -4,11 +4,12 @@ import { Resource } from "@/generated/prisma";
 
 import { SubscriptionExpiredView } from "./components/subscription-expired-view";
 
-import { getGetSubscriptionInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetSubscriptionInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function SubscriptionExpiredPage() {
-  await getRouteGuardService().ensureAccessOrRedirect({
+  await requireAccess({
     resource: Resource.company,
     skipSubscriptionCheck: true,
   });

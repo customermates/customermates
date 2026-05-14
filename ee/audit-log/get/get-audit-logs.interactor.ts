@@ -7,7 +7,7 @@ import { type AuditLogDto } from "./get-audit-logs-by-entity-id.interactor";
 import { z } from "zod";
 
 import { BaseGetRepo } from "@/core/base/base-get.interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -32,7 +32,7 @@ export abstract class GetAuditLogsRepo extends BaseGetRepo<AuditLogDto> {}
 
 @CloudOnly
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.auditLog, action: Action.readAll })
+@TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
 export class GetAuditLogsInteractor extends BaseGetInteractor<AuditLogDto> {
   constructor(repo: GetAuditLogsRepo, p13nRepo: P13nRepo) {
     super(repo, p13nRepo, {

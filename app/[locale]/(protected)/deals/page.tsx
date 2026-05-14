@@ -2,7 +2,8 @@ import { Resource } from "@/generated/prisma";
 
 import { DealsCard } from "./components/deals-card";
 
-import { getGetDealsInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetDealsInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default async function DealsPage({ searchParams }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.deals });
+  await requireAccess({ resource: Resource.deals });
 
   const params = await searchParams;
   const dealParams = decodeGetParams(params);

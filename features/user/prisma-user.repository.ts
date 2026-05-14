@@ -12,6 +12,7 @@ import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-tria
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { FindCompanyWidgetOwnersRepo } from "@/features/widget/recalculate-company-widgets.interactor";
 
 import { randomUUID } from "crypto";
 
@@ -63,7 +64,8 @@ export class PrismaUserRepo
     DeactivateTrialUsersAndSendNoticeRepo,
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
     SeedOnboardingDataRepo,
-    CompleteOnboardingWizardRepo
+    CompleteOnboardingWizardRepo,
+    FindCompanyWidgetOwnersRepo
 {
   private get extendedUserSelect() {
     return {
@@ -792,6 +794,26 @@ export class PrismaUserRepo
     });
 
     return user;
+  }
+
+  @BypassTenantGuard
+  async findActiveWidgetOwnersInCompany(companyId: string) {
+    const widgetUserIds = await this.prisma.widget.findMany({
+      where: { companyId },
+      distinct: ["userId"],
+      select: { userId: true },
+    });
+
+    if (widgetUserIds.length === 0) return [];
+
+    return await this.prisma.user.findMany({
+      where: {
+        companyId,
+        id: { in: widgetUserIds.map((w) => w.userId) },
+        status: Status.active,
+      },
+      select: this.extendedUserSelect,
+    });
   }
 
   async findCompanyId(userId: string) {

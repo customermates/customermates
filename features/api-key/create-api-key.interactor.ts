@@ -7,12 +7,12 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { ApiKeyDtoSchema } from "./get-api-keys.interactor";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const CreateApiKeyResultSchema = ApiKeyDtoSchema.extend({
   key: z.string(),
@@ -39,8 +39,8 @@ export type CreateApiKeyData = Data<typeof Schema>;
 
 export type CreateApiKeyResult = ApiKey & { key: string };
 
-@TentantInteractor({ resource: Resource.api, action: Action.create })
-export class CreateApiKeyInteractor extends BaseInteractor<CreateApiKeyData, CreateApiKeyResult> {
+@TenantInteractor({ resource: Resource.api, action: Action.create })
+export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKeyData, CreateApiKeyResult> {
   constructor(private readonly authService: AuthService) {
     super();
   }

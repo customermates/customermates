@@ -1,13 +1,13 @@
 import type { WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { deliverWebhook } from "@/trigger/webhook-deliveries";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import { z } from "zod";
-import { tasks } from "@trigger.dev/sdk/v3";
 import { Resource, Action } from "@/generated/prisma";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { UserAccessor } from "@/core/base/user-accessor";
 
 const ResendWebhookDeliverySchema = z.object({
@@ -19,11 +19,12 @@ export abstract class GetWebhookDeliveryByIdRepo {
   abstract getDeliveryByIdOrThrow(id: string): Promise<WebhookDeliveryDto>;
 }
 
-@TentantInteractor({ resource: Resource.api, action: Action.create })
+@TenantInteractor({ resource: Resource.api, action: Action.create })
 export class ResendWebhookDeliveryInteractor extends UserAccessor {
   constructor(
     private deliveryRepo: GetWebhookDeliveryByIdRepo,
     private createRepo: CreateWebhookDeliveryRepo,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -31,7 +32,6 @@ export class ResendWebhookDeliveryInteractor extends UserAccessor {
   @Enforce(ResendWebhookDeliverySchema)
   async invoke(data: ResendWebhookDeliveryData): Promise<void> {
     const delivery = await this.deliveryRepo.getDeliveryByIdOrThrow(data.id);
-    const { companyId } = this.user;
     const requestBody = delivery.requestBody as Record<string, unknown>;
 
     const [newDeliveryId] = await this.createRepo.create([
@@ -42,10 +42,10 @@ export class ResendWebhookDeliveryInteractor extends UserAccessor {
       },
     ]);
 
-    await tasks.trigger<typeof deliverWebhook>("deliver-webhook", {
+    await this.backgroundTaskService.dispatch<typeof deliverWebhook>("deliver-webhook", {
       deliveryId: newDeliveryId,
       url: delivery.url,
-      companyId,
+      companyId: this.companyId,
       requestBody,
     });
   }

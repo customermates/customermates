@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -23,12 +22,12 @@ import { type TaskDto, TaskDtoSchema } from "../task.schema";
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 import {
   getCompanyRepo,
@@ -93,11 +92,11 @@ export const UpdateManyTasksSchema = z
   });
 export type UpdateManyTasksData = Data<typeof UpdateManyTasksSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.tasks,
   action: Action.update,
 })
-export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksData, TaskDto[]> {
+export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateManyTasksData, TaskDto[]> {
   constructor(
     private repo: UpdateTaskRepo,
     private contactsRepo: GetUnscopedContactRepo,
@@ -105,7 +104,6 @@ export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksDat
     private dealsRepo: GetUnscopedDealRepo,
     private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -200,7 +198,6 @@ export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksDat
           },
         });
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: tasks };

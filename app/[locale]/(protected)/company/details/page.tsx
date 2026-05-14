@@ -2,12 +2,13 @@ import { Resource } from "@/generated/prisma";
 
 import { CompanyDetailsForm } from "../components/company-details/company-details-form";
 
-import { getGetCompanyDetailsInteractor, getGetSubscriptionInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetCompanyDetailsInteractor, getGetSubscriptionInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
 import { env } from "@/env";
 
 export default async function CompanyDetailsPage() {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.company });
+  await requireAccess({ resource: Resource.company });
 
   const [companyResult, subscriptionResult] = await Promise.all([
     getGetCompanyDetailsInteractor().invoke(),

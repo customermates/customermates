@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { Status } from "@/generated/prisma";
 
 import { getSignOutInteractor, getUserService } from "@/core/app-di";
+import { serializeResult } from "@/core/utils/action-result";
 
 export async function signOutAction() {
-  return getSignOutInteractor().invoke();
+  return serializeResult(getSignOutInteractor().invoke());
 }
 
 export async function checkPendingStatusAndRedirect() {

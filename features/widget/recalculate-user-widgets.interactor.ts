@@ -4,12 +4,12 @@ import type { GetWidgetsRepo } from "./get-widgets.interactor";
 
 import { WidgetDtoSchema } from "./widget.schema";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-@TentantInteractor()
-export class RecalculateUserWidgetsInteractor extends BaseInteractor<void, ExtendedWidget[]> {
+@TenantInteractor()
+export class RecalculateUserWidgetsInteractor extends AuthenticatedInteractor<void, ExtendedWidget[]> {
   constructor(
     private widgetService: WidgetService,
     private repo: GetWidgetsRepo,

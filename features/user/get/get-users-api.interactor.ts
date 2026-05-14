@@ -9,7 +9,7 @@ import { Resource, Action } from "@/generated/prisma";
 import { type UserDto } from "../user.schema";
 
 import { getCompanyRepo, getValidateQueryParams } from "@/core/app-di";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -22,7 +22,7 @@ const GetUsersQueryParamsApiSchema = GetQueryParamsApiSchema.omit({ filters: tru
 });
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },

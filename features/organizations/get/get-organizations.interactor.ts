@@ -4,7 +4,7 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { type OrganizationDto } from "../organization.schema";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -15,7 +15,7 @@ import { OrganizationDtoSchema } from "../organization.schema";
 export abstract class GetOrganizationsRepo extends BaseGetRepo<OrganizationDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.organizations, action: Action.readAll },
     { resource: Resource.organizations, action: Action.readOwn },

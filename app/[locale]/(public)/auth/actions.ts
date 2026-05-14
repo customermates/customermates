@@ -16,17 +16,20 @@ import {
   getAuthService,
 } from "@/core/app-di";
 import { serializeResult } from "@/core/utils/action-result";
+import { isRedirect } from "@/features/auth/auth-outcome";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
   return serializeResult(getSignInWithEmailInteractor().invoke(data));
 }
 
 export async function continueWithGoogleAction(callbackURL?: string) {
-  return getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL });
+  const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL });
+  if (result && isRedirect(result)) redirect(result.redirect);
 }
 
 export async function continueWithMicrosoftAction(callbackURL?: string) {
-  return getContinueWithSocialsInteractor().invoke({ provider: "microsoft", callbackURL });
+  const result = await getContinueWithSocialsInteractor().invoke({ provider: "microsoft", callbackURL });
+  if (result && isRedirect(result)) redirect(result.redirect);
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData) {

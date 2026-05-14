@@ -8,7 +8,7 @@ import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/gene
 import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -16,7 +16,7 @@ import { type Validated } from "@/core/validation/validation.utils";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const OptionSchema = z.object({
   value: z.uuid(),
@@ -129,8 +129,8 @@ export abstract class UpsertCustomColumnRepo {
   abstract upsertCustomColumn(args: UpsertCustomColumnData): Promise<CustomColumnDto>;
 }
 
-@TentantInteractor()
-export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomColumnData, CustomColumnDto> {
+@TenantInteractor()
+export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<UpsertCustomColumnData, CustomColumnDto> {
   constructor(
     private repo: UpsertCustomColumnRepo,
     private userService: UserService,

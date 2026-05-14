@@ -1,7 +1,6 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { oAuthProxy, apiKey } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { redirect } from "next/navigation";
 import { betterAuth } from "better-auth/minimal";
 
 import { prisma } from "@/prisma/db";
@@ -53,7 +52,10 @@ export const auth = betterAuth({
           const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
           const res = result.data;
 
-          if (!res.valid && res.errorMessage === "inviteLinkExpired") redirect("/auth/error?type=inviteLinkExpired");
+          if (!res.valid && res.errorMessage === "inviteLinkExpired") {
+            const { redirect } = await import("next/navigation");
+            redirect("/auth/error?type=inviteLinkExpired");
+          }
 
           return {
             data: res.valid ? { ...data, companyId: res.companyId } : { ...data },

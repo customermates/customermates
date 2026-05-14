@@ -9,7 +9,7 @@ import { EntityType, Resource, Action } from "@/generated/prisma";
 import { type OrganizationDto } from "../organization.schema";
 
 import { getOrganizationRepo, getValidateQueryParams } from "@/core/app-di";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -22,7 +22,7 @@ const GetOrganizationsQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine
 });
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.organizations, action: Action.readAll },
     { resource: Resource.organizations, action: Action.readOwn },

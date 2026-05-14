@@ -3,7 +3,7 @@ import type { P13nRepo } from "@/core/base/base-get.interactor";
 
 import { Resource, Action } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -16,7 +16,7 @@ export type { UserRoleDto } from "./role.types";
 export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },

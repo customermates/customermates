@@ -1,13 +1,14 @@
 import type { AuthService } from "./auth.service";
+import type { Redirect } from "./auth-outcome";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { createZodError, passwordSchema, type Data, type Validated } from "@/core/validation/validation.utils";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { redirectTo } from "./auth-outcome";
 
 const Schema = z
   .object({
@@ -40,7 +41,7 @@ export class SignUpWithEmailInteractor {
   constructor(private authService: AuthService) {}
 
   @Validate(Schema)
-  async invoke(data: EmailSignUpData): Validated<EmailSignUpData> {
+  async invoke(data: EmailSignUpData): Promise<Awaited<Validated<EmailSignUpData>> | Redirect> {
     const res = await this.authService.registerWithEmail({
       email: data.email,
       name: data.email,
@@ -55,6 +56,6 @@ export class SignUpWithEmailInteractor {
         error,
       };
     }
-    redirect("/");
+    return redirectTo("/");
   }
 }

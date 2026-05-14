@@ -6,7 +6,7 @@ import {
   type GetConfigurationResult,
 } from "@/core/base/base-get-configuration.interactor";
 import { GetConfigurationSchema } from "@/core/base/base-get.schema";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -15,7 +15,7 @@ export type GetTasksConfigurationResult = GetConfigurationResult;
 export abstract class GetTasksConfigurationRepo extends GetConfigurationRepo {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.tasks, action: Action.readAll },
     { resource: Resource.tasks, action: Action.readOwn },

@@ -1,11 +1,10 @@
 import { AbortTaskRunError, task } from "@trigger.dev/sdk/v3";
 
-import { getDeliverWebhookInteractor } from "./worker-di";
+import { getDeliverWebhookInteractor } from "@/core/app-di";
 import { type DeliverWebhookPayload } from "@/features/webhook/deliver-webhook.interactor";
 import { WebhookExternalFailure } from "@/core/errors/app-errors";
 
 export class WebhookPermanentFailure extends AbortTaskRunError {
-  override name = "WebhookPermanentFailure" as const;
   constructor(
     public readonly statusCode: number | null,
     public readonly responseMessage: string | null,

@@ -3,8 +3,8 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { entityListExecutors, entityNameExtractors } from "./entity-list-executors";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -39,7 +39,7 @@ const UI_SEARCHABLE_ENTITIES = ["contact", "organization", "deal", "service"] as
 const UI_RESULTS_PER_ENTITY = 50;
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.contacts, action: Action.readAll },
     { resource: Resource.contacts, action: Action.readOwn },
@@ -52,7 +52,7 @@ const UI_RESULTS_PER_ENTITY = 50;
   ],
   condition: "OR",
 })
-export class GlobalSearchInteractor extends BaseInteractor<GlobalSearchData, GlobalSearchResult> {
+export class GlobalSearchInteractor extends AuthenticatedInteractor<GlobalSearchData, GlobalSearchResult> {
   @Enforce(Schema)
   @ValidateOutput(GlobalSearchResultSchema)
   async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {

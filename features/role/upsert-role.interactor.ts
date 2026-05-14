@@ -1,6 +1,5 @@
 import type { UserRoleDto } from "./get-roles.interactor";
 import type { EventService } from "@/features/event/event.service";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -8,13 +7,13 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { RoleDtoSchema } from "./role.schema";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const Schema = z.object({
   id: z.uuid().optional(),
@@ -65,18 +64,17 @@ export abstract class UpsertRoleRepo {
   abstract getRoleByIdOrThrow(id: string): Promise<UserRoleDto>;
 }
 
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.create },
     { resource: Resource.users, action: Action.update },
   ],
   condition: "AND",
 })
-export class UpsertRoleInteractor extends BaseInteractor<UpsertRoleData, UserRoleDto> {
+export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData, UserRoleDto> {
   constructor(
     private repo: UpsertRoleRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -104,7 +102,7 @@ export class UpsertRoleInteractor extends BaseInteractor<UpsertRoleData, UserRol
             payload: role,
           });
 
-    await Promise.all([eventPromise, this.widgetService.recalculateUserWidgets()]);
+    await Promise.all([eventPromise]);
 
     return { ok: true as const, data: role };
   }

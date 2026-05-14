@@ -5,7 +5,7 @@ import { Resource, Action } from "@/generated/prisma";
 import { type ContactDto } from "../contact.schema";
 
 import { BaseGetRepo } from "@/core/base/base-get.interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -16,7 +16,7 @@ import { ContactDtoSchema } from "../contact.schema";
 export abstract class GetContactsRepo extends BaseGetRepo<ContactDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.contacts, action: Action.readAll },
     { resource: Resource.contacts, action: Action.readOwn },

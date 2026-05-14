@@ -10,7 +10,7 @@ vi.mock("@/core/app-di", () => ({
 
 vi.mock("@/env", () => ({ env: { DEMO_MODE: false, BASE_URL: "http://localhost:4000" } }));
 
-const { TentantInteractor } = await import("../tenant-interactor.decorator");
+const { TenantInteractor } = await import("../tenant-interactor.decorator");
 const { AllowInDemoMode } = await import("../allow-in-demo-mode.decorator");
 const { getTenantUser } = await import("../tenant-context");
 
@@ -33,12 +33,12 @@ function makeUser(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => vi.clearAllMocks());
 
-describe("TentantInteractor", () => {
+describe("TenantInteractor", () => {
   it("blocks user without required permission", async () => {
     const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -58,7 +58,7 @@ describe("TentantInteractor", () => {
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -78,7 +78,7 @@ describe("TentantInteractor", () => {
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({
+    @TenantInteractor({
       permissions: [
         { resource: "contacts" as any, action: "readAll" as any },
         { resource: "contacts" as any, action: "create" as any },
@@ -103,7 +103,7 @@ describe("TentantInteractor", () => {
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({
+    @TenantInteractor({
       permissions: [
         { resource: "contacts" as any, action: "readAll" as any },
         { resource: "contacts" as any, action: "readOwn" as any },
@@ -126,7 +126,7 @@ describe("TentantInteractor", () => {
     });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({ resource: "contacts" as any, action: "delete" as any })
+    @TenantInteractor({ resource: "contacts" as any, action: "delete" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -141,7 +141,7 @@ describe("TentantInteractor", () => {
     const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor()
+    @TenantInteractor()
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });
@@ -158,7 +158,7 @@ describe("TentantInteractor", () => {
 
     let capturedUser: unknown = null;
 
-    @TentantInteractor()
+    @TenantInteractor()
     class TestInteractor {
       invoke() {
         capturedUser = getTenantUser();
@@ -174,7 +174,7 @@ describe("TentantInteractor", () => {
     const user = makeUser({ role: { ...makeUser().role, permissions: [] } });
     mockGetActiveUserOrThrow.mockResolvedValue(user);
 
-    @TentantInteractor({ resource: "contacts" as any, action: "create" as any })
+    @TenantInteractor({ resource: "contacts" as any, action: "create" as any })
     class TestInteractor {
       invoke() {
         return Promise.resolve({ ok: true as const, data: "done" });

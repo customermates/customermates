@@ -10,8 +10,8 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { type Validated } from "@/core/validation/validation.utils";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
 const DisplayOptionsSchema = z
@@ -127,8 +127,8 @@ export abstract class UpsertWidgetRepo {
   abstract upsertWidget(data: { data: UpsertWidgetData }): Promise<ExtendedWidget>;
 }
 
-@TentantInteractor()
-export class UpsertWidgetInteractor extends BaseInteractor<UpsertWidgetData, ExtendedWidget> {
+@TenantInteractor()
+export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidgetData, ExtendedWidget> {
   constructor(private repo: UpsertWidgetRepo) {
     super();
   }

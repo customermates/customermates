@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -21,13 +20,13 @@ import { type TaskDto, TaskDtoSchema } from "../task.schema";
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import {
   getCompanyRepo,
@@ -76,11 +75,11 @@ export const UpdateTaskSchema = BaseUpdateTaskSchema.superRefine(async (data, ct
 });
 export type UpdateTaskData = Data<typeof UpdateTaskSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.tasks,
   action: Action.update,
 })
-export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto> {
+export class UpdateTaskInteractor extends AuthenticatedInteractor<UpdateTaskData, TaskDto> {
   constructor(
     private repo: UpdateTaskRepo,
     private contactsRepo: GetUnscopedContactRepo,
@@ -88,7 +87,6 @@ export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto
     private dealsRepo: GetUnscopedDealRepo,
     private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -178,7 +176,6 @@ export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto
           changes,
         },
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: task };

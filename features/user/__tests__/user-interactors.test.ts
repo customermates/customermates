@@ -48,7 +48,7 @@ describe("RegisterUserInteractor", () => {
     vi.clearAllMocks();
 
     mockAuthService = {
-      getSessionOrRedirect: vi.fn().mockResolvedValue({ user: { id: USER_ID } }),
+      resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     mockRepo = {

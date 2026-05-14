@@ -7,7 +7,7 @@ import { Resource, Action } from "@/generated/prisma";
 import type { WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { BaseGetRepo } from "@/core/base/base-get.interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -47,7 +47,7 @@ const WebhookDeliveryDtoSchema = z.object({
 export abstract class GetWebhookDeliveriesRepo extends BaseGetRepo<WebhookDeliveryDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
   constructor(repo: GetWebhookDeliveriesRepo, p13nRepo: P13nRepo) {
     super(repo, p13nRepo, {

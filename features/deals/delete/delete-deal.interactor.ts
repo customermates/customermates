@@ -4,19 +4,18 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { validateDealIds } from "@/core/validation/validate-deal-ids";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getDealRepo } from "@/core/app-di";
@@ -32,8 +31,8 @@ export const DeleteDealSchema = z
   });
 export type DeleteDealData = Data<typeof DeleteDealSchema>;
 
-@TentantInteractor({ resource: Resource.deals, action: Action.delete })
-export class DeleteDealInteractor extends BaseInteractor<DeleteDealData, string> {
+@TenantInteractor({ resource: Resource.deals, action: Action.delete })
+export class DeleteDealInteractor extends AuthenticatedInteractor<DeleteDealData, string> {
   constructor(
     private repo: DeleteDealRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
@@ -41,7 +40,6 @@ export class DeleteDealInteractor extends BaseInteractor<DeleteDealData, string>
     private servicesRepo: GetUnscopedServiceRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -114,7 +112,6 @@ export class DeleteDealInteractor extends BaseInteractor<DeleteDealData, string>
         entityId: deal.id,
         payload: deal,
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: data.id };

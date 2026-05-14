@@ -4,7 +4,7 @@ import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
 
 export function register() {
-  if (!env.SENTRY_DSN) return;
+  if (!env.SENTRY_DSN || env.NODE_ENV !== "production") return;
 
   const init = {
     dsn: env.SENTRY_DSN,

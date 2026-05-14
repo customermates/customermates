@@ -7,8 +7,8 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 import { TaskByIdResponseSchema } from "../task.schema";
 
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -28,14 +28,14 @@ export abstract class TaskCustomColumnRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.tasks, action: Action.readAll },
     { resource: Resource.tasks, action: Action.readOwn },
   ],
   condition: "OR",
 })
-export class GetTaskByIdInteractor extends BaseInteractor<
+export class GetTaskByIdInteractor extends AuthenticatedInteractor<
   GetTaskByIdData,
   { task: TaskDto | null; customColumns: CustomColumnDto[] }
 > {

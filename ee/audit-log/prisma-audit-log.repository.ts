@@ -54,7 +54,7 @@ export class PrismaAuditLogRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const auditLogs = await this.prisma.auditLog.findMany({
       ...args,
@@ -78,7 +78,7 @@ export class PrismaAuditLogRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     return this.prisma.auditLog.count({ where });
   }
@@ -102,7 +102,7 @@ export class PrismaAuditLogRepo
     const auditLogs = await this.prisma.auditLog.findMany({
       where: {
         entityId,
-        companyId: this.user.companyId,
+        companyId: this.companyId,
       },
       orderBy: {
         createdAt: "desc",

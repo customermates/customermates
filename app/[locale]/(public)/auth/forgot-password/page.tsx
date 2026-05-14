@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ForgotPasswordForm } from "./forgot-password-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { getRouteGuardService } from "@/core/app-di";
+import { requireUnauthenticated } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function ForgotPasswordPage() {
-  await getRouteGuardService().ensureUnauthenticatedOrRedirect();
+  await requireUnauthenticated();
 
   return (
     <CenteredCardPage>

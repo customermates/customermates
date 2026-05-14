@@ -2,7 +2,8 @@ import { Resource } from "@/generated/prisma";
 
 import { UsersCard } from "../components/user/users-card";
 
-import { getGetRolesInteractor, getGetUsersInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetRolesInteractor, getGetUsersInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default async function CompanyUsersPage({ searchParams }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.users });
+  await requireAccess({ resource: Resource.users });
 
   const params = await searchParams;
   const userParams = decodeGetParams(params);

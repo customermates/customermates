@@ -76,7 +76,6 @@ describe("CreateContactInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,20 +95,10 @@ describe("CreateContactInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new CreateContactInteractor(
-      mockCreateRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new CreateContactInteractor(mockCreateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_CREATED event with correct entityId and payload", async () => {
@@ -132,22 +121,6 @@ describe("CreateContactInteractor", () => {
         payload: expect.objectContaining({ id: CONTACT_ID, firstName: "Jane" }),
       }),
     );
-  });
-
-  it("calls widgetService.recalculateUserWidgets after creation", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({
-      firstName: "Jane",
-      lastName: "Doe",
-      emails: [],
-      organizationIds: [],
-      userIds: [],
-      dealIds: [],
-      taskIds: [],
-      customFieldValues: [],
-    });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
   });
 
   it("publishes ORGANIZATION_UPDATED events with payload for related organizations", async () => {
@@ -265,7 +238,6 @@ describe("DeleteContactInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -291,20 +263,10 @@ describe("DeleteContactInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new DeleteContactInteractor(
-      mockDeleteRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new DeleteContactInteractor(mockDeleteRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_DELETED event with correct entityId and payload", async () => {
@@ -358,13 +320,6 @@ describe("DeleteContactInteractor", () => {
     );
   });
 
-  it("calls widgetService.recalculateUserWidgets after deletion", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({ id: CONTACT_ID });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
-  });
-
   it("returns { ok: true, data: id } with the deleted contact id", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({ id: CONTACT_ID });
@@ -380,7 +335,6 @@ describe("UpdateContactInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   const previousContact = makeContactDto({
     organizations: [makeOrgDto(ORG_ID_1)],
@@ -419,20 +373,10 @@ describe("UpdateContactInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new UpdateContactInteractor(
-      mockUpdateRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new UpdateContactInteractor(mockUpdateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_UPDATED event with entityId and changes payload", async () => {
@@ -519,23 +463,6 @@ describe("UpdateContactInteractor", () => {
     );
   });
 
-  it("calls widgetService.recalculateUserWidgets", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({
-      id: CONTACT_ID,
-      firstName: "Janet",
-      lastName: "Doe",
-      emails: [],
-      organizationIds: [],
-      userIds: [],
-      dealIds: [],
-      taskIds: [],
-      customFieldValues: [],
-    });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
-  });
-
   it("returns { ok: true, data: contact }", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
@@ -561,7 +488,6 @@ describe("CreateManyContactsInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   const mockContact1 = makeContactDto();
   const mockContact2 = makeContactDto({ id: CONTACT_ID_2, firstName: "John" });
@@ -584,20 +510,10 @@ describe("CreateManyContactsInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new CreateManyContactsInteractor(
-      mockCreateRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new CreateManyContactsInteractor(mockCreateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_CREATED events for each item created", async () => {
@@ -682,36 +598,6 @@ describe("CreateManyContactsInteractor", () => {
     );
   });
 
-  it("calls widgetService.recalculateUserWidgets", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({
-      contacts: [
-        {
-          firstName: "Jane",
-          lastName: "Doe",
-          emails: [],
-          organizationIds: [],
-          userIds: [],
-          dealIds: [],
-          taskIds: [],
-          customFieldValues: [],
-        },
-        {
-          firstName: "John",
-          lastName: "Doe",
-          emails: [],
-          organizationIds: [],
-          userIds: [],
-          dealIds: [],
-          taskIds: [],
-          customFieldValues: [],
-        },
-      ],
-    });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
-  });
-
   it("returns { ok: true, data: [...] } with array of created contacts", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
@@ -752,7 +638,6 @@ describe("UpdateManyContactsInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   const contact1 = makeContactDto();
   const contact2 = makeContactDto({ id: CONTACT_ID_2, firstName: "John" });
@@ -778,20 +663,10 @@ describe("UpdateManyContactsInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new UpdateManyContactsInteractor(
-      mockUpdateRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new UpdateManyContactsInteractor(mockUpdateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_UPDATED events with payload for each item", async () => {
@@ -879,15 +754,6 @@ describe("UpdateManyContactsInteractor", () => {
     );
   });
 
-  it("calls widgetService.recalculateUserWidgets", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({
-      contacts: [{ id: CONTACT_ID, firstName: "Janet", lastName: "Doe" }],
-    });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
-  });
-
   it("returns { ok: true, data: [...] }", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
@@ -908,7 +774,6 @@ describe("DeleteManyContactsInteractor", () => {
   let mockDealRepo: any;
   let mockTaskRepo: any;
   let mockEventService: any;
-  let mockWidgetService: any;
 
   const contact1 = makeContactDto({
     organizations: [makeOrgDto(ORG_ID_1)],
@@ -935,20 +800,10 @@ describe("DeleteManyContactsInteractor", () => {
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
-    mockWidgetService = {
-      recalculateUserWidgets: vi.fn().mockResolvedValue(undefined),
-    };
   });
 
   function createInteractor() {
-    return new DeleteManyContactsInteractor(
-      mockDeleteRepo,
-      mockOrgRepo,
-      mockDealRepo,
-      mockTaskRepo,
-      mockEventService,
-      mockWidgetService,
-    );
+    return new DeleteManyContactsInteractor(mockDeleteRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
   }
 
   it("publishes CONTACT_DELETED events with payload for each deleted item", async () => {
@@ -1003,13 +858,6 @@ describe("DeleteManyContactsInteractor", () => {
         }),
       }),
     );
-  });
-
-  it("calls widgetService.recalculateUserWidgets", async () => {
-    const interactor = createInteractor();
-    await interactor.invoke({ ids: [CONTACT_ID, CONTACT_ID_2] });
-
-    expect(mockWidgetService.recalculateUserWidgets).toHaveBeenCalledTimes(1);
   });
 
   it("returns { ok: true, data: [...ids] }", async () => {

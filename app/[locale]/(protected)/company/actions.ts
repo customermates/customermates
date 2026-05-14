@@ -37,7 +37,7 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function createCheckoutSessionAction() {
-  return getCreateCheckoutSessionInteractor().invoke();
+  return serializeResult(getCreateCheckoutSessionInteractor().invoke());
 }
 
 export async function refreshSubscriptionAction() {

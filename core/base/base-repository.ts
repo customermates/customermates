@@ -33,6 +33,14 @@ export abstract class BaseRepository<
     return getTenantUser();
   }
 
+  public get companyId(): string {
+    return this.user.companyId;
+  }
+
+  public get userId(): string {
+    return this.user.id;
+  }
+
   protected accessWhere<R extends keyof ModelWhereInputMap>(resource: R): ModelWhereInputMap[R] {
     const modelToResourceMap: Record<keyof ModelWhereInputMap, Resource> = {
       contact: Resource.contacts,
@@ -48,11 +56,11 @@ export abstract class BaseRepository<
     const canReadAll = this.hasPermission(permissionResource, Action.readAll);
     const canReadOwn = this.hasPermission(permissionResource, Action.readOwn);
 
-    if (canReadAll) return { companyId: this.user.companyId };
+    if (canReadAll) return { companyId: this.companyId };
 
-    if (canReadOwn) return this.resourceOwnWhereMap[resource](this.user.companyId, this.user.id);
+    if (canReadOwn) return this.resourceOwnWhereMap[resource](this.companyId, this.userId);
 
-    return { id: { in: [] }, companyId: this.user.companyId };
+    return { id: { in: [] }, companyId: this.companyId };
   }
 
   protected hasPermission = (resource: Resource, action: Action): boolean => {

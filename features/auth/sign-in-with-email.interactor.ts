@@ -1,10 +1,11 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { AuthService } from "./auth.service";
+import type { Redirect } from "./auth-outcome";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { redirectTo } from "./auth-outcome";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -23,7 +24,7 @@ export class SignInWithEmailInteractor {
   constructor(private readonly authService: AuthService) {}
 
   @Validate(Schema)
-  async invoke(data: EmailSignInData): Validated<EmailSignInData> {
+  async invoke(data: EmailSignInData): Promise<Awaited<Validated<EmailSignInData>> | Redirect> {
     const res = await this.authService.signInWithEmail({
       email: data.email,
       password: data.password,
@@ -31,7 +32,7 @@ export class SignInWithEmailInteractor {
     });
 
     if (!res.ok) {
-      if (res.error === CustomErrorCode.emailNotVerified) redirect("/auth/verify-email");
+      if (res.error === CustomErrorCode.emailNotVerified) return redirectTo("/auth/verify-email");
       const t = await getTranslations("Common.errors");
       const error = createZodError<EmailSignInData>(t(res.error));
 
@@ -41,6 +42,6 @@ export class SignInWithEmailInteractor {
       };
     }
 
-    redirect(data.callbackURL ?? "/");
+    return redirectTo(data.callbackURL ?? "/");
   }
 }

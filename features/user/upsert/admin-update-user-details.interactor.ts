@@ -10,12 +10,12 @@ import { CountryCode, Status, Resource, Action } from "@/generated/prisma";
 import type { Subscription } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { createZodError, secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
@@ -44,8 +44,8 @@ export abstract class AdminUpdateUserSubscriptionRepo {
   abstract countActiveUsers(): Promise<number>;
 }
 
-@TentantInteractor({ resource: Resource.users, action: Action.update })
-export class AdminUpdateUserDetailsInteractor extends BaseInteractor<
+@TenantInteractor({ resource: Resource.users, action: Action.update })
+export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   AdminUpdateUserDetailsData,
   AdminUpdateUserDetailsData
 > {

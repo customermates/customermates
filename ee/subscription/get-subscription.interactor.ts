@@ -5,10 +5,10 @@ import { Resource, Action, SubscriptionStatus as SubscriptionStatusEnum } from "
 
 import type { Subscription, SubscriptionStatus } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const SubscriptionDtoSchema = z.object({
@@ -32,8 +32,8 @@ export type SubscriptionDto = {
 };
 
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.company, action: Action.readOwn })
-export class GetSubscriptionInteractor extends BaseInteractor<void, SubscriptionDto> {
+@TenantInteractor({ resource: Resource.company, action: Action.readOwn })
+export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, SubscriptionDto> {
   constructor(
     private repo: GetSubscriptionRepo,
     private lemonSqueezyService: SubscriptionService,

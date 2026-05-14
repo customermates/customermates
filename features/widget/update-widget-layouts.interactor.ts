@@ -3,8 +3,8 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const LayoutBreakpointSchema = z.object({
@@ -37,8 +37,8 @@ export abstract class UpdateWidgetLayoutsRepo {
   abstract updateWidgetLayouts(args: UpdateWidgetLayoutsData): Promise<void>;
 }
 
-@TentantInteractor()
-export class UpdateWidgetLayoutsInteractor extends BaseInteractor<UpdateWidgetLayoutsData, null> {
+@TenantInteractor()
+export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<UpdateWidgetLayoutsData, null> {
   constructor(private repo: UpdateWidgetLayoutsRepo) {
     super();
   }

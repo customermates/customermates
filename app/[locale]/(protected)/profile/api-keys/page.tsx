@@ -2,11 +2,12 @@ import { Resource } from "@/generated/prisma/client";
 
 import { ApiKeysCard } from "../components/api-keys-card";
 
-import { getGetApiKeysInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetApiKeysInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function ProfileApiKeysPage() {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.api });
+  await requireAccess({ resource: Resource.api });
 
   const result = await getGetApiKeysInteractor().invoke();
 

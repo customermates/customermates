@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -22,11 +21,11 @@ import { type DealDto, DealDtoSchema } from "../deal.schema";
 import { BaseCreateDealSchema } from "./create-deal-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import {
@@ -80,11 +79,11 @@ export const CreateManyDealsSchema = z
   });
 export type CreateManyDealsData = Data<typeof CreateManyDealsSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.deals,
   action: Action.create,
 })
-export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsData, DealDto[]> {
+export class CreateManyDealsInteractor extends AuthenticatedInteractor<CreateManyDealsData, DealDto[]> {
   constructor(
     private repo: CreateDealRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
@@ -92,7 +91,6 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
     private servicesRepo: GetUnscopedServiceRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -165,7 +163,6 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
           payload: deal,
         }),
       ),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: deals };

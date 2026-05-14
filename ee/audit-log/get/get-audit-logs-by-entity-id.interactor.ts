@@ -5,8 +5,8 @@ import type { UserReferenceSchema } from "@/core/base/base-entity.schema";
 import { z } from "zod";
 import { Action, Resource } from "@/generated/prisma";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { CloudOnly } from "@/core/decorators/cloud-only.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -31,8 +31,11 @@ export abstract class GetAuditLogsByEntityIdRepo {
 }
 
 @CloudOnly
-@TentantInteractor({ resource: Resource.auditLog, action: Action.readAll })
-export class GetAuditLogsByEntityIdInteractor extends BaseInteractor<GetAuditLogsByEntityIdData, AuditLogDto[]> {
+@TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
+export class GetAuditLogsByEntityIdInteractor extends AuthenticatedInteractor<
+  GetAuditLogsByEntityIdData,
+  AuditLogDto[]
+> {
   constructor(private repo: GetAuditLogsByEntityIdRepo) {
     super();
   }

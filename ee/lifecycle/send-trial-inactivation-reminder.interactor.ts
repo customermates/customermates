@@ -1,11 +1,11 @@
 import type { EmailService } from "@/features/email/email.service";
 
-import { getTranslations } from "next-intl/server";
-
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
 import TrialInactivationReminder from "@/components/emails/trial-inactivation-reminder";
+import { getTranslator } from "@/i18n/get-translator";
 import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
 import { env } from "@/env";
 
@@ -30,10 +30,8 @@ export class SendTrialInactivationReminderInteractor {
 
       const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
       const contactHref = `${env.BASE_URL}/contact`;
-      const t = await getTranslations({
-        locale,
-        namespace: "TrialInactivationReminder",
-      });
+      const t = await getTranslator(locale, "TrialInactivationReminder");
+
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),

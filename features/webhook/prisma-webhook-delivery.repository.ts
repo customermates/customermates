@@ -53,7 +53,7 @@ export class PrismaWebhookDeliveryRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const deliveries = await this.prisma.webhookDelivery.findMany({
       ...args,
@@ -68,7 +68,7 @@ export class PrismaWebhookDeliveryRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     return this.prisma.webhookDelivery.count({ where });
   }

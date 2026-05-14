@@ -2,7 +2,6 @@ import type { DeleteServiceRepo } from "./delete-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -11,11 +10,11 @@ import { Resource, Action } from "@/generated/prisma";
 import { validateServiceIds } from "../../../core/validation/validate-service-ids";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getServiceRepo } from "@/core/app-di";
@@ -31,14 +30,13 @@ export const DeleteManyServicesSchema = z
   });
 export type DeleteManyServicesData = Data<typeof DeleteManyServicesSchema>;
 
-@TentantInteractor({ resource: Resource.services, action: Action.delete })
-export class DeleteManyServicesInteractor extends BaseInteractor<DeleteManyServicesData, string[]> {
+@TenantInteractor({ resource: Resource.services, action: Action.delete })
+export class DeleteManyServicesInteractor extends AuthenticatedInteractor<DeleteManyServicesData, string[]> {
   constructor(
     private repo: DeleteServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -89,7 +87,6 @@ export class DeleteManyServicesInteractor extends BaseInteractor<DeleteManyServi
           payload: service,
         }),
       ),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: data.ids };

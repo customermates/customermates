@@ -2,7 +2,8 @@ import { Resource } from "@/generated/prisma";
 
 import { ContactsCard } from "./components/contacts-card";
 
-import { getGetContactsInteractor, getRouteGuardService } from "@/core/app-di";
+import { getGetContactsInteractor } from "@/core/app-di";
+import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default async function ContactsPage({ searchParams }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.contacts });
+  await requireAccess({ resource: Resource.contacts });
 
   const params = await searchParams;
   const contactParams = decodeGetParams(params);

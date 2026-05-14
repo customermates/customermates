@@ -3,11 +3,11 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { Locale, Theme } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const Schema = z.object({
   theme: z.enum(Theme),
@@ -20,8 +20,11 @@ export abstract class UpdateUserSettingsRepo {
   abstract updateSettings(args: UpdateUserSettingsData): Promise<UpdateUserSettingsData>;
 }
 
-@TentantInteractor()
-export class UpdateUserSettingsInteractor extends BaseInteractor<UpdateUserSettingsData, UpdateUserSettingsData> {
+@TenantInteractor()
+export class UpdateUserSettingsInteractor extends AuthenticatedInteractor<
+  UpdateUserSettingsData,
+  UpdateUserSettingsData
+> {
   constructor(private repo: UpdateUserSettingsRepo) {
     super();
   }
