@@ -2,7 +2,6 @@
 
 import type { SVGProps } from "react";
 
-import NextLink from "next/link";
 import { ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
-import { useRouter } from "@/i18n/navigation";
+import { IntlLink as NextLink, useRouter } from "@/i18n/navigation";
 
 export type NavItem = {
   key: string;

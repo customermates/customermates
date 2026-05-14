@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
@@ -32,6 +33,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   className,
 }: Props<E>) {
   const navigateToHref = useNavigateToHref();
+  const t = useTranslations("Common.table");
   const hidden = new Set(store.hiddenColumns);
   const visibleColumns = columns.filter((c) => !hidden.has((c as { id?: string }).id ?? ""));
 
@@ -43,7 +45,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   });
 
   if (store.items.length === 0)
-    return <div className="py-12 text-center text-sm text-muted-foreground">No items found.</div>;
+    return <div className="py-12 text-center text-sm text-muted-foreground">{t("emptyContent")}</div>;
 
   return (
     <div className={cn("", className)} data-slot="card-grid">

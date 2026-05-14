@@ -63,7 +63,7 @@ export const FormAutocomplete = observer(
     id,
     label,
     labelEndAddon,
-    placeholder = "Select...",
+    placeholder,
     required,
     selectionMode = "single",
     value: controlledValue,
@@ -74,7 +74,7 @@ export const FormAutocomplete = observer(
     renderValue,
     onCreate,
     onChipClick,
-    emptyContent = "No results.",
+    emptyContent,
     disabled,
     readOnly,
     className,
@@ -86,6 +86,9 @@ export const FormAutocomplete = observer(
     const navigateToHref = useNavigateToHref();
     const t = useTranslations("Common.inputs");
     const tCommon = useTranslations("Common");
+    const tAuto = useTranslations("Common.inputs.autocomplete");
+    const resolvedPlaceholder = placeholder ?? tAuto("placeholder");
+    const resolvedEmpty = emptyContent ?? tAuto("noResults");
     const isReq = required;
     const resolvedLabel = label === null ? undefined : (label ?? t(id));
     const [open, setOpen] = useState(false);
@@ -313,7 +316,7 @@ export const FormAutocomplete = observer(
               variant="outline"
             >
               <span className="flex flex-wrap items-center gap-1 text-left flex-1 min-w-0">
-                {selectedKeys.length ? renderedSelection : placeholder}
+                {selectedKeys.length ? renderedSelection : resolvedPlaceholder}
               </span>
 
               {!isReadOnly && <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />}
@@ -344,9 +347,9 @@ export const FormAutocomplete = observer(
               />
 
               <CommandList>
-                {isLoading && <div className="py-3 text-center text-sm text-muted-foreground">Loading...</div>}
+                {isLoading && <div className="py-3 text-center text-sm text-muted-foreground">{tAuto("loading")}</div>}
 
-                {!isLoading && filteredItems.length === 0 && !showCreate && <CommandEmpty>{emptyContent}</CommandEmpty>}
+                {!isLoading && filteredItems.length === 0 && !showCreate && <CommandEmpty>{resolvedEmpty}</CommandEmpty>}
 
                 {showCreate && (
                   <CommandGroup>

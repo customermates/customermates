@@ -5,6 +5,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 
 import { useFilterSelectItems } from "./use-filter-select-items";
@@ -25,6 +26,8 @@ type Props = {
 
 export const FilterInputSelect = observer(({ customColumns, filter, id, isValidFilter }: Props) => {
   const store = useAppForm();
+  const tAuto = useTranslations("Common.inputs.autocomplete");
+  const tTable = useTranslations("Common.table");
   const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
 
   const [open, setOpen] = useState(false);
@@ -135,7 +138,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 );
               })
             ) : (
-              <span className="text-muted-foreground">Select…</span>
+              <span className="text-muted-foreground">{tAuto("placeholder")}</span>
             )}
           </span>
 
@@ -145,12 +148,12 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
 
       <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search..." value={input} onValueChange={setInput} />
+          <CommandInput placeholder={tTable("search")} value={input} onValueChange={setInput} />
 
           <CommandList>
-            {loading && <div className="py-3 text-center text-sm text-muted-foreground">Loading...</div>}
+            {loading && <div className="py-3 text-center text-sm text-muted-foreground">{tAuto("loading")}</div>}
 
-            {!loading && filteredItems.length === 0 && <CommandEmpty>No results.</CommandEmpty>}
+            {!loading && filteredItems.length === 0 && <CommandEmpty>{tAuto("noResults")}</CommandEmpty>}
 
             {filteredItems.length > 0 && (
               <CommandGroup>

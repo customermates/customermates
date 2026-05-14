@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import NextLink from "next/link";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { ChevronDown } from "lucide-react";
+
+import { IntlLink as NextLink, usePathname } from "@/i18n/navigation";
 
 import {
   Breadcrumb,

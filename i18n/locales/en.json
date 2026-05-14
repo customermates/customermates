@@ -396,6 +396,11 @@
       "amount": "Amount",
       "apiKey": "API Key",
       "assignedUserId": "Assigned User",
+      "autocomplete": {
+        "loading": "Loading...",
+        "noResults": "No results.",
+        "placeholder": "Select..."
+      },
       "avatarUrl": "Avatar URL",
       "city": "City",
       "company": "Company",
@@ -519,6 +524,7 @@
     "locales": {
       "de": "German",
       "en": "English",
+      "pt-BR": "Portuguese",
       "system": "System"
     },
     "multiple": "Multiple",

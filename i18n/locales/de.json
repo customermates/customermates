@@ -396,6 +396,11 @@
       "amount": "Betrag",
       "apiKey": "API-Schlüssel",
       "assignedUserId": "Zugewiesener Benutzer",
+      "autocomplete": {
+        "loading": "Wird geladen...",
+        "noResults": "Keine Ergebnisse.",
+        "placeholder": "Auswählen..."
+      },
       "avatarUrl": "Avatar URL",
       "city": "Stadt",
       "company": "Unternehmen",
@@ -519,6 +524,7 @@
     "locales": {
       "de": "Deutsch",
       "en": "Englisch",
+      "pt-BR": "Portugiesisch",
       "system": "System"
     },
     "multiple": "Mehrere",
