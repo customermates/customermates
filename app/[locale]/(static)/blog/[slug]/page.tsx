@@ -157,11 +157,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <h2 className="text-x-3xl mb-8">{t("relatedArticles")}</h2>
 
             <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
-              {sortedPosts.map((post) => (
-                <div key={post.url} className="min-w-0">
-                  <BlogPostCard {...post.data.blogPost} locale={locale} title={post.data.title} url={post.url} />
-                </div>
-              ))}
+              {sortedPosts.map((post) => {
+                const postSlug = post.url?.split("/").pop() ?? "";
+                if (!postSlug) return null;
+
+                return (
+                  <div key={post.url} className="min-w-0">
+                    <BlogPostCard
+                      {...post.data.blogPost}
+                      locale={locale}
+                      title={post.data.title}
+                      url={`/blog/${postSlug}`}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

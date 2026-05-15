@@ -30,17 +30,22 @@ export default async function BlogPage() {
   return (
     <div className="flex flex-col items-center justify-center">
       <PostGridShell hero={page.data.hero}>
-        {sortedPosts.map((post) => (
-          <div key={post.url} className="min-w-0">
-            <BlogPostCard
-              {...post.data.blogPost}
-              description={post.data.description}
-              locale={locale}
-              title={post.data.title}
-              url={post.url}
-            />
-          </div>
-        ))}
+        {sortedPosts.map((post) => {
+          const slug = post.url?.split("/").pop() ?? "";
+          if (!slug) return null;
+
+          return (
+            <div key={post.url} className="min-w-0">
+              <BlogPostCard
+                {...post.data.blogPost}
+                description={post.data.description}
+                locale={locale}
+                title={post.data.title}
+                url={`/blog/${slug}`}
+              />
+            </div>
+          );
+        })}
       </PostGridShell>
 
       <Footer />
