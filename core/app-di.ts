@@ -8,19 +8,13 @@
  *   Section 3: Service getters (fresh per call)
  *   Section 4: Interactor getters (fresh per call, deps from getters)
  *
- * Trigger-safety contract:
- * This module must stay loadable under esbuild's `react-server` package export
- * condition (used by the trigger.dev worker bundler so `next-intl/server`
- * resolves correctly). Under that condition `React.createContext` is undefined,
- * so any module that touches it at load time crashes the worker. In practice
- * that rules out `next/navigation`, `next/headers`-via-client-router, and the
- * auth context chain. To keep this file safe:
- *   - Auth services and interactors return `Redirect` outcomes instead of
- *     calling `redirect()` from `next/navigation`. The translation back to
- *     real redirects lives in `features/auth/next/require.ts`, which is only
- *     imported by Next.js call sites.
- *   - Never add an import here that pulls `next/navigation` (or anything that
- *     evaluates `React.createContext`) at module load.
+ * The auth chain returns `Redirect` outcomes instead of calling `redirect()`
+ * from `next/navigation` directly, so it stays framework-agnostic and
+ * trigger-worker-safe. Outcome translation lives in
+ * `features/auth/next/require.ts` (page guards) and in
+ * `core/utils/action-result.ts`'s `serializeResult` (server actions), both
+ * imported only on the Next.js side. Never add an import here that pulls
+ * `next/navigation` at module load.
  */
 
 // ─── Section 1: Imports ─────────────────────────────────────────────────────

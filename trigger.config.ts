@@ -13,7 +13,6 @@ export default defineConfig({
   maxDuration: 300,
   dirs: ["./trigger"],
   build: {
-    conditions: ["react-server"],
     keepNames: true,
     extensions: sentryConfigured
       ? [
