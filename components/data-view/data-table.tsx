@@ -6,6 +6,7 @@ import type { ColumnDef, ColumnSizingState, SortingState, VisibilityState } from
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,6 +32,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowHref,
 }: Props<E>) {
   const navigateToHref = useNavigateToHref();
+  const t = useTranslations("Common.table");
   const sorting: SortingState = useMemo(
     () =>
       store.sortDescriptor ? [{ id: store.sortDescriptor.field, desc: store.sortDescriptor.direction === "desc" }] : [],
@@ -202,7 +204,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         {table.getRowModel().rows.length === 0 ? (
           <TableRow>
             <TableCell className="h-24 text-center text-muted-foreground" colSpan={allColumns.length}>
-              No items found.
+              {t("emptyContent")}
             </TableCell>
           </TableRow>
         ) : (

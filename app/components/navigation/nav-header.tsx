@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import NextLink from "next/link";
 import { Plus, Search } from "lucide-react";
 
+import { IntlLink as NextLink } from "@/i18n/navigation";
 import { AppImage } from "@/components/shared/app-image";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 

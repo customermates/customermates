@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef, SVGProps } from "react";
 
-import NextLink from "next/link";
+import { IntlLink as NextLink } from "@/i18n/navigation";
 
 import {
   SidebarGroup,

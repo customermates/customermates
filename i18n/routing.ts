@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-export const ROUTING_LOCALES = ["en", "de"] as const;
+export const ROUTING_LOCALES = ["en", "de", "pt-BR"] as const;
 
 export const ROUTING_DEFAULT_LOCALE = "en";
 
