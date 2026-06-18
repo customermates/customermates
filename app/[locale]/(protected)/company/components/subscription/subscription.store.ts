@@ -35,7 +35,7 @@ export class SubscriptionStore extends BaseStore {
       const subscription = await getSubscriptionAction();
       this.setSubscription(subscription);
 
-      this.toastSuccess("subscription.refreshSuccess");
+      this.toastSuccess("Subscription.refreshSuccess");
     });
   };
 }

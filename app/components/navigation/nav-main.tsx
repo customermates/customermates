@@ -120,7 +120,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
                 {item.preview && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                      <span className="inline-flex h-5 items-center gap-1 rounded-md bg-primary/10 px-1.5 text-[11px] font-medium text-primary">
                         {item.preview.label}
 
                         <Info className="size-3" />

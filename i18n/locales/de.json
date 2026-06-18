@@ -1561,7 +1561,7 @@
     "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
     "title": "Customermates-Konto erstellen"
   },
-  "subscription": {
+  "Subscription": {
     "currentPeriodEnd": "Aktuelle Periode endet",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "plan": "Plan",

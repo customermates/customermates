@@ -424,13 +424,22 @@ function buildPlanSubtitle(
   );
 
   const planChip = (() => {
-    if (!status || status === "active") return null;
+    if (!status) return null;
+
+    if (status === "active") {
+      return chipButton(
+        "/company/details",
+        <AppChip className="h-[16px] px-1 text-[10px]" variant="success">
+          {t("Subscription.status.active")}
+        </AppChip>,
+      );
+    }
 
     if (status === "trial") {
       const text =
         trialDaysLeft != null
-          ? t("subscription.status.trialDaysLeft", { days: trialDaysLeft })
-          : t("subscription.status.trial");
+          ? t("Subscription.status.trialDaysLeft", { days: trialDaysLeft })
+          : t("Subscription.status.trial");
       const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
       return chipButton(
         "/company/details",
@@ -443,7 +452,7 @@ function buildPlanSubtitle(
     return chipButton(
       "/company/details",
       <AppChip className="h-[16px] px-1 text-[10px]" variant="destructive">
-        {t(`subscription.status.${status}`)}
+        {t(`Subscription.status.${status}`)}
       </AppChip>,
     );
   })();

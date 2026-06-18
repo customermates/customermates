@@ -32,7 +32,7 @@ export const SubscribeManageButton = observer(() => {
         <Button className="h-8" size="sm">
           {icon}
 
-          <span className="hidden sm:inline">{t("subscription.manageWithLemonSqueezy")}</span>
+          <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
         </Button>
       </AppLink>
     );
@@ -42,7 +42,7 @@ export const SubscribeManageButton = observer(() => {
     <Button className="h-8" size="sm" onClick={() => void subscriptionStore.handleSubscribe()}>
       {icon}
 
-      <span className="hidden sm:inline">{t("subscription.subscribeWithLemonSqueezy")}</span>
+      <span className="hidden sm:inline">{t("Subscription.subscribeWithLemonSqueezy")}</span>
     </Button>
   );
 });

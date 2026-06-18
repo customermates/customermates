@@ -50,7 +50,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
 
   const subscription = subscriptionStore.subscription;
   const statusColor = subscription ? STATUS_COLOR_MAP[subscription.status] : "default";
-  const statusLabel = t(`subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`);
+  const statusLabel = t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`);
   const planLabel = "Pro";
   const showSeats = Boolean(subscription?.quantity);
 
@@ -58,7 +58,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
     <section className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          {t("subscription.title")}
+          {t("Subscription.title")}
         </h3>
 
         {subscription?.status !== SubscriptionStatus.trial && (
@@ -74,7 +74,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
         )}
       </div>
 
-      <ReadOnlyField label={t("subscription.plan")}>
+      <ReadOnlyField label={t("Subscription.plan")}>
         <span className="flex w-full items-center justify-between gap-2">
           <span>{planLabel}</span>
 
@@ -86,23 +86,23 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
 
       <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
         {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
-          <ReadOnlyField label={t("subscription.trialEnds")}>
+          <ReadOnlyField label={t("Subscription.trialEnds")}>
             {subscription.trialEndDate ? intlStore.formatDescriptiveLongDate(subscription.trialEndDate) : "-"}
           </ReadOnlyField>
         )}
 
         {subscription?.currentPeriodEnd && (
-          <ReadOnlyField label={t("subscription.currentPeriodEnd")}>
+          <ReadOnlyField label={t("Subscription.currentPeriodEnd")}>
             {subscription.currentPeriodEnd ? intlStore.formatDescriptiveLongDate(subscription.currentPeriodEnd) : "-"}
           </ReadOnlyField>
         )}
 
         {showSeats && (
-          <ReadOnlyField label={t("subscription.quantity")}>{subscription?.quantity?.toString() ?? ""}</ReadOnlyField>
+          <ReadOnlyField label={t("Subscription.quantity")}>{subscription?.quantity?.toString() ?? ""}</ReadOnlyField>
         )}
       </div>
 
-      {showSeats && <p className="text-xs text-muted-foreground">{t("subscription.prorationSubtitle")}</p>}
+      {showSeats && <p className="text-xs text-muted-foreground">{t("Subscription.prorationSubtitle")}</p>}
     </section>
   );
 });
