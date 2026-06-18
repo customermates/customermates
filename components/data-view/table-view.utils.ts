@@ -1,18 +1,10 @@
 import type { Filter } from "@/core/base/base-get.schema";
 
-import { z } from "zod";
-
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
-export function isCustomField(field: string): boolean {
-  return z.uuid().safeParse(field).success;
-}
+export { isCustomField } from "@/core/utils/custom-field";
 
-export function isStandaloneOperator(operator?: FilterOperatorKey) {
-  if (!operator) return false;
-
-  return [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull].includes(operator);
-}
+import { isStandaloneOperator } from "@/core/base/base-query-builder";
 
 export function hasValidFilterConfiguration(filter: Filter) {
   if (isStandaloneOperator(filter.operator)) return true;

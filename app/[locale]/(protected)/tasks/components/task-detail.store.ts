@@ -11,8 +11,10 @@ import { getSystemTaskAlertConfig, getSystemTaskNameTranslationKey } from "./sys
 
 import { BaseCustomColumnEntityModalStore } from "@/core/base/base-custom-column-entity-modal.store";
 
-export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTaskData & { id?: string }, TaskDto> {
-  constructor(public readonly rootStore: RootStore) {
+type TaskFormData = Omit<CreateTaskData, "name"> & { name?: string; id?: string };
+
+export class TaskDetailStore extends BaseCustomColumnEntityModalStore<TaskFormData, TaskDto> {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -29,7 +31,7 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
       rootStore.tasksStore,
       {
         getById: getTaskByIdAction,
-        create: createTaskAction,
+        create: (data: TaskFormData) => createTaskAction({ ...data, name: data.name ?? "" }),
         update: updateTaskAction,
         delete: deleteTaskAction,
       },
@@ -38,6 +40,7 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
     makeObservable(this, {
       isCustomTask: computed,
       systemTaskAlertConfig: computed,
+      systemTaskDisplayName: computed,
     });
   }
 
@@ -49,15 +52,16 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
     return getSystemTaskAlertConfig(this.fetchedEntity?.type);
   }
 
+  get systemTaskDisplayName(): string {
+    const nameTranslationKey = getSystemTaskNameTranslationKey(this.fetchedEntity?.type);
+
+    return nameTranslationKey ? this.t(nameTranslationKey) : (this.fetchedEntity?.name ?? "");
+  }
+
   protected initFormWithCustomFieldValues(entity?: TaskDto) {
     const baseData = super.initFormWithCustomFieldValues(entity);
 
     if (entity) {
-      const nameTranslationKey = getSystemTaskNameTranslationKey(entity.type);
-      const displayName = nameTranslationKey
-        ? this.rootStore.localeStore.getTranslation(nameTranslationKey)
-        : (entity.name ?? "");
-
       return {
         ...entity,
         ...baseData,
@@ -66,7 +70,7 @@ export class TaskDetailStore extends BaseCustomColumnEntityModalStore<CreateTask
         organizationIds: entity.organizations.map((organization) => organization.id),
         dealIds: entity.deals.map((deal) => deal.id),
         serviceIds: entity.services.map((service) => service.id),
-        name: displayName,
+        name: entity.type === TaskType.custom ? (entity.name ?? "") : undefined,
       };
     }
 

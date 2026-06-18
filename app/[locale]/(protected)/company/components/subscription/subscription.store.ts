@@ -1,20 +1,17 @@
 import type { RootStore } from "@/core/stores/root.store";
+import { BaseStore } from "@/core/base/base.store";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
 import { action, makeObservable, observable } from "mobx";
-import { toast } from "sonner";
 
 import { createCheckoutSessionAction, refreshSubscriptionAction, getSubscriptionAction } from "../../actions";
 
-export class SubscriptionStore {
-  checkoutLoading = false;
-  refreshLoading = false;
+export class SubscriptionStore extends BaseStore {
   subscription: SubscriptionDto | null = null;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
+    super(rootStore);
     makeObservable(this, {
-      checkoutLoading: observable,
-      refreshLoading: observable,
       subscription: observable,
       handleSubscribe: action,
       handleRefresh: action,
@@ -27,24 +24,18 @@ export class SubscriptionStore {
   };
 
   handleSubscribe = async (): Promise<void> => {
-    this.checkoutLoading = true;
-    try {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
       await createCheckoutSessionAction();
-    } finally {
-      this.checkoutLoading = false;
-    }
+    });
   };
 
   handleRefresh = async (): Promise<void> => {
-    this.refreshLoading = true;
-    try {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
       await refreshSubscriptionAction();
       const subscription = await getSubscriptionAction();
       this.setSubscription(subscription);
 
-      toast.success(this.rootStore.localeStore.getTranslation("subscription.refreshSuccess"));
-    } finally {
-      this.refreshLoading = false;
-    }
+      this.toastSuccess("subscription.refreshSuccess");
+    });
   };
 }

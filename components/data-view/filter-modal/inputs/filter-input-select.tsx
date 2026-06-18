@@ -14,6 +14,7 @@ import { useAppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -31,28 +32,23 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   const [input, setInput] = useState("");
   const [fetchedItems, setFetchedItems] = useState(items);
   const [asyncLoading, setAsyncLoading] = useState(false);
+  const debouncedInput = useDebouncedValue(input);
 
   const raw = store?.getValue(id);
   const selectedKeys: string[] = Array.isArray(raw) ? (raw as string[]) : [];
 
-  // Debounced async fetch when getItems is provided.
   useEffect(() => {
     if (!getItems) {
       setFetchedItems(items);
       return;
     }
 
-    const timer = setTimeout(() => {
-      setAsyncLoading(true);
-      void getItems({ searchTerm: input || undefined })
-        .then((res) => setFetchedItems(res.items || []))
-        .finally(() => setAsyncLoading(false));
-    }, 300);
+    setAsyncLoading(true);
+    void getItems({ searchTerm: debouncedInput || undefined })
+      .then((res) => setFetchedItems(res.items || []))
+      .finally(() => setAsyncLoading(false));
+  }, [debouncedInput, getItems, items]);
 
-    return () => clearTimeout(timer);
-  }, [input, getItems, items]);
-
-  // Index selected items so chips render even when not present in current page.
   const itemsByKey = useMemo(() => {
     const map = new Map<string, (typeof items)[number]>();
     for (const it of items) map.set(it.key, it);
@@ -61,7 +57,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   }, [items, fetchedItems]);
 
   const filteredItems = useMemo(() => {
-    if (getItems) return fetchedItems; // server-side search already applied
+    if (getItems) return fetchedItems;
     const q = input.trim().toLowerCase();
     if (!q) return fetchedItems;
     return fetchedItems.filter((it) => it.textValue.toLowerCase().includes(q));

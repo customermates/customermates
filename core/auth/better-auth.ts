@@ -1,27 +1,26 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { oAuthProxy, apiKey } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { redirect } from "next/navigation";
 import { betterAuth } from "better-auth/minimal";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
-import { BASE_URL, IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 
 const socialProviders = {
-  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+  ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
     ? {
         google: {
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
         },
       }
     : {}),
-  ...(process.env.AZURE_AD_CLIENT_ID && process.env.AZURE_AD_CLIENT_SECRET
+  ...(env.AZURE_AD_CLIENT_ID && env.AZURE_AD_CLIENT_SECRET
     ? {
         microsoft: {
-          clientId: process.env.AZURE_AD_CLIENT_ID,
-          clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
+          clientId: env.AZURE_AD_CLIENT_ID,
+          clientSecret: env.AZURE_AD_CLIENT_SECRET,
           tenantId: "common",
         },
       }
@@ -29,7 +28,7 @@ const socialProviders = {
 };
 
 export const auth = betterAuth({
-  baseURL: BASE_URL,
+  baseURL: env.BASE_URL,
 
   advanced: {
     cookiePrefix: "app",
@@ -39,7 +38,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [BASE_URL, `https://*.${process.env.VERCEL_PROJECT_PRODUCTION_URL}`],
+  trustedOrigins: [env.BASE_URL, `https://*.${env.VERCEL_PROJECT_PRODUCTION_URL}`],
 
   databaseHooks: {
     user: {
@@ -53,7 +52,10 @@ export const auth = betterAuth({
           const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
           const res = result.data;
 
-          if (!res.valid && res.errorMessage === "inviteLinkExpired") redirect("/auth/error?type=inviteLinkExpired");
+          if (!res.valid && res.errorMessage === "inviteLinkExpired") {
+            const { redirect } = await import("next/navigation");
+            redirect("/auth/error?type=inviteLinkExpired");
+          }
 
           return {
             data: res.valid ? { ...data, companyId: res.companyId } : { ...data },
@@ -98,7 +100,7 @@ export const auth = betterAuth({
     modelName: "AuthSession",
     cookieCache: {
       enabled: true,
-      maxAge: IS_DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
+      maxAge: env.DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
     },
   },
 

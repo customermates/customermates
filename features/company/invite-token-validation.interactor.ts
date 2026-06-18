@@ -6,7 +6,6 @@ import type { InviteToken } from "@/generated/prisma";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const ValidatedInviteTokenSchema = z.discriminatedUnion("valid", [
@@ -34,50 +33,17 @@ export type ValidatedInviteToken =
     };
 
 export abstract class InviteTokenRepo {
-  abstract findTokenOrThrow(token: string): Promise<InviteToken & { companyName: string }>;
+  abstract findToken(token: string): Promise<(InviteToken & { companyName: string }) | null>;
 }
 
 @SystemInteractor
-export class InviteTokenValidationInteractor extends BaseInteractor<InviteTokenData, ValidatedInviteToken> {
-  constructor(private repo: InviteTokenRepo) {
-    super();
-  }
+export class InviteTokenValidationInteractor {
+  constructor(private repo: InviteTokenRepo) {}
 
   @Enforce(Schema)
   @ValidateOutput(ValidatedInviteTokenSchema)
   async invoke(data: InviteTokenData): Promise<{ ok: true; data: ValidatedInviteToken }> {
-    try {
-      if (!data.token) {
-        return {
-          ok: true,
-          data: {
-            valid: false,
-            errorMessage: "invalidInviteLink",
-          },
-        };
-      }
-
-      const inviteToken = await this.repo.findTokenOrThrow(data.token);
-
-      if (new Date() > inviteToken.expiresAt) {
-        return {
-          ok: true,
-          data: {
-            valid: false,
-            errorMessage: "inviteLinkExpired",
-          },
-        };
-      }
-
-      return {
-        ok: true,
-        data: {
-          valid: true,
-          companyId: inviteToken.companyId,
-          companyName: inviteToken.companyName,
-        },
-      };
-    } catch {
+    if (!data.token) {
       return {
         ok: true,
         data: {
@@ -86,5 +52,36 @@ export class InviteTokenValidationInteractor extends BaseInteractor<InviteTokenD
         },
       };
     }
+
+    const inviteToken = await this.repo.findToken(data.token);
+
+    if (!inviteToken) {
+      return {
+        ok: true,
+        data: {
+          valid: false,
+          errorMessage: "invalidInviteLink",
+        },
+      };
+    }
+
+    if (new Date() > inviteToken.expiresAt) {
+      return {
+        ok: true,
+        data: {
+          valid: false,
+          errorMessage: "inviteLinkExpired",
+        },
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        valid: true,
+        companyId: inviteToken.companyId,
+        companyName: inviteToken.companyName,
+      },
+    };
   }
 }

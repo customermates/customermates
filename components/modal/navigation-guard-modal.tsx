@@ -6,7 +6,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
 
-export const NavigationGuardModal = observer(function NavigationGuardModal() {
+export const NavigationGuardModal = observer(() => {
   const { navigationGuard } = useRootStore();
 
   return (

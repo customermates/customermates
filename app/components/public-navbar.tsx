@@ -20,7 +20,7 @@ type Props = {
 };
 
 export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { layoutStore } = useRootStore();
   const pathname = usePathname();
 

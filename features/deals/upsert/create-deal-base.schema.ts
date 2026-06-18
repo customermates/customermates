@@ -3,7 +3,7 @@ import { z } from "zod";
 import { CustomFieldValueSchema, NotesSchema } from "@/core/base/base-entity.schema";
 
 export const BaseCreateDealSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1).max(255),
   notes: NotesSchema,
   organizationIds: z.array(z.uuid()).optional().default([]),
   userIds: z.array(z.uuid()).optional().default([]),

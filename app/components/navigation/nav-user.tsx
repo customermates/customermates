@@ -5,7 +5,7 @@ import type { ExtendedUser } from "@/features/user/user.types";
 import { ChevronsUpDown, LogIn as LogOut, Moon, Sun } from "lucide-react";
 import { observer } from "mobx-react-lite";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,17 +28,9 @@ type Props = {
   onSignOut: () => void;
 };
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
-}
-
-export const NavUser = observer(function NavUser({ user, theme, labels, onThemeChange, onSignOut }: Props) {
+export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut }: Props) => {
   const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.email ?? "";
-  const initials = getInitials(name);
   const avatarSrc = user?.avatarUrl ?? undefined;
 
   return (
@@ -51,11 +43,7 @@ export const NavUser = observer(function NavUser({ user, theme, labels, onThemeC
               size="lg"
               tooltip={name || email}
             >
-              <Avatar className="size-8 rounded-lg">
-                <AvatarImage alt={name} src={avatarSrc} />
-
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-              </Avatar>
+              <Avatar className="rounded-lg" name={name} size="lg" src={avatarSrc} />
 
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{name || email}</span>

@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
@@ -64,10 +65,16 @@ function rangeForPreset(key: PresetKey): { from: Date; to: Date } {
       return { from: d, to: d };
     }
     case "thisWeek":
-      return { from: startOfWeek(today, { weekStartsOn: 1 }), to: endOfWeek(today, { weekStartsOn: 1 }) };
+      return {
+        from: startOfWeek(today, { weekStartsOn: 1 }),
+        to: endOfWeek(today, { weekStartsOn: 1 }),
+      };
     case "nextWeek": {
       const next = addDays(today, 7);
-      return { from: startOfWeek(next, { weekStartsOn: 1 }), to: endOfWeek(next, { weekStartsOn: 1 }) };
+      return {
+        from: startOfWeek(next, { weekStartsOn: 1 }),
+        to: endOfWeek(next, { weekStartsOn: 1 }),
+      };
     }
     case "thisMonth":
       return { from: startOfMonth(today), to: endOfMonth(today) };
@@ -96,17 +103,15 @@ export const FormIsoDateRangePicker = observer(
     containerClassName,
   }: Props) => {
     const t = useTranslations();
-    const tInputs = useTranslations("Common.inputs");
     const store = useAppForm();
     const { intlStore } = useRootStore();
 
     const raw = store?.getValue(id);
     const csvValue = typeof raw === "string" ? raw : undefined;
     const parsedRange = parseRange(csvValue);
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
 
-    const resolvedLabel = label === null ? undefined : (label ?? safeTranslate(tInputs, id));
+    const resolvedLabel = label ?? undefined;
 
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
 
@@ -163,7 +168,10 @@ export const FormIsoDateRangePicker = observer(
       const segments = value.split(":").map((p) => Number(p));
       const [hours, minutes, seconds = 0] = segments;
       if (![hours, minutes, seconds].every((n) => Number.isFinite(n))) return;
-      const next = { from: new Date(parsedRange.from), to: new Date(parsedRange.to) };
+      const next = {
+        from: new Date(parsedRange.from),
+        to: new Date(parsedRange.to),
+      };
       next[side].setHours(hours, minutes, seconds, 0);
       commit(next);
     }
@@ -226,7 +234,7 @@ export const FormIsoDateRangePicker = observer(
 
           <PopoverContent
             align="start"
-            className="w-auto max-h-[var(--radix-popover-content-available-height)] overflow-y-auto p-0"
+            className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
           >
             <Calendar
               autoFocus
@@ -320,12 +328,4 @@ function toIso(date: Date, dateOnly: boolean): string {
 
 function formatTime(date: Date): string {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-}
-
-function safeTranslate(t: (k: string) => string, key: string): string {
-  try {
-    return t(key);
-  } catch {
-    return key;
-  }
 }

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { cn } from "@/lib/utils";
 
 type Props<E extends HasId> = {
@@ -24,18 +25,15 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
   const [value, setValue] = useState(store.searchTerm ?? "");
   const [expandedMobile, setExpandedMobile] = useState(Boolean(store.searchTerm));
   const inputRef = useRef<HTMLInputElement>(null);
+  const debouncedValue = useDebouncedValue(value);
 
   useEffect(() => {
     setValue(store.searchTerm ?? "");
   }, [store.searchTerm]);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
-      if ((store.searchTerm ?? "") !== value) store.setQueryOptions({ searchTerm: value });
-    }, 300);
-
-    return () => window.clearTimeout(handle);
-  }, [value, store]);
+    if ((store.searchTerm ?? "") !== debouncedValue) store.setQueryOptions({ searchTerm: debouncedValue });
+  }, [debouncedValue, store]);
 
   function handleExpand() {
     setExpandedMobile(true);
@@ -55,7 +53,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
           className="lg:hidden size-8 relative"
           size="icon-sm"
           type="button"
-          variant="outline"
+          variant="secondary"
           onClick={handleExpand}
         >
           <Search className="size-3.5" />
@@ -74,7 +72,11 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
 
         <Input
           ref={inputRef}
-          className={cn("h-8 pl-7.5 text-sm", expandedMobile && "pr-7.5 md:pr-2", value && "border-primary")}
+          className={cn(
+            "h-8 border-transparent bg-secondary pl-7.5 text-sm hover:bg-secondary/80",
+            expandedMobile && "pr-7.5 md:pr-2",
+            value && "border-primary",
+          )}
           placeholder={placeholder}
           type="search"
           value={value}

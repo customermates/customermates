@@ -1,31 +1,23 @@
 import { action, makeObservable, observable } from "mobx";
-import Cookies from "js-cookie";
 
-const SIDEBAR_STATE_COOKIE = "sidebar-close";
+type RuntimeAvatarKind = "contact" | "organization";
 
 export class LayoutStore {
   isMenuOpen = false;
-  isNavbarVisible = true;
-  isSidebarOpen = true;
   runtimeTitle: string | null = null;
+  runtimePictureUrl: string | null = null;
+  runtimeAvatarKind: RuntimeAvatarKind | null = null;
 
-  constructor(initialSidebarOpen?: boolean, initialNavbarVisible?: boolean) {
-    const isSmallDevice = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
-
-    if (initialSidebarOpen !== undefined) this.isSidebarOpen = initialSidebarOpen;
-    else if (isSmallDevice) this.isSidebarOpen = false;
-
-    if (initialNavbarVisible !== undefined) this.isNavbarVisible = initialNavbarVisible;
-
+  constructor() {
     makeObservable(this, {
       isMenuOpen: observable,
-      isNavbarVisible: observable,
-      isSidebarOpen: observable,
       runtimeTitle: observable,
+      runtimePictureUrl: observable,
+      runtimeAvatarKind: observable,
       setIsMenuOpen: action,
-      setIsNavbarVisible: action,
-      setIsSidebarOpen: action,
       setRuntimeTitle: action,
+      setRuntimePictureUrl: action,
+      setRuntimeAvatarKind: action,
     });
   }
 
@@ -33,23 +25,15 @@ export class LayoutStore {
     this.isMenuOpen = isMenuOpen;
   };
 
-  setIsNavbarVisible = (isNavbarVisible: boolean) => {
-    this.isNavbarVisible = isNavbarVisible;
-  };
-
-  setIsSidebarOpen = (isSidebarOpen: boolean) => {
-    this.isSidebarOpen = isSidebarOpen;
-    Cookies.set(SIDEBAR_STATE_COOKIE, String(!isSidebarOpen), {
-      expires: 365,
-      sameSite: "lax",
-    });
-  };
-
   setRuntimeTitle = (runtimeTitle: string | null) => {
     this.runtimeTitle = runtimeTitle;
   };
-}
 
-export function createLayoutStore(initialSidebarOpen?: boolean, initialNavbarVisible?: boolean) {
-  return new LayoutStore(initialSidebarOpen, initialNavbarVisible);
+  setRuntimePictureUrl = (runtimePictureUrl: string | null) => {
+    this.runtimePictureUrl = runtimePictureUrl;
+  };
+
+  setRuntimeAvatarKind = (runtimeAvatarKind: RuntimeAvatarKind | null) => {
+    this.runtimeAvatarKind = runtimeAvatarKind;
+  };
 }

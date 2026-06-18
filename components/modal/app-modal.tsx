@@ -32,15 +32,7 @@ type Props = {
   onClose?: () => void;
 };
 
-export const AppModal = observer(function AppModal({
-  store,
-  title,
-  size = "md",
-  className,
-  children,
-  open,
-  onClose,
-}: Props) {
+export const AppModal = observer(({ store, title, size = "md", className, children, open, onClose }: Props) => {
   const isOpen = open ?? store?.isOpen ?? false;
 
   function requestClose() {
@@ -92,7 +84,3 @@ export const AppModal = observer(function AppModal({
     </>
   );
 });
-
-export function ModalFooter({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}>{children}</div>;
-}

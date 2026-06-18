@@ -1,25 +1,21 @@
 import type { RootStore } from "@/core/stores/root.store";
+import { BaseStore } from "@/core/base/base.store";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable } from "mobx";
 
 import { createCheckoutSessionAction } from "@/app/[locale]/(protected)/company/actions";
 
-export class SubscriptionExpiredStore {
-  checkoutLoading = false;
-
-  constructor(public readonly rootStore: RootStore) {
+export class SubscriptionExpiredStore extends BaseStore {
+  constructor(rootStore: RootStore) {
+    super(rootStore);
     makeObservable(this, {
-      checkoutLoading: observable,
       handleSubscribe: action,
     });
   }
 
   handleSubscribe = async (): Promise<void> => {
-    this.checkoutLoading = true;
-    try {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
       await createCheckoutSessionAction();
-    } finally {
-      this.checkoutLoading = false;
-    }
+    });
   };
 }

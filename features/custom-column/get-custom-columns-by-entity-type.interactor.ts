@@ -1,14 +1,14 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { EntityType } from "@/generated/prisma";
 
 import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const Schema = z.object({
@@ -22,8 +22,8 @@ export abstract class GetCustomColumnsByEntityTypeRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class GetCustomColumnsByEntityTypeInteractor extends BaseInteractor<
+@TenantInteractor()
+export class GetCustomColumnsByEntityTypeInteractor extends AuthenticatedInteractor<
   GetCustomColumnsByEntityTypeData,
   CustomColumnDto[]
 > {
@@ -31,9 +31,9 @@ export class GetCustomColumnsByEntityTypeInteractor extends BaseInteractor<
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   @ValidateOutput(CustomColumnDtoSchema)
-  async invoke(data: GetCustomColumnsByEntityTypeData): Promise<{ ok: true; data: CustomColumnDto[] }> {
+  async invoke(data: GetCustomColumnsByEntityTypeData): Validated<CustomColumnDto[]> {
     return { ok: true as const, data: await this.repo.findByEntityType(data.entityType) };
   }
 }

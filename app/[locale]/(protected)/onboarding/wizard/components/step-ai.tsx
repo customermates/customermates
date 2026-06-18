@@ -12,8 +12,6 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
 import { getMcpSetupPrompt } from "@/features/docs/mcp-setup-prompt";
 
-import { completeOnboardingWizardAction } from "../actions";
-
 import type { StepAiChoice } from "./step-ai.store";
 
 const CHOICES: StepAiChoice[] = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini", "skip"];
@@ -23,8 +21,7 @@ function toDocsSlug(choice: Exclude<StepAiChoice, "skip">): string {
 }
 
 export const StepAi = observer(() => {
-  const t = useTranslations("OnboardingWizard.ai");
-  const tw = useTranslations("OnboardingWizard");
+  const t = useTranslations();
   const locale = useLocale();
   const { onboardingWizardStore, stepAiStore } = useRootStore();
   const { choice, apiKey, isCreating, hasError, canContinue } = stepAiStore;
@@ -49,22 +46,22 @@ export const StepAi = observer(() => {
             type="button"
             onClick={() => stepAiStore.setChoice(key)}
           >
-            {t(`choices.${key}`)}
+            {t(`OnboardingWizard.ai.choices.${key}`)}
           </button>
         ))}
       </div>
 
       {choice && choice !== "skip" && !apiKey && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-muted-foreground">{t("createKeyIntro")}</p>
+          <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.createKeyIntro")}</p>
 
           <Button disabled={isCreating} size="sm" type="button" onClick={() => void stepAiStore.createApiKey()}>
             {isCreating && <Loader2 className="size-4 animate-spin" />}
 
-            {t("createKey")}
+            {t("OnboardingWizard.ai.createKey")}
           </Button>
 
-          {hasError && <p className="text-xs text-destructive">{t("errors.createFailed")}</p>}
+          {hasError && <p className="text-xs text-destructive">{t("OnboardingWizard.ai.errors.createFailed")}</p>}
         </div>
       )}
 
@@ -76,9 +73,13 @@ export const StepAi = observer(() => {
             </div>
 
             <div className="flex flex-1 min-w-0 flex-col gap-1.5">
-              <p className="text-sm font-medium">{t("install.label", { tool: t(`choices.${choice}`) })}</p>
+              <p className="text-sm font-medium">
+                {t("OnboardingWizard.ai.install.label", {
+                  tool: t(`OnboardingWizard.ai.choices.${choice}`),
+                })}
+              </p>
 
-              <p className="text-xs text-muted-foreground">{t(`install.instruction.${choice}`)}</p>
+              <p className="text-xs text-muted-foreground">{t(`OnboardingWizard.ai.install.instruction.${choice}`)}</p>
 
               <CopyableCode value={installSnippet} />
 
@@ -88,7 +89,7 @@ export const StepAi = observer(() => {
                 rel="noreferrer"
                 target="_blank"
               >
-                {t("fullGuide")}
+                {t("OnboardingWizard.ai.fullGuide")}
               </a>
             </div>
           </li>
@@ -99,9 +100,9 @@ export const StepAi = observer(() => {
             </div>
 
             <div className="flex flex-1 min-w-0 flex-col gap-1.5">
-              <p className="text-sm font-medium">{t("promptLabel")}</p>
+              <p className="text-sm font-medium">{t("OnboardingWizard.ai.promptLabel")}</p>
 
-              <p className="text-xs text-muted-foreground">{t("promptHint")}</p>
+              <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.promptHint")}</p>
 
               <CopyableCode className="max-h-48 overflow-y-auto" value={setupPrompt} />
             </div>
@@ -109,18 +110,15 @@ export const StepAi = observer(() => {
         </ol>
       )}
 
-      {choice === "skip" && <p className="text-xs text-muted-foreground">{t("skipHint")}</p>}
+      {choice === "skip" && <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.skipHint")}</p>}
 
       <div className="flex justify-end gap-4 pt-2">
         <Button
           disabled={!canContinue || onboardingWizardStore.isSubmitting}
           type="button"
-          onClick={() => {
-            onboardingWizardStore.setIsSubmitting(true);
-            void completeOnboardingWizardAction().finally(() => onboardingWizardStore.setIsSubmitting(false));
-          }}
+          onClick={() => void onboardingWizardStore.complete()}
         >
-          {tw("finish")}
+          {t("OnboardingWizard.finish")}
         </Button>
       </div>
     </div>

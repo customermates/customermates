@@ -3,7 +3,7 @@ import type { ExtendedWidget, DiagramDataPoint } from "../widget.types";
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
-import { getWidgetGroupingService, getWidgetDataFetcher } from "@/core/di";
+import { getWidgetGroupingService, getWidgetDataFetcher, getCustomColumnRepo } from "@/core/di";
 
 export class PrismaWidgetCalculatorRepo extends BaseRepository {
   async calculateWidgetData(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
@@ -23,10 +23,6 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
         break;
     }
 
-    return this.sortData(data);
-  }
-
-  private sortData(data: DiagramDataPoint[]): DiagramDataPoint[] {
     return [...data].sort((a, b) => b.value - a.value);
   }
 
@@ -36,33 +32,37 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
     if (groupByType === WidgetGroupByType.none)
       return [{ label: "Total", value: await getWidgetDataFetcher().getEntityCount(entityType, entityFilters) }];
 
+    if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId) {
+      const customColumn = await getCustomColumnRepo().find(groupByCustomColumnId);
+      if (!customColumn || customColumn.type !== "singleSelect") return [];
+
+      const counts = await getWidgetDataFetcher().countByCustomColumn(entityType, entityFilters, groupByCustomColumnId);
+      return getWidgetGroupingService().buildCustomColumnPoints(counts, customColumn);
+    }
+
     const entities = await getWidgetDataFetcher().getEntitiesForGrouping(entityType, entityFilters);
-
-    if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId)
-      return getWidgetGroupingService().groupEntitiesByCustomColumn(entityType, entities, groupByCustomColumnId);
-
     return getWidgetGroupingService().groupEntitiesByEntityType(entities, entityType);
   }
 
   private async calculateDealValue(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
     const { entityType, groupByType, groupByCustomColumnId } = widget;
 
-    const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
-
     if (groupByType === WidgetGroupByType.none) {
-      const totalValue =
-        entityType === EntityType.service
-          ? // For services, we need to calculate from filtered services only (deal.services contains only the filtered services),
-            // not from deal.totalValue which includes all services in the deal
-            deals.reduce(
-              (sum, deal) => sum + (deal.services ?? []).reduce((s, sd) => s + sd.service.amount * sd.quantity, 0),
-              0,
-            )
-          : // For other entity types, we can use deal.totalValue which includes all services in each deal
-            deals.reduce((sum, deal) => sum + deal.totalValue, 0);
+      if (entityType === EntityType.service) {
+        // Services sum from the filtered services only (deal.services contains only the filtered services),
+        // not deal.totalValue which includes every service in the deal.
+        const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
+        const totalValue = deals.reduce(
+          (sum, deal) => sum + (deal.services ?? []).reduce((s, sd) => s + sd.service.amount * sd.quantity, 0),
+          0,
+        );
+        return [{ label: "Total", value: totalValue }];
+      }
 
-      return [{ label: "Total", value: totalValue }];
+      return [{ label: "Total", value: await getWidgetDataFetcher().sumDealField(widget, "totalValue") }];
     }
+
+    const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
 
     if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId)
       return await getWidgetGroupingService().groupDealsByCustomColumn(widget, deals);
@@ -75,10 +75,10 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
 
     if (entityType !== EntityType.service) return [];
 
-    const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
-
     if (groupByType === WidgetGroupByType.none)
-      return [{ label: "Total", value: deals.reduce((sum, deal) => sum + deal.totalQuantity, 0) }];
+      return [{ label: "Total", value: await getWidgetDataFetcher().sumDealField(widget, "totalQuantity") }];
+
+    const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
 
     if (groupByType === WidgetGroupByType.service)
       return getWidgetGroupingService().groupDealsByEntityType(widget, deals);

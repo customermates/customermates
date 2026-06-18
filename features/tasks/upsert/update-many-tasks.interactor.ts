@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -12,26 +11,31 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
-import { validateContactIds } from "../../contacts/validate-contact-ids";
-import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
-import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import {
+  validateContactIds,
+  validateUserIds,
+  validateSystemTaskName,
+  validateTaskIds,
+  validateOrganizationIds,
+  validateDealIds,
+  validateServiceIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type TaskDto, TaskDtoSchema } from "../task.schema";
 
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 import {
-  getCompanyRepo,
+  getUserRepo,
+  getUserService,
   getContactRepo,
   getCustomColumnRepo,
   getDealRepo,
@@ -64,25 +68,33 @@ export const UpdateManyTasksSchema = z
     const [
       validUserIdsSet,
       validTaskIdsSet,
+      systemTaskIdsSet,
       validContactIdsSet,
       validOrgIdsSet,
       validDealIdsSet,
       validServiceIdsSet,
       allColumns,
+      currentUser,
+      canReadAll,
     ] = await Promise.all([
-      getCompanyRepo().findIds(userSet),
+      getUserRepo().findIds(userSet),
       getTaskRepo().findIds(taskSet),
+      getTaskRepo().findSystemTaskIds(taskSet),
       getContactRepo().findIds(contactSet),
       getOrganizationRepo().findIds(orgSet),
       getDealRepo().findIds(dealSet),
       getServiceRepo().findIds(serviceSet),
       getCustomColumnRepo().findByEntityType(EntityType.task),
+      getUserService().getActiveUserOrThrow(),
+      getUserService().hasPermission(Resource.tasks, Action.readAll),
     ]);
 
     for (let i = 0; i < data.tasks.length; i++) {
       const task = data.tasks[i];
       validateTaskIds(task.id, validTaskIdsSet, ctx, ["tasks", i, "id"]);
+      validateSystemTaskName(task, systemTaskIdsSet, ctx, ["tasks", i]);
       validateUserIds(task.userIds, validUserIdsSet, ctx, ["tasks", i, "userIds"]);
+      validateAssigneeGuard(task.userIds, currentUser.id, canReadAll, ctx, ["tasks", i, "userIds"]);
       validateContactIds(task.contactIds, validContactIdsSet, ctx, ["tasks", i, "contactIds"]);
       validateOrganizationIds(task.organizationIds, validOrgIdsSet, ctx, ["tasks", i, "organizationIds"]);
       validateDealIds(task.dealIds, validDealIdsSet, ctx, ["tasks", i, "dealIds"]);
@@ -93,11 +105,11 @@ export const UpdateManyTasksSchema = z
   });
 export type UpdateManyTasksData = Data<typeof UpdateManyTasksSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.tasks,
   action: Action.update,
 })
-export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksData, TaskDto[]> {
+export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateManyTasksData, TaskDto[]> {
   constructor(
     private repo: UpdateTaskRepo,
     private contactsRepo: GetUnscopedContactRepo,
@@ -105,7 +117,6 @@ export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksDat
     private dealsRepo: GetUnscopedDealRepo,
     private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -200,7 +211,6 @@ export class UpdateManyTasksInteractor extends BaseInteractor<UpdateManyTasksDat
           },
         });
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: tasks };

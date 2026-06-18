@@ -5,8 +5,10 @@ import { writeFileSync, mkdirSync } from "fs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, Prisma } from "@/generated/prisma";
 
+import { env } from "@/env";
+
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -29,7 +31,7 @@ async function dumpAllTables() {
       const omit = GENERATED_COLUMNS_BY_MODEL[table];
       const data = await (prisma as any)[table].findMany({
         take: 1000,
-        ...(omit ? { omit } : {}),
+        omit,
       });
 
       const fileName = `${seedsDir}/${table.toLowerCase()}.json`;

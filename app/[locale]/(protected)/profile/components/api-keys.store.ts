@@ -11,7 +11,7 @@ import { deleteApiKeyAction, refreshApiKeysAction } from "../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.api);
 
     makeObservable(this, {

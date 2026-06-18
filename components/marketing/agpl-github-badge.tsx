@@ -21,8 +21,8 @@ async function getStarCount(): Promise<number | null> {
 }
 
 export async function AgplGithubBadge({ className }: Props) {
-  const t = await getTranslations("AgplGithubBadge");
-  const label = t("label");
+  const t = await getTranslations();
+  const label = t("AgplGithubBadge.label");
   const starCount = await getStarCount();
 
   return (

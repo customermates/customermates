@@ -2,29 +2,45 @@ import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { InviteUsersByEmailData } from "@/features/company/invite-users-by-email.interactor";
 
-import { action, makeObservable, toJS } from "mobx";
-import { toast } from "sonner";
+import { action, makeObservable, observable, runInAction, toJS } from "mobx";
 import { Resource } from "@/generated/prisma";
 
-import { inviteUsersByEmailAction } from "../../actions";
+import { getOrCreateInviteTokenAction, inviteUsersByEmailAction } from "../../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 
 export const MAX_INVITE_EMAILS = 20;
 
 export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
-  constructor(public readonly rootStore: RootStore) {
+  inviteToken: string | null = null;
+  isLoadingToken = true;
+
+  constructor(rootStore: RootStore) {
     super(rootStore, { emails: [] }, Resource.users);
 
     makeObservable(this, {
+      inviteToken: observable,
+      isLoadingToken: observable,
+      loadInviteToken: action,
       onSubmit: action,
     });
   }
 
+  loadInviteToken = async (): Promise<void> => {
+    try {
+      const res = await getOrCreateInviteTokenAction();
+      runInAction(() => {
+        this.inviteToken = res.token;
+      });
+    } finally {
+      runInAction(() => {
+        this.isLoadingToken = false;
+      });
+    }
+  };
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
-    if (this.form.emails.length === 0) return;
-
     this.setIsLoading(true);
 
     try {
@@ -32,11 +48,7 @@ export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
 
       if (res.ok) {
         this.onInitOrRefresh({ emails: [] });
-        toast.success(
-          this.rootStore.localeStore.getTranslation("OnboardingWizard.invite.sentSuccess", {
-            count: res.data.sent,
-          }),
-        );
+        this.toastSuccess("OnboardingWizard.invite.sentSuccess", { values: { count: res.data.sent } });
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);

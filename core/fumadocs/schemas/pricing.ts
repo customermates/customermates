@@ -13,7 +13,6 @@ export const pricingTableRowSchema = z.object({
   title: z.string(),
   rows: z.array(pricingRowSchema),
 });
-export type PricingTableRow = z.infer<typeof pricingTableRowSchema>;
 
 export const pricingCardSchema = z.object({
   title: z.string(),
@@ -47,13 +46,11 @@ const comparisonTablePlanSchema = z.object({
   button: z.string(),
   buttonHref: z.string(),
 });
-export type ComparisonTablePlan = z.infer<typeof comparisonTablePlanSchema>;
 
 export const comparisonTablePlansSchema = z.object({
   pro: comparisonTablePlanSchema,
   enterprise: comparisonTablePlanSchema,
 });
-export type ComparisonTablePlans = z.infer<typeof comparisonTablePlansSchema>;
 
 export const comparisonTableSchema = z.object({
   header: z.string(),

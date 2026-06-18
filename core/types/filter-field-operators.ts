@@ -18,7 +18,7 @@ const dateOperators = [
   FilterOperatorKey.inLastDays,
 ];
 
-const stringArrayOperators = [FilterOperatorKey.equals, FilterOperatorKey.isNull, FilterOperatorKey.isNotNull];
+const scalarSelectOperators = [FilterOperatorKey.in, FilterOperatorKey.notIn];
 
 export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperatorKey[]> = {
   [FilterFieldKey.userIds]: relationOperators,
@@ -26,10 +26,15 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.dealIds]: relationOperators,
   [FilterFieldKey.organizationIds]: relationOperators,
   [FilterFieldKey.contactIds]: relationOperators,
+  [FilterFieldKey.participantContactId]: scalarSelectOperators,
+  [FilterFieldKey.participants]: [FilterOperatorKey.hasUnset],
+  [FilterFieldKey.timelineKind]: scalarSelectOperators,
+  [FilterFieldKey.timelineThreadId]: scalarSelectOperators,
   [FilterFieldKey.taskIds]: relationOperators,
-  [FilterFieldKey.emails]: stringArrayOperators,
   [FilterFieldKey.updatedAt]: dateOperators,
   [FilterFieldKey.createdAt]: dateOperators,
-  [FilterFieldKey.event]: [FilterOperatorKey.in, FilterOperatorKey.notIn],
-  [FilterFieldKey.status]: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  [FilterFieldKey.event]: scalarSelectOperators,
+  [FilterFieldKey.status]: scalarSelectOperators,
+  [FilterFieldKey.provider]: scalarSelectOperators,
+  [FilterFieldKey.state]: scalarSelectOperators,
 };

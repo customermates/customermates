@@ -20,7 +20,7 @@ type Props = {
 
 export const RolesCard = observer(({ initialRoles }: Props) => {
   const { rolesStore, roleModalStore } = useRootStore();
-  const t = useTranslations("");
+  const t = useTranslations();
 
   useEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
 

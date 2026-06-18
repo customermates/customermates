@@ -3,10 +3,10 @@ import { Resource, Action, CountryCode as CountryCodeEnum } from "@/generated/pr
 
 import type { CountryCode } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const UserDetailsDtoSchema = z.object({
@@ -30,14 +30,14 @@ export interface UserDetails {
 }
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },
   ],
   condition: "OR",
 })
-export class GetUserDetailsInteractor extends BaseInteractor<void, UserDetails> {
+export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, UserDetails> {
   @ValidateOutput(UserDetailsDtoSchema)
   // The invoke method is not async, but the decorator requires it
   // eslint-disable-next-line @typescript-eslint/require-await

@@ -12,17 +12,18 @@ import type { Resource } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
-export abstract class BaseFormStore<T extends object = object> {
+import { BaseStore } from "./base.store";
+
+export abstract class BaseFormStore<T extends object = object> extends BaseStore {
   public savedState: T;
   public form: T;
   public isLoading = false;
   public error: $ZodErrorTree<T> | undefined = undefined;
   public withUnsavedChangesGuard = true;
   public readonly resource?: Resource;
-  public readonly rootStore: RootStore;
 
   constructor(rootStore: RootStore, initialState: T, resource?: Resource) {
-    this.rootStore = rootStore;
+    super(rootStore);
     this.savedState = cloneDeep(initialState);
     this.form = { ...initialState };
     this.resource = resource;

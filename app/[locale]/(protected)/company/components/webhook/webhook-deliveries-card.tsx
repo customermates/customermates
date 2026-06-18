@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const WebhookDeliveriesCard = observer(({ initialDeliveries }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { webhookDeliveryModalStore, webhookDeliveriesStore, intlStore } = useRootStore();
 
   useEffect(() => webhookDeliveriesStore.setItems(initialDeliveries), [initialDeliveries]);

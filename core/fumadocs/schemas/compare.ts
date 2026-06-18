@@ -15,7 +15,6 @@ export const comparisonItemSchema = z.object({
   title: z.string(),
   features: z.array(comparisonFeatureSchema),
 });
-export type ComparisonItem = z.infer<typeof comparisonItemSchema>;
 
 export const comparisonTableSchema = z.object({
   competitorName: z.string(),

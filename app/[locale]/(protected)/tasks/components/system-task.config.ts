@@ -1,6 +1,6 @@
 import type { TaskType } from "@/generated/prisma";
 
-export const SYSTEM_TASK_CONFIG: Record<
+const SYSTEM_TASK_CONFIG: Record<
   TaskType,
   {
     alertTranslationKey: string;

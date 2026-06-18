@@ -1,8 +1,9 @@
 import { Resource } from "@/generated/prisma";
 
-import { TasksCardComponent } from "./components/tasks-card";
+import { TasksCard } from "./components/tasks-card";
 
-import { getGetTasksInteractor, getRouteGuardService } from "@/core/di";
+import { getGetTasksInteractor } from "@/core/di";
+import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default async function TasksPage({ searchParams }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.tasks });
+  await requireAccess({ resource: Resource.tasks });
 
   const params = await searchParams;
   const taskParams = decodeGetParams(params);
@@ -20,7 +21,7 @@ export default async function TasksPage({ searchParams }: Props) {
 
   return (
     <PageContainer padded={false}>
-      <TasksCardComponent tasks={tasks.ok ? tasks.data : { items: [] }} />
+      <TasksCard tasks={tasks.ok ? tasks.data : { items: [] }} />
     </PageContainer>
   );
 }

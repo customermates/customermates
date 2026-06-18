@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type GetQueryParams, GetQueryParamsSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -12,8 +12,8 @@ export abstract class CountTasksRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class CountUserTasksInteractor extends BaseInteractor<GetQueryParams, number> {
+@TenantInteractor()
+export class CountUserTasksInteractor extends AuthenticatedInteractor<GetQueryParams, number> {
   constructor(private repo: CountTasksRepo) {
     super();
   }

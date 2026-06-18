@@ -1,17 +1,17 @@
 import type { EmailService } from "@/features/email/email.service";
 
-import { getTranslations } from "next-intl/server";
-
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
 import TrialInactivationReminder from "@/components/emails/trial-inactivation-reminder";
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
-import { BASE_URL } from "@/constants/env";
+import { getTranslator } from "@/i18n/get-translator";
+import { resolveUserLocale } from "@/i18n/user-locale";
+import { env } from "@/env";
 
 export abstract class SendTrialInactivationReminderActionRepo {
   abstract findUsersWithTrialEndedBetween3And4Days(): Promise<User[]>;
-  abstract claimTrialInactivationReminderSent(userId: string, sentAt: Date): Promise<boolean>;
+  abstract claimTrialInactivationReminderSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -25,15 +25,13 @@ export class SendTrialInactivationReminderInteractor {
     const users = await this.repo.findUsersWithTrialEndedBetween3And4Days();
 
     for (const user of users.filter((item) => !item.trialInactivationReminderSentAt)) {
-      const claimed = await this.repo.claimTrialInactivationReminderSent(user.id, new Date());
+      const claimed = await this.repo.claimTrialInactivationReminderSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
-      const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
-      const contactHref = `${BASE_URL}/contact`;
-      const t = await getTranslations({
-        locale,
-        namespace: "TrialInactivationReminder",
-      });
+      const locale = resolveUserLocale(user);
+      const contactHref = `${env.BASE_URL}/contact`;
+      const t = await getTranslator(locale, "TrialInactivationReminder");
+
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),

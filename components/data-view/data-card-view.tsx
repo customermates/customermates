@@ -2,13 +2,12 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +18,6 @@ type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
   onCardClick?: (item: E) => void;
   cardHref?: (item: E) => string | undefined;
-  renderCard?: (item: E) => ReactNode;
   className?: string;
 };
 
@@ -28,7 +26,6 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   columns,
   onCardClick,
   cardHref,
-  renderCard,
   className,
 }: Props<E>) {
   const navigateToHref = useNavigateToHref();
@@ -74,7 +71,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
               )}
 
               <CardContent className="px-4">
-                {renderCard ? renderCard(row.original) : <DataCardBody row={row} />}
+                <DataCardBody row={row} />
               </CardContent>
             </Card>
           );

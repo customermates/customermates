@@ -25,9 +25,9 @@ export type FormEntityDto = {
   customFieldValues: CustomFieldValueDto[];
 };
 
-export type EntityActionResult<T> = { ok: true; data: T } | { ok: false; error: unknown };
+type EntityActionResult<T> = { ok: true; data: T } | { ok: false; error: unknown };
 
-export type EntityActions<TForm, TDto extends EntityDto> = {
+type EntityActions<TForm, TDto extends EntityDto> = {
   getById: (data: { id: string }) => Promise<{ entity: TDto | null; customColumns: CustomColumnDto[] }>;
   create: (data: TForm) => Promise<EntityActionResult<TDto>>;
   update: (data: TForm & { id: string }) => Promise<EntityActionResult<TDto>>;
@@ -57,11 +57,12 @@ export abstract class BaseCustomColumnEntityModalStore<
       add: action,
       delete: action,
       loadById: action,
+      hydrate: action,
+      recordRecentItem: action,
       initialize: action,
       onSubmit: action,
       consumeLastCreatedId: action,
 
-      isAssignedToCurrentUser: computed,
       customColumns: computed,
     });
   }
@@ -74,11 +75,6 @@ export abstract class BaseCustomColumnEntityModalStore<
 
   get customColumns() {
     return this.entityStore.customColumns;
-  }
-
-  get isAssignedToCurrentUser(): boolean {
-    const userIds = (this.form as { userIds?: string[] }).userIds;
-    return userIds?.includes(this.rootStore.userStore.user?.id ?? "") ?? false;
   }
 
   protected initFormWithCustomFieldValues(entity?: TDto): Partial<TForm> {
@@ -103,7 +99,10 @@ export abstract class BaseCustomColumnEntityModalStore<
   }
 
   initialize = () => {
-    this.onInitOrRefresh({ id: undefined, ...this.initFormWithCustomFieldValues() });
+    this.onInitOrRefresh({
+      id: undefined,
+      ...this.initFormWithCustomFieldValues(),
+    });
   };
 
   add = async () => {
@@ -144,22 +143,33 @@ export abstract class BaseCustomColumnEntityModalStore<
 
     try {
       const result = await this.actions.getById({ id });
-
-      this.entityStore.setCustomColumns(result.customColumns);
-
       if (result.entity) {
-        this.fetchedEntity = result.entity;
-        this.setError(undefined);
-
-        const formData = this.initFormWithCustomFieldValues(result.entity);
-        this.onInitOrRefresh(formData);
-
-        const recentItem = this.buildRecentSearchItem(result.entity);
-        if (recentItem) this.rootStore.globalSearchModalStore.pushRecentItem(recentItem);
-      } else this.close();
+        this.hydrate(result.entity, result.customColumns);
+        this.recordRecentItem(result.entity);
+      } else {
+        this.entityStore.setCustomColumns(result.customColumns);
+        this.close();
+      }
     } finally {
       this.setIsLoading(false);
     }
+  };
+
+  hydrate = (entity: TDto, customColumns: CustomColumnDto[]) => {
+    const currentIds = new Set(this.entityStore.customColumns.map((column) => column.id));
+    const columnsUnchanged =
+      this.entityStore.customColumns.length === customColumns.length &&
+      customColumns.every((column) => currentIds.has(column.id));
+    if (!columnsUnchanged) this.entityStore.setCustomColumns(customColumns);
+    this.fetchedEntity = entity;
+    this.setError(undefined);
+    const formData = this.initFormWithCustomFieldValues(entity);
+    this.onInitOrRefresh(formData);
+  };
+
+  recordRecentItem = (entity: TDto) => {
+    const recentItem = this.buildRecentSearchItem(entity);
+    if (recentItem) this.rootStore.globalSearchModalStore.pushRecentItem(recentItem);
   };
 
   protected buildRecentSearchItem(_entity: TDto): GlobalSearchResultItem | null {
@@ -170,11 +180,6 @@ export abstract class BaseCustomColumnEntityModalStore<
     event?.preventDefault();
 
     if (this.form.id && !this.hasUnsavedChanges) return;
-
-    if (!(this.canReadAll || this.isAssignedToCurrentUser)) {
-      this.isSubmittingWithGuard = true;
-      return;
-    }
 
     this.setIsLoading(true);
 
@@ -191,6 +196,7 @@ export abstract class BaseCustomColumnEntityModalStore<
         if (this.fetchedEntity) this.fetchedEntity = res.data;
         this.onInitOrRefresh(this.initFormWithCustomFieldValues(res.data));
         if (isCreate) this.lastCreatedId = res.data.id;
+        this.rootStore.activitiesStore.refreshFor(res.data.id);
         this.close();
       } else this.setError(res.error as any);
     } finally {

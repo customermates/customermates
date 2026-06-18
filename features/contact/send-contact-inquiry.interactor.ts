@@ -9,6 +9,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Validated } from "@/core/validation/validation.utils";
 import ContactInquiry from "@/components/emails/contact-inquiry";
+import { env } from "@/env";
 
 @SystemInteractor
 export class SendContactInquiryInteractor {
@@ -18,7 +19,7 @@ export class SendContactInquiryInteractor {
   @ValidateOutput(SendContactInquirySchema)
   async invoke(data: SendContactInquiryData): Validated<SendContactInquiryData> {
     await this.emailService.send({
-      to: "mail@customermates.com",
+      to: env.RESEND_OPERATOR_EMAIL,
       subject: `Contact inquiry from ${data.name}`,
       react: createElement(ContactInquiry, {
         name: data.name,

@@ -1,17 +1,17 @@
 import type { EmailService } from "@/features/email/email.service";
 
-import { getTranslations } from "next-intl/server";
-
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
 import TrialExpiredOffer from "@/components/emails/trial-expired-offer";
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
-import { BASE_URL } from "@/constants/env";
+import { getTranslator } from "@/i18n/get-translator";
+import { resolveUserLocale } from "@/i18n/user-locale";
+import { env } from "@/env";
 
 export abstract class SendTrialExtensionOfferActionRepo {
   abstract findUsersWithTrialEndedLast24Hours(): Promise<User[]>;
-  abstract claimTrialExpiredOfferSent(userId: string, sentAt: Date): Promise<boolean>;
+  abstract claimTrialExpiredOfferSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -25,15 +25,13 @@ export class SendTrialExtensionOfferInteractor {
     const users = await this.repo.findUsersWithTrialEndedLast24Hours();
 
     for (const user of users.filter((item) => !item.trialExpiredOfferSentAt)) {
-      const claimed = await this.repo.claimTrialExpiredOfferSent(user.id, new Date());
+      const claimed = await this.repo.claimTrialExpiredOfferSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
-      const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
-      const contactHref = `${BASE_URL}/contact`;
-      const t = await getTranslations({
-        locale,
-        namespace: "TrialExpiredOffer",
-      });
+      const locale = resolveUserLocale(user);
+      const contactHref = `${env.BASE_URL}/contact`;
+      const t = await getTranslator(locale, "TrialExpiredOffer");
+
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),

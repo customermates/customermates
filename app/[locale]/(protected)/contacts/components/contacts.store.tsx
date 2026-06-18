@@ -10,7 +10,7 @@ import { getContactsAction } from "../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class ContactsStore extends BaseDataViewStore<ContactDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.contacts, EntityType.contact);
   }
 
@@ -29,7 +29,7 @@ export class ContactsStore extends BaseDataViewStore<ContactDto> {
   get columnsDefinition() {
     const columns: (TableColumn | false)[] = [
       { uid: "name", sortable: true },
-      { uid: "emails" },
+      { uid: "channels" },
       this.canAccessOrganizations && { uid: "organizations" },
       this.canAccessDeals && { uid: "deals" },
       this.canAccessTasks && { uid: "tasks" },

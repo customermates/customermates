@@ -19,7 +19,7 @@ import { ShellHeader } from "@/app/components/shell-header";
 import { isDocItemActive, normalizeDocsPath, useDocGroups } from "./docs-sidebar";
 
 export function DocsTopBar() {
-  const t = useTranslations("");
+  const t = useTranslations();
   const pathname = usePathname();
   const groups = useDocGroups();
 

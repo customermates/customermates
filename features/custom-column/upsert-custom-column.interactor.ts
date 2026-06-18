@@ -8,18 +8,19 @@ import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/gene
 import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const OptionSchema = z.object({
   value: z.uuid(),
-  label: z.string().min(1),
+  label: z.string().min(1).max(255),
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number().min(0),
@@ -27,7 +28,7 @@ const OptionSchema = z.object({
 
 const BaseSchema = z.object({
   id: z.uuid().optional(),
-  label: z.string().min(1),
+  label: z.string().min(1).max(255),
   entityType: z.enum(EntityType),
 });
 
@@ -128,8 +129,8 @@ export abstract class UpsertCustomColumnRepo {
   abstract upsertCustomColumn(args: UpsertCustomColumnData): Promise<CustomColumnDto>;
 }
 
-@TentantInteractor()
-export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomColumnData, CustomColumnDto> {
+@TenantInteractor()
+export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<UpsertCustomColumnData, CustomColumnDto> {
   constructor(
     private repo: UpsertCustomColumnRepo,
     private userService: UserService,
@@ -140,6 +141,7 @@ export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomCol
 
   @Validate(UpsertCustomColumnSchema)
   @ValidateOutput(CustomColumnDtoSchema)
+  @Transaction
   async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto> {
     const updatePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
       [EntityType.contact]: { resource: Resource.contacts, action: Action.update },
@@ -159,7 +161,7 @@ export class UpsertCustomColumnInteractor extends BaseInteractor<UpsertCustomCol
 
     const permission = data.id ? updatePermissionMap[data.entityType] : createPermissionMap[data.entityType];
 
-    if (!permission) throw new Error("You are not allowed to delete this custom column");
+    if (!permission) throw new Error("You are not allowed to modify this custom column");
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
 

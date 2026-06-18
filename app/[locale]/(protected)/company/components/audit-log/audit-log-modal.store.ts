@@ -1,5 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { AuditLogDto } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
+import type { AuditLogDto } from "@/ee/audit-log/audit-log.dto";
 
 import { Resource } from "@/generated/prisma";
 
@@ -7,7 +7,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -21,7 +21,9 @@ export class AuditLogModalStore extends BaseModalStore<AuditLogDto> {
             id: "",
             firstName: "",
             lastName: "",
-            emails: [],
+            avatarUrl: null,
+            notes: null,
+            identifiers: [],
             createdAt: new Date(),
             updatedAt: new Date(),
             organizations: [],

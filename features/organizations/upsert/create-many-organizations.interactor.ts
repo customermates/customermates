@@ -3,7 +3,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -11,23 +10,26 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
-import { validateContactIds } from "../../contacts/validate-contact-ids";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
+import {
+  validateContactIds,
+  validateUserIds,
+  validateDealIds,
+  validateTaskIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type OrganizationDto, OrganizationDtoSchema } from "../organization.schema";
 
 import { BaseCreateOrganizationSchema } from "./create-organization-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getContactRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/di";
+import { getUserRepo, getUserService, getContactRepo, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/di";
 
 export const CreateManyOrganizationsSchema = z
   .object({
@@ -46,18 +48,22 @@ export const CreateManyOrganizationsSchema = z
       organization.taskIds.forEach((id) => taskSet.add(id));
     }
 
-    const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
-      getContactRepo().findIds(contactSet),
-      getCompanyRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getTaskRepo().findIds(taskSet),
-      getCustomColumnRepo().findByEntityType(EntityType.organization),
-    ]);
+    const [validContactIdsSet, validUserIdsSet, validDealIdsSet, validTaskIdsSet, allColumns, currentUser, canReadAll] =
+      await Promise.all([
+        getContactRepo().findIds(contactSet),
+        getUserRepo().findIds(userSet),
+        getDealRepo().findIds(dealSet),
+        getTaskRepo().findIds(taskSet),
+        getCustomColumnRepo().findByEntityType(EntityType.organization),
+        getUserService().getActiveUserOrThrow(),
+        getUserService().hasPermission(Resource.organizations, Action.readAll),
+      ]);
 
     for (let i = 0; i < data.organizations.length; i++) {
       const organization = data.organizations[i];
       validateContactIds(organization.contactIds, validContactIdsSet, ctx, ["organizations", i, "contactIds"]);
       validateUserIds(organization.userIds, validUserIdsSet, ctx, ["organizations", i, "userIds"]);
+      validateAssigneeGuard(organization.userIds, currentUser.id, canReadAll, ctx, ["organizations", i, "userIds"]);
       validateDealIds(organization.dealIds, validDealIdsSet, ctx, ["organizations", i, "dealIds"]);
       validateTaskIds(organization.taskIds, validTaskIdsSet, ctx, ["organizations", i, "taskIds"]);
       validateCustomFieldValues(organization.customFieldValues, allColumns, ctx, [
@@ -70,18 +76,20 @@ export const CreateManyOrganizationsSchema = z
   });
 export type CreateManyOrganizationsData = Data<typeof CreateManyOrganizationsSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.organizations,
   action: Action.create,
 })
-export class CreateManyOrganizationsInteractor extends BaseInteractor<CreateManyOrganizationsData, OrganizationDto[]> {
+export class CreateManyOrganizationsInteractor extends AuthenticatedInteractor<
+  CreateManyOrganizationsData,
+  OrganizationDto[]
+> {
   constructor(
     private repo: CreateOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -144,7 +152,6 @@ export class CreateManyOrganizationsInteractor extends BaseInteractor<CreateMany
           payload: organization,
         }),
       ),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: organizations };

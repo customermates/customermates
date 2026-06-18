@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { webhookModalStore, webhooksStore, intlStore } = useRootStore();
 
   useEffect(() => webhooksStore.setItems(initialWebhooks), [initialWebhooks]);
@@ -42,7 +42,10 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
           <AppChipStack
             items={row.original.events.map((event) => {
               const [entity, action] = event.split(".");
-              return { id: event, label: t(`Common.events.${entity}.${action}`) };
+              return {
+                id: event,
+                label: t(`Common.events.${entity}.${action}`),
+              };
             })}
             size="sm"
           />
@@ -85,8 +88,25 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
     <DataViewContainer
       columns={columns}
       store={webhooksStore}
-      onAdd={() => void webhookModalStore.add()}
-      onRowClick={(item) => void webhookModalStore.edit(item)}
+      onAdd={() =>
+        webhookModalStore.openWith({
+          url: "",
+          description: undefined,
+          events: [],
+          secret: undefined,
+          enabled: true,
+        })
+      }
+      onRowClick={(item) =>
+        webhookModalStore.openWith({
+          id: item.id,
+          url: item.url,
+          description: item.description ?? undefined,
+          events: item.events,
+          secret: item.secret ?? undefined,
+          enabled: item.enabled,
+        })
+      }
     />
   );
 });

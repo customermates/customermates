@@ -69,25 +69,18 @@ function buildSegments(before: string, after: string): Segment[] {
     }
 
     segments.push({ kind: "context", lines: lines.slice(0, CONTEXT_LINES) });
-    segments.push({ kind: "collapsed", count: lines.length - CONTEXT_LINES * 2 });
+    segments.push({
+      kind: "collapsed",
+      count: lines.length - CONTEXT_LINES * 2,
+    });
     segments.push({ kind: "context", lines: lines.slice(-CONTEXT_LINES) });
   });
 
   return segments;
 }
 
-function MarkdownLine({ text }: { text: string }) {
-  if (!text.trim()) return <span className="block">&nbsp;</span>;
-
-  return (
-    <div className="prose prose-xs dark:prose-invert max-w-none text-[11px] [&>*]:my-0 [&>*]:text-[11px] [&>*]:leading-4">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
-    </div>
-  );
-}
-
 export function NotesDiff({ previous, current }: Props) {
-  const t = useTranslations("AuditLogModal");
+  const t = useTranslations();
 
   const segments = useMemo(() => buildSegments(toMarkdown(previous), toMarkdown(current)), [previous, current]);
 
@@ -104,7 +97,7 @@ export function NotesDiff({ previous, current }: Props) {
         if (segment.kind === "collapsed") {
           return (
             <div key={key} className="bg-muted/30 px-2 py-0.5 text-center text-[9px] text-subdued">
-              {t("unchangedLines", { count: segment.count })}
+              {t("AuditLogModal.unchangedLines", { count: segment.count })}
             </div>
           );
         }
@@ -130,7 +123,13 @@ export function NotesDiff({ previous, current }: Props) {
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <MarkdownLine text={line} />
+                  {line.trim() ? (
+                    <div className="prose prose-xs dark:prose-invert max-w-none text-[11px] *:my-0 *:text-[11px] *:leading-4">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{line}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <span className="block">&nbsp;</span>
+                  )}
                 </div>
               </div>
             ))}

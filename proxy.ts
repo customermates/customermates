@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
-import { IS_DEMO_MODE } from "./constants/env";
+import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 
 const intlMiddlewareRaw = createMiddleware(routing);
@@ -26,6 +26,7 @@ function hasSessionCookie(req: NextRequest): boolean {
 
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+  const base = env.BASE_URL;
 
   const isApiRoute = pathname.startsWith("/api");
 
@@ -51,8 +52,11 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  if (IS_DEMO_MODE) {
-    const isNonDemoUser = isAuthenticated && session?.user?.email !== process.env.DEMO_USER_EMAIL;
+  if (env.DEMO_MODE) {
+    if (!env.DEMO_USER_EMAIL || !env.DEMO_USER_PASSWORD)
+      throw new Error("DEMO_USER_EMAIL and DEMO_USER_PASSWORD must be set when DEMO_MODE=true");
+
+    const isNonDemoUser = isAuthenticated && session?.user?.email !== env.DEMO_USER_EMAIL;
 
     if (isNonDemoUser) await auth.api.signOut({ headers: req.headers });
 
@@ -60,8 +64,8 @@ export default async function proxy(req: NextRequest) {
       await auth.api.signInEmail({
         headers: req.headers,
         body: {
-          email: process.env.DEMO_USER_EMAIL as string,
-          password: process.env.DEMO_USER_PASSWORD as string,
+          email: env.DEMO_USER_EMAIL,
+          password: env.DEMO_USER_PASSWORD,
           rememberMe: true,
         },
       });
@@ -72,15 +76,15 @@ export default async function proxy(req: NextRequest) {
 
   const isRootOrLocaleOnly = ROUTING_LOCALES.some((locale) => pathname === `/${locale}`);
 
-  if (isAuthenticated && isRootOrLocaleOnly) return NextResponse.redirect(new URL(`${pathname}/dashboard`, req.url));
+  if (isAuthenticated && isRootOrLocaleOnly) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
 
   if (isPublicPage(req)) return intlMiddleware(req);
 
   if (!isAuthenticated) {
     const redirectLocale = currentLocale !== undefined ? currentLocale : ROUTING_DEFAULT_LOCALE;
     const signInPath = `/${redirectLocale}/auth/signin`;
-    const signInUrl = new URL(signInPath, req.url);
-    signInUrl.searchParams.set("callbackURL", req.url);
+    const signInUrl = new URL(signInPath, base);
+    signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
 
     return NextResponse.redirect(signInUrl);
   }
@@ -94,6 +98,8 @@ export const config = {
       /*
        * Exclude paths:
        * - og (Open Graph image route)
+       * - monitoring (Sentry tunnel route — must bypass i18n so the SDK can POST to /monitoring directly)
+       * - .well-known/workflow (Vercel Workflow SDK internal routes — must bypass auth/i18n)
        * - _next/static, _next/image (Next.js internal)
        * - _vercel (Vercel internal routes)
        * - Files with extensions (images, scripts, etc.)
@@ -106,7 +112,7 @@ export const config = {
        * Only requests that match the source pattern AND don't have prefetch headers will run middleware
        */
       source:
-        "/((?!og(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known/workflow|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

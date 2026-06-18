@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,12 +11,14 @@ import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 export type FormSelectItem = {
   value: string;
   label: string;
   disabled?: boolean;
   color?: ChipColor;
+  startContent?: ReactNode;
 };
 
 type Props = {
@@ -47,12 +48,10 @@ export const FormSelect = observer(
     onValueChange,
   }: Props) => {
     const store = useAppForm();
-    const t = useTranslations("Common.inputs");
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = store?.getValue(id);
     const value = raw == null ? "" : String(raw);
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);
     const isReadOnly = (store?.isReadOnly ?? false) || Boolean(readOnly);
     const isLoading = store?.isLoading ?? false;
@@ -88,7 +87,11 @@ export const FormSelect = observer(
                 (selectedItem.color ? (
                   <AppChip variant={selectedItem.color}>{selectedItem.label}</AppChip>
                 ) : (
-                  <span>{selectedItem.label}</span>
+                  <>
+                    {selectedItem.startContent}
+
+                    <span>{selectedItem.label}</span>
+                  </>
                 ))}
             </SelectValue>
           </SelectTrigger>
@@ -96,7 +99,15 @@ export const FormSelect = observer(
           <SelectContent>
             {items?.map((item) => (
               <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
-                {item.color ? <AppChip variant={item.color}>{item.label}</AppChip> : item.label}
+                {item.color ? (
+                  <AppChip variant={item.color}>{item.label}</AppChip>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    {item.startContent}
+
+                    {item.label}
+                  </span>
+                )}
               </SelectItem>
             ))}
 

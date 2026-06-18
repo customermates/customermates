@@ -22,7 +22,7 @@ function getHostname(src: string): string {
 }
 
 export function BrowserFrame({ src, title }: Props) {
-  const t = useTranslations("BrowserFrame");
+  const t = useTranslations();
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
   const tiltRef = useRef<HTMLDivElement | null>(null);
@@ -88,7 +88,9 @@ export function BrowserFrame({ src, title }: Props) {
       <div
         ref={tiltRef}
         className="relative overflow-hidden rounded-[14px] border border-border bg-card shadow-[0_22px_48px_-14px_rgba(0,0,0,0.22)] transition-transform duration-200 ease-out will-change-transform [transform-style:preserve-3d] [backface-visibility:hidden]"
-        style={{ transform: "rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0)" }}
+        style={{
+          transform: "rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0)",
+        }}
       >
         <div className="flex h-[34px] items-center gap-1.5 border-b border-border bg-muted/50 px-3">
           <span className="size-2.5 rounded-full bg-[#ff5f56]" />
@@ -100,7 +102,7 @@ export function BrowserFrame({ src, title }: Props) {
           <span className="flex flex-1 items-center justify-center gap-1.5 font-mono text-[11px] text-muted-foreground">
             <span>
               {/* eslint-disable-next-line react/jsx-newline */}
-              {hostname} · {t("live")}
+              {hostname} · {t("BrowserFrame.live")}
             </span>
 
             <span aria-hidden className="relative inline-flex size-1.5">
@@ -116,7 +118,7 @@ export function BrowserFrame({ src, title }: Props) {
             rel="noreferrer noopener"
             target="_blank"
           >
-            {t("open")}
+            {t("BrowserFrame.open")}
 
             <ArrowUpRight className="size-3" />
           </a>

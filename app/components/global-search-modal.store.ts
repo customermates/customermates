@@ -4,13 +4,14 @@ import type { GlobalSearchResult, GlobalSearchResultItem } from "@/features/sear
 import { action, makeObservable, observable, reaction } from "mobx";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
-import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
+import { Debouncer } from "@/core/utils/debounce";
+import { checkSearchResultExistsAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
 
 type GlobalSearchFormData = {
   searchTerm: string;
 };
 
-export type RecentSearchItem = GlobalSearchResultItem & { openedAt: number };
+type RecentSearchItem = GlobalSearchResultItem & { openedAt: number };
 
 const RECENT_STORAGE_KEY = "customermates:globalSearch:recent:v1";
 const RECENT_MAX = 8;
@@ -18,18 +19,10 @@ const RECENT_MAX = 8;
 function readRecentFromStorage(): RecentSearchItem[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(RECENT_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (it): it is RecentSearchItem =>
-        it &&
-        typeof it === "object" &&
-        typeof it.id === "string" &&
-        typeof it.name === "string" &&
-        typeof it.type === "string",
-    );
+    const parsed = JSON.parse(window.localStorage.getItem(RECENT_STORAGE_KEY) ?? "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((it): it is RecentSearchItem => typeof it?.id === "string" && typeof it?.type === "string")
+      : [];
   } catch {
     return [];
   }
@@ -47,9 +40,9 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
   public debouncedSearchTerm = "";
   public recentItems: RecentSearchItem[] = [];
 
-  private debounceTimer?: ReturnType<typeof setTimeout>;
+  private debouncer = new Debouncer();
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       searchTerm: "",
     });
@@ -90,6 +83,15 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
     writeRecentToStorage(this.recentItems);
   };
 
+  verifyRecentItem = async (item: GlobalSearchResultItem): Promise<boolean> => {
+    const exists = await checkSearchResultExistsAction({ type: item.type, id: item.id });
+    if (!exists) {
+      this.removeRecentItem(item.id);
+      this.toastError("GlobalSearch.staleItem");
+    }
+    return exists;
+  };
+
   clearRecentItems = () => {
     this.recentItems = [];
     writeRecentToStorage(this.recentItems);
@@ -99,9 +101,7 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
     reaction(
       () => this.form.searchTerm,
       (searchTerm) => {
-        if (this.debounceTimer) clearTimeout(this.debounceTimer);
-
-        this.debounceTimer = setTimeout(() => this.setDebouncedSearchTerm(searchTerm), 400);
+        this.debouncer.run(() => this.setDebouncedSearchTerm(searchTerm));
       },
     );
 
@@ -131,10 +131,7 @@ export class GlobalSearchModalStore extends BaseModalStore<GlobalSearchFormData>
           this.setDebouncedSearchTerm("");
           this.resetForm();
         } else {
-          if (this.debounceTimer) {
-            clearTimeout(this.debounceTimer);
-            this.debounceTimer = undefined;
-          }
+          this.debouncer.cancel();
           this.setResults(null);
           this.setDebouncedSearchTerm("");
         }

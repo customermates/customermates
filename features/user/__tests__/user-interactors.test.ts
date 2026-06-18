@@ -9,7 +9,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/constants/env", () => MOCK_ENV_MODULE);
+vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -48,7 +48,7 @@ describe("RegisterUserInteractor", () => {
     vi.clearAllMocks();
 
     mockAuthService = {
-      getSessionOrRedirect: vi.fn().mockResolvedValue({ user: { id: USER_ID } }),
+      resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     mockRepo = {

@@ -84,7 +84,7 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
 }
 
 export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E extends HasId>({ store }: Props<E>) {
-  const t = useTranslations("Common");
+  const t = useTranslations();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -112,7 +112,10 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
         store.setViewOptions({ viewMode: ViewMode.table });
         break;
       case "grid":
-        store.setViewOptions({ viewMode: ViewMode.card, groupingColumnId: undefined });
+        store.setViewOptions({
+          viewMode: ViewMode.card,
+          groupingColumnId: undefined,
+        });
         break;
       case "kanban": {
         const defaultGrouping = store.singleSelectCustomColumns[0]?.id ?? store.columnsDefinition[0]?.uid ?? "";
@@ -128,19 +131,27 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   function handleSortFieldChange(next: string) {
     if (!next) return;
     store.setQueryOptions({
-      sortDescriptor: { field: next, direction: currentSortDirection as Prisma.SortOrder },
+      sortDescriptor: {
+        field: next,
+        direction: currentSortDirection as Prisma.SortOrder,
+      },
     });
   }
 
   function handleSortDirectionChange(next: string) {
     if (!currentSortField) return;
     store.setQueryOptions({
-      sortDescriptor: { field: currentSortField, direction: next as Prisma.SortOrder },
+      sortDescriptor: {
+        field: currentSortField,
+        direction: next as Prisma.SortOrder,
+      },
     });
   }
 
   function handleGroupingChange(next: string) {
-    store.setViewOptions({ groupingColumnId: next === "__none__" ? undefined : next });
+    store.setViewOptions({
+      groupingColumnId: next === "__none__" ? undefined : next,
+    });
   }
 
   function handleToggle(uid: string, visible: boolean) {
@@ -169,7 +180,12 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button aria-label={t("ariaLabels.tooltipFields")} className="relative h-8" size="sm" variant="outline">
+        <Button
+          aria-label={t("Common.ariaLabels.tooltipFields")}
+          className="relative h-8"
+          size="sm"
+          variant="secondary"
+        >
           <SlidersHorizontal className="size-3.5" />
 
           {hasActiveOption && (
@@ -181,68 +197,72 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       <PopoverContent align="end" className="w-72 p-0 max-h-[70vh] overflow-y-auto">
         <TooltipProvider>
           <div className="flex flex-col">
-            <Section label={t("table.layout")}>
-              <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
-                <TabsList className="w-full border border-input bg-transparent">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("ariaLabels.switchToTableView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          value="table"
-                        >
-                          <Table className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
+            {
+              <Section label={t("Common.table.layout")}>
+                <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
+                  <TabsList className="w-full border border-input bg-transparent">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1">
+                          <TabsTrigger
+                            aria-label={t("Common.ariaLabels.switchToTableView")}
+                            className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                            value="table"
+                          >
+                            <Table className="size-3.5" />
+                          </TabsTrigger>
+                        </span>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("ariaLabels.switchToTableView")}</TooltipContent>
-                  </Tooltip>
+                      <TooltipContent>{t("Common.ariaLabels.switchToTableView")}</TooltipContent>
+                    </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("ariaLabels.switchToCardView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          value="grid"
-                        >
-                          <LayoutGrid className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1">
+                          <TabsTrigger
+                            aria-label={t("Common.ariaLabels.switchToCardView")}
+                            className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                            value="grid"
+                          >
+                            <LayoutGrid className="size-3.5" />
+                          </TabsTrigger>
+                        </span>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("ariaLabels.switchToCardView")}</TooltipContent>
-                  </Tooltip>
+                      <TooltipContent>{t("Common.ariaLabels.switchToCardView")}</TooltipContent>
+                    </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="flex-1">
-                        <TabsTrigger
-                          aria-label={t("ariaLabels.switchToKanbanView")}
-                          className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
-                          disabled={!canUseKanban}
-                          value="kanban"
-                        >
-                          <LayoutList className="size-3.5" />
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex-1">
+                          <TabsTrigger
+                            aria-label={t("Common.ariaLabels.switchToKanbanView")}
+                            className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground"
+                            disabled={!canUseKanban}
+                            value="kanban"
+                          >
+                            <LayoutList className="size-3.5" />
+                          </TabsTrigger>
+                        </span>
+                      </TooltipTrigger>
 
-                    <TooltipContent>
-                      {canUseKanban ? t("ariaLabels.switchToKanbanView") : t("ariaLabels.switchToKanbanViewDisabled")}
-                    </TooltipContent>
-                  </Tooltip>
-                </TabsList>
-              </Tabs>
-            </Section>
+                      <TooltipContent>
+                        {canUseKanban
+                          ? t("Common.ariaLabels.switchToKanbanView")
+                          : t("Common.ariaLabels.switchToKanbanViewDisabled")}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TabsList>
+                </Tabs>
+              </Section>
+            }
 
             {sortable.length > 0 && (
               <>
                 <Separator />
 
-                <Section label={t("sort.field")}>
+                <Section label={t("Common.sort.field")}>
                   <div className="flex gap-1 w-full">
                     <Select value={currentSortField} onValueChange={handleSortFieldChange}>
                       <SelectTrigger className="h-8 flex-1" size="sm">
@@ -252,7 +272,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                       <SelectContent>
                         {sortable.map((col) => (
                           <SelectItem key={col.uid} value={col.uid}>
-                            {col.label || t(`table.columns.${col.uid}`)}
+                            {col.label || t(`Common.table.columns.${col.uid}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -262,10 +282,12 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            aria-label={currentSortDirection === "asc" ? t("sort.descending") : t("sort.ascending")}
+                            aria-label={
+                              currentSortDirection === "asc" ? t("Common.sort.descending") : t("Common.sort.ascending")
+                            }
                             className="h-8 shrink-0"
                             size="icon"
-                            variant="outline"
+                            variant="secondary"
                             onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
                           >
                             {currentSortDirection === "asc" ? (
@@ -277,7 +299,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         </TooltipTrigger>
 
                         <TooltipContent>
-                          {currentSortDirection === "asc" ? t("sort.ascending") : t("sort.descending")}
+                          {currentSortDirection === "asc" ? t("Common.sort.ascending") : t("Common.sort.descending")}
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -290,14 +312,14 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
               <>
                 <Separator />
 
-                <Section label={t("table.groupBy")}>
+                <Section label={t("Common.table.groupBy")}>
                   <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
                     <SelectTrigger className="h-8 w-full" size="sm">
                       <SelectValue />
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value="__none__">{t("none")}</SelectItem>
+                      <SelectItem value="__none__">{t("Common.none")}</SelectItem>
 
                       {singleSelectColumns.map((col) => (
                         <SelectItem key={col.id} value={col.id}>
@@ -314,14 +336,14 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
               <>
                 <Separator />
 
-                <Section label={t("ariaLabels.tooltipFields")}>
+                <Section label={t("Common.ariaLabels.tooltipFields")}>
                   <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
                     <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
                       <div className="flex flex-col gap-0.5">
                         {orderedColumns.map((col) => {
                           const isPinned = col.uid === "name";
                           const isVisible = !hiddenSet.has(col.uid);
-                          const label = col.label || t(`table.columns.${col.uid}`);
+                          const label = col.label || t(`Common.table.columns.${col.uid}`);
                           return (
                             <FieldRow
                               key={col.uid}

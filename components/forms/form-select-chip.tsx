@@ -3,7 +3,6 @@
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
@@ -11,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type SelectItemShape = {
   key: string;
@@ -44,12 +44,10 @@ export const FormSelectChip = observer(
     containerClassName,
   }: Props) => {
     const store = useAppForm();
-    const t = useTranslations("Common.inputs");
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = store?.getValue(id);
     const value = raw == null ? "" : String(raw);
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
 
     const itemsArray = items ? Array.from(items) : [];
     const disabledSet = disabledKeys ? new Set(disabledKeys) : undefined;

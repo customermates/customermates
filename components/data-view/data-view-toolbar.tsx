@@ -1,7 +1,6 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { ReactNode } from "react";
 
 import { Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -18,7 +17,7 @@ type Props<E extends HasId> = {
   onAdd?: () => void;
   isSearchable?: boolean;
   searchPlaceholder?: string;
-  actions?: ReactNode;
+  showDisplayOptions?: boolean;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -26,13 +25,13 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   onAdd,
   isSearchable = true,
   searchPlaceholder,
-  actions,
+  showDisplayOptions = true,
 }: Props<E>) {
-  const t = useTranslations("Common.actions");
+  const t = useTranslations();
   if (!store.isReady) return null;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       {isSearchable && (
         <div className="shrink-0">
           <DataViewSearch placeholder={searchPlaceholder} store={store} />
@@ -42,17 +41,15 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
       <div className="flex items-center gap-1">
         <FilterPopover store={store} />
 
-        <DataViewDisplayOptions store={store} />
+        {showDisplayOptions && <DataViewDisplayOptions store={store} />}
 
         {onAdd && !store.isDisabled && (
-          <Button className="ml-1 h-8" size="sm" onClick={onAdd}>
+          <Button className="h-8" size="sm" onClick={onAdd}>
             <Plus className="size-3.5" />
 
-            <span className="hidden sm:inline">{t("add")}</span>
+            <span className="hidden sm:inline">{t("Common.actions.add")}</span>
           </Button>
         )}
-
-        {actions}
       </div>
     </div>
   );

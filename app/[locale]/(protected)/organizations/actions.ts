@@ -29,7 +29,7 @@ export async function updateOrganizationAction(data: UpdateOrganizationData) {
 }
 
 export async function deleteOrganizationAction(data: DeleteOrganizationData) {
-  return getDeleteOrganizationInteractor().invoke(data);
+  return serializeResult(getDeleteOrganizationInteractor().invoke(data));
 }
 
 export async function getOrganizationByIdAction(data: GetOrganizationByIdData) {

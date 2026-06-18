@@ -1,40 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { Loader2, MailWarning } from "lucide-react";
-
-import { resendVerificationEmailFromAppAction } from "../actions";
+import { MailWarning } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 export function VerifyEmailAction() {
-  const t = useTranslations("EmailVerification");
-  const [isLoading, setIsLoading] = useState(false);
-
-  async function handleResend() {
-    setIsLoading(true);
-    try {
-      const result = await resendVerificationEmailFromAppAction();
-      if (result.ok) toast.success(t("resendSuccess"));
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const t = useTranslations();
+  const { userStore } = useRootStore();
 
   return (
     <Button
       className="h-8"
-      disabled={isLoading}
       size="sm"
       type="button"
       variant="outline"
-      onClick={() => void handleResend()}
+      onClick={() => void userStore.resendVerificationEmail()}
     >
-      {isLoading ? <Loader2 className="size-3.5 animate-spin" /> : <MailWarning className="size-3.5" />}
+      <MailWarning className="size-3.5" />
 
-      <span>{isLoading ? t("resending") : t("resend")}</span>
+      <span>{t("EmailVerification.resend")}</span>
     </Button>
   );
 }

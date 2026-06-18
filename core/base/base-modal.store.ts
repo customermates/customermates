@@ -10,7 +10,6 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
   public isOpen = false;
   public isEditingCustomField = false;
   public isClosingWithGuard = false;
-  public isSubmittingWithGuard = false;
 
   constructor(rootStore: RootStore, initialState: T, resource?: Resource) {
     super(rootStore, initialState, resource);
@@ -21,9 +20,7 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
       isOpen: observable,
       isEditingCustomField: observable,
       isClosingWithGuard: observable,
-      isSubmittingWithGuard: observable,
 
-      setIsSubmittingWithGuard: action,
       setIsClosingWithGuard: action,
       toggleEditingCustomField: action,
       setIsEditingCustomField: action,
@@ -31,10 +28,6 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
       close: action,
     });
   }
-
-  setIsSubmittingWithGuard = (isSubmittingWithGuard: boolean) => {
-    this.isSubmittingWithGuard = isSubmittingWithGuard;
-  };
 
   setIsClosingWithGuard = (isClosingWithGuard: boolean) => {
     this.isClosingWithGuard = isClosingWithGuard;
@@ -51,6 +44,11 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
   open = () => {
     this.isEditingCustomField = false;
     this.isOpen = true;
+  };
+
+  openWith = (initial: Partial<T>) => {
+    this.onInitOrRefresh(initial);
+    this.open();
   };
 
   close = () => {

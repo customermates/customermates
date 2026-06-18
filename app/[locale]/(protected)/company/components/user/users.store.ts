@@ -9,7 +9,7 @@ import { getUsersAction } from "../../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class UsersStore extends BaseDataViewStore<UserDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.users);
   }
 

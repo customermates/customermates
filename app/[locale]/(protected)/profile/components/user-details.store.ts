@@ -10,7 +10,7 @@ import { updateUserAction } from "../actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
 
 export class UserDetailsStore extends BaseFormStore<UpdateUserDetailsData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       firstName: "",
       lastName: "",

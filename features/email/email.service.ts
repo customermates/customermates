@@ -2,7 +2,7 @@ import type React from "react";
 
 import { Resend } from "resend";
 
-import { IS_DEVELOPMENT, RESEND_FROM_EMAIL } from "@/constants/env";
+import { env } from "@/env";
 
 type SendArgs = {
   to: string;
@@ -11,11 +11,11 @@ type SendArgs = {
   from?: string;
 };
 
-const defaultSender = `Customermates <${RESEND_FROM_EMAIL}>`;
+const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
 
 export class EmailService {
   async send(args: SendArgs): Promise<void> {
-    if (IS_DEVELOPMENT) {
+    if (env.NODE_ENV !== "production") {
       console.log("[EmailService] EMAIL (local only)", {
         from: args.from ?? defaultSender,
         to: args.to,
@@ -26,10 +26,9 @@ export class EmailService {
       return;
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
+    if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
-    const resend = new Resend(apiKey);
+    const resend = new Resend(env.RESEND_API_KEY);
 
     await resend.emails.send({
       from: args.from ?? defaultSender,

@@ -1,21 +1,22 @@
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 
 import { type UserDto } from "../user.schema";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { UserDtoSchema } from "../user.schema";
 
 export abstract class GetUsersRepo extends BaseGetRepo<UserDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },
@@ -29,9 +30,9 @@ export class GetUsersInteractor extends BaseGetInteractor<UserDto> {
     });
   }
 
-  @Enforce(GetQueryParamsSchema)
+  @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(UserDtoSchema))
-  async invoke(params: GetQueryParams = {}) {
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<UserDto>> {
     return await super.invoke(params);
   }
 }

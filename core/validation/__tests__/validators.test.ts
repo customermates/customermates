@@ -3,9 +3,13 @@ import { describe, it, expect, vi } from "vitest";
 import type { z } from "zod";
 
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import type { IdentifierInput } from "@/features/contacts/contact.schema";
+import { CustomColumnType, EntityType, MessagingProvider } from "@/generated/prisma";
 
 import { CustomErrorCode } from "../validation.types";
+import { validateAssigneeGuard } from "../validate-assignee-guard";
+import { normalizeChannelValue } from "@/features/contacts/channel-value";
+import { validateIdentifierConflicts, validateIdentifiers } from "@/features/contacts/upsert/validate-identifiers";
 import { validateCustomFieldEmail } from "../validate-custom-field-email";
 import { validateCustomFieldPhone } from "../validate-custom-field-phone";
 import { validateCustomFieldCurrency } from "../validate-custom-field-currency";
@@ -17,11 +21,14 @@ import { validateCustomFieldDateTimeRange } from "../validate-custom-field-date-
 import { validateCustomFieldSingleSelect } from "../validate-custom-field-single-select";
 import { validateCustomColumnExists } from "../validate-custom-column-exists";
 import { validateEvent } from "../validate-event";
-import { validateOrganizationIds } from "../validate-organization-ids";
-import { validateUserIds } from "../validate-user-ids";
-import { validateDealIds } from "../validate-deal-ids";
-import { validateServiceIds } from "../validate-service-ids";
-import { validateTaskIds, validateSystemTaskIds } from "../validate-task-ids";
+import {
+  validateOrganizationIds,
+  validateUserIds,
+  validateDealIds,
+  validateServiceIds,
+  validateTaskIds,
+  validateSystemTaskIds,
+} from "../ids-validators";
 
 function createMockCtx() {
   const issues: unknown[] = [];
@@ -357,7 +364,7 @@ describe("validateEvent", () => {
     const ctx = createMockCtx();
     validateEvent("invalid.event", ctx, ["events"]);
     expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.invalidFilterField } }),
+      expect.objectContaining({ params: { error: CustomErrorCode.invalidFilterValue } }),
     );
   });
 
@@ -483,5 +490,181 @@ describe("validateSystemTaskIds", () => {
     const ctx = createMockCtx();
     validateSystemTaskIds(null, systemTaskIds, ctx, ["ids"]);
     expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+});
+
+describe("validateAssigneeGuard", () => {
+  it("skips when userIds is undefined", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard(undefined, "user-1", false, ctx, ["userIds"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("skips when the user can read all", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard([], "user-1", true, ctx, ["userIds"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("passes when the current user is assigned", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard(["user-2", "user-1"], "user-1", false, ctx, ["userIds"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("adds issue when the current user is not assigned", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard(["user-2"], "user-1", false, ctx, ["userIds"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.assigneeRequired }, path: ["userIds"] }),
+    );
+  });
+
+  it("adds issue when assignees are cleared with an empty array", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard([], "user-1", false, ctx, ["userIds"]);
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it("adds issue when assignees are cleared with null", () => {
+    const ctx = createMockCtx();
+    validateAssigneeGuard(null, "user-1", false, ctx, ["userIds"]);
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("normalizeChannelValue", () => {
+  it("lowercases a valid email", () => {
+    expect(normalizeChannelValue(MessagingProvider.mail, "User@Example.COM")).toBe("user@example.com");
+  });
+
+  it("returns null for an invalid email", () => {
+    expect(normalizeChannelValue(MessagingProvider.mail, "not-an-email")).toBeNull();
+  });
+
+  it("normalizes a whatsapp number to bare digits", () => {
+    expect(normalizeChannelValue(MessagingProvider.whatsapp, "+49 170 1234567")).toBe("491701234567");
+  });
+
+  it("returns null for a too-short whatsapp number", () => {
+    expect(normalizeChannelValue(MessagingProvider.whatsapp, "123")).toBeNull();
+  });
+
+  it("returns the trimmed value for handle providers", () => {
+    expect(normalizeChannelValue(MessagingProvider.linkedin, " some-handle ")).toBe("some-handle");
+  });
+
+  it("extracts the handle from a pasted profile URL", () => {
+    expect(normalizeChannelValue(MessagingProvider.linkedin, "https://www.linkedin.com/in/max-mustermann/")).toBe(
+      "max-mustermann",
+    );
+    expect(normalizeChannelValue(MessagingProvider.telegram, "https://t.me/somebody?start=x")).toBe("somebody");
+    expect(normalizeChannelValue(MessagingProvider.instagram, "instagram.com/some.user")).toBe("some.user");
+  });
+
+  it("strips a leading @ from handles", () => {
+    expect(normalizeChannelValue(MessagingProvider.telegram, "@somebody")).toBe("somebody");
+  });
+
+  it("accepts ingest-shaped handle values", () => {
+    expect(normalizeChannelValue(MessagingProvider.telegram, "+4915140388937")).toBe("+4915140388937");
+    expect(normalizeChannelValue(MessagingProvider.linkedin, "ACoAAB1cD_x=")).toBe("ACoAAB1cD_x=");
+  });
+
+  it("rejects handles with spaces or invalid characters", () => {
+    expect(normalizeChannelValue(MessagingProvider.linkedin, "john doe")).toBeNull();
+    expect(normalizeChannelValue(MessagingProvider.instagram, "name#fragment")).toBeNull();
+  });
+
+  it("returns null for empty input", () => {
+    expect(normalizeChannelValue(MessagingProvider.mail, "   ")).toBeNull();
+  });
+});
+
+describe("validateIdentifiers", () => {
+  it("drops messagingId for deterministic providers", () => {
+    const ctx = createMockCtx();
+    const identifiers = [
+      { provider: MessagingProvider.mail, value: "a@b.com", messagingId: "nonsense" } as IdentifierInput,
+      { provider: MessagingProvider.linkedin, value: "handle", messagingId: "ACoAA123" } as IdentifierInput,
+    ];
+    validateIdentifiers(identifiers, ctx, ["identifiers"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+    expect(identifiers[0].messagingId).toBeUndefined();
+    expect(identifiers[1].messagingId).toBe("ACoAA123");
+  });
+});
+
+describe("validateIdentifierConflicts", () => {
+  const mailIdentifier = (value: string) => ({ provider: MessagingProvider.mail, value }) as IdentifierInput;
+
+  it("passes when the identifier belongs to the same contact", () => {
+    const ctx = createMockCtx();
+    const owners = new Map([["mail:a@b.com", "contact-1"]]);
+    validateIdentifierConflicts(
+      [{ selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] }],
+      owners,
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("adds issue when the identifier belongs to another contact", () => {
+    const ctx = createMockCtx();
+    const owners = new Map([["mail:a@b.com", "contact-2"]]);
+    validateIdentifierConflicts(
+      [{ selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] }],
+      owners,
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.channelAlreadyLinked } }),
+    );
+  });
+
+  it("adds issue when two batch rows claim the same identifier", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [
+        { selfContactId: "batch-row:0", identifiers: [mailIdentifier("a@b.com")] },
+        { selfContactId: "batch-row:1", identifiers: [mailIdentifier("a@b.com")] },
+      ],
+      new Map<string, string>(),
+      ctx,
+      (i) => ["rows", i],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it("passes when one batch row repeats its own identifier", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [{ selfContactId: "batch-row:0", identifiers: [mailIdentifier("a@b.com"), mailIdentifier("a@b.com")] }],
+      new Map<string, string>(),
+      ctx,
+      () => ["rows", 0],
+    );
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("rejects handle-provider channels owned by another contact", () => {
+    const ctx = createMockCtx();
+    const owners = new Map([["linkedin:handle", "contact-2"]]);
+    validateIdentifierConflicts(
+      [
+        {
+          selfContactId: "contact-1",
+          identifiers: [{ provider: MessagingProvider.linkedin, value: "handle" } as IdentifierInput],
+        },
+      ],
+      owners,
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.channelAlreadyLinked } }),
+    );
   });
 });

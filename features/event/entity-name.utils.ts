@@ -6,6 +6,14 @@ import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/task
 
 import { DomainEvent } from "./domain-events";
 
+function connectedAccountName(account: {
+  displayName: string | null;
+  emailAddress: string | null;
+  provider: string;
+}): string {
+  return account.displayName || account.emailAddress || account.provider;
+}
+
 function getTaskName(task: { name: string; type: TaskType }, translate?: (key: string) => string): string {
   if (task.type !== TaskType.custom && translate) {
     const translationKey = getSystemTaskNameTranslationKey(task.type);
@@ -47,6 +55,11 @@ const entityNameExtractors: {
   [DomainEvent.CUSTOM_COLUMN_CREATED]: (eventData) => eventData.payload.label,
   [DomainEvent.CUSTOM_COLUMN_UPDATED]: (eventData) => eventData.payload.customColumn.label,
   [DomainEvent.CUSTOM_COLUMN_DELETED]: (eventData) => eventData.payload.label,
+  [DomainEvent.CONNECTED_ACCOUNT_CREATED]: (eventData) => connectedAccountName(eventData.payload),
+  [DomainEvent.CONNECTED_ACCOUNT_DELETED]: (eventData) => connectedAccountName(eventData.payload),
+  [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: (eventData) => connectedAccountName(eventData.payload.connectedAccount),
+  [DomainEvent.CONNECTED_ACCOUNT_RECONNECTED]: (eventData) => connectedAccountName(eventData.payload),
+  [DomainEvent.CONNECTED_ACCOUNT_RESYNCED]: (eventData) => connectedAccountName(eventData.payload),
 };
 
 export function getEntityName<E extends DomainEvent>(

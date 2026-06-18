@@ -5,12 +5,11 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { type UserDto, UserByIdResponseSchema } from "../user.schema";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -22,21 +21,21 @@ export abstract class GetUserByIdRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },
   ],
   condition: "OR",
 })
-export class GetUserByIdInteractor extends BaseInteractor<GetUserByIdData, { user: UserDto | null }> {
+export class GetUserByIdInteractor extends AuthenticatedInteractor<GetUserByIdData, { user: UserDto | null }> {
   constructor(private repo: GetUserByIdRepo) {
     super();
   }
 
-  @Validate(Schema)
+  @Enforce(Schema)
   @ValidateOutput(UserByIdResponseSchema)
-  async invoke(data: GetUserByIdData): Validated<{ user: UserDto | null }> {
+  async invoke(data: GetUserByIdData): Promise<{ ok: true; data: { user: UserDto | null } }> {
     const user = await this.repo.getUserById(data.id);
 
     return { ok: true as const, data: { user } };

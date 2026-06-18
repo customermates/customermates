@@ -1,19 +1,21 @@
-import { NextResponse } from "next/server";
-
 import {
-  getSendWelcomeAndDemoInteractor,
-  getSendTrialExtensionOfferInteractor,
-  getSendTrialInactivationReminderInteractor,
   getDeactivateTrialUsersAndSendNoticeInteractor,
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor,
+  getSendTrialExtensionOfferInteractor,
+  getSendTrialInactivationReminderInteractor,
+  getSendWelcomeAndDemoInteractor,
 } from "@/core/di";
+import { env } from "@/env";
 
-export async function GET(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+export const runtime = "nodejs";
+export const maxDuration = 300;
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: Request) {
+  const authorization = req.headers.get("authorization");
+  if (!env.CRON_SECRET || authorization !== `Bearer ${env.CRON_SECRET}`)
+    return new Response("Unauthorized", { status: 401 });
+
+  if (env.DEMO_MODE) return Response.json({ skipped: "demo-mode" });
 
   await Promise.all([
     getSendWelcomeAndDemoInteractor().invoke(),
@@ -23,5 +25,5 @@ export async function GET(request: Request) {
     getDeactivateUsersAfterSubscriptionGracePeriodInteractor().invoke(),
   ]);
 
-  return new NextResponse("ok");
+  return Response.json({ ok: true });
 }

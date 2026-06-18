@@ -10,7 +10,7 @@ import { getOrganizationsAction } from "../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class OrganizationsStore extends BaseDataViewStore<OrganizationDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.organizations, EntityType.organization);
   }
 

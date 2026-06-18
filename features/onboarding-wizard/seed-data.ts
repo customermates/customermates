@@ -10,22 +10,22 @@ export const PIPELINE_STAGES: ReadonlyArray<{ key: StageKey; color: string; inde
   { key: "lost", color: "destructive", index: 4 },
 ];
 
-export type SeedOrganization = { key: string; nameKey: string };
-export type SeedContact = {
+type SeedOrganization = { key: string; nameKey: string };
+type SeedContact = {
   key: string;
   firstNameKey: string;
   lastNameKey: string;
   emailKey: string;
   orgKey: string;
 };
-export type SeedService = {
+type SeedService = {
   key: string;
   nameKey: string;
   amount: number;
   productExtras?: { articleNumber: string; stockKey: "low" | "mid" | "high" };
   serviceExtras?: { billableHoursKey: "low" | "mid" | "high" };
 };
-export type SeedDeal = {
+type SeedDeal = {
   key: string;
   nameKey: string;
   orgKey: string;
@@ -33,7 +33,7 @@ export type SeedDeal = {
   serviceLineItems: Array<{ serviceKey: string; quantity: number }>;
   stage: StageKey;
 };
-export type SeedTask = {
+type SeedTask = {
   key: string;
   nameKey: string;
   statusKey: "open" | "inProgress" | "done";

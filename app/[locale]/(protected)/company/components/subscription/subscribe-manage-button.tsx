@@ -9,7 +9,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-export const SubscribeManageButton = observer(function SubscribeManageButton() {
+export const SubscribeManageButton = observer(() => {
   const t = useTranslations();
   const { subscriptionStore, userStore } = useRootStore();
 
@@ -39,12 +39,7 @@ export const SubscribeManageButton = observer(function SubscribeManageButton() {
   }
 
   return (
-    <Button
-      className="h-8"
-      disabled={subscriptionStore.checkoutLoading}
-      size="sm"
-      onClick={() => void subscriptionStore.handleSubscribe()}
-    >
+    <Button className="h-8" size="sm" onClick={() => void subscriptionStore.handleSubscribe()}>
       {icon}
 
       <span className="hidden sm:inline">{t("subscription.subscribeWithLemonSqueezy")}</span>

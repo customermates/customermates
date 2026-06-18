@@ -64,8 +64,8 @@ export const listUsersTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   execute: async () => {
-    const result = await getGetUsersInteractor().invoke();
-    if (!result.ok) return encodeToToon({ items: [] });
+    const result = await getGetUsersInteractor().invoke({ pagination: { page: 1, pageSize: 100 } });
+    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return encodeToToon({
       items: result.data.items.map((item) => ({
         id: item.id,

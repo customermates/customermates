@@ -16,12 +16,10 @@ import {
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
-export async function refreshTasksAction(params?: GetQueryParams) {
+export async function getTasksAction(params?: GetQueryParams) {
   const result = await getGetTasksInteractor().invoke(params);
   return result.ok ? result.data : { items: [] };
 }
-
-export const getTasksAction = refreshTasksAction;
 
 export async function createTaskByNameAction(name: string, userId: string | null | undefined) {
   const result = await createTaskAction({
@@ -51,7 +49,7 @@ export async function updateTaskAction(data: UpdateTaskData) {
 }
 
 export async function deleteTaskAction(data: DeleteTaskData) {
-  return getDeleteTaskInteractor().invoke(data);
+  return serializeResult(getDeleteTaskInteractor().invoke(data));
 }
 
 export async function getTaskByIdAction(data: GetTaskByIdData) {

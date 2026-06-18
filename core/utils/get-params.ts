@@ -44,14 +44,21 @@ export function decodeGetParams(
     | { get(param: string): string | null; getAll(param: string): string[] }
     | Record<string, string | string[] | undefined>,
 ): GetQueryParams {
-  const source: { get(param: string): string | null; getAll(param: string): string[] } = (() => {
+  const source: {
+    get(param: string): string | null;
+    getAll(param: string): string[];
+  } = (() => {
     if (
       sp &&
       typeof sp === "object" &&
       "get" in (sp as Record<string, unknown>) &&
       "getAll" in (sp as Record<string, unknown>)
-    )
-      return sp as { get(param: string): string | null; getAll(param: string): string[] };
+    ) {
+      return sp as {
+        get(param: string): string | null;
+        getAll(param: string): string[];
+      };
+    }
 
     const usp = new URLSearchParams();
     const obj = (sp as Record<string, string | string[] | undefined>) || {};
@@ -135,6 +142,7 @@ function serializeFilterValue(op: FilterOperatorKey, value: unknown): string | u
     }
     case FilterOperatorKey.isNull:
     case FilterOperatorKey.isNotNull:
+    case FilterOperatorKey.hasUnset:
       return undefined;
     case FilterOperatorKey.inLastDays:
       return value === undefined || value === null ? undefined : String(value);
@@ -166,6 +174,7 @@ function decodeFilterToken(token: string): Filter | undefined {
         break;
       case FilterOperatorKey.isNull:
       case FilterOperatorKey.isNotNull:
+      case FilterOperatorKey.hasUnset:
         value = undefined;
         break;
       case FilterOperatorKey.inLastDays:

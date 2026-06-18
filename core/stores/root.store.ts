@@ -3,6 +3,7 @@ import type { BaseModalStore } from "../base/base-modal.store";
 import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
+import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { CompanyDetailsStore } from "@/app/[locale]/(protected)/company/components/company-details/company-details.store";
 import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
@@ -22,7 +23,15 @@ import { UserDetailsStore } from "@/app/[locale]/(protected)/profile/components/
 import { UserSettingsStore } from "@/app/[locale]/(protected)/profile/components/user-settings.store";
 import { ApiKeyModalStore } from "@/app/[locale]/(protected)/profile/components/api-key-modal.store";
 import { ApiKeysStore } from "@/app/[locale]/(protected)/profile/components/api-keys.store";
+import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/components/connected-account-modal.store";
+import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
 import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
+import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
+import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
+import { ThreadComposeStore } from "@/app/[locale]/(protected)/inbox/components/thread-compose.store";
+import { ActivitiesStore } from "@/features/messaging/activities/activities.store";
+import { ThreadParticipantsStore } from "@/app/[locale]/(protected)/inbox/components/thread-participants.store";
+import { AddChannelStore } from "@/app/[locale]/(protected)/contacts/components/add-channel.store";
 import { UserStore } from "@/app/[locale]/(protected)/profile/components/user.store";
 import { TasksStore } from "@/app/[locale]/(protected)/tasks/components/tasks.store";
 import { TaskDetailStore } from "@/app/[locale]/(protected)/tasks/components/task-detail.store";
@@ -38,6 +47,7 @@ import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/r
 import { CustomColumnModalStore } from "@/components/data-view/custom-columns/custom-column-modal.store";
 import { EditFiltersModalStore } from "@/components/data-view/filter-modal/edit-filters-modal.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
+import { StartChatModalStore } from "@/components/modal/start-chat-modal.store";
 import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/deal-detail.store";
 import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
@@ -48,10 +58,10 @@ import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/company/compo
 import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.store";
 import { AuditLogModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-log-modal.store";
 import { AuditLogsStore } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs.store";
-import { EntityHistoryDetailsModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-details-modal.store";
-import { EntityHistoryModalStore } from "@/app/[locale]/(protected)/company/components/audit-log/entity-history-modal.store";
 import { FeedbackModalStore } from "@/app/[locale]/(protected)/company/components/feedback/feedback-modal.store";
+import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
 import { ContactStore } from "@/app/[locale]/(public)/contact/contact.store";
+import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
 
 import { NavigationGuardController } from "./navigation-guard.controller";
 
@@ -60,8 +70,16 @@ export class RootStore {
   public readonly navigationGuard = new NavigationGuardController();
 
   private _apiKeysStore?: ApiKeysStore;
+  private _connectedAccountsStore?: ConnectedAccountsStore;
+  private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _companyStore?: CompanyStore;
   private _contactsStore?: ContactsStore;
+  private _messagingThreadsStore?: MessagingThreadsStore;
+  private _messagingThreadDetailStore?: MessagingThreadDetailStore;
+  private _threadComposeStore?: ThreadComposeStore;
+  private _activitiesStore?: ActivitiesStore;
+  private _threadParticipantsStore?: ThreadParticipantsStore;
+  private _addChannelStore?: AddChannelStore;
   private _dealsStore?: DealsStore;
   private _intlStore?: IntlStore;
   private _layoutStore?: LayoutStore;
@@ -80,12 +98,14 @@ export class RootStore {
 
   private _companyDetailsStore?: CompanyDetailsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
+  private _verifyEmailStore?: VerifyEmailStore;
   private _inviteByEmailStore?: InviteByEmailStore;
   private _stepAiStore?: StepAiStore;
   private _stepProfileStore?: StepProfileStore;
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _resetPasswordStore?: ResetPasswordStore;
   private _contactStore?: ContactStore;
+  private _errorTestStore?: ErrorTestStore;
   private _signInStore?: SignInStore;
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
@@ -98,6 +118,7 @@ export class RootStore {
   private _createApiKeyModalStore?: ApiKeyModalStore;
   private _dealDetailStore?: DealDetailStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
+  private _startChatModalStore?: StartChatModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
   private _organizationDetailStore?: OrganizationDetailStore;
   private _roleModalStore?: RoleModalStore;
@@ -108,27 +129,21 @@ export class RootStore {
   private _webhookModalStore?: WebhookModalStore;
   private _widgetModalStore?: WidgetModalStore;
   private _auditLogModalStore?: AuditLogModalStore;
-  private _entityHistoryDetailsModalStore?: EntityHistoryDetailsModalStore;
-  private _entityHistoryModalStore?: EntityHistoryModalStore;
   private _feedbackModalStore?: FeedbackModalStore;
+  private _timelineDetailModalStore?: TimelineDetailModalStore;
   private _customColumnModalStore?: CustomColumnModalStore;
   private _editFiltersModalStore?: EditFiltersModalStore;
 
   isDemoMode: boolean;
   isCloudHosted: boolean;
 
-  constructor(
-    private initialSidebarOpen?: boolean,
-    private initialNavbarVisible?: boolean,
-    isDemoMode?: boolean,
-    isCloudHosted?: boolean,
-  ) {
+  constructor(isDemoMode?: boolean, isCloudHosted?: boolean) {
     this.isDemoMode = isDemoMode ?? false;
     this.isCloudHosted = isCloudHosted ?? false;
   }
 
   get layoutStore() {
-    return (this._layoutStore ??= new LayoutStore(this.initialSidebarOpen, this.initialNavbarVisible));
+    return (this._layoutStore ??= new LayoutStore());
   }
 
   get userStore() {
@@ -165,6 +180,30 @@ export class RootStore {
 
   get contactsStore() {
     return (this._contactsStore ??= new ContactsStore(this));
+  }
+
+  get messagingThreadsStore() {
+    return (this._messagingThreadsStore ??= new MessagingThreadsStore(this));
+  }
+
+  get messagingThreadDetailStore() {
+    return (this._messagingThreadDetailStore ??= new MessagingThreadDetailStore(this));
+  }
+
+  get threadComposeStore() {
+    return (this._threadComposeStore ??= new ThreadComposeStore(this));
+  }
+
+  get activitiesStore() {
+    return (this._activitiesStore ??= new ActivitiesStore(this));
+  }
+
+  get threadParticipantsStore() {
+    return (this._threadParticipantsStore ??= new ThreadParticipantsStore(this));
+  }
+
+  get addChannelStore() {
+    return (this._addChannelStore ??= new AddChannelStore(this));
   }
 
   get organizationsStore() {
@@ -207,6 +246,14 @@ export class RootStore {
     return (this._apiKeysStore ??= new ApiKeysStore(this));
   }
 
+  get connectedAccountsStore() {
+    return (this._connectedAccountsStore ??= new ConnectedAccountsStore(this));
+  }
+
+  get connectedAccountModalStore() {
+    return (this._connectedAccountModalStore ??= new ConnectedAccountModalStore(this));
+  }
+
   get stepProfileStore() {
     return (this._stepProfileStore ??= new StepProfileStore(this));
   }
@@ -219,12 +266,20 @@ export class RootStore {
     return (this._inviteByEmailStore ??= new InviteByEmailStore(this));
   }
 
+  get verifyEmailStore() {
+    return (this._verifyEmailStore ??= new VerifyEmailStore(this));
+  }
+
   get onboardingWizardStore() {
     return (this._onboardingWizardStore ??= new OnboardingWizardStore(this));
   }
 
   get contactStore() {
     return (this._contactStore ??= new ContactStore(this));
+  }
+
+  get errorTestStore() {
+    return (this._errorTestStore ??= new ErrorTestStore(this));
   }
 
   get signInStore() {
@@ -291,6 +346,10 @@ export class RootStore {
     return (this._deleteConfirmationModalStore ??= new DeleteConfirmationModalStore(this));
   }
 
+  get startChatModalStore() {
+    return (this._startChatModalStore ??= new StartChatModalStore(this));
+  }
+
   get widgetModalStore() {
     return (this._widgetModalStore ??= new WidgetModalStore(this));
   }
@@ -323,16 +382,12 @@ export class RootStore {
     return (this._auditLogModalStore ??= new AuditLogModalStore(this));
   }
 
-  get entityHistoryModalStore() {
-    return (this._entityHistoryModalStore ??= new EntityHistoryModalStore(this));
-  }
-
-  get entityHistoryDetailsModalStore() {
-    return (this._entityHistoryDetailsModalStore ??= new EntityHistoryDetailsModalStore(this));
-  }
-
   get feedbackModalStore() {
     return (this._feedbackModalStore ??= new FeedbackModalStore(this));
+  }
+
+  get timelineDetailModalStore() {
+    return (this._timelineDetailModalStore ??= new TimelineDetailModalStore(this));
   }
 
   registerModalStore = (modalStore: BaseModalStore<any>) => {

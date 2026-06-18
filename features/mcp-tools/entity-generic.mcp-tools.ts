@@ -182,14 +182,12 @@ function fieldNameFor(entity: Entity, relation: Relation): string {
   return relationFieldName[relation];
 }
 
-type ConfigResult = { ok: true; data: unknown } | { ok: false; error: z.ZodError };
-
-const configurationExecutors: Record<Entity, () => Promise<ConfigResult>> = {
-  contact: async () => (await getGetContactsConfigurationInteractor().invoke()) as ConfigResult,
-  organization: async () => (await getGetOrganizationsConfigurationInteractor().invoke()) as ConfigResult,
-  deal: async () => (await getGetDealsConfigurationInteractor().invoke()) as ConfigResult,
-  service: async () => (await getGetServicesConfigurationInteractor().invoke()) as ConfigResult,
-  task: async () => (await getGetTasksConfigurationInteractor().invoke()) as ConfigResult,
+const configurationExecutors: Record<Entity, () => Promise<{ ok: true; data: unknown }>> = {
+  contact: () => getGetContactsConfigurationInteractor().invoke(),
+  organization: () => getGetOrganizationsConfigurationInteractor().invoke(),
+  deal: () => getGetDealsConfigurationInteractor().invoke(),
+  service: () => getGetServicesConfigurationInteractor().invoke(),
+  task: () => getGetTasksConfigurationInteractor().invoke(),
 };
 
 const detailsExecutors: Record<Entity, (id: string) => Promise<any>> = {
@@ -217,10 +215,6 @@ async function updateManyEntities(
   if (entity === "deal") return getUpdateManyDealsInteractor().invoke({ deals: items as any });
   if (entity === "service") return getUpdateManyServicesInteractor().invoke({ services: items as any });
   return getUpdateManyTasksInteractor().invoke({ tasks: items as any });
-}
-
-async function updateEntityById(entity: Entity, payload: { id: string } & Record<string, unknown>): Promise<any> {
-  return updateManyEntities(entity, [payload]);
 }
 
 async function loadEntityOrError(
@@ -261,7 +255,6 @@ export const getEntityConfigurationTool = {
   inputSchema: z.object({ entity: EntitySchema }),
   execute: async ({ entity }: { entity: Entity }) => {
     const result = await configurationExecutors[entity]();
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return encodeToToon({
       ...(result.data as Record<string, unknown>),
       filterSyntax: FILTER_SYNTAX,
@@ -441,7 +434,7 @@ export const linkEntitiesTool = {
       const existingMap = new Map(existing.map((s) => [s.id, s.quantity ?? 1]));
       for (const id of ids) if (!existingMap.has(id)) existingMap.set(id, 1);
       const services = [...existingMap.entries()].map(([serviceId, quantity]) => ({ serviceId, quantity }));
-      const result = await updateEntityById("deal", { id: sourceId, services });
+      const result = await updateManyEntities("deal", [{ id: sourceId, services }]);
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
       return `Linked ${ids.length} service(s) to ${entity} ${sourceId}`;
     }
@@ -449,7 +442,7 @@ export const linkEntitiesTool = {
     const current = currentRelationIds(loaded.entity, relation);
     const merged = Array.from(new Set([...current, ...ids]));
     const payload = { id: sourceId, [fieldNameFor(entity, relation)]: merged };
-    const result = await updateEntityById(entity, payload);
+    const result = await updateManyEntities(entity, [payload]);
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Linked ${ids.length} ${relation} to ${entity} ${sourceId} (was ${current.length}, now ${merged.length})`;
   },
@@ -484,7 +477,7 @@ export const unlinkEntitiesTool = {
       const services = existing
         .filter((s) => !removeSet.has(s.id))
         .map((s) => ({ serviceId: s.id, quantity: s.quantity ?? 1 }));
-      const result = await updateEntityById("deal", { id: sourceId, services });
+      const result = await updateManyEntities("deal", [{ id: sourceId, services }]);
       if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
       return `Unlinked ${ids.length} service(s) from ${entity} ${sourceId}`;
     }
@@ -492,7 +485,7 @@ export const unlinkEntitiesTool = {
     const current = currentRelationIds(loaded.entity, relation);
     const kept = current.filter((id) => !removeSet.has(id));
     const payload = { id: sourceId, [fieldNameFor(entity, relation)]: kept };
-    const result = await updateEntityById(entity, payload);
+    const result = await updateManyEntities(entity, [payload]);
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Unlinked ${ids.length} ${relation} from ${entity} ${sourceId} (was ${current.length}, now ${kept.length})`;
   },

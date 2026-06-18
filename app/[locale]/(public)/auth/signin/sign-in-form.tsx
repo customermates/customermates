@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +13,7 @@ import SignInProviderButton from "./sign-in-provider-button";
 
 import { AppLink } from "@/components/shared/app-link";
 import { FormInput } from "@/components/forms/form-input";
+import { PasswordInput } from "@/components/forms/password-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppForm } from "@/components/forms/form-context";
 import { FormCheckbox } from "@/components/forms/form-checkbox";
@@ -29,7 +29,7 @@ type Props = {
 export const SignInForm = observer(({ showSocialProviders }: Props) => {
   const searchParams = useSearchParams();
 
-  const t = useTranslations("SignInForm");
+  const t = useTranslations();
 
   const { signInStore } = useRootStore();
   const { callbackURL, isLoading } = signInStore;
@@ -46,14 +46,14 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
     <AppForm store={signInStore}>
       <AppCard className="max-w-lg">
         <CardHeroHeader
-          subtitle={t.rich("switchToSignUp", {
+          subtitle={t.rich("SignInForm.switchToSignUp", {
             registerLink: (chunks) => (
               <AppLink inheritSize href="/auth/signup">
                 {chunks}
               </AppLink>
             ),
           })}
-          title={t("signInTitle")}
+          title={t("SignInForm.signInTitle")}
         />
 
         <AppCardBody>
@@ -62,14 +62,14 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <SignInProviderButton
                   className="w-full sm:flex-1"
-                  label={t("buttonLabel", { provider: "Google" })}
+                  label={t("SignInForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
                   onClick={() => void continueWithGoogleAction(callbackURL)}
                 />
 
                 <SignInProviderButton
                   className="w-full sm:flex-1"
-                  label={t("buttonLabel", { provider: "Microsoft" })}
+                  label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
                   providerId="microsoft"
                   onClick={() => void continueWithMicrosoftAction(callbackURL)}
                 />
@@ -78,7 +78,7 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
               <div className="my-3 flex items-center">
                 <Separator aria-hidden="true" className="h-px flex-1" />
 
-                <span className="text-x-sm text-subdued mx-4">{t("or")}</span>
+                <span className="text-x-sm text-subdued mx-4">{t("SignInForm.or")}</span>
 
                 <Separator aria-hidden="true" className="h-px flex-1" />
               </div>
@@ -87,38 +87,28 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
 
           <FormInput required id="email" type="email" />
 
-          <FormInput
+          <PasswordInput
             required
-            endContent={
-              <Button
-                aria-label={signInStore.showPassword ? "Hide password" : "Show password"}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-                onClick={signInStore.toggleShowPassword}
-              >
-                {signInStore.showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </Button>
-            }
             id="password"
-            type={signInStore.showPassword ? "text" : "password"}
+            showPassword={signInStore.showPassword}
+            onToggleVisibility={signInStore.toggleShowPassword}
           />
 
           <div className="flex w-full justify-between items-start gap-3">
-            <FormCheckbox id="rememberMe" label={t("rememberMe")} />
+            <FormCheckbox id="rememberMe" label={t("SignInForm.rememberMe")} />
 
-            <AppLink href="/auth/forgot-password">{t("forgotPassword")}</AppLink>
+            <AppLink href="/auth/forgot-password">{t("SignInForm.forgotPassword")}</AppLink>
           </div>
         </AppCardBody>
 
         <AppCardFooter>
           <div className="flex w-full flex-col space-y-3 items-center">
             <Button className="w-full" disabled={isLoading} type="submit">
-              {t("signInCta")}
+              {t("SignInForm.signInCta")}
             </Button>
 
             <p className="text-x-xs text-subdued text-center mt-2">
-              {t.rich("agreeToTerms", {
+              {t.rich("SignInForm.agreeToTerms", {
                 dataPrivacyLink: (chunks) => (
                   <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
                     {chunks}

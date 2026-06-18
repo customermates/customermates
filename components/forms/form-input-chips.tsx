@@ -5,13 +5,13 @@ import type { ChipColor } from "@/constants/chip-colors";
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 import { useAppForm } from "./form-context";
+import { useResolvedFieldLabel } from "./use-form-field";
 
 type Props = {
   id: string;
@@ -48,8 +48,7 @@ export const FormInputChips = observer(
     const [inputValue, setInputValue] = useState("");
 
     const store = useAppForm();
-    const t = useTranslations("Common.inputs");
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const storeValue = store?.getValue(id) as string[] | string | undefined;
     const fieldValue = controlledValue ?? storeValue;
     const hasErrorAt = (path: string) => {

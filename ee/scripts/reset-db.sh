@@ -12,4 +12,17 @@ else
     npx prisma db seed
 fi
 
+# The workflow engine (workflow / @workflow/world-postgres + graphile-worker) lives in
+# its own Postgres schemas that Prisma does not manage. `prisma migrate reset` only
+# touches the public schema, so those are left stale and half-migrated across resets,
+# which breaks the World (e.g. missing workflow_runs.status). Recreate them from scratch.
+# Only the Postgres World (local dev + self-hosters) uses these schemas; on Vercel the managed
+# workflow runtime is used instead, so skip this there ($VERCEL is set on Vercel build/runtime).
+if [ -z "$VERCEL" ]; then
+  echo "Resetting the workflow schemas..."
+  printf 'DROP SCHEMA IF EXISTS workflow CASCADE;\nDROP SCHEMA IF EXISTS workflow_drizzle CASCADE;\nDROP SCHEMA IF EXISTS graphile_worker CASCADE;\n' \
+    | npx prisma db execute --stdin
+  yarn workflow:setup
+fi
+
 echo "Database reset complete!"

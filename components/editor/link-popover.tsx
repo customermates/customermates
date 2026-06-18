@@ -18,7 +18,7 @@ type Props = {
 };
 
 export function LinkPopover({ editor, open, onOpenChange }: Props) {
-  const t = useTranslations("Editor");
+  const t = useTranslations();
   const [url, setUrl] = useState("");
 
   const isActive = editor.isActive("link");
@@ -54,7 +54,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          aria-label={t("link") ?? "Link"}
+          aria-label={t("Editor.link")}
           className={cn(isActive && "bg-accent text-accent-foreground")}
           size="icon-sm"
           type="button"
@@ -68,7 +68,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
         <div className="flex w-full items-center gap-1">
           <Input
             autoFocus
-            placeholder={t("urlPlaceholder")}
+            placeholder={t("Editor.urlPlaceholder")}
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -76,7 +76,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
           />
 
           <Button
-            aria-label={t("confirm") ?? "Confirm"}
+            aria-label={t("Editor.confirm")}
             disabled={!canSet}
             size="icon-sm"
             type="button"
@@ -88,7 +88,7 @@ export function LinkPopover({ editor, open, onOpenChange }: Props) {
 
           {isActive && (
             <Button
-              aria-label={t("remove") ?? "Remove"}
+              aria-label={t("Editor.removeLink")}
               size="icon-sm"
               type="button"
               variant="destructive"

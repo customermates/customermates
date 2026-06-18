@@ -20,6 +20,10 @@
 .DS_Store
 *.pem
 
+# Tailscale funnel / local TLS certs (never commit private keys)
+*.ts.net.crt
+*.ts.net.key
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -54,3 +58,6 @@ generated/
 content/api/**/*.mdx
 
 .mcp.json
+
+# Sentry Config File
+.env.sentry-build-plugin

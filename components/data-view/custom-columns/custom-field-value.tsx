@@ -7,8 +7,6 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import { useCallback, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Mail, Phone } from "lucide-react";
-import { toast } from "sonner";
-import { useTranslations } from "next-intl";
 import { CustomColumnType } from "@/generated/prisma";
 
 import {
@@ -24,9 +22,7 @@ import { Favicon } from "@/components/shared/favicon";
 import { secureUrlSchema } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Icon } from "@/components/shared/icon";
-import { copyToClipboard } from "@/lib/clipboard";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { updateEntityCustomFieldValueAction } from "@/app/actions";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 
 type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
   column: CustomColumnDto;
@@ -36,7 +32,7 @@ type Props<E extends HasId & { customFieldValues: CustomFieldValueDto[] }> = {
 
 export const CustomFieldValue = observer(
   <E extends HasId & { customFieldValues: CustomFieldValueDto[] }>({ column, item, store }: Props<E>) => {
-    const t = useTranslations("");
+    const copy = useCopyToClipboard();
     const { intlStore } = useRootStore();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -44,30 +40,11 @@ export const CustomFieldValue = observer(
     const field = item.customFieldValues.find((cfv) => cfv.columnId === column.id);
     const value = field?.value?.toString() ?? "";
 
-    async function handleCopy(value: string) {
-      const ok = await copyToClipboard(value);
-      if (ok) toast.success(t("Common.notifications.copiedToClipboard", { value }));
-      else toast.error(t("Common.notifications.copyFailed"));
-    }
-
     async function handleSelectOption(optionValue: string) {
       if (!store) return;
 
-      const customFieldValues = [
-        {
-          columnId: column.id,
-          value: optionValue,
-        },
-      ];
-
       try {
-        const result = await updateEntityCustomFieldValueAction({
-          entityType: column.entityType,
-          entityId: item.id,
-          customFieldValues,
-        });
-        if (result.ok) await store.upsertItem(result.data as unknown as E);
-        else toastZodErrorTree(result.error);
+        await store.updateCustomFieldValue(item.id, column.id, optionValue);
       } finally {
         setIsDropdownOpen(false);
       }
@@ -228,13 +205,13 @@ export const CustomFieldValue = observer(
                 label: it,
               }))}
               size="sm"
-              onChipClick={(e) => void handleCopy(e.label)}
+              onChipClick={(e) => void copy(e.label)}
             />
           ) : (
             <span />
           );
       }
-    }, [column, item, value, isDropdownOpen, handleSelectOption]);
+    }, [column, item, value, isDropdownOpen, handleSelectOption, copy]);
 
     return renderValue();
   },

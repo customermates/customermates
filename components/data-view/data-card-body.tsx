@@ -11,16 +11,13 @@ const IDENTITY_COLUMN_ID = "name";
 
 type Props<E extends HasId> = {
   row: Row<E>;
-  maxCells?: number;
   className?: string;
 };
 
-export function DataCardBody<E extends HasId>({ row, maxCells, className }: Props<E>) {
+export function DataCardBody<E extends HasId>({ row, className }: Props<E>) {
   const cells = row.getVisibleCells();
   const nameCell = cells.find((c) => c.column.id === IDENTITY_COLUMN_ID);
-  const nonIdentityCells = cells.filter((c) => c.column.id !== IDENTITY_COLUMN_ID);
-  const labelValueCells =
-    maxCells === undefined ? nonIdentityCells : nonIdentityCells.slice(0, Math.max(0, maxCells - (nameCell ? 1 : 0)));
+  const labelValueCells = cells.filter((c) => c.column.id !== IDENTITY_COLUMN_ID);
 
   return (
     <div className={cn("space-y-2", className)}>

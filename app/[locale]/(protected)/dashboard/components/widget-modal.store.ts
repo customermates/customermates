@@ -1,6 +1,5 @@
 import type { FormEvent } from "react";
 import type { UpsertWidgetData, DisplayOptions } from "@/features/widget/upsert-widget.interactor";
-import type { ExtendedWidget } from "@/features/widget/widget.types";
 import type { RootStore } from "@/core/stores/root.store";
 import type { CompanyWidget } from "@/features/widget/get-company-widgets.interactor";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
@@ -16,10 +15,9 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 
-export type WidgetModalSection = "config" | "filters" | "dealFilters" | "display";
+type WidgetModalSection = "config" | "filters" | "dealFilters" | "display";
 
 export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
-  public fetchedWidget: ExtendedWidget | null = null;
   public companyWideWidgets: CompanyWidget[] = [];
   public groupByValue: string = WidgetGroupByType.none;
   public expandedSection: WidgetModalSection = "config";
@@ -65,7 +63,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
     [WidgetGroupByType.customColumn]: null,
   };
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       name: "",
       entityType: EntityType.deal,
@@ -87,7 +85,6 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
     });
 
     makeObservable(this, {
-      fetchedWidget: observable,
       companyWideWidgets: observable,
       groupByValue: observable,
       expandedSection: observable,
@@ -225,7 +222,6 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
   };
 
   add = () => {
-    this.fetchedWidget = null;
     this.expandedSection = "config";
     this.expandedFilterField = undefined;
 
@@ -279,15 +275,16 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
     try {
       const res = await deleteWidgetAction({ id: this.form.id });
 
-      await this.rootStore.widgetsStore.removeItem(res);
-      this.close();
+      if (res.ok) {
+        await this.rootStore.widgetsStore.removeItem(res.data);
+        this.close();
+      }
     } finally {
       this.setIsLoading(false);
     }
   };
 
   loadById = async (id: string) => {
-    this.fetchedWidget = null;
     this.setIsLoading(true);
     this.open();
 
@@ -295,7 +292,6 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       const widget = await getWidgetByIdAction({ id });
 
       if (widget) {
-        this.fetchedWidget = widget;
         this.setError(undefined);
 
         const groupByType = widget.groupByType ?? WidgetGroupByType.none;

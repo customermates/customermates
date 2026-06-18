@@ -1,18 +1,20 @@
 import type { FindUserRepo } from "../user/user.service";
 import type { AuthService } from "./auth.service";
 import type { Data } from "@/core/validation/validation.utils";
+import type { Redirect } from "./auth-outcome";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { redirectTo } from "./auth-outcome";
+import { callbackUrlSchema } from "./callback-url.schema";
 
 import { mustVerifyEmail } from "./email-verification-grace";
 
 const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
-  callbackURL: z.string().optional(),
+  callbackURL: callbackUrlSchema.optional(),
 });
 export type ContinueWithSocialsData = Data<typeof Schema>;
 
@@ -24,7 +26,7 @@ export class ContinueWithSocialsInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke(data: ContinueWithSocialsData): Promise<void> {
+  async invoke(data: ContinueWithSocialsData): Promise<{ ok: true; data: null } | Redirect> {
     const res = await this.authService.continueWithSocials(data);
 
     if ("user" in res && res.user) {
@@ -38,9 +40,11 @@ export class ContinueWithSocialsInteractor {
         });
       }
 
-      if (mustVerifyEmail(res.user)) redirect("/auth/verify-email");
+      if (mustVerifyEmail(res.user)) return redirectTo("/auth/verify-email");
     }
 
-    if (res.redirect) redirect(res.url ?? data.callbackURL ?? "/");
+    if (res.redirect) return redirectTo(res.url ?? data.callbackURL ?? "/");
+
+    return { ok: true as const, data: null };
   }
 }

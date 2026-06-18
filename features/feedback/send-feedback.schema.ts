@@ -7,7 +7,7 @@ export enum FeedbackType {
 }
 
 export const SendFeedbackSchema = z.object({
-  feedback: z.string().min(1),
+  feedback: z.string().min(1).max(5000),
   type: z.enum(FeedbackType),
 });
 

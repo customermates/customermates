@@ -1,8 +1,12 @@
+import "dotenv/config";
+
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
 
+import { env } from "@/env";
+
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -17,6 +21,7 @@ async function main() {
     const webhookDeliveries = await import("./seeds/webhookdelivery.json");
     const subscriptions = await import("./seeds/subscription.json");
     const contacts = await import("./seeds/contact.json");
+    const contactIdentifiers = await import("./seeds/contactidentifier.json");
     const deals = await import("./seeds/deal.json");
     const organizations = await import("./seeds/organization.json");
     const services = await import("./seeds/service.json");
@@ -58,12 +63,16 @@ async function main() {
     }
 
     if (webhookDeliveries.default?.length > 0) {
-      await prisma.webhookDelivery.createMany({ data: webhookDeliveries.default as any });
+      await prisma.webhookDelivery.createMany({
+        data: webhookDeliveries.default as any,
+      });
       console.log("✅ Inserted webhook deliveries");
     }
 
     if (subscriptions.default?.length > 0) {
-      await prisma.subscription.createMany({ data: subscriptions.default as any });
+      await prisma.subscription.createMany({
+        data: subscriptions.default as any,
+      });
       console.log("✅ Inserted subscriptions");
     }
 
@@ -73,7 +82,9 @@ async function main() {
     }
 
     if (rolePermissions.default?.length > 0) {
-      await prisma.rolePermission.createMany({ data: rolePermissions.default as any });
+      await prisma.rolePermission.createMany({
+        data: rolePermissions.default as any,
+      });
       console.log("✅ Inserted role permissions");
     }
 
@@ -83,14 +94,22 @@ async function main() {
     }
 
     if (organizations.default?.length > 0) {
-      await prisma.organization.createMany({ data: organizations.default as any });
+      await prisma.organization.createMany({
+        data: organizations.default as any,
+      });
       console.log("✅ Inserted organizations");
     }
 
     if (contacts.default?.length > 0) {
-      const data = (contacts.default as any[]).map(({ emailsText: _emailsText, ...rest }) => rest);
-      await prisma.contact.createMany({ data: data as any });
+      await prisma.contact.createMany({ data: contacts.default as any });
       console.log("✅ Inserted contacts");
+    }
+
+    if (contactIdentifiers.default?.length > 0) {
+      await prisma.contactIdentifier.createMany({
+        data: contactIdentifiers.default as any,
+      });
+      console.log("✅ Inserted contact identifiers");
     }
 
     if (deals.default?.length > 0) {
@@ -104,7 +123,9 @@ async function main() {
     }
 
     if (customColumns.default?.length > 0) {
-      await prisma.customColumn.createMany({ data: customColumns.default as any });
+      await prisma.customColumn.createMany({
+        data: customColumns.default as any,
+      });
       console.log("✅ Inserted custom columns");
     }
 
@@ -120,12 +141,16 @@ async function main() {
     }
 
     if (dealContacts.default?.length > 0) {
-      await prisma.dealContact.createMany({ data: dealContacts.default as any });
+      await prisma.dealContact.createMany({
+        data: dealContacts.default as any,
+      });
       console.log("✅ Inserted deal contacts");
     }
 
     if (dealOrganizations.default?.length > 0) {
-      await prisma.dealOrganization.createMany({ data: dealOrganizations.default as any });
+      await prisma.dealOrganization.createMany({
+        data: dealOrganizations.default as any,
+      });
       console.log("✅ Inserted deal organizations");
     }
 
@@ -135,32 +160,44 @@ async function main() {
     }
 
     if (inviteTokens.default?.length > 0) {
-      await prisma.inviteToken.createMany({ data: inviteTokens.default as any });
+      await prisma.inviteToken.createMany({
+        data: inviteTokens.default as any,
+      });
       console.log("✅ Inserted invite tokens");
     }
 
     if (organizationUsers.default?.length > 0) {
-      await prisma.organizationUser.createMany({ data: organizationUsers.default as any });
+      await prisma.organizationUser.createMany({
+        data: organizationUsers.default as any,
+      });
       console.log("✅ Inserted organization users");
     }
 
     if (serviceDeals.default?.length > 0) {
-      await prisma.serviceDeal.createMany({ data: serviceDeals.default as any });
+      await prisma.serviceDeal.createMany({
+        data: serviceDeals.default as any,
+      });
       console.log("✅ Inserted service deals");
     }
 
     if (serviceUsers.default?.length > 0) {
-      await prisma.serviceUser.createMany({ data: serviceUsers.default as any });
+      await prisma.serviceUser.createMany({
+        data: serviceUsers.default as any,
+      });
       console.log("✅ Inserted service users");
     }
 
     if (contactUsers.default?.length > 0) {
-      await prisma.contactUser.createMany({ data: contactUsers.default as any });
+      await prisma.contactUser.createMany({
+        data: contactUsers.default as any,
+      });
       console.log("✅ Inserted contact users");
     }
 
     if (contactOrganizations.default?.length > 0) {
-      await prisma.contactOrganization.createMany({ data: contactOrganizations.default as any });
+      await prisma.contactOrganization.createMany({
+        data: contactOrganizations.default as any,
+      });
       console.log("✅ Inserted contact organizations");
     }
 
@@ -180,7 +217,9 @@ async function main() {
     }
 
     if (authAccounts.default?.length > 0) {
-      await prisma.authAccount.createMany({ data: authAccounts.default as any });
+      await prisma.authAccount.createMany({
+        data: authAccounts.default as any,
+      });
       console.log("✅ Inserted auth accounts");
     }
 
@@ -190,12 +229,16 @@ async function main() {
     }
 
     if (taskContacts.default?.length > 0) {
-      await prisma.taskContact.createMany({ data: taskContacts.default as any });
+      await prisma.taskContact.createMany({
+        data: taskContacts.default as any,
+      });
       console.log("✅ Inserted task contacts");
     }
 
     if (taskOrganizations.default?.length > 0) {
-      await prisma.taskOrganization.createMany({ data: taskOrganizations.default as any });
+      await prisma.taskOrganization.createMany({
+        data: taskOrganizations.default as any,
+      });
       console.log("✅ Inserted task organizations");
     }
 
@@ -205,7 +248,9 @@ async function main() {
     }
 
     if (taskServices.default?.length > 0) {
-      await prisma.taskService.createMany({ data: taskServices.default as any });
+      await prisma.taskService.createMany({
+        data: taskServices.default as any,
+      });
       console.log("✅ Inserted task services");
     }
 

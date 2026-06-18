@@ -29,7 +29,7 @@ type Props = {
 };
 
 export const CompanyDetailsForm = observer(({ company, initialSubscription, showSubscription }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const router = useRouter();
   const formId = useId();
   const { companyDetailsStore: store } = useRootStore();

@@ -10,7 +10,7 @@ import { getWebhooksAction } from "../../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class WebhooksStore extends BaseDataViewStore<WebhookDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.api);
   }
 

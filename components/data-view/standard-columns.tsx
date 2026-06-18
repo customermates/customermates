@@ -16,7 +16,7 @@ type UserReference = {
   email?: string | null;
 };
 
-export type StandardEntity = HasId & {
+type StandardEntity = HasId & {
   users?: UserReference[];
   customFieldValues: CustomFieldValueDto[];
   createdAt: Date;

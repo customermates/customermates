@@ -11,6 +11,8 @@ import { SubscriptionStatus } from "@/generated/prisma";
 
 import type { CountryCode } from "@/generated/prisma";
 
+import { env } from "@/env";
+
 export abstract class SubscriptionRepo {
   abstract upsertSubscription(data: {
     companyId: string;
@@ -27,9 +29,8 @@ export class SubscriptionService {
   private isConfigured = false;
 
   constructor(private subscriptionRepo: SubscriptionRepo) {
-    const apiKey = process.env.LEMONSQUEEZY_API_KEY;
-    if (apiKey) {
-      lemonSqueezySetup({ apiKey });
+    if (env.LEMONSQUEEZY_API_KEY) {
+      lemonSqueezySetup({ apiKey: env.LEMONSQUEEZY_API_KEY });
       this.isConfigured = true;
     }
   }
@@ -46,9 +47,9 @@ export class SubscriptionService {
   }) {
     this.ensureConfigured();
 
-    const monthlyVariantId = process.env.LEMONSQUEEZY_VARIANT_ID_MONTHLY;
-    const yearlyVariantId = process.env.LEMONSQUEEZY_VARIANT_ID_YEARLY;
-    const storeId = process.env.LEMONSQUEEZY_STORE_ID;
+    const monthlyVariantId = env.LEMONSQUEEZY_VARIANT_ID_MONTHLY;
+    const yearlyVariantId = env.LEMONSQUEEZY_VARIANT_ID_YEARLY;
+    const storeId = env.LEMONSQUEEZY_STORE_ID;
 
     if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured");
     if (!monthlyVariantId || !yearlyVariantId)
@@ -90,7 +91,7 @@ export class SubscriptionService {
   }
 
   verifyWebhookSignatureOrThrow(body: string, signature: string): boolean {
-    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
+    const secret = env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
     if (!secret) throw new Error("LEMONSQUEEZY_WEBHOOK_SECRET is not configured");
 

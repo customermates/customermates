@@ -40,7 +40,7 @@ export const OnboardingWizard = observer(
     sessionLastName,
     sessionAvatarUrl,
   }: Props) => {
-    const t = useTranslations("OnboardingWizard");
+    const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
     const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
 
@@ -85,20 +85,25 @@ export const OnboardingWizard = observer(
           <div className="flex flex-col gap-1">
             {!isInvited && (
               <div className="text-xs text-muted-foreground">
-                {t("progress", { current: currentStepIndex + 1, total: totalSteps })}
+                {t("OnboardingWizard.progress", {
+                  current: currentStepIndex + 1,
+                  total: totalSteps,
+                })}
               </div>
             )}
 
-            <h1 className="text-2xl font-semibold">{t(`steps.${currentStep}.title`)}</h1>
+            <h1 className="text-2xl font-semibold">{t(`OnboardingWizard.steps.${currentStep}.title`)}</h1>
 
-            <p className="text-sm text-muted-foreground">{t(`steps.${currentStep}.subtitle`)}</p>
+            <p className="text-sm text-muted-foreground">{t(`OnboardingWizard.steps.${currentStep}.subtitle`)}</p>
           </div>
 
           {!isInvited && (
             <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all"
-                style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }}
+                style={{
+                  width: `${((currentStepIndex + 1) / totalSteps) * 100}%`,
+                }}
               />
             </div>
           )}
@@ -109,11 +114,11 @@ export const OnboardingWizard = observer(
         {showFooterNav && (
           <AppCardFooter>
             <Button disabled={isFirstStep || isSubmitting} type="button" variant="outline" onClick={back}>
-              {t("back")}
+              {t("OnboardingWizard.back")}
             </Button>
 
             <Button disabled={isSubmitting} type="button" onClick={() => void next()}>
-              {t("next")}
+              {t("OnboardingWizard.next")}
             </Button>
           </AppCardFooter>
         )}

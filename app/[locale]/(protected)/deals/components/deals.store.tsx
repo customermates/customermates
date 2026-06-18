@@ -10,7 +10,7 @@ import { getDealsAction } from "../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class DealsStore extends BaseDataViewStore<DealDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.deals, EntityType.deal);
   }
 

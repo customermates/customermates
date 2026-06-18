@@ -11,33 +11,29 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const SubscriptionExpiredView = observer(() => {
-  const t = useTranslations("SubscriptionExpiredView");
+  const t = useTranslations();
   const { subscriptionExpiredStore } = useRootStore();
 
   function handleContactSupport() {
-    window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("supportEmailSubject"))}`;
+    window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
   }
 
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader subtitle={t("subtitle")} title={t("title")} />
+      <CardHeroHeader subtitle={t("SubscriptionExpiredView.subtitle")} title={t("SubscriptionExpiredView.title")} />
 
       <AppCardBody>
-        <p className="text-x-sm text-center text-subdued">{t("description")}</p>
+        <p className="text-x-sm text-center text-subdued">{t("SubscriptionExpiredView.description")}</p>
       </AppCardBody>
 
       <AppCardFooter>
         <div className="flex w-full flex-col space-y-3 items-start">
-          <Button
-            className="w-full"
-            disabled={subscriptionExpiredStore.checkoutLoading}
-            onClick={() => void subscriptionExpiredStore.handleSubscribe()}
-          >
-            {t("subscribeCta")}
+          <Button className="w-full" onClick={() => void subscriptionExpiredStore.handleSubscribe()}>
+            {t("SubscriptionExpiredView.subscribeCta")}
           </Button>
 
           <Button className="w-full" variant="outline" onClick={handleContactSupport}>
-            {t("contactSupportCta")}
+            {t("SubscriptionExpiredView.contactSupportCta")}
           </Button>
         </div>
       </AppCardFooter>

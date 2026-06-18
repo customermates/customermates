@@ -4,7 +4,6 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -12,25 +11,29 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
-import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateContactIds } from "../../contacts/validate-contact-ids";
-import { validateServiceIds } from "../../../core/validation/validate-service-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
+import {
+  validateContactIds,
+  validateOrganizationIds,
+  validateUserIds,
+  validateServiceIds,
+  validateTaskIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type DealDto, DealDtoSchema } from "../deal.schema";
 
 import { BaseCreateDealSchema } from "./create-deal-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import {
-  getCompanyRepo,
+  getUserRepo,
+  getUserService,
   getContactRepo,
   getCustomColumnRepo,
   getOrganizationRepo,
@@ -57,20 +60,31 @@ export const CreateManyDealsSchema = z
       deal.taskIds.forEach((id) => taskSet.add(id));
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validContactIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns] =
-      await Promise.all([
-        getOrganizationRepo().findIds(organizationSet),
-        getCompanyRepo().findIds(userSet),
-        getContactRepo().findIds(contactSet),
-        getServiceRepo().findIds(serviceSet),
-        getTaskRepo().findIds(taskSet),
-        getCustomColumnRepo().findByEntityType(EntityType.deal),
-      ]);
+    const [
+      validOrgIdsSet,
+      validUserIdsSet,
+      validContactIdsSet,
+      validServiceIdsSet,
+      validTaskIdsSet,
+      allColumns,
+      currentUser,
+      canReadAll,
+    ] = await Promise.all([
+      getOrganizationRepo().findIds(organizationSet),
+      getUserRepo().findIds(userSet),
+      getContactRepo().findIds(contactSet),
+      getServiceRepo().findIds(serviceSet),
+      getTaskRepo().findIds(taskSet),
+      getCustomColumnRepo().findByEntityType(EntityType.deal),
+      getUserService().getActiveUserOrThrow(),
+      getUserService().hasPermission(Resource.deals, Action.readAll),
+    ]);
 
     for (let i = 0; i < data.deals.length; i++) {
       const deal = data.deals[i];
       validateOrganizationIds(deal.organizationIds, validOrgIdsSet, ctx, ["deals", i, "organizationIds"]);
       validateUserIds(deal.userIds, validUserIdsSet, ctx, ["deals", i, "userIds"]);
+      validateAssigneeGuard(deal.userIds, currentUser.id, canReadAll, ctx, ["deals", i, "userIds"]);
       validateContactIds(deal.contactIds, validContactIdsSet, ctx, ["deals", i, "contactIds"]);
       validateServiceIds(Array.from(serviceSet), validServiceIdsSet, ctx, ["deals", i, "services"]);
       validateTaskIds(deal.taskIds, validTaskIdsSet, ctx, ["deals", i, "taskIds"]);
@@ -80,11 +94,11 @@ export const CreateManyDealsSchema = z
   });
 export type CreateManyDealsData = Data<typeof CreateManyDealsSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.deals,
   action: Action.create,
 })
-export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsData, DealDto[]> {
+export class CreateManyDealsInteractor extends AuthenticatedInteractor<CreateManyDealsData, DealDto[]> {
   constructor(
     private repo: CreateDealRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
@@ -92,7 +106,6 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
     private servicesRepo: GetUnscopedServiceRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -165,7 +178,6 @@ export class CreateManyDealsInteractor extends BaseInteractor<CreateManyDealsDat
           payload: deal,
         }),
       ),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: deals };

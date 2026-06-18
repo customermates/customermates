@@ -5,12 +5,9 @@ import type { DeleteWidgetRepo } from "./delete-widget.interactor";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor";
-import type { RecalculateUserWidgetsRepo } from "./widget.service";
 import type { ExtendedWidget, WidgetLayout } from "./widget.types";
 
 import { Prisma } from "@/generated/prisma";
-
-import { type UpdateWidgetLayoutsData } from "./update-widget-layouts.interactor";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -25,8 +22,7 @@ export class PrismaWidgetRepo
     DeleteWidgetRepo,
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
-    UpdateWidgetLayoutsRepo,
-    RecalculateUserWidgetsRepo
+    UpdateWidgetLayoutsRepo
 {
   async getWidgets() {
     const { id: userId, companyId } = this.user;
@@ -38,7 +34,12 @@ export class PrismaWidgetRepo
       },
     })) as unknown as ExtendedWidget[];
 
-    return widgets;
+    return Promise.all(
+      widgets.map(async (widget) => ({
+        ...widget,
+        data: await getWidgetCalculatorRepo().calculateWidgetData(widget),
+      })),
+    );
   }
 
   @Transaction
@@ -66,14 +67,7 @@ export class PrismaWidgetRepo
       update: widgetDataForDb,
     })) as unknown as ExtendedWidget;
 
-    const calculatedData = await getWidgetCalculatorRepo().calculateWidgetData(widget);
-
-    await this.prisma.widget.update({
-      where: { id: widget.id, companyId },
-      data: { data: calculatedData as Prisma.InputJsonValue },
-    });
-
-    return { ...widget, data: calculatedData };
+    return { ...widget, data: await getWidgetCalculatorRepo().calculateWidgetData(widget) };
   }
 
   @Transaction
@@ -124,11 +118,13 @@ export class PrismaWidgetRepo
       },
     })) as unknown as ExtendedWidget | null;
 
-    return widget;
+    if (!widget) return null;
+
+    return { ...widget, data: await getWidgetCalculatorRepo().calculateWidgetData(widget) };
   }
 
   @Transaction
-  async updateWidgetLayouts(args: UpdateWidgetLayoutsData): Promise<void> {
+  async updateWidgetLayouts(args: RepoArgs<UpdateWidgetLayoutsRepo, "updateWidgetLayouts">) {
     const { companyId } = this.user;
     const widgetIds = new Set<string>();
 
@@ -153,25 +149,6 @@ export class PrismaWidgetRepo
         return this.prisma.widget.update({
           where: { id: widget.id, companyId },
           data: { layout: widgetLayout },
-        });
-      }),
-    );
-  }
-
-  async recalculateUserWidgets(): Promise<void> {
-    const { companyId, id: userId } = this.user;
-
-    const widgets = (await this.prisma.widget.findMany({
-      where: { companyId, userId },
-    })) as unknown as ExtendedWidget[];
-
-    await Promise.all(
-      widgets.map(async (widget) => {
-        const data = await getWidgetCalculatorRepo().calculateWidgetData(widget);
-
-        await this.prisma.widget.updateMany({
-          where: { id: widget.id, companyId },
-          data: { data, companyId },
         });
       }),
     );

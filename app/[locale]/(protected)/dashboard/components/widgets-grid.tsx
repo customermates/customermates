@@ -9,8 +9,8 @@ import type { FilterableField } from "@/core/base/base-get.schema";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
-import { useFormatter, useNow, useTranslations } from "next-intl";
-import { Plus, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Plus } from "lucide-react";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
-import { cn } from "@/lib/utils";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -43,11 +42,9 @@ type Props = {
 };
 
 export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields }: Props) => {
-  const t = useTranslations("");
-  const format = useFormatter();
-  const now = useNow({ updateInterval: 60_000 });
+  const t = useTranslations();
   const { widgetsStore, widgetModalStore } = useRootStore();
-  const { items, layouts, isRefreshing, lastUpdatedAt } = widgetsStore;
+  const { items, layouts } = widgetsStore;
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
@@ -87,32 +84,14 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   const topBarActions = useMemo(
     () => (
       <div className="flex items-center gap-2">
-        {lastUpdatedAt && (
-          <span className="hidden sm:inline text-xs text-muted-foreground" title={lastUpdatedAt.toLocaleString()}>
-            {t("Dashboard.lastUpdated", { time: format.relativeTime(lastUpdatedAt, now) })}
-          </span>
-        )}
-
-        <Button
-          aria-label={t("Dashboard.refresh")}
-          disabled={isRefreshing}
-          size="sm"
-          variant="outline"
-          onClick={() => void widgetsStore.recalculate()}
-        >
-          <Icon className={cn(isRefreshing && "animate-spin")} icon={RefreshCw} />
-
-          <span className="hidden sm:inline">{t("Dashboard.refresh")}</span>
-        </Button>
-
-        <Button size="sm" variant="outline" onClick={() => void widgetModalStore.add()}>
+        <Button size="sm" onClick={() => void widgetModalStore.add()}>
           <Icon icon={Plus} />
 
           <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
         </Button>
       </div>
     ),
-    [t, format, now, lastUpdatedAt, isRefreshing, widgetsStore, widgetModalStore],
+    [t, widgetModalStore],
   );
 
   useSetTopBarActions(topBarActions);

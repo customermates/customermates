@@ -1,0 +1,102 @@
+import type { MessagingService } from "../../messaging.service";
+import type { MessagingIngestRepo } from "../messaging-ingest.repo";
+import type { ConnectedAccount } from "../../messaging.schema";
+import type { BackfillConnectedAccountRepo } from "./backfill.repo";
+
+import { z } from "zod";
+
+import * as Sentry from "@sentry/node";
+
+import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { Enforce } from "@/core/decorators/enforce.decorator";
+
+import { buildEmailMessage } from "../../unipile.mappers";
+import { UnipileEmailSchema } from "../../unipile.schema";
+import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
+
+import { paginate, UNIPILE_MAX_LIMIT } from "./paginate";
+
+const BackfillEmailsPayloadSchema = z.object({
+  account: z.custom<ConnectedAccount>(),
+  afterDate: z.date(),
+  checkpoint: BackfillCheckpointSchema,
+  epoch: z.number(),
+});
+export type BackfillEmailsPayload = z.infer<typeof BackfillEmailsPayloadSchema>;
+
+@SystemInteractor
+export class BackfillEmailsInteractor {
+  constructor(
+    private repo: BackfillConnectedAccountRepo,
+    private messagingService: MessagingService,
+    private ingest: MessagingIngestRepo,
+  ) {}
+
+  @Enforce(BackfillEmailsPayloadSchema)
+  async invoke({ account, afterDate, checkpoint, epoch }: BackfillEmailsPayload): Promise<void> {
+    if (checkpoint.email?.done) return;
+
+    await paginate({
+      startCursor: checkpoint.email?.cursor ?? undefined,
+      fetchPage: (cursor) =>
+        this.messagingService.listEmails({
+          accountId: account.unipileAccountId,
+          after: afterDate.toISOString(),
+          limit: UNIPILE_MAX_LIMIT,
+          cursor,
+        }),
+      handleItem: (item) => this.processEmailItem(account, item),
+      onPageEnd: (cursor) =>
+        this.repo.saveBackfillStepCheckpoint({
+          unipileAccountId: account.unipileAccountId,
+          step: "email",
+          checkpoint: { cursor },
+          epoch,
+        }),
+    });
+  }
+
+  private async processEmailItem(account: ConnectedAccount, item: unknown): Promise<number> {
+    const parsed = UnipileEmailSchema.safeParse(item);
+
+    if (!parsed.success) {
+      await this.repo.recordUnusableItem({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        payload: item,
+      });
+      return 1;
+    }
+
+    const normalized = buildEmailMessage(parsed.data, parsed.data.role === "sent");
+
+    if (!normalized) {
+      await this.repo.recordUnusableItem({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        payload: parsed.data,
+        unipileMessageId: parsed.data.email_id ?? parsed.data.id ?? null,
+      });
+      return 1;
+    }
+
+    try {
+      await this.ingest.ingestMessage({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        message: normalized,
+        backfill: true,
+      });
+      return 1;
+    } catch (err) {
+      Sentry.captureException(err);
+      await this.repo.recordUnusableItem({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        payload: normalized,
+        unipileMessageId: normalized.unipileMessageId,
+      });
+      return 1;
+    }
+  }
+}

@@ -204,16 +204,11 @@ export const listCustomColumnsTool = {
   inputSchema: ListCustomColumnsSchema,
   execute: async ({ entityType }: z.infer<typeof ListCustomColumnsSchema>) => {
     if (entityType) {
-      const byEntity = (await getGetCustomColumnsByEntityTypeInteractor().invoke({ entityType })) as
-        | { ok: true; data: unknown }
-        | { ok: false; error: z.ZodError };
+      const byEntity = await getGetCustomColumnsByEntityTypeInteractor().invoke({ entityType });
       if (!byEntity.ok) return `Validation error: ${z.prettifyError(byEntity.error)}`;
       return encodeToToon({ items: byEntity.data });
     }
-    const all = (await getGetCustomColumnsInteractor().invoke()) as
-      | { ok: true; data: unknown }
-      | { ok: false; error: z.ZodError };
-    if (!all.ok) return `Validation error: ${z.prettifyError(all.error)}`;
+    const all = await getGetCustomColumnsInteractor().invoke();
     return encodeToToon({ items: all.data });
   },
 };
@@ -224,10 +219,7 @@ async function loadColumnOrError(
   id: string,
   expectedType: string,
 ): Promise<{ ok: true; column: LoadedColumn } | { ok: false; error: string }> {
-  const all = (await getGetCustomColumnsInteractor().invoke()) as
-    | { ok: true; data: LoadedColumn[] }
-    | { ok: false; error: z.ZodError };
-  if (!all.ok) return { ok: false, error: `Validation error: ${z.prettifyError(all.error)}` };
+  const all = await getGetCustomColumnsInteractor().invoke();
   const existing = all.data.find((col) => col.id === id);
   if (!existing) return { ok: false, error: `Validation error: Custom column ${id} not found` };
   if (existing.type !== expectedType) {
@@ -475,9 +467,7 @@ export const deleteCustomColumnTool = {
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteCustomColumnSchema,
   execute: async ({ id }: z.infer<typeof DeleteCustomColumnSchema>) => {
-    const result = (await getDeleteCustomColumnInteractor().invoke({ id })) as
-      | { ok: true; data: string }
-      | { ok: false; error: z.ZodError };
+    const result = await getDeleteCustomColumnInteractor().invoke({ id });
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Deleted custom column ${result.data}`;
   },

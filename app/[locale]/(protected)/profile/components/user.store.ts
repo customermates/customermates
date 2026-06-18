@@ -2,16 +2,22 @@ import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-d
 import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-settings.interactor";
 import type { ExtendedUser } from "@/features/user/user.types";
 import type { RootStore } from "@/core/stores/root.store";
+import { BaseStore } from "@/core/base/base.store";
+import type { Theme } from "@/generated/prisma";
 
 import { makeObservable } from "mobx";
 import { action, observable } from "mobx";
 import { Action, CountryCode, Resource } from "@/generated/prisma";
 
-export class UserStore {
+import { updateThemeAction } from "@/app/[locale]/(protected)/dashboard/actions";
+import { resendVerificationEmailFromAppAction } from "../actions";
+
+export class UserStore extends BaseStore {
   public user: ExtendedUser | null = null;
   public permissions: Map<string, boolean> = new Map();
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
+    super(rootStore);
     makeObservable(this, {
       user: observable,
       permissions: observable,
@@ -19,8 +25,29 @@ export class UserStore {
       can: action,
       canManage: action,
       canAccess: action,
+      updateTheme: action,
     });
   }
+
+  resendVerificationEmail = async (): Promise<void> => {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const result = await resendVerificationEmailFromAppAction();
+      if (result.ok) this.toastSuccess("EmailVerification.resendSuccess");
+    });
+  };
+
+  updateTheme = async (theme: Theme): Promise<void> => {
+    const currentUser = this.user;
+    if (!currentUser) return;
+
+    const settings: UpdateUserSettingsData = {
+      theme,
+      displayLanguage: currentUser.displayLanguage,
+      formattingLocale: currentUser.formattingLocale,
+    };
+    const res = await updateThemeAction(settings);
+    if (res.ok) this.updateUserSettings(res.data);
+  };
 
   can = (resource: Resource, action: Action): boolean => {
     void this.user;

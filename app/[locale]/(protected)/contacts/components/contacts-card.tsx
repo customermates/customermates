@@ -6,42 +6,31 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { useMemo } from "react";
 import { EntityType, TaskType } from "@/generated/prisma";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
+import { ChannelIconStack } from "./channel-icon-stack";
+import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
-import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { copyToClipboard } from "@/lib/clipboard";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
 type Props = {
   contacts: GetResult<ContactDto>;
 };
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0) return "";
-  if (parts.length === 1) return parts[0]?.slice(0, 2).toUpperCase() ?? "";
-  return ((parts[0]?.[0] ?? "") + (parts[parts.length - 1]?.[0] ?? "")).toUpperCase();
-}
-
 export const ContactsCard = observer(({ contacts }: Props) => {
   const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
-  const t = useTranslations("");
+  const t = useTranslations();
+  const copy = useCopyToClipboard();
 
   useDataViewSync(contactsStore, contacts, [dealsStore, organizationsStore]);
-
-  async function handleCopyEmail(value: string) {
-    const ok = await copyToClipboard(value);
-    if (ok) toast.success(t("Common.notifications.copiedToClipboard", { value }));
-    else toast.error(t("Common.notifications.copyFailed"));
-  }
 
   const columns = useMemo<ColumnDef<ContactDto>[]>(() => {
     return [
@@ -49,11 +38,10 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         id: "name",
         cell: ({ row }) => {
           const fullName = `${row.original.firstName} ${row.original.lastName}`.trim();
+          const pictureUrl = row.original.avatarUrl ?? null;
           return (
             <div className="flex gap-2 items-center justify-start">
-              <Avatar className="size-8 shrink-0">
-                <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
-              </Avatar>
+              <Avatar name={fullName} src={pictureUrl} />
 
               <span className="text-sm truncate">{fullName}</span>
             </div>
@@ -61,12 +49,15 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         },
       },
       {
-        id: "emails",
+        id: "channels",
         cell: ({ row }) => (
-          <AppChipStack
-            items={row.original.emails.map((email) => ({ id: email, label: email }))}
-            size="sm"
-            onChipClick={(item) => void handleCopyEmail(item.label)}
+          <ChannelIconStack
+            identifiers={row.original.identifiers ?? []}
+            onItemClick={(item) =>
+              void copy(
+                channelDisplayLabel(item.provider, item.value, item.profileUrl) || item.displayName || item.value,
+              )
+            }
           />
         ),
       },
@@ -75,7 +66,10 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         cell: ({ row }) => (
           <AppChipStack
             chipHref={(org) => entityHref(EntityType.organization, org.id)}
-            items={row.original.organizations.map((org) => ({ id: org.id, label: org.name }))}
+            items={row.original.organizations.map((org) => ({
+              id: org.id,
+              label: org.name,
+            }))}
             size="sm"
           />
         ),
@@ -85,7 +79,10 @@ export const ContactsCard = observer(({ contacts }: Props) => {
         cell: ({ row }) => (
           <AppChipStack
             chipHref={(deal) => entityHref(EntityType.deal, deal.id)}
-            items={row.original.deals.map((deal) => ({ id: deal.id, label: deal.name }))}
+            items={row.original.deals.map((deal) => ({
+              id: deal.id,
+              label: deal.name,
+            }))}
             size="sm"
           />
         ),
@@ -104,9 +101,13 @@ export const ContactsCard = observer(({ contacts }: Props) => {
           />
         ),
       },
-      ...standardTailColumns({ store: contactsStore, intlStore, userModalStore }),
+      ...standardTailColumns({
+        store: contactsStore,
+        intlStore,
+        userModalStore,
+      }),
     ];
-  }, [contactsStore, contactsStore.customColumns, openEntity, entityHref, userModalStore, intlStore, t]);
+  }, [contactsStore, contactsStore.customColumns, openEntity, entityHref, userModalStore, intlStore, t, copy]);
 
   return (
     <DataViewContainer

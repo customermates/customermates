@@ -5,7 +5,6 @@ import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEffect } from "react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 import SignInProviderButton from "../signin/sign-in-provider-button";
 import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
@@ -13,6 +12,7 @@ import { continueWithGoogleAction, continueWithMicrosoftAction } from "../action
 import { AppLink } from "@/components/shared/app-link";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { PasswordInput } from "@/components/forms/password-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
 import { i18nFormatters } from "@/i18n/formatters";
@@ -28,7 +28,7 @@ type Props = {
 };
 
 export const SignUpForm = observer(({ companyName, showSocialProviders }: Props) => {
-  const t = useTranslations("SignUpForm");
+  const t = useTranslations();
   const { signUpStore } = useRootStore();
   const { isLoading, form } = signUpStore;
 
@@ -40,24 +40,29 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
     <AppForm store={signUpStore}>
       <AppCard className="max-w-lg">
         <CardHeroHeader
-          subtitle={t.rich("switchToSignIn", {
+          subtitle={t.rich("SignUpForm.switchToSignIn", {
             signInLink: (chunks) => (
               <AppLink inheritSize href="/auth/signin">
                 {chunks}
               </AppLink>
             ),
           })}
-          title={companyName ? t("inviteTitle") : t("title")}
+          title={companyName ? t("SignUpForm.inviteTitle") : t("SignUpForm.title")}
         />
 
         <AppCardBody>
           {companyName ? (
             <Alert className="mb-4" color="success">
-              <p className="text-x-sm">{t.rich("inviteSubtitle", { ...i18nFormatters, company: companyName })}</p>
+              <p className="text-x-sm">
+                {t.rich("SignUpForm.inviteSubtitle", {
+                  ...i18nFormatters,
+                  company: companyName,
+                })}
+              </p>
             </Alert>
           ) : (
             <Alert className="mb-4" color="primary">
-              <p className="text-x-sm">{t("newCompanySubtitle")}</p>
+              <p className="text-x-sm">{t("SignUpForm.newCompanySubtitle")}</p>
             </Alert>
           )}
 
@@ -66,14 +71,16 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <SignInProviderButton
                   className="w-full sm:flex-1"
-                  label={t("buttonLabel", { provider: "Google" })}
+                  label={t("SignUpForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
                   onClick={() => void continueWithGoogleAction()}
                 />
 
                 <SignInProviderButton
                   className="w-full sm:flex-1"
-                  label={t("buttonLabel", { provider: "Microsoft" })}
+                  label={t("SignUpForm.buttonLabel", {
+                    provider: "Microsoft",
+                  })}
                   providerId="microsoft"
                   onClick={() => void continueWithMicrosoftAction()}
                 />
@@ -82,7 +89,7 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
               <div className="my-3 flex items-center">
                 <Separator aria-hidden="true" className="h-px flex-1" />
 
-                <span className="text-x-sm text-subdued mx-4">{t("or")}</span>
+                <span className="text-x-sm text-subdued mx-4">{t("SignUpForm.or")}</span>
 
                 <Separator aria-hidden="true" className="h-px flex-1" />
               </div>
@@ -95,21 +102,11 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
             <FormInput required id="confirmEmail" type="email" />
           </Reveal>
 
-          <FormInput
+          <PasswordInput
             required
-            endContent={
-              <Button
-                aria-label={signUpStore.showPassword ? "Hide password" : "Show password"}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-                onClick={signUpStore.toggleShowPassword}
-              >
-                {signUpStore.showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </Button>
-            }
             id="password"
-            type={signUpStore.showPassword ? "text" : "password"}
+            showPassword={signUpStore.showPassword}
+            onToggleVisibility={signUpStore.toggleShowPassword}
           />
 
           <FormInput required id="confirmPassword" type={signUpStore.showPassword ? "text" : "password"} />
@@ -118,11 +115,11 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
         <AppCardFooter>
           <div className="flex w-full flex-col space-y-3 items-center">
             <Button className="w-full" disabled={isLoading} type="submit">
-              {companyName ? t("acceptInviteCta") : t("signUpCta")}
+              {companyName ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
             </Button>
 
             <p className="text-x-xs text-subdued text-center mt-2">
-              {t.rich("agreeToTerms", {
+              {t.rich("SignUpForm.agreeToTerms", {
                 dataPrivacyLink: (chunks) => (
                   <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
                     {chunks}

@@ -1,5 +1,6 @@
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
@@ -7,10 +8,10 @@ import { Resource, Action } from "@/generated/prisma";
 import type { WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { BaseGetRepo } from "@/core/base/base-get.interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -47,7 +48,7 @@ const WebhookDeliveryDtoSchema = z.object({
 export abstract class GetWebhookDeliveriesRepo extends BaseGetRepo<WebhookDeliveryDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
   constructor(repo: GetWebhookDeliveriesRepo, p13nRepo: P13nRepo) {
     super(repo, p13nRepo, {
@@ -56,9 +57,9 @@ export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDel
     });
   }
 
-  @Enforce(GetQueryParamsSchema)
+  @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(WebhookDeliveryDtoSchema))
-  async invoke(params: GetQueryParams = {}) {
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<WebhookDeliveryDto>> {
     return await super.invoke(params);
   }
 }

@@ -7,7 +7,7 @@ export function Validate<T>(schema: z.ZodSchema<T>) {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (data: unknown) {
-      const validation = await validate(schema, data);
+      const validation = await validate(schema, data === undefined || data === null ? {} : data);
 
       if (validation.ok) return originalMethod.apply(this, [validation.data]);
 

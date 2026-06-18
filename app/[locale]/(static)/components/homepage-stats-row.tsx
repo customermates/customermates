@@ -60,7 +60,7 @@ const LOGOS: Logo[] = [
 ];
 
 export async function HomepageStatsRow() {
-  const t = await getTranslations("HomepageStatsRow");
+  const t = await getTranslations();
 
   return (
     <div className="mx-auto -mt-5 w-full max-w-[1100px] px-4">
@@ -73,8 +73,9 @@ export async function HomepageStatsRow() {
         <div className="relative">
           {/* eslint-disable react/jsx-newline */}
           <p className="mb-4 text-xs tracking-wide text-muted-foreground">
-            {t("taglinePre")} <span className="font-medium text-foreground">{t("taglineMcp")}</span>
-            {t("taglinePost")}
+            {t("HomepageStatsRow.taglinePre")}{" "}
+            <span className="font-medium text-foreground">{t("HomepageStatsRow.taglineMcp")}</span>
+            {t("HomepageStatsRow.taglinePost")}
           </p>
           {/* eslint-enable react/jsx-newline */}
 

@@ -3,14 +3,15 @@ import { Resource } from "@/generated/prisma";
 
 import { AuditLogsCard } from "../components/audit-log/audit-logs-card";
 
-import { getGetAuditLogsInteractor, getRouteGuardService } from "@/core/di";
+import { getGetAuditLogsInteractor } from "@/core/di";
+import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { env } from "@/env";
 
 export default async function CompanyAuditLogsPage() {
-  if (!IS_CLOUD_HOSTED) redirect("/dashboard");
+  if (!env.CLOUD_HOSTED) redirect("/dashboard");
 
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.auditLog });
+  await requireAccess({ resource: Resource.auditLog });
 
   const auditLogs = await getGetAuditLogsInteractor().invoke({ p13nId: "audit-logs-card-store" });
 

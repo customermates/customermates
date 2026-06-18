@@ -6,13 +6,14 @@ import { action, computed, makeObservable, observable } from "mobx";
 import { Resource } from "@/generated/prisma";
 
 import { deleteDealAction, getDealByIdAction, createDealAction, updateDealAction } from "../actions";
+import { createServiceByNameAction, getServicesAction } from "../../services/actions";
 
 import { BaseCustomColumnEntityModalStore } from "@/core/base/base-custom-column-entity-modal.store";
 
 export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDealData & { id?: string }, DealDto> {
   serviceAmountById = new Map<string, number>();
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -72,6 +73,7 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
       organizationIds: [],
       userIds: [],
       contactIds: [],
+      taskIds: [],
       services: [],
     };
   }
@@ -90,6 +92,22 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
     newServices.splice(index, 1);
 
     this.onChange("services", newServices);
+  };
+
+  searchServiceOptions = async (params: { searchTerm?: string }) => {
+    const result = await getServicesAction(params);
+    this.rememberServiceAmounts(result.items);
+    return {
+      ...result,
+      items: result.items.map((service) => ({ ...service, quantity: 1 })),
+    };
+  };
+
+  createServiceOption = async (name: string) => {
+    const service = await createServiceByNameAction(name, this.rootStore.userStore.user?.id);
+    if (!service) return null;
+    this.rememberServiceAmounts([service]);
+    return { ...service, quantity: 1 };
   };
 
   rememberServiceAmounts = (items: ReadonlyArray<{ id: string; amount: number }>) => {
@@ -121,6 +139,6 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
   }
 
   protected buildRecentSearchItem(entity: DealDto) {
-    return { type: "deal" as const, id: entity.id, name: entity.name };
+    return { type: "deal" as const, id: entity.id, name: entity.name, pictureUrl: null };
   }
 }

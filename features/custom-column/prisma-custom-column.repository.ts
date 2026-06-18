@@ -190,6 +190,8 @@ export class PrismaCustomColumnRepo
   async upsertCustomColumn(args: RepoArgs<UpsertCustomColumnRepo, "upsertCustomColumn">) {
     const { companyId } = this.user;
 
+    if (args.id) await this.prisma.customColumn.findFirstOrThrow({ where: { id: args.id, companyId } });
+
     const columnData: {
       label: string;
       type: CustomColumnType;

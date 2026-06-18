@@ -17,7 +17,7 @@ type DocsPageActionsProps = {
 
 export function DocsPageActions({ markdownUrl }: DocsPageActionsProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const t = useTranslations("DocsPage");
+  const t = useTranslations();
 
   const items = useMemo(() => {
     const absoluteMarkdownUrl =
@@ -27,15 +27,15 @@ export function DocsPageActions({ markdownUrl }: DocsPageActionsProps) {
     return [
       {
         href: markdownUrl,
-        title: t("openMarkdown"),
+        title: t("DocsPage.openMarkdown"),
       },
       {
         href: `https://chatgpt.com/?${new URLSearchParams({ hints: "search", q: prompt })}`,
-        title: t("openInChatGPT"),
+        title: t("DocsPage.openInChatGPT"),
       },
       {
         href: `https://claude.ai/new?${new URLSearchParams({ q: prompt })}`,
-        title: t("openInClaude"),
+        title: t("DocsPage.openInClaude"),
       },
     ];
   }, [markdownUrl, t]);
@@ -49,16 +49,16 @@ export function DocsPageActions({ markdownUrl }: DocsPageActionsProps) {
       await navigator.clipboard.writeText(markdown);
       setIsCopied(true);
       window.setTimeout(() => setIsCopied(false), 2000);
-      toast.success(t("markdownCopied"));
+      toast.success(t("DocsPage.markdownCopied"));
     } catch {
-      toast.error(t("markdownCopyFailed"));
+      toast.error(t("DocsPage.markdownCopyFailed"));
     }
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button size="sm" variant="secondary" onClick={() => void handleCopy()}>
-        {t("copyMarkdown")}
+        {t("DocsPage.copyMarkdown")}
 
         <Icon icon={isCopied ? Check : Clipboard} size="sm" />
       </Button>
@@ -66,7 +66,7 @@ export function DocsPageActions({ markdownUrl }: DocsPageActionsProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button size="sm" variant="secondary">
-            {t("open")}
+            {t("DocsPage.open")}
 
             <Icon icon={ChevronDown} size="sm" />
           </Button>

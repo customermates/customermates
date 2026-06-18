@@ -18,7 +18,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
 
 export const ForgotPasswordForm = observer(() => {
-  const t = useTranslations("ForgotPasswordForm");
+  const t = useTranslations();
 
   const searchParams = useSearchParams();
   const info = searchParams.get("info");
@@ -34,20 +34,20 @@ export const ForgotPasswordForm = observer(() => {
     <AppForm store={forgotPasswordStore}>
       <AppCard className="max-w-md">
         <CardHeroHeader
-          subtitle={t.rich("backToSignIn", {
+          subtitle={t.rich("ForgotPasswordForm.backToSignIn", {
             backToSignInLink: (chunks) => (
               <AppLink inheritSize href="/auth/signin">
                 {chunks}
               </AppLink>
             ),
           })}
-          title={t("title")}
+          title={t("ForgotPasswordForm.title")}
         />
 
         <AppCardBody>
           {info === "RESET_LINK_INVALID" && (
             <Alert className="mb-4" color="warning">
-              <p className="text-x-sm">{t("resetLinkInvalid")}</p>
+              <p className="text-x-sm">{t("ForgotPasswordForm.resetLinkInvalid")}</p>
             </Alert>
           )}
 
@@ -60,7 +60,7 @@ export const ForgotPasswordForm = observer(() => {
 
         <AppCardFooter>
           <Button className="w-full" disabled={isLoading} type="submit">
-            {t("sendCta")}
+            {t("ForgotPasswordForm.sendCta")}
           </Button>
         </AppCardFooter>
       </AppCard>

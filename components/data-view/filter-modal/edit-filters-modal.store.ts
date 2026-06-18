@@ -14,8 +14,13 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
   tableStore?: BaseDataViewStore<HasId>;
   expandedField: string | undefined = undefined;
 
-  constructor(public readonly rootStore: RootStore) {
-    super(rootStore, { filters: [], presetId: undefined, name: "", p13nId: "" });
+  constructor(rootStore: RootStore) {
+    super(rootStore, {
+      filters: [],
+      presetId: undefined,
+      name: "",
+      p13nId: "",
+    });
 
     makeObservable(this, {
       tableStore: observable,
@@ -101,7 +106,10 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
       }
 
       this.close();
-      this.tableStore?.setQueryOptions({ filters: validFilters, forceRefresh: true });
+      this.tableStore?.setQueryOptions({
+        filters: validFilters,
+        forceRefresh: true,
+      });
     } finally {
       this.setIsLoading(false);
     }
@@ -114,14 +122,13 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
 
     const allFilters = this.mergeFiltersWithFilterableFields(filterableFields, currentFilters);
 
-    this.onInitOrRefresh({
+    this.expandedField = expandField;
+    this.openWith({
       p13nId: tableStore.p13nId,
       filters: allFilters,
       presetId: undefined,
       name: "",
     });
-    this.expandedField = expandField;
-    this.open();
   };
 
   deletePreset = async () => {

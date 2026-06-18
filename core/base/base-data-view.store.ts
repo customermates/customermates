@@ -13,11 +13,19 @@ import { Action, CustomColumnType } from "@/generated/prisma";
 import type { Resource, EntityType } from "@/generated/prisma";
 
 import { decodeGetParams, encodeGetParams } from "../utils/get-params";
+import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
+import { BaseStore } from "./base.store";
 
 import { KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
-import { upsertP13nAction, getCustomColumnsByEntityTypeAction } from "@/app/actions";
+import {
+  upsertP13nAction,
+  getCustomColumnsByEntityTypeAction,
+  bulkDeleteEntitiesAction,
+  bulkUpdateCustomFieldValuesAction,
+  updateEntityCustomFieldValueAction,
+} from "@/app/actions";
 
 export interface HasId {
   id: string;
@@ -30,7 +38,7 @@ export type TableColumn = {
   width?: number;
 };
 
-export abstract class BaseDataViewStore<Entity extends HasId> {
+export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   isRefreshing = false;
   isReady = false;
 
@@ -54,9 +62,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
 
   groupCounts: Record<string, number> = {};
   groupedTakeOverrides: Record<string, number> = {};
+  isBulkMutating = false;
 
   public readonly resource?: Resource;
-  public readonly rootStore?: RootStore;
   public readonly entityType?: EntityType;
 
   private persistViewOptionsTimer?: number;
@@ -67,7 +75,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
   abstract get columnsDefinition(): TableColumn[];
 
   constructor(rootStore: RootStore, resource?: Resource, entityType?: EntityType) {
-    this.rootStore = rootStore;
+    super(rootStore);
     this.resource = resource;
     this.entityType = entityType;
 
@@ -95,6 +103,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
 
       groupCounts: observable,
       groupedTakeOverrides: observable,
+      isBulkMutating: observable,
 
       orderedColumns: computed,
       headerColumns: computed,
@@ -130,8 +139,121 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
       loadMoreInGroup: action,
       resetGroupedTakeOverrides: action,
       transferItemBetweenGroups: action,
+      setBulkMutating: action,
+      bulkDelete: action,
+      bulkUpdateCustomField: action,
+      updateCustomFieldValue: action,
+      moveItemBetweenGroups: action,
     });
   }
+
+  setBulkMutating = (next: boolean) => {
+    this.isBulkMutating = next;
+  };
+
+  bulkDelete = async (): Promise<void> => {
+    const ids = Array.from(this.selectedIds);
+    if (ids.length === 0 || !this.entityType) return;
+
+    this.setBulkMutating(true);
+    try {
+      const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
+      if (res && !res.ok) {
+        const announced = toastZodErrorTree(res.error);
+        await this.refresh();
+        throw new Error(announced ? "" : this.t("Common.notifications.unexpectedError"));
+      }
+      this.clearSelection();
+      await this.refresh();
+    } finally {
+      this.setBulkMutating(false);
+    }
+  };
+
+  bulkUpdateCustomField = async (columnId: string, value: string): Promise<boolean> => {
+    const entityIds = Array.from(this.selectedIds);
+    if (entityIds.length === 0 || !this.entityType) return false;
+
+    this.setBulkMutating(true);
+    try {
+      const res = await bulkUpdateCustomFieldValuesAction({
+        entityType: this.entityType,
+        entityIds,
+        customFieldValues: [{ columnId, value }],
+      });
+      if (res && !res.ok) {
+        if (!toastZodErrorTree(res.error)) this.toastError("Common.notifications.unexpectedError");
+        await this.refresh();
+        return false;
+      }
+      this.clearSelection();
+      await this.refresh();
+      this.toastSuccess("Common.notifications.updated");
+      return true;
+    } finally {
+      this.setBulkMutating(false);
+    }
+  };
+
+  updateCustomFieldValue = async (entityId: string, columnId: string, value: string | null): Promise<boolean> => {
+    const entityType = this.entityType;
+    if (!entityType) return false;
+
+    const res = await updateEntityCustomFieldValueAction({
+      entityType,
+      entityId,
+      customFieldValues: [{ columnId, value }],
+    });
+    if (res?.ok) {
+      await this.upsertItem(res.data as unknown as Entity);
+      return true;
+    }
+    toastZodErrorTree(res?.error);
+    return false;
+  };
+
+  moveItemBetweenGroups = async (params: {
+    item: Entity;
+    optimisticItem: Entity;
+    columnId: string;
+    fromGroupKey: string;
+    toGroupKey: string;
+    value: string | null;
+  }): Promise<void> => {
+    const entityType = this.entityType;
+    if (!entityType) return;
+
+    const groupingColumn = this.customColumns.find((column) => column.id === params.columnId);
+
+    if (groupingColumn?.type !== CustomColumnType.singleSelect) {
+      this.toastError("Common.notifications.unexpectedError");
+      return;
+    }
+
+    this.upsertItemLocal(params.optimisticItem);
+    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey);
+
+    const revert = () => {
+      this.upsertItemLocal(params.item);
+      this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
+    };
+
+    try {
+      const res = await updateEntityCustomFieldValueAction({
+        entityType,
+        entityId: params.item.id,
+        customFieldValues: [{ columnId: params.columnId, value: params.value }],
+      });
+      if (res?.ok) await this.upsertItem(res.data as unknown as Entity);
+      else {
+        revert();
+        toastZodErrorTree(res?.error);
+      }
+    } catch (err) {
+      revert();
+      throw err;
+    }
+  };
 
   get isKanbanMode(): boolean {
     return this.viewMode === ViewMode.card && Boolean(this.groupingColumnId);
@@ -156,25 +278,25 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
   }
 
   get canReadAll(): boolean {
-    if (!this.resource || !this.rootStore) return true;
+    if (!this.resource) return true;
 
     return this.rootStore.userStore.can(this.resource, Action.readAll);
   }
 
   get canAccess(): boolean {
-    if (!this.resource || !this.rootStore) return true;
+    if (!this.resource) return true;
 
     return this.rootStore.userStore.canAccess(this.resource);
   }
 
   get canManage(): boolean {
-    if (!this.resource || !this.rootStore) return true;
+    if (!this.resource) return true;
 
     return this.rootStore.userStore.canManage(this.resource);
   }
 
   get isDisabled(): boolean {
-    if (!this.resource || !this.rootStore) return false;
+    if (!this.resource) return false;
 
     return !this.rootStore.userStore.canManage(this.resource);
   }
@@ -191,10 +313,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     return this.customColumns.filter((col) => col.type === CustomColumnType.singleSelect);
   }
 
+  isItemSelectable(_item: Entity): boolean {
+    return true;
+  }
+
   setSelectedIds = (keys: "all" | Set<string>) => {
     this.selectedIds.clear();
-    if (keys === "all") this.items.forEach((item) => this.selectedIds.add(item.id));
-    else keys.forEach((id) => this.selectedIds.add(id));
+    if (keys === "all") {
+      for (const item of this.items) if (this.isItemSelectable(item)) this.selectedIds.add(item.id);
+    } else keys.forEach((id) => this.selectedIds.add(id));
   };
 
   clearSelection = () => {
@@ -252,7 +379,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     this.searchTerm = args.searchTerm;
     this.sortDescriptor = args.sortDescriptor;
     this.pagination = args.pagination;
-    this.filters = args.filters || [];
+    this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
     this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
     this.savedFilterPresets = args.savedFilterPresets;
@@ -268,7 +395,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
 
   loadMoreInGroup = (groupKey: string): void => {
     const current = this.groupedTakeOverrides[groupKey] ?? KANBAN_PER_GROUP_DEFAULT;
-    this.groupedTakeOverrides = { ...this.groupedTakeOverrides, [groupKey]: current + KANBAN_PER_GROUP_DEFAULT };
+    this.groupedTakeOverrides = {
+      ...this.groupedTakeOverrides,
+      [groupKey]: current + KANBAN_PER_GROUP_DEFAULT,
+    };
     void this.persistQueryOptions();
   };
 
@@ -373,7 +503,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     if (updates.pagination) {
       const newPagination: PaginationRequest = this.pagination
         ? { ...this.pagination, ...updates.pagination }
-        : { page: updates.pagination.page, pageSize: updates.pagination.pageSize };
+        : {
+            page: updates.pagination.page,
+            pageSize: updates.pagination.pageSize,
+          };
 
       if (!deepEqual(this.pagination, newPagination)) {
         this.pagination = newPagination;
@@ -412,14 +545,23 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
   changeFilterPreset = (presetId: string | undefined) => {
     if (presetId) {
       const preset = this.savedFilterPresets?.find((p) => p.id === presetId);
-      if (preset) this.setQueryOptions({ filters: preset.filters });
+      if (preset) this.setQueryOptions({ filters: this.withKnownFields(preset.filters) });
     } else this.setQueryOptions({ filters: [] });
   };
+
+  private withKnownFields(filters: Filter[] | undefined): Filter[] {
+    const list = filters ?? [];
+    if (this.filterableFields.length === 0) return list;
+    const known = new Set(this.filterableFields.map((f) => f.field));
+    return list.filter((f) => known.has(f.field));
+  }
 
   refreshCustomColumns = async (): Promise<void> => {
     if (!this.entityType) return;
 
-    const customColumns = await getCustomColumnsByEntityTypeAction({ entityType: this.entityType });
+    const customColumns = await getCustomColumnsByEntityTypeAction({
+      entityType: this.entityType,
+    });
 
     this.setCustomColumns(customColumns);
   };
@@ -501,13 +643,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     if (!this.isReady) return;
 
     runInAction(() => (this.isRefreshing = true));
-    this.rootStore?.loadingOverlayStore.setIsLoading(true);
+    this.rootStore.loadingOverlayStore.setIsLoading(true);
 
     try {
       await this.refresh();
     } finally {
       runInAction(() => (this.isRefreshing = false));
-      this.rootStore?.loadingOverlayStore.setIsLoading(false);
+      this.rootStore.loadingOverlayStore.setIsLoading(false);
     }
   }
 
@@ -596,7 +738,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> {
     return encodeGetParams({
       filters: this.filters,
       searchTerm: this.searchTerm,
-      sortDescriptor: this.sortDescriptor,
+      sortDescriptor: this.sortableColumnIds.size > 0 ? this.sortDescriptor : undefined,
       pagination: this.pagination
         ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
         : { page: 1, pageSize: 25 },

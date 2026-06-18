@@ -9,7 +9,7 @@ import { type UserRoleDto } from "@/features/role/get-roles.interactor";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class RolesStore extends BaseDataViewStore<UserRoleDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.users);
   }
 

@@ -1,13 +1,13 @@
 import type { ExtendedWidget } from "./widget.types";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
 import { WidgetDtoSchema } from "./widget.schema";
 
-import { Enforce } from "@/core/decorators/enforce.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -21,15 +21,15 @@ export abstract class GetWidgetByIdRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor()
-export class GetWidgetByIdInteractor extends BaseInteractor<GetWidgetByIdData, ExtendedWidget | null> {
+@TenantInteractor()
+export class GetWidgetByIdInteractor extends AuthenticatedInteractor<GetWidgetByIdData, ExtendedWidget | null> {
   constructor(private repo: GetWidgetByIdRepo) {
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   @ValidateOutput(WidgetDtoSchema)
-  async invoke(data: GetWidgetByIdData): Promise<{ ok: true; data: ExtendedWidget | null }> {
+  async invoke(data: GetWidgetByIdData): Validated<ExtendedWidget | null> {
     return { ok: true as const, data: await this.repo.getWidgetById(data.id) };
   }
 }

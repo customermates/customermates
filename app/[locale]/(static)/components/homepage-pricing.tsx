@@ -35,7 +35,7 @@ const CARDS: CardConfig[] = [
 const COMPARE_KEYS = ["gdpr", "noLimits", "openSource", "cancelAnytime"] as const;
 
 export async function HomepagePricing() {
-  const t = await getTranslations("HomepagePricing");
+  const t = await getTranslations();
 
   return (
     <section className="relative isolate w-full overflow-hidden py-20 md:py-28" id="pricing">
@@ -60,12 +60,12 @@ export async function HomepagePricing() {
           <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.05em] text-primary">
             <span className="size-[5px] rounded-full bg-primary" style={{ boxShadow: "0 0 8px var(--primary)" }} />
 
-            {t("eyebrow")}
+            {t("HomepagePricing.eyebrow")}
           </span>
 
-          <h2 className="text-x-3xl pb-4">{t("title")}</h2>
+          <h2 className="text-x-3xl pb-4">{t("HomepagePricing.title")}</h2>
 
-          <p className="mx-auto max-w-[560px] text-x-lg text-subdued">{t("subtitle")}</p>
+          <p className="mx-auto max-w-[560px] text-x-lg text-subdued">{t("HomepagePricing.subtitle")}</p>
 
           <svg
             aria-hidden
@@ -97,32 +97,34 @@ export async function HomepagePricing() {
                 }`}
               >
                 <div className="mb-1 flex items-center justify-between">
-                  <h3 className="m-0 text-[19px] font-semibold">{t(`${card.titleKey}.title`)}</h3>
+                  <h3 className="m-0 text-[19px] font-semibold">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
 
                   {card.badgeKey && (
                     <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                      {t(`${card.titleKey}.${card.badgeKey}`)}
+                      {t(`HomepagePricing.${card.titleKey}.${card.badgeKey}`)}
                     </span>
                   )}
                 </div>
 
                 <p className="m-0 min-h-[40px] text-[13px] leading-[1.55] text-muted-foreground">
-                  {t(`${card.titleKey}.tag`)}
+                  {t(`HomepagePricing.${card.titleKey}.tag`)}
                 </p>
 
                 <div className="my-4">
-                  <span className="text-[34px] font-bold tracking-[-0.02em]">{t(`${card.titleKey}.price`)}</span>
+                  <span className="text-[34px] font-bold tracking-[-0.02em]">
+                    {t(`HomepagePricing.${card.titleKey}.price`)}
+                  </span>
 
                   {card.periodKey && (
                     <span className="ml-1.5 text-[13px] text-muted-foreground">
-                      {t(`${card.titleKey}.${card.periodKey}`)}
+                      {t(`HomepagePricing.${card.titleKey}.${card.periodKey}`)}
                     </span>
                   )}
                 </div>
 
                 <Button asChild className="w-full" variant={featured ? "default" : "outline"}>
                   <AppLink external={card.href.startsWith("http")} href={card.href}>
-                    {t(`${card.titleKey}.ctaText`)}
+                    {t(`HomepagePricing.${card.titleKey}.ctaText`)}
                   </AppLink>
                 </Button>
 
@@ -131,7 +133,7 @@ export async function HomepagePricing() {
                     <li key={featureKey} className="flex items-start gap-2 text-[13px] text-foreground">
                       <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.5} />
 
-                      <span>{t(`${card.titleKey}.${featureKey}`)}</span>
+                      <span>{t(`HomepagePricing.${card.titleKey}.${featureKey}`)}</span>
                     </li>
                   ))}
                 </ul>
@@ -148,7 +150,7 @@ export async function HomepagePricing() {
               <span className="inline-flex items-center gap-1.5">
                 <span className="text-[#34c759]">✓</span>
 
-                {t(`compare.${key}`)}
+                {t(`HomepagePricing.compare.${key}`)}
               </span>
             </span>
           ))}

@@ -23,7 +23,7 @@ const THEMES: { key: Theme; icon: typeof Monitor }[] = [
 ];
 
 export function ThemeSwitcher({ onThemeChange, hideSystem = false }: Props) {
-  const t = useTranslations("Common");
+  const t = useTranslations();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -47,7 +47,7 @@ export function ThemeSwitcher({ onThemeChange, hideSystem = false }: Props) {
 
   return (
     <div
-      aria-label={t("ariaLabels.themeSwitcher")}
+      aria-label={t("Common.ariaLabels.themeSwitcher")}
       className="inline-flex items-center gap-1 rounded-full bg-muted p-0.5"
       role="radiogroup"
     >

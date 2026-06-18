@@ -1,6 +1,6 @@
 "use client";
 
-import type { AuditLogDto } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
+import type { AuditLogDto } from "@/ee/audit-log/audit-log.dto";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export const AuditLogsCard = observer(({ initialAuditLogs }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { auditLogModalStore, auditLogsStore, intlStore, userModalStore } = useRootStore();
 
   useEffect(() => auditLogsStore.setItems(initialAuditLogs), [initialAuditLogs]);

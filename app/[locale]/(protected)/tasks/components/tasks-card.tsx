@@ -16,15 +16,15 @@ import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 
 type Props = {
   tasks: GetResult<TaskDto>;
 };
 
-export const TasksCardComponent = observer(({ tasks }: Props) => {
-  const t = useTranslations("");
+export const TasksCard = observer(({ tasks }: Props) => {
+  const t = useTranslations();
 
   const { tasksStore, intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();

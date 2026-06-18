@@ -4,17 +4,18 @@ import type { EventService } from "@/features/event/event.service";
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  firstName: z.string().min(1).max(255),
+  lastName: z.string().min(1).max(255),
   country: z.enum(CountryCode),
   avatarUrl: secureUrlSchema().or(z.literal("")).nullable(),
 });
@@ -24,8 +25,8 @@ export abstract class UpdateUserDetailsRepo {
   abstract updateDetails(args: UpdateUserDetailsData): Promise<UpdateUserDetailsData>;
 }
 
-@TentantInteractor()
-export class UpdateUserDetailsInteractor extends BaseInteractor<UpdateUserDetailsData, UpdateUserDetailsData> {
+@TenantInteractor()
+export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UpdateUserDetailsData> {
   constructor(
     private repo: UpdateUserDetailsRepo,
     private eventService: EventService,
@@ -35,6 +36,7 @@ export class UpdateUserDetailsInteractor extends BaseInteractor<UpdateUserDetail
 
   @Validate(Schema)
   @ValidateOutput(Schema)
+  @Transaction
   async invoke(data: UpdateUserDetailsData): Validated<UpdateUserDetailsData> {
     const details = await this.repo.updateDetails(data);
 

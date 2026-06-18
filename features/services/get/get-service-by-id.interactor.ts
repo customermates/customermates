@@ -6,9 +6,9 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 import { type ServiceDto, ServiceByIdResponseSchema } from "../service.schema";
 
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -26,14 +26,14 @@ export abstract class ServiceCustomColumnRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.services, action: Action.readAll },
     { resource: Resource.services, action: Action.readOwn },
   ],
   condition: "OR",
 })
-export class GetServiceByIdInteractor extends BaseInteractor<
+export class GetServiceByIdInteractor extends AuthenticatedInteractor<
   GetServiceByIdData,
   { service: ServiceDto | null; customColumns: CustomColumnDto[] }
 > {

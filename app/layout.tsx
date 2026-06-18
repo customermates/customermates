@@ -22,8 +22,9 @@ import {
   getGetCompanyDetailsInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
+  getGetUnreadThreadCountInteractor,
 } from "@/core/di";
-import { BASE_URL, IS_CLOUD_HOSTED, IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 import { homepageSource } from "@/core/fumadocs/source";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
 
@@ -57,11 +58,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const { rootMetadata } = page.data;
   const alternates: Record<string, string> = Object.fromEntries(
-    ROUTING_LOCALES.map((loc) => [loc, `${BASE_URL}/${loc}`]),
+    ROUTING_LOCALES.map((loc) => [loc, `${env.BASE_URL}/${loc}`]),
   );
-  alternates["x-default"] = `${BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
+  alternates["x-default"] = `${env.BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
 
-  const canonical = `${BASE_URL}/${locale}`;
+  const canonical = `${env.BASE_URL}/${locale}`;
   const params = new URLSearchParams({
     description: rootMetadata.defaultDescription,
     title: rootMetadata.defaultTitle,
@@ -74,7 +75,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: rootMetadata.titleTemplate,
     },
     description: rootMetadata.defaultDescription,
-    metadataBase: new URL(BASE_URL),
+    metadataBase: new URL(env.BASE_URL),
     icons: {
       icon: rootMetadata.icon,
     },
@@ -126,6 +127,7 @@ export default async function RootLayout({ children }: Props) {
 
   const isRegistered = user?.email != null;
   let systemTaskCount = 0;
+  let unreadThreadCount = 0;
   let company: Company | null = null;
   let subscriptionStatus: SubscriptionStatus | null = null;
   let trialDaysLeft: number | null = null;
@@ -139,13 +141,15 @@ export default async function RootLayout({ children }: Props) {
     emailVerified = authSession?.user?.emailVerified ?? false;
 
     if (isAuthenticated) {
-      const [companyResult, systemTaskCountResult, subscriptionResult] = await Promise.all([
+      const [companyResult, systemTaskCountResult, subscriptionResult, unreadThreadCountResult] = await Promise.all([
         getGetCompanyDetailsInteractor().invoke(),
         getCountSystemTasksInteractor().invoke(),
         getGetSubscriptionInteractor().invoke(),
+        getGetUnreadThreadCountInteractor().invoke(),
       ]);
       company = companyResult.data;
       systemTaskCount = systemTaskCountResult.data;
+      unreadThreadCount = unreadThreadCountResult.data;
       subscriptionStatus = subscriptionResult.data?.status ?? null;
       const trialEndDate = subscriptionResult.data?.trialEndDate ?? null;
       trialDaysLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000)) : null;
@@ -166,10 +170,8 @@ export default async function RootLayout({ children }: Props) {
         <Providers
           defaultTheme={themeCookie}
           displayLanguage={displayLanguage}
-          initialNavbarVisible={!isAuthenticated}
-          initialSidebarOpen={initialSidebarOpen}
-          isCloudHosted={IS_CLOUD_HOSTED}
-          isDemoMode={IS_DEMO_MODE}
+          isCloudHosted={env.CLOUD_HOSTED}
+          isDemoMode={env.DEMO_MODE}
           messages={messages}
         >
           <NavigationSwitch
@@ -181,6 +183,7 @@ export default async function RootLayout({ children }: Props) {
             subscriptionStatus={subscriptionStatus}
             systemTaskCount={systemTaskCount}
             trialDaysLeft={trialDaysLeft}
+            unreadThreadCount={unreadThreadCount}
             user={user}
           >
             {children}

@@ -2,6 +2,7 @@ import type { $ZodRawIssue } from "zod/v4/core";
 
 export enum CustomErrorCode {
   apiKeyMaxExpiration = "apiKeyMaxExpiration",
+  assigneeRequired = "assigneeRequired",
   emailMismatch = "emailMismatch",
   passwordMismatch = "passwordMismatch",
   passwordInvalid = "passwordInvalid",
@@ -10,6 +11,8 @@ export enum CustomErrorCode {
   emailAlreadyExists = "emailAlreadyExists",
   termsNotAgreed = "termsNotAgreed",
   customColumnNotFound = "customColumnNotFound",
+  invalidChannelValue = "invalidChannelValue",
+  channelAlreadyLinked = "channelAlreadyLinked",
   customFieldInvalidEmail = "customFieldInvalidEmail",
   customFieldInvalidPhone = "customFieldInvalidPhone",
   customFieldInvalidUrl = "customFieldInvalidUrl",
@@ -36,11 +39,18 @@ export enum CustomErrorCode {
   contactNotFound = "contactNotFound",
   taskNotFound = "taskNotFound",
   invalidFilterField = "invalidFilterField",
-  llmApiKeyInvalid = "llmApiKeyInvalid",
+  invalidFilterValue = "invalidFilterValue",
   invalidSortField = "invalidSortField",
   filterBetweenInvalidArrayLength = "filterBetweenInvalidArrayLength",
   notesInvalidFormat = "notesInvalidFormat",
   notesExceedsMaxLength = "notesExceedsMaxLength",
+  sendEmailTargetRequired = "sendEmailTargetRequired",
+  unipileResourceNotFound = "unipileResourceNotFound",
+  unipileProviderError = "unipileProviderError",
+  unipileServiceUnavailable = "unipileServiceUnavailable",
+  unipileRequestTimeout = "unipileRequestTimeout",
+  unipileDisconnectedAccount = "unipileDisconnectedAccount",
+  unipileUnknown = "unipileUnknown",
   generic = "generic",
 }
 

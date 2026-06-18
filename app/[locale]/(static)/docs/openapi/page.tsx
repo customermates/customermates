@@ -34,7 +34,7 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
 
 export default async function OpenApiOverviewPage() {
   const locale = await getLocale();
-  const t = await getTranslations("");
+  const t = await getTranslations();
   const page = apiOverviewSource.getPage(["openapi"], locale);
 
   if (!page) notFound();

@@ -59,7 +59,13 @@
       }
     },
     {
-      "files": ["components/modal/hooks/use-entity-drawer-stack.ts"],
+      "files": ["components/entity-detail/hooks/use-entity-drawer-stack.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["components/modal/app-modal.tsx", "components/ui/command.tsx"],
       "rules": {
         "no-restricted-imports": "off"
       }
@@ -117,8 +123,12 @@
         "paths": [
           {
             "importNames": ["useRouter"],
-            "message": "Import useRouter from '@/i18n/navigation' so navigation flows through the unsaved-changes guard. The only exception is components/modal/hooks/use-entity-drawer-stack.ts, which intentionally uses the raw router for drawer-stack query writes that do not change the page.",
+            "message": "Import useRouter from '@/i18n/navigation' so navigation flows through the unsaved-changes guard. The only exception is components/entity-detail/hooks/use-entity-drawer-stack.ts, which intentionally uses the raw router for drawer-stack query writes that do not change the page.",
             "name": "next/navigation"
+          },
+          {
+            "message": "Use <AppModal> from '@/components/modal' so every modal shares the AppCard chrome, sizing, and unsaved-changes guard. The raw Dialog primitives are only allowed inside components/modal/app-modal.tsx (where AppModal wraps them) and components/ui/command.tsx (cmdk plumbing).",
+            "name": "@/components/ui/dialog"
           }
         ]
       }

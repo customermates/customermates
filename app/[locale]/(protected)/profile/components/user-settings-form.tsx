@@ -14,7 +14,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { usePathname } from "@/i18n/navigation";
 
 export const UserSettingsForm = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = useLocale();
   const { setTheme } = useTheme();

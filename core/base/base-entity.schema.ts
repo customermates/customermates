@@ -3,7 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import { TaskType } from "@/generated/prisma";
 
-export const NotesSchema = z.any().nullable().optional().describe("Markdown content");
+export const NotesSchema = z.any().nullish().describe("Markdown content");
 
 export const OrganizationReferenceSchema = z.object({
   id: z.uuid(),
@@ -27,7 +27,9 @@ export const ContactReferenceSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
+  avatarUrl: z.string().nullable(),
 });
+export type ContactReference = z.infer<typeof ContactReferenceSchema>;
 
 export const ServiceReferenceSchema = z.object({
   id: z.uuid(),
@@ -44,6 +46,6 @@ export const TaskReferenceSchema = z.object({
 
 export const CustomFieldValueSchema = z.object({
   columnId: z.uuid(),
-  value: z.string().optional().nullable(),
+  value: z.string().nullish(),
 });
 export type CustomFieldValueDto = Data<typeof CustomFieldValueSchema>;

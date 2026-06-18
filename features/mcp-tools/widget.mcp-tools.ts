@@ -86,10 +86,7 @@ export const listWidgetsTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   execute: async () => {
-    const result = (await getGetWidgetsInteractor().invoke()) as
-      | { ok: true; data: Array<{ id: string; name: string }> }
-      | { ok: false; error: z.ZodError };
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    const result = await getGetWidgetsInteractor().invoke();
     const widgets = result.data;
     return encodeToToon({
       items: widgets.map((widget) => ({ id: widget.id, name: widget.name })),
@@ -110,6 +107,7 @@ export const getWidgetsTool = {
     const results = await Promise.all(
       ids.map(async (id) => {
         const result = await getGetWidgetByIdInteractor().invoke({ id });
+        if (!result.ok) return { error: `Validation error: ${z.prettifyError(result.error)}` };
         const widget = result.data;
         if (!widget) return { error: `Widget ${id} not found` };
         return {
@@ -178,6 +176,7 @@ export const updateWidgetTool = {
   inputSchema: UpdateWidgetSchema,
   execute: async (params: z.infer<typeof UpdateWidgetSchema>) => {
     const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: params.id });
+    if (!widgetResult.ok) return `Validation error: ${z.prettifyError(widgetResult.error)}`;
     const widget = widgetResult.data;
     if (!widget) return `Validation error: Widget ${params.id} not found`;
 
@@ -233,9 +232,7 @@ export const deleteWidgetTool = {
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteWidgetSchema,
   execute: async ({ id }: z.infer<typeof DeleteWidgetSchema>) => {
-    const result = (await getDeleteWidgetInteractor().invoke({ id })) as
-      | { ok: true; data: unknown }
-      | { ok: false; error: z.ZodError };
+    const result = await getDeleteWidgetInteractor().invoke({ id });
     if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
     return `Deleted widget ${id}`;
   },

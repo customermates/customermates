@@ -24,7 +24,7 @@ import { AppCardHeader } from "@/components/card/app-card-header";
 const WEBHOOK_EVENTS = WebhookEventSchema.options.map((event) => ({ key: event }));
 
 export const WebhookModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { webhookModalStore } = useRootStore();
   const { form, canManage, isDisabled } = webhookModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();

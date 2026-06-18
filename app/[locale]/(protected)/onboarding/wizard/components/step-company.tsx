@@ -20,7 +20,7 @@ type Props = {
 };
 
 export const StepCompany = observer(({ initialCompany }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const formId = useId();
   const { companyDetailsStore, onboardingWizardStore } = useRootStore();
 

@@ -12,7 +12,7 @@ import { EntityType, TaskType } from "@/generated/prisma";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/components/data-view";
-import { useEntityHref, useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getSystemTaskNameTranslationKey } from "../../tasks/components/system-task.config";
 
@@ -24,7 +24,7 @@ export const OrganizationsCard = observer(({ organizations }: Props) => {
   const { contactsStore, organizationsStore, userModalStore, dealsStore, intlStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
-  const t = useTranslations("");
+  const t = useTranslations();
 
   useDataViewSync(organizationsStore, organizations, [contactsStore, dealsStore]);
 

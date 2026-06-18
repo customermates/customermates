@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { SignInForm } from "./sign-in-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { getRouteGuardService } from "@/core/di";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { requireUnauthenticated } from "@/features/auth/next/require";
+import { env } from "@/env";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -13,11 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function SignInPage() {
-  await getRouteGuardService().ensureUnauthenticatedOrRedirect();
+  await requireUnauthenticated();
 
   return (
     <CenteredCardPage>
-      <SignInForm showSocialProviders={IS_CLOUD_HOSTED} />
+      <SignInForm showSocialProviders={env.CLOUD_HOSTED} />
     </CenteredCardPage>
   );
 }

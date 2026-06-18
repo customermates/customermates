@@ -3,19 +3,19 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
 
-import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
+import { validateOrganizationIds } from "../../../core/validation/ids-validators";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { getOrganizationRepo } from "@/core/di";
@@ -31,21 +31,21 @@ export const DeleteOrganizationSchema = z
   });
 export type DeleteOrganizationData = Data<typeof DeleteOrganizationSchema>;
 
-@TentantInteractor({ resource: Resource.organizations, action: Action.delete })
-export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizationData, string> {
+@TenantInteractor({ resource: Resource.organizations, action: Action.delete })
+export class DeleteOrganizationInteractor extends AuthenticatedInteractor<DeleteOrganizationData, string> {
   constructor(
     private repo: DeleteOrganizationRepo,
     private contactsRepo: GetUnscopedContactRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
 
   @Validate(DeleteOrganizationSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteOrganizationData): Validated<string> {
     const previousOrganization = await this.repo.getOrThrowUnscoped(data.id);
 
@@ -99,7 +99,6 @@ export class DeleteOrganizationInteractor extends BaseInteractor<DeleteOrganizat
         entityId: organization.id,
         payload: organization,
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: data.id };

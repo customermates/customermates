@@ -17,7 +17,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 
 export const WebhookDeliveryModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { webhookDeliveryModalStore: store, intlStore } = useRootStore();
   const delivery = store.form;
 

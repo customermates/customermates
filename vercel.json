@@ -4,10 +4,6 @@
     {
       "path": "/api/cron/lifecycle",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/webhook-deliveries",
-      "schedule": "* * * * *"
     }
   ],
   "git": {

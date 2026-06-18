@@ -11,7 +11,7 @@ export class CompanyInviteModalStore extends BaseModalStore<{
   inviteLink: string;
   expiresAt: Date | null;
 }> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {

@@ -4,27 +4,30 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import { AppModal, ModalFooter } from "@/components/modal";
+import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
-import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardFooter } from "@/components/card/app-card-footer";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { FormLabel } from "@/components/forms/form-label";
-import { useState } from "react";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
+import { Icon } from "@/components/shared/icon";
+import { InfoRow } from "@/components/shared/info-row";
 
-const ExpiresInPicker = observer(function ExpiresInPicker() {
-  const t = useTranslations("ApiKeyModal");
+const ExpiresInPicker = observer(() => {
+  const t = useTranslations();
   const { apiKeyModalStore } = useRootStore();
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const { expiresAt } = apiKeyModalStore;
 
   const today = new Date();
   const max = new Date();
@@ -32,12 +35,12 @@ const ExpiresInPicker = observer(function ExpiresInPicker() {
 
   return (
     <div className="space-y-1.5">
-      <FormLabel htmlFor="expiresIn">{t("expiresIn")}</FormLabel>
+      <FormLabel htmlFor="expiresIn">{t("ApiKeyModal.expiresIn")}</FormLabel>
 
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+            className={cn("w-full justify-start text-left font-normal", !expiresAt && "text-muted-foreground")}
             disabled={apiKeyModalStore.isDisabled}
             id="expiresIn"
             type="button"
@@ -45,7 +48,7 @@ const ExpiresInPicker = observer(function ExpiresInPicker() {
           >
             <CalendarIcon className="mr-2 size-4" />
 
-            {date ? format(date, "PPP") : <span>{t("expiresInPlaceholder")}</span>}
+            {expiresAt ? format(expiresAt, "PPP") : <span>{t("ApiKeyModal.expiresInPlaceholder")}</span>}
           </Button>
         </PopoverTrigger>
 
@@ -54,13 +57,8 @@ const ExpiresInPicker = observer(function ExpiresInPicker() {
             autoFocus
             disabled={(d) => d < today || d > max}
             mode="single"
-            selected={date}
-            onSelect={(next) => {
-              setDate(next ?? undefined);
-              let expiresIn = next ? Math.ceil((next.getTime() - new Date().getTime()) / 1000) : undefined;
-              if (expiresIn !== undefined && expiresIn <= 1) expiresIn = undefined;
-              apiKeyModalStore.onChange("expiresIn", expiresIn);
-            }}
+            selected={expiresAt ?? undefined}
+            onSelect={(next) => apiKeyModalStore.setExpiresAt(next ?? null)}
           />
         </PopoverContent>
       </Popover>
@@ -69,20 +67,52 @@ const ExpiresInPicker = observer(function ExpiresInPicker() {
 });
 
 export const ApiKeyModal = observer(() => {
-  const t = useTranslations("");
-  const { apiKeyModalStore } = useRootStore();
-  const { createdKey, isLoading, close, hasUnsavedChanges } = apiKeyModalStore;
+  const t = useTranslations();
+  const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
+  const { createdKey, isLoading, close, hasUnsavedChanges, mode, viewingKey } = apiKeyModalStore;
+  const { showDeleteConfirmation } = useDeleteConfirmation();
+
+  const isView = mode === "view" && viewingKey !== null;
+  const title = isView ? viewingKey?.name || t("ApiKeysCard.unnamed") : t("ApiKeyModal.title");
 
   return (
-    <AppModal store={apiKeyModalStore} title={t("ApiKeyModal.title")}>
+    <AppModal store={apiKeyModalStore} title={title}>
       <AppForm store={apiKeyModalStore}>
         <AppCard>
           <AppCardHeader>
-            <h2 className="text-x-lg">{t("ApiKeyModal.title")}</h2>
+            <h2 className="mr-auto text-x-lg">{title}</h2>
+
+            {isView && viewingKey && (
+              <Button
+                size="icon"
+                title="Delete"
+                variant="destructive"
+                onClick={() =>
+                  showDeleteConfirmation(async () => {
+                    await apiKeysStore.delete(viewingKey.id);
+                    close();
+                  }, viewingKey.name ?? undefined)
+                }
+              >
+                <Icon icon={Trash2} />
+              </Button>
+            )}
           </AppCardHeader>
 
           <AppCardBody>
-            {createdKey ? (
+            {isView && viewingKey ? (
+              <div className="flex flex-col gap-2">
+                <InfoRow label="Created at">{intlStore.formatNumericalShortDateTime(viewingKey.createdAt)}</InfoRow>
+
+                {viewingKey.expiresAt && (
+                  <InfoRow label="Expires at">{intlStore.formatNumericalShortDateTime(viewingKey.expiresAt)}</InfoRow>
+                )}
+
+                {viewingKey.lastRequest && (
+                  <InfoRow label="Last used">{intlStore.formatNumericalShortDateTime(viewingKey.lastRequest)}</InfoRow>
+                )}
+              </div>
+            ) : createdKey ? (
               <Alert hideIcon className="mb-4" color="success">
                 <div className="flex flex-col gap-2">
                   <p className="text-x-md">{t("ApiKeyModal.keyCreated")}</p>
@@ -101,8 +131,8 @@ export const ApiKeyModal = observer(() => {
             )}
           </AppCardBody>
 
-          {!createdKey && (
-            <ModalFooter className="p-6 pt-0">
+          {!isView && !createdKey && (
+            <AppCardFooter>
               <Button disabled={isLoading} variant="secondary" onClick={close}>
                 {t("Common.actions.cancel")}
               </Button>
@@ -110,7 +140,7 @@ export const ApiKeyModal = observer(() => {
               <Button disabled={isLoading || !hasUnsavedChanges} type="submit">
                 {t("Common.actions.save")}
               </Button>
-            </ModalFooter>
+            </AppCardFooter>
           )}
         </AppCard>
       </AppForm>

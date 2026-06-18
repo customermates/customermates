@@ -1,7 +1,5 @@
 import type { GetQueryParamsApi } from "@/core/base/base-get.schema";
 
-import { z } from "zod";
-
 import {
   getGetContactsApiInteractor,
   getGetDealsApiInteractor,
@@ -10,8 +8,7 @@ import {
   getGetTasksApiInteractor,
 } from "@/core/di";
 
-export const EntityKindSchema = z.enum(["contact", "organization", "deal", "service", "task"]);
-export type EntityKind = z.infer<typeof EntityKindSchema>;
+type EntityKind = "contact" | "organization" | "deal" | "service" | "task";
 
 export const entityListExecutors: Record<
   EntityKind,

@@ -7,11 +7,11 @@ import type {
 } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import { z } from "zod";
 import { startOfDay, subDays } from "date-fns";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { isCustomField } from "@/core/utils/custom-field";
 
 export interface SortableField {
   field: string;
@@ -41,6 +41,7 @@ export enum FilterOperatorKey {
   isNotNull = "isNotNull",
   hasNone = "hasNone",
   hasSome = "hasSome",
+  hasUnset = "hasUnset",
   inLastDays = "inLastDays",
 }
 
@@ -55,30 +56,24 @@ type WithDynamicFields<T> = T & {
   [K: string]: unknown;
 };
 
-export type OrderByInput = Record<string, unknown>[];
+type OrderByInput = Record<string, unknown>[];
 
-function isCustomField(field: string): boolean {
-  return z.uuid().safeParse(field).success;
-}
-
-const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
+const RELATION_FIELD_MAPPING: Partial<Record<FilterFieldKey, string>> = {
   [FilterFieldKey.userIds]: "users.userId",
   [FilterFieldKey.serviceIds]: "services.serviceId",
   [FilterFieldKey.dealIds]: "deals.dealId",
   [FilterFieldKey.organizationIds]: "organizations.organizationId",
   [FilterFieldKey.contactIds]: "contacts.contactId",
+  [FilterFieldKey.timelineKind]: "timelineKind",
+  [FilterFieldKey.timelineThreadId]: "timelineThreadId",
   [FilterFieldKey.taskIds]: "tasks.taskId",
-  [FilterFieldKey.emails]: "emails",
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",
   [FilterFieldKey.event]: "event",
   [FilterFieldKey.status]: "status",
+  [FilterFieldKey.provider]: "provider",
+  [FilterFieldKey.state]: "state",
 };
-
-function getRelationFieldPath(field: string): string {
-  const enumValue = Object.values(FilterFieldKey).find((key) => key.toString() === field);
-  return enumValue ? (RELATION_FIELD_MAPPING[enumValue] ?? field) : field;
-}
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {
   getSearchableFields(): Array<SearchableField> {
@@ -97,10 +92,6 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return Promise.resolve([]);
   }
 
-  getArrayFields(): Set<string> {
-    return new Set();
-  }
-
   async buildQueryArgs(params: GetQueryParams, baseWhere: TWhereInput = {} as TWhereInput) {
     const where = await this.buildWhereClause(params.filters, params.searchTerm, baseWhere);
     const customColumns = await this.getCustomColumns();
@@ -114,39 +105,16 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return { where, orderBy, customSort, ...pagination };
   }
 
-  validateFilters(filters: Filter[] | undefined, filterableFields: FilterableField[]): Filter[] {
-    if (!Array.isArray(filters)) return [];
-
-    const result: Filter[] = [];
-
-    for (const filter of filters) {
-      const hasValidStructure =
-        filter &&
-        typeof filter === "object" &&
-        filter.field &&
-        typeof filter.field === "string" &&
-        filter.operator &&
-        typeof filter.operator === "string";
-
-      if (!hasValidStructure) continue;
-
-      const fieldConfig = filterableFields.find((f) => f.field === filter.field);
-      if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
-
-      if (!isFilterValueWellFormed(filter, fieldConfig.operators)) continue;
-
-      result.push(filter);
-    }
-
-    return result;
+  validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[] {
+    return defaultValidateFilters(args);
   }
 
-  validateSortDescriptor(
-    sortDescriptor: SortDescriptor | undefined,
-    sortableFields: SortableField[],
-    customColumns: CustomColumnDto[] = [],
-  ): SortDescriptor | undefined {
-    if (!sortDescriptor) return undefined;
+  validateSortDescriptor(args: {
+    sortDescriptor: SortDescriptor | undefined;
+    sortableFields: SortableField[];
+    customColumns?: CustomColumnDto[];
+  }): SortDescriptor | undefined {
+    const { sortDescriptor, sortableFields, customColumns = [] } = args;
     if (!sortDescriptor || typeof sortDescriptor !== "object") return undefined;
     if (!sortDescriptor.field || typeof sortDescriptor.field !== "string") return undefined;
     if (!sortDescriptor.direction || typeof sortDescriptor.direction !== "string") return undefined;
@@ -180,7 +148,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   ): Promise<TWhereInput> {
     const where = { ...baseWhere } as WithDynamicFields<TWhereInput> & WithLogicalOperators<TWhereInput>;
     const filterableFields = await this.getFilterableFields();
-    const validFilters = this.validateFilters(filters, filterableFields);
+    const validFilters = this.validateFilters({ filters, filterableFields });
 
     const customColumns = validFilters.some((f) => isCustomField(f.field)) ? await this.getCustomColumns() : [];
     const customColumnTypeById = new Map(customColumns.map((c) => [c.id, c.type]));
@@ -198,7 +166,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     if (!sortDescriptor) return [];
 
     const sortableFields = this.getSortableFields();
-    const validatedSortDescriptor = this.validateSortDescriptor(sortDescriptor, sortableFields);
+    const validatedSortDescriptor = this.validateSortDescriptor({
+      sortDescriptor,
+      sortableFields,
+    });
 
     if (!validatedSortDescriptor) return [];
 
@@ -210,10 +181,9 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
           if (fieldPath.includes(".")) {
             const [relation, relField] = fieldPath.split(".");
 
-            return { [relation]: { [relField]: validatedSortDescriptor.direction } } as unknown as Record<
-              string,
-              unknown
-            >;
+            return {
+              [relation]: { [relField]: validatedSortDescriptor.direction },
+            } as unknown as Record<string, unknown>;
           }
 
           return { [fieldPath]: validatedSortDescriptor.direction } as Record<string, unknown>;
@@ -227,10 +197,6 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
   }
 
   private createClause(key: string, value: unknown) {
-    return { [key]: value } as TWhereInput;
-  }
-
-  private createWhere(key: string, value: unknown) {
     return { [key]: value } as TWhereInput;
   }
 
@@ -254,7 +220,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
       return;
     }
 
-    const relationFieldPath = getRelationFieldPath(filter.field);
+    const enumValue = Object.values(FilterFieldKey).find((key) => key.toString() === filter.field);
+    const relationFieldPath = enumValue ? (RELATION_FIELD_MAPPING[enumValue] ?? filter.field) : filter.field;
     const isRelationField = relationFieldPath.includes(".");
 
     if (isRelationField) {
@@ -263,12 +230,6 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
       where.AND = [...(where.AND ?? []), this.createClause(relation, condition)];
 
-      return;
-    }
-
-    if (this.getArrayFields().has(relationFieldPath)) {
-      const condition = this.buildArrayFilterCondition(filter);
-      where.AND = [...(where.AND ?? []), this.createClause(relationFieldPath, condition)];
       return;
     }
 
@@ -294,13 +255,23 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
           },
         };
       case FilterOperatorKey.gt:
-        return { some: { AND: [columnIdClause, { rangeStart: { gt: filter.value } }] } };
+        return {
+          some: { AND: [columnIdClause, { rangeStart: { gt: filter.value } }] },
+        };
       case FilterOperatorKey.gte:
-        return { some: { AND: [columnIdClause, { rangeStart: { gte: filter.value } }] } };
+        return {
+          some: {
+            AND: [columnIdClause, { rangeStart: { gte: filter.value } }],
+          },
+        };
       case FilterOperatorKey.lt:
-        return { some: { AND: [columnIdClause, { rangeEnd: { lt: filter.value } }] } };
+        return {
+          some: { AND: [columnIdClause, { rangeEnd: { lt: filter.value } }] },
+        };
       case FilterOperatorKey.lte:
-        return { some: { AND: [columnIdClause, { rangeEnd: { lte: filter.value } }] } };
+        return {
+          some: { AND: [columnIdClause, { rangeEnd: { lte: filter.value } }] },
+        };
       case FilterOperatorKey.between:
         return {
           some: {
@@ -309,34 +280,17 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         };
       case FilterOperatorKey.inLastDays: {
         const cutoff = startOfDay(subDays(new Date(), Number(filter.value)));
-        return { some: { AND: [columnIdClause, { rangeEnd: { gte: cutoff } }] } };
+        return {
+          some: { AND: [columnIdClause, { rangeEnd: { gte: cutoff } }] },
+        };
       }
       default:
         throw new Error(`Operator ${filter.operator} is not supported for range custom columns`);
     }
   }
 
-  private buildArrayFilterCondition(filter: Filter) {
-    const asArray = (v: unknown) => (Array.isArray(v) ? v : [v]);
-    switch (filter.operator) {
-      case FilterOperatorKey.equals:
-        return { has: filter.value };
-      case FilterOperatorKey.in:
-        return { hasSome: asArray(filter.value) };
-      case FilterOperatorKey.notIn:
-        return { not: { hasSome: asArray(filter.value) } };
-      case FilterOperatorKey.isNull:
-        return { isEmpty: true };
-      case FilterOperatorKey.isNotNull:
-        return { isEmpty: false };
-      default:
-        throw new Error(`Operator ${filter.operator} is not supported for array fields`);
-    }
-  }
-
   private buildSearchConditions(search: string): Array<TWhereInput> {
     const fields = this.getSearchableFields();
-    const arrayFields = this.getArrayFields();
 
     return fields.map((field) => {
       const isRelationField = field.field.includes(".");
@@ -348,20 +302,25 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
 
         function buildNestedCondition(path: string): Record<string, unknown> {
           const pathParts = path.split(".");
-          if (pathParts.length === 1) return { [pathParts[0]]: { contains: search, mode: "insensitive" } };
+          if (pathParts.length === 1) {
+            return {
+              [pathParts[0]]: { contains: search, mode: "insensitive" },
+            };
+          }
 
           const [first, ...rest] = pathParts;
           return { [first]: buildNestedCondition(rest.join(".")) };
         }
 
-        return this.createWhere(relation, {
+        return this.createClause(relation, {
           some: buildNestedCondition(remainingPath),
         });
       }
 
-      if (arrayFields.has(field.field)) return this.createWhere(field.field, { has: search });
-
-      return this.createWhere(field.field, { contains: search, mode: "insensitive" });
+      return this.createClause(field.field, {
+        contains: search,
+        mode: "insensitive",
+      });
     });
   }
 
@@ -421,6 +380,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         throw new Error("hasNone should only be used for relation fields, not direct fields");
       case FilterOperatorKey.hasSome:
         throw new Error("hasSome should only be used for relation fields, not direct fields");
+      case FilterOperatorKey.hasUnset:
+        throw new Error("hasUnset should only be used for relation fields, not direct fields");
     }
   }
 
@@ -430,42 +391,82 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     switch (filter.operator) {
       case FilterOperatorKey.in: {
         return isCustom
-          ? { some: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          ? {
+              some: {
+                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
+              },
+            }
           : { some: { [relationField]: { in: filter.value } } };
       }
       case FilterOperatorKey.notIn: {
         return isCustom
-          ? { none: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          ? {
+              none: {
+                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
+              },
+            }
           : { none: { [relationField]: { in: filter.value } } };
       }
       case FilterOperatorKey.hasNone:
         return isCustom
-          ? { none: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          ? {
+              none: {
+                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
+              },
+            }
           : { none: { [relationField]: { in: filter.value } } };
       case FilterOperatorKey.hasSome:
         return isCustom
-          ? { some: { AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }] } }
+          ? {
+              some: {
+                AND: [{ columnId: filter.field }, { [relationField]: { in: filter.value } }],
+              },
+            }
           : { some: { [relationField]: { in: filter.value } } };
       case FilterOperatorKey.isNull:
         return isCustom
-          ? { none: { AND: [{ columnId: filter.field }, { [relationField]: { not: null } }] } }
+          ? {
+              none: {
+                AND: [{ columnId: filter.field }, { [relationField]: { not: null } }],
+              },
+            }
           : { none: { [relationField]: { not: null } } };
       case FilterOperatorKey.isNotNull:
         return isCustom
-          ? { some: { AND: [{ columnId: filter.field }, { [relationField]: { not: null } }] } }
+          ? {
+              some: {
+                AND: [{ columnId: filter.field }, { [relationField]: { not: null } }],
+              },
+            }
           : { some: { [relationField]: { not: null } } };
+      case FilterOperatorKey.hasUnset:
+        return isCustom
+          ? {
+              some: {
+                AND: [{ columnId: filter.field }, { [relationField]: null }],
+              },
+            }
+          : { some: { [relationField]: null } };
       default: {
         const fieldCondition = this.buildScalarFilterCondition(filter);
 
         return isCustom
-          ? { some: { AND: [{ columnId: filter.field }, { [relationField]: fieldCondition }] } }
+          ? {
+              some: {
+                AND: [{ columnId: filter.field }, { [relationField]: fieldCondition }],
+              },
+            }
           : { some: { [relationField]: fieldCondition } };
       }
     }
   }
 }
 
-export type CustomSort = { columnId: string; direction: "asc" | "desc"; columnType: CustomColumnDto["type"] };
+type CustomSort = {
+  columnId: string;
+  direction: "asc" | "desc";
+  columnType: CustomColumnDto["type"];
+};
 
 function resolveCustomSort(
   sortDescriptor: SortDescriptor | undefined,
@@ -474,7 +475,11 @@ function resolveCustomSort(
   if (!sortDescriptor) return undefined;
   const column = customColumns.find((c) => c.id === sortDescriptor.field);
   if (!column) return undefined;
-  return { columnId: column.id, direction: sortDescriptor.direction, columnType: column.type };
+  return {
+    columnId: column.id,
+    direction: sortDescriptor.direction,
+    columnType: column.type,
+  };
 }
 
 export function compareCustomFieldValues(
@@ -506,8 +511,45 @@ function isNumericField(operators: FilterOperatorKey[]): boolean {
   return !isDateLikeField(operators) && COMPARISON_OPS.some((op) => operators.includes(op));
 }
 
+export function defaultValidateFilters(args: {
+  filters: Filter[] | undefined;
+  filterableFields: FilterableField[];
+}): Filter[] {
+  const { filters, filterableFields } = args;
+  if (!Array.isArray(filters)) return [];
+
+  const result: Filter[] = [];
+
+  for (const filter of filters) {
+    const hasValidStructure =
+      filter &&
+      typeof filter === "object" &&
+      filter.field &&
+      typeof filter.field === "string" &&
+      filter.operator &&
+      typeof filter.operator === "string";
+
+    if (!hasValidStructure) continue;
+
+    const fieldConfig = filterableFields.find((f) => f.field === filter.field);
+    if (!fieldConfig || !fieldConfig.operators.includes(filter.operator)) continue;
+
+    if (!isFilterValueWellFormed(filter, fieldConfig.operators)) continue;
+
+    result.push(filter);
+  }
+
+  return result;
+}
+
+export function isStandaloneOperator(operator?: FilterOperatorKey) {
+  if (!operator) return false;
+
+  return [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull, FilterOperatorKey.hasUnset].includes(operator);
+}
+
 function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorKey[]): boolean {
-  if (filter.operator === FilterOperatorKey.isNull || filter.operator === FilterOperatorKey.isNotNull) return true;
+  if (isStandaloneOperator(filter.operator)) return true;
 
   const rawValue: unknown = "value" in filter ? filter.value : undefined;
 

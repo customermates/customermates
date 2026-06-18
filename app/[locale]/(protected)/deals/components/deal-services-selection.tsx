@@ -7,13 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import { EntityType, Resource } from "@/generated/prisma";
 
-import { createServiceByNameAction, getServicesAction } from "../../services/actions";
-
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Icon } from "@/components/shared/icon";
-import { useEntityHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 
@@ -22,24 +20,9 @@ export const DealServicesSelection = observer(() => {
   const { form, fetchedEntity, canManage, addService, deleteService, serviceAmountById, totalQuantity, totalValue } =
     dealDetailStore;
   const entityHref = useEntityHref();
-  const t = useTranslations("");
+  const t = useTranslations();
 
   if (!userStore.canAccess(Resource.services)) return null;
-
-  async function getServiceOptions(params: { searchTerm?: string }) {
-    const result = await getServicesAction(params);
-    dealDetailStore.rememberServiceAmounts(result.items);
-    return {
-      ...result,
-      items: result.items.map((service) => ({ ...service, quantity: 1 })),
-    };
-  }
-
-  async function createServiceOption(name: string) {
-    const service = await createServiceByNameAction(name, userStore.user?.id);
-    if (service) dealDetailStore.rememberServiceAmounts([service]);
-    return service ? { ...service, quantity: 1 } : null;
-  }
 
   return (
     <div className="flex w-full flex-col space-y-2 items-start">
@@ -84,7 +67,7 @@ export const DealServicesSelection = observer(() => {
                   className="rounded-r-none border-r-0"
                   containerClassName="flex-1 min-w-0"
                   filterFunction={(availableService) => !selectedServiceIds.includes(availableService.id)}
-                  getItems={getServiceOptions}
+                  getItems={dealDetailStore.searchServiceOptions}
                   id={`services[${index}].serviceId`}
                   items={fetchedEntity?.services.filter((it) => !selectedServiceIds.includes(it.id)) ?? []}
                   label={null}
@@ -110,7 +93,7 @@ export const DealServicesSelection = observer(() => {
                       );
                     })
                   }
-                  onCreate={createServiceOption}
+                  onCreate={dealDetailStore.createServiceOption}
                 >
                   {(service) =>
                     FormAutocompleteItem({

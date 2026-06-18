@@ -21,12 +21,16 @@ export const createContactsTool = {
   description:
     "Create up to 100 contacts in one call. " +
     "Required per item: firstName, lastName. " +
-    "Optional per item: emails (array of email strings), notes, organizationIds, userIds, dealIds, taskIds, customFieldValues. " +
-    "`emails` is the canonical place for any email address belonging to the contact. The FIRST item in the array is the primary email used for default outbound drafts. Integrations resolving by email match against any element of the array. Pass an empty array (or omit the field) if the contact has no email. " +
+    "Optional per item: identifiers, notes, organizationIds, userIds, dealIds, taskIds, customFieldValues. " +
+    "`identifiers` is the canonical place for messaging channels. Each item is { provider, value, messagingId? }: provider is one of mail, google, outlook (value is the email address), whatsapp (value is the phone number), linkedin, telegram, or instagram (value is the handle; messagingId is the provider-internal id required for outbound messaging, channels without it are view-only). A channel can belong to only one contact: if a value is already linked elsewhere the call is rejected. Omit the field (or pass []) if the contact has no channels. " +
     "You can pass organizationIds/userIds/dealIds/taskIds directly in create so linked contacts are created in one call. " +
     "Prereq: call get_entity_configuration for custom-column ids. " +
     "Returns the list of created contact ids and names.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: CreateContactsSchema,
   execute: async (params: z.infer<typeof CreateContactsSchema>) => {
     const result = await getCreateManyContactsInteractor().invoke(params);
@@ -45,13 +49,18 @@ export const updateContactsTool = {
   description:
     "Partial update for up to 100 contacts in one call. " +
     "Required per item: id. " +
-    "Optional per item: firstName, lastName, emails, notes, organizationIds, userIds, dealIds, taskIds, customFieldValues. " +
-    "`emails` REPLACES the contact's email list. Pass an array of valid emails (first item is primary), pass [] to clear all emails, or omit the field to leave existing emails untouched. To add a single email without re-sending the full list, fetch the contact first and append. " +
+    "Optional per item: firstName, lastName, identifiers, notes, organizationIds, userIds, dealIds, taskIds, customFieldValues. " +
+    "`identifiers` REPLACES the contact channel set (same semantics as the relation arrays below): when provided, channels not listed are unlinked and their message history detached, so round-trip the full current list when changing channels. Omit the field to leave channels untouched. Each item is { provider, value, messagingId? } with provider one of mail, google, outlook, whatsapp, linkedin, telegram, instagram (for the latter three, value is the handle and messagingId is the provider-internal id required for outbound messaging; without it the channel is view-only). A channel can belong to only one contact: if a value is already linked to a different contact the call is rejected. " +
     "WARNING: if you pass organizationIds, userIds, dealIds, or taskIds, the array REPLACES existing links (any id not in the array is unlinked). " +
     "To ADD or REMOVE a single link without touching the rest, use link_entities or unlink_entities instead. " +
     NO_NULL_WIPE_WARNING +
     " Idempotent: same payload produces the same state.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
   inputSchema: UpdateContactsSchema,
   execute: async (params: z.infer<typeof UpdateContactsSchema>) => {
     const result = await getUpdateManyContactsInteractor().invoke(params);

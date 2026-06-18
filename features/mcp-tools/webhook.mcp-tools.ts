@@ -209,12 +209,9 @@ export const resendWebhookDeliveryTool = {
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   inputSchema: ResendWebhookDeliverySchema,
   execute: async ({ id }: z.infer<typeof ResendWebhookDeliverySchema>) => {
-    try {
-      await getResendWebhookDeliveryInteractor().invoke({ id });
-      return `Re-sent webhook delivery ${id}`;
-    } catch (error) {
-      return `Validation error: ${error instanceof Error ? error.message : "Failed to resend delivery"}`;
-    }
+    const result = await getResendWebhookDeliveryInteractor().invoke({ id });
+    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    return `Re-sent webhook delivery ${id} as new delivery ${result.data}`;
   },
 };
 

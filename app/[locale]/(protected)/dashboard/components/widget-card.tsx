@@ -32,26 +32,41 @@ import { hasValidFilterConfiguration } from "@/components/data-view/table-view.u
 import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
 
 const VerticalBarChart = dynamic(
-  () => import("./vertical-bar-chart").then((mod) => ({ default: mod.VerticalBarChart })),
+  () =>
+    import("./vertical-bar-chart").then((mod) => ({
+      default: mod.VerticalBarChart,
+    })),
   { ssr: false },
 );
 const HorizontalBarChart = dynamic(
-  () => import("./horizontal-bar-chart").then((mod) => ({ default: mod.HorizontalBarChart })),
+  () =>
+    import("./horizontal-bar-chart").then((mod) => ({
+      default: mod.HorizontalBarChart,
+    })),
   { ssr: false },
 );
 const VerticalBarChartWithLabels = dynamic(
-  () => import("./vertical-bar-chart-with-labels").then((mod) => ({ default: mod.VerticalBarChartWithLabels })),
+  () =>
+    import("./vertical-bar-chart-with-labels").then((mod) => ({
+      default: mod.VerticalBarChartWithLabels,
+    })),
   { ssr: false },
 );
 const HorizontalBarChartWithLabels = dynamic(
-  () => import("./horizontal-bar-chart-with-labels").then((mod) => ({ default: mod.HorizontalBarChartWithLabels })),
+  () =>
+    import("./horizontal-bar-chart-with-labels").then((mod) => ({
+      default: mod.HorizontalBarChartWithLabels,
+    })),
   { ssr: false },
 );
 const DoughnutChart = dynamic(() => import("./doughnut-chart").then((mod) => ({ default: mod.DoughnutChart })), {
   ssr: false,
 });
 const RadarChartComponent = dynamic(
-  () => import("./radar-chart").then((mod) => ({ default: mod.RadarChartComponent })),
+  () =>
+    import("./radar-chart").then((mod) => ({
+      default: mod.RadarChartComponent,
+    })),
   { ssr: false },
 );
 
@@ -60,8 +75,7 @@ type Props = {
 };
 
 export const WidgetCard = observer(({ widget }: Props) => {
-  const t = useTranslations("");
-  const tCommon = useTranslations("Common");
+  const t = useTranslations();
   const { resolvedTheme } = useTheme();
   const { intlStore, widgetModalStore, widgetsStore } = useRootStore();
   const customColumns = widgetsStore.customColumns;
@@ -90,7 +104,10 @@ export const WidgetCard = observer(({ widget }: Props) => {
 
     const isCurrency = widget.aggregationType === AggregationType.dealValue;
     const formatted = isCurrency
-      ? intlStore.formatCurrency(total, undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+      ? intlStore.formatCurrency(total, undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })
       : intlStore.formatNumber(total);
 
     if (data.length > 1) return `${formatted} · ${data.length} ${t("Diagrams.groups")}`;
@@ -187,16 +204,16 @@ export const WidgetCard = observer(({ widget }: Props) => {
     ? [
         ...activeEntityFilters.map((filter, index) => ({
           key: `entity-${filter.field}-${index}`,
-          label: getFilterLabel(filter, entityCustomColumns, tCommon),
-          operator: tCommon(`filters.operators.${filter.operator}`),
+          label: getFilterLabel(filter, entityCustomColumns, t),
+          operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: entityCustomColumns,
           filter,
           onClick: () => widgetModalStore.openWithFilter(widget.id, "filters", filter.field),
         })),
         ...activeDealFilters.map((filter, index) => ({
           key: `deal-${filter.field}-${index}`,
-          label: getFilterLabel(filter, dealCustomColumns, tCommon),
-          operator: tCommon(`filters.operators.${filter.operator}`),
+          label: getFilterLabel(filter, dealCustomColumns, t),
+          operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: dealCustomColumns,
           filter,
           onClick: () => widgetModalStore.openWithFilter(widget.id, "dealFilters", filter.field),
@@ -212,7 +229,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
         <h2 className="text-x-md truncate w-full">{widget.name}</h2>
 
         {showSubheaderRow && (
-          <p className="text-xs text-muted-foreground w-full">
+          <p className="text-xs text-muted-foreground w-full line-clamp-2 wrap-break-word">
             {subheader}
 
             {inlineFilters.map((f) => (
@@ -239,11 +256,12 @@ export const WidgetCard = observer(({ widget }: Props) => {
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
                 >
-                  <span className="font-medium">{f.label}</span>
-
-                  <span className="mx-1">{f.operator}</span>
-
-                  <FilterChipValue customColumns={f.customColumns} filter={f.filter} />
+                  <FilterChipValue
+                    customColumns={f.customColumns}
+                    filter={f.filter}
+                    label={f.label}
+                    operator={f.operator}
+                  />
                 </span>
               </Fragment>
             ))}

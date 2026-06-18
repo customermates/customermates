@@ -77,7 +77,7 @@ export function isDocItemActive(item: DocSidebarItem, normalizedPathname: string
 }
 
 export function useDocGroups(): DocSidebarGroup[] {
-  const t = useTranslations("");
+  const t = useTranslations();
   return [
     {
       key: "introduction",
@@ -208,7 +208,7 @@ function DocItemRow({ item, isActive }: { item: DocSidebarItem; isActive: boolea
 export const DocSidebarFallbackIcon = Network;
 
 export const DocsSidebar = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const pathname = usePathname();
   const groups = useDocGroups();
   const normalizedPathname = normalizeDocsPath(pathname);

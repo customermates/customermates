@@ -1,11 +1,12 @@
 import type { UserRoleDto } from "./role.types";
-import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { RoleDtoSchema } from "./role.schema";
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
@@ -16,7 +17,7 @@ export type { UserRoleDto } from "./role.types";
 export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.users, action: Action.readAll },
     { resource: Resource.users, action: Action.readOwn },
@@ -30,9 +31,9 @@ export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
     });
   }
 
-  @Enforce(GetQueryParamsSchema)
+  @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(RoleDtoSchema))
-  async invoke(params: GetQueryParams = {}) {
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<UserRoleDto>> {
     return await super.invoke(params);
   }
 }

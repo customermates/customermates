@@ -1,9 +1,9 @@
 import type { EmailService } from "@/features/email/email.service";
+import type { Redirect } from "./auth-outcome";
 
 import React from "react";
 import { APIError } from "better-auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import ResetPassword from "@/components/emails/reset-password";
@@ -11,11 +11,20 @@ import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { auth } from "@/core/auth/better-auth";
 import { mustVerifyEmail } from "./email-verification-grace";
+import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { BASE_URL, RESEND_FROM_EMAIL } from "@/constants/env";
+import { env } from "@/env";
 
-type AuthUser = { id: string; email: string; name: string; emailVerified: boolean };
-export type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomErrorCode };
+type AuthUser = {
+  id: string;
+  email: string;
+  name: string;
+  emailVerified: boolean;
+};
+type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomErrorCode };
+
+type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
+type SessionOrRedirect = { session: Session } | Redirect;
 
 export class AuthService {
   constructor(private emailService: EmailService) {}
@@ -28,16 +37,16 @@ export class AuthService {
     return await auth.api.getSession({ headers: headersList });
   }
 
-  async getSessionOrRedirect() {
+  async resolveSession(): Promise<SessionOrRedirect> {
     const headersList = await headers();
 
-    if (!this.hasAuthToken(headersList)) redirect("/auth/signin");
+    if (!this.hasAuthToken(headersList)) return redirectTo("/auth/signin");
 
     const session = await auth.api.getSession({ headers: headersList });
-    if (!session) redirect("/auth/signin");
-    if (mustVerifyEmail(session.user)) redirect("/auth/verify-email");
+    if (!session) return redirectTo("/auth/signin");
+    if (mustVerifyEmail(session.user)) return redirectTo("/auth/verify-email");
 
-    return session;
+    return { session };
   }
 
   async signInWithEmail(args: {
@@ -49,7 +58,7 @@ export class AuthService {
     try {
       const res = await auth.api.signInEmail({
         headers: await headers(),
-        body: { ...args, callbackURL: args.callbackURL ?? BASE_URL },
+        body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
       });
 
       return { ok: true, user: res.user } as const;
@@ -97,35 +106,35 @@ export class AuthService {
   }
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
-    const t = await getTranslations("VerifyEmail");
+    const t = await getTranslations();
 
     await this.emailService.send({
       to: args.to,
-      subject: t("subject"),
+      subject: t("VerifyEmail.subject"),
       react: React.createElement(VerifyEmail, {
         url: args.url,
-        subject: t("subject"),
-        intro: t("intro"),
-        cta: t("cta"),
-        fallback: t("fallback"),
-        securityNotice: t("securityNotice"),
+        subject: t("VerifyEmail.subject"),
+        intro: t("VerifyEmail.intro"),
+        cta: t("VerifyEmail.cta"),
+        fallback: t("VerifyEmail.fallback"),
+        securityNotice: t("VerifyEmail.securityNotice"),
       }),
     });
   }
 
   async sendResetPasswordEmail(args: { to: string; url: string }): Promise<void> {
-    const t = await getTranslations("ResetPassword");
+    const t = await getTranslations();
 
     await this.emailService.send({
       to: args.to,
-      subject: t("subject"),
+      subject: t("ResetPassword.subject"),
       react: React.createElement(ResetPassword, {
         url: args.url,
-        subject: t("subject"),
-        intro: t("intro"),
-        cta: t("cta"),
-        fallback: t("fallback"),
-        securityNotice: t("securityNotice"),
+        subject: t("ResetPassword.subject"),
+        intro: t("ResetPassword.intro"),
+        cta: t("ResetPassword.cta"),
+        fallback: t("ResetPassword.fallback"),
+        securityNotice: t("ResetPassword.securityNotice"),
       }),
     });
   }
@@ -133,7 +142,7 @@ export class AuthService {
   async continueWithSocials(args: { provider: "google" | "microsoft"; callbackURL?: string }) {
     const res = await auth.api.signInSocial({
       headers: await headers(),
-      body: { ...args, callbackURL: args.callbackURL ?? BASE_URL },
+      body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
     });
 
     return res;
@@ -145,7 +154,7 @@ export class AuthService {
 
   async sendNewUserNotificationEmail(args: { email: string; name: string; provider?: string }): Promise<void> {
     await this.emailService.send({
-      to: RESEND_FROM_EMAIL,
+      to: env.RESEND_OPERATOR_EMAIL,
       subject: "New User Registration",
       react: React.createElement(NewUserNotification, {
         email: args.email,

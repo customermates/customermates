@@ -16,7 +16,7 @@ const PRESETS = [7, 30, 90, 365] as const;
 
 export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
   const store = useAppForm();
-  const t = useTranslations("Common.filters");
+  const t = useTranslations();
   const raw = store?.getValue(id);
   const value = typeof raw === "number" ? raw : typeof raw === "string" && raw !== "" ? Number(raw) : undefined;
 
@@ -33,7 +33,7 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
           id={id}
           inputMode="numeric"
           min={1}
-          placeholder={t("daysPlaceholder")}
+          placeholder={t("Common.filters.daysPlaceholder")}
           step={1}
           type="number"
           value={value ?? ""}
@@ -49,7 +49,7 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
         />
 
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-          {t("daysSuffix")}
+          {t("Common.filters.daysSuffix")}
         </span>
       </div>
 
@@ -67,7 +67,7 @@ export const FilterInputDaysCount = observer(({ id, isValidFilter }: Props) => {
             type="button"
             onClick={() => commit(days)}
           >
-            {t("daysPreset", { count: days })}
+            {t("Common.filters.daysPreset", { count: days })}
           </button>
         ))}
       </div>

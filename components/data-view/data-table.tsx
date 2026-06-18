@@ -11,7 +11,7 @@ import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import type { Prisma } from "@/generated/prisma";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,14 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const navigateToHref = useNavigateToHref();
   const sorting: SortingState = useMemo(
     () =>
-      store.sortDescriptor ? [{ id: store.sortDescriptor.field, desc: store.sortDescriptor.direction === "desc" }] : [],
+      store.sortDescriptor
+        ? [
+            {
+              id: store.sortDescriptor.field,
+              desc: store.sortDescriptor.direction === "desc",
+            },
+          ]
+        : [],
     [store.sortDescriptor],
   );
 
@@ -50,8 +57,9 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       id: "__select",
       size: 40,
       header: () => {
-        const allSelected = store.items.length > 0 && store.items.every((item) => store.selectedIds.has(item.id));
-        const someSelected = !allSelected && store.items.some((item) => store.selectedIds.has(item.id));
+        const selectable = store.items.filter((item) => store.isItemSelectable(item));
+        const allSelected = selectable.length > 0 && selectable.every((item) => store.selectedIds.has(item.id));
+        const someSelected = !allSelected && selectable.some((item) => store.selectedIds.has(item.id));
         return (
           <Checkbox
             aria-label="Select all rows"
@@ -64,6 +72,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         );
       },
       cell: ({ row }) => {
+        if (!store.isItemSelectable(row.original)) return null;
+
         const id = row.original.id;
         return (
           <Checkbox
@@ -140,7 +150,15 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 <TableHead
                   key={header.id}
                   className={cn("relative", canSort && "cursor-pointer select-none", isSelectionCol && "w-10")}
-                  style={liveWidth ? { width: liveWidth, minWidth: liveWidth, maxWidth: liveWidth } : undefined}
+                  style={
+                    liveWidth
+                      ? {
+                          width: liveWidth,
+                          minWidth: liveWidth,
+                          maxWidth: liveWidth,
+                        }
+                      : undefined
+                  }
                 >
                   {header.isPlaceholder ? null : (
                     <div className="flex min-w-0 items-center gap-1 overflow-hidden">
@@ -155,7 +173,12 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                             const fieldId = header.column.id;
                             const nextDirection: Prisma.SortOrder =
                               currentField === fieldId && currentDir === "asc" ? "desc" : "asc";
-                            store.setQueryOptions({ sortDescriptor: { field: fieldId, direction: nextDirection } });
+                            store.setQueryOptions({
+                              sortDescriptor: {
+                                field: fieldId,
+                                direction: nextDirection,
+                              },
+                            });
                           }}
                         >
                           <span className="min-w-0 truncate">
@@ -235,7 +258,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 const wrapped =
                   isNameCell && rowHref ? (
                     <a
-                      className="block truncate text-inherit hover:underline"
+                      className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
                       href={rowHref}
                       onClick={(e) => {
                         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;

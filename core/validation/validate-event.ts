@@ -10,7 +10,7 @@ export function validateEvent(value: string | string[], ctx: z.RefinementCtx, fi
     if (!validEvents.includes(events[i] as DomainEvent)) {
       ctx.addIssue({
         code: "custom",
-        params: { error: CustomErrorCode.invalidFilterField },
+        params: { error: CustomErrorCode.invalidFilterValue },
         path: Array.isArray(value) ? [...fieldPath, i] : fieldPath,
       });
     }

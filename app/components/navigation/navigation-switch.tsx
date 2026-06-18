@@ -23,6 +23,7 @@ type Props = {
   subscriptionStatus: SubscriptionStatus | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
+  unreadThreadCount: number;
   user: ExtendedUser | null;
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
@@ -36,6 +37,7 @@ export function NavigationSwitch({
   subscriptionStatus,
   trialDaysLeft,
   systemTaskCount,
+  unreadThreadCount,
   user,
   emailVerified,
   defaultSidebarOpen = true,
@@ -46,12 +48,7 @@ export function NavigationSwitch({
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
   const isAuthRoute = pathname.startsWith("/auth/");
   const hideAppShell = !isAuthenticated || isOnboardingWizard || isAuthRoute;
-  const { layoutStore, userStore, companyStore } = useRootStore();
-  const shouldShowNavbar = hideAppShell && !isDocsRoute;
-
-  useLayoutEffect(() => {
-    layoutStore.setIsNavbarVisible(shouldShowNavbar);
-  }, [shouldShowNavbar]);
+  const { userStore, companyStore } = useRootStore();
 
   useLayoutEffect(() => {
     userStore.setUser(user);
@@ -93,6 +90,7 @@ export function NavigationSwitch({
         subscriptionStatus={subscriptionStatus}
         systemTaskCount={systemTaskCount}
         trialDaysLeft={trialDaysLeft}
+        unreadThreadCount={unreadThreadCount}
         user={user}
       />
 

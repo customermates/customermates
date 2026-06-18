@@ -1,16 +1,17 @@
 import type { TaskService } from "../task.service";
-import type { DomainEventHandlers } from "@/features/tasks/listener/base-task.listener";
+import type { DomainEventHandlers } from "@/features/event/domain-event.listener";
 
 import { TaskType, Status } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
+import { DomainEventListener } from "@/features/event/domain-event.listener";
 
-export class UserPendingAuthorizationTaskListener extends BaseTaskListener {
+export class UserPendingAuthorizationTaskListener extends DomainEventListener {
   readonly handlers: DomainEventHandlers;
+  private readonly taskType = TaskType.userPendingAuthorization;
 
   constructor(private taskService: TaskService) {
-    super(TaskType.userPendingAuthorization);
+    super();
 
     this.handlers = {
       [DomainEvent.USER_REGISTERED]: async ({ userId, payload }) => {

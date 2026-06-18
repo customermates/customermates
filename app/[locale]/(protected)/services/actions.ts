@@ -29,7 +29,7 @@ export async function updateServiceAction(data: UpdateServiceData) {
 }
 
 export async function deleteServiceAction(data: DeleteServiceData) {
-  return getDeleteServiceInteractor().invoke(data);
+  return serializeResult(getDeleteServiceInteractor().invoke(data));
 }
 
 export async function getServiceByIdAction(data: GetServiceByIdData) {

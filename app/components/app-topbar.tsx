@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { ChevronDown } from "lucide-react";
 
+import { Avatar } from "@/components/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,7 +29,7 @@ import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
 
 type Sibling = { slug: string; label: string };
-type Crumb = { label: string; href?: string; siblings?: Sibling[] };
+type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: string | null; isEntity?: boolean };
 
 const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; label: string }> = {
   dashboard: { group: "overview", label: "dashboard" },
@@ -47,6 +48,7 @@ const SUB_LABEL_MAP: Record<string, Record<string, string>> = {
     details: "NavigationBar.details",
     settings: "NavigationBar.settings",
     "api-keys": "ApiKeysCard.title",
+    "connected-accounts": "ConnectedAccountsCard.title",
   },
   company: {
     details: "NavigationBar.general",
@@ -68,15 +70,22 @@ function getSectionHref(section: string): string {
   return defaultSub ? `/${section}/${defaultSub}` : `/${section}`;
 }
 
-export const AppTopBar = observer(function AppTopBar() {
-  const t = useTranslations("");
+export const AppTopBar = observer(() => {
+  const t = useTranslations();
   const pathname = usePathname();
   const { layoutStore } = useRootStore();
   const { actions } = useTopBarActions();
 
   const { crumbs, section } = useMemo(
-    () => buildCrumbs(pathname, t, layoutStore.runtimeTitle),
-    [pathname, t, layoutStore.runtimeTitle],
+    () =>
+      buildCrumbs(
+        pathname,
+        t,
+        layoutStore.runtimeTitle,
+        layoutStore.runtimePictureUrl,
+        layoutStore.runtimeAvatarKind !== null,
+      ),
+    [pathname, t, layoutStore.runtimeTitle, layoutStore.runtimePictureUrl, layoutStore.runtimeAvatarKind],
   );
 
   if (crumbs.length === 0) return <ShellHeader actions={actions} />;
@@ -120,7 +129,11 @@ export const AppTopBar = observer(function AppTopBar() {
                   ) : c.href && !isLeaf ? (
                     <BreadcrumbLink href={c.href}>{c.label}</BreadcrumbLink>
                   ) : (
-                    <BreadcrumbPage className="truncate">{c.label}</BreadcrumbPage>
+                    <BreadcrumbPage className="flex min-w-0 items-center gap-1.5 truncate">
+                      {isLeaf && c.isEntity && <Avatar name={c.label} size="sm" src={c.pictureUrl ?? null} />}
+
+                      <span className="truncate">{c.label}</span>
+                    </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>
               </span>
@@ -136,6 +149,8 @@ function buildCrumbs(
   pathname: string,
   t: (k: string) => string,
   runtimeTitle: string | null,
+  runtimePictureUrl: string | null,
+  showLeafAvatar: boolean,
 ): { crumbs: Crumb[]; section: string | null } {
   const segs = pathname.split("/").filter(Boolean);
   if (segs.length <= 1) return { crumbs: [], section: null };
@@ -158,7 +173,11 @@ function buildCrumbs(
       crumbs.push({ label: t(subKey), siblings });
     } else {
       const fallback = leaf.length > 10 ? `${leaf.slice(0, 8)}…` : leaf;
-      crumbs.push({ label: runtimeTitle ?? fallback });
+      crumbs.push({
+        label: runtimeTitle ?? fallback,
+        pictureUrl: runtimePictureUrl,
+        isEntity: showLeafAvatar,
+      });
     }
   }
 

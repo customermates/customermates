@@ -16,19 +16,15 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
-import { updateEntityCustomFieldValueAction } from "@/app/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import type { CustomColumnOption } from "@/features/custom-column/custom-column.schema";
 import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { useApplicationErrorHandler } from "@/components/shared/unexpected-error-toaster";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +37,6 @@ type Props<E extends HasCustomFieldValues> = {
   columns: ColumnDef<E>[];
   onCardClick?: (item: E) => void;
   cardHref?: (item: E) => string | undefined;
-  renderCard?: (item: E) => ReactNode;
   className?: string;
 };
 
@@ -199,11 +194,9 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   columns,
   onCardClick,
   cardHref,
-  renderCard,
   className,
 }: Props<E>) {
-  const t = useTranslations("");
-  const handleApplicationError = useApplicationErrorHandler();
+  const t = useTranslations();
   const { customColumnModalStore } = useRootStore();
   const groupingColumnId = store.groupingColumnId ?? "";
   const rawGrouping = store.customColumns.find((c) => c.id === groupingColumnId);
@@ -250,10 +243,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     if (!event.over || !event.active) return;
     const itemId = String(event.active.id);
     const targetGroup = String(event.over.id);
-    if (!groupingCustomColumn) {
-      toast.error(t("Common.notifications.unexpectedError"));
-      return;
-    }
 
     const item = store.items.find((i) => i.id === itemId);
     if (!item) return;
@@ -263,30 +252,14 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
     const nextValue = targetGroup === KANBAN_EMPTY_GROUP_KEY ? null : targetGroup;
 
-    const optimisticItem = patchCustomFieldValue(item, groupingColumnId, nextValue);
-    store.upsertItemLocal(optimisticItem);
-    store.transferItemBetweenGroups(currentValue, targetGroup);
-
-    const revert = () => {
-      store.upsertItemLocal(item);
-      store.transferItemBetweenGroups(targetGroup, currentValue);
-    };
-
-    try {
-      const result = await updateEntityCustomFieldValueAction({
-        entityType: groupingCustomColumn.entityType,
-        entityId: itemId,
-        customFieldValues: [{ columnId: groupingColumnId, value: nextValue }],
-      });
-      if (result?.ok) await store.upsertItem(result.data as unknown as E);
-      else {
-        revert();
-        toastZodErrorTree(result?.error);
-      }
-    } catch (err) {
-      revert();
-      handleApplicationError(err);
-    }
+    await store.moveItemBetweenGroups({
+      item,
+      optimisticItem: patchCustomFieldValue(item, groupingColumnId, nextValue),
+      columnId: groupingColumnId,
+      fromGroupKey: currentValue,
+      toGroupKey: targetGroup,
+      value: nextValue,
+    });
   }
 
   if (groups.size === 0) return <div className="py-12 text-center text-sm text-muted-foreground">No items found.</div>;
@@ -326,9 +299,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                       itemId={item.id}
                       onClick={onCardClick ? () => onCardClick(item) : undefined}
                     >
-                      <CardContent className="px-3">
-                        {renderCard ? renderCard(item) : row ? <DataCardBody row={row} /> : null}
-                      </CardContent>
+                      <CardContent className="px-3">{row ? <DataCardBody row={row} /> : null}</CardContent>
                     </KanbanCard>
                   );
                 })}

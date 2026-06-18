@@ -17,7 +17,7 @@ type Props = {
 };
 
 export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }: Props) {
-  const t = await getTranslations("HomepageHowItWorks");
+  const t = await getTranslations();
   return (
     <section className="relative w-full overflow-hidden px-4 py-14 md:py-20">
       <WaveDecoration
@@ -77,9 +77,9 @@ export async function HomepageHowItWorks({ eyebrow, title, steps, clipTerminal }
               <HomepageClipTerminal strings={clipTerminal} />
 
               <div className="mt-2.5 flex items-center justify-between px-1 font-mono text-[11px] text-muted-foreground">
-                <span>{t("loopCaption")}</span>
+                <span>{t("HomepageHowItWorks.loopCaption")}</span>
 
-                <span>{t("tailCaption")}</span>
+                <span>{t("HomepageHowItWorks.tailCaption")}</span>
               </div>
             </div>
           </div>

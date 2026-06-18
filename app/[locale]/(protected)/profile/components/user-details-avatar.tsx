@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 
 import type { Status } from "@/generated/prisma";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { AppChip } from "@/components/chip/app-chip";
 
@@ -16,22 +16,13 @@ type Props = {
   emailVerified?: boolean;
 };
 
-function getInitials(firstName: string, lastName: string) {
-  return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
-}
-
 export function UserDetailsAvatar({ email, firstName, lastName, roleName, status, avatarUrl, emailVerified }: Props) {
-  const t = useTranslations("Common");
-  const tEmail = useTranslations("EmailVerification");
+  const t = useTranslations();
   const displayName = `${firstName} ${lastName}`.trim();
 
   return (
     <div className="flex items-center gap-3 min-w-0">
-      <Avatar className="shrink-0" size="lg">
-        {avatarUrl && <AvatarImage alt={t("imageAlt.avatar", { name: displayName })} src={avatarUrl} />}
-
-        <AvatarFallback>{getInitials(firstName, lastName)}</AvatarFallback>
-      </Avatar>
+      <Avatar name={[firstName, lastName]} size="lg" src={avatarUrl} />
 
       <div className="flex flex-col min-w-0">
         <span className="truncate font-medium">{displayName}</span>
@@ -42,11 +33,11 @@ export function UserDetailsAvatar({ email, firstName, lastName, roleName, status
           <div className="flex w-full gap-2 items-center justify-start flex-wrap">
             {emailVerified !== undefined && (
               <AppChip variant={emailVerified ? "success" : "warning"}>
-                {emailVerified ? tEmail("verified") : tEmail("notVerified")}
+                {emailVerified ? t("EmailVerification.verified") : t("EmailVerification.notVerified")}
               </AppChip>
             )}
 
-            <AppChip variant={USER_STATUS_COLORS_MAP[status]}>{t(`userStatuses.${status}`)}</AppChip>
+            <AppChip variant={USER_STATUS_COLORS_MAP[status]}>{t(`Common.userStatuses.${status}`)}</AppChip>
 
             {roleName && <AppChip>{roleName}</AppChip>}
           </div>

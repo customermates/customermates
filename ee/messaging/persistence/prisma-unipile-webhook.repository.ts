@@ -1,0 +1,44 @@
+import type { Prisma } from "@/generated/prisma";
+
+import type { RepoArgs } from "@/core/utils/types";
+import type { WebhookEventRepo } from "../webhooks/webhook-event.repo";
+
+import { BaseRepository } from "@/core/base/base-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+
+export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookEventRepo {
+  @BypassTenantGuard
+  async createWebhookEvent(args: RepoArgs<WebhookEventRepo, "createWebhookEvent">) {
+    const row = await this.prisma.messagingInboundEvent.create({
+      data: {
+        companyId: args.companyId,
+        source: args.source,
+        eventType: args.eventType,
+        accountId: args.accountId,
+        payload: args.payload as Prisma.InputJsonValue,
+      },
+      select: { id: true },
+    });
+
+    return row;
+  }
+
+  @BypassTenantGuard
+  async findWebhookEventByIdOrThrow(id: string) {
+    return this.prisma.messagingInboundEvent.findUniqueOrThrow({
+      where: { id },
+      select: { id: true, source: true, payload: true, processed: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async markWebhookEvent(args: RepoArgs<WebhookEventRepo, "markWebhookEvent">) {
+    await this.prisma.messagingInboundEvent.update({
+      where: { id: args.id },
+      data: {
+        processed: args.processed,
+        processedAt: args.processed ? new Date() : null,
+      },
+    });
+  }
+}

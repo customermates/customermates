@@ -8,20 +8,20 @@ import { Resource, Action } from "@/generated/prisma";
 import { WebhookEventSchema, WebhookDtoSchema } from "./webhook.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export const UpsertWebhookSchema = z.object({
   id: z.uuid().optional(),
   url: secureUrlSchema(),
-  description: z.string().optional(),
+  description: z.string().max(500).optional(),
   events: z.array(WebhookEventSchema).min(1),
-  secret: z.string().optional(),
+  secret: z.string().max(256).optional(),
   enabled: z.boolean().default(true),
 });
 export type UpsertWebhookData = Data<typeof UpsertWebhookSchema>;
@@ -31,8 +31,8 @@ export abstract class UpsertWebhookRepo {
   abstract getWebhookByIdOrThrow(id: string): Promise<WebhookDto>;
 }
 
-@TentantInteractor({ resource: Resource.api, action: Action.update })
-export class UpsertWebhookInteractor extends BaseInteractor<UpsertWebhookData, WebhookDto> {
+@TenantInteractor({ resource: Resource.api, action: Action.update })
+export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebhookData, WebhookDto> {
   constructor(
     private repo: UpsertWebhookRepo,
     private eventService: EventService,

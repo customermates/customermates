@@ -1,16 +1,32 @@
-import { Resource } from "@/generated/prisma";
+import { EntityType, Resource } from "@/generated/prisma";
 
-import { DealDetailPageView } from "./components/deal-detail-page-view";
+import { EntityDetailPageView } from "@/components/entity-detail/entity-detail-page-view";
 
-import { getRouteGuardService } from "@/core/di";
+import { getGetActivitiesInteractor } from "@/core/di";
+import { requireAccess } from "@/features/auth/next/require";
+import { ACTIVITIES_P13N_ID } from "@/features/messaging/activities/activities.store";
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 export default async function DealDetailPage({ params }: Props) {
-  await getRouteGuardService().ensureAccessOrRedirect({ resource: Resource.deals });
+  await requireAccess({ resource: Resource.deals });
 
   const { id } = await params;
-  return <DealDetailPageView id={id} />;
+
+  const timelineResult = await getGetActivitiesInteractor().invoke({
+    entityType: EntityType.deal,
+    entityId: id,
+    pagination: { page: 1, pageSize: 25 },
+    p13nId: ACTIVITIES_P13N_ID,
+  });
+
+  return (
+    <EntityDetailPageView
+      entityType={EntityType.deal}
+      id={id}
+      timelineInitial={timelineResult.ok ? timelineResult.data : { items: [] }}
+    />
+  );
 }

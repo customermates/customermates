@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
 
-import { action, makeObservable, observable, toJS } from "mobx";
+import { action, makeObservable, toJS } from "mobx";
 import { CountryCode, Currency, Resource } from "@/generated/prisma";
 
 import { updateCompanyAction } from "../../actions";
@@ -10,9 +10,7 @@ import { updateCompanyAction } from "../../actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
 
 export class CompanyDetailsStore extends BaseFormStore<UpdateCompanyDetailsData> {
-  hasSubmittedSuccessfully = false;
-
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -27,15 +25,9 @@ export class CompanyDetailsStore extends BaseFormStore<UpdateCompanyDetailsData>
     );
 
     makeObservable(this, {
-      hasSubmittedSuccessfully: observable,
-      setHasSubmittedSuccessfully: action,
       onSubmit: action,
     });
   }
-
-  setHasSubmittedSuccessfully = (value: boolean) => {
-    this.hasSubmittedSuccessfully = value;
-  };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
@@ -45,8 +37,9 @@ export class CompanyDetailsStore extends BaseFormStore<UpdateCompanyDetailsData>
       const res = await updateCompanyAction(toJS(this.form));
 
       if (res.ok) {
-        this.setHasSubmittedSuccessfully(true);
         this.onInitOrRefresh(res.data);
+        const company = this.rootStore.companyStore.company;
+        if (company) this.rootStore.companyStore.setCompany({ ...company, ...res.data });
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);

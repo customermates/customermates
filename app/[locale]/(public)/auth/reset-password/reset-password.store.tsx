@@ -11,7 +11,7 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 export class ResetPasswordStore extends BaseFormStore<ResetPasswordData> {
   showPassword = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, { password: "", confirmPassword: "", token: "" });
 
     makeObservable(this, {

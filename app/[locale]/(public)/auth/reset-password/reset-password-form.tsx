@@ -6,8 +6,6 @@ import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -15,10 +13,11 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
+import { PasswordInput } from "@/components/forms/password-input";
 import { AppLink } from "@/components/shared/app-link";
 
 export const ResetPasswordForm = observer(() => {
-  const t = useTranslations("ResetPasswordForm");
+  const t = useTranslations();
   const { resetPasswordStore } = useRootStore();
   const { isLoading, showPassword } = resetPasswordStore;
   const searchParams = useSearchParams();
@@ -36,32 +35,22 @@ export const ResetPasswordForm = observer(() => {
     <AppForm store={resetPasswordStore}>
       <AppCard className="max-w-md">
         <CardHeroHeader
-          subtitle={t.rich("backToSignIn", {
+          subtitle={t.rich("ResetPasswordForm.backToSignIn", {
             backToSignInLink: (chunks) => (
               <AppLink inheritSize href="/auth/signin">
                 {chunks}
               </AppLink>
             ),
           })}
-          title={t("title")}
+          title={t("ResetPasswordForm.title")}
         />
 
         <AppCardBody>
-          <FormInput
+          <PasswordInput
             required
-            endContent={
-              <Button
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-                onClick={resetPasswordStore.toggleShowPassword}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </Button>
-            }
             id="password"
-            type={showPassword ? "text" : "password"}
+            showPassword={showPassword}
+            onToggleVisibility={resetPasswordStore.toggleShowPassword}
           />
 
           <FormInput required id="confirmPassword" type={showPassword ? "text" : "password"} />
@@ -69,7 +58,7 @@ export const ResetPasswordForm = observer(() => {
 
         <AppCardFooter>
           <Button className="w-full" disabled={isLoading} type="submit">
-            {t("resetPasswordCta")}
+            {t("ResetPasswordForm.resetPasswordCta")}
           </Button>
         </AppCardFooter>
       </AppCard>

@@ -11,7 +11,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { checkPendingStatusAndRedirect } from "@/app/[locale]/actions";
 
 export function PendingCard() {
-  const t = useTranslations("");
+  const t = useTranslations();
 
   useEffect(() => void checkPendingStatusAndRedirect(), []);
 

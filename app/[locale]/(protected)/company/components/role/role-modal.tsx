@@ -28,7 +28,7 @@ type Props = {
 };
 
 export const RoleModal = observer(({ store }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { form, isDisabledOrSystemRole, isLoading, hasUsersAssigned, isSystemRole } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
@@ -46,7 +46,7 @@ export const RoleModal = observer(({ store }: Props) => {
 
     const readAccessOptions: FormRadioGroupOption[] = [
       { value: "all", label: t("RoleModal.readAll"), disabled: isDisabledOrSystemRole },
-      ...(resource !== Resource.api && resource !== Resource.auditLog
+      ...(resource !== Resource.api && resource !== Resource.auditLog && resource !== Resource.inboxMessages
         ? [{ value: "own", label: t("RoleModal.readOwn"), disabled: isDisabledOrSystemRole }]
         : []),
       ...(resource !== Resource.users && resource !== Resource.company
@@ -138,6 +138,8 @@ export const RoleModal = observer(({ store }: Props) => {
               {renderResourcePermissions(Resource.deals)}
 
               {renderResourcePermissions(Resource.services)}
+
+              {renderResourcePermissions(Resource.inboxMessages)}
             </div>
           </AppCardBody>
 

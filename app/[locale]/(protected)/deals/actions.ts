@@ -29,7 +29,7 @@ export async function updateDealAction(data: UpdateDealData) {
 }
 
 export async function deleteDealAction(data: DeleteDealData) {
-  return getDeleteDealInteractor().invoke(data);
+  return serializeResult(getDeleteDealInteractor().invoke(data));
 }
 
 export async function getDealByIdAction(data: GetDealByIdData) {

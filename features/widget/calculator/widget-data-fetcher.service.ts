@@ -1,6 +1,6 @@
 import type { ExtendedWidget } from "../widget.types";
 import type { EntityForGrouping, DealRecord } from "./widget-calculator.types";
-import type { GetQueryParams, Filter } from "@/core/base/base-get.schema";
+import type { Filter } from "@/core/base/base-get.schema";
 
 import { EntityType } from "@/generated/prisma";
 
@@ -8,6 +8,14 @@ import type { Prisma } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { getContactRepo, getOrganizationRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
+
+const CUSTOM_FIELD_RELATION: Record<EntityType, keyof Prisma.CustomFieldValueWhereInput> = {
+  [EntityType.contact]: "contact",
+  [EntityType.organization]: "organization",
+  [EntityType.deal]: "deal",
+  [EntityType.service]: "service",
+  [EntityType.task]: "task",
+};
 
 export class WidgetDataFetcher extends BaseRepository {
   async getEntityCount(entityType: EntityType, filters: Filter[] | undefined): Promise<number> {
@@ -22,6 +30,150 @@ export class WidgetDataFetcher extends BaseRepository {
         return await getServiceRepo().getCount({ filters });
       case EntityType.task:
         return await getTaskRepo().getCount({ filters });
+    }
+  }
+
+  private async entityWhere(entityType: EntityType, filters: Filter[] | undefined): Promise<Record<string, unknown>> {
+    switch (entityType) {
+      case EntityType.contact:
+        return (await getContactRepo().buildQueryArgs({ filters }, this.accessWhere("contact"))).where;
+      case EntityType.organization:
+        return (await getOrganizationRepo().buildQueryArgs({ filters }, this.accessWhere("organization"))).where;
+      case EntityType.deal:
+        return (await getDealRepo().buildQueryArgs({ filters }, this.accessWhere("deal"))).where;
+      case EntityType.service:
+        return (await getServiceRepo().buildQueryArgs({ filters }, this.accessWhere("service"))).where;
+      case EntityType.task:
+        return (await getTaskRepo().buildQueryArgs({ filters }, this.accessWhere("task"))).where;
+    }
+  }
+
+  // Bounded deal where: deal access + dealFilters, AND-ed with an EXISTS-style relation filter on the
+  // entity-filtered relation. No fetch-all-entities prefetch and no IN(all-ids).
+  private async boundedDealWhere(widget: ExtendedWidget): Promise<Prisma.DealWhereInput> {
+    const { companyId } = this;
+    const dealWhere = (await getDealRepo().buildQueryArgs({ filters: widget.dealFilters }, this.accessWhere("deal")))
+      .where as Prisma.DealWhereInput;
+    const entityWhere = await this.entityWhere(widget.entityType, widget.entityFilters);
+
+    switch (widget.entityType) {
+      case EntityType.contact:
+        return { companyId, AND: [dealWhere, { contacts: { some: { contact: entityWhere } } }] };
+      case EntityType.organization:
+        return { companyId, AND: [dealWhere, { organizations: { some: { organization: entityWhere } } }] };
+      case EntityType.service:
+        return { companyId, AND: [dealWhere, { services: { some: { service: entityWhere } } }] };
+      case EntityType.deal:
+        return { companyId, AND: [dealWhere, entityWhere as Prisma.DealWhereInput] };
+      case EntityType.task:
+        return { companyId, id: { in: [] } };
+    }
+  }
+
+  async sumDealField(widget: ExtendedWidget, field: "totalValue" | "totalQuantity"): Promise<number> {
+    const where = await this.boundedDealWhere(widget);
+    const result = await this.prisma.deal.aggregate({ where, _sum: { totalValue: true, totalQuantity: true } });
+    return (field === "totalValue" ? result._sum.totalValue : result._sum.totalQuantity) ?? 0;
+  }
+
+  async getDealsForEntityType(widget: ExtendedWidget): Promise<DealRecord[]> {
+    const { entityType } = widget;
+    if (entityType === EntityType.task) return [];
+
+    const where = await this.boundedDealWhere(widget);
+    const entityWhere = await this.entityWhere(entityType, widget.entityFilters);
+
+    const select: Prisma.DealSelect = { id: true, name: true, totalValue: true, totalQuantity: true };
+
+    if (entityType === EntityType.contact) {
+      select.contacts = {
+        where: { contact: entityWhere as Prisma.ContactWhereInput },
+        select: { contact: { select: { id: true, firstName: true, lastName: true } } },
+      };
+    }
+
+    if (entityType === EntityType.organization) {
+      select.organizations = {
+        where: { organization: entityWhere as Prisma.OrganizationWhereInput },
+        select: { organization: { select: { id: true, name: true } } },
+      };
+    }
+
+    if (entityType === EntityType.service) {
+      select.services = {
+        where: { service: entityWhere as Prisma.ServiceWhereInput },
+        select: { quantity: true, service: { select: { id: true, name: true, amount: true } } },
+      };
+    }
+
+    const res = (await this.prisma.deal.findMany({ where, select } as Prisma.DealFindManyArgs)) as Array<
+      Record<string, unknown>
+    >;
+
+    return res.map((deal) => ({
+      id: deal.id as string,
+      name: deal.name as string,
+      totalValue: deal.totalValue as number,
+      totalQuantity: deal.totalQuantity as number,
+      contacts: deal.contacts as DealRecord["contacts"],
+      organizations: deal.organizations as DealRecord["organizations"],
+      services: deal.services as DealRecord["services"],
+    }));
+  }
+
+  // Bounded: aggregate CustomFieldValue rows grouped by value (one row per option), plus a single count
+  // for entities that have no value for this column ("No Group"). No fetch-all-entities.
+  async countByCustomColumn(
+    entityType: EntityType,
+    filters: Filter[] | undefined,
+    columnId: string,
+  ): Promise<Array<{ value: string | null; count: number }>> {
+    const entityWhere = await this.entityWhere(entityType, filters);
+    const relation = CUSTOM_FIELD_RELATION[entityType];
+
+    const grouped = await this.prisma.customFieldValue.groupBy({
+      by: ["value"],
+      where: {
+        companyId: this.companyId,
+        columnId,
+        entityType,
+        [relation]: entityWhere,
+      } as Prisma.CustomFieldValueWhereInput,
+      _count: { _all: true },
+    });
+
+    const noValueCount = await this.countEntitiesWithoutColumn(entityType, entityWhere, columnId);
+
+    const result = grouped.map((g) => ({ value: g.value, count: g._count._all }));
+    if (noValueCount > 0) result.push({ value: null, count: noValueCount });
+
+    return result;
+  }
+
+  private async countEntitiesWithoutColumn(
+    entityType: EntityType,
+    entityWhere: Record<string, unknown>,
+    columnId: string,
+  ): Promise<number> {
+    const customFieldValues = { none: { columnId } };
+
+    switch (entityType) {
+      case EntityType.contact:
+        return this.prisma.contact.count({
+          where: { ...(entityWhere as Prisma.ContactWhereInput), customFieldValues },
+        });
+      case EntityType.organization:
+        return this.prisma.organization.count({
+          where: { ...(entityWhere as Prisma.OrganizationWhereInput), customFieldValues },
+        });
+      case EntityType.deal:
+        return this.prisma.deal.count({ where: { ...(entityWhere as Prisma.DealWhereInput), customFieldValues } });
+      case EntityType.service:
+        return this.prisma.service.count({
+          where: { ...(entityWhere as Prisma.ServiceWhereInput), customFieldValues },
+        });
+      case EntityType.task:
+        return this.prisma.task.count({ where: { ...(entityWhere as Prisma.TaskWhereInput), customFieldValues } });
     }
   }
 
@@ -50,209 +202,35 @@ export class WidgetDataFetcher extends BaseRepository {
     }
   }
 
-  async getDealsForEntityType(widget: ExtendedWidget): Promise<DealRecord[]> {
-    const { entityType, entityFilters, dealFilters } = widget;
-
-    const baseWhere = this.accessWhere("deal");
-    const where: Prisma.DealWhereInput = { ...baseWhere };
-
-    if (dealFilters && dealFilters.length > 0) {
-      const dealFilterArgs = await getDealRepo().buildQueryArgs({ filters: dealFilters }, baseWhere);
-      Object.assign(where, dealFilterArgs.where);
-    }
-
-    const needsContacts = entityType === EntityType.contact;
-    const needsOrganizations = entityType === EntityType.organization;
-    const needsServices = entityType === EntityType.service;
-
-    switch (entityType) {
-      case EntityType.contact: {
-        const contacts = await this.getContacts(entityFilters);
-        const entityIds = contacts.map((c) => c.id);
-        where.contacts = {
-          some: {
-            contactId: { in: entityIds },
-            contact: this.accessWhere("contact"),
-          },
-        };
-        break;
-      }
-
-      case EntityType.organization: {
-        const organizations = await this.getOrganizations(entityFilters);
-        const entityIds = organizations.map((o) => o.id);
-        where.organizations = {
-          some: {
-            organizationId: { in: entityIds },
-            organization: this.accessWhere("organization"),
-          },
-        };
-        break;
-      }
-
-      case EntityType.deal: {
-        const deals = await this.getDealsList(entityFilters);
-        const entityIds = deals.map((d) => d.id);
-        where.id = { in: entityIds };
-        break;
-      }
-
-      case EntityType.service: {
-        const services = await this.getServices(entityFilters);
-        const entityIds = services.map((s) => s.id);
-        where.services = {
-          some: {
-            serviceId: { in: entityIds },
-            service: this.accessWhere("service"),
-          },
-        };
-        break;
-      }
-
-      case EntityType.task: {
-        return [];
-      }
-    }
-
-    const select: Prisma.DealSelect = {
-      id: true,
-      name: true,
-      totalValue: true,
-      totalQuantity: true,
-    };
-
-    if (needsContacts) {
-      select.contacts = {
-        where: { contact: this.accessWhere("contact") },
-        select: {
-          contact: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-      };
-    }
-
-    if (needsOrganizations) {
-      select.organizations = {
-        where: { organization: this.accessWhere("organization") },
-        select: {
-          organization: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      };
-    }
-
-    if (needsServices) {
-      select.services = {
-        where: { service: this.accessWhere("service") },
-        select: {
-          quantity: true,
-          service: {
-            select: {
-              id: true,
-              name: true,
-              amount: true,
-            },
-          },
-        },
-      };
-    }
-
-    const res = await this.prisma.deal.findMany({
-      where,
-      select,
-    });
-
-    return res.map((deal) => {
-      const record: DealRecord = {
-        id: deal.id,
-        name: deal.name,
-        totalValue: deal.totalValue,
-        totalQuantity: deal.totalQuantity,
-      };
-
-      if (needsContacts && "contacts" in deal) record.contacts = deal.contacts as unknown as DealRecord["contacts"];
-
-      if (needsOrganizations && "organizations" in deal)
-        record.organizations = deal.organizations as unknown as DealRecord["organizations"];
-
-      if (needsServices && "services" in deal) record.services = deal.services as unknown as DealRecord["services"];
-
-      return record;
-    });
-  }
-
-  async getContacts(filters: Filter[] | undefined) {
-    const params: GetQueryParams = { filters };
-    const { where, orderBy } = await getContactRepo().buildQueryArgs(params, this.accessWhere("contact"));
+  private async getContacts(filters: Filter[] | undefined) {
+    const { where, orderBy } = await getContactRepo().buildQueryArgs({ filters }, this.accessWhere("contact"));
     return await this.prisma.contact.findMany({
       where,
       orderBy,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
+      select: { id: true, firstName: true, lastName: true },
     });
   }
 
-  async getOrganizations(filters: Filter[] | undefined) {
-    const params: GetQueryParams = { filters };
-    const { where, orderBy } = await getOrganizationRepo().buildQueryArgs(params, this.accessWhere("organization"));
-    return await this.prisma.organization.findMany({
-      where,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+  private async getOrganizations(filters: Filter[] | undefined) {
+    const { where, orderBy } = await getOrganizationRepo().buildQueryArgs(
+      { filters },
+      this.accessWhere("organization"),
+    );
+    return await this.prisma.organization.findMany({ where, orderBy, select: { id: true, name: true } });
   }
 
-  async getDealsList(filters: Filter[] | undefined) {
-    const params: GetQueryParams = { filters };
-    const { where, orderBy } = await getDealRepo().buildQueryArgs(params, this.accessWhere("deal"));
-    return await this.prisma.deal.findMany({
-      where,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+  private async getDealsList(filters: Filter[] | undefined) {
+    const { where, orderBy } = await getDealRepo().buildQueryArgs({ filters }, this.accessWhere("deal"));
+    return await this.prisma.deal.findMany({ where, orderBy, select: { id: true, name: true } });
   }
 
-  async getServices(filters: Filter[] | undefined) {
-    const params: GetQueryParams = { filters };
-    const { where, orderBy } = await getServiceRepo().buildQueryArgs(params, this.accessWhere("service"));
-    return await this.prisma.service.findMany({
-      where,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+  private async getServices(filters: Filter[] | undefined) {
+    const { where, orderBy } = await getServiceRepo().buildQueryArgs({ filters }, this.accessWhere("service"));
+    return await this.prisma.service.findMany({ where, orderBy, select: { id: true, name: true } });
   }
 
-  async getTasks(filters: Filter[] | undefined) {
-    const params: GetQueryParams = { filters };
-    const { where, orderBy } = await getTaskRepo().buildQueryArgs(params, this.accessWhere("task"));
-    return await this.prisma.task.findMany({
-      where,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+  private async getTasks(filters: Filter[] | undefined) {
+    const { where, orderBy } = await getTaskRepo().buildQueryArgs({ filters }, this.accessWhere("task"));
+    return await this.prisma.task.findMany({ where, orderBy, select: { id: true, name: true } });
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
@@ -7,8 +8,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 
-import { isCustomField, isStandaloneOperator } from "@/components/data-view/table-view.utils";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { isCustomField } from "@/components/data-view/table-view.utils";
+import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   type FilterSelectItem,
@@ -22,7 +23,7 @@ export function getFilterLabel(
 ) {
   if (isCustomField(filter.field)) return customColumns?.find((col) => col.id === filter.field)?.label ?? filter.field;
 
-  return t(`filters.fields.${filter.field.replace(/\./g, "_")}`);
+  return t(`Common.filters.fields.${filter.field.replace(/\./g, "_")}`);
 }
 
 function normalizeValues(value: unknown): string[] {
@@ -31,38 +32,78 @@ function normalizeValues(value: unknown): string[] {
   return [String(value)];
 }
 
-function findLabelForValue(value: string, items: FilterSelectItem[]) {
-  return items.find((it) => it.value === value || it.key === value)?.textValue ?? value;
+function findLabelForValue(value: string, items: FilterSelectItem[]): string | undefined {
+  return items.find((it) => it.value === value || it.key === value)?.textValue;
 }
 
-export const FilterChipValue = observer(function FilterChipValue({
-  filter,
-  customColumns,
-}: {
-  filter: Filter;
-  customColumns: CustomColumnDto[] | undefined;
-}) {
-  const t = useTranslations("Common.filters");
-  const { items, isLoading } = useFilterSelectItems(filter, customColumns);
-  const { intlStore } = useRootStore();
+export const FilterChipValue = observer(
+  ({
+    filter,
+    customColumns,
+    label,
+    operator,
+  }: {
+    filter: Filter;
+    customColumns: CustomColumnDto[] | undefined;
+    label?: ReactNode;
+    operator?: ReactNode;
+  }) => {
+    const t = useTranslations();
+    const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
+    const { intlStore } = useRootStore();
 
-  if (isStandaloneOperator(filter.operator)) return null;
-  if (isLoading) return <span className="opacity-70">…</span>;
+    const prefix = (
+      <>
+        <span className="font-medium">{label}</span>
 
-  if (filter.operator === FilterOperatorKey.inLastDays) {
-    const count = Number("value" in filter ? filter.value : 0) || 0;
-    return <>{t("daysPreset", { count })}</>;
-  }
+        <span className="mx-1 font-normal">{operator}</span>
+      </>
+    );
 
-  const values = normalizeValues("value" in filter ? filter.value : undefined);
-  const labels = values.map((value) => {
-    const dateParse = z.iso.datetime().safeParse(value);
-    if (dateParse.success) {
-      const normalized = dateParse.data.endsWith("Z") ? dateParse.data.slice(0, -1) : dateParse.data;
-      return intlStore.formatNumericalShortDate(new Date(normalized));
+    if (isStandaloneOperator(filter.operator)) return prefix;
+    if (isLoading) {
+      return (
+        <>
+          {prefix}
+
+          <span className="opacity-70">…</span>
+        </>
+      );
     }
-    return findLabelForValue(value, items);
-  });
 
-  return <>{labels.join(", ")}</>;
-});
+    if (filter.operator === FilterOperatorKey.inLastDays) {
+      const count = Number("value" in filter ? filter.value : 0) || 0;
+      return (
+        <>
+          {prefix}
+
+          {t("Common.filters.daysPreset", { count })}
+        </>
+      );
+    }
+
+    const resolvesLabels = Boolean(getItems) || items.length > 0;
+    const values = normalizeValues("value" in filter ? filter.value : undefined);
+    const unavailable = t("Common.filters.unavailableValue");
+    const labels = values.map((value) => {
+      const dateParse = z.iso.datetime().safeParse(value);
+      if (dateParse.success) {
+        const normalized = dateParse.data.endsWith("Z") ? dateParse.data.slice(0, -1) : dateParse.data;
+        return intlStore.formatNumericalShortDate(new Date(normalized));
+      }
+      const resolved = findLabelForValue(value, items);
+      if (resolved !== undefined) return resolved;
+      return resolvesLabels ? unavailable : value;
+    });
+
+    if (values.length > 0 && labels.every((value) => value === unavailable)) return <>{unavailable}</>;
+
+    return (
+      <>
+        {prefix}
+
+        {labels.join(", ")}
+      </>
+    );
+  },
+);

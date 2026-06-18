@@ -1,11 +1,12 @@
 import type { DomainEvent, DomainEventMap } from "./domain-events";
-import type { BaseTaskListener } from "@/features/tasks/listener/base-task.listener";
+import type { DomainEventListener } from "./domain-event.listener";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
-import { IS_DEVELOPMENT } from "@/constants/env";
+import { env } from "@/env";
 
 export abstract class GetWebhooksForEventRepo {
   abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
@@ -33,10 +34,11 @@ function isNoOpUpdate(data: { payload: unknown }): boolean {
 
 export class EventService extends UserAccessor {
   constructor(
-    private readonly taskListeners: BaseTaskListener[],
+    private readonly eventListeners: DomainEventListener[],
     private webhookRepo: GetWebhooksForEventRepo,
     private webhookDeliveryRepo: CreateWebhookDeliveryRepo,
     private auditLogRepo: CreateAuditLogRepo,
+    private backgroundTaskService: BackgroundTaskService,
   ) {
     super();
   }
@@ -49,7 +51,7 @@ export class EventService extends UserAccessor {
 
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
 
-    const matchingListeners = this.taskListeners.filter((l) => l.handles(event));
+    const matchingListeners = this.eventListeners.filter((l) => l.handles(event));
 
     const [, , webhookDeliveries] = await Promise.all([
       Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
@@ -66,7 +68,7 @@ export class EventService extends UserAccessor {
   }
 
   private logAndReturn(result: PublishResult): PublishResult {
-    if (IS_DEVELOPMENT) {
+    if (env.NODE_ENV !== "production") {
       const { event, skipped, listenerHandlers, webhookDeliveries } = result;
       const suffix = skipped ? ` skipped=${skipped}` : ` listeners=${listenerHandlers} webhooks=${webhookDeliveries}`;
       // eslint-disable-next-line no-console
@@ -84,12 +86,13 @@ export class EventService extends UserAccessor {
   }
 
   private async createWebhookDeliveries(event: DomainEvent, payload: DomainEventMap[DomainEvent]): Promise<number> {
-    if (!(WebhookEventSchema.options as readonly string[]).includes(event)) return 0;
+    if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
 
     const webhooks = await this.webhookRepo.getWebhooksForEvent(event);
 
     if (webhooks.length === 0) return 0;
 
+    const { companyId } = this.user;
     const body = {
       event,
       data: payload,
@@ -102,7 +105,19 @@ export class EventService extends UserAccessor {
       requestBody: body as Record<string, unknown>,
     }));
 
-    await this.webhookDeliveryRepo.create(data);
+    const ids = await this.webhookDeliveryRepo.create(data);
+
+    await Promise.all(
+      ids.map((deliveryId, idx) =>
+        this.backgroundTaskService.dispatch("deliver-webhook", {
+          deliveryId,
+          url: webhooks[idx].url,
+          companyId,
+          requestBody: body as Record<string, unknown>,
+        }),
+      ),
+    );
+
     return webhooks.length;
   }
 }

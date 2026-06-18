@@ -3,7 +3,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -11,25 +10,35 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
 import { validateNotes } from "../../../core/validation/validate-notes";
-import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
-import { validateContactIds } from "../validate-contact-ids";
+import {
+  validateContactIds,
+  validateDealIds,
+  validateOrganizationIds,
+  validateUserIds,
+  validateTaskIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseUpdateContactSchema } from "./update-contact-base.schema";
+import {
+  type ContactIdentifiers,
+  collectIdentifierPairs,
+  validateIdentifierConflicts,
+  validateIdentifiers,
+} from "./validate-identifiers";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 import {
-  getCompanyRepo,
+  getUserRepo,
+  getUserService,
   getContactRepo,
   getCustomColumnRepo,
   getDealRepo,
@@ -47,49 +56,67 @@ export const UpdateManyContactsSchema = z
     const dealSet = new Set<string>();
     const contactSet = new Set<string>();
     const taskSet = new Set<string>();
+    const identifierContacts: ContactIdentifiers[] = [];
 
-    for (const contact of data.contacts) {
+    for (let i = 0; i < data.contacts.length; i++) {
+      const contact = data.contacts[i];
       contactSet.add(contact.id);
       contact.organizationIds?.forEach((id) => organizationSet.add(id));
       contact.userIds?.forEach((id) => userSet.add(id));
       contact.dealIds?.forEach((id) => dealSet.add(id));
       contact.taskIds?.forEach((id) => taskSet.add(id));
+      validateIdentifiers(contact.identifiers, ctx, ["contacts", i, "identifiers"]);
+      identifierContacts.push({ selfContactId: contact.id, identifiers: contact.identifiers });
     }
 
-    const [validOrgIdsSet, validUserIdsSet, validDealIdsSet, validContactIdsSet, validTaskIdsSet, allColumns] =
-      await Promise.all([
-        getOrganizationRepo().findIds(organizationSet),
-        getCompanyRepo().findIds(userSet),
-        getDealRepo().findIds(dealSet),
-        getContactRepo().findIds(contactSet),
-        getTaskRepo().findIds(taskSet),
-        getCustomColumnRepo().findByEntityType(EntityType.contact),
-      ]);
+    const [
+      validOrgIdsSet,
+      validUserIdsSet,
+      validDealIdsSet,
+      validContactIdsSet,
+      validTaskIdsSet,
+      allColumns,
+      currentUser,
+      canReadAll,
+      identifierOwners,
+    ] = await Promise.all([
+      getOrganizationRepo().findIds(organizationSet),
+      getUserRepo().findIds(userSet),
+      getDealRepo().findIds(dealSet),
+      getContactRepo().findIds(contactSet),
+      getTaskRepo().findIds(taskSet),
+      getCustomColumnRepo().findByEntityType(EntityType.contact),
+      getUserService().getActiveUserOrThrow(),
+      getUserService().hasPermission(Resource.contacts, Action.readAll),
+      getContactRepo().findIdentifierOwners(collectIdentifierPairs(identifierContacts)),
+    ]);
 
     for (let i = 0; i < data.contacts.length; i++) {
       const contact = data.contacts[i];
       validateContactIds(contact.id, validContactIdsSet, ctx, ["contacts", i, "id"]);
       validateOrganizationIds(contact.organizationIds, validOrgIdsSet, ctx, ["contacts", i, "organizationIds"]);
       validateUserIds(contact.userIds, validUserIdsSet, ctx, ["contacts", i, "userIds"]);
+      validateAssigneeGuard(contact.userIds, currentUser.id, canReadAll, ctx, ["contacts", i, "userIds"]);
       validateDealIds(contact.dealIds, validDealIdsSet, ctx, ["contacts", i, "dealIds"]);
       validateTaskIds(contact.taskIds, validTaskIdsSet, ctx, ["contacts", i, "taskIds"]);
       validateCustomFieldValues(contact.customFieldValues, allColumns, ctx, ["contacts", i, "customFieldValues"]);
       contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
     }
+
+    validateIdentifierConflicts(identifierContacts, identifierOwners, ctx, (i) => ["contacts", i, "identifiers"]);
   });
 export type UpdateManyContactsData = Data<typeof UpdateManyContactsSchema>;
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.contacts,
   action: Action.update,
 })
-export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyContactsData, ContactDto[]> {
+export class UpdateManyContactsInteractor extends AuthenticatedInteractor<UpdateManyContactsData, ContactDto[]> {
   constructor(
     private contactsRepo: UpdateContactRepo,
     private organizationsRepo: GetUnscopedOrganizationRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -174,7 +201,6 @@ export class UpdateManyContactsInteractor extends BaseInteractor<UpdateManyConta
           },
         });
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: contacts };

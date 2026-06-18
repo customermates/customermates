@@ -198,17 +198,6 @@ export class WidgetGroupingService extends BaseRepository {
     }
   }
 
-  private buildOptionsMap(customColumn: {
-    type: "singleSelect";
-    options: { options: Array<{ value: string; label: string; color: ChipColor }> };
-  }) {
-    const map = new Map<string, { label: string; color: ChipColor }>();
-    customColumn.options.options.forEach((opt) => {
-      if (opt.value && opt.label) map.set(opt.value, { label: opt.label, color: opt.color });
-    });
-    return map;
-  }
-
   private accumulateCustomColumnValues(
     items: Array<{ id: string; value: number }>,
     valueById: Map<string, string>,
@@ -237,41 +226,44 @@ export class WidgetGroupingService extends BaseRepository {
     return Array.from(acc.values());
   }
 
-  async groupEntitiesByCustomColumn(
-    entityType: EntityType,
-    entities: EntityForGrouping[],
-    customColumnId: string,
-  ): Promise<DiagramDataPoint[]> {
-    const customColumn = await getCustomColumnRepo().find(customColumnId);
-
-    if (!customColumn || customColumn.type !== "singleSelect") return [];
-
+  buildCustomColumnPoints(
+    counts: Array<{ value: string | null; count: number }>,
+    customColumn: {
+      type: "singleSelect";
+      options: { options: Array<{ value: string; label: string; color: ChipColor }> };
+    },
+  ): DiagramDataPoint[] {
     const optionsMap = this.buildOptionsMap(customColumn);
-
-    const entityIds = entities.map((e) => e.id);
-    const valueByEntityId = await getCustomColumnRepo().findCustomFieldValuesMap(customColumnId, entityType, entityIds);
-
     const acc: GroupAccumulator = new Map();
 
-    for (const entity of entities) {
-      const customValueId = valueByEntityId.get(entity.id);
-      if (!customValueId) {
+    for (const { value, count } of counts) {
+      if (!value) {
         const existing = acc.get("no-group");
-        acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + 1 });
+        acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + count });
         continue;
       }
 
-      const option = optionsMap.get(customValueId);
-      const label = option?.label ?? customValueId;
-      const existing = acc.get(customValueId);
-      acc.set(customValueId, {
-        label,
-        value: (existing?.value ?? 0) + 1,
+      const option = optionsMap.get(value);
+      const existing = acc.get(value);
+      acc.set(value, {
+        label: option?.label ?? value,
+        value: (existing?.value ?? 0) + count,
         optionColor: option?.color,
       });
     }
 
     return Array.from(acc.values());
+  }
+
+  private buildOptionsMap(customColumn: {
+    type: "singleSelect";
+    options: { options: Array<{ value: string; label: string; color: ChipColor }> };
+  }): Map<string, { label: string; color: ChipColor }> {
+    const map = new Map<string, { label: string; color: ChipColor }>();
+    customColumn.options.options.forEach((opt) => {
+      if (opt.value && opt.label) map.set(opt.value, { label: opt.label, color: opt.color });
+    });
+    return map;
   }
 
   groupEntitiesByEntityType(entities: EntityForGrouping[], entityType: EntityType): DiagramDataPoint[] {

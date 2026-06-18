@@ -1,7 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { WebhookDeliveryDto } from "@/features/webhook/get-webhook-deliveries.interactor";
 
-import { makeObservable, action } from "mobx";
+import { makeObservable, action, observable } from "mobx";
 import { Resource, WebhookDeliveryStatus } from "@/generated/prisma";
 
 import { resendWebhookDeliveryAction } from "../../actions";
@@ -12,7 +12,7 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto> {
   public isResending = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -35,7 +35,7 @@ export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto
     );
 
     makeObservable(this, {
-      isResending: true,
+      isResending: observable,
       resend: action,
     });
   }

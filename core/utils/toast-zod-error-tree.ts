@@ -3,9 +3,9 @@ import { toast } from "sonner";
 
 type ErrorNode = { errors?: string[]; properties?: Record<string, unknown>; items?: unknown[] };
 
-export type FlattenedError = { path: string; message: string };
+type FlattenedError = { path: string; message: string };
 
-export function flattenZodErrorTree(tree: unknown, prefix: string = ""): FlattenedError[] {
+function flattenZodErrorTree(tree: unknown, prefix: string = ""): FlattenedError[] {
   const out: FlattenedError[] = [];
   if (!tree || typeof tree !== "object") return out;
   const node = tree as ErrorNode;
@@ -29,7 +29,7 @@ export function flattenZodErrorTree(tree: unknown, prefix: string = ""): Flatten
   return out;
 }
 
-export function getZodErrorFieldLabel(path: string): string {
+function getZodErrorFieldLabel(path: string): string {
   if (!path) return "";
   const leaf =
     path

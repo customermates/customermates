@@ -3,23 +3,28 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { entityListExecutors, entityNameExtractors } from "./entity-list-executors";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const Schema = z.object({
-  searchTerm: z.string().min(1),
+  searchTerm: z.string().min(1).max(200),
 });
 
 export type GlobalSearchData = z.infer<typeof Schema>;
 
 export type GlobalSearchResultItem =
-  | { type: "contact"; id: string; name: string }
-  | { type: "organization"; id: string; name: string }
-  | { type: "deal"; id: string; name: string }
-  | { type: "service"; id: string; name: string };
+  | { type: "contact"; id: string; name: string; pictureUrl: string | null }
+  | {
+      type: "organization";
+      id: string;
+      name: string;
+      pictureUrl: string | null;
+    }
+  | { type: "deal"; id: string; name: string; pictureUrl: string | null }
+  | { type: "service"; id: string; name: string; pictureUrl: string | null };
 
 export type GlobalSearchResult = {
   results: GlobalSearchResultItem[];
@@ -31,6 +36,7 @@ const GlobalSearchResultSchema = z.object({
       type: z.enum(["contact", "organization", "deal", "service"]),
       id: z.string(),
       name: z.string(),
+      pictureUrl: z.string().nullable(),
     }),
   ),
 });
@@ -39,7 +45,7 @@ const UI_SEARCHABLE_ENTITIES = ["contact", "organization", "deal", "service"] as
 const UI_RESULTS_PER_ENTITY = 50;
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.contacts, action: Action.readAll },
     { resource: Resource.contacts, action: Action.readOwn },
@@ -52,7 +58,7 @@ const UI_RESULTS_PER_ENTITY = 50;
   ],
   condition: "OR",
 })
-export class GlobalSearchInteractor extends BaseInteractor<GlobalSearchData, GlobalSearchResult> {
+export class GlobalSearchInteractor extends AuthenticatedInteractor<GlobalSearchData, GlobalSearchResult> {
   @Enforce(Schema)
   @ValidateOutput(GlobalSearchResultSchema)
   async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {
@@ -66,11 +72,18 @@ export class GlobalSearchInteractor extends BaseInteractor<GlobalSearchData, Glo
         });
         if (!result.ok) return [];
         const items: any[] = result.data?.items ?? [];
-        return items.slice(0, UI_RESULTS_PER_ENTITY).map((item) => ({
-          type: entity,
-          id: item.id,
-          name: entityNameExtractors[entity](item),
-        })) as GlobalSearchResultItem[];
+        return items.slice(0, UI_RESULTS_PER_ENTITY).map((item) => {
+          const identifiers: any[] = entity === "contact" && Array.isArray(item.identifiers) ? item.identifiers : [];
+          const pictureUrl =
+            identifiers.map((i) => (typeof i?.pictureUrl === "string" ? i.pictureUrl.trim() : "")).find(Boolean) ??
+            null;
+          return {
+            type: entity,
+            id: item.id,
+            name: entityNameExtractors[entity](item),
+            pictureUrl,
+          };
+        }) as GlobalSearchResultItem[];
       }),
     );
 

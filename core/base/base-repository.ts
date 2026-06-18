@@ -5,13 +5,14 @@ import { Resource, Action } from "@/generated/prisma";
 
 import type { Prisma, EntityType } from "@/generated/prisma";
 
-import { getTransactionClient } from "../decorators/transaction-context";
+import { getTransactionClient, transactionStorage } from "../decorators/transaction-context";
+import { runInTransaction } from "../decorators/transaction-runner";
 import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-context";
 
 import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
 
-type ModelWhereInputMap = {
+export type ModelWhereInputMap = {
   contact: Prisma.ContactWhereInput;
   organization: Prisma.OrganizationWhereInput;
   user: Prisma.UserWhereInput;
@@ -33,6 +34,14 @@ export abstract class BaseRepository<
     return getTenantUser();
   }
 
+  public get companyId(): string {
+    return this.user.companyId;
+  }
+
+  public get userId(): string {
+    return this.user.id;
+  }
+
   protected accessWhere<R extends keyof ModelWhereInputMap>(resource: R): ModelWhereInputMap[R] {
     const modelToResourceMap: Record<keyof ModelWhereInputMap, Resource> = {
       contact: Resource.contacts,
@@ -48,11 +57,11 @@ export abstract class BaseRepository<
     const canReadAll = this.hasPermission(permissionResource, Action.readAll);
     const canReadOwn = this.hasPermission(permissionResource, Action.readOwn);
 
-    if (canReadAll) return { companyId: this.user.companyId };
+    if (canReadAll) return { companyId: this.companyId };
 
-    if (canReadOwn) return this.resourceOwnWhereMap[resource](this.user.companyId, this.user.id);
+    if (canReadOwn) return this.resourceOwnWhereMap[resource](this.companyId, this.userId);
 
-    return { id: { in: [] }, companyId: this.user.companyId };
+    return { id: { in: [] }, companyId: this.companyId };
   }
 
   protected hasPermission = (resource: Resource, action: Action): boolean => {
@@ -67,14 +76,37 @@ export abstract class BaseRepository<
     return this.hasPermission(resource, Action.readAll) || this.hasPermission(resource, Action.readOwn);
   };
 
+  protected dateRange(before?: Date) {
+    return before ? { lt: before } : undefined;
+  }
+
+  protected async runAfterCommit(fn: () => Promise<void>): Promise<void> {
+    const store = transactionStorage.getStore();
+    if (store) store.afterCommit.push(fn);
+    else await fn();
+  }
+
+  protected async withCompanyTransaction<T>(companyId: string, fn: () => Promise<T>): Promise<T> {
+    return runInTransaction(fn, { companyId });
+  }
+
   private readonly resourceOwnWhereMap: {
     [K in keyof ModelWhereInputMap]: (companyId: string, userId: string) => ModelWhereInputMap[K];
   } = {
-    contact: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
-    organization: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
+    contact: (companyId, userId) => ({
+      companyId,
+      users: { some: { userId } },
+    }),
+    organization: (companyId, userId) => ({
+      companyId,
+      users: { some: { userId } },
+    }),
     user: (companyId, userId) => ({ id: userId, companyId }),
     deal: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
-    service: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
+    service: (companyId, userId) => ({
+      companyId,
+      users: { some: { userId } },
+    }),
     task: (companyId, userId) => ({ companyId, users: { some: { userId } } }),
   };
 
@@ -98,12 +130,18 @@ export abstract class BaseRepository<
         select: {
           id: true,
           customFieldValues: {
-            where: { columnId: args.customSort.columnId, entityType: opts.model as EntityType },
+            where: {
+              columnId: args.customSort.columnId,
+              entityType: opts.model as EntityType,
+            },
             select: { value: true },
             take: 1,
           },
         },
-      })) as unknown as Array<{ id: string; customFieldValues: Array<{ value: string | null }> }>;
+      })) as unknown as Array<{
+        id: string;
+        customFieldValues: Array<{ value: string | null }>;
+      }>;
 
       const { direction, columnType } = args.customSort;
       candidates.sort((a, b) =>
@@ -135,4 +173,4 @@ export abstract class BaseRepository<
   }
 }
 
-type ListableModel = "deal" | "contact" | "organization" | "service" | "task";
+type ListableModel = "deal" | "contact" | "organization" | "service" | "task" | "messagingThread";

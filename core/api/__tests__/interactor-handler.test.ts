@@ -11,15 +11,9 @@ vi.mock("next/server", () => ({
 
 import { handleError } from "../interactor-handler";
 
-import { AppError, AuthError, ForbiddenError, DemoModeError, NotFoundError } from "@/core/errors/app-errors";
+import { AuthError, ForbiddenError, DemoModeError } from "@/core/errors/app-errors";
 
 describe("handleError", () => {
-  it("returns a response with 500 for a generic AppError", () => {
-    const result = handleError(new AppError("Server error", 500)) as any;
-    expect(result.body).toBe("Server error");
-    expect(result.status).toBe(500);
-  });
-
   it("returns 401 for AuthError", () => {
     const result = handleError(new AuthError()) as any;
     expect(result.body).toBe("Not authenticated");
@@ -35,18 +29,6 @@ describe("handleError", () => {
   it("returns 403 for DemoModeError", () => {
     const result = handleError(new DemoModeError()) as any;
     expect(result.status).toBe(403);
-  });
-
-  it("returns 404 for NotFoundError", () => {
-    const result = handleError(new NotFoundError()) as any;
-    expect(result.body).toBe("Not found");
-    expect(result.status).toBe(404);
-  });
-
-  it("returns custom status code for AppError", () => {
-    const result = handleError(new AppError("Bad request", 400)) as any;
-    expect(result.body).toBe("Bad request");
-    expect(result.status).toBe(400);
   });
 
   it("re-throws a regular Error", () => {

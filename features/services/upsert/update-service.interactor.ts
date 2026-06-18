@@ -2,30 +2,32 @@ import type { UpdateServiceRepo } from "./update-service.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { validateServiceIds } from "../../../core/validation/validate-service-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
+import {
+  validateUserIds,
+  validateDealIds,
+  validateServiceIds,
+  validateTaskIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseUpdateServiceSchema } from "./update-service-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
-import { getCompanyRepo, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
+import { getUserRepo, getUserService, getCustomColumnRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
 
 export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (data, ctx) => {
   const userSet = new Set(data.userIds ?? []);
@@ -33,16 +35,20 @@ export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (da
   const serviceSet = new Set([data.id]);
   const taskSet = new Set(data.taskIds ?? []);
 
-  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns] = await Promise.all([
-    getCompanyRepo().findIds(userSet),
-    getDealRepo().findIds(dealSet),
-    getServiceRepo().findIds(serviceSet),
-    getTaskRepo().findIds(taskSet),
-    getCustomColumnRepo().findByEntityType(EntityType.service),
-  ]);
+  const [validUserIdsSet, validDealIdsSet, validServiceIdsSet, validTaskIdsSet, allColumns, currentUser, canReadAll] =
+    await Promise.all([
+      getUserRepo().findIds(userSet),
+      getDealRepo().findIds(dealSet),
+      getServiceRepo().findIds(serviceSet),
+      getTaskRepo().findIds(taskSet),
+      getCustomColumnRepo().findByEntityType(EntityType.service),
+      getUserService().getActiveUserOrThrow(),
+      getUserService().hasPermission(Resource.services, Action.readAll),
+    ]);
 
   validateServiceIds(data.id, validServiceIdsSet, ctx, ["id"]);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
+  validateAssigneeGuard(data.userIds, currentUser.id, canReadAll, ctx, ["userIds"]);
   validateDealIds(data.dealIds, validDealIdsSet, ctx, ["dealIds"]);
   validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
   validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
@@ -50,17 +56,16 @@ export const UpdateServiceSchema = BaseUpdateServiceSchema.superRefine(async (da
 });
 export type UpdateServiceData = Data<typeof UpdateServiceSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.services,
   action: Action.update,
 })
-export class UpdateServiceInteractor extends BaseInteractor<UpdateServiceData, ServiceDto> {
+export class UpdateServiceInteractor extends AuthenticatedInteractor<UpdateServiceData, ServiceDto> {
   constructor(
     private servicesRepo: UpdateServiceRepo,
     private dealsRepo: GetUnscopedDealRepo,
     private tasksRepo: GetUnscopedTaskRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -122,7 +127,6 @@ export class UpdateServiceInteractor extends BaseInteractor<UpdateServiceData, S
         entityId: service.id,
         payload: { service, changes },
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: service };

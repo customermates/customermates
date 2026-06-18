@@ -3,11 +3,10 @@
 import { Check, Clipboard } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { copyToClipboard } from "@/lib/clipboard";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -16,16 +15,13 @@ type Props = {
 };
 
 export function CopyableCode({ value, className }: Props) {
-  const t = useTranslations("Common");
+  const t = useTranslations();
+  const copy = useCopyToClipboard();
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    const ok = await copyToClipboard(value);
-    if (!ok) {
-      toast.error(t("notifications.copyFailed"));
-      return;
-    }
-    toast.success(t("notifications.copiedToClipboard", { value }));
+    const ok = await copy(value);
+    if (!ok) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -37,7 +33,7 @@ export function CopyableCode({ value, className }: Props) {
       </pre>
 
       <Button
-        aria-label={t("actions.copy")}
+        aria-label={t("Common.actions.copy")}
         className="absolute right-1 top-1"
         size="icon-sm"
         type="button"

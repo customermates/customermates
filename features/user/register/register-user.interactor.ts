@@ -2,6 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ExtendedUser } from "../../user/user.service";
 import type { AuthService } from "../../auth/auth.service";
 import type { EventService } from "../../event/event.service";
+import type { Redirect } from "../../auth/auth-outcome";
 
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
@@ -15,7 +16,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { secureUrlSchema } from "@/core/validation/validation.utils";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { isRedirect } from "../../auth/auth-outcome";
 
 const Schema = z
   .object({
@@ -44,20 +45,21 @@ export abstract class RegisterUserRepo {
 }
 
 @SystemInteractor
-export class RegisterUserInteractor extends BaseInteractor<RegisterUserData, RegisterUserData> {
+export class RegisterUserInteractor {
   constructor(
     private authService: AuthService,
     private repo: RegisterUserRepo,
     private eventService: EventService,
-  ) {
-    super();
-  }
+  ) {}
 
   @Validate(Schema)
   @ValidateOutput(Schema)
   @Transaction
-  async invoke(data: RegisterUserData): Validated<RegisterUserData> {
-    const session = await this.authService.getSessionOrRedirect();
+  async invoke(data: RegisterUserData): Promise<Awaited<Validated<RegisterUserData>> | Redirect> {
+    const sessionResult = await this.authService.resolveSession();
+    if (isRedirect(sessionResult)) return sessionResult;
+    const session = sessionResult.session;
+
     const companyId = await this.repo.findCompanyId(session.user.id);
 
     const extendedUser = companyId

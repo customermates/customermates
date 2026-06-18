@@ -13,7 +13,7 @@ import { deleteCustomColumnAction, upsertCustomColumnAction } from "@/app/action
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       id: undefined,
       label: "",
@@ -82,7 +82,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
   };
 
   openWithColumn = (column: CustomColumnDto) => {
-    this.onInitOrRefresh(
+    this.openWith(
       this.createFormData({
         type: column.type,
         entityType: column.entityType,
@@ -106,7 +106,6 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
           column.type === CustomColumnType.dateTimeRange ? (column.options ?? undefined) : undefined,
       }),
     );
-    this.open();
   };
 
   changeType = (type: CustomColumnType) => {

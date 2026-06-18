@@ -1,13 +1,10 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { GetAuditLogsByEntityIdRepo } from "./get/get-audit-logs-by-entity-id.interactor";
 import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
 
 import type { Prisma } from "@/generated/prisma";
-
-import { type AuditLogDto } from "./get/get-audit-logs-by-entity-id.interactor";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { BaseRepository } from "@/core/base/base-repository";
@@ -17,7 +14,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
-  implements GetAuditLogsByEntityIdRepo, GetAuditLogsRepo, CreateAuditLogRepo
+  implements GetAuditLogsRepo, CreateAuditLogRepo
 {
   private get baseSelect() {
     return {
@@ -54,7 +51,7 @@ export class PrismaAuditLogRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const auditLogs = await this.prisma.auditLog.findMany({
       ...args,
@@ -62,28 +59,19 @@ export class PrismaAuditLogRepo
     });
 
     return auditLogs.map((log) => ({
-      id: log.id,
+      ...log,
       event: log.event as DomainEvent,
       eventData: log.eventData as DomainEventMap[DomainEvent],
-      createdAt: log.createdAt,
-      user: {
-        id: log.user.id,
-        firstName: log.user.firstName,
-        lastName: log.user.lastName,
-        avatarUrl: log.user.avatarUrl,
-        email: log.user.email,
-      },
-      entityId: log.entityId,
     }));
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     return this.prisma.auditLog.count({ where });
   }
 
-  async log(args: RepoArgs<CreateAuditLogRepo, "log">): Promise<void> {
+  async log(args: RepoArgs<CreateAuditLogRepo, "log">) {
     const { id: userId, companyId } = this.user;
 
     const data = { ...args, eventData: args.eventData as Prisma.InputJsonValue, userId, companyId };
@@ -96,33 +84,5 @@ export class PrismaAuditLogRepo
     }
 
     await this.prisma.auditLog.create({ data });
-  }
-
-  async getAuditLogsByEntityId(entityId: string): Promise<AuditLogDto[]> {
-    const auditLogs = await this.prisma.auditLog.findMany({
-      where: {
-        entityId,
-        companyId: this.user.companyId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: this.baseSelect,
-    });
-
-    return auditLogs.map((log) => ({
-      id: log.id,
-      event: log.event as DomainEvent,
-      eventData: log.eventData as DomainEventMap[DomainEvent],
-      createdAt: log.createdAt,
-      user: {
-        id: log.user.id,
-        firstName: log.user.firstName,
-        lastName: log.user.lastName,
-        avatarUrl: log.user.avatarUrl,
-        email: log.user.email,
-      },
-      entityId: log.entityId,
-    }));
   }
 }

@@ -4,11 +4,10 @@ import type { ComponentProps } from "react";
 
 import { useState } from "react";
 import { Clipboard, Check } from "lucide-react";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
-import { copyToClipboard } from "@/lib/clipboard";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 
 import { ClickableChip } from "./clickable-chip";
 
@@ -18,18 +17,15 @@ type Props = Omit<ComponentProps<typeof ClickableChip>, "onClick"> & {
 };
 
 export function CopyableChip({ value, onClick, children, ...props }: Props) {
-  const t = useTranslations("");
+  const t = useTranslations();
+  const copy = useCopyToClipboard();
   const [isHovered, setIsHovered] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   async function handleCopy() {
-    const ok = await copyToClipboard(value);
-    if (!ok) {
-      toast.error(t("Common.notifications.copyFailed"));
-      return;
-    }
+    const ok = await copy(value);
+    if (!ok) return;
     setIsCopied(true);
-    toast.success(t("Common.notifications.copiedToClipboard", { value }));
     setTimeout(() => setIsCopied(false), 2000);
   }
 

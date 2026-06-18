@@ -5,7 +5,6 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import { Mail, Phone } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -17,7 +16,7 @@ import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
 import { Icon } from "@/components/shared/icon";
 import { Favicon } from "@/components/shared/favicon";
-import { copyToClipboard } from "@/lib/clipboard";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { secureUrlSchema } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -36,22 +35,10 @@ function formStringToNumber(value: string | undefined): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export const CustomFieldEditor = observer(function CustomFieldEditor({
-  column,
-  value,
-  onChange,
-  id,
-  label,
-  hideLabel = false,
-}: Props) {
-  const t = useTranslations("");
+export const CustomFieldEditor = observer(({ column, value, onChange, id, label, hideLabel = false }: Props) => {
+  const t = useTranslations();
+  const copy = useCopyToClipboard();
   const { intlStore } = useRootStore();
-
-  async function handleCopy(val: string) {
-    const ok = await copyToClipboard(val);
-    if (ok) toast.success(t("Common.notifications.copiedToClipboard", { value: val }));
-    else toast.error(t("Common.notifications.copyFailed"));
-  }
 
   const inputId = `custom-field-editor-${column.id}`;
   const resolvedLabel = label === undefined ? column.label : label;
@@ -194,7 +181,7 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
           id={id ?? inputId}
           label={formLabel}
           value={value}
-          onChipClick={(val) => void handleCopy(val)}
+          onChipClick={(val) => void copy(val)}
           onValueChange={onChange}
         />
       );
@@ -207,7 +194,7 @@ export const CustomFieldEditor = observer(function CustomFieldEditor({
           id={id ?? inputId}
           label={formLabel}
           value={value}
-          onChipClick={(val) => void handleCopy(val)}
+          onChipClick={(val) => void copy(val)}
           onValueChange={onChange}
         />
       );

@@ -7,6 +7,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
+import { cn } from "@/lib/utils";
+import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Button } from "@/components/ui/button";
@@ -26,10 +28,11 @@ import { PopoverSection } from "./popover-section";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
+  compact?: boolean;
 };
 
-export const FilterPopover = observer(function FilterPopover<E extends HasId>({ store }: Props<E>) {
-  const t = useTranslations("Common");
+export const FilterPopover = observer(function FilterPopover<E extends HasId>({ store, compact }: Props<E>) {
+  const t = useTranslations();
   const { editFiltersModalStore: modalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
@@ -39,6 +42,8 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
   const savedPresets = modalStore.savedPresets;
   const isEditingPreset = modalStore.isEditingPreset;
   const isCreatingPreset = modalStore.isCreatingPreset;
+  const validFormFilters = (modalStore.form.filters ?? []).filter(hasValidFilterConfiguration);
+  const cannotSavePreset = (isCreatingPreset || isEditingPreset) && validFormFilters.length === 0;
   const activePresetId = isEditingPreset ? (modalStore.form.presetId as string) : undefined;
   const activePreset = activePresetId ? savedPresets.find((p) => p.id === activePresetId) : undefined;
 
@@ -77,25 +82,40 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
   return (
     <Popover open={modalStore.isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button aria-label={t("ariaLabels.tooltipFilters")} className="relative h-8" size="sm" variant="outline">
+        <Button
+          aria-label={t("Common.ariaLabels.tooltipFilters")}
+          className={cn(
+            "relative",
+            compact ? "text-muted-foreground hover:text-foreground size-4 hover:bg-transparent" : "h-8",
+          )}
+          size={compact ? "icon-xs" : "sm"}
+          type="button"
+          variant={compact ? "ghost" : "secondary"}
+        >
           <Filter className="size-3.5" />
 
           {activeFilterCount > 0 && (
-            <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute rounded-full bg-primary",
+                compact ? "-right-1 -top-1 size-1.5" : "-right-0.5 -top-0.5 size-2",
+              )}
+            />
           )}
         </Button>
       </PopoverTrigger>
 
       <PopoverContent align="end" className="flex max-h-[calc(100vh-5rem)] w-96 flex-col p-0">
         <AppForm store={modalStore}>
-          <PopoverSection label={t("filters.presets.label")}>
+          <PopoverSection label={t("Common.filters.presets.label")}>
             {isCreatingPreset ? (
               <FormInput
                 autoFocus
                 className="h-8"
                 id="name"
                 label={null}
-                placeholder={t("filters.presets.namePlaceholder")}
+                placeholder={t("Common.filters.presets.namePlaceholder")}
               />
             ) : (
               <div className="flex items-center gap-1">
@@ -105,9 +125,11 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
                       className="h-8 flex-1 justify-between font-normal"
                       size="sm"
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                     >
-                      <span className="truncate">{activePreset ? activePreset.name : t("filters.presets.none")}</span>
+                      <span className="truncate">
+                        {activePreset ? activePreset.name : t("Common.filters.presets.none")}
+                      </span>
 
                       <ChevronDown className="size-3.5 opacity-50" />
                     </Button>
@@ -115,7 +137,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
 
                   <DropdownMenuContent align="start" className="w-56">
                     <DropdownMenuItem onSelect={() => handleSelectPreset(undefined)}>
-                      <span className="flex-1">{t("filters.presets.none")}</span>
+                      <span className="flex-1">{t("Common.filters.presets.none")}</span>
 
                       {!activePresetId && <Check className="size-3.5" />}
                     </DropdownMenuItem>
@@ -135,18 +157,18 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
                     <DropdownMenuItem onSelect={handleStartCreatePreset}>
                       <BookmarkPlus className="size-3.5" />
 
-                      {t("filters.presets.add")}
+                      {t("Common.filters.presets.add")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
                 {isEditingPreset && (
                   <Button
-                    aria-label={t("actions.delete")}
+                    aria-label={t("Common.actions.delete")}
                     className="size-8 text-destructive"
                     size="icon-sm"
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     onClick={handleDeletePreset}
                   >
                     <Trash2 className="size-3.5" />
@@ -171,8 +193,8 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
 
           <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-border p-2 sm:flex-row sm:justify-end">
             {isCreatingPreset && (
-              <Button className="h-8" size="sm" type="button" variant="outline" onClick={handleCancelCreatePreset}>
-                {t("actions.cancel")}
+              <Button className="h-8" size="sm" type="button" variant="secondary" onClick={handleCancelCreatePreset}>
+                {t("Common.actions.cancel")}
               </Button>
             )}
 
@@ -182,15 +204,15 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
                 disabled={activeFilterCount === 0}
                 size="sm"
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={handleClear}
               >
-                {t("actions.clear")}
+                {t("Common.actions.clear")}
               </Button>
             )}
 
-            <Button className="h-8" size="sm" type="button" onClick={handleApply}>
-              {isCreatingPreset || isEditingPreset ? t("actions.save") : t("filters.apply")}
+            <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleApply}>
+              {isCreatingPreset || isEditingPreset ? t("Common.actions.save") : t("Common.filters.apply")}
             </Button>
           </div>
         </AppForm>

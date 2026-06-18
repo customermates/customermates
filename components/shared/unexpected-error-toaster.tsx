@@ -22,21 +22,22 @@ function containsString(error: unknown, searchString: string): boolean {
   }
 }
 
-function isFromApplication(error: unknown): boolean {
-  if (!error) return false;
-  if (containsString(error, "NEXT_REDIRECT")) return false;
-  return containsString(error, "The specific message is omitted in production builds");
+function isNoise(error: unknown): boolean {
+  if (!error) return true;
+  if (containsString(error, "NEXT_REDIRECT")) return true;
+  if (containsString(error, "ResizeObserver loop")) return true;
+  return false;
 }
 
-export function useApplicationErrorHandler(): (error: unknown) => void {
-  const t = useTranslations("ErrorCard");
+function useApplicationErrorHandler(): (error: unknown) => void {
+  const t = useTranslations();
 
   return useCallback(
     (error: unknown) => {
-      if (!isFromApplication(error)) return;
+      if (isNoise(error)) return;
       if (isDemoEnvironment()) {
         toast.warning(
-          t.rich("demoModeError", {
+          t.rich("ErrorCard.demoModeError", {
             link: (chunks) => (
               <AppLink external className="text-current underline" href="https://customermates.com/auth/signin">
                 {chunks}
@@ -46,7 +47,7 @@ export function useApplicationErrorHandler(): (error: unknown) => void {
         );
         return;
       }
-      toast.error(t("unexpectedError"));
+      toast.error(t("ErrorCard.unexpectedError"));
     },
     [t],
   );

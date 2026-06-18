@@ -10,24 +10,29 @@ import { deleteRoleAction, upsertRoleAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
+function defaultRolePermissions() {
+  return {
+    contacts: { canManage: "no", readAccess: "own" },
+    deals: { canManage: "no", readAccess: "own" },
+    organizations: { canManage: "no", readAccess: "own" },
+    services: { canManage: "no", readAccess: "own" },
+    users: { canManage: "no", readAccess: "own" },
+    company: { canManage: "no" },
+    api: { canManage: "no", readAccess: "none" },
+    tasks: { canManage: "no", readAccess: "own" },
+    inboxMessages: { canManage: "no", readAccess: "none" },
+    auditLog: { readAccess: "none" },
+  } as const;
+}
+
 export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
         name: "",
         description: "",
-        permissions: {
-          contacts: { canManage: "no", readAccess: "own" },
-          deals: { canManage: "no", readAccess: "own" },
-          organizations: { canManage: "no", readAccess: "own" },
-          services: { canManage: "no", readAccess: "own" },
-          users: { canManage: "no", readAccess: "own" },
-          company: { canManage: "no" },
-          api: { canManage: "no", readAccess: "none" },
-          tasks: { canManage: "no", readAccess: "own" },
-          auditLog: { readAccess: "none" },
-        },
+        permissions: defaultRolePermissions(),
       },
       Resource.users,
     );
@@ -37,7 +42,6 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       delete: action,
       setRole: action,
       onSubmit: action,
-      initialize: action,
       isSystemRole: computed,
       isDisabledOrSystemRole: computed,
       hasUsersAssigned: computed,
@@ -68,28 +72,13 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
     return users.length > 0;
   }
 
-  initialize = () => {
-    this.onInitOrRefresh({
+  add = () => {
+    this.openWith({
       id: undefined,
       name: "",
       description: "",
-      permissions: {
-        contacts: { canManage: "no", readAccess: "own" },
-        deals: { canManage: "no", readAccess: "own" },
-        organizations: { canManage: "no", readAccess: "own" },
-        services: { canManage: "no", readAccess: "own" },
-        users: { canManage: "no", readAccess: "own" },
-        company: { canManage: "no" },
-        api: { canManage: "no", readAccess: "none" },
-        tasks: { canManage: "no", readAccess: "own" },
-        auditLog: { readAccess: "none" },
-      },
+      permissions: defaultRolePermissions(),
     });
-  };
-
-  add = () => {
-    this.initialize();
-    this.open();
   };
 
   delete = async () => {
@@ -118,6 +107,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       company: { canManage: "no" },
       api: { canManage: "no", readAccess: "none" },
       tasks: { canManage: "no", readAccess: "none" },
+      inboxMessages: { canManage: "no", readAccess: "none" },
       auditLog: { readAccess: "none" },
     };
 

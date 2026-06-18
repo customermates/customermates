@@ -25,11 +25,17 @@ type Props = {
 };
 
 export function Editor({ data, onChange, readOnly = false }: Props) {
-  const t = useTranslations("Editor");
+  const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
-  const [slashMenuPosition, setSlashMenuPosition] = useState({ top: 0, left: 0 });
+  const [slashMenuPosition, setSlashMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
   const [showBubbleMenu, setShowBubbleMenu] = useState(false);
-  const [bubbleMenuPosition, setBubbleMenuPosition] = useState({ top: 0, left: 0 });
+  const [bubbleMenuPosition, setBubbleMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
   const bubbleMenuRef = useRef<HTMLDivElement>(null);
   const slashMenuRef = useRef<HTMLDivElement>(null);
   const isSettingContentRef = useRef(false);
@@ -51,7 +57,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
     extensions: [
       ...baseExtensions,
       Placeholder.configure({
-        placeholder: t("placeholder"),
+        placeholder: t("Editor.placeholder"),
       }),
       Markdown.configure({
         html: false,

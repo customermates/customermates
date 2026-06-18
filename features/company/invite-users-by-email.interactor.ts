@@ -9,12 +9,12 @@ import { createElement } from "react";
 import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 
 const Schema = z.object({
@@ -28,8 +28,11 @@ const ResultSchema = z.object({
 export type InviteUsersByEmailData = Data<typeof Schema>;
 export type InviteUsersByEmailResult = Data<typeof ResultSchema>;
 
-@TentantInteractor({ resource: Resource.users, action: Action.create })
-export class InviteUsersByEmailInteractor extends BaseInteractor<InviteUsersByEmailData, InviteUsersByEmailResult> {
+@TenantInteractor({ resource: Resource.users, action: Action.create })
+export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
+  InviteUsersByEmailData,
+  InviteUsersByEmailResult
+> {
   constructor(
     private readonly emailService: EmailService,
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,
@@ -47,16 +50,16 @@ export class InviteUsersByEmailInteractor extends BaseInteractor<InviteUsersByEm
       this.getCompanyDetails.invoke(),
     ]);
 
-    const inviteLink = `${BASE_URL}/invitation/${tokenResult.data.token}`;
+    const inviteLink = `${env.BASE_URL}/invitation/${tokenResult.data.token}`;
     const companyName = companyResult.data.name ?? "Customermates";
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
-    const t = await getTranslations("CompanyInvite");
-    const subject = t("subject", { companyName });
-    const preview = t("preview", { inviterName, companyName });
-    const intro = t("intro", { inviterName });
-    const cta = t("cta");
-    const fallback = t("fallback");
+    const t = await getTranslations();
+    const subject = t("CompanyInvite.subject", { companyName });
+    const preview = t("CompanyInvite.preview", { inviterName, companyName });
+    const intro = t("CompanyInvite.intro", { inviterName });
+    const cta = t("CompanyInvite.cta");
+    const fallback = t("CompanyInvite.fallback");
 
     const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
 
@@ -65,7 +68,14 @@ export class InviteUsersByEmailInteractor extends BaseInteractor<InviteUsersByEm
         this.emailService.send({
           to: email,
           subject,
-          react: createElement(CompanyInvite, { inviteLink, subject, preview, intro, cta, fallback }),
+          react: createElement(CompanyInvite, {
+            inviteLink,
+            subject,
+            preview,
+            intro,
+            cta,
+            fallback,
+          }),
         }),
       ),
     );

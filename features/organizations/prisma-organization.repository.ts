@@ -44,7 +44,16 @@ export class PrismaOrganizationRepo
       updatedAt: true,
       contacts: {
         where: { contact: this.accessWhere("contact") },
-        select: { contact: { select: { id: true, firstName: true, lastName: true } } },
+        select: {
+          contact: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
       },
       users: {
         where: { user: { is: this.accessWhere("user") } },
@@ -140,13 +149,7 @@ export class PrismaOrganizationRepo
 
     if (!organization) return null;
 
-    return {
-      ...organization,
-      contacts: organization.contacts.map((it) => it.contact),
-      users: organization.users.map((it) => it.user),
-      deals: organization.deals.map((it) => it.deal),
-      tasks: organization.tasks.map((it) => it.task),
-    };
+    return this.toDto(organization);
   }
 
   async getOrThrowUnscoped(id: string) {
@@ -157,13 +160,7 @@ export class PrismaOrganizationRepo
       select: this.companyScopedSelect,
     });
 
-    return {
-      ...organization,
-      contacts: organization.contacts.map((it) => it.contact),
-      users: organization.users.map((it) => it.user),
-      deals: organization.deals.map((it) => it.deal),
-      tasks: organization.tasks.map((it) => it.task),
-    };
+    return this.toDto(organization);
   }
 
   async getManyOrThrowUnscoped(ids: string[]) {
@@ -180,13 +177,19 @@ export class PrismaOrganizationRepo
 
     if (organizations.length !== uniqueIds.length) throw new Error("One or more organizations not found");
 
-    return organizations.map((organization) => ({
+    return organizations.map((organization) => this.toDto(organization));
+  }
+
+  private toDto(
+    organization: Prisma.OrganizationGetPayload<{ select: PrismaOrganizationRepo["userScopedSelect"] }>,
+  ): OrganizationDto {
+    return {
       ...organization,
       contacts: organization.contacts.map((it) => it.contact),
       users: organization.users.map((it) => it.user),
       deals: organization.deals.map((it) => it.deal),
       tasks: organization.tasks.map((it) => it.task),
-    }));
+    };
   }
 
   async getItems(params: GetQueryParams) {
@@ -195,13 +198,8 @@ export class PrismaOrganizationRepo
       baseWhere: this.accessWhere("organization"),
       select: this.userScopedSelect,
       params,
-      map: (organization: Prisma.OrganizationGetPayload<{ select: PrismaOrganizationRepo["userScopedSelect"] }>) => ({
-        ...organization,
-        contacts: organization.contacts.map((it) => it.contact),
-        users: organization.users.map((it) => it.user),
-        deals: organization.deals.map((it) => it.deal),
-        tasks: organization.tasks.map((it) => it.task),
-      }),
+      map: (organization: Prisma.OrganizationGetPayload<{ select: PrismaOrganizationRepo["userScopedSelect"] }>) =>
+        this.toDto(organization),
     });
   }
 
@@ -215,8 +213,8 @@ export class PrismaOrganizationRepo
     return getCustomColumnRepo().findByEntityType(EntityType.organization);
   }
 
-  async findIds(ids: Set<string>): Promise<Set<string>> {
-    if (ids.size === 0) return new Set();
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
 
     const organizations = await this.prisma.organization.findMany({
       where: {
@@ -308,13 +306,7 @@ export class PrismaOrganizationRepo
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...createdOrganization,
-      contacts: createdOrganization.contacts.map((it) => it.contact),
-      users: createdOrganization.users.map((it) => it.user),
-      deals: createdOrganization.deals.map((it) => it.deal),
-      tasks: createdOrganization.tasks.map((it) => it.task),
-    };
+    const res = this.toDto(createdOrganization);
 
     return res;
   }
@@ -435,13 +427,7 @@ export class PrismaOrganizationRepo
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...updatedOrganization,
-      contacts: updatedOrganization.contacts.map((it) => it.contact),
-      users: updatedOrganization.users.map((it) => it.user),
-      deals: updatedOrganization.deals.map((it) => it.deal),
-      tasks: updatedOrganization.tasks.map((it) => it.task),
-    };
+    const res = this.toDto(updatedOrganization);
 
     return res;
   }
@@ -453,13 +439,7 @@ export class PrismaOrganizationRepo
       select: this.userScopedSelect,
     });
 
-    const organizationDto: OrganizationDto = {
-      ...organization,
-      contacts: organization.contacts.map((it) => it.contact),
-      users: organization.users.map((it) => it.user),
-      deals: organization.deals.map((it) => it.deal),
-      tasks: organization.tasks.map((it) => it.task),
-    };
+    const organizationDto: OrganizationDto = this.toDto(organization);
 
     await this.prisma.organization.deleteMany({ where: { id, ...this.accessWhere("organization") } });
 

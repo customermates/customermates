@@ -12,7 +12,7 @@ export class ServiceDetailStore extends BaseCustomColumnEntityModalStore<
   CreateServiceData & { id?: string },
   ServiceDto
 > {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -55,10 +55,11 @@ export class ServiceDetailStore extends BaseCustomColumnEntityModalStore<
       notes: null,
       userIds: [],
       dealIds: [],
+      taskIds: [],
     };
   }
 
   protected buildRecentSearchItem(entity: ServiceDto) {
-    return { type: "service" as const, id: entity.id, name: entity.name };
+    return { type: "service" as const, id: entity.id, name: entity.name, pictureUrl: null };
   }
 }

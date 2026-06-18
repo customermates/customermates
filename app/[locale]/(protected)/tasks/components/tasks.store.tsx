@@ -3,15 +3,19 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 
-import { EntityType, Resource } from "@/generated/prisma";
+import { EntityType, Resource, TaskType } from "@/generated/prisma";
 
-import { refreshTasksAction } from "../actions";
+import { getTasksAction } from "../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class TasksStore extends BaseDataViewStore<TaskDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.tasks, EntityType.task);
+  }
+
+  isItemSelectable(item: TaskDto): boolean {
+    return item.type === TaskType.custom;
   }
 
   get canAccessContacts() {
@@ -47,6 +51,6 @@ export class TasksStore extends BaseDataViewStore<TaskDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return await refreshTasksAction(params);
+    return await getTasksAction(params);
   }
 }

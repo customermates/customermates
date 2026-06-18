@@ -1,10 +1,6 @@
 import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.interactor";
 import type { GetWebhookDeliveryByIdRepo } from "./resend-webhook-delivery.interactor";
-import type {
-  ClaimPendingDeliveriesRepo,
-  UpdateDeliveryOutcomeRepo,
-  PendingDeliveryRow,
-} from "./process-webhook-deliveries.interactor";
+import type { DeliverWebhookRepo } from "./deliver-webhook.interactor";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
@@ -20,16 +16,10 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { prisma } from "@/prisma/db";
 
 export class PrismaWebhookDeliveryRepo
   extends BaseRepository<Prisma.WebhookDeliveryWhereInput>
-  implements
-    GetWebhookDeliveriesRepo,
-    GetWebhookDeliveryByIdRepo,
-    CreateWebhookDeliveryRepo,
-    ClaimPendingDeliveriesRepo,
-    UpdateDeliveryOutcomeRepo
+  implements GetWebhookDeliveriesRepo, GetWebhookDeliveryByIdRepo, CreateWebhookDeliveryRepo, DeliverWebhookRepo
 {
   private get baseSelect() {
     return {
@@ -62,7 +52,7 @@ export class PrismaWebhookDeliveryRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const deliveries = await this.prisma.webhookDelivery.findMany({
       ...args,
@@ -77,7 +67,7 @@ export class PrismaWebhookDeliveryRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     return this.prisma.webhookDelivery.count({ where });
   }
@@ -97,12 +87,13 @@ export class PrismaWebhookDeliveryRepo
     };
   }
 
-  async create(args: RepoArgs<CreateWebhookDeliveryRepo, "create">): Promise<void> {
-    if (args.length === 0) return;
+  async create(args: RepoArgs<CreateWebhookDeliveryRepo, "create">) {
+    if (args.length === 0) return [];
 
     const { companyId } = this.user;
 
     const data = args.map((it) => ({
+      id: crypto.randomUUID(),
       ...it,
       companyId,
       requestBody: it.requestBody as Prisma.InputJsonValue,
@@ -114,60 +105,46 @@ export class PrismaWebhookDeliveryRepo
 
     if (store) {
       store.webhookDeliveryBatch.push(...data);
-      return;
+      return data.map((d) => d.id);
     }
 
     await this.prisma.webhookDelivery.createMany({ data });
+    return data.map((d) => d.id);
   }
 
-  async claimPending(limit: number): Promise<PendingDeliveryRow[]> {
-    return prisma.$queryRaw<PendingDeliveryRow[]>`
-      WITH c AS (
-        SELECT id FROM "WebhookDelivery"
-        WHERE
-          "status" = 'pending'::"WebhookDeliveryStatus"
-          OR (
-            "status" = 'processing'::"WebhookDeliveryStatus"
-            AND ("lockedAt" IS NULL OR "lockedAt" < NOW() - INTERVAL '1 minute')
-          )
-        ORDER BY "createdAt" ASC
-        LIMIT ${limit}
-        FOR UPDATE SKIP LOCKED
-      )
-      UPDATE "WebhookDelivery" AS w
-      SET
-        "status" = 'processing'::"WebhookDeliveryStatus",
-        "lockedAt" = NOW()
-      FROM c
-      WHERE w.id = c.id
-      RETURNING w.id, w.url, w."companyId", w.event, w."requestBody";
-    `;
+  async getSecret(args: RepoArgs<DeliverWebhookRepo, "getSecret">) {
+    const { companyId, url } = args;
+
+    const webhook = await this.prisma.webhook.findFirst({
+      where: { companyId, url },
+      select: { secret: true },
+    });
+
+    return webhook?.secret ?? null;
   }
 
-  async markSuccess(args: RepoArgs<UpdateDeliveryOutcomeRepo, "markSuccess">): Promise<void> {
+  async markSuccess(args: RepoArgs<DeliverWebhookRepo, "markSuccess">) {
     const { id, ...rest } = args;
 
-    await prisma.webhookDelivery.update({
+    await this.prisma.webhookDelivery.update({
       where: { id },
       data: {
         ...rest,
         status: WebhookDeliveryStatus.success,
         success: true,
         deliveredAt: new Date(),
-        lockedAt: null,
       },
     });
   }
 
-  async markFailed(args: RepoArgs<UpdateDeliveryOutcomeRepo, "markFailed">): Promise<void> {
+  async markFailed(args: RepoArgs<DeliverWebhookRepo, "markFailed">) {
     const { id, ...rest } = args;
 
-    await prisma.webhookDelivery.update({
+    await this.prisma.webhookDelivery.update({
       where: { id },
       data: {
         ...rest,
         status: WebhookDeliveryStatus.failed,
-        lockedAt: null,
         success: false,
       },
     });

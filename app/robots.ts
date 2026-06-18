@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { headers } from "next/headers";
 
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 
 function isSubdomain(host: string): boolean {
   const parts = host.split(".");
@@ -37,6 +37,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         crawlDelay: 10,
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: `${env.BASE_URL}/sitemap.xml`,
   };
 }

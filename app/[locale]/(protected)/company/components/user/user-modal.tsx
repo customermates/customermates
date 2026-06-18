@@ -22,7 +22,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { Alert } from "@/components/shared/alert";
 
 export const CompanyUserModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { userModalStore: store, rolesStore } = useRootStore();
   const { form, savedState, isOwnProfile, isDisabledOrOwnProfile } = store;
 

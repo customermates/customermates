@@ -12,8 +12,6 @@ import { Mermaid } from "./mermaid";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
 import { YouTube } from "./youtube-embed";
 
-export const fumadocsMarkdownComponents = markdownBaseComponents;
-
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,

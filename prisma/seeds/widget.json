@@ -3,12 +3,6 @@
     "aggregationType": "dealQuantity",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:54:29.803Z",
-    "data": [
-      {
-        "label": "Total",
-        "value": 1121
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["secondary1"],
@@ -69,40 +63,6 @@
     "aggregationType": "dealValue",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:52:36.295Z",
-    "data": [
-      {
-        "label": "Continental",
-        "value": 560500
-      },
-      {
-        "label": "Deutsche Post",
-        "value": 462000
-      },
-      {
-        "label": "SAP",
-        "value": 212000
-      },
-      {
-        "label": "BMW",
-        "value": 198500
-      },
-      {
-        "label": "PWC",
-        "value": 185000
-      },
-      {
-        "label": "Wavestone",
-        "value": 156400
-      },
-      {
-        "label": "Bayer",
-        "value": 124000
-      },
-      {
-        "label": "Hays",
-        "value": 67500
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["primary1", "primary2", "primary3"],
@@ -157,38 +117,6 @@
     "aggregationType": "count",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:46:41.130Z",
-    "data": [
-      {
-        "label": "New",
-        "optionColor": "secondary",
-        "value": 10
-      },
-      {
-        "label": "Lost",
-        "optionColor": "destructive",
-        "value": 4
-      },
-      {
-        "label": "Contact",
-        "optionColor": "default",
-        "value": 4
-      },
-      {
-        "label": "Won",
-        "optionColor": "success",
-        "value": 4
-      },
-      {
-        "label": "Qualified",
-        "optionColor": "info",
-        "value": 4
-      },
-      {
-        "label": "In Progress",
-        "optionColor": "warning",
-        "value": 4
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["default1", "default2", "primary1", "primary2", "secondary1", "secondary2"],
@@ -243,23 +171,6 @@
     "aggregationType": "dealValue",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:51:22.448Z",
-    "data": [
-      {
-        "label": "Open",
-        "optionColor": "warning",
-        "value": 725500
-      },
-      {
-        "label": "Won",
-        "optionColor": "success",
-        "value": 545500
-      },
-      {
-        "label": "Lost",
-        "optionColor": "destructive",
-        "value": 538500
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["success1", "warning1", "danger1"],
@@ -320,18 +231,6 @@
     "aggregationType": "dealValue",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:49:08.817Z",
-    "data": [
-      {
-        "label": "Service",
-        "optionColor": "secondary",
-        "value": 1112700
-      },
-      {
-        "label": "Hardware",
-        "optionColor": "secondary",
-        "value": 853200
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["secondary1", "secondary2"],
@@ -386,23 +285,6 @@
     "aggregationType": "count",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:49:41.573Z",
-    "data": [
-      {
-        "label": "Won",
-        "optionColor": "success",
-        "value": 4
-      },
-      {
-        "label": "Open",
-        "optionColor": "warning",
-        "value": 3
-      },
-      {
-        "label": "Lost",
-        "optionColor": "destructive",
-        "value": 2
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["success1", "warning1", "danger1"],
@@ -463,18 +345,6 @@
     "aggregationType": "count",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "createdAt": "2026-03-24T10:53:14.026Z",
-    "data": [
-      {
-        "label": "Direct customer",
-        "optionColor": "default",
-        "value": 11
-      },
-      {
-        "label": "Affiliated company",
-        "optionColor": "secondary",
-        "value": 8
-      }
-    ],
     "dealFilters": [],
     "displayOptions": {
       "barColors": ["primary1", "secondary1"],

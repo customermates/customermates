@@ -3,7 +3,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { SendContactInquiryData } from "@/features/contact/send-contact-inquiry.schema";
 
 import { action, makeObservable, observable, toJS } from "mobx";
-import { toast } from "sonner";
 
 import { sendContactInquiryAction } from "./actions";
 
@@ -12,7 +11,7 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 export class ContactStore extends BaseFormStore<SendContactInquiryData> {
   isSent = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, { name: "", email: "", company: "", message: "" });
 
     makeObservable(this, {
@@ -41,7 +40,7 @@ export class ContactStore extends BaseFormStore<SendContactInquiryData> {
       if (res.ok) {
         this.isSent = true;
         this.onInitOrRefresh({ name: "", email: "", company: "", message: "" });
-        toast.success(this.rootStore.localeStore.getTranslation("ContactPage.form.successToast"));
+        this.toastSuccess("ContactPage.form.successToast");
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);

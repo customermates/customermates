@@ -5,8 +5,9 @@ import { cookies } from "next/headers";
 import { SignUpForm } from "./sign-up-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
-import { getInviteTokenValidationInteractor, getRouteGuardService } from "@/core/di";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { getInviteTokenValidationInteractor } from "@/core/di";
+import { requireUnauthenticated } from "@/features/auth/next/require";
+import { env } from "@/env";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function SignUpPage() {
-  await getRouteGuardService().ensureUnauthenticatedOrRedirect();
+  await requireUnauthenticated();
 
   const cookiesStore = await cookies();
   const token = cookiesStore.get("inviteToken")?.value;
@@ -24,7 +25,7 @@ export default async function SignUpPage() {
 
   return (
     <CenteredCardPage>
-      <SignUpForm companyName={companyName} showSocialProviders={IS_CLOUD_HOSTED} />
+      <SignUpForm companyName={companyName} showSocialProviders={env.CLOUD_HOSTED} />
     </CenteredCardPage>
   );
 }

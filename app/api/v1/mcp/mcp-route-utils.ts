@@ -1,6 +1,7 @@
 import type { z } from "zod";
 
 import { createMcpHandler } from "mcp-handler";
+import * as Sentry from "@sentry/nextjs";
 
 export type McpTool = {
   name: string;
@@ -10,14 +11,14 @@ export type McpTool = {
   execute: (...args: never[]) => Promise<string> | string;
 };
 
-export function createTextContent(text: string, isError = false) {
+function createTextContent(text: string, isError = false) {
   return {
     content: [{ type: "text" as const, text }],
     ...(isError && { isError: true }),
   };
 }
 
-export function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
+function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
   for (const tool of tools) {
     server.registerTool(
       tool.name,
@@ -33,6 +34,7 @@ export function registerAllTools(server: Parameters<Parameters<typeof createMcpH
             return createTextContent(result, true);
           return createTextContent(result);
         } catch (error) {
+          Sentry.captureException(error);
           return createTextContent(`Error: ${error instanceof Error ? error.message : "Unknown error"}`, true);
         }
       },

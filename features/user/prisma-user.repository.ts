@@ -1,5 +1,7 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { FindUserRepo } from "./user.service";
+import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
+import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
 import type { UpdateUserSettingsRepo } from "@/features/user/upsert/update-user-settings.interactor";
@@ -12,6 +14,8 @@ import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-tria
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { AccountCallbackUserRepo } from "@/ee/messaging/webhooks/process-account-callback.interactor";
+import type { WebhookUserRepo } from "@/ee/messaging/webhooks/unipile-webhook-ingest.service";
 
 import { randomUUID } from "crypto";
 
@@ -34,7 +38,10 @@ import { getSeedData, PIPELINE_STAGES, type StageKey } from "@/features/onboardi
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { IS_CLOUD_HOSTED } from "@/constants/env";
+import { type GetQueryParams } from "@/core/base/base-get.schema";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { env } from "@/env";
 
 const TASK_STATUS_STATES = [
   { key: "open", color: "secondary", isDefault: true },
@@ -52,6 +59,8 @@ export class PrismaUserRepo
   extends BaseRepository
   implements
     FindUserRepo,
+    GetUsersRepo,
+    FindUsersByIdsRepo,
     GetUserByIdRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,
@@ -63,8 +72,26 @@ export class PrismaUserRepo
     DeactivateTrialUsersAndSendNoticeRepo,
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
     SeedOnboardingDataRepo,
-    CompleteOnboardingWizardRepo
+    CompleteOnboardingWizardRepo,
+    AccountCallbackUserRepo,
+    WebhookUserRepo
 {
+  @BypassTenantGuard
+  async findUserCompanyById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, companyId: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async findExtendedUserByIdOrThrow(userId: string) {
+    return this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: this.extendedUserSelect,
+    });
+  }
+
   private get extendedUserSelect() {
     return {
       id: true,
@@ -119,6 +146,57 @@ export class PrismaUserRepo
     } as const;
   }
 
+  getSortableFields() {
+    return [
+      { field: "name", resolvedFields: ["firstName", "lastName"] },
+      { field: "createdAt", resolvedFields: ["createdAt"] },
+      { field: "updatedAt", resolvedFields: ["updatedAt"] },
+    ];
+  }
+
+  getSearchableFields() {
+    return [{ field: "firstName" }, { field: "lastName" }];
+  }
+
+  getFilterableFields() {
+    return Promise.resolve([
+      { field: FilterFieldKey.status, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.status] },
+      { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
+      { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+    ]);
+  }
+
+  async getItems(params: GetQueryParams) {
+    const args = await this.buildQueryArgs(params, this.accessWhere("user"));
+
+    const users = await this.prisma.user.findMany({
+      ...args,
+      select: this.userSelect,
+    });
+
+    return users;
+  }
+
+  async getCount(params: GetQueryParams) {
+    const { where } = await this.buildQueryArgs(params, this.accessWhere("user"));
+
+    return await this.prisma.user.count({ where });
+  }
+
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: { in: Array.from(ids) },
+        ...this.accessWhere("user"),
+      },
+      select: { id: true },
+    });
+
+    return new Set(users.map((user) => user.id));
+  }
+
   async getUserById(id: string) {
     const user = await this.prisma.user.findFirst({
       where: {
@@ -171,7 +249,10 @@ export class PrismaUserRepo
     const { companyId } = this.user;
     const { userId, salesType, keepDemoData } = args;
 
-    await this.prisma.company.update({ where: { id: companyId }, data: { salesType } });
+    await this.prisma.company.update({
+      where: { id: companyId },
+      data: { salesType },
+    });
 
     if (!keepDemoData) return { alreadySeeded: false };
 
@@ -179,7 +260,7 @@ export class PrismaUserRepo
   }
 
   @Transaction
-  async markOnboardingWizardCompleted(args: { userId: string }) {
+  async markOnboardingWizardCompleted(args: RepoArgs<CompleteOnboardingWizardRepo, "markOnboardingWizardCompleted">) {
     const { companyId } = this.user;
 
     await this.prisma.user.updateMany({
@@ -191,23 +272,25 @@ export class PrismaUserRepo
   private async seedCompanyDashboard(userId: string, salesType: SalesType) {
     const { companyId } = this.user;
 
-    const existingDeal = await this.prisma.deal.findFirst({ where: { companyId }, select: { id: true } });
+    const existingDeal = await this.prisma.deal.findFirst({
+      where: { companyId },
+      select: { id: true },
+    });
     if (existingDeal) return { alreadySeeded: true };
 
-    const t = await getTranslations("Common.seedData");
-    const tCommon = await getTranslations("Common");
+    const t = await getTranslations();
     const seed = getSeedData(salesType);
 
     const stageOptions = PIPELINE_STAGES.map((s) => ({
       value: randomUUID(),
-      label: t(`pipeline.${s.key}`),
+      label: t(`Common.seedData.pipeline.${s.key}`),
       color: s.color,
       isDefault: s.key === "new",
       index: s.index,
     }));
     const stageColumn = await this.prisma.customColumn.create({
       data: {
-        label: t("column.salesPipeline"),
+        label: t("Common.seedData.column.salesPipeline"),
         type: CustomColumnType.singleSelect,
         entityType: EntityType.deal,
         companyId,
@@ -223,14 +306,14 @@ export class PrismaUserRepo
 
     const taskStatusOptions = TASK_STATUS_STATES.map((s, index) => ({
       value: randomUUID(),
-      label: tCommon(`defaultData.todo.states.${s.key}`),
+      label: t(`Common.defaultData.todo.states.${s.key}`),
       color: s.color,
       isDefault: s.isDefault,
       index,
     }));
     const taskStatusColumn = await this.prisma.customColumn.create({
       data: {
-        label: tCommon("defaultData.todo.columnLabel"),
+        label: t("Common.defaultData.todo.columnLabel"),
         type: CustomColumnType.singleSelect,
         entityType: EntityType.task,
         companyId,
@@ -307,15 +390,19 @@ export class PrismaUserRepo
 
   private async createServiceExtraColumns(
     salesType: SalesType,
-    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
-  ): Promise<{ articleNumber?: string; stock?: string; billableHours?: string }> {
+    t: Awaited<ReturnType<typeof getTranslations>>,
+  ): Promise<{
+    articleNumber?: string;
+    stock?: string;
+    billableHours?: string;
+  }> {
     const { companyId } = this.user;
 
     if (salesType === SalesType.product) {
       const [articleNumber, stock] = await Promise.all([
         this.prisma.customColumn.create({
           data: {
-            label: t("column.articleNumber"),
+            label: t("Common.seedData.column.articleNumber"),
             type: CustomColumnType.plain,
             entityType: EntityType.service,
             companyId,
@@ -324,7 +411,7 @@ export class PrismaUserRepo
         }),
         this.prisma.customColumn.create({
           data: {
-            label: t("column.stock"),
+            label: t("Common.seedData.column.stock"),
             type: CustomColumnType.plain,
             entityType: EntityType.service,
             companyId,
@@ -337,7 +424,7 @@ export class PrismaUserRepo
 
     const billableHours = await this.prisma.customColumn.create({
       data: {
-        label: t("column.billableHours"),
+        label: t("Common.seedData.column.billableHours"),
         type: CustomColumnType.plain,
         entityType: EntityType.service,
         companyId,
@@ -350,43 +437,68 @@ export class PrismaUserRepo
   private async createSeedEntities(
     userId: string,
     seed: ReturnType<typeof getSeedData>,
-    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
+    t: Awaited<ReturnType<typeof getTranslations>>,
   ) {
     const { companyId } = this.user;
 
     const orgIdByKey: Record<string, string> = {};
     for (const org of seed.organizations) {
       const created = await this.prisma.organization.create({
-        data: { name: t(`organization.${org.nameKey}`), companyId },
+        data: {
+          name: t(`Common.seedData.organization.${org.nameKey}`),
+          companyId,
+        },
       });
       orgIdByKey[org.key] = created.id;
-      await this.prisma.organizationUser.create({ data: { organizationId: created.id, userId, companyId } });
+      await this.prisma.organizationUser.create({
+        data: { organizationId: created.id, userId, companyId },
+      });
     }
 
     const contactIdByKey: Record<string, string> = {};
     for (const contact of seed.contacts) {
       const created = await this.prisma.contact.create({
         data: {
-          firstName: t(`contact.${contact.firstNameKey}`),
-          lastName: t(`contact.${contact.lastNameKey}`),
-          emails: [t(`contact.${contact.emailKey}`)],
+          firstName: t(`Common.seedData.contact.${contact.firstNameKey}`),
+          lastName: t(`Common.seedData.contact.${contact.lastNameKey}`),
           companyId,
+          identifiers: {
+            create: [
+              {
+                companyId,
+                provider: "mail",
+                value: t(`Common.seedData.contact.${contact.emailKey}`),
+              },
+            ],
+          },
         },
       });
       contactIdByKey[contact.key] = created.id;
-      await this.prisma.contactUser.create({ data: { contactId: created.id, userId, companyId } });
+      await this.prisma.contactUser.create({
+        data: { contactId: created.id, userId, companyId },
+      });
       await this.prisma.contactOrganization.create({
-        data: { contactId: created.id, organizationId: orgIdByKey[contact.orgKey], companyId },
+        data: {
+          contactId: created.id,
+          organizationId: orgIdByKey[contact.orgKey],
+          companyId,
+        },
       });
     }
 
     const serviceIdByKey: Record<string, string> = {};
     for (const service of seed.services) {
       const created = await this.prisma.service.create({
-        data: { name: t(`service.${service.nameKey}`), amount: service.amount, companyId },
+        data: {
+          name: t(`Common.seedData.service.${service.nameKey}`),
+          amount: service.amount,
+          companyId,
+        },
       });
       serviceIdByKey[service.key] = created.id;
-      await this.prisma.serviceUser.create({ data: { serviceId: created.id, userId, companyId } });
+      await this.prisma.serviceUser.create({
+        data: { serviceId: created.id, userId, companyId },
+      });
     }
 
     const dealIdByKey: Record<string, string> = {};
@@ -398,22 +510,42 @@ export class PrismaUserRepo
       const totalQuantity = deal.serviceLineItems.reduce((sum, item) => sum + item.quantity, 0);
 
       const created = await this.prisma.deal.create({
-        data: { name: t(`deal.${deal.nameKey}`), totalValue, totalQuantity, companyId },
+        data: {
+          name: t(`Common.seedData.deal.${deal.nameKey}`),
+          totalValue,
+          totalQuantity,
+          companyId,
+        },
       });
       dealIdByKey[deal.key] = created.id;
 
-      await this.prisma.dealUser.create({ data: { dealId: created.id, userId, companyId } });
+      await this.prisma.dealUser.create({
+        data: { dealId: created.id, userId, companyId },
+      });
       await this.prisma.dealOrganization.create({
-        data: { dealId: created.id, organizationId: orgIdByKey[deal.orgKey], companyId },
+        data: {
+          dealId: created.id,
+          organizationId: orgIdByKey[deal.orgKey],
+          companyId,
+        },
       });
       for (const contactKey of deal.contactKeys) {
         await this.prisma.dealContact.create({
-          data: { dealId: created.id, contactId: contactIdByKey[contactKey], companyId },
+          data: {
+            dealId: created.id,
+            contactId: contactIdByKey[contactKey],
+            companyId,
+          },
         });
       }
       for (const item of deal.serviceLineItems) {
         await this.prisma.serviceDeal.create({
-          data: { dealId: created.id, serviceId: serviceIdByKey[item.serviceKey], quantity: item.quantity, companyId },
+          data: {
+            dealId: created.id,
+            serviceId: serviceIdByKey[item.serviceKey],
+            quantity: item.quantity,
+            companyId,
+          },
         });
       }
     }
@@ -421,19 +553,33 @@ export class PrismaUserRepo
     const taskIdByKey: Record<string, string> = {};
     for (const task of seed.tasks) {
       const created = await this.prisma.task.create({
-        data: { name: t(`task.${task.nameKey}`), type: TaskType.custom, companyId },
+        data: {
+          name: t(`Common.seedData.task.${task.nameKey}`),
+          type: TaskType.custom,
+          companyId,
+        },
       });
       taskIdByKey[task.key] = created.id;
-      await this.prisma.taskUser.create({ data: { taskId: created.id, userId, companyId } });
+      await this.prisma.taskUser.create({
+        data: { taskId: created.id, userId, companyId },
+      });
 
       for (const contactKey of task.contactKeys ?? []) {
         await this.prisma.taskContact.create({
-          data: { taskId: created.id, contactId: contactIdByKey[contactKey], companyId },
+          data: {
+            taskId: created.id,
+            contactId: contactIdByKey[contactKey],
+            companyId,
+          },
         });
       }
       for (const orgKey of task.orgKeys ?? []) {
         await this.prisma.taskOrganization.create({
-          data: { taskId: created.id, organizationId: orgIdByKey[orgKey], companyId },
+          data: {
+            taskId: created.id,
+            organizationId: orgIdByKey[orgKey],
+            companyId,
+          },
         });
       }
       for (const dealKey of task.dealKeys ?? []) {
@@ -443,12 +589,22 @@ export class PrismaUserRepo
       }
       for (const serviceKey of task.serviceKeys ?? []) {
         await this.prisma.taskService.create({
-          data: { taskId: created.id, serviceId: serviceIdByKey[serviceKey], companyId },
+          data: {
+            taskId: created.id,
+            serviceId: serviceIdByKey[serviceKey],
+            companyId,
+          },
         });
       }
     }
 
-    return { orgIdByKey, contactIdByKey, serviceIdByKey, dealIdByKey, taskIdByKey };
+    return {
+      orgIdByKey,
+      contactIdByKey,
+      serviceIdByKey,
+      dealIdByKey,
+      taskIdByKey,
+    };
   }
 
   private async createWidgetTemplates(
@@ -456,7 +612,7 @@ export class PrismaUserRepo
     stageColumnId: string,
     stageValueByKey: Record<StageKey, string>,
     taskStatusColumnId: string,
-    t: Awaited<ReturnType<typeof getTranslations<"Common.seedData">>>,
+    t: Awaited<ReturnType<typeof getTranslations>>,
   ) {
     const { companyId } = this.user;
 
@@ -537,7 +693,13 @@ export class PrismaUserRepo
         groupByType: WidgetGroupByType.customColumn,
         groupByCustomColumnId: stageColumnId,
         aggregationType: AggregationType.count,
-        entityFilters: [{ field: stageColumnId, operator: "notIn", value: [stageValueByKey.lost] }],
+        entityFilters: [
+          {
+            field: stageColumnId,
+            operator: "notIn",
+            value: [stageValueByKey.lost],
+          },
+        ],
         displayOptions: {
           displayType: DisplayType.radarChart,
           barColors: stageColors.slice(0, 4),
@@ -642,7 +804,7 @@ export class PrismaUserRepo
           id,
           userId,
           companyId,
-          name: t(`widget.${widget.key}`),
+          name: t(`Common.seedData.widget.${widget.key}`),
           entityType: widget.entityType,
           entityFilters: widget.entityFilters,
           dealFilters: [],
@@ -700,7 +862,7 @@ export class PrismaUserRepo
     trialEndDate.setDate(trialEndDate.getDate() + 7);
 
     await this.prisma.subscription.create({
-      data: IS_CLOUD_HOSTED
+      data: env.CLOUD_HOSTED
         ? {
             companyId: company.id,
             status: SubscriptionStatus.trial,
@@ -738,7 +900,11 @@ export class PrismaUserRepo
 
   @Transaction
   async registerExistingCompany(args: RepoArgs<RegisterUserRepo, "registerExistingCompany">) {
-    if (await this.prisma.user.findFirst({ where: { email: args.email, companyId: args.companyId } }))
+    if (
+      await this.prisma.user.findFirst({
+        where: { email: args.email, companyId: args.companyId },
+      })
+    )
       throw new Error("User already exists.");
 
     const user = await this.prisma.user.create({
@@ -853,7 +1019,9 @@ export class PrismaUserRepo
         status: { not: Status.inactive },
         company: {
           subscription: {
-            status: { in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired] },
+            status: {
+              in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired],
+            },
             updatedAt: { lte: before },
           },
         },
@@ -875,7 +1043,8 @@ export class PrismaUserRepo
     });
   }
 
-  async claimWelcomeEmailSent(userId: string, sentAt: Date) {
+  async claimWelcomeEmailSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, welcomeEmailSentAt: null },
       data: { welcomeEmailSentAt: sentAt },
@@ -884,7 +1053,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialExpiredOfferSent(userId: string, sentAt: Date) {
+  async claimTrialExpiredOfferSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialExpiredOfferSentAt: null },
       data: { trialExpiredOfferSentAt: sentAt },
@@ -893,7 +1063,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialInactivationReminderSent(userId: string, sentAt: Date) {
+  async claimTrialInactivationReminderSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationReminderSentAt: null },
       data: { trialInactivationReminderSentAt: sentAt },
@@ -902,7 +1073,8 @@ export class PrismaUserRepo
     return result.count > 0;
   }
 
-  async claimTrialInactivationNoticeSent(userId: string, sentAt: Date) {
+  async claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }) {
+    const { userId, sentAt } = args;
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialInactivationNoticeSentAt: null },
       data: { trialInactivationNoticeSentAt: sentAt },

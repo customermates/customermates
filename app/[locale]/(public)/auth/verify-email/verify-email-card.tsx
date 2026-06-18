@@ -1,48 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { observer } from "mobx-react-lite";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-
-import { resendVerificationEmailAction } from "../actions";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
-export function VerifyEmailCard({ email }: { email?: string }) {
-  const t = useTranslations("VerifyEmailCard");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSent, setIsSent] = useState(false);
-
-  async function handleResend() {
-    if (!email) return;
-
-    setIsLoading(true);
-    try {
-      await resendVerificationEmailAction(email);
-      setIsSent(true);
-      toast.success(t("resendSuccess"));
-    } finally {
-      setIsLoading(false);
-    }
-  }
+export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
+  const t = useTranslations();
+  const { verifyEmailStore } = useRootStore();
 
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader subtitle={t("subtitle")} title={t("title")} />
+      <CardHeroHeader subtitle={t("VerifyEmailCard.subtitle")} title={t("VerifyEmailCard.title")} />
 
       <AppCardBody>
-        <p className="text-x-sm text-center">{t("body")}</p>
+        <p className="text-x-sm text-center">{t("VerifyEmailCard.body")}</p>
       </AppCardBody>
 
       <AppCardFooter>
-        <Button className="w-full" disabled={isSent || !email || isLoading} onClick={() => void handleResend()}>
-          {t("ctaLabel")}
+        <Button
+          className="w-full"
+          disabled={verifyEmailStore.isSent || !email}
+          onClick={() => email && void verifyEmailStore.resend(email)}
+        >
+          {t("VerifyEmailCard.ctaLabel")}
         </Button>
       </AppCardFooter>
     </AppCard>
   );
-}
+});

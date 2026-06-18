@@ -32,12 +32,13 @@ import { CustomColumnType } from "@/generated/prisma";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
-import { AppModal, ModalFooter } from "@/components/modal";
+import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -90,7 +91,7 @@ type SortableOptionItemProps = {
 
 const SortableOptionItem = observer(
   ({ option, labelId, colorId, isDisabled, onChange, toggleDefaultOption, deleteOption }: SortableOptionItemProps) => {
-    const t = useTranslations("");
+    const t = useTranslations();
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
       id: option.value,
       disabled: isDisabled,
@@ -184,7 +185,7 @@ const SortableOptionItem = observer(
 );
 
 export const CustomColumnModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { customColumnModalStore: store, intlStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { form, onChange, addOption, deleteOption, toggleDefaultOption, reorderOptions } = store;
@@ -376,15 +377,11 @@ export const CustomColumnModal = observer(() => {
             )}
           </AppCardBody>
 
-          <ModalFooter className="p-6 pt-0">
-            <Button disabled={store.isLoading} type="button" variant="secondary" onClick={store.close}>
-              {t("Common.actions.close")}
-            </Button>
-
+          <AppCardFooter>
             <Button disabled={store.isLoading || !store.hasUnsavedChanges || store.isDisabled} type="submit">
               {t("Common.actions.save")}
             </Button>
-          </ModalFooter>
+          </AppCardFooter>
         </AppCard>
       </AppForm>
     </AppModal>

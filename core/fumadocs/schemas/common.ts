@@ -4,7 +4,6 @@ export const metaSchema = z.object({
   description: z.string(),
   title: z.string(),
 });
-export type Meta = z.infer<typeof metaSchema>;
 
 export const heroSchema = z.object({
   buttonLeftHref: z.string(),
@@ -27,7 +26,6 @@ export const ctaSchema = z.object({
   description: z.string(),
   hint: z.string(),
 });
-export type CTA = z.infer<typeof ctaSchema>;
 
 export const faqItemSchema = z.object({
   id: z.string(),
@@ -40,7 +38,6 @@ export const faqSchema = z.object({
   faqs: z.array(faqItemSchema),
   title: z.string().optional(),
 });
-export type FAQ = z.infer<typeof faqSchema>;
 
 const featureItemSchema = z.object({
   description: z.string(),

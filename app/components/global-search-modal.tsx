@@ -8,32 +8,44 @@ import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Search, Users }
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import { EntityType } from "@/generated/prisma";
 
-import { checkSearchResultExistsAction } from "@/app/[locale]/(protected)/search/actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useOpenEntity } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppCard } from "@/components/card/app-card";
 import { AppModal } from "@/components/modal";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/shared/icon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { initialsFor } from "@/core/utils/initials";
 
 const TYPE_META: Record<
   GlobalSearchResultItem["type"],
   { icon: LucideIcon; entityType: EntityType; labelKey: string }
 > = {
-  contact: { icon: Users, entityType: EntityType.contact, labelKey: "groupContact" },
-  organization: { icon: Building2, entityType: EntityType.organization, labelKey: "groupOrganization" },
-  deal: { icon: Briefcase, entityType: EntityType.deal, labelKey: "groupDeal" },
-  service: { icon: Package, entityType: EntityType.service, labelKey: "groupService" },
+  contact: {
+    icon: Users,
+    entityType: EntityType.contact,
+    labelKey: "GlobalSearch.groupContact",
+  },
+  organization: {
+    icon: Building2,
+    entityType: EntityType.organization,
+    labelKey: "GlobalSearch.groupOrganization",
+  },
+  deal: { icon: Briefcase, entityType: EntityType.deal, labelKey: "GlobalSearch.groupDeal" },
+  service: {
+    icon: Package,
+    entityType: EntityType.service,
+    labelKey: "GlobalSearch.groupService",
+  },
 };
 
 type SelectableItem = GlobalSearchResultItem & { onSelect: () => void };
 
 export const GlobalSearchModal = observer(() => {
-  const t = useTranslations("GlobalSearch");
+  const t = useTranslations();
   const { globalSearchModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
@@ -60,23 +72,29 @@ export const GlobalSearchModal = observer(() => {
   };
 
   const openRecentItem = (item: GlobalSearchResultItem) => {
-    void (async () => {
-      const exists = await checkSearchResultExistsAction({ type: item.type, id: item.id });
-      if (!exists) {
-        globalSearchModalStore.removeRecentItem(item.id);
-        toast.error(t("staleItem"));
-        return;
-      }
-      openItem(item);
-    })();
+    void globalSearchModalStore.verifyRecentItem(item).then((exists) => {
+      if (exists) openItem(item);
+    });
   };
 
-  const groupedResults = useMemo((): { type: GlobalSearchResultItem["type"]; items: SelectableItem[] }[] => {
+  const groupedResults = useMemo((): {
+    type: GlobalSearchResultItem["type"];
+    items: SelectableItem[];
+  }[] => {
     const source = hasQuery ? (results?.results ?? []) : recentItems;
     if (source.length === 0) return [];
 
-    if (!hasQuery)
-      return [{ type: "contact", items: source.map((item) => ({ ...item, onSelect: () => openRecentItem(item) })) }];
+    if (!hasQuery) {
+      return [
+        {
+          type: "contact",
+          items: source.map((item) => ({
+            ...item,
+            onSelect: () => openRecentItem(item),
+          })),
+        },
+      ];
+    }
 
     const buckets: Record<GlobalSearchResultItem["type"], SelectableItem[]> = {
       contact: [],
@@ -119,7 +137,7 @@ export const GlobalSearchModal = observer(() => {
   }
 
   return (
-    <AppModal store={globalSearchModalStore} title={t("placeholder")}>
+    <AppModal store={globalSearchModalStore} title={t("GlobalSearch.placeholder")}>
       <AppCard>
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <Icon
@@ -128,14 +146,14 @@ export const GlobalSearchModal = observer(() => {
             size="lg"
           />
 
-          {isLoading && <span className="sr-only">{t("loading")}</span>}
+          {isLoading && <span className="sr-only">{t("GlobalSearch.loading")}</span>}
 
           <Input
             ref={inputRef}
             autoFocus
             className="border-0 bg-transparent shadow-none px-0 focus-visible:ring-0 focus-visible:border-transparent"
             id="searchTerm"
-            placeholder={t("placeholder")}
+            placeholder={t("GlobalSearch.placeholder")}
             value={searchTerm}
             onChange={(e) => globalSearchModalStore.onChange("searchTerm", e.target.value)}
             onKeyDown={handleKeyDown}
@@ -144,43 +162,48 @@ export const GlobalSearchModal = observer(() => {
 
         <div className="max-h-[60vh] overflow-y-auto py-2">
           {showNoResults ? (
-            <EmptyState>{t("noResults")}</EmptyState>
+            <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t("GlobalSearch.noResults")}</p>
           ) : !hasQuery && recentItems.length === 0 ? (
-            <EmptyState>{t("emptyPrompt")}</EmptyState>
+            <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t("GlobalSearch.emptyPrompt")}</p>
           ) : (
             <div className="flex flex-col">
               {groupedResults.map((group, groupIdx) => {
                 const offset = groupedResults.slice(0, groupIdx).reduce((sum, g) => sum + g.items.length, 0);
-                const heading = !hasQuery ? t("groupRecent") : t(TYPE_META[group.type].labelKey);
+                const heading = !hasQuery ? t("GlobalSearch.groupRecent") : t(TYPE_META[group.type].labelKey);
 
                 return (
-                  <GroupSection
-                    key={hasQuery ? group.type : "recent"}
-                    action={
-                      !hasQuery && groupIdx === 0 ? (
+                  <div key={hasQuery ? group.type : "recent"} className="flex flex-col px-2 pb-1">
+                    <div className="flex items-center justify-between px-2 pt-2 pb-1">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {heading}
+                      </span>
+
+                      {!hasQuery && groupIdx === 0 ? (
                         <button
                           className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                           type="button"
                           onClick={() => globalSearchModalStore.clearRecentItems()}
                         >
-                          {t("clearRecent")}
+                          {t("GlobalSearch.clearRecent")}
                         </button>
-                      ) : null
-                    }
-                    heading={heading}
-                  >
-                    {group.items.map((item, idx) => (
-                      <ResultRow
-                        key={`${item.type}-${item.id}`}
-                        icon={TYPE_META[item.type].icon}
-                        label={item.name}
-                        selected={selectedIndex === offset + idx}
-                        typeLabel={t(TYPE_META[item.type].labelKey)}
-                        onMouseEnter={() => setSelectedIndex(offset + idx)}
-                        onSelect={item.onSelect}
-                      />
-                    ))}
-                  </GroupSection>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-col">
+                      {group.items.map((item, idx) => (
+                        <ResultRow
+                          key={`${item.type}-${item.id}`}
+                          fallbackIcon={TYPE_META[item.type].icon}
+                          label={item.name}
+                          pictureUrl={item.pictureUrl}
+                          selected={selectedIndex === offset + idx}
+                          typeLabel={t(TYPE_META[item.type].labelKey)}
+                          onMouseEnter={() => setSelectedIndex(offset + idx)}
+                          onSelect={item.onSelect}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -189,9 +212,9 @@ export const GlobalSearchModal = observer(() => {
 
         {flatItems.length > 0 && (
           <div className="flex items-center gap-4 px-4 py-2 border-t border-border text-[11px] text-muted-foreground">
-            <Hint label={t("hintNavigate")} symbol="↑↓" />
+            <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
 
-            <Hint label={t("hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
+            <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
           </div>
         )}
       </AppCard>
@@ -199,39 +222,24 @@ export const GlobalSearchModal = observer(() => {
   );
 });
 
-function EmptyState({ children }: { children: ReactNode }) {
-  return <p className="px-6 py-10 text-center text-sm text-muted-foreground">{children}</p>;
-}
-
-function GroupSection({ heading, action, children }: { heading: string; action?: ReactNode; children: ReactNode }) {
-  return (
-    <div className="flex flex-col px-2 pb-1">
-      <div className="flex items-center justify-between px-2 pt-2 pb-1">
-        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{heading}</span>
-
-        {action}
-      </div>
-
-      <div className="flex flex-col">{children}</div>
-    </div>
-  );
-}
-
 function ResultRow({
-  icon,
+  fallbackIcon,
+  pictureUrl,
   label,
   typeLabel,
   selected,
   onSelect,
   onMouseEnter,
 }: {
-  icon: LucideIcon;
+  fallbackIcon: LucideIcon;
+  pictureUrl: string | null;
   label: string;
   typeLabel: string;
   selected: boolean;
   onSelect: () => void;
   onMouseEnter: () => void;
 }) {
+  const FallbackIcon = fallbackIcon;
   return (
     <button
       className={cn(
@@ -242,7 +250,13 @@ function ResultRow({
       onClick={onSelect}
       onMouseEnter={onMouseEnter}
     >
-      <Icon className="text-muted-foreground shrink-0" icon={icon} />
+      <Avatar>
+        {pictureUrl && <AvatarImage src={pictureUrl} />}
+
+        <AvatarFallback className="bg-transparent">
+          {pictureUrl ? initialsFor(label) : <FallbackIcon className="text-muted-foreground size-4" />}
+        </AvatarFallback>
+      </Avatar>
 
       <span className="flex-1 min-w-0 truncate">{label}</span>
 

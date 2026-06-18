@@ -6,11 +6,12 @@ import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export const DeleteWebhookSchema = z.object({
   id: z.uuid(),
@@ -21,8 +22,8 @@ export abstract class DeleteWebhookRepo {
   abstract deleteWebhookOrThrow(id: string): Promise<WebhookDto>;
 }
 
-@TentantInteractor({ resource: Resource.api, action: Action.delete })
-export class DeleteWebhookInteractor extends BaseInteractor<DeleteWebhookData, string> {
+@TenantInteractor({ resource: Resource.api, action: Action.delete })
+export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebhookData, string> {
   constructor(
     private repo: DeleteWebhookRepo,
     private eventService: EventService,
@@ -32,6 +33,7 @@ export class DeleteWebhookInteractor extends BaseInteractor<DeleteWebhookData, s
 
   @Validate(DeleteWebhookSchema)
   @ValidateOutput(z.string())
+  @Transaction
   async invoke(data: DeleteWebhookData): Validated<string> {
     const webhook = await this.repo.deleteWebhookOrThrow(data.id);
 

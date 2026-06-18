@@ -10,7 +10,7 @@ import { updateSettingsAction } from "../actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
 
 export class UserSettingsStore extends BaseFormStore<UpdateUserSettingsData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       theme: Theme.system,
       displayLanguage: Locale.en,

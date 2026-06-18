@@ -2,7 +2,6 @@
 
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 
@@ -21,17 +20,10 @@ type Props = {
   avatarUrl?: string;
 };
 
-function initialsFromName(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
 export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { stepProfileStore: store } = useRootStore();
-  const { form, isLoading } = store;
+  const { isLoading } = store;
 
   useEffect(
     () => store.onInitOrRefresh({ email, firstName, lastName, avatarUrl }),
@@ -47,20 +39,10 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
       <div className="flex flex-col gap-3">
         <FormInput readOnly autoComplete="email" id="email" name="email" type="email" />
 
-        <div className="flex w-full items-end gap-3">
-          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormInput required autoComplete="given-name" id="firstName" name="given-name" />
+        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+          <FormInput required autoComplete="given-name" id="firstName" name="given-name" />
 
-            <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
-          </div>
-
-          <Avatar className="size-10 shrink-0 border">
-            {form.avatarUrl && <AvatarImage alt="avatar" src={form.avatarUrl} />}
-
-            <AvatarFallback className="text-xs">
-              {initialsFromName(`${form.firstName} ${form.lastName}`)}
-            </AvatarFallback>
-          </Avatar>
+          <FormInput required autoComplete="family-name" id="lastName" name="family-name" />
         </div>
 
         <FormAutocompleteCountry required id="country" />

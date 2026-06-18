@@ -10,7 +10,7 @@ import { registerProfileAction } from "../actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
 
 export class StepProfileStore extends BaseFormStore<RegisterUserData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       firstName: "",
       lastName: "",

@@ -2,15 +2,13 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { SendFeedbackData } from "@/features/feedback/send-feedback.schema";
 import type { FormEvent } from "react";
 
-import { toast } from "sonner";
-
 import { sendFeedbackAction } from "../../actions";
 
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class FeedbackModalStore extends BaseModalStore<SendFeedbackData> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, {
       feedback: "",
       type: FeedbackType.general,
@@ -31,7 +29,7 @@ export class FeedbackModalStore extends BaseModalStore<SendFeedbackData> {
       if (res.ok) {
         this.close();
         this.onInitOrRefresh({ feedback: "", type: this.form.type });
-        toast.success(this.rootStore.localeStore.getTranslation("feedback.success"));
+        this.toastSuccess("feedback.success");
       } else this.setError(res.error);
     } finally {
       this.setIsLoading(false);

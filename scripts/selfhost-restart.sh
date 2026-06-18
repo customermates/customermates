@@ -15,8 +15,7 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-docker compose restart app webhook-worker
+docker compose restart app
 docker compose ps
 echo "Logs:"
 echo "  docker compose logs -f app"
-echo "  docker compose logs -f webhook-worker"

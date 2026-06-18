@@ -17,7 +17,7 @@ export class OrganizationDetailStore extends BaseCustomColumnEntityModalStore<
   CreateOrganizationData & { id?: string },
   OrganizationDto
 > {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -61,10 +61,11 @@ export class OrganizationDetailStore extends BaseCustomColumnEntityModalStore<
       contactIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
     };
   }
 
   protected buildRecentSearchItem(entity: OrganizationDto) {
-    return { type: "organization" as const, id: entity.id, name: entity.name };
+    return { type: "organization" as const, id: entity.id, name: entity.name, pictureUrl: null };
   }
 }

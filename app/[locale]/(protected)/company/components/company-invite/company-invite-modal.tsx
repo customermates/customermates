@@ -3,43 +3,28 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Clipboard } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FormLabel } from "@/components/forms/form-label";
-import { AppModal, ModalFooter } from "@/components/modal";
+import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 
 import { InviteByEmailForm } from "./invite-by-email-form";
 
 export const CompanyInviteModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
 
   const { companyInviteModalStore, intlStore } = useRootStore();
 
   const { form, isLoading } = companyInviteModalStore;
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(form.inviteLink);
-      toast.success(
-        t("Common.notifications.copiedToClipboard", {
-          value: form.inviteLink,
-        }),
-        {
-          icon: <Icon icon={Clipboard} size="sm" />,
-        },
-      );
-    } catch {
-      toast.error(t("Common.notifications.copyFailed"));
-    }
-  }
+  const copy = useCopyToClipboard();
 
   function getDescription() {
     const baseDescription = t("CompanyInviteModal.description");
@@ -75,7 +60,7 @@ export const CompanyInviteModal = observer(() => {
                 <div className="flex gap-2 items-center">
                   <Input readOnly className="truncate" disabled={isLoading} id="inviteLink" value={resolvedValue} />
 
-                  <Button disabled={isLoading} size="icon" variant="ghost" onClick={() => void handleCopy()}>
+                  <Button disabled={isLoading} size="icon" variant="ghost" onClick={() => void copy(form.inviteLink)}>
                     <Icon icon={Clipboard} />
                   </Button>
                 </div>
@@ -89,12 +74,6 @@ export const CompanyInviteModal = observer(() => {
             </TabsContent>
           </Tabs>
         </AppCardBody>
-
-        <ModalFooter className="p-6 pt-0">
-          <Button autoFocus variant="secondary" onClick={() => companyInviteModalStore.close()}>
-            {t("Common.actions.close")}
-          </Button>
-        </ModalFooter>
       </AppCard>
     </AppModal>
   );

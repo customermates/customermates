@@ -1,9 +1,8 @@
 import type { FormEvent } from "react";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
-import type { UserDto } from "@/features/user/user.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { action, computed, makeObservable, observable, toJS } from "mobx";
+import { action, computed, makeObservable, toJS } from "mobx";
 import { CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from "../../actions";
@@ -11,9 +10,7 @@ import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
 export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
-  public fetchedUser: UserDto | null = null;
-
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -29,8 +26,6 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     );
 
     makeObservable(this, {
-      fetchedUser: observable,
-
       onSubmit: action,
       loadById: action,
 
@@ -53,7 +48,6 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   }
 
   loadById = async (id: string) => {
-    this.fetchedUser = null;
     this.setIsLoading(true);
 
     try {
@@ -63,10 +57,9 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
 
       if (!user) return;
 
-      this.fetchedUser = user;
       this.setError(undefined);
 
-      this.onInitOrRefresh({
+      this.openWith({
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -75,8 +68,6 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         avatarUrl: user.avatarUrl,
         roleId: user.roleId ?? "",
       });
-
-      this.open();
     } finally {
       this.setIsLoading(false);
     }

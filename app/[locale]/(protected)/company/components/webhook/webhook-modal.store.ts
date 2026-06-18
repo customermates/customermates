@@ -1,6 +1,5 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
-import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { UpsertWebhookData } from "@/features/webhook/upsert-webhook.interactor";
 
 import { action, makeObservable, observable, toJS } from "mobx";
@@ -13,7 +12,7 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
   showSecret = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(
       rootStore,
       {
@@ -29,9 +28,7 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
     makeObservable(this, {
       showSecret: observable,
 
-      add: action,
       delete: action,
-      edit: action,
       onSubmit: action,
       toggleShowSecret: action,
     });
@@ -39,29 +36,6 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
 
   toggleShowSecret = () => {
     this.showSecret = !this.showSecret;
-  };
-
-  add = () => {
-    this.onInitOrRefresh({
-      url: "",
-      description: undefined,
-      events: [],
-      secret: undefined,
-      enabled: true,
-    });
-    this.open();
-  };
-
-  edit = (webhook: WebhookDto) => {
-    this.onInitOrRefresh({
-      id: webhook.id,
-      url: webhook.url,
-      description: webhook.description ?? undefined,
-      events: webhook.events,
-      secret: webhook.secret ?? undefined,
-      enabled: webhook.enabled,
-    });
-    this.open();
   };
 
   delete = async () => {

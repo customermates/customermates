@@ -16,7 +16,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
 
 export const AuditLogModal = observer(() => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { auditLogModalStore: store, intlStore, userModalStore } = useRootStore();
   const auditLog = store.form;
 

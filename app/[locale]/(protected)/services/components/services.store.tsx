@@ -10,7 +10,7 @@ import { getServicesAction } from "../actions";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
 export class ServicesStore extends BaseDataViewStore<ServiceDto> {
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, Resource.services, EntityType.service);
   }
 

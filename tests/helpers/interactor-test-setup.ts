@@ -16,26 +16,29 @@
  *
  *   const mockUser = createMockUser();
  *
- *   vi.mock("@/constants/env", () => MOCK_ENV_MODULE);
+ *   vi.mock("@/env", () => MOCK_ENV_MODULE);
  *   vi.mock("@/core/di", () => createMockDiModule(mockUser));
  *   vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
  *   vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
  */
 import { vi } from "vitest";
 
+import type { Action, Resource } from "@/generated/prisma";
 import type { ExtendedUser } from "@/features/user/user.types";
 
 // ---------------------------------------------------------------------------
-// @/constants/env
+// @/env
 // ---------------------------------------------------------------------------
 export const MOCK_ENV_MODULE = {
-  IS_PRODUCTION: false,
-  IS_DEVELOPMENT: true,
-  IS_DEMO_MODE: false,
-  IS_CLOUD_HOSTED: false,
-  IS_CLOUD_BUILD: false,
-  BASE_URL: "http://localhost:4000",
-  RESEND_FROM_EMAIL: "test@test.com",
+  env: {
+    NODE_ENV: "test" as const,
+    DEMO_MODE: false,
+    CLOUD_HOSTED: false,
+    BASE_URL: "http://localhost:4000",
+    RESEND_OPERATOR_EMAIL: "test@test.com",
+    DATABASE_URL: "postgresql://test:test@localhost:5432/test",
+    BETTER_AUTH_SECRET: "0".repeat(32),
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -54,11 +57,18 @@ export function createMockDiModule(getMockUser: () => ExtendedUser) {
     getUserService: () => ({
       getActiveUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),
       getUser: vi.fn().mockResolvedValue(getMockUser()),
+      hasPermission: vi.fn().mockImplementation((resource: Resource, action: Action) => {
+        const user = getMockUser();
+        if (!user.role) return false;
+        if (user.role.isSystemRole) return true;
+        return user.role.permissions?.some((p) => p.resource === resource && p.action === action) ?? false;
+      }),
     }),
-    getContactRepo: () => ({ findIds: makeFindIds() }),
+    getContactRepo: () => ({ findIds: makeFindIds(), findIdentifierOwners: vi.fn().mockResolvedValue(new Map()) }),
     getOrganizationRepo: () => ({ findIds: makeFindIds() }),
     getDealRepo: () => ({ findIds: makeFindIds() }),
     getCompanyRepo: () => ({ findIds: makeFindIds() }),
+    getUserRepo: () => ({ findIds: makeFindIds() }),
     getCustomColumnRepo: () => ({ findByEntityType: vi.fn().mockResolvedValue([]) }),
     getServiceRepo: () => ({ findIds: makeFindIds() }),
     getTaskRepo: () => ({
@@ -91,22 +101,3 @@ export const MOCK_PRISMA_DB_MODULE = {
   },
 };
 
-// ---------------------------------------------------------------------------
-// Common mock service/repo factories used in beforeEach blocks
-// ---------------------------------------------------------------------------
-export function createMockEventService() {
-  return { publish: vi.fn().mockResolvedValue(undefined) };
-}
-
-export function createMockWidgetService() {
-  return { recalculateUserWidgets: vi.fn().mockResolvedValue(undefined) };
-}
-
-export function createMockRelatedRepos() {
-  return {
-    orgRepo: { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) },
-    dealRepo: { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) },
-    contactRepo: { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) },
-    serviceRepo: { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) },
-  };
-}

@@ -13,7 +13,6 @@ import {
   getGetWidgetByIdInteractor,
   getUpdateWidgetLayoutsInteractor,
   getGetWidgetsInteractor,
-  getRecalculateUserWidgetsInteractor,
   getUpdateUserSettingsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
@@ -23,8 +22,7 @@ export async function upsertWidgetAction(data: UpsertWidgetData) {
 }
 
 export async function deleteWidgetAction(data: DeleteWidgetData) {
-  const result = await getDeleteWidgetInteractor().invoke(data);
-  return result.data;
+  return serializeResult(getDeleteWidgetInteractor().invoke(data));
 }
 
 export async function getCompanyWidgetsAction() {
@@ -34,12 +32,11 @@ export async function getCompanyWidgetsAction() {
 
 export async function getWidgetByIdAction(data: GetWidgetByIdData) {
   const result = await getGetWidgetByIdInteractor().invoke(data);
-  return result.data;
+  return result.ok ? result.data : null;
 }
 
 export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
-  const result = await getUpdateWidgetLayoutsInteractor().invoke(data);
-  return result.data;
+  return serializeResult(getUpdateWidgetLayoutsInteractor().invoke(data));
 }
 
 export async function refreshWidgetsAction() {
@@ -47,11 +44,6 @@ export async function refreshWidgetsAction() {
   return result.data;
 }
 
-export async function recalculateUserWidgetsAction() {
-  const result = await getRecalculateUserWidgetsInteractor().invoke();
-  return result.data;
-}
-
 export async function updateThemeAction(data: UpdateUserSettingsData) {
-  return getUpdateUserSettingsInteractor().invoke(data);
+  return serializeResult(getUpdateUserSettingsInteractor().invoke(data));
 }

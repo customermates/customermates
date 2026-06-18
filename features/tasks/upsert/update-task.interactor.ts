@@ -4,33 +4,37 @@ import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-co
 import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
 import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
 import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { WidgetService } from "@/features/widget/widget.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
 
 import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateUserIds } from "../../../core/validation/validate-user-ids";
-import { validateTaskIds } from "../../../core/validation/validate-task-ids";
-import { validateContactIds } from "../../contacts/validate-contact-ids";
-import { validateOrganizationIds } from "../../../core/validation/validate-organization-ids";
-import { validateDealIds } from "../../../core/validation/validate-deal-ids";
-import { validateServiceIds } from "../../../core/validation/validate-service-ids";
+import {
+  validateContactIds,
+  validateUserIds,
+  validateSystemTaskName,
+  validateTaskIds,
+  validateOrganizationIds,
+  validateDealIds,
+  validateServiceIds,
+} from "../../../core/validation/ids-validators";
+import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type TaskDto, TaskDtoSchema } from "../task.schema";
 
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseInteractor } from "@/core/base/base-interactor";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import {
-  getCompanyRepo,
+  getUserRepo,
+  getUserService,
   getContactRepo,
   getCustomColumnRepo,
   getDealRepo,
@@ -50,23 +54,31 @@ export const UpdateTaskSchema = BaseUpdateTaskSchema.superRefine(async (data, ct
   const [
     validUserIdsSet,
     validTaskIdsSet,
+    systemTaskIdsSet,
     validContactIdsSet,
     validOrgIdsSet,
     validDealIdsSet,
     validServiceIdsSet,
     allColumns,
+    currentUser,
+    canReadAll,
   ] = await Promise.all([
-    getCompanyRepo().findIds(userSet),
+    getUserRepo().findIds(userSet),
     getTaskRepo().findIds(taskSet),
+    getTaskRepo().findSystemTaskIds(taskSet),
     getContactRepo().findIds(contactSet),
     getOrganizationRepo().findIds(orgSet),
     getDealRepo().findIds(dealSet),
     getServiceRepo().findIds(serviceSet),
     getCustomColumnRepo().findByEntityType(EntityType.task),
+    getUserService().getActiveUserOrThrow(),
+    getUserService().hasPermission(Resource.tasks, Action.readAll),
   ]);
 
   validateTaskIds(data.id, validTaskIdsSet, ctx, ["id"]);
+  validateSystemTaskName(data, systemTaskIdsSet, ctx, []);
   validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
+  validateAssigneeGuard(data.userIds, currentUser.id, canReadAll, ctx, ["userIds"]);
   validateContactIds(data.contactIds, validContactIdsSet, ctx, ["contactIds"]);
   validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);
   validateDealIds(data.dealIds, validDealIdsSet, ctx, ["dealIds"]);
@@ -76,11 +88,11 @@ export const UpdateTaskSchema = BaseUpdateTaskSchema.superRefine(async (data, ct
 });
 export type UpdateTaskData = Data<typeof UpdateTaskSchema>;
 
-@TentantInteractor({
+@TenantInteractor({
   resource: Resource.tasks,
   action: Action.update,
 })
-export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto> {
+export class UpdateTaskInteractor extends AuthenticatedInteractor<UpdateTaskData, TaskDto> {
   constructor(
     private repo: UpdateTaskRepo,
     private contactsRepo: GetUnscopedContactRepo,
@@ -88,7 +100,6 @@ export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto
     private dealsRepo: GetUnscopedDealRepo,
     private servicesRepo: GetUnscopedServiceRepo,
     private eventService: EventService,
-    private widgetService: WidgetService,
   ) {
     super();
   }
@@ -178,7 +189,6 @@ export class UpdateTaskInteractor extends BaseInteractor<UpdateTaskData, TaskDto
           changes,
         },
       }),
-      this.widgetService.recalculateUserWidgets(),
     ]);
 
     return { ok: true as const, data: task };

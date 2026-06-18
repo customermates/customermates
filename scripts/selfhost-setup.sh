@@ -35,7 +35,8 @@ REQUIRED_VARS=(
   POSTGRES_DB
   BETTER_AUTH_SECRET
   RESEND_API_KEY
-  RESEND_FROM_EMAIL
+  RESEND_OPERATOR_EMAIL
+  CRON_SECRET
 )
 
 for VAR in "${REQUIRED_VARS[@]}"; do
@@ -48,6 +49,6 @@ done
 docker compose pull app
 docker compose up -d postgres
 docker compose run --rm app npx prisma migrate deploy
-docker compose up -d app webhook-worker
+docker compose up -d app
 docker compose ps
 echo "Setup completed. Open ${BASE_URL}"

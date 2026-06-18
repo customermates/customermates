@@ -54,7 +54,16 @@ export class PrismaTaskRepo
       },
       contacts: {
         where: { contact: this.accessWhere("contact") },
-        select: { contact: { select: { id: true, firstName: true, lastName: true } } },
+        select: {
+          contact: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
       },
       organizations: {
         where: { organization: this.accessWhere("organization") },
@@ -180,7 +189,7 @@ export class PrismaTaskRepo
     return this.prisma.task.count({ where });
   }
 
-  async getSystemTasksCount(): Promise<number> {
+  async getSystemTasksCount() {
     if (!this.hasPermission(Resource.users, Action.update)) return 0;
 
     return this.prisma.task.count({
@@ -191,7 +200,7 @@ export class PrismaTaskRepo
     });
   }
 
-  async findByType(args: Parameters<TaskWorkerRepo["findByType"]>[0]) {
+  async findByType(args: RepoArgs<TaskWorkerRepo, "findByType">) {
     const { companyId } = this.user;
     const { type } = args;
 
@@ -211,18 +220,9 @@ export class PrismaTaskRepo
   }
 
   @Transaction
-  async delete(args: Parameters<TaskWorkerRepo["delete"]>[0]) {
+  async delete(args: RepoArgs<TaskWorkerRepo, "delete">) {
     const { companyId } = this.user;
     const { id } = args;
-
-    await Promise.all([
-      this.prisma.customFieldValue.deleteMany({ where: { companyId, taskId: id } }),
-      this.prisma.taskUser.deleteMany({ where: { taskId: id, companyId } }),
-      this.prisma.taskContact.deleteMany({ where: { taskId: id, companyId } }),
-      this.prisma.taskOrganization.deleteMany({ where: { taskId: id, companyId } }),
-      this.prisma.taskDeal.deleteMany({ where: { taskId: id, companyId } }),
-      this.prisma.taskService.deleteMany({ where: { taskId: id, companyId } }),
-    ]);
 
     await this.prisma.task.deleteMany({ where: { id, companyId } });
   }
@@ -478,8 +478,8 @@ export class PrismaTaskRepo
     return taskDto;
   }
 
-  async findIds(ids: Set<string>): Promise<Set<string>> {
-    if (ids.size === 0) return new Set();
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
 
     const tasks = await this.prisma.task.findMany({
       where: {
@@ -492,8 +492,8 @@ export class PrismaTaskRepo
     return new Set(tasks.map((task) => task.id));
   }
 
-  async findSystemTaskIds(ids: Set<string>): Promise<Set<string>> {
-    if (ids.size === 0) return new Set();
+  async findSystemTaskIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
 
     const tasks = await this.prisma.task.findMany({
       where: {
@@ -521,7 +521,7 @@ export class PrismaTaskRepo
     return this.toDto(task);
   }
 
-  async getOrThrowUnscoped(id: string): Promise<TaskDto> {
+  async getOrThrowUnscoped(id: string) {
     const { companyId } = this.user;
 
     const task = await this.prisma.task.findFirstOrThrow({
@@ -532,7 +532,7 @@ export class PrismaTaskRepo
     return this.toDto(task);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]): Promise<TaskDto[]> {
+  async getManyOrThrowUnscoped(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;

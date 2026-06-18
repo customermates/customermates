@@ -11,7 +11,7 @@ import { BaseFormStore } from "@/core/base/base-form.store";
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
   showPassword = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "" });
 
     makeObservable(this, {

@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
@@ -50,17 +51,15 @@ export const FormIsoDatePicker = observer(
     containerClassName,
   }: Props) => {
     const t = useTranslations();
-    const tInputs = useTranslations("Common.inputs");
     const store = useAppForm();
     const { intlStore } = useRootStore();
 
     const raw = store?.getValue(id);
     const isoValue = typeof raw === "string" ? raw : undefined;
     const parsed = parseIso(isoValue);
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
 
-    const resolvedLabel = label === null ? undefined : (label ?? safeTranslate(tInputs, id));
+    const resolvedLabel = label ?? undefined;
 
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
 
@@ -146,7 +145,7 @@ export const FormIsoDatePicker = observer(
 
           <PopoverContent
             align="start"
-            className="w-auto max-h-[var(--radix-popover-content-available-height)] overflow-y-auto p-0"
+            className="w-auto max-h-(--radix-popover-content-available-height) overflow-y-auto p-0"
           >
             <Calendar
               autoFocus
@@ -215,12 +214,4 @@ function toIso(date: Date, dateOnly: boolean): string {
     return `${y}-${m}-${d}`;
   }
   return date.toISOString();
-}
-
-function safeTranslate(t: (k: string) => string, key: string): string {
-  try {
-    return t(key);
-  } catch {
-    return key;
-  }
 }

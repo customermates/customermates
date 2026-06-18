@@ -22,9 +22,10 @@ export function useTopBarActions() {
 }
 
 export function useSetTopBarActions(node: ReactNode): void {
-  const { setActions } = useTopBarActions();
+  const setActions = useContext(TopBarActionsContext)?.setActions;
 
   useEffect(() => {
+    if (!setActions) return;
     setActions(node);
     return () => setActions(null);
   }, [node, setActions]);

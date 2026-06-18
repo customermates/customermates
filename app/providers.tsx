@@ -12,23 +12,12 @@ type Props = {
   children: React.ReactNode;
   defaultTheme?: string;
   displayLanguage: string | undefined;
-  initialNavbarVisible?: boolean;
-  initialSidebarOpen?: boolean;
   isDemoMode?: boolean;
   isCloudHosted?: boolean;
   messages?: DeepPartial<Record<string, any>> | null | undefined;
 };
 
-export function Providers({
-  children,
-  defaultTheme,
-  displayLanguage,
-  initialNavbarVisible,
-  initialSidebarOpen,
-  isDemoMode,
-  isCloudHosted,
-  messages,
-}: Props) {
+export function Providers({ children, defaultTheme, displayLanguage, isDemoMode, isCloudHosted, messages }: Props) {
   return (
     <RootProvider
       search={{
@@ -37,12 +26,7 @@ export function Providers({
     >
       <ServerThemeProvider serverTheme={defaultTheme}>
         <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
-          <RootStoreProvider
-            initialNavbarVisible={initialNavbarVisible}
-            initialSidebarOpen={initialSidebarOpen}
-            isCloudHosted={isCloudHosted}
-            isDemoMode={isDemoMode}
-          >
+          <RootStoreProvider isCloudHosted={isCloudHosted} isDemoMode={isDemoMode}>
             {children}
           </RootStoreProvider>
         </NextIntlClientProvider>

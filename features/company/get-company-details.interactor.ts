@@ -3,8 +3,8 @@ import { Resource, Action, CountryCode, Currency, SalesType } from "@/generated/
 
 import type { Company } from "@/generated/prisma";
 
-import { BaseInteractor } from "@/core/base/base-interactor";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -30,8 +30,8 @@ export abstract class GetCompanyDetailsRepo {
 }
 
 @AllowInDemoMode
-@TentantInteractor({ resource: Resource.company, action: Action.readOwn })
-export class GetCompanyDetailsInteractor extends BaseInteractor<void, Company> {
+@TenantInteractor({ resource: Resource.company, action: Action.readOwn })
+export class GetCompanyDetailsInteractor extends AuthenticatedInteractor<void, Company> {
   constructor(private repo: GetCompanyDetailsRepo) {
     super();
   }

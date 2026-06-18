@@ -55,7 +55,6 @@ export const howItWorksSchema = z.object({
   steps: z.array(howItWorksStepSchema),
   clipTerminal: clipTerminalSchema,
 });
-export type HowItWorks = z.infer<typeof howItWorksSchema>;
 
 export const walkthroughBulletSchema = z.object({
   title: z.string(),
@@ -83,7 +82,6 @@ const rootMetadataSchema = z.object({
   icon: z.string(),
   titleTemplate: z.string(),
 });
-export type RootMetadata = z.infer<typeof rootMetadataSchema>;
 
 export const homepageSchema = frontmatterSchema.extend({
   automationExplanation: automationExplanationSchema,

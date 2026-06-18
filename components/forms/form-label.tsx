@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
 
-export const FormLabel = observer(function FormLabel({ className, htmlFor, ...props }: ComponentProps<typeof Label>) {
+export const FormLabel = observer(({ className, htmlFor, ...props }: ComponentProps<typeof Label>) => {
   const store = useAppForm();
   const errors = htmlFor ? store?.getError(htmlFor) : undefined;
   const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);

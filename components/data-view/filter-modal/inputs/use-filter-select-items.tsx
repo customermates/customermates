@@ -4,10 +4,12 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CustomColumnType, Status, TaskType } from "@/generated/prisma";
+import { CustomColumnType, MessagingProvider, MessagingThreadState, Status, TaskType } from "@/generated/prisma";
 
 import { isCustomField } from "@/components/data-view/table-view.utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { Avatar } from "@/components/ui/avatar";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { type ChipColor } from "@/constants/chip-colors";
@@ -18,7 +20,12 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
+import { getActivityThreadOptionsAction } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
+import {
+  THREAD_STATE_CHIP_COLOR,
+  ThreadStateDot,
+} from "@/app/[locale]/(protected)/inbox/components/thread-state-visuals";
 import { DomainEvent } from "@/features/event/domain-events";
 
 export type FilterSelectItem = {
@@ -31,18 +38,26 @@ export type FilterSelectItem = {
 
 type GetItemsFunction = (params: GetQueryParams) => Promise<GetResult<FilterSelectItem>>;
 
-function initials(first?: string | null, last?: string | null): string {
-  return `${(first ?? "").charAt(0)}${(last ?? "").charAt(0)}`.trim().toUpperCase();
+function renderAvatar(name: string, src?: string | null) {
+  return <Avatar className="mr-0.5" name={name} size="sm" src={src} />;
 }
 
-function renderAvatar(name: string, src?: string | null) {
-  return (
-    <Avatar className="mr-0.5 size-4">
-      {src ? <AvatarImage src={src} /> : null}
+const contactItems: GetItemsFunction = (params) =>
+  getContactsAction(params).then((res) => ({
+    items: res.items.map((contact) => {
+      const name = `${contact.firstName} ${contact.lastName}`.trim();
+      return {
+        key: contact.id,
+        value: contact.id,
+        textValue: name,
+        startContent: renderAvatar(name, contact.avatarUrl ?? undefined),
+      };
+    }),
+  }));
 
-      <AvatarFallback className="text-[8px]">{initials(name.split(" ")[0], name.split(" ")[1])}</AvatarFallback>
-    </Avatar>
-  );
+function renderProviderIcon(provider: string, label: string) {
+  const ProviderIcon = getProviderIcon(provider as MessagingProvider);
+  return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
 }
 
 // TODO check for refactoring
@@ -54,7 +69,8 @@ export function useFilterSelectItems(
   getItems?: GetItemsFunction;
   isLoading: boolean;
 } {
-  const t = useTranslations("");
+  const t = useTranslations();
+  const { activitiesStore } = useRootStore();
   const [fetchedItems, setFetchedItems] = useState<FilterSelectItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -100,18 +116,8 @@ export function useFilterSelectItems(
             textValue: organization.name,
           })),
         })),
-      [FilterFieldKey.contactIds]: (params) =>
-        getContactsAction(params).then((res) => ({
-          items: res.items.map((contact) => {
-            const name = `${contact.firstName} ${contact.lastName}`.trim();
-            return {
-              key: contact.id,
-              value: contact.id,
-              textValue: name,
-              startContent: renderAvatar(name),
-            };
-          }),
-        })),
+      [FilterFieldKey.contactIds]: contactItems,
+      [FilterFieldKey.participantContactId]: contactItems,
       [FilterFieldKey.taskIds]: (params) =>
         getTasksAction(params).then((res) => ({
           items: res.items.map((task) => {
@@ -124,13 +130,28 @@ export function useFilterSelectItems(
             };
           }),
         })),
+      [FilterFieldKey.timelineThreadId]: () => {
+        const { timelineEntityType, timelineEntityId } = activitiesStore;
+
+        return getActivityThreadOptionsAction({
+          entityType: timelineEntityType ?? undefined,
+          entityId: timelineEntityId || undefined,
+        }).then((threads) => ({
+          items: threads.map((thread) => ({
+            key: thread.id,
+            value: thread.id,
+            textValue: thread.label || t(`Common.providers.${thread.provider}`),
+            startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
+          })),
+        }));
+      },
     };
 
     if (isCustom) return undefined;
 
     const enumValue = Object.values(FilterFieldKey).find((key) => key === (field as FilterFieldKey));
     return enumValue ? fieldToGetItemsMap[enumValue] : undefined;
-  }, [field, isCustom, t]);
+  }, [field, isCustom, t, activitiesStore]);
 
   useEffect(() => {
     if (!Array.isArray(value)) {
@@ -193,8 +214,37 @@ export function useFilterSelectItems(
       case FilterFieldKey.dealIds:
       case FilterFieldKey.organizationIds:
       case FilterFieldKey.contactIds:
-      case FilterFieldKey.taskIds: {
+      case FilterFieldKey.participantContactId:
+      case FilterFieldKey.taskIds:
+      case FilterFieldKey.timelineThreadId: {
         return fetchedItems;
+      }
+
+      case FilterFieldKey.provider: {
+        return Object.values(MessagingProvider).map((provider) => ({
+          key: provider,
+          value: provider,
+          textValue: t(`Common.providers.${provider}`),
+          startContent: renderProviderIcon(provider, t(`Common.providers.${provider}`)),
+        }));
+      }
+
+      case FilterFieldKey.timelineKind: {
+        return (["changes", "messages", "activities"] as const).map((type) => ({
+          key: type,
+          value: type,
+          textValue: t(`EntityTimeline.types.${type}`),
+        }));
+      }
+
+      case FilterFieldKey.state: {
+        return Object.values(MessagingThreadState).map((state) => ({
+          key: state,
+          value: state,
+          textValue: t(`Inbox.threadStates.${state}`),
+          color: THREAD_STATE_CHIP_COLOR[state],
+          startContent: <ThreadStateDot className="size-1.5" state={state} />,
+        }));
       }
 
       case FilterFieldKey.event: {
@@ -219,7 +269,8 @@ export function useFilterSelectItems(
       }
 
       case FilterFieldKey.createdAt:
-      case FilterFieldKey.updatedAt: {
+      case FilterFieldKey.updatedAt:
+      case FilterFieldKey.participants: {
         return [];
       }
 

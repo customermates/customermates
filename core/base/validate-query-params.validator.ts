@@ -1,7 +1,7 @@
 import type { Filter, FilterableField, SortDescriptor } from "./base-get.schema";
 import type { SortableField } from "./base-query-builder";
 
-import { z } from "zod";
+import type { z } from "zod";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "./base-query-builder";
@@ -9,11 +9,13 @@ import { FilterOperatorKey } from "./base-query-builder";
 import type { EntityType } from "@/generated/prisma";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { validateOrganizationIds } from "@/core/validation/validate-organization-ids";
-import { validateUserIds } from "@/core/validation/validate-user-ids";
-import { validateDealIds } from "@/core/validation/validate-deal-ids";
-import { validateServiceIds } from "@/core/validation/validate-service-ids";
-import { validateContactIds } from "@/features/contacts/validate-contact-ids";
+import {
+  validateOrganizationIds,
+  validateUserIds,
+  validateDealIds,
+  validateServiceIds,
+  validateContactIds,
+} from "@/core/validation/ids-validators";
 import { validateCustomFieldEmail } from "@/core/validation/validate-custom-field-email";
 import { validateCustomFieldPhone } from "@/core/validation/validate-custom-field-phone";
 import { validateCustomFieldCurrency } from "@/core/validation/validate-custom-field-currency";
@@ -27,11 +29,12 @@ import { validateEvent } from "@/core/validation/validate-event";
 import {
   getOrganizationRepo,
   getDealRepo,
-  getCompanyRepo,
+  getUserRepo,
   getServiceRepo,
   getContactRepo,
   getCustomColumnRepo,
 } from "@/core/di";
+import { isCustomField } from "@/core/utils/custom-field";
 
 export class ValidateQueryParamsValidator {
   async invoke(
@@ -107,7 +110,7 @@ export class ValidateQueryParamsValidator {
       const validIdsSet = await getDealRepo().findIds(valueSet);
       validateDealIds(filter.value, validIdsSet, ctx, fieldPath);
     } else if (filter.field === "userIds" && valueSet.size > 0) {
-      const validIdsSet = await getCompanyRepo().findIds(valueSet);
+      const validIdsSet = await getUserRepo().findIds(valueSet);
       validateUserIds(filter.value, validIdsSet, ctx, fieldPath);
     } else if (filter.field === "serviceIds" && valueSet.size > 0) {
       const validIdsSet = await getServiceRepo().findIds(valueSet);
@@ -117,7 +120,7 @@ export class ValidateQueryParamsValidator {
       validateContactIds(filter.value, validIdsSet, ctx, fieldPath);
     } else if (filter.field === "event") validateEvent(filter.value, ctx, fieldPath);
     else if (filter.field === "updatedAt" || filter.field === "createdAt") validateDate(filter.value, ctx, fieldPath);
-    else if (this.isCustomField(filter.field)) {
+    else if (isCustomField(filter.field)) {
       const allColumns = await getCustomColumnRepo().findByEntityType(entityType);
       const fieldPathForField = ["filters", filterIndex, "field"];
 
@@ -181,9 +184,5 @@ export class ValidateQueryParamsValidator {
         }
       }
     }
-  }
-
-  private isCustomField(field: string): boolean {
-    return z.uuid().safeParse(field).success;
   }
 }

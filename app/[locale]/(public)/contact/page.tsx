@@ -6,12 +6,24 @@ import { ContactForm } from "./contact-form";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
 
 export default async function ContactPage() {
-  const t = await getTranslations("ContactPage");
+  const t = await getTranslations();
 
   const highlights = [
-    { icon: Zap, title: t("highlights.fast.title"), body: t("highlights.fast.body") },
-    { icon: MessageCircle, title: t("highlights.personal.title"), body: t("highlights.personal.body") },
-    { icon: Mail, title: t("highlights.direct.title"), body: t("highlights.direct.body") },
+    {
+      icon: Zap,
+      title: t("ContactPage.highlights.fast.title"),
+      body: t("ContactPage.highlights.fast.body"),
+    },
+    {
+      icon: MessageCircle,
+      title: t("ContactPage.highlights.personal.title"),
+      body: t("ContactPage.highlights.personal.body"),
+    },
+    {
+      icon: Mail,
+      title: t("ContactPage.highlights.direct.title"),
+      body: t("ContactPage.highlights.direct.body"),
+    },
   ];
 
   return (
@@ -37,9 +49,9 @@ export default async function ContactPage() {
         <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 md:py-20">
           <div className="grid gap-10 md:grid-cols-5 md:gap-12 lg:gap-16">
             <div className="flex flex-col gap-6 md:col-span-2">
-              <h1 className="text-x-4xl">{t("title")}</h1>
+              <h1 className="text-x-4xl">{t("ContactPage.title")}</h1>
 
-              <p className="text-x-lg text-subdued">{t("description")}</p>
+              <p className="text-x-lg text-subdued">{t("ContactPage.description")}</p>
 
               <ul className="flex flex-col gap-4 pt-2">
                 {highlights.map(({ icon: Icon, title, body }) => (

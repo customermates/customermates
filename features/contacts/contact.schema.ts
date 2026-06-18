@@ -11,13 +11,34 @@ import {
   NotesSchema,
 } from "@/core/base/base-entity.schema";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
+import { MessagingProviderSchema } from "@/ee/messaging/messaging.schema";
+
+export const IdentifierInputSchema = z.object({
+  provider: MessagingProviderSchema,
+  value: z.string().trim().min(1).max(320),
+  messagingId: z.string().trim().min(1).max(320).regex(/^\S+$/).optional(),
+  displayName: z.string().max(255).optional(),
+  profileUrl: z.string().max(2048).optional(),
+});
+export type IdentifierInput = Data<typeof IdentifierInputSchema>;
+
+export const ContactIdentifierDtoSchema = z.object({
+  id: z.uuid(),
+  provider: MessagingProviderSchema,
+  value: z.string(),
+  messagingId: z.string().nullable(),
+  displayName: z.string().nullable(),
+  profileUrl: z.string().nullable(),
+});
+export type ContactIdentifierDto = Data<typeof ContactIdentifierDtoSchema>;
 
 export const ContactDtoSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
-  emails: z.array(z.email()),
+  avatarUrl: z.string().nullable(),
   notes: NotesSchema,
+  identifiers: z.array(ContactIdentifierDtoSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
   organizations: z.array(OrganizationReferenceSchema),

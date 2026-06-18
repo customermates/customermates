@@ -1,16 +1,27 @@
 /**
- * Central dependency injection - single source of truth for all singletons and interactor creation.
+ * Application dependency injection - single source of truth for everything wired
+ * into the Next.js app, including the in-process workflow steps.
  *
  * Structure:
  *   Section 1: Imports (concrete classes only, from specific files)
- *   Section 2: Repo singletons (lazy getters, cached with ??=)
- *   Section 3: Service singletons (lazy getters, depend on repos)
- *   Section 4: Interactor getters (fresh per call, deps are singletons)
+ *   Section 2: Repo getters (fresh per call)
+ *   Section 3: Service getters (fresh per call)
+ *   Section 4: Interactor getters (fresh per call, deps from getters)
+ *
+ * The auth chain returns `Redirect` outcomes instead of calling `redirect()`
+ * from `next/navigation` directly, so it stays framework-agnostic and
+ * workflow-worker-safe. Outcome translation lives in
+ * `features/auth/next/require.ts` (page guards) and in
+ * `core/utils/action-result.ts`'s `serializeResult` (server actions), both
+ * imported only on the Next.js side. Never add an import here that pulls
+ * `next/navigation` at module load.
  */
 
 // ─── Section 1: Imports ─────────────────────────────────────────────────────
+
 // Repos
 import { PrismaContactRepo } from "@/features/contacts/prisma-contact.repository";
+import { PrismaContactAvatarRepo } from "@/features/contacts/prisma-contact-avatar.repository";
 import { PrismaOrganizationRepo } from "@/features/organizations/prisma-organization.repository";
 import { PrismaDealRepo } from "@/features/deals/prisma-deal.repository";
 import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
@@ -25,17 +36,23 @@ import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaAuditLogRepo } from "@/ee/audit-log/prisma-audit-log.repository";
+import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
+import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
+import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
+import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
 // Services
 import { EmailService } from "@/features/email/email.service";
+import { MessagingService } from "@/ee/messaging/messaging.service";
+import { UnipileWebhookIngestService } from "@/ee/messaging/webhooks/unipile-webhook-ingest.service";
 import { AuthService } from "@/features/auth/auth.service";
 import { UserService } from "@/features/user/user.service";
 import { RouteGuardService } from "@/features/auth/route-guard.service";
 import { TaskService } from "@/features/tasks/task.service";
 import { EventService } from "@/features/event/event.service";
-import { WidgetService } from "@/features/widget/widget.service";
 import { WidgetDataFetcher } from "@/features/widget/calculator/widget-data-fetcher.service";
 import { WidgetGroupingService } from "@/features/widget/calculator/widget-grouping.service";
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
+import { BackgroundTaskService } from "@/core/utils/background-task.service";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -45,6 +62,7 @@ import { GetContactsApiInteractor } from "@/features/contacts/get/get-contacts-a
 import { GetContactsConfigurationInteractor } from "@/features/contacts/get/get-contacts-configuration.interactor";
 import { GetContactByIdInteractor } from "@/features/contacts/get/get-contact-by-id.interactor";
 import { CreateContactInteractor } from "@/features/contacts/upsert/create-contact.interactor";
+import { CheckChannelConflictInteractor } from "@/features/contacts/upsert/check-channel-conflict.interactor";
 import { CreateManyContactsInteractor } from "@/features/contacts/upsert/create-many-contacts.interactor";
 import { UpdateContactInteractor } from "@/features/contacts/upsert/update-contact.interactor";
 import { UpdateManyContactsInteractor } from "@/features/contacts/upsert/update-many-contacts.interactor";
@@ -127,20 +145,53 @@ import { GetRolesInteractor } from "@/features/role/get-roles.interactor";
 import { DeleteRoleInteractor } from "@/features/role/delete-role.interactor";
 // Widget interactors
 import { GetWidgetsInteractor } from "@/features/widget/get-widgets.interactor";
-import { RecalculateUserWidgetsInteractor } from "@/features/widget/recalculate-user-widgets.interactor";
 import { UpsertWidgetInteractor } from "@/features/widget/upsert-widget.interactor";
 import { DeleteWidgetInteractor } from "@/features/widget/delete-widget.interactor";
 import { UpdateWidgetLayoutsInteractor } from "@/features/widget/update-widget-layouts.interactor";
 import { GetCompanyWidgetsInteractor } from "@/features/widget/get-company-widgets.interactor";
 import { GetWidgetByIdInteractor } from "@/features/widget/get-widget-by-id.interactor";
 import { GetWidgetFilterableFieldsInteractor } from "@/features/widget/get-widget-filterable-fields.interactor";
+// Messaging interactors
+import { CreateHostedAuthLinkInteractor } from "@/ee/messaging/connect/create-hosted-auth-link.interactor";
+import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
+import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
+import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
+import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
+import { ProcessAccountCallbackInteractor } from "@/ee/messaging/webhooks/process-account-callback.interactor";
+import { ProcessAccountStatusWebhookInteractor } from "@/ee/messaging/webhooks/process-account-status-webhook.interactor";
+import { ProcessMessagingWebhookInteractor } from "@/ee/messaging/webhooks/process-messaging-webhook.interactor";
+import { ProcessEmailWebhookInteractor } from "@/ee/messaging/webhooks/process-email-webhook.interactor";
+import { BackfillConnectedAccountInteractor } from "@/ee/messaging/ingest/backfill-connected-account.interactor";
+import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
+import { BackfillEmailsInteractor } from "@/ee/messaging/ingest/backfill/backfill-emails.interactor";
+import { BackfillChatsInteractor } from "@/ee/messaging/ingest/backfill/backfill-chats.interactor";
+import { BackfillCalendarsInteractor } from "@/ee/messaging/ingest/backfill/backfill-calendars.interactor";
+import { ProcessUsersWebhookInteractor } from "@/ee/messaging/webhooks/process-users-webhook.interactor";
+import { SendChatMessageInteractor } from "@/ee/messaging/outbound/send-chat-message.interactor";
+import { SendEmailInteractor } from "@/ee/messaging/outbound/send-email.interactor";
+import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interactor";
+import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
+import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
+import { ProcessUnipileWebhookEventInteractor } from "@/ee/messaging/ingest/process-unipile-webhook-event.interactor";
+import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
+import { GetMessagingThreadInteractor } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
+import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message-attachment.interactor";
+import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-thread-count.interactor";
+import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activities.interactor";
+import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
+import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
+import { AssignContactToThreadInteractor } from "@/ee/messaging/contact-assignment/assign-contact-to-thread.interactor";
+import { SetThreadStateInteractor } from "@/ee/messaging/thread-state/set-thread-state.interactor";
+import { ShareThreadToCrmInteractor } from "@/ee/messaging/thread-state/share-thread-to-crm.interactor";
+// Calendar interactors
+import { ProcessCalendarWebhookInteractor } from "@/ee/messaging/webhooks/process-calendar-webhook.interactor";
 // Webhook interactors
 import { GetWebhooksInteractor } from "@/features/webhook/get-webhooks.interactor";
 import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.interactor";
 import { DeleteWebhookInteractor } from "@/features/webhook/delete-webhook.interactor";
 import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-deliveries.interactor";
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
-import { ProcessWebhookDeliveriesInteractor } from "@/features/webhook/process-webhook-deliveries.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -163,22 +214,23 @@ import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.intera
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
-// EE Audit Log interactors
-import { GetAuditLogsByEntityIdInteractor } from "@/ee/audit-log/get/get-audit-logs-by-entity-id.interactor";
-import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
-import { GetEntityChangeHistoryByIdInteractor } from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
-// Validators
-import { ValidateQueryParamsValidator } from "@/core/base/validate-query-params.validator";
-// EE Lifecycle interactors
+// EE Lifecycle interactors (cron consumers)
 import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import { SendTrialExtensionOfferInteractor } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import { SendTrialInactivationReminderInteractor } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+// Webhook delivery interactor (workflow task consumer)
+import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
+// EE Audit Log interactors
+import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
+// Validators
+import { ValidateQueryParamsValidator } from "@/core/base/validate-query-params.validator";
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
 
 export const getContactRepo = () => new PrismaContactRepo();
+export const getContactAvatarRepo = () => new PrismaContactAvatarRepo();
 export const getOrganizationRepo = () => new PrismaOrganizationRepo();
 export const getDealRepo = () => new PrismaDealRepo();
 export const getServiceRepo = () => new PrismaServiceRepo();
@@ -193,6 +245,10 @@ export const getWidgetCalculatorRepo = () => new PrismaWidgetCalculatorRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo();
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo();
 export const getAuditLogRepo = () => new PrismaAuditLogRepo();
+export const getMessagingRepo = () => new PrismaMessagingRepo();
+export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
+export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
+export const getCalendarRepo = () => new PrismaCalendarRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -202,9 +258,10 @@ export const getUserService = () => new UserService(getAuthService(), getUserRep
 export const getRouteGuardService = () => new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo());
 export const getTaskService = () => new TaskService(getTaskRepo());
 export const getValidateQueryParams = () => new ValidateQueryParamsValidator();
+export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskService());
 
-const EXPECTED_TASK_LISTENER_HANDLERS = [
+const EXPECTED_EVENT_LISTENERS = [
   {
     factory: getUserPendingAuthorizationTaskListener,
     events: [DomainEvent.USER_REGISTERED, DomainEvent.USER_UPDATED],
@@ -212,12 +269,12 @@ const EXPECTED_TASK_LISTENER_HANDLERS = [
 ] as const;
 
 export const getEventService = () => {
-  const listeners = EXPECTED_TASK_LISTENER_HANDLERS.map(({ factory, events }) => {
+  const listeners = EXPECTED_EVENT_LISTENERS.map(({ factory, events }) => {
     const listener = factory();
     for (const event of events) {
       if (!listener.handles(event)) {
         throw new Error(
-          `Task listener ${listener.constructor.name} is missing handler for "${event}". ` +
+          `Event listener ${listener.constructor.name} is missing handler for "${event}". ` +
             `Check its declarative \`handlers\` field.`,
         );
       }
@@ -225,12 +282,25 @@ export const getEventService = () => {
     return listener;
   });
 
-  return new EventService(listeners, getWebhookRepo(), getWebhookDeliveryRepo(), getAuditLogRepo());
+  return new EventService(
+    listeners,
+    getWebhookRepo(),
+    getWebhookDeliveryRepo(),
+    getAuditLogRepo(),
+    getBackgroundTaskService(),
+  );
 };
-export const getWidgetService = () => new WidgetService(getWidgetRepo());
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();
 export const getWidgetGroupingService = () => new WidgetGroupingService();
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
+export const getMessagingService = () => new MessagingService();
+export const getUnipileWebhookIngestService = () =>
+  new UnipileWebhookIngestService(
+    getUnipileWebhookRepo(),
+    getConnectedAccountRepo(),
+    getUserRepo(),
+    getBackgroundTaskService(),
+  );
 
 // ─── Section 4: Interactors ─────────────────────────────────────────────────
 
@@ -245,14 +315,9 @@ export const getGetContactsConfigurationInteractor = () => new GetContactsConfig
 export const getGetContactByIdInteractor = () => new GetContactByIdInteractor(getContactRepo(), getCustomColumnRepo());
 
 export const getCreateContactInteractor = () =>
-  new CreateContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new CreateContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
+
+export const getCheckChannelConflictInteractor = () => new CheckChannelConflictInteractor();
 
 export const getCreateManyContactsInteractor = () =>
   new CreateManyContactsInteractor(
@@ -261,18 +326,10 @@ export const getCreateManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateContactInteractor = () =>
-  new UpdateContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new UpdateContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateManyContactsInteractor = () =>
   new UpdateManyContactsInteractor(
@@ -281,18 +338,10 @@ export const getUpdateManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteContactInteractor = () =>
-  new DeleteContactInteractor(
-    getContactRepo(),
-    getOrganizationRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new DeleteContactInteractor(getContactRepo(), getOrganizationRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteManyContactsInteractor = () =>
   new DeleteManyContactsInteractor(
@@ -301,7 +350,6 @@ export const getDeleteManyContactsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Organizations ---
@@ -324,7 +372,6 @@ export const getCreateOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyOrganizationsInteractor = () =>
@@ -334,7 +381,6 @@ export const getCreateManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateOrganizationInteractor = () =>
@@ -344,7 +390,6 @@ export const getUpdateOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyOrganizationsInteractor = () =>
@@ -354,7 +399,6 @@ export const getUpdateManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteOrganizationInteractor = () =>
@@ -364,7 +408,6 @@ export const getDeleteOrganizationInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyOrganizationsInteractor = () =>
@@ -374,7 +417,6 @@ export const getDeleteManyOrganizationsInteractor = () =>
     getDealRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Deals ---
@@ -395,7 +437,6 @@ export const getCreateDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyDealsInteractor = () =>
@@ -406,7 +447,6 @@ export const getCreateManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateDealInteractor = () =>
@@ -417,7 +457,6 @@ export const getUpdateDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyDealsInteractor = () =>
@@ -428,7 +467,6 @@ export const getUpdateManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteDealInteractor = () =>
@@ -439,7 +477,6 @@ export const getDeleteDealInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyDealsInteractor = () =>
@@ -450,7 +487,6 @@ export const getDeleteManyDealsInteractor = () =>
     getServiceRepo(),
     getTaskRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- Services ---
@@ -464,40 +500,22 @@ export const getGetServicesConfigurationInteractor = () => new GetServicesConfig
 export const getGetServiceByIdInteractor = () => new GetServiceByIdInteractor(getServiceRepo(), getCustomColumnRepo());
 
 export const getCreateServiceInteractor = () =>
-  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new CreateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getCreateManyServicesInteractor = () =>
-  new CreateManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new CreateManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateServiceInteractor = () =>
-  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new UpdateServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getUpdateManyServicesInteractor = () =>
-  new UpdateManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new UpdateManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteServiceInteractor = () =>
-  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService(), getWidgetService());
+  new DeleteServiceInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 export const getDeleteManyServicesInteractor = () =>
-  new DeleteManyServicesInteractor(
-    getServiceRepo(),
-    getDealRepo(),
-    getTaskRepo(),
-    getEventService(),
-    getWidgetService(),
-  );
+  new DeleteManyServicesInteractor(getServiceRepo(), getDealRepo(), getTaskRepo(), getEventService());
 
 // --- Tasks ---
 
@@ -521,7 +539,6 @@ export const getCreateTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getCreateManyTasksInteractor = () =>
@@ -532,7 +549,6 @@ export const getCreateManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateTaskInteractor = () =>
@@ -543,7 +559,6 @@ export const getUpdateTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getUpdateManyTasksInteractor = () =>
@@ -554,7 +569,6 @@ export const getUpdateManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteTaskInteractor = () =>
@@ -565,7 +579,6 @@ export const getDeleteTaskInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 export const getDeleteManyTasksInteractor = () =>
@@ -576,7 +589,6 @@ export const getDeleteManyTasksInteractor = () =>
     getDealRepo(),
     getServiceRepo(),
     getEventService(),
-    getWidgetService(),
   );
 
 // --- User ---
@@ -586,8 +598,7 @@ export const getRegisterUserInteractor = () =>
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getSeedOnboardingDataInteractor = () =>
-  new SeedOnboardingDataInteractor(getUserRepo(), getWidgetService());
+export const getSeedOnboardingDataInteractor = () => new SeedOnboardingDataInteractor(getUserRepo());
 
 export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
 
@@ -606,9 +617,9 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getCompanyRepo(),
   );
 
-export const getGetUsersInteractor = () => new GetUsersInteractor(getCompanyRepo(), getP13nRepo());
+export const getGetUsersInteractor = () => new GetUsersInteractor(getUserRepo(), getP13nRepo());
 
-export const getGetUsersApiInteractor = () => new GetUsersApiInteractor(getCompanyRepo(), getP13nRepo());
+export const getGetUsersApiInteractor = () => new GetUsersApiInteractor(getUserRepo(), getP13nRepo());
 
 // --- Auth ---
 
@@ -647,19 +658,15 @@ export const getInviteTokenValidationInteractor = () => new InviteTokenValidatio
 
 // --- Role ---
 
-export const getUpsertRoleInteractor = () =>
-  new UpsertRoleInteractor(getRoleRepo(), getEventService(), getWidgetService());
+export const getUpsertRoleInteractor = () => new UpsertRoleInteractor(getRoleRepo(), getEventService());
 
 export const getGetRolesInteractor = () => new GetRolesInteractor(getRoleRepo(), getP13nRepo());
 
-export const getDeleteRoleInteractor = () =>
-  new DeleteRoleInteractor(getRoleRepo(), getEventService(), getWidgetService());
+export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleRepo(), getEventService());
 
 // --- Widget ---
 
 export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo());
-export const getRecalculateUserWidgetsInteractor = () =>
-  new RecalculateUserWidgetsInteractor(getWidgetService(), getWidgetRepo());
 
 export const getUpsertWidgetInteractor = () => new UpsertWidgetInteractor(getWidgetRepo());
 
@@ -692,10 +699,129 @@ export const getGetWebhookDeliveriesInteractor = () =>
   new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getP13nRepo());
 
 export const getResendWebhookDeliveryInteractor = () =>
-  new ResendWebhookDeliveryInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo());
+  new ResendWebhookDeliveryInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo(), getBackgroundTaskService());
 
-export const getProcessWebhookDeliveriesInteractor = () =>
-  new ProcessWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getWebhookDeliveryRepo(), getWebhookRepo());
+// --- Messaging ---
+
+export const getCreateHostedAuthLinkInteractor = () =>
+  new CreateHostedAuthLinkInteractor(getMessagingService(), getConnectedAccountRepo());
+
+export const getGetMyConnectedAccountsInteractor = () =>
+  new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
+
+export const getDeleteConnectedAccountInteractor = () =>
+  new DeleteConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
+
+export const getResyncConnectedAccountInteractor = () =>
+  new ResyncConnectedAccountInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getBackgroundTaskService(),
+    getEventService(),
+  );
+
+export const getReconnectConnectedAccountInteractor = () =>
+  new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
+
+export const getSetConnectedAccountVisibilityInteractor = () =>
+  new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService());
+
+export const getProcessAccountCallbackInteractor = () =>
+  new ProcessAccountCallbackInteractor(
+    getConnectedAccountRepo(),
+    getUserRepo(),
+    getMessagingService(),
+    getBackgroundTaskService(),
+    getEventService(),
+  );
+
+export const getBackfillEmailsInteractor = () =>
+  new BackfillEmailsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+
+export const getBackfillChatsInteractor = () =>
+  new BackfillChatsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+
+export const getBackfillCalendarsInteractor = () =>
+  new BackfillCalendarsInteractor(getConnectedAccountRepo(), getMessagingService(), getCalendarRepo());
+
+export const getBackfillConnectedAccountInteractor = () =>
+  new BackfillConnectedAccountInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getMessagingRepo(),
+    getBackfillEmailsInteractor(),
+    getBackfillChatsInteractor(),
+    getBackfillCalendarsInteractor(),
+  );
+
+export const getReleaseBackfillClaimInteractor = () => new ReleaseBackfillClaimInteractor(getConnectedAccountRepo());
+
+export const getProcessAccountStatusWebhookInteractor = () =>
+  new ProcessAccountStatusWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
+
+export const getProcessMessagingWebhookInteractor = () =>
+  new ProcessMessagingWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingRepo());
+
+export const getProcessEmailWebhookInteractor = () =>
+  new ProcessEmailWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingRepo());
+
+export const getProcessUsersWebhookInteractor = () =>
+  new ProcessUsersWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo());
+
+export const getSendChatMessageInteractor = () =>
+  new SendChatMessageInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingService());
+
+export const getSendEmailInteractor = () =>
+  new SendEmailInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingService());
+
+export const getStartChatInteractor = () =>
+  new StartChatInteractor(getConnectedAccountRepo(), getContactRepo(), getMessagingService());
+
+export const getResolveProviderProfileInteractor = () =>
+  new ResolveProviderProfileInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSearchChannelCandidatesInteractor = () => new SearchChannelCandidatesInteractor(getMessagingRepo());
+
+export const getGetMessagingThreadsInteractor = () =>
+  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo());
+
+export const getGetMessagingThreadInteractor = () =>
+  new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo());
+
+export const getGetMessageAttachmentInteractor = () =>
+  new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService());
+
+export const getGetUnreadThreadCountInteractor = () => new GetUnreadThreadCountInteractor(getMessagingRepo());
+
+export const getGetActivitiesInteractor = () => new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo());
+
+export const getGetActivityThreadOptionsInteractor = () =>
+  new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());
+
+export const getAssignContactToThreadInteractor = () =>
+  new AssignContactToThreadInteractor(getMessagingRepo(), getContactRepo());
+
+export const getSetThreadStateInteractor = () => new SetThreadStateInteractor(getMessagingRepo());
+
+export const getShareThreadToCrmInteractor = () => new ShareThreadToCrmInteractor(getMessagingRepo());
+
+// --- Calendar ---
+
+export const getProcessCalendarWebhookInteractor = () =>
+  new ProcessCalendarWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo());
+
+// --- Unipile Webhook Dispatch ---
+
+export const getProcessUnipileWebhookEventInteractor = () =>
+  new ProcessUnipileWebhookEventInteractor(
+    getUnipileWebhookRepo(),
+    getProcessAccountStatusWebhookInteractor(),
+    getProcessAccountCallbackInteractor(),
+    getProcessMessagingWebhookInteractor(),
+    getProcessEmailWebhookInteractor(),
+    getProcessCalendarWebhookInteractor(),
+    getProcessUsersWebhookInteractor(),
+  );
 
 // --- Custom Column ---
 
@@ -708,7 +834,7 @@ export const getUpsertCustomColumnInteractor = () =>
   new UpsertCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getEventService());
 
 export const getDeleteCustomColumnInteractor = () =>
-  new DeleteCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getWidgetService(), getEventService());
+  new DeleteCustomColumnInteractor(getCustomColumnRepo(), getUserService(), getEventService());
 
 // --- Search ---
 
@@ -751,14 +877,9 @@ export const getRefreshSubscriptionInteractor = () =>
 
 // --- EE Audit Log ---
 
-export const getGetAuditLogsByEntityIdInteractor = () => new GetAuditLogsByEntityIdInteractor(getAuditLogRepo());
-
 export const getGetAuditLogsInteractor = () => new GetAuditLogsInteractor(getAuditLogRepo(), getP13nRepo());
 
-export const getGetEntityChangeHistoryByIdInteractor = () =>
-  new GetEntityChangeHistoryByIdInteractor(getAuditLogRepo(), getCustomColumnRepo());
-
-// --- EE Lifecycle ---
+// --- EE Lifecycle (workflow cron) ---
 
 export const getSendWelcomeAndDemoInteractor = () => new SendWelcomeAndDemoInteractor(getUserRepo(), getEmailService());
 
@@ -773,3 +894,7 @@ export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
 
 export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
   new DeactivateUsersAfterSubscriptionGracePeriodInteractor(getUserRepo(), getEmailService());
+
+// --- Webhook delivery (workflow task) ---
+
+export const getDeliverWebhookInteractor = () => new DeliverWebhookInteractor(getWebhookDeliveryRepo());

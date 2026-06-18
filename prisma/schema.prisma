@@ -133,6 +133,7 @@ model User {
   relatedTasks                    Task[]             @relation("TaskRelatedUser")
   widgets                         Widget[]
   p13n                            P13n[]
+  connectedAccounts               ConnectedAccount[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -140,50 +141,58 @@ model User {
 }
 
 model Company {
-  id                   String                @id @default(uuid())
-  name                 String?
-  country              CountryCode           @default(de)
-  currency             Currency              @default(eur)
-  street               String?
-  city                 String?
-  postalCode           String?
-  vatNumber            String?
-  website              String?
-  phone                String?
-  email                String?
-  salesType            SalesType?
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  tasks                Task[]
-  users                User[]
-  inviteTokens         InviteToken[]
-  contacts             Contact[]
-  organizations        Organization[]
-  deals                Deal[]
-  services             Service[]
-  CustomColumn         CustomColumn[]
-  auditLogs            AuditLog[]
-  customFieldValues    CustomFieldValue[]
-  serviceDeals         ServiceDeal[]
-  dealOrganizations    DealOrganization[]
-  dealUsers            DealUser[]
-  dealContacts         DealContact[]
-  contactUsers         ContactUser[]
-  contactOrganizations ContactOrganization[]
-  organizationUsers    OrganizationUser[]
-  serviceUsers         ServiceUser[]
-  taskUsers            TaskUser[]
-  taskContacts         TaskContact[]
-  taskOrganizations    TaskOrganization[]
-  taskDeals            TaskDeal[]
-  taskServices         TaskService[]
-  widgets              Widget[]
-  userRoles            UserRole[]
-  rolePermissions      RolePermission[]
-  p13n                 P13n[]
-  webhooks             Webhook[]
-  webhookDeliveries    WebhookDelivery[]
-  subscription         Subscription?
+  id                          String                       @id @default(uuid())
+  name                        String?
+  country                     CountryCode                  @default(de)
+  currency                    Currency                     @default(eur)
+  street                      String?
+  city                        String?
+  postalCode                  String?
+  vatNumber                   String?
+  website                     String?
+  phone                       String?
+  email                       String?
+  salesType                   SalesType?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  tasks                       Task[]
+  users                       User[]
+  inviteTokens                InviteToken[]
+  contacts                    Contact[]
+  organizations               Organization[]
+  deals                       Deal[]
+  services                    Service[]
+  CustomColumn                CustomColumn[]
+  auditLogs                   AuditLog[]
+  customFieldValues           CustomFieldValue[]
+  serviceDeals                ServiceDeal[]
+  dealOrganizations           DealOrganization[]
+  dealUsers                   DealUser[]
+  dealContacts                DealContact[]
+  contactUsers                ContactUser[]
+  contactOrganizations        ContactOrganization[]
+  organizationUsers           OrganizationUser[]
+  serviceUsers                ServiceUser[]
+  taskUsers                   TaskUser[]
+  taskContacts                TaskContact[]
+  taskOrganizations           TaskOrganization[]
+  taskDeals                   TaskDeal[]
+  taskServices                TaskService[]
+  widgets                     Widget[]
+  userRoles                   UserRole[]
+  rolePermissions             RolePermission[]
+  p13n                        P13n[]
+  webhooks                    Webhook[]
+  webhookDeliveries           WebhookDelivery[]
+  connectedAccounts           ConnectedAccount[]
+  messagingThreads            MessagingThread[]
+  messagingMessages           MessagingMessage[]
+  messagingThreadParticipants MessagingThreadParticipant[]
+  accountActivities           AccountActivity[]
+  contactIdentifiers          ContactIdentifier[]
+  calendars                   Calendar[]
+  calendarEvents              CalendarEvent[]
+  subscription                Subscription?
 }
 
 model P13n {
@@ -271,9 +280,8 @@ model Contact {
   id                String                @id @default(uuid())
   firstName         String
   lastName          String
-  emails            String[]              @default([])
-  emailsText        String?               @default(dbgenerated("emails_to_search_text(emails)"))
   companyId         String
+  avatarUrl         String?
   notes             Json?
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
@@ -283,12 +291,11 @@ model Contact {
   deals             DealContact[]
   tasks             TaskContact[]
   customFieldValues CustomFieldValue[]
+  identifiers       ContactIdentifier[]
 
   @@index([companyId])
   @@index([firstName])
   @@index([lastName])
-  @@index([emails], type: Gin)
-  @@index([emailsText])
 }
 
 model Organization {
@@ -641,7 +648,6 @@ model Widget {
   groupByCustomColumnId String?           @db.Uuid
   aggregationType       AggregationType
   layout                Json?
-  data                  Json?
   isTemplate            Boolean           @default(false)
 
   createdAt DateTime @default(now())
@@ -722,13 +728,11 @@ model WebhookDelivery {
   responseMessage String?
   success         Boolean               @default(false)
   status          WebhookDeliveryStatus @default(pending)
-  lockedAt        DateTime?
   deliveredAt     DateTime?
   createdAt       DateTime              @default(now())
 
   @@index([companyId])
   @@index([createdAt])
-  @@index([status, lockedAt])
   @@index([companyId, createdAt])
 }
 
@@ -759,6 +763,20 @@ enum Resource {
   tasks
   api
   auditLog
+  inboxMessages
+}
+
+enum MessagingThreadState {
+  unread
+  open
+  closed
+  spam
+}
+
+enum MessagingThreadType {
+  single
+  group
+  channel
 }
 
 enum Action {
@@ -1067,4 +1085,276 @@ enum SubscriptionStatus {
 enum SalesType {
   product
   service
+}
+
+model ConnectedAccount {
+  id                   String                  @id @default(uuid())
+  companyId            String
+  company              Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId               String
+  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unipileAccountId     String                  @unique
+  provider             MessagingProvider
+  status               ConnectedAccountStatus  @default(connecting)
+  hasMessaging         Boolean                 @default(false)
+  hasCalendar          Boolean                 @default(false)
+  emailAddress         String?
+  displayName          String?
+  ownUnipileAttendeeId String?
+  shared               Boolean                 @default(false)
+  syncing              Boolean                 @default(false)
+  ownerAvatarUrl       String?
+  lastSyncedAt         DateTime?
+  backfillCheckpoint   Json?
+  backfillEpoch        Int                     @default(0)
+  backfillClaimedAt    DateTime?
+  backfillClaimToken   String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  threads              MessagingThread[]
+  messages             MessagingMessage[]
+  calendars            Calendar[]
+  calendarEvents       CalendarEvent[]
+  inboundEvents        MessagingInboundEvent[]
+  accountActivities    AccountActivity[]
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([companyId, provider])
+}
+
+model MessagingThread {
+  id                 String                       @id @default(uuid())
+  companyId          String
+  company            Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount             @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  state              MessagingThreadState         @default(unread)
+  type               MessagingThreadType          @default(single)
+  name               String?
+  unipileThreadId    String
+  provider           MessagingProvider
+  subject            String?
+  lastMessageAt      DateTime?
+  sharedToCrm        Boolean                      @default(false)
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+  messages           MessagingMessage[]
+  participants       MessagingThreadParticipant[]
+
+  @@unique([connectedAccountId, unipileThreadId])
+  @@index([companyId])
+  @@index([companyId, state])
+  @@index([companyId, lastMessageAt(sort: Desc)])
+  @@index([companyId, sharedToCrm])
+}
+
+model MessagingThreadParticipant {
+  id                String            @id @default(uuid())
+  companyId         String
+  company           Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  messagingThreadId String
+  thread            MessagingThread   @relation(fields: [messagingThreadId], references: [id], onDelete: Cascade)
+  provider          MessagingProvider
+  unipileAttendeeId String
+  identifier        String?
+  displayName       String?
+  pictureUrl        String?
+  profileUrl        String?
+  headline          String?
+  occupation        String?
+  isSelf            Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([messagingThreadId, unipileAttendeeId])
+  @@unique([messagingThreadId, identifier])
+  @@index([companyId])
+  @@index([messagingThreadId])
+  @@index([companyId, provider, identifier])
+}
+
+model MessagingMessage {
+  id                 String                    @id @default(uuid())
+  companyId          String
+  company            Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  messagingThreadId  String
+  thread             MessagingThread           @relation(fields: [messagingThreadId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount          @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  unipileMessageId   String
+  provider           MessagingProvider
+  direction          MessagingMessageDirection
+  origin             MessagingMessageOrigin
+  sender             Json
+  senderIdentifier   String?
+  recipients         Json                      @default("{}")
+  reactions          Json                      @default("[]")
+  subject            String?
+  bodyText           String?
+  bodyHtml           String?
+  attachmentsMeta    Json                      @default("[]")
+  isEvent            Boolean                   @default(false)
+  sentAt             DateTime
+  editedAt           DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  @@unique([connectedAccountId, unipileMessageId])
+  @@index([companyId])
+  @@index([messagingThreadId, sentAt])
+  @@index([companyId, provider, senderIdentifier])
+}
+
+model AccountActivity {
+  id                 String              @id @default(uuid())
+  companyId          String
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId String?
+  connectedAccount   ConnectedAccount?   @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  identifier         String?
+  kind               AccountActivityKind
+  payload            Json                @default("{}")
+  occurredAt         DateTime
+  createdAt          DateTime            @default(now())
+
+  @@unique([connectedAccountId, kind, identifier])
+  @@index([companyId, occurredAt])
+  @@index([companyId, identifier])
+}
+
+enum MessagingProvider {
+  google
+  outlook
+  mail
+  linkedin
+  whatsapp
+  instagram
+  telegram
+}
+
+enum ConnectedAccountStatus {
+  ok
+  connecting
+  credentials
+  permissions
+  error
+  stopped
+  deleted
+}
+
+enum MessagingMessageDirection {
+  inbound
+  outbound
+}
+
+enum MessagingMessageOrigin {
+  unipile
+  external
+}
+
+enum AccountActivityKind {
+  linkedin_connection_accepted
+}
+
+model ContactIdentifier {
+  id          String            @id @default(uuid())
+  companyId   String
+  company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contactId   String
+  contact     Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  provider    MessagingProvider
+  value       String
+  messagingId String?
+  displayName String?
+  pictureUrl  String?
+  profileUrl  String?
+  headline    String?
+  occupation  String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([companyId, provider, value])
+  @@unique([companyId, provider, messagingId])
+  @@index([contactId])
+}
+
+model Calendar {
+  id                 String           @id @default(uuid())
+  companyId          String
+  company            Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  unipileCalendarId  String
+  name               String
+  description        String?
+  color              String?
+  timezone           String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  events             CalendarEvent[]
+
+  @@unique([connectedAccountId, unipileCalendarId])
+  @@index([companyId])
+}
+
+model CalendarEvent {
+  id                 String              @id @default(uuid())
+  companyId          String
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount    @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  calendarId         String
+  calendar           Calendar            @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  unipileEventId     String
+  title              String
+  description        String?
+  location           String?
+  conferenceUrl      String?
+  startsAt           DateTime
+  endsAt             DateTime
+  allDay             Boolean             @default(false)
+  timezone           String?
+  recurrenceRule     String?
+  status             CalendarEventStatus @default(confirmed)
+  visibility         String?
+  attendees          Json                @default("[]")
+  organizer          Json?
+  attendeeEmails     String[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([connectedAccountId, unipileEventId])
+  @@index([companyId, startsAt])
+  @@index([attendeeEmails], type: Gin)
+}
+
+enum CalendarEventStatus {
+  confirmed
+  cancelled
+}
+
+model MessagingInboundEvent {
+  id                 String            @id @default(uuid())
+  companyId          String?
+  connectedAccountId String?
+  connectedAccount   ConnectedAccount? @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  source             String
+  eventType          String?
+  accountId          String?
+  unipileMessageId   String?
+  payload            Json
+  processed          Boolean           @default(false)
+  receivedAt         DateTime          @default(now())
+  processedAt        DateTime?
+}
+
+enum UnipileWebhookSource {
+  account_status
+  account_callback
+  messaging
+  mail
+  calendar
+  users
 }

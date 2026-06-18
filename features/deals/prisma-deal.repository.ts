@@ -54,7 +54,16 @@ export class PrismaDealRepo
       },
       contacts: {
         where: { contact: this.accessWhere("contact") },
-        select: { contact: { select: { id: true, firstName: true, lastName: true } } },
+        select: {
+          contact: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
       },
       services: {
         where: { service: this.accessWhere("service") },
@@ -160,14 +169,7 @@ export class PrismaDealRepo
 
     if (!deal) return null;
 
-    return {
-      ...deal,
-      organizations: deal.organizations.map((it) => it.organization),
-      users: deal.users.map((it) => it.user),
-      contacts: deal.contacts.map((it) => it.contact),
-      services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-      tasks: deal.tasks.map((it) => it.task),
-    };
+    return this.toDto(deal);
   }
 
   async getOrThrowUnscoped(id: string) {
@@ -178,14 +180,7 @@ export class PrismaDealRepo
       select: this.companyScopedSelect,
     });
 
-    return {
-      ...deal,
-      organizations: deal.organizations.map((it) => it.organization),
-      users: deal.users.map((it) => it.user),
-      contacts: deal.contacts.map((it) => it.contact),
-      services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-      tasks: deal.tasks.map((it) => it.task),
-    };
+    return this.toDto(deal);
   }
 
   async getManyOrThrowUnscoped(ids: string[]) {
@@ -202,14 +197,18 @@ export class PrismaDealRepo
 
     if (deals.length !== uniqueIds.length) throw new Error("One or more deals not found");
 
-    return deals.map((deal) => ({
+    return deals.map((deal) => this.toDto(deal));
+  }
+
+  private toDto(deal: Prisma.DealGetPayload<{ select: PrismaDealRepo["userScopedSelect"] }>): DealDto {
+    return {
       ...deal,
       organizations: deal.organizations.map((it) => it.organization),
       users: deal.users.map((it) => it.user),
       contacts: deal.contacts.map((it) => it.contact),
       services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
       tasks: deal.tasks.map((it) => it.task),
-    }));
+    };
   }
 
   async getItems(params: GetQueryParams) {
@@ -218,14 +217,7 @@ export class PrismaDealRepo
       baseWhere: this.accessWhere("deal"),
       select: this.userScopedSelect,
       params,
-      map: (deal: Prisma.DealGetPayload<{ select: PrismaDealRepo["userScopedSelect"] }>) => ({
-        ...deal,
-        organizations: deal.organizations.map((it) => it.organization),
-        users: deal.users.map((it) => it.user),
-        contacts: deal.contacts.map((it) => it.contact),
-        services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-        tasks: deal.tasks.map((it) => it.task),
-      }),
+      map: (deal: Prisma.DealGetPayload<{ select: PrismaDealRepo["userScopedSelect"] }>) => this.toDto(deal),
     });
   }
 
@@ -320,21 +312,14 @@ export class PrismaDealRepo
 
     await Promise.all(promises);
 
-    await this.updateDealTotals(deal.id);
+    await this.recalculateTotals([deal.id]);
 
     const createdDeal = await this.prisma.deal.findFirstOrThrow({
       where: { id: deal.id, ...this.accessWhere("deal") },
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...createdDeal,
-      organizations: createdDeal.organizations.map((it) => it.organization),
-      users: createdDeal.users.map((it) => it.user),
-      contacts: createdDeal.contacts.map((it) => it.contact),
-      services: createdDeal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-      tasks: createdDeal.tasks.map((it) => it.task),
-    };
+    const res = this.toDto(createdDeal);
 
     return res;
   }
@@ -467,21 +452,14 @@ export class PrismaDealRepo
     await Promise.all(deletePromises);
     await Promise.all(createPromises);
 
-    await this.updateDealTotals(id);
+    await this.recalculateTotals([id]);
 
     const updatedDeal = await this.prisma.deal.findFirstOrThrow({
       where: { id, ...this.accessWhere("deal") },
       select: this.userScopedSelect,
     });
 
-    const res = {
-      ...updatedDeal,
-      organizations: updatedDeal.organizations.map((it) => it.organization),
-      users: updatedDeal.users.map((it) => it.user),
-      contacts: updatedDeal.contacts.map((it) => it.contact),
-      services: updatedDeal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-      tasks: updatedDeal.tasks.map((it) => it.task),
-    };
+    const res = this.toDto(updatedDeal);
 
     return res;
   }
@@ -490,8 +468,8 @@ export class PrismaDealRepo
     return getCustomColumnRepo().findByEntityType(EntityType.deal);
   }
 
-  async findIds(ids: Set<string>): Promise<Set<string>> {
-    if (ids.size === 0) return new Set();
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
 
     const deals = await this.prisma.deal.findMany({
       where: {
@@ -511,43 +489,51 @@ export class PrismaDealRepo
       select: this.userScopedSelect,
     });
 
-    const dealDto: DealDto = {
-      ...deal,
-      organizations: deal.organizations.map((it) => it.organization),
-      users: deal.users.map((it) => it.user),
-      contacts: deal.contacts.map((it) => it.contact),
-      services: deal.services.map((it) => ({ ...it.service, quantity: it.quantity })),
-      tasks: deal.tasks.map((it) => it.task),
-    };
+    const dealDto: DealDto = this.toDto(deal);
 
     await this.prisma.deal.deleteMany({ where: { id, ...this.accessWhere("deal") } });
 
     return dealDto;
   }
 
-  private async updateDealTotals(dealId: string) {
+  async recalculateTotals(dealIds: string[]) {
+    if (dealIds.length === 0) return;
+
     const { companyId } = this.user;
+    const uniqueDealIds = Array.from(new Set(dealIds));
 
-    const dealServices = await this.prisma.serviceDeal.findMany({
-      where: { dealId, companyId },
-      include: {
-        service: {
-          select: {
-            amount: true,
-          },
-        },
-      },
-    });
+    const [existingDeals, serviceDeals] = await Promise.all([
+      this.prisma.deal.findMany({
+        where: { id: { in: uniqueDealIds }, companyId },
+        select: { id: true, totalValue: true, totalQuantity: true },
+      }),
+      this.prisma.serviceDeal.findMany({
+        where: { dealId: { in: uniqueDealIds }, companyId },
+        include: { service: { select: { amount: true } } },
+      }),
+    ]);
 
-    const totalValue = dealServices.reduce((sum, sd) => sum + sd.service.amount * sd.quantity, 0);
-    const totalQuantity = dealServices.reduce((sum, sd) => sum + sd.quantity, 0);
+    const computedTotalsByDealId = new Map<string, { totalValue: number; totalQuantity: number }>(
+      uniqueDealIds.map((id) => [id, { totalValue: 0, totalQuantity: 0 }]),
+    );
 
-    await this.prisma.deal.update({
-      where: { id: dealId, companyId },
-      data: {
-        totalValue,
-        totalQuantity,
-      },
-    });
+    for (const serviceDeal of serviceDeals) {
+      const totals = computedTotalsByDealId.get(serviceDeal.dealId);
+      if (!totals) continue;
+      totals.totalValue += serviceDeal.service.amount * serviceDeal.quantity;
+      totals.totalQuantity += serviceDeal.quantity;
+    }
+
+    const existingDealsById = new Map(existingDeals.map((deal) => [deal.id, deal]));
+    const updates: Promise<unknown>[] = [];
+
+    for (const [dealId, totals] of computedTotalsByDealId.entries()) {
+      const existing = existingDealsById.get(dealId);
+      if (!existing) continue;
+      if (existing.totalValue === totals.totalValue && existing.totalQuantity === totals.totalQuantity) continue;
+      updates.push(this.prisma.deal.update({ where: { id: dealId, companyId }, data: totals }));
+    }
+
+    await Promise.all(updates);
   }
 }

@@ -44,7 +44,7 @@ function ReadOnlyField({ label, children, className }: { label: string; children
 
 export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
-  const { subscriptionStore } = useRootStore();
+  const { subscriptionStore, intlStore } = useRootStore();
 
   useEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
 
@@ -65,7 +65,6 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           <Button
             aria-label="Refresh subscription"
             className="size-6"
-            disabled={subscriptionStore.refreshLoading}
             size="icon-xs"
             variant="ghost"
             onClick={() => void subscriptionStore.handleRefresh()}
@@ -87,12 +86,14 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
 
       <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
         {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
-          <ReadOnlyField label={t("subscription.trialEnds")}>{formatDate(subscription.trialEndDate)}</ReadOnlyField>
+          <ReadOnlyField label={t("subscription.trialEnds")}>
+            {subscription.trialEndDate ? intlStore.formatDescriptiveLongDate(subscription.trialEndDate) : "-"}
+          </ReadOnlyField>
         )}
 
         {subscription?.currentPeriodEnd && (
           <ReadOnlyField label={t("subscription.currentPeriodEnd")}>
-            {formatDate(subscription.currentPeriodEnd)}
+            {subscription.currentPeriodEnd ? intlStore.formatDescriptiveLongDate(subscription.currentPeriodEnd) : "-"}
           </ReadOnlyField>
         )}
 
@@ -105,8 +106,3 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
     </section>
   );
 });
-
-function formatDate(date: Date | null): string {
-  if (!date) return "-";
-  return new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" }).format(date);
-}

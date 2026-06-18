@@ -1,11 +1,15 @@
 import type { WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { Enforce } from "@/core/decorators/enforce.decorator";
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const ResendWebhookDeliverySchema = z.object({
   id: z.uuid(),
@@ -16,23 +20,37 @@ export abstract class GetWebhookDeliveryByIdRepo {
   abstract getDeliveryByIdOrThrow(id: string): Promise<WebhookDeliveryDto>;
 }
 
-@TentantInteractor({ resource: Resource.api, action: Action.create })
-export class ResendWebhookDeliveryInteractor {
+@TenantInteractor({ resource: Resource.api, action: Action.create })
+export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<ResendWebhookDeliveryData, string> {
   constructor(
     private deliveryRepo: GetWebhookDeliveryByIdRepo,
     private createRepo: CreateWebhookDeliveryRepo,
-  ) {}
+    private backgroundTaskService: BackgroundTaskService,
+  ) {
+    super();
+  }
 
-  @Enforce(ResendWebhookDeliverySchema)
-  async invoke(data: ResendWebhookDeliveryData): Promise<void> {
+  @Validate(ResendWebhookDeliverySchema)
+  @ValidateOutput(z.string())
+  async invoke(data: ResendWebhookDeliveryData): Validated<string> {
     const delivery = await this.deliveryRepo.getDeliveryByIdOrThrow(data.id);
+    const requestBody = delivery.requestBody as Record<string, unknown>;
 
-    await this.createRepo.create([
+    const [newDeliveryId] = await this.createRepo.create([
       {
         url: delivery.url,
         event: delivery.event,
-        requestBody: delivery.requestBody as Record<string, unknown>,
+        requestBody,
       },
     ]);
+
+    await this.backgroundTaskService.dispatch("deliver-webhook", {
+      deliveryId: newDeliveryId,
+      url: delivery.url,
+      companyId: this.companyId,
+      requestBody,
+    });
+
+    return { ok: true as const, data: newDeliveryId };
   }
 }

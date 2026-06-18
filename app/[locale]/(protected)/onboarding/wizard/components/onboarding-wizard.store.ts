@@ -3,8 +3,10 @@ import { SalesType } from "@/generated/prisma";
 
 import type { RootStore } from "@/core/stores/root.store";
 
+import { completeOnboardingWizardAction, seedOnboardingDataAction } from "../actions";
+
 export const WIZARD_STEPS = ["profile", "company", "entities", "demoData", "invite", "ai"] as const;
-export type WizardStep = (typeof WIZARD_STEPS)[number];
+type WizardStep = (typeof WIZARD_STEPS)[number];
 
 type BeforeNextHandler = () => Promise<boolean> | boolean;
 
@@ -36,10 +38,6 @@ export class OnboardingWizardStore {
     return this.currentStepIndex <= this.minStepIndex;
   }
 
-  get isLastStep(): boolean {
-    return this.currentStepIndex === WIZARD_STEPS.length - 1;
-  }
-
   get totalSteps(): number {
     return WIZARD_STEPS.length;
   }
@@ -69,6 +67,25 @@ export class OnboardingWizardStore {
 
   back = () => {
     if (this.currentStepIndex > this.minStepIndex) this.currentStepIndex -= 1;
+  };
+
+  seedDemoData = async (): Promise<boolean> => {
+    const result = await seedOnboardingDataAction({
+      salesType: this.salesType,
+      keepDemoData: this.keepDemoData,
+    });
+    if (!result.ok) return false;
+    this.setMinStepIndex(this.currentStepIndex + 1);
+    return true;
+  };
+
+  complete = async (): Promise<void> => {
+    this.setIsSubmitting(true);
+    try {
+      await completeOnboardingWizardAction();
+    } finally {
+      this.setIsSubmitting(false);
+    }
   };
 
   setIsSubmitting = (isSubmitting: boolean) => {

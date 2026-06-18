@@ -1,16 +1,16 @@
 import type { EmailService } from "@/features/email/email.service";
 
-import { getTranslations } from "next-intl/server";
-
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
 import TrialWelcome from "@/components/emails/trial-welcome";
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
+import { getTranslator } from "@/i18n/get-translator";
+import { resolveUserLocale } from "@/i18n/user-locale";
 
 export abstract class SendWelcomeAndDemoActionRepo {
   abstract findProspectUsers(): Promise<User[]>;
-  abstract claimWelcomeEmailSent(userId: string, sentAt: Date): Promise<boolean>;
+  abstract claimWelcomeEmailSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
 }
 
 @SystemInteractor
@@ -24,14 +24,11 @@ export class SendWelcomeAndDemoInteractor {
     const users = await this.repo.findProspectUsers();
 
     for (const user of users.filter((item) => !item.welcomeEmailSentAt)) {
-      const claimed = await this.repo.claimWelcomeEmailSent(user.id, new Date());
+      const claimed = await this.repo.claimWelcomeEmailSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
-      const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
-      const t = await getTranslations({
-        locale,
-        namespace: "TrialWelcome",
-      });
+      const locale = resolveUserLocale(user);
+      const t = await getTranslator(locale, "TrialWelcome");
 
       await this.emailService.send({
         to: user.email,

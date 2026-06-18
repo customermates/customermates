@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";
 
 import { FormAutocomplete } from "./form-autocomplete";
@@ -19,10 +19,6 @@ type Props = Omit<ComponentProps<typeof FormAutocomplete<MultiSelectAvatarItem>>
   onChipClick?: (key: string) => void;
 };
 
-function initials(first?: string | null, last?: string | null): string {
-  return `${(first ?? "").charAt(0)}${(last ?? "").charAt(0)}`.trim().toUpperCase();
-}
-
 function fullName(first?: string | null, last?: string | null): string {
   return `${first ?? ""} ${last ?? ""}`.trim();
 }
@@ -36,13 +32,7 @@ export function FormAutocompleteAvatar({ items = [], onChipClick, ...props }: Pr
           <AppChip
             key={String(item.key ?? (item.data ? item.data.id : ""))}
             startContent={
-              <Avatar className="size-4">
-                {item.data?.avatarUrl && <AvatarImage src={item.data.avatarUrl} />}
-
-                <AvatarFallback className="text-[8px]">
-                  {initials(item.data?.firstName, item.data?.lastName)}
-                </AvatarFallback>
-              </Avatar>
+              <Avatar name={[item.data?.firstName, item.data?.lastName]} size="sm" src={item.data?.avatarUrl} />
             }
           >
             {fullName(item.data?.firstName, item.data?.lastName)}
@@ -58,11 +48,7 @@ export function FormAutocompleteAvatar({ items = [], onChipClick, ...props }: Pr
 
           children: (
             <div className="flex items-center">
-              <Avatar className="mr-3 size-6">
-                {item.avatarUrl && <AvatarImage src={item.avatarUrl} />}
-
-                <AvatarFallback className="text-xs">{initials(item.firstName, item.lastName)}</AvatarFallback>
-              </Avatar>
+              <Avatar className="mr-3" name={[item.firstName, item.lastName]} size="sm" src={item.avatarUrl} />
 
               <span className="block truncate">{fullName(item.firstName, item.lastName)}</span>
             </div>

@@ -21,14 +21,14 @@ const CHOICES = [
   },
 ] as const;
 
-export const StepEntities = observer(function StepEntities() {
-  const t = useTranslations("OnboardingWizard.entities");
+export const StepEntities = observer(() => {
+  const t = useTranslations();
   const { onboardingWizardStore } = useRootStore();
   const selected = onboardingWizardStore.salesType;
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-muted-foreground">{t("description")}</p>
+      <p className="text-xs text-muted-foreground">{t("OnboardingWizard.entities.description")}</p>
 
       <div className="grid gap-2 sm:grid-cols-2">
         {CHOICES.map(({ value, icon: Icon, tint }) => {
@@ -49,11 +49,15 @@ export const StepEntities = observer(function StepEntities() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <div className="text-sm font-medium">{t(`${value}.title`)}</div>
+                <div className="text-sm font-medium">{t(`OnboardingWizard.entities.${value}.title`)}</div>
 
-                <div className="text-xs text-muted-foreground">{t(`${value}.description`)}</div>
+                <div className="text-xs text-muted-foreground">
+                  {t(`OnboardingWizard.entities.${value}.description`)}
+                </div>
 
-                <div className="text-xs italic text-muted-foreground">{t(`${value}.example`)}</div>
+                <div className="text-xs italic text-muted-foreground">
+                  {t(`OnboardingWizard.entities.${value}.example`)}
+                </div>
               </div>
             </button>
           );

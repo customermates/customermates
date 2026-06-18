@@ -1,17 +1,17 @@
 import type { EmailService } from "@/features/email/email.service";
 
-import { getTranslations } from "next-intl/server";
-
 import type { User } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+
 import TrialInactivationNotice from "@/components/emails/trial-inactivation-notice";
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
-import { BASE_URL } from "@/constants/env";
+import { getTranslator } from "@/i18n/get-translator";
+import { resolveUserLocale } from "@/i18n/user-locale";
+import { env } from "@/env";
 
 export abstract class DeactivateTrialUsersAndSendNoticeRepo {
   abstract findUsersWithTrialEndedBetween6And7Days(): Promise<User[]>;
-  abstract claimTrialInactivationNoticeSent(userId: string, sentAt: Date): Promise<boolean>;
+  abstract claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
   abstract deactivateUser(userId: string): Promise<void>;
 }
 
@@ -26,17 +26,15 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
     const users = await this.repo.findUsersWithTrialEndedBetween6And7Days();
 
     for (const user of users.filter((item) => !item.trialInactivationNoticeSentAt)) {
-      const claimed = await this.repo.claimTrialInactivationNoticeSent(user.id, new Date());
+      const claimed = await this.repo.claimTrialInactivationNoticeSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
       await this.repo.deactivateUser(user.id);
 
-      const locale = user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
-      const contactHref = `${BASE_URL}/contact`;
-      const t = await getTranslations({
-        locale,
-        namespace: "TrialInactivationNotice",
-      });
+      const locale = resolveUserLocale(user);
+      const contactHref = `${env.BASE_URL}/contact`;
+      const t = await getTranslator(locale, "TrialInactivationNotice");
+
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),

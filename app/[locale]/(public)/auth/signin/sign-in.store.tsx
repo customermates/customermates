@@ -12,7 +12,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
   callbackURL?: string;
   showPassword = false;
 
-  constructor(public readonly rootStore: RootStore) {
+  constructor(rootStore: RootStore) {
     super(rootStore, { email: "", password: "", rememberMe: true });
 
     makeObservable(this, {

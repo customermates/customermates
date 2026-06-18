@@ -53,13 +53,15 @@
                     "lastName": {
                       "type": "string"
                     },
-                    "emails": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "email",
-                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                      }
+                    "avatarUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "notes": {
                       "description": "Markdown content",
@@ -69,6 +71,73 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "identifiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "google",
+                              "outlook",
+                              "mail",
+                              "linkedin",
+                              "whatsapp",
+                              "instagram",
+                              "telegram"
+                            ]
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "messagingId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profileUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "provider",
+                          "value",
+                          "messagingId",
+                          "displayName",
+                          "profileUrl"
+                        ],
+                        "additionalProperties": false
+                      }
                     },
                     "createdAt": {
                       "type": "string"
@@ -222,7 +291,8 @@
                     "id",
                     "firstName",
                     "lastName",
-                    "emails",
+                    "avatarUrl",
+                    "identifiers",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -322,13 +392,15 @@
                       "lastName": {
                         "type": "string"
                       },
-                      "emails": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        }
+                      "avatarUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -338,6 +410,73 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifiers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "google",
+                                "outlook",
+                                "mail",
+                                "linkedin",
+                                "whatsapp",
+                                "instagram",
+                                "telegram"
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            },
+                            "messagingId": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "displayName": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "profileUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "provider",
+                            "value",
+                            "messagingId",
+                            "displayName",
+                            "profileUrl"
+                          ],
+                          "additionalProperties": false
+                        }
                       },
                       "createdAt": {
                         "type": "string"
@@ -491,7 +630,8 @@
                       "id",
                       "firstName",
                       "lastName",
-                      "emails",
+                      "avatarUrl",
+                      "identifiers",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -590,13 +730,15 @@
                       "lastName": {
                         "type": "string"
                       },
-                      "emails": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        }
+                      "avatarUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -606,6 +748,73 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifiers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "google",
+                                "outlook",
+                                "mail",
+                                "linkedin",
+                                "whatsapp",
+                                "instagram",
+                                "telegram"
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            },
+                            "messagingId": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "displayName": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "profileUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "provider",
+                            "value",
+                            "messagingId",
+                            "displayName",
+                            "profileUrl"
+                          ],
+                          "additionalProperties": false
+                        }
                       },
                       "createdAt": {
                         "type": "string"
@@ -759,7 +968,8 @@
                       "id",
                       "firstName",
                       "lastName",
-                      "emails",
+                      "avatarUrl",
+                      "identifiers",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -918,6 +1128,7 @@
                 "type": "object",
                 "properties": {
                   "filters": {
+                    "maxItems": 50,
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -1039,6 +1250,11 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
                                 }
                               ]
                             }
@@ -1077,7 +1293,8 @@
                     }
                   },
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -1928,6 +2145,11 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
+                                  },
+                                  {
+                                    "title": "hasUnset",
+                                    "type": "string",
+                                    "const": "hasUnset"
                                   }
                                 ]
                               }
@@ -2062,6 +2284,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -2215,6 +2438,11 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
+                                        },
+                                        {
+                                          "title": "hasUnset",
+                                          "type": "string",
+                                          "const": "hasUnset"
                                         }
                                       ]
                                     }
@@ -2279,13 +2507,15 @@
                           "lastName": {
                             "type": "string"
                           },
-                          "emails": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "format": "email",
-                              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                            }
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "notes": {
                             "description": "Markdown content",
@@ -2295,6 +2525,73 @@
                                 "type": "null"
                               }
                             ]
+                          },
+                          "identifiers": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "provider": {
+                                  "type": "string",
+                                  "enum": [
+                                    "google",
+                                    "outlook",
+                                    "mail",
+                                    "linkedin",
+                                    "whatsapp",
+                                    "instagram",
+                                    "telegram"
+                                  ]
+                                },
+                                "value": {
+                                  "type": "string"
+                                },
+                                "messagingId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "profileUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "provider",
+                                "value",
+                                "messagingId",
+                                "displayName",
+                                "profileUrl"
+                              ],
+                              "additionalProperties": false
+                            }
                           },
                           "createdAt": {
                             "type": "string"
@@ -2448,7 +2745,8 @@
                           "id",
                           "firstName",
                           "lastName",
-                          "emails",
+                          "avatarUrl",
+                          "identifiers",
                           "createdAt",
                           "updatedAt",
                           "organizations",
@@ -3187,6 +3485,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -3326,13 +3625,15 @@
                             "lastName": {
                               "type": "string"
                             },
-                            "emails": {
-                              "type": "array",
-                              "items": {
-                                "type": "string",
-                                "format": "email",
-                                "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                              }
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "notes": {
                               "description": "Markdown content",
@@ -3342,6 +3643,73 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "identifiers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "provider": {
+                                    "type": "string",
+                                    "enum": [
+                                      "google",
+                                      "outlook",
+                                      "mail",
+                                      "linkedin",
+                                      "whatsapp",
+                                      "instagram",
+                                      "telegram"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "string"
+                                  },
+                                  "messagingId": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "displayName": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "profileUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "provider",
+                                  "value",
+                                  "messagingId",
+                                  "displayName",
+                                  "profileUrl"
+                                ],
+                                "additionalProperties": false
+                              }
                             },
                             "createdAt": {
                               "type": "string"
@@ -3495,7 +3863,8 @@
                             "id",
                             "firstName",
                             "lastName",
-                            "emails",
+                            "avatarUrl",
+                            "identifiers",
                             "createdAt",
                             "updatedAt",
                             "organizations",
@@ -4222,26 +4591,13 @@
                 "properties": {
                   "firstName": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "lastName": {
                     "type": "string",
-                    "minLength": 1
-                  },
-                  "emails": {
-                    "anyOf": [
-                      {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        }
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -4344,6 +4700,50 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "identifiers": {
+                    "description": "Messaging channels for this contact. REPLACE semantics like the relation arrays: when provided, this array becomes the complete channel set (channels not listed are unlinked, their message history detached). Omit the field to leave channels untouched. Each item is { provider, value, messagingId? }; messagingId is the provider-internal id needed to start chats for linkedin, telegram and instagram; without it the channel is view-only.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "value": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 320
+                        },
+                        "messagingId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 320,
+                          "pattern": "^\\S+$"
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "profileUrl": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "value"
+                      ]
+                    }
                   }
                 }
               }
@@ -4369,13 +4769,15 @@
                     "lastName": {
                       "type": "string"
                     },
-                    "emails": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "email",
-                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                      }
+                    "avatarUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "notes": {
                       "description": "Markdown content",
@@ -4385,6 +4787,73 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "identifiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "google",
+                              "outlook",
+                              "mail",
+                              "linkedin",
+                              "whatsapp",
+                              "instagram",
+                              "telegram"
+                            ]
+                          },
+                          "value": {
+                            "type": "string"
+                          },
+                          "messagingId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profileUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "provider",
+                          "value",
+                          "messagingId",
+                          "displayName",
+                          "profileUrl"
+                        ],
+                        "additionalProperties": false
+                      }
                     },
                     "createdAt": {
                       "type": "string"
@@ -4538,7 +5007,8 @@
                     "id",
                     "firstName",
                     "lastName",
-                    "emails",
+                    "avatarUrl",
+                    "identifiers",
                     "createdAt",
                     "updatedAt",
                     "organizations",
@@ -4740,12 +5210,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -5000,12 +5481,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -5259,12 +5751,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -5551,6 +6054,7 @@
                 "type": "object",
                 "properties": {
                   "filters": {
+                    "maxItems": 50,
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -5672,6 +6176,11 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
                                 }
                               ]
                             }
@@ -5710,7 +6219,8 @@
                     }
                   },
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -6561,6 +7071,11 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
+                                  },
+                                  {
+                                    "title": "hasUnset",
+                                    "type": "string",
+                                    "const": "hasUnset"
                                   }
                                 ]
                               }
@@ -6695,6 +7210,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -6848,6 +7364,11 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
+                                        },
+                                        {
+                                          "title": "hasUnset",
+                                          "type": "string",
+                                          "const": "hasUnset"
                                         }
                                       ]
                                     }
@@ -6939,12 +7460,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ],
                               "additionalProperties": false
                             }
@@ -7811,6 +8343,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -7977,12 +8510,23 @@
                                   },
                                   "lastName": {
                                     "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
                                   }
                                 },
                                 "required": [
                                   "id",
                                   "firstName",
-                                  "lastName"
+                                  "lastName",
+                                  "avatarUrl"
                                 ],
                                 "additionalProperties": false
                               }
@@ -8837,7 +9381,8 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -8992,12 +9537,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -9396,12 +9952,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -9694,12 +10261,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -9991,12 +10569,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -10252,6 +10841,7 @@
                 "type": "object",
                 "properties": {
                   "filters": {
+                    "maxItems": 50,
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -10373,6 +10963,11 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
                                 }
                               ]
                             }
@@ -10411,7 +11006,8 @@
                     }
                   },
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -11262,6 +11858,11 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
+                                  },
+                                  {
+                                    "title": "hasUnset",
+                                    "type": "string",
+                                    "const": "hasUnset"
                                   }
                                 ]
                               }
@@ -11396,6 +11997,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -11549,6 +12151,11 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
+                                        },
+                                        {
+                                          "title": "hasUnset",
+                                          "type": "string",
+                                          "const": "hasUnset"
                                         }
                                       ]
                                     }
@@ -11709,12 +12316,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ],
                               "additionalProperties": false
                             }
@@ -12550,6 +13168,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -12785,12 +13404,23 @@
                                   },
                                   "lastName": {
                                     "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
                                   }
                                 },
                                 "required": [
                                   "id",
                                   "firstName",
-                                  "lastName"
+                                  "lastName",
+                                  "avatarUrl"
                                 ],
                                 "additionalProperties": false
                               }
@@ -13614,7 +14244,8 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -13866,12 +14497,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -14915,6 +15557,7 @@
                 "type": "object",
                 "properties": {
                   "filters": {
+                    "maxItems": 50,
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -15036,6 +15679,11 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
                                 }
                               ]
                             }
@@ -15074,7 +15722,8 @@
                     }
                   },
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -15925,6 +16574,11 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
+                                  },
+                                  {
+                                    "title": "hasUnset",
+                                    "type": "string",
+                                    "const": "hasUnset"
                                   }
                                 ]
                               }
@@ -16059,6 +16713,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -16212,6 +16867,11 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
+                                        },
+                                        {
+                                          "title": "hasUnset",
+                                          "type": "string",
+                                          "const": "hasUnset"
                                         }
                                       ]
                                     }
@@ -17153,6 +17813,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -18157,7 +18818,8 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "amount": {
                     "type": "number",
@@ -18663,12 +19325,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -18949,12 +19622,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -19234,12 +19918,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ],
                           "additionalProperties": false
                         }
@@ -19503,6 +20198,7 @@
                 "type": "object",
                 "properties": {
                   "filters": {
+                    "maxItems": 50,
                     "type": "array",
                     "items": {
                       "oneOf": [
@@ -19624,6 +20320,11 @@
                                   "title": "isNotNull",
                                   "type": "string",
                                   "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
                                 }
                               ]
                             }
@@ -19662,7 +20363,8 @@
                     }
                   },
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -20513,6 +21215,11 @@
                                     "title": "isNotNull",
                                     "type": "string",
                                     "const": "isNotNull"
+                                  },
+                                  {
+                                    "title": "hasUnset",
+                                    "type": "string",
+                                    "const": "hasUnset"
                                   }
                                 ]
                               }
@@ -20647,6 +21354,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -20800,6 +21508,11 @@
                                           "title": "isNotNull",
                                           "type": "string",
                                           "const": "isNotNull"
+                                        },
+                                        {
+                                          "title": "hasUnset",
+                                          "type": "string",
+                                          "const": "hasUnset"
                                         }
                                       ]
                                     }
@@ -20940,12 +21653,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ],
                               "additionalProperties": false
                             }
@@ -21789,6 +22513,7 @@
                                 "isNotNull",
                                 "hasNone",
                                 "hasSome",
+                                "hasUnset",
                                 "inLastDays"
                               ]
                             }
@@ -22004,12 +22729,23 @@
                                   },
                                   "lastName": {
                                     "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
                                   }
                                 },
                                 "required": [
                                   "id",
                                   "firstName",
-                                  "lastName"
+                                  "lastName",
+                                  "avatarUrl"
                                 ],
                                 "additionalProperties": false
                               }
@@ -22841,7 +23577,8 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 255
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -23060,12 +23797,23 @@
                           },
                           "lastName": {
                             "type": "string"
+                          },
+                          "avatarUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "id",
                           "firstName",
-                          "lastName"
+                          "lastName",
+                          "avatarUrl"
                         ],
                         "additionalProperties": false
                       }
@@ -23324,7 +24072,8 @@
                 "type": "object",
                 "properties": {
                   "searchTerm": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                   },
                   "sortDescriptor": {
                     "type": "object",
@@ -24231,19 +24980,11 @@
         "properties": {
           "firstName": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "lastName": {
             "type": "string"
-          },
-          "emails": {
-            "default": [],
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-            }
           },
           "notes": {
             "description": "Markdown content",
@@ -24316,6 +25057,50 @@
                 "columnId"
               ]
             }
+          },
+          "identifiers": {
+            "description": "Messaging channels for this contact. Each item is { provider, value, messagingId? }. provider is one of mail, google, outlook, whatsapp, linkedin, telegram, instagram. value is the email address, phone number, or handle. messagingId is the provider-internal id needed to start chats for linkedin, telegram and instagram; without it the channel is view-only.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "enum": [
+                    "google",
+                    "outlook",
+                    "mail",
+                    "linkedin",
+                    "whatsapp",
+                    "instagram",
+                    "telegram"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 320
+                },
+                "messagingId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 320,
+                  "pattern": "^\\S+$"
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "profileUrl": {
+                  "type": "string",
+                  "maxLength": 2048
+                }
+              },
+              "required": [
+                "provider",
+                "value"
+              ]
+            }
           }
         },
         "required": [
@@ -24335,19 +25120,11 @@
               "properties": {
                 "firstName": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "lastName": {
                   "type": "string"
-                },
-                "emails": {
-                  "default": [],
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "email",
-                    "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                  }
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -24420,6 +25197,50 @@
                       "columnId"
                     ]
                   }
+                },
+                "identifiers": {
+                  "description": "Messaging channels for this contact. Each item is { provider, value, messagingId? }. provider is one of mail, google, outlook, whatsapp, linkedin, telegram, instagram. value is the email address, phone number, or handle. messagingId is the provider-internal id needed to start chats for linkedin, telegram and instagram; without it the channel is view-only.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "google",
+                          "outlook",
+                          "mail",
+                          "linkedin",
+                          "whatsapp",
+                          "instagram",
+                          "telegram"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 320
+                      },
+                      "messagingId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 320,
+                        "pattern": "^\\S+$"
+                      },
+                      "displayName": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "profileUrl": {
+                        "type": "string",
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "provider",
+                      "value"
+                    ]
+                  }
                 }
               },
               "required": [
@@ -24450,26 +25271,13 @@
                 },
                 "firstName": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "lastName": {
                   "type": "string",
-                  "minLength": 1
-                },
-                "emails": {
-                  "anyOf": [
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "email",
-                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                      }
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -24572,6 +25380,50 @@
                       "type": "null"
                     }
                   ]
+                },
+                "identifiers": {
+                  "description": "Messaging channels for this contact. REPLACE semantics like the relation arrays: when provided, this array becomes the complete channel set (channels not listed are unlinked, their message history detached). Omit the field to leave channels untouched. Each item is { provider, value, messagingId? }; messagingId is the provider-internal id needed to start chats for linkedin, telegram and instagram; without it the channel is view-only.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "google",
+                          "outlook",
+                          "mail",
+                          "linkedin",
+                          "whatsapp",
+                          "instagram",
+                          "telegram"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 320
+                      },
+                      "messagingId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 320,
+                        "pattern": "^\\S+$"
+                      },
+                      "displayName": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "profileUrl": {
+                        "type": "string",
+                        "maxLength": 2048
+                      }
+                    },
+                    "required": [
+                      "provider",
+                      "value"
+                    ]
+                  }
                 }
               },
               "required": [
@@ -24607,7 +25459,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -24698,7 +25551,8 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -24800,7 +25654,8 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -24938,7 +25793,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -25051,7 +25907,8 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -25175,7 +26032,8 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -25341,7 +26199,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "amount": {
             "type": "number",
@@ -25428,7 +26287,8 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "amount": {
                   "type": "number",
@@ -25526,7 +26386,8 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "amount": {
                   "type": "number",
@@ -25653,7 +26514,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -25753,7 +26615,8 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -25864,7 +26727,8 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1
+                  "minLength": 1,
+                  "maxLength": 255
                 },
                 "notes": {
                   "description": "Markdown content",
@@ -26033,13 +26897,15 @@
                   "lastName": {
                     "type": "string"
                   },
-                  "emails": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "email",
-                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                    }
+                  "avatarUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -26049,6 +26915,72 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "identifiers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "messagingId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "displayName": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profileUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "provider",
+                        "value",
+                        "messagingId",
+                        "displayName",
+                        "profileUrl"
+                      ]
+                    }
                   },
                   "createdAt": {
                     "type": "string"
@@ -26197,7 +27129,8 @@
                   "id",
                   "firstName",
                   "lastName",
-                  "emails",
+                  "avatarUrl",
+                  "identifiers",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -26267,13 +27200,15 @@
                       "lastName": {
                         "type": "string"
                       },
-                      "emails": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "email",
-                          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                        }
+                      "avatarUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "notes": {
                         "description": "Markdown content",
@@ -26283,6 +27218,72 @@
                             "type": "null"
                           }
                         ]
+                      },
+                      "identifiers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "provider": {
+                              "type": "string",
+                              "enum": [
+                                "google",
+                                "outlook",
+                                "mail",
+                                "linkedin",
+                                "whatsapp",
+                                "instagram",
+                                "telegram"
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            },
+                            "messagingId": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "displayName": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "profileUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "provider",
+                            "value",
+                            "messagingId",
+                            "displayName",
+                            "profileUrl"
+                          ]
+                        }
                       },
                       "createdAt": {
                         "type": "string"
@@ -26431,7 +27432,8 @@
                       "id",
                       "firstName",
                       "lastName",
-                      "emails",
+                      "avatarUrl",
+                      "identifiers",
                       "createdAt",
                       "updatedAt",
                       "organizations",
@@ -26884,13 +27886,15 @@
                   "lastName": {
                     "type": "string"
                   },
-                  "emails": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "email",
-                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                    }
+                  "avatarUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "notes": {
                     "description": "Markdown content",
@@ -26900,6 +27904,72 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "identifiers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "messagingId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "displayName": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "profileUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "provider",
+                        "value",
+                        "messagingId",
+                        "displayName",
+                        "profileUrl"
+                      ]
+                    }
                   },
                   "createdAt": {
                     "type": "string"
@@ -27048,7 +28118,8 @@
                   "id",
                   "firstName",
                   "lastName",
-                  "emails",
+                  "avatarUrl",
+                  "identifiers",
                   "createdAt",
                   "updatedAt",
                   "organizations",
@@ -27142,12 +28213,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -27367,12 +28449,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ]
                         }
                       },
@@ -27571,12 +28664,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           },
@@ -27595,12 +28699,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           }
@@ -27968,12 +29083,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -28257,12 +29383,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -28519,12 +29656,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ]
                         }
                       },
@@ -28863,12 +30011,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           },
@@ -28887,12 +30046,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           }
@@ -29252,12 +30422,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -30435,12 +31616,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -30685,12 +31877,23 @@
                             },
                             "lastName": {
                               "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "required": [
                             "id",
                             "firstName",
-                            "lastName"
+                            "lastName",
+                            "avatarUrl"
                           ]
                         }
                       },
@@ -30957,12 +32160,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           },
@@ -30981,12 +32195,23 @@
                                 },
                                 "lastName": {
                                   "type": "string"
+                                },
+                                "avatarUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "required": [
                                 "id",
                                 "firstName",
-                                "lastName"
+                                "lastName",
+                                "avatarUrl"
                               ]
                             }
                           }
@@ -31352,12 +32577,23 @@
                         },
                         "lastName": {
                           "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         }
                       },
                       "required": [
                         "id",
                         "firstName",
-                        "lastName"
+                        "lastName",
+                        "avatarUrl"
                       ]
                     }
                   },
@@ -31781,26 +33017,13 @@
           },
           "firstName": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "lastName": {
             "type": "string",
-            "minLength": 1
-          },
-          "emails": {
-            "anyOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "format": "email",
-                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
-                }
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -31904,6 +33127,51 @@
                 "type": "null"
               }
             ]
+          },
+          "identifiers": {
+            "description": "Messaging channels for this contact. REPLACE semantics like the relation arrays: when provided, this array becomes the complete channel set (channels not listed are unlinked, their message history detached). Omit the field to leave channels untouched. Each item is { provider, value, messagingId? }; messagingId is the provider-internal id needed to start chats for linkedin, telegram and instagram; without it the channel is view-only.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string",
+                  "enum": [
+                    "google",
+                    "outlook",
+                    "mail",
+                    "linkedin",
+                    "whatsapp",
+                    "instagram",
+                    "telegram"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 320
+                },
+                "messagingId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 320,
+                  "pattern": "^\\S+$"
+                },
+                "displayName": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "profileUrl": {
+                  "type": "string",
+                  "maxLength": 2048
+                }
+              },
+              "required": [
+                "provider",
+                "value"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "required": [
@@ -31949,7 +33217,8 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -32098,7 +33367,8 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",
@@ -32277,7 +33547,8 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "amount": {
             "type": "number",
@@ -32415,7 +33686,8 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
           },
           "notes": {
             "description": "Markdown content",

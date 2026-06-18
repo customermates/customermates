@@ -14,7 +14,7 @@ import { FormTextarea } from "@/components/forms/form-textarea";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const ContactForm = observer(() => {
-  const t = useTranslations("ContactPage.form");
+  const t = useTranslations();
   const { contactStore } = useRootStore();
   const { isLoading, isSent, reset } = contactStore;
 
@@ -26,12 +26,12 @@ export const ContactForm = observer(() => {
             <CheckCircle2 className="size-6" />
           </div>
 
-          <h2 className="text-x-2xl">{t("successTitle")}</h2>
+          <h2 className="text-x-2xl">{t("ContactPage.form.successTitle")}</h2>
 
-          <p className="text-x-sm text-subdued max-w-md">{t("successBody")}</p>
+          <p className="text-x-sm text-subdued max-w-md">{t("ContactPage.form.successBody")}</p>
 
           <Button className="mt-2" variant="outline" onClick={reset}>
-            {t("successCta")}
+            {t("ContactPage.form.successCta")}
           </Button>
         </AppCardBody>
       </AppCard>
@@ -50,12 +50,12 @@ export const ContactForm = observer(() => {
 
           <FormInput autoComplete="organization" id="company" />
 
-          <FormTextarea required id="message" placeholder={t("messagePlaceholder")} rows={6} />
+          <FormTextarea required id="message" placeholder={t("ContactPage.form.messagePlaceholder")} rows={6} />
         </AppCardBody>
 
         <AppCardFooter>
           <Button className="ml-auto" disabled={isLoading} type="submit">
-            {t("submit")}
+            {t("ContactPage.form.submit")}
           </Button>
         </AppCardFooter>
       </AppCard>

@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
@@ -20,12 +20,8 @@ type Props = {
   initialRoles: GetResult<UserRoleDto>;
 };
 
-function getInitials(firstName?: string, lastName?: string) {
-  return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
-}
-
 export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { usersStore, userModalStore, companyInviteModalStore, rolesStore, intlStore } = useRootStore();
   const { canManage } = usersStore;
   const roles = rolesStore.items;
@@ -48,13 +44,7 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
           const item = row.original;
           return (
             <div className="flex items-center gap-2 min-w-0">
-              <Avatar className="shrink-0">
-                {item.avatarUrl && (
-                  <AvatarImage alt={`${item.firstName} ${item.lastName}`.trim()} src={item.avatarUrl} />
-                )}
-
-                <AvatarFallback>{getInitials(item.firstName, item.lastName)}</AvatarFallback>
-              </Avatar>
+              <Avatar name={[item.firstName, item.lastName]} src={item.avatarUrl} />
 
               <div className="max-w-full overflow-hidden">
                 <div className="text-sm truncate">{`${item?.firstName} ${item?.lastName}`.trim()}</div>

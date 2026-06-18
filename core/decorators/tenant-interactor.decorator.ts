@@ -4,7 +4,7 @@ import { isAllowedInDemoMode } from "./allow-in-demo-mode.decorator";
 import { isCloudOnly } from "./cloud-only.decorator";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { IS_CLOUD_HOSTED, IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 
 interface Permission {
@@ -16,7 +16,7 @@ interface PermissionRuleSet {
   condition: "AND" | "OR";
 }
 
-export function TentantInteractor<T extends { new (...args: any[]): object }>(
+export function TenantInteractor<T extends { new (...args: any[]): object }>(
   permissionRequirement?: PermissionRuleSet | Permission,
 ) {
   return function (constructor: T) {
@@ -35,8 +35,8 @@ export function TentantInteractor<T extends { new (...args: any[]): object }>(
     const originalInvoke = constructor.prototype.invoke;
 
     constructor.prototype.invoke = async function (...args: any[]) {
-      if (IS_DEMO_MODE && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
-      if (isCloudOnly(constructor) && !IS_CLOUD_HOSTED)
+      if (env.DEMO_MODE && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
+      if (isCloudOnly(constructor) && !env.CLOUD_HOSTED)
         throw new ForbiddenError("This feature is only available on cloud-hosted deployments");
 
       const { getUserService } = await import("@/core/di");

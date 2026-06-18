@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { AppError } from "@/core/errors/app-errors";
+import { appErrorResponse } from "@/core/errors/app-errors";
 
 export const ErrorResponseSchema = z.string();
 
@@ -41,7 +41,8 @@ export const CommonApiResponses = {
 } as const;
 
 export function handleError(source: unknown): NextResponse {
-  if (source instanceof AppError) return NextResponse.json(source.message, { status: source.statusCode });
+  const appError = appErrorResponse(source);
+  if (appError) return NextResponse.json(appError.message, { status: appError.statusCode });
 
   throw source instanceof Error ? source : new Error("Unexpected non-Error thrown", { cause: source });
 }

@@ -37,7 +37,7 @@ export async function generateMetadata({
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const locale = await getLocale();
-  const t = await getTranslations("BlogPostPage");
+  const t = await getTranslations();
   const page = blogPostsSource.getPage([slug], locale);
 
   if (!page) notFound();
@@ -154,7 +154,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {sortedPosts.length > 0 && (
         <section className="pb-16 md:pb-24 w-full">
           <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-x-3xl mb-8">{t("relatedArticles")}</h2>
+            <h2 className="text-x-3xl mb-8">{t("BlogPostPage.relatedArticles")}</h2>
 
             <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
               {sortedPosts.map((post) => {

@@ -4,7 +4,6 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
@@ -12,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Props = Omit<
   ComponentProps<"input">,
@@ -60,14 +60,12 @@ export const FormNumberInput = observer(
     ...props
   }: Props) => {
     const isReq = required;
-    const t = useTranslations("Common.inputs");
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const store = useAppForm();
     const { intlStore } = useRootStore();
     const controlled = onValueChange !== undefined;
 
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
     const isDisabled = store?.isLoading;
     const isReadOnly = store?.isReadOnly;
 

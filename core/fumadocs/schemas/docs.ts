@@ -4,7 +4,7 @@ import { z } from "zod";
 export const docsSchema = frontmatterSchema.extend({
   demo: z
     .object({
-      src: z.string().url(),
+      src: z.url(),
       title: z.string(),
     })
     .optional(),

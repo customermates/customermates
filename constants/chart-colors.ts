@@ -32,7 +32,7 @@ function buildColorSet(hue: Hue, fillShade: number): ChartColorTheme {
   return { light: set, dark: set };
 }
 
-export const CHART_COLORS = HUES.reduce(
+const CHART_COLORS = HUES.reduce(
   (acc, hue) => {
     FILL_SHADES.forEach((shade, i) => {
       const key = `${hue}${i + 1}` as ChartColor;

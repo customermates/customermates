@@ -7,7 +7,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 export function TranslationSync() {
   const locale = useLocale();
-  const t = useTranslations("");
+  const t = useTranslations();
   const { localeStore } = useRootStore();
 
   useEffect(() => {

@@ -7,7 +7,7 @@ import type { UserRoleDto } from "@/features/role/get-roles.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import type { CountryCode, Status, Currency } from "@/generated/prisma";
+import type { CountryCode, Status, Currency, MessagingProvider } from "@/generated/prisma";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
@@ -37,7 +37,18 @@ export enum DomainEvent {
   CUSTOM_COLUMN_CREATED = "custom_column.created",
   CUSTOM_COLUMN_UPDATED = "custom_column.updated",
   CUSTOM_COLUMN_DELETED = "custom_column.deleted",
+  CONNECTED_ACCOUNT_CREATED = "connected_account.created",
+  CONNECTED_ACCOUNT_DELETED = "connected_account.deleted",
+  CONNECTED_ACCOUNT_UPDATED = "connected_account.updated",
+  CONNECTED_ACCOUNT_RECONNECTED = "connected_account.reconnected",
+  CONNECTED_ACCOUNT_RESYNCED = "connected_account.resynced",
 }
+
+type ConnectedAccountAuditPayload = {
+  provider: MessagingProvider;
+  displayName: string | null;
+  emailAddress: string | null;
+};
 
 export type DomainEventMap = {
   [DomainEvent.USER_REGISTERED]: {
@@ -248,5 +259,38 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: CustomColumnDto;
+  };
+  [DomainEvent.CONNECTED_ACCOUNT_CREATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: ConnectedAccountAuditPayload;
+  };
+  [DomainEvent.CONNECTED_ACCOUNT_DELETED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: ConnectedAccountAuditPayload;
+  };
+  [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccount: ConnectedAccountAuditPayload;
+      changes: Record<string, { previous: unknown; current: unknown }>;
+    };
+  };
+  [DomainEvent.CONNECTED_ACCOUNT_RECONNECTED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: ConnectedAccountAuditPayload;
+  };
+  [DomainEvent.CONNECTED_ACCOUNT_RESYNCED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: ConnectedAccountAuditPayload;
   };
 };

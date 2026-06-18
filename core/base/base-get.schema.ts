@@ -51,6 +51,7 @@ export const FilterSchema = z.discriminatedUnion("operator", [
       operator: z.union([
         z.literal(FilterOperatorKey.isNull).meta({ title: "isNull" }),
         z.literal(FilterOperatorKey.isNotNull).meta({ title: "isNotNull" }),
+        z.literal(FilterOperatorKey.hasUnset).meta({ title: "hasUnset" }),
       ]),
     })
     .meta({ title: "Standalone filter" }),
@@ -87,7 +88,7 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
-export const KANBAN_PER_GROUP_MAX = 500;
+const KANBAN_PER_GROUP_MAX = 500;
 export const KANBAN_PER_GROUP_DEFAULT = 10;
 export const KANBAN_EMPTY_GROUP_KEY = "__empty__";
 
@@ -119,8 +120,8 @@ export const SortableFieldDescriptorSchema = z.object({
 export type SortableFieldDescriptor = Data<typeof SortableFieldDescriptorSchema>;
 
 export const GetQueryParamsApiSchema = z.object({
-  filters: z.array(FilterSchema).optional(),
-  searchTerm: z.string().optional(),
+  filters: z.array(FilterSchema).max(50).optional(),
+  searchTerm: z.string().max(200).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
   groupedPagination: GroupedPaginationRequestSchema.optional(),
@@ -162,7 +163,7 @@ export function createGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     items: z.array(itemSchema),
     customColumns: z.array(z.any()).optional(),
     filters: z.array(z.any()).optional(),
-    searchTerm: z.string().optional().nullable(),
+    searchTerm: z.string().nullish(),
     sortDescriptor: z.any().optional(),
     pagination: z
       .object({

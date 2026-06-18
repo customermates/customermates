@@ -15,7 +15,7 @@ import type {
 
 import { CustomColumnType } from "@/generated/prisma";
 
-import { IS_DEMO_MODE } from "@/constants/env";
+import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 
@@ -49,12 +49,12 @@ export abstract class BaseGetRepo<T> {
   abstract getSearchableFields(): SearchableField[];
   abstract getFilterableFields(): Promise<FilterableField[]>;
   abstract getCustomColumns(): Promise<CustomColumnDto[]>;
-  abstract validateFilters(filters: Filter[] | undefined, filterableFields: FilterableField[]): Filter[];
-  abstract validateSortDescriptor(
-    sortDescriptor: SortDescriptor | undefined,
-    sortableFields: SortableField[],
-    customColumns?: CustomColumnDto[],
-  ): SortDescriptor | undefined;
+  abstract validateFilters(args: { filters: Filter[] | undefined; filterableFields: FilterableField[] }): Filter[];
+  abstract validateSortDescriptor(args: {
+    sortDescriptor: SortDescriptor | undefined;
+    sortableFields: SortableField[];
+    customColumns?: CustomColumnDto[];
+  }): SortDescriptor | undefined;
 }
 
 type BaseQuery = { filters?: Filter[]; searchTerm?: string; sortDescriptor?: SortDescriptor };
@@ -124,10 +124,10 @@ export abstract class BaseGetInteractor<T> {
     ]);
     const sortableFields = this.repo.getSortableFields();
 
-    filters = this.repo.validateFilters(filters, filterableFields);
-    sortDescriptor = this.repo.validateSortDescriptor(sortDescriptor, sortableFields, customColumns);
+    filters = this.repo.validateFilters({ filters, filterableFields });
+    sortDescriptor = this.repo.validateSortDescriptor({ sortDescriptor, sortableFields, customColumns });
 
-    if (p13nId && !IS_DEMO_MODE) {
+    if (p13nId && !env.DEMO_MODE) {
       await this.p13nRepo.upsertP13n({
         p13nId,
         filters: filters ?? null,
@@ -143,10 +143,13 @@ export abstract class BaseGetInteractor<T> {
     const { items, total, groupCounts } = groupingColumn
       ? await this.fetchGrouped(
           baseQuery,
-          params.groupedPagination ?? defaultGroupedPagination(groupingColumn),
+          params.groupedPagination ?? { groupingColumnId: groupingColumn.id, perGroup: KANBAN_PER_GROUP_DEFAULT },
           groupingColumn,
         )
       : await this.fetchFlat(baseQuery, pagination);
+
+    const pageSize = pagination?.pageSize || 100;
+    const page = pagination?.page || 1;
 
     return {
       ok: true,
@@ -165,7 +168,12 @@ export abstract class BaseGetInteractor<T> {
         viewMode,
         groupingColumnId,
         groupCounts,
-        pagination: buildPaginationResponse(pagination, total),
+        pagination: {
+          page,
+          pageSize,
+          totalPages: Math.max(1, Math.ceil(total / pageSize)),
+          total,
+        } as PaginationResponse,
       },
     };
   }
@@ -190,7 +198,11 @@ export abstract class BaseGetInteractor<T> {
 
     const results = await Promise.all(
       groupKeys.map(async (groupKey) => {
-        const filters = [...(baseQuery.filters ?? []), buildGroupFilter(groupingColumn.id, groupKey)];
+        const groupFilter: Filter =
+          groupKey === KANBAN_EMPTY_GROUP_KEY
+            ? { field: groupingColumn.id, operator: FilterOperatorKey.isNull }
+            : { field: groupingColumn.id, operator: FilterOperatorKey.in, value: [groupKey] };
+        const filters = [...(baseQuery.filters ?? []), groupFilter];
         const [items, count] = await Promise.all([
           this.repo.getItems({ ...baseQuery, filters, take: takeFor(groupKey), skip: 0 }),
           this.repo.getCount({ filters, searchTerm: baseQuery.searchTerm }),
@@ -219,19 +231,4 @@ function pickGroupingColumn(
 
   const column = customColumns.find((c) => c.id === targetColumnId);
   return column?.type === CustomColumnType.singleSelect ? column : undefined;
-}
-
-function defaultGroupedPagination(column: SingleSelectColumn): GroupedPaginationRequest {
-  return { groupingColumnId: column.id, perGroup: KANBAN_PER_GROUP_DEFAULT };
-}
-
-function buildGroupFilter(groupingColumnId: string, groupKey: string): Filter {
-  if (groupKey === KANBAN_EMPTY_GROUP_KEY) return { field: groupingColumnId, operator: FilterOperatorKey.isNull };
-  return { field: groupingColumnId, operator: FilterOperatorKey.in, value: [groupKey] };
-}
-
-function buildPaginationResponse(pagination: PaginationRequest | undefined, total: number): PaginationResponse {
-  const pageSize = pagination?.pageSize || 100;
-  const page = pagination?.page || 1;
-  return { page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)), total } as PaginationResponse;
 }

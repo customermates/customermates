@@ -11,11 +11,13 @@ import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Identifiable = { id: string } | { key: string } | { value: string };
 
@@ -84,21 +86,20 @@ export const FormAutocomplete = observer(
   }: Props<T>) => {
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
-    const t = useTranslations("Common.inputs");
-    const tCommon = useTranslations("Common");
+    const t = useTranslations();
     const isReq = required;
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
     const [fetchedItems, setFetchedItems] = useState<T[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedData, setSelectedData] = useState<Map<string, T>>(new Map());
+    const debouncedInput = useDebouncedValue(input);
 
     const raw = controlledValue ?? (store?.getValue(id) as string | string[] | undefined);
     const selectedKeys = (raw === undefined ? [] : Array.isArray(raw) ? raw : [raw]).filter(Boolean);
 
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
     const isReadOnly = readOnly ?? store?.isReadOnly ?? false;
     const isDisabled = (disabled ?? store?.isLoading) || false;
 
@@ -106,14 +107,11 @@ export const FormAutocomplete = observer(
 
     useEffect(() => {
       if (!getItems) return;
-      const timer = setTimeout(() => {
-        setIsLoading(true);
-        void getItems({ searchTerm: input || undefined })
-          .then((res) => setFetchedItems(res.items || []))
-          .finally(() => setIsLoading(false));
-      }, 300);
-      return () => clearTimeout(timer);
-    }, [input, getItems]);
+      setIsLoading(true);
+      void getItems({ searchTerm: debouncedInput || undefined })
+        .then((res) => setFetchedItems(res.items || []))
+        .finally(() => setIsLoading(false));
+    }, [debouncedInput, getItems]);
 
     const allItems = useMemo(() => {
       const byKey = new Map<string, T>();
@@ -332,7 +330,7 @@ export const FormAutocomplete = observer(
             <Command shouldFilter={false}>
               <CommandInput
                 autoFocus
-                placeholder={tCommon("table.search")}
+                placeholder={t("Common.table.search")}
                 value={input}
                 onKeyDown={(e) => {
                   if (onCreate && e.key === "Enter" && input && filteredItems.length === 0) {
@@ -351,7 +349,7 @@ export const FormAutocomplete = observer(
                 {showCreate && (
                   <CommandGroup>
                     <CommandItem value={`__create__${input}`} onSelect={() => void handleCreate()}>
-                      {t("addOption", { value: input.trim() })}
+                      {t("Common.inputs.addOption", { value: input.trim() })}
                     </CommandItem>
                   </CommandGroup>
                 )}

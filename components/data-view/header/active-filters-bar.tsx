@@ -10,15 +10,18 @@ import { Button } from "@/components/ui/button";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
+import { cn } from "@/lib/utils";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
+  noBorder?: boolean;
 };
 
 export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersBar<E extends HasId>({
   store,
+  noBorder,
 }: Props<E>) {
-  const t = useTranslations("Common");
+  const t = useTranslations();
   const { editFiltersModalStore } = useRootStore();
 
   const filters = store.filters ?? [];
@@ -28,13 +31,13 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
     if (presets.length === 0) return null;
 
     return (
-      <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
+      <div className={cn("flex flex-wrap gap-1.5 items-center px-4 py-2", !noBorder && "border-b border-border")}>
         {presets.map((preset) => (
           <ClickableChip
             key={preset.id}
             className="max-w-md"
             startContent={<BookmarkIcon className="size-3 opacity-70" />}
-            variant="outline"
+            variant="secondary"
             onClick={() => store.changeFilterPreset(preset.id)}
           >
             <span className="truncate text-[11px]">{preset.name}</span>
@@ -48,7 +51,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
     <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
       {filters.map((filter, index) => {
         const label = getFilterLabel(filter, store.customColumns, t);
-        const operator = t(`filters.operators.${filter.operator}`);
+        const operator = t(`Common.filters.operators.${filter.operator}`);
 
         return (
           <ClickableChip
@@ -56,7 +59,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
             className="max-w-md"
             endContent={
               <button
-                aria-label={t("actions.delete")}
+                aria-label={t("Common.actions.delete")}
                 className="ml-0.5 opacity-50 hover:opacity-100 transition-opacity"
                 tabIndex={-1}
                 type="button"
@@ -72,11 +75,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
             onClick={() => editFiltersModalStore.openFor(store, filter.field)}
           >
             <span className="truncate text-[11px]">
-              <span className="font-medium">{label}</span>
-
-              <span className="mx-1 font-normal">{operator}</span>
-
-              <FilterChipValue customColumns={store.customColumns} filter={filter} />
+              <FilterChipValue customColumns={store.customColumns} filter={filter} label={label} operator={operator} />
             </span>
           </ClickableChip>
         );
@@ -86,10 +85,10 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
         className="h-auto py-0.5 px-2 text-[11px]"
         size="xs"
         type="button"
-        variant="outline"
+        variant="secondary"
         onClick={() => store.changeFilterPreset(undefined)}
       >
-        {t("filters.clearAll")}
+        {t("Common.filters.clearAll")}
       </Button>
     </div>
   );

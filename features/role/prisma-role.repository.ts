@@ -39,7 +39,7 @@ export class PrismaRoleRepo
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.user.companyId });
+    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
 
     const roles = await this.prisma.userRole.findMany({
       ...args,
@@ -50,12 +50,14 @@ export class PrismaRoleRepo
   }
 
   async getCount() {
-    return await this.prisma.userRole.count({ where: { companyId: this.user.companyId } });
+    return await this.prisma.userRole.count({ where: { companyId: this.companyId } });
   }
 
   @Transaction
   async upsertRoleOrThrow(args: RepoArgs<UpsertRoleRepo, "upsertRoleOrThrow">) {
     const { companyId } = this.user;
+
+    if (args.id) await this.prisma.userRole.findFirstOrThrow({ where: { id: args.id, companyId } });
 
     const roleData = {
       name: args.name,
@@ -194,11 +196,7 @@ export class PrismaRoleRepo
 
     if (role.isSystemRole) throw new Error("Cannot delete system roles");
 
-    const usersWithRole = await this.prisma.user.count({
-      where: { roleId: id, companyId },
-    });
-
-    if (usersWithRole > 0) throw new Error("Cannot delete role that is assigned to users");
+    if (await this.hasUsersAssigned(id)) throw new Error("Cannot delete role that is assigned to users");
 
     await this.prisma.userRole.deleteMany({
       where: { id, companyId },

@@ -4,7 +4,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 import type { Breakpoint } from "@/core/types/breakpoint";
 import type { Filter } from "@/core/base/base-get.schema";
 
-import type { WidgetGroupByType, Widget } from "@/generated/prisma";
+import type { Widget } from "@/generated/prisma";
 
 export enum ChartColor {
   default1 = "default1",
@@ -35,11 +35,6 @@ export enum DisplayType {
   doughnutChart = "doughnutChart",
   radarChart = "radarChart",
 }
-
-export type WidgetGroupBy = {
-  groupByType: WidgetGroupByType;
-  groupByCustomColumnId?: string;
-};
 
 export type ExtendedWidget = Widget & {
   data: DiagramDataPoint[];

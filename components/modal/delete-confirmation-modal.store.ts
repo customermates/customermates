@@ -27,6 +27,7 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
     this.setIsLoading(true);
     try {
       await this.form.onConfirm();
+      this.toastSuccess("Common.notifications.deleted");
       this.close();
     } finally {
       this.setIsLoading(false);

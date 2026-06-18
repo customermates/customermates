@@ -4,14 +4,10 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useNavigateToHref } from "@/components/modal/hooks/use-entity-drawer-stack";
+import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
+import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 
 import { AppChip } from "./app-chip";
 
@@ -19,7 +15,6 @@ type ChipStackItem = {
   id: string;
   label: string;
   startContent?: ReactNode;
-  template?: { key: string; presets: Record<string, unknown> } | undefined;
 };
 
 type AppChipProps = ComponentProps<typeof AppChip>;
@@ -57,7 +52,10 @@ export function AppChipStack<T extends ChipStackItem>({
   const widthsRef = useRef<number[]>([]);
   const stampRef = useRef<string>("");
   const moreWidthByDigitsRef = useRef<Record<number, number>>({});
-  const lastDimsRef = useRef<{ width: number; itemCount: number }>({ width: 0, itemCount: 0 });
+  const lastDimsRef = useRef<{ width: number; itemCount: number }>({
+    width: 0,
+    itemCount: 0,
+  });
   const rafIdRef = useRef<number | null>(null);
 
   const ensuredVisibleCount = Math.max(1, visibleCount);
@@ -300,45 +298,19 @@ export function AppChipStack<T extends ChipStackItem>({
             {ensuredHiddenItems.map((item) => {
               const href = chipHref?.(item);
               return (
-                <DropdownMenuItem
+                <StackDropdownItem
                   key={item.id}
-                  asChild={Boolean(href)}
-                  onSelect={(event) => {
-                    if (href) {
-                      event.preventDefault();
-                      return;
-                    }
-                    onChipClick?.(item);
-                    setDropdownOpen(false);
+                  close={() => setDropdownOpen(false)}
+                  href={href}
+                  onActivate={() => {
+                    if (onChipClick) onChipClick(item);
+                    else if (href) navigateToHref(href);
                   }}
                 >
-                  {href ? (
-                    <a
-                      href={href}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
-                          setDropdownOpen(false);
-                          return;
-                        }
-                        e.preventDefault();
-                        if (onChipClick) onChipClick(item);
-                        else navigateToHref(href);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      {item.startContent}
+                  {item.startContent}
 
-                      {item.label}
-                    </a>
-                  ) : (
-                    <>
-                      {item.startContent}
-
-                      {item.label}
-                    </>
-                  )}
-                </DropdownMenuItem>
+                  {item.label}
+                </StackDropdownItem>
               );
             })}
           </DropdownMenuContent>

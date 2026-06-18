@@ -3,13 +3,10 @@
     "label": "AGPL · Open source"
   },
   "ApiKeyModal": {
-    "created": "Created",
-    "expires": "Expires",
     "expiresIn": "Expires in",
     "expiresInPlaceholder": "Pick a date",
     "keyCreated": "API key created successfully",
     "keyWarning": "Make sure to copy this key now. You won't be able to see it again. The key should only be used with caution because others could impersonate you if the key gets lost.",
-    "lastUsed": "Last used",
     "title": "Create API Key"
   },
   "ApiKeysCard": {
@@ -71,9 +68,9 @@
       "labelHistory": "History",
       "labelNotes": "Notes",
       "loadMore": "Load more",
-      "open": "Open",
       "openApp": "Open app",
       "openFullPage": "Open full page",
+      "openList": "Open list",
       "readMore": "See more",
       "refresh": "Refresh",
       "reset": "Reset",
@@ -114,10 +111,6 @@
       "tooltipGroupBy": "Group by",
       "tooltipSearch": "Search",
       "tooltipSort": "Sort"
-    },
-    "assigneeGuard": {
-      "message": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
-      "title": "Missing Assignment"
     },
     "avatarUrl": "Profile Picture",
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
@@ -227,6 +220,8 @@
     "en": "English",
     "errors": {
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days",
+      "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
+      "channelAlreadyLinked": "This channel is already linked to another contact.",
       "contactNotFound": "Contact ID not found or not accessible.",
       "customColumnNotFound": "Custom column ID not found or not accessible. Available columns: {validValues}.",
       "customFieldInvalidCurrency": "The currency value is invalid. Must be a valid number.",
@@ -244,21 +239,29 @@
       "emailNotVerified": "Email not verified",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred",
+      "invalidChannelValue": "This isn't a valid email address, phone number, or handle.",
       "invalidCredentials": "Invalid email or password",
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
+      "invalidFilterValue": "Invalid filter value.",
       "invalidSortField": "Sort field not found or not accessible.",
-      "llmApiKeyInvalid": "Invalid API key. Please check your key and try again.",
       "notesExceedsMaxLength": "Notes content exceeds maximum length",
       "notesInvalidFormat": "Invalid notes format. Must be valid Tiptap JSON or markdown text",
       "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character",
       "passwordMismatch": "Passwords must match",
       "roleSystemRequired": "At least one user must be a system administrator",
+      "sendEmailTargetRequired": "Select a thread or an account to send from.",
       "serviceNotFound": "Service ID not found or not accessible.",
       "taskNameCannotBeChangedForSystemTasks": "Name cannot be changed for system tasks",
       "taskNotFound": "Task ID not found or not accessible.",
       "taskOnlyCustomTasksCanBeDeleted": "Only custom tasks can be deleted",
       "termsNotAgreed": "You must agree to the terms and conditions",
+      "unipileDisconnectedAccount": "The channel is disconnected. Please reconnect it and try again.",
+      "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
+      "unipileRequestTimeout": "The request timed out. Please try again.",
+      "unipileResourceNotFound": "The recipient or thread couldn't be found on this channel.",
+      "unipileServiceUnavailable": "The messaging service is temporarily unavailable. Please try again shortly.",
+      "unipileUnknown": "The provider rejected this message. Please try again or contact support.",
       "urlInvalidProtocol": "The URL value is invalid. Please check the format.",
       "userNotFound": "User ID not found or not accessible.",
       "widgetDealAggregationNotAllowedForTask": "Deal aggregation types are not allowed for Task element type",
@@ -272,6 +275,13 @@
     "events": {
       "company": {
         "updated": "Company Updated"
+      },
+      "connected_account": {
+        "created": "Account Connected",
+        "deleted": "Account Disconnected",
+        "reconnected": "Account Reconnected",
+        "resynced": "Account Resynced",
+        "updated": "Account Visibility Changed"
       },
       "contact": {
         "created": "Contact Created",
@@ -287,6 +297,10 @@
         "created": "Deal Created",
         "deleted": "Deal Deleted",
         "updated": "Deal Updated"
+      },
+      "message": {
+        "received": "Message Received",
+        "sent": "Message Sent"
       },
       "organization": {
         "created": "Organization Created",
@@ -335,9 +349,16 @@
         "emails": "Emails",
         "event": "Event",
         "organizationIds": "Organization",
+        "participantContactId": "Contact",
+        "participants": "Participants",
+        "provider": "Provider",
         "serviceIds": "Service",
+        "state": "State",
         "status": "Status",
         "taskIds": "Task",
+        "timelineKind": "Type",
+        "timelineThreadId": "Conversation",
+        "unread": "Unread",
         "updatedAt": "Updated at",
         "userIds": "Assigned"
       },
@@ -353,6 +374,7 @@
         "gte": "≥",
         "hasNone": "has none",
         "hasSome": "has some",
+        "hasUnset": "not fully linked",
         "in": "in",
         "inLastDays": "in last",
         "isNotNull": "is not empty",
@@ -374,7 +396,7 @@
         "select": "Saved filters"
       },
       "selectOperator": "Select a condition…",
-      "title": "Filters"
+      "unavailableValue": "Filter not available"
     },
     "firstName": "First name",
     "imageAlt": {
@@ -532,12 +554,20 @@
       "copiedToClipboard": "{value} copied to clipboard",
       "copyFailed": "Failed to copy to clipboard",
       "deleted": "Deleted",
-      "error": "Error",
       "unexpectedError": "Something went wrong. Please try again.",
       "updated": "Updated"
     },
     "options": "Options",
     "postalCode": "Postal Code",
+    "providers": {
+      "google": "Gmail",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "mail": "Email",
+      "outlook": "Outlook",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
     "role": "Role",
     "seedData": {
       "column": {
@@ -657,8 +687,6 @@
       "direction": "Direction",
       "field": "Sort by"
     },
-    "state": "State",
-    "status": "Status",
     "street": "Street",
     "systemTasks": {
       "userPendingAuthorization": {
@@ -670,15 +698,19 @@
     "table": {
       "ariaLabel": "Data table",
       "columns": {
+        "account": "Account",
         "age": "Age",
         "amount": "Amount",
         "assignedUser": "Assigned",
+        "channels": "Channels",
         "contacts": "Contacts",
         "created": "Created at",
         "createdAt": "Created at",
         "deals": "Deals",
         "description": "Description",
+        "displayName": "Display Name",
         "email": "E-Mail",
+        "emailAddress": "Email Address",
         "emails": "Emails",
         "enabled": "Enabled",
         "endDate": "End Date",
@@ -689,19 +721,24 @@
         "expiresAt": "Expires at",
         "firstName": "First Name",
         "id": "id",
+        "identifiers": "Channels",
+        "lastMessageAt": "Last message",
         "lastName": "Last Name",
         "lastRequest": "Last used",
         "name": "Name",
         "notes": "Notes",
         "organization": "Organization",
         "organizations": "Organizations",
+        "participants": "Participants",
         "phones": "Phone",
         "role": "Role",
         "selectLabel": "Table Columns",
         "services": "Services",
         "startDate": "Start Date",
+        "state": "State",
         "status": "Status",
         "statusCode": "Status Code",
+        "subject": "Subject",
         "tasks": "Tasks",
         "team": "Team",
         "title": "Title",
@@ -717,8 +754,11 @@
       "emptyContent": "No entries found",
       "groupBy": "Group By",
       "layout": "Layout",
+      "nextPage": "Next page",
       "pageSize": "Page size",
-      "paginationRange": "{from} - {to} of {total}",
+      "paginationEmpty": "0 of 0",
+      "paginationRange": "{from}-{to} of {total}",
+      "previousPage": "Previous page",
       "search": "Search...",
       "ungrouped": "Ungrouped"
     },
@@ -770,10 +810,6 @@
       "uuid": "uuid"
     }
   },
-  "CompanyDetailsForm": {
-    "subtitle": "Your workspace's name, address, and default currency.",
-    "title": "Company Profile"
-  },
   "CompanyInvite": {
     "cta": "Accept invitation",
     "fallback": "If the button does not work, copy and paste this link into your browser: ",
@@ -782,7 +818,6 @@
     "subject": "Join {companyName} on Customermates"
   },
   "CompanyInviteModal": {
-    "copyLink": "Copy link",
     "description": "Share this link with users you want to invite to your company.",
     "expiresAt": "Expires on {date}.",
     "generating": "Generating link...",
@@ -793,9 +828,69 @@
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
     "title": "User"
   },
+  "ConnectedAccountsCard": {
+    "channelLimitReached": "Channel connections are limited to 2 per account during the preview. As this feature runs on significantly more expensive infrastructure, higher limits will be available with the paid Pro tier in the future.",
+    "connectAccount": "Connect channel",
+    "connectedAt": "Connected",
+    "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
+    "connectedToastTitle": "Channel connected",
+    "description": "Connect the channels your inbox pulls from, like email, WhatsApp, and LinkedIn. Channels are private by default, and can be shared with your workspace if needed. Individual threads can also be shared separately.",
+    "disconnect": "Disconnect",
+    "emptyState": "You haven't connected any channels yet.",
+    "failedToastDescription": "Something went wrong. Try again or contact support if it keeps happening.",
+    "failedToastTitle": "Channel connection failed",
+    "lastSynced": "Last synced",
+    "ownerLabel": "Owner",
+    "paidSubscriptionRequired": "Connecting channels requires a paid subscription and is not available during the free trial.",
+    "provider": "Provider",
+    "reactivate": "Reactivate",
+    "resync": "Resync",
+    "resyncFailedDescription": "Resync couldn't be started. Try again or contact support.",
+    "resyncFailedTitle": "Resync failed",
+    "resyncStartedDescription": "Re-importing history in the background. This usually takes 1 to 3 minutes.",
+    "resyncStartedTitle": "Resync started",
+    "sharedOffToast": "Account is now private",
+    "sharedOnToast": "Account shared with your workspace",
+    "sharedWithYou": "Shared with you",
+    "status": "Status",
+    "statusLabels": {
+      "connecting": "Connecting",
+      "credentials": "Reconnect needed",
+      "deleted": "Deleted",
+      "error": "Error",
+      "ok": "Connected",
+      "permissions": "Permission issue",
+      "stopped": "Stopped"
+    },
+    "subTypeBoth": "Email & Calendar",
+    "subTypeCalendar": "Calendar",
+    "subTypeEmail": "Email",
+    "syncing": "Syncing history…",
+    "title": "Channels",
+    "visibility": "Visibility",
+    "visibilityHint": "Private means only you see this account, Shared makes it visible to your whole workspace. Individual threads can also be shared separately.",
+    "visibilityPrivate": "Private",
+    "visibilityShared": "Shared",
+    "visibilityUpdateFailed": "Couldn't update visibility. Try again."
+  },
+  "ContactHistory": {
+    "ariaOpenInInbox": "Open in inbox",
+    "calendarAllDay": "All day",
+    "calendarAttendees": "Attendees",
+    "calendarCancelled": "Cancelled",
+    "calendarJoinMeeting": "Join meeting",
+    "calendarMeeting": "Meeting",
+    "calendarOrganizer": "Organizer",
+    "calendarResponseMaybe": "Maybe",
+    "calendarResponseNo": "Declined",
+    "calendarResponseNoreply": "No reply",
+    "calendarResponseYes": "Accepted",
+    "linkedinConnectionAccepted": "LinkedIn connection accepted",
+    "linkedinOpenProfile": "Open LinkedIn profile",
+    "noActivity": "No activity yet for this contact.",
+    "openInInbox": "Open in inbox"
+  },
   "ContactModal": {
-    "emailsLabel": "Email",
-    "phonesLabel": "Phone",
     "title": "Contact"
   },
   "ContactPage": {
@@ -822,22 +917,7 @@
         "title": "Directly with me"
       }
     },
-    "meta": {
-      "description": "Get in touch with Customermates. Questions, partnerships, or just want to say hi — I read every message.",
-      "title": "Contact Customermates"
-    },
     "title": "Let's talk."
-  },
-  "ContactsCard": {
-    "title": "Contacts"
-  },
-  "ContactsPage": {
-    "contactsTab": "Contacts",
-    "organizationsTab": "Organizations"
-  },
-  "CTAButtons": {
-    "startFree": "Start for free",
-    "viewLiveDemo": "View live demo"
   },
   "Dashboard": {
     "addCard": "Add Chart",
@@ -879,9 +959,7 @@
     },
     "horizontal": "Show horizontally",
     "isTemplate": "Share as template for other users of your organization",
-    "lastUpdated": "Updated {time}",
     "limit": "Max. number of entries",
-    "refresh": "Refresh",
     "reverseXAxis": "Reverse X-axis",
     "reverseYAxis": "Reverse Y-axis",
     "selectWidgetTemplate": "Chart Template",
@@ -908,59 +986,19 @@
       }
     }
   },
-  "DataManagementFeatures": {
-    "features": {
-      "auditLog": {
-        "description": "Traceable history of changes.",
-        "title": "Audit Log"
-      },
-      "export": {
-        "description": "Export of CRM data for backups or external use.",
-        "title": "Export"
-      },
-      "import": {
-        "description": "CSV import for contacts, organizations, and deals.",
-        "title": "Import"
-      }
-    },
-    "subtitle": "Data import, export, transparency",
-    "title": "Data Management"
-  },
   "DealModal": {
-    "clearDates": "Clear Dates",
-    "contactsLabel": "Contact",
-    "currencyLabel": "Currency",
-    "dateRangeLabel": "Period",
-    "endDateLabel": "End Date",
     "noServicesAdded": "No services added yet",
-    "organizationsLabel": "Organizations",
-    "quantity": "Quantity",
     "quantityLabel": "Quantity",
-    "sameYearValidation": "Start and end dates must be within the same year",
-    "serviceLabel": "Service",
     "servicesLabel": "Services",
-    "startDateLabel": "Start Date",
-    "statusLabel": "Status",
     "title": "Deal",
     "totalLabel": "Total",
-    "totalQuantityLabel": "Total Quantity",
-    "totalValueLabel": "Total Value",
     "valueLabel": "Value"
-  },
-  "DealsCard": {
-    "title": "Deals"
   },
   "Diagrams": {
     "groups": "groups",
     "noData": "No data available",
     "noGroup": "Unassigned",
-    "quantity": "Quantity",
-    "sortBy": {
-      "count": "Count",
-      "value": "Value"
-    },
-    "total": "Total",
-    "value": "Value"
+    "total": "Total"
   },
   "DocsPage": {
     "copyMarkdown": "Copy Markdown",
@@ -976,7 +1014,6 @@
   "DocsSidebar": {
     "apiKeys": "API Keys",
     "architectureSecurity": "Architecture & Security",
-    "auditLogging": "Audit Logging",
     "comparison": "Comparison",
     "concepts": "Core Concepts",
     "connectChatgpt": "Connect ChatGPT",
@@ -986,9 +1023,6 @@
     "connectCursor": "Connect Cursor",
     "connectGemini": "Connect Gemini",
     "connectYourAi": "Connect your AI",
-    "customColumns": "Custom Columns",
-    "entitiesRelationships": "Entities & Relationships",
-    "features": "Features",
     "filterSyntax": "Filter Syntax",
     "fromPipedrive": "From Pipedrive",
     "getStarted": "Get Started",
@@ -996,51 +1030,85 @@
     "goBack": "Go back",
     "integrations": "Integrations",
     "introduction": "Introduction",
-    "invitingUsers": "Inviting Users",
-    "managingYourInstallation": "Managing Your Installation",
     "mcp": "MCP",
     "mcpToolCatalog": "MCP Tool Catalog",
     "n8n": "N8N",
     "openapi": "OpenAPI 3.1.0",
-    "organizationSettings": "Organization Settings",
-    "permissionsRoles": "Permissions & Roles",
     "quickstart": "Quickstart",
     "reference": "Reference",
-    "reportAndStatistics": "Report & Statistics",
     "selfHosting": "Self-Hosting",
-    "selfHostVsCloud": "Self-Hosted vs Cloud",
-    "setupAiAssistant": "Setup AI Assistant",
-    "tableAndKanbanView": "Table & Kanban View",
-    "webhookEvents": "Webhook Events",
-    "webhooks": "Webhooks",
-    "webhooksEvents": "Webhooks & Events"
+    "webhooks": "Webhooks"
   },
   "Editor": {
     "blockQuote": "Block Quote",
-    "bold": "Bold",
     "bulletList": "Bullet List",
+    "confirm": "Apply Link",
     "divider": "Divider",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
-    "italic": "Italic",
     "link": "Link",
     "noResults": "No results",
     "normalText": "Normal Text",
     "numberedList": "Numbered List",
     "placeholder": "Type '/' for commands...",
     "removeLink": "Remove Link",
-    "strikethrough": "Strikethrough",
     "taskList": "Task List",
-    "underline": "Underline",
-    "urlPlaceholder": "Enter URL...",
-    "urlPrompt": "URL"
+    "urlPlaceholder": "Enter URL..."
   },
   "EmailVerification": {
     "notVerified": "Email not verified",
     "resend": "Resend verification email",
-    "resending": "Sending…",
     "resendSuccess": "Verification email sent.",
     "verified": "Email verified"
+  },
+  "EntityChannels": {
+    "addChannel": {
+      "add": "Add",
+      "manualHeading": "Add manually",
+      "noResults": "No matches in your conversations.",
+      "placeholder": {
+        "instagram": "instagram.com/username",
+        "linkedin": "linkedin.com/in/username",
+        "mail": "name@example.com",
+        "telegram": "t.me/username",
+        "whatsapp": "+39 320 123 4567"
+      },
+      "searching": "Searching…",
+      "searchPlaceholder": "Find by name…",
+      "trigger": "Add channel"
+    },
+    "ariaCopy": "Copy",
+    "ariaStartThread": "Start {provider} thread in inbox",
+    "ariaUnlink": "Unlink {provider} channel",
+    "emptyHint": "No channels yet. Add an email, LinkedIn, WhatsApp, …",
+    "heading": "Channels",
+    "startChat": {
+      "accountLabel": "Account",
+      "bccLabel": "Bcc",
+      "bodyLabel": "Message",
+      "cancel": "Cancel",
+      "ccBccToggle": "Cc/Bcc",
+      "ccLabel": "Cc",
+      "noAccount": "No connected {provider} channel available. Connect one first.",
+      "send": "Send",
+      "sending": "Sending…",
+      "sentToast": "Message sent. It will appear in your inbox shortly.",
+      "subjectLabel": "Subject",
+      "title": "Start {provider} chat"
+    },
+    "tooltipOpenInbox": "Go to inbox",
+    "tooltipStartNewThread": "Start new thread in inbox",
+    "tooltipUnlinkChannel": "Unlink channel",
+    "tooltipUnverified": "This profile hasn't been confirmed yet. It's checked automatically when you send your first message.",
+    "unverified": "Unverified"
+  },
+  "EntityTimeline": {
+    "loadOlder": "Load older",
+    "types": {
+      "activities": "Activities",
+      "changes": "Changes",
+      "messages": "Messages"
+    }
   },
   "ErrorCard": {
     "contactSupport": "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
@@ -1056,36 +1124,28 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Should trigger UnexpectedErrorToaster",
-      "title": "Client-Side Errors",
-      "triggerAsyncClientError": "Trigger Async Client Error",
-      "triggerClientError": "Trigger Client Error"
+      "description": "Uncaught throws in browser code. The Next.js error overlay catches them in dev; in production they hit Sentry via the browser SDK's global handler and the UnexpectedErrorToaster.",
+      "title": "Client-Side",
+      "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
-      "description": "Should redirect to error page",
-      "title": "Server-Side Error",
-      "triggerServerError": "Trigger Server Error"
+      "description": "Server action throw → caught by instrumentation.ts's onRequestError → reported to Sentry.",
+      "title": "Server Action",
+      "triggerServerError": "Throw server action error"
     },
     "subtitle": "Breaking things on purpose, for science!",
-    "title": "Error Testing"
+    "title": "Error Testing",
+    "workflowError": {
+      "description": "Dispatches a background workflow that throws in a step. The workflow's catch → reportFailure → Sentry. In dev it logs to the server console instead of Sentry.",
+      "dispatched": "Workflow dispatched. Its failure is reported to Sentry (or the server console in dev).",
+      "title": "Workflow (Background Job)",
+      "triggerWorkflowError": "Dispatch failing workflow"
+    }
   },
   "FAQSection": {
     "contactCta": "Contact us →",
     "contactIntro": "Can't find what you need?",
     "label": "FAQ"
-  },
-  "FeaturesCTA": {
-    "description": "Start with Customermates today and manage your customer relationships efficiently",
-    "noCreditCard": "No credit card required • Cancel anytime • First 7 days free",
-    "title": "Ready to get started?"
-  },
-  "FeaturesHero": {
-    "description": "Overview of all Customermates features: Contacts, Deals, Services, Tasks, Team features, and n8n automation. GDPR-compliant, quick to start, and ideal for small businesses.",
-    "title": "All features a CRM for small businesses needs"
-  },
-  "FeaturesPage": {
-    "metadataDescription": "All features a CRM for small businesses needs",
-    "metadataTitle": "Customermates | Features"
   },
   "feedback": {
     "general": {
@@ -1098,7 +1158,6 @@
     "blogViewAll": "View all articles",
     "compare": "Compare",
     "compareViewAll": "View all comparisons",
-    "copyright": "@ Customermates",
     "copyrightText": "© {year} Customermates. All rights reserved.",
     "features": "Features",
     "featuresViewAll": "View all features",
@@ -1114,12 +1173,9 @@
   },
   "ForgotPasswordForm": {
     "backToSignIn": "Remember your password? <backToSignInLink>Sign in</backToSignInLink>",
-    "confirmEmailLabel": "Confirm E-Mail",
-    "emailLabel": "E-Mail",
     "resetLinkInvalid": "The reset link has expired. Please request a new link.",
     "resetLinkSent": "Reset link sent to your email.",
     "sendCta": "Send reset link",
-    "subtitle": "We'll send you a reset link.",
     "title": "Forgot password"
   },
   "GlobalSearch": {
@@ -1182,19 +1238,97 @@
     "taglinePost": ", so it works with whichever model you already pay for",
     "taglinePre": "Bring your own AI. Customermates speaks"
   },
+  "Inbox": {
+    "ariaBackToInbox": "Back to inbox",
+    "attachmentAudio": "Voice message",
+    "attachmentCount": "{count} attachment(s):",
+    "attachmentFile": "File",
+    "attachmentImage": "Image",
+    "attachmentLinkedinPost": "LinkedIn post",
+    "attachmentSticker": "Sticker",
+    "attachmentUnavailable": "Attachment unavailable",
+    "attachmentUnknown": "Unsupported",
+    "attachmentUnsupported": "This message type isn't supported here. Open in the native app.",
+    "attachmentVideo": "Video",
+    "attachmentVoice": "Voice note",
+    "compose": {
+      "bccPlaceholder": "Bcc (comma-separated)",
+      "ccBccToggle": "Cc/Bcc",
+      "ccPlaceholder": "Cc (comma-separated)",
+      "createContact": "Create \"{query}\"",
+      "emailContent": "Email content",
+      "loadRemoteImages": "Load remote images",
+      "noContacts": "No contacts.",
+      "sendQueuedDescription": "Your provider is sending it now. The message appears in your inbox once the provider confirms delivery.",
+      "sendQueuedTitle": "Message queued",
+      "subjectPlaceholder": "Subject",
+      "typeMessage": "Type a message...",
+      "unnamed": "Unnamed",
+      "writeReply": "Write a reply..."
+    },
+    "conversation": "Conversation",
+    "description": "Messages from your connected channels.",
+    "edited": "(edited)",
+    "emptyState": "No messages yet. Connect a channel in your profile to start receiving messages.",
+    "fileTypeExcel": "Excel spreadsheet",
+    "fileTypeImage": "Image file",
+    "fileTypePdf": "PDF document",
+    "fileTypePowerpoint": "PowerPoint presentation",
+    "fileTypeWord": "Word document",
+    "groupThread": "Group ({count} members)",
+    "linkedinContact": "LinkedIn contact",
+    "linkedinConversation": "LinkedIn conversation",
+    "loadMedia": "Load media",
+    "messageDeleted": "This message was deleted",
+    "noPreview": "No preview",
+    "participants": {
+      "link": "Link",
+      "linkUpdateFailed": "Couldn't update the contact link",
+      "openContact": "Open contact",
+      "unlink": "Unlink contact"
+    },
+    "selectThread": "Select a conversation from the inbox",
+    "senderUnknown": "Unknown",
+    "senderUnknownSender": "Unknown sender",
+    "senderYou": "You",
+    "settings": {
+      "people": "People",
+      "title": "Thread settings",
+      "tooltip": "Manage visibility and people",
+      "visibility": "Visibility",
+      "visibilityHint": "Private conversations are only visible to you. Share to CRM makes just this conversation visible to your whole team.",
+      "visibilityTitle": "Visibility Settings"
+    },
+    "shareToCrmActive": "Shared to CRM, visible to your whole team",
+    "shareToCrmPrivate": "Private",
+    "shareToCrmPrivateToast": "Conversation is now private",
+    "shareToCrmShare": "Share",
+    "shareToCrmShared": "Shared",
+    "shareToCrmSharedToast": "Shared to CRM",
+    "shareToCrmUpdateFailed": "Could not update visibility",
+    "shareToCrmViaAccount": "This account is shared with your team, so all its conversations are visible",
+    "statusReceived": "Received",
+    "statusSent": "Sent",
+    "systemEvent": "System event",
+    "threadStates": {
+      "closed": "Closed",
+      "open": "Open",
+      "spam": "Spam",
+      "unread": "Unread"
+    },
+    "title": "Inbox",
+    "unlinkedParticipants": "Some participants not linked to a contact",
+    "youPrefix": "You:"
+  },
   "Loading": {
     "text": "Loading..."
   },
   "MassActions": {
-    "customFields": "Custom Fields",
     "delete": "Delete selected",
     "noMatchingFields": "No fields match your search.",
     "searchFieldPlaceholder": "Search fields…",
     "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
-    "selectField": "Select field",
-    "selectValue": "Select value",
-    "update": "Update",
-    "updateValue": "Apply value"
+    "update": "Update"
   },
   "NavigationBar": {
     "addContact": "Add contact",
@@ -1208,6 +1342,7 @@
     "apiDocs": "API Documentation",
     "automation": "Automation",
     "blog": "Blog",
+    "connectedAccounts": "Channels",
     "contacts": "Contacts",
     "crm": "CRM",
     "dashboard": "Dashboard",
@@ -1217,10 +1352,13 @@
     "faq": "FAQ",
     "features": "Features",
     "general": "General",
+    "inbox": "Inbox",
     "members": "Members",
     "mission": "Mission",
     "organizations": "Organizations",
     "overview": "Overview",
+    "previewBadge": "Preview",
+    "previewTooltip": "Preview feature, free during the testing phase. As it runs on significantly more expensive infrastructure, it will become part of a separate paid Pro tier in the future. Feedback is very welcome.",
     "pricing": "Pricing",
     "search": "Search",
     "services": "Services",
@@ -1341,11 +1479,7 @@
       }
     }
   },
-  "OrganizationCard": {
-    "title": "Organizations"
-  },
   "OrganizationModal": {
-    "contactsLabel": "Contacts",
     "title": "Organization"
   },
   "PendingCard": {
@@ -1353,18 +1487,8 @@
     "subtitle": "Your account is currently being reviewed by your company's administrator",
     "title": "Waiting for Approval"
   },
-  "PendingPage": {
-    "body": "Your account is currently pending authorization. Please contact your administrator to approve your account.",
-    "title": "Waiting for approval"
-  },
-  "PricingPage": {
-    "metadataDescription": "Simple pricing for small businesses",
-    "metadataTitle": "Customermates | Pricing"
-  },
   "ProfileSections": {
-    "apiKeysDescription": "Long-lived API keys for programmatic access.",
-    "detailsDescription": "Your name, avatar, and account status.",
-    "settingsDescription": "Language, theme, formatting, email preferences."
+    "apiKeysDescription": "Long-lived API keys for programmatic access."
   },
   "ResetPassword": {
     "cta": "Reset password",
@@ -1375,10 +1499,7 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "Remember your password? <backToSignInLink>Sign in</backToSignInLink>",
-    "confirmPasswordLabel": "Confirm Password",
-    "passwordLabel": "Password",
     "resetPasswordCta": "Reset",
-    "subtitle": "Enter your new password.",
     "title": "Reset your password"
   },
   "RoleModal": {
@@ -1397,6 +1518,7 @@
       "company": "Company",
       "contacts": "Contacts",
       "deals": "Deals",
+      "inboxMessages": "Inbox messages",
       "organizations": "Organizations",
       "services": "Services",
       "tasks": "Tasks",
@@ -1415,45 +1537,27 @@
     "title": "Roles"
   },
   "ServiceModal": {
-    "amount": "Amount",
-    "assignedUser": "Assigned User",
-    "currency": "Currency",
-    "deals": "Deals",
-    "name": "Name",
-    "quantity": "Quantity",
-    "title": "Service",
-    "total": "Total"
-  },
-  "ServicesCard": {
-    "title": "Services"
+    "title": "Service"
   },
   "SignInForm": {
     "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Continue with {provider}",
-    "emailLabel": "Email Address",
     "forgotPassword": "Forgot password?",
     "or": "OR",
-    "passwordLabel": "Password",
     "rememberMe": "Remember me",
     "signInCta": "Sign In",
     "signInTitle": "Sign in to your account",
-    "subtitle": "to continue to Customermates",
     "switchToSignUp": "Don't have an account? <registerLink>Register</registerLink>"
   },
   "SignUpForm": {
     "acceptInviteCta": "Accept invitation",
     "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
-    "emailConfirmLabel": "Confirm E-Mail",
-    "emailLabel": "E-Mail",
     "inviteSubtitle": "You have been invited to join <bold>{company}</bold>. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
     "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
     "or": "OR",
-    "passwordConfirmLabel": "Confirm Password",
-    "passwordLabel": "Password",
     "signUpCta": "Create account",
-    "subtitleSanatize": "Create your account to get started.",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
     "title": "Create a Customermates Account"
   },
@@ -1500,13 +1604,7 @@
     "title": "Task"
   },
   "TasksCard": {
-    "systemTaskTooltip": "This is a system task that cannot be manually deleted. Open the task for more information.",
-    "title": "Tasks"
-  },
-  "TodoCard": {
-    "submitter": {
-      "label": "Enter todo"
-    }
+    "systemTaskTooltip": "This is a system task that cannot be manually deleted. Open the task for more information."
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
@@ -1557,34 +1655,9 @@
     "tasks": "Tasks",
     "theme": "Theme"
   },
-  "UserInterfaceFeatures": {
-    "features": {
-      "instantUse": {
-        "description": "Direct start without setup or training.",
-        "title": "Instant Use"
-      },
-      "mobileOptimization": {
-        "description": "Optimized display on smartphones.",
-        "title": "Mobile Optimization"
-      },
-      "userInterface": {
-        "description": "Reduced, clearly structured navigation.",
-        "title": "User Interface"
-      }
-    },
-    "subtitle": "Usability, structure, consistency",
-    "title": "User Interface"
-  },
-  "UsersCard": {
-    "statusSelect": "User status select",
-    "title": "User Administration"
-  },
   "UserSettingsForm": {
-    "displayLanguage": "Display Language",
     "displayLanguageHint": "Controls the UI language — labels, buttons, etc.",
-    "formattingLocale": "Formatting Locale",
-    "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted.",
-    "title": "Settings"
+    "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted."
   },
   "VerifyEmail": {
     "cta": "Verify email",
@@ -1625,7 +1698,6 @@
   "WebhookModal": {
     "disabled": "Disabled",
     "enabled": "Enabled",
-    "eventsLabel": "Events",
     "secretDescription": "Optional secret used to generate an HMAC-SHA256 signature sent in the X-Webhook-Signature header. To verify, hash the request body with this secret using HMAC-SHA256 and compare it with the header value.",
     "title": "Webhook",
     "urlDescription": "The endpoint URL where webhook events will be sent via POST requests."

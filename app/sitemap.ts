@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import { PUBLIC_ROUTES_SEO, ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
@@ -59,16 +59,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const isOpenApiRoute = /^\/[^/]+\/docs\/openapi(\/|$)/.test(route);
     // Keep sitemap alternates aligned with page-level canonicalization for OpenAPI URLs.
     const languages = isOpenApiRoute
-      ? { [ROUTING_DEFAULT_LOCALE]: `${BASE_URL}${route}` }
+      ? { [ROUTING_DEFAULT_LOCALE]: `${env.BASE_URL}${route}` }
       : Object.fromEntries(
           ROUTING_LOCALES.map((locale) => {
             const path = route.replace(/^\/[^/]+/, `/${locale}`);
-            return [locale, `${BASE_URL}${path}`];
+            return [locale, `${env.BASE_URL}${path}`];
           }),
         );
 
     return {
-      url: `${BASE_URL}${route}`,
+      url: `${env.BASE_URL}${route}`,
       lastModified: lastModified ?? new Date(),
       alternates: {
         languages,

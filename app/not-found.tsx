@@ -9,20 +9,20 @@ import { CenteredCardPage } from "../components/shared/centered-card-page";
 import { AppLink } from "../components/shared/app-link";
 
 export default async function NotFoundPage() {
-  const t = await getTranslations("NotFoundPage");
+  const t = await getTranslations();
 
   return (
     <CenteredCardPage>
       <AppCard className="max-w-md">
-        <CardHeroHeader subtitle={t("subtitle")} title={t("title")} />
+        <CardHeroHeader subtitle={t("NotFoundPage.subtitle")} title={t("NotFoundPage.title")} />
 
         <AppCardBody>
-          <p className="text-x-sm text-center">{t("body")}</p>
+          <p className="text-x-sm text-center">{t("NotFoundPage.body")}</p>
         </AppCardBody>
 
         <AppCardFooter>
           <Button asChild className="w-full">
-            <AppLink href="/">{t("ctaLabel")}</AppLink>
+            <AppLink href="/">{t("NotFoundPage.ctaLabel")}</AppLink>
           </Button>
         </AppCardFooter>
       </AppCard>

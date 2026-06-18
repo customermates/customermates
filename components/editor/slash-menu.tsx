@@ -23,7 +23,7 @@ type Props = {
 };
 
 export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
-  const t = useTranslations("Editor");
+  const t = useTranslations();
 
   const commands = useMemo((): SlashCommand[] => {
     const chain = () => editor.chain().focus();
@@ -31,49 +31,49 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
     return [
       {
         key: "heading1",
-        title: t("heading1"),
+        title: t("Editor.heading1"),
         icon: Heading1,
         run: () => chain().toggleHeading({ level: 1 }).run(),
       },
       {
         key: "heading2",
-        title: t("heading2"),
+        title: t("Editor.heading2"),
         icon: Heading2,
         run: () => chain().toggleHeading({ level: 2 }).run(),
       },
       {
         key: "normalText",
-        title: t("normalText"),
+        title: t("Editor.normalText"),
         icon: FileText,
         run: () => chain().setParagraph().run(),
       },
       {
         key: "bulletList",
-        title: t("bulletList"),
+        title: t("Editor.bulletList"),
         icon: List,
         run: () => chain().toggleBulletList().run(),
       },
       {
         key: "numberedList",
-        title: t("numberedList"),
+        title: t("Editor.numberedList"),
         icon: ListOrdered,
         run: () => chain().toggleOrderedList().run(),
       },
       {
         key: "taskList",
-        title: t("taskList"),
+        title: t("Editor.taskList"),
         icon: CheckCircle,
         run: () => chain().toggleTaskList().run(),
       },
       {
         key: "blockQuote",
-        title: t("blockQuote"),
+        title: t("Editor.blockQuote"),
         icon: Quote,
         run: () => chain().toggleBlockquote().run(),
       },
       {
         key: "divider",
-        title: t("divider"),
+        title: t("Editor.divider"),
         icon: Minus,
         run: () => chain().setHorizontalRule().run(),
       },
@@ -96,10 +96,10 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
       style={{ top: position.top, left: position.left }}
     >
       <Command>
-        <CommandInput autoFocus placeholder={t("placeholder")} />
+        <CommandInput autoFocus placeholder={t("Editor.placeholder")} />
 
         <CommandList>
-          <CommandEmpty>{t("noResults")}</CommandEmpty>
+          <CommandEmpty>{t("Editor.noResults")}</CommandEmpty>
 
           <CommandGroup>
             {commands.map((command) => (

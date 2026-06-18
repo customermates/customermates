@@ -29,10 +29,10 @@ const LOCALE_TO_FLAG: Record<Locale, string> = {
 };
 
 export const LanguageSelector = observer(({ className }: Props) => {
-  const t = useTranslations("Common");
+  const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = useLocale() as Locale;
-  const currentLocaleLabel = t(`locales.${currentLocale}`);
+  const currentLocaleLabel = t(`Common.locales.${currentLocale}`);
   const { navigationGuard } = useRootStore();
 
   function handleSelect(locale: Locale) {
@@ -46,15 +46,17 @@ export const LanguageSelector = observer(({ className }: Props) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          aria-label={t("language")}
+          aria-label={t("Common.language")}
           className={cn("min-w-32 h-8 justify-between gap-2", className)}
           size="sm"
           variant="outline"
         >
           <span className="flex items-center gap-2">
-            <Avatar className="size-4" size="sm">
+            <Avatar size="sm">
               <AvatarImage
-                alt={t("imageAlt.countryFlag", { country: currentLocaleLabel })}
+                alt={t("Common.imageAlt.countryFlag", {
+                  country: currentLocaleLabel,
+                })}
                 loading="lazy"
                 src={`https://flagcdn.com/${LOCALE_TO_FLAG[currentLocale].toLowerCase()}.svg`}
               />
@@ -71,12 +73,12 @@ export const LanguageSelector = observer(({ className }: Props) => {
 
       <DropdownMenuContent align="start" className="min-w-32">
         {ROUTING_LOCALES.map((locale) => {
-          const label = t(`locales.${locale}`);
+          const label = t(`Common.locales.${locale}`);
           return (
             <DropdownMenuItem key={locale} onSelect={() => handleSelect(locale)}>
-              <Avatar className="size-4" size="sm">
+              <Avatar size="sm">
                 <AvatarImage
-                  alt={t("imageAlt.countryFlag", { country: label })}
+                  alt={t("Common.imageAlt.countryFlag", { country: label })}
                   src={`https://flagcdn.com/${LOCALE_TO_FLAG[locale].toLowerCase()}.svg`}
                 />
 

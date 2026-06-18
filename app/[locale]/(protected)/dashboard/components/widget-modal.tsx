@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { EntityType, WidgetGroupByType } from "@/generated/prisma";
@@ -46,7 +46,7 @@ type Props = {
 };
 
 export const WidgetModal = observer(({ customColumns, filterableFields }: Props) => {
-  const t = useTranslations("");
+  const t = useTranslations();
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
@@ -110,13 +110,11 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
 
                                 <AppChip
                                   startContent={
-                                    <Avatar className="size-4 shrink-0">
-                                      {widget.avatarUrl && <AvatarImage src={widget.avatarUrl} />}
-
-                                      <AvatarFallback className="text-[8px]">
-                                        {`${widget.firstName?.[0] ?? ""}${widget.lastName?.[0] ?? ""}`.toUpperCase()}
-                                      </AvatarFallback>
-                                    </Avatar>
+                                    <Avatar
+                                      name={[widget.firstName, widget.lastName]}
+                                      size="sm"
+                                      src={widget.avatarUrl}
+                                    />
                                   }
                                   variant="outline"
                                 >

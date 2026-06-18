@@ -9,6 +9,7 @@ import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
@@ -23,8 +24,7 @@ export const FormSwitch = observer(
   ({ id, label, required, size = "default", className, containerClassName }: Props) => {
     const store = useAppForm();
     const checked = Boolean(store?.getValue(id));
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>

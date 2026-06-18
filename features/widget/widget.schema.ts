@@ -25,7 +25,7 @@ export const WidgetDtoSchema = z.object({
   dealFilters: z.array(z.any()).optional(),
   displayOptions: z.any(),
   groupByType: z.enum(WidgetGroupByType),
-  groupByCustomColumnId: z.string().nullable().optional(),
+  groupByCustomColumnId: z.string().nullish(),
   aggregationType: z.enum(AggregationType),
   layout: z.any(),
   data: z.array(

@@ -11,6 +11,7 @@ import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors } from "./use-form-field";
 
 export type FormRadioGroupOption = {
   value: string;
@@ -34,8 +35,7 @@ export const FormRadioGroup = observer(
     const store = useAppForm();
     const raw = store?.getValue(id);
     const value = raw == null ? "" : String(raw);
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>

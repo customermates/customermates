@@ -1,16 +1,16 @@
 import type { AuthService } from "./auth.service";
-
-import { redirect } from "next/navigation";
+import type { Redirect } from "./auth-outcome";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { redirectTo } from "./auth-outcome";
 
 @SystemInteractor
 export class SignOutInteractor {
   constructor(private readonly authService: AuthService) {}
 
-  async invoke(): Promise<void> {
+  async invoke(): Promise<Redirect> {
     await this.authService.signOut();
 
-    redirect("/");
+    return redirectTo("/");
   }
 }

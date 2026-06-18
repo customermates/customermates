@@ -4,10 +4,11 @@ import { AsyncLocalStorage } from "node:async_hooks";
 
 import type { Prisma, Webhook } from "@/generated/prisma";
 
-export type TransactionStore = {
+type TransactionStore = {
   client: AppPrismaClient;
   auditLogBatch: Prisma.AuditLogCreateManyInput[];
   webhookDeliveryBatch: Prisma.WebhookDeliveryCreateManyInput[];
+  afterCommit: (() => Promise<void>)[];
   enabledWebhooks: Webhook[] | null;
 };
 

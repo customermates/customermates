@@ -17,7 +17,7 @@ type Props = {
 export async function FAQSection({ faqs, title }: Props) {
   if (!faqs.length) return null;
 
-  const t = await getTranslations("FAQSection");
+  const t = await getTranslations();
 
   return (
     <section className="relative isolate mx-auto w-full max-w-[860px] overflow-visible px-4 py-20">
@@ -31,16 +31,16 @@ export async function FAQSection({ faqs, title }: Props) {
         <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#129490]/12 px-3 py-1 font-mono text-[12px] font-medium uppercase tracking-[0.05em] text-[#0e726f]">
           <span className="size-[5px] rounded-full bg-[#129490]" />
 
-          {t("label")}
+          {t("FAQSection.label")}
         </span>
 
         {title ? <h2 className="m-0 mt-3 text-x-3xl">{title}</h2> : null}
 
         {/* eslint-disable react/jsx-newline */}
         <p className="mx-auto mt-3 max-w-[480px] text-sm text-muted-foreground">
-          {t("contactIntro")}{" "}
+          {t("FAQSection.contactIntro")}{" "}
           <AppLink className="font-medium text-primary no-underline hover:underline" href="/contact">
-            {t("contactCta")}
+            {t("FAQSection.contactCta")}
           </AppLink>
         </p>
         {/* eslint-enable react/jsx-newline */}

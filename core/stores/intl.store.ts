@@ -185,6 +185,15 @@ export class IntlStore {
     }).format(date);
   }
 
+  formatTime(date: Date | undefined): string {
+    if (date === undefined) return "";
+
+    return new Intl.DateTimeFormat(this.formattingLocale, {
+      hour: "2-digit" as const,
+      minute: "2-digit" as const,
+    }).format(date);
+  }
+
   formatRelativeTime(date: Date | undefined): string {
     if (date === undefined) return "";
 

@@ -28,17 +28,14 @@ import {
   getUpdateTaskInteractor,
   getUpdateManyTasksInteractor,
   getDeleteManyTasksInteractor,
-  getGetEntityChangeHistoryByIdInteractor,
   getUpsertP13nInteractor,
   getUpsertFilterPresetInteractor,
   getDeleteFilterPresetInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-import { type GetEntityChangeHistoryByIdData } from "@/ee/audit-log/get/get-entity-change-history-by-id.interactor";
 
 export async function deleteCustomColumnAction(id: string) {
-  const result = await getDeleteCustomColumnInteractor().invoke({ id });
-  return result.data;
+  return serializeResult(getDeleteCustomColumnInteractor().invoke({ id }));
 }
 
 export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {
@@ -47,11 +44,11 @@ export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {
 
 export async function getCustomColumnsByEntityTypeAction(data: GetCustomColumnsByEntityTypeData) {
   const result = await getGetCustomColumnsByEntityTypeInteractor().invoke(data);
-  return result.data;
+  return result.ok ? result.data : [];
 }
 
 export async function upsertP13nAction(data: UpsertP13nData) {
-  return getUpsertP13nInteractor().invoke(data);
+  return serializeResult(getUpsertP13nInteractor().invoke(data));
 }
 
 export async function upsertFilterPresetAction(data: UpsertFilterPresetData) {
@@ -59,7 +56,7 @@ export async function upsertFilterPresetAction(data: UpsertFilterPresetData) {
 }
 
 export async function deleteFilterPresetAction(data: DeleteFilterPresetData) {
-  return getDeleteFilterPresetInteractor().invoke(data);
+  return serializeResult(getDeleteFilterPresetInteractor().invoke(data));
 }
 
 export async function updateEntityCustomFieldValueAction(data: {
@@ -118,9 +115,4 @@ export async function bulkUpdateCustomFieldValuesAction(data: {
     case EntityType.task:
       return serializeResult(getUpdateManyTasksInteractor().invoke({ tasks: items }));
   }
-}
-
-export async function getEntityChangeHistoryByIdAction(data: GetEntityChangeHistoryByIdData) {
-  const result = await getGetEntityChangeHistoryByIdInteractor().invoke(data);
-  return result.data;
 }

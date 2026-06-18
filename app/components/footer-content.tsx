@@ -23,21 +23,17 @@ type FooterProps = {
 };
 
 export function FooterContent({ blogPosts = [], competitors = [], featureLinks = [], industries = [] }: FooterProps) {
-  const t = useTranslations("Footer");
-  const tNav = useTranslations("NavigationBar");
-
-  const tCommon = useTranslations("Common");
-  const tUserAvatar = useTranslations("UserAvatar");
+  const t = useTranslations();
 
   return (
     <footer className="bg-muted dark:bg-card mt-auto w-full text-x-sm">
       <div className="max-w-[1300px] mx-auto px-6 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 mb-12">
           <div className="col-span-2 sm:col-span-3 lg:col-span-1 flex flex-col items-start gap-4">
-            <AppLink aria-label={`${tCommon("imageAlt.logo")} ${tUserAvatar("home")}`} href="/">
-              <AppImage alt={tCommon("imageAlt.logo")} height={27} src="customermates.svg" width={156} />
+            <AppLink aria-label={`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`} href="/">
+              <AppImage alt={t("Common.imageAlt.logo")} height={27} src="customermates.svg" width={156} />
 
-              <span className="sr-only">{`${tCommon("imageAlt.logo")} ${tUserAvatar("home")}`}</span>
+              <span className="sr-only">{`${t("Common.imageAlt.logo")} ${t("UserAvatar.home")}`}</span>
             </AppLink>
 
             <div className="flex gap-4">
@@ -83,43 +79,43 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("product")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.product")}</h3>
 
             <ul className="space-y-2">
               <li>
                 <AppLink className="text-subdued" href="/pricing">
-                  {tNav("pricing")}
+                  {t("NavigationBar.pricing")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/features">
-                  {tNav("features")}
+                  {t("NavigationBar.features")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/n8n-crm">
-                  {tNav("automation")}
+                  {t("NavigationBar.automation")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/docs">
-                  {tNav("docs")}
+                  {t("NavigationBar.docs")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/affiliate">
-                  {tNav("affiliate")} (35%)
+                  {t("NavigationBar.affiliate")} (35%)
                 </AppLink>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("features")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.features")}</h3>
 
             <ul className="space-y-2">
               {featureLinks.map(({ slug, displayName }) => (
@@ -132,14 +128,14 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
               <li>
                 <AppLink className="text-subdued" href="/features/all">
-                  {t("featuresViewAll")}
+                  {t("Footer.featuresViewAll")}
                 </AppLink>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("solutions")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.solutions")}</h3>
 
             <ul className="space-y-2">
               {industries.map(({ slug, displayName }) => (
@@ -152,28 +148,28 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
               <li>
                 <AppLink className="text-subdued" href="/for">
-                  {t("solutionsViewAll")}
+                  {t("Footer.solutionsViewAll")}
                 </AppLink>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("compare")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.compare")}</h3>
 
             <ul className="space-y-2">
               <CompetitorLinks competitors={competitors} />
 
               <li>
                 <AppLink className="text-subdued" href="/compare">
-                  {t("compareViewAll")}
+                  {t("Footer.compareViewAll")}
                 </AppLink>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("resources")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.resources")}</h3>
 
             <ul className="space-y-2">
               {blogPosts.map(({ slug, displayName }) => (
@@ -186,37 +182,37 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
               <li>
                 <AppLink className="text-subdued" href="/blog">
-                  {t("blogViewAll")}
+                  {t("Footer.blogViewAll")}
                 </AppLink>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">{t("legal")}</h3>
+            <h3 className="font-semibold text-foreground">{t("Footer.legal")}</h3>
 
             <ul className="space-y-2">
               <li>
                 <AppLink className="text-subdued" href="/help-and-feedback">
-                  {t("helpAndFeedback")}
+                  {t("Footer.helpAndFeedback")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/imprint">
-                  {t("imprint")}
+                  {t("Footer.imprint")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/privacy">
-                  {t("privacy")}
+                  {t("Footer.privacy")}
                 </AppLink>
               </li>
 
               <li>
                 <AppLink className="text-subdued" href="/terms">
-                  {t("terms")}
+                  {t("Footer.terms")}
                 </AppLink>
               </li>
             </ul>
@@ -228,7 +224,7 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
         <div className="pt-8">
           <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 md:gap-4">
             <div className="text-xs text-subdued text-center md:text-left">
-              <span>{t("copyrightText", { year: new Date().getFullYear() })}</span>
+              <span>{t("Footer.copyrightText", { year: new Date().getFullYear() })}</span>
 
               {" · "}
 

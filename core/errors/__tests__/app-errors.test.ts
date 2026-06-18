@@ -1,21 +1,13 @@
 import { describe, it, expect } from "vitest";
 
-import { AppError, AuthError, ForbiddenError, DemoModeError, NotFoundError } from "../app-errors";
-
-describe("AppError", () => {
-  it("stores message and statusCode", () => {
-    const err = new AppError("something broke", 500);
-    expect(err.message).toBe("something broke");
-    expect(err.statusCode).toBe(500);
-    expect(err.name).toBe("AppError");
-  });
-
-  it("is an instance of Error", () => {
-    const err = new AppError("test", 400);
-    expect(err).toBeInstanceOf(Error);
-    expect(err).toBeInstanceOf(AppError);
-  });
-});
+import {
+  AuthError,
+  ForbiddenError,
+  DemoModeError,
+  WebhookExternalFailure,
+  WebhookNonRetryableFailure,
+  isExpectedError,
+} from "../app-errors";
 
 describe("AuthError", () => {
   it("defaults to 401 with default message", () => {
@@ -31,8 +23,8 @@ describe("AuthError", () => {
     expect(err.statusCode).toBe(401);
   });
 
-  it("is an instance of AppError", () => {
-    expect(new AuthError()).toBeInstanceOf(AppError);
+  it("is an instance of Error", () => {
+    expect(new AuthError()).toBeInstanceOf(Error);
   });
 });
 
@@ -50,8 +42,8 @@ describe("ForbiddenError", () => {
     expect(err.statusCode).toBe(403);
   });
 
-  it("is an instance of AppError", () => {
-    expect(new ForbiddenError()).toBeInstanceOf(AppError);
+  it("is an instance of Error", () => {
+    expect(new ForbiddenError()).toBeInstanceOf(Error);
   });
 });
 
@@ -63,26 +55,39 @@ describe("DemoModeError", () => {
     expect(err.name).toBe("DemoModeError");
   });
 
-  it("is an instance of AppError", () => {
-    expect(new DemoModeError()).toBeInstanceOf(AppError);
+  it("is an instance of Error", () => {
+    expect(new DemoModeError()).toBeInstanceOf(Error);
   });
 });
 
-describe("NotFoundError", () => {
-  it("defaults to 404 with default message", () => {
-    const err = new NotFoundError();
-    expect(err.statusCode).toBe(404);
-    expect(err.message).toBe("Not found");
-    expect(err.name).toBe("NotFoundError");
+describe("isExpectedError", () => {
+  it("recognizes expected error instances", () => {
+    expect(isExpectedError(new AuthError())).toBe(true);
+    expect(isExpectedError(new ForbiddenError())).toBe(true);
+    expect(isExpectedError(new DemoModeError())).toBe(true);
+    expect(isExpectedError(new WebhookExternalFailure(503, "down"))).toBe(true);
+    expect(isExpectedError(new WebhookNonRetryableFailure(405, "Method Not Allowed"))).toBe(true);
   });
 
-  it("accepts a custom message", () => {
-    const err = new NotFoundError("Contact not found");
-    expect(err.message).toBe("Contact not found");
-    expect(err.statusCode).toBe(404);
+  it("recognizes webhook failures flattened to FatalError across the workflow boundary, by message", () => {
+    expect(
+      isExpectedError({
+        name: "FatalError",
+        message: "Webhook target responded 405 Method Not Allowed (non-retryable)",
+      }),
+    ).toBe(true);
+    expect(isExpectedError({ name: "FatalError", message: "Webhook target responded 503 down" })).toBe(true);
   });
 
-  it("is an instance of AppError", () => {
-    expect(new NotFoundError()).toBeInstanceOf(AppError);
+  it("does NOT suppress a genuine bug flattened to FatalError on workflow replay", () => {
+    expect(isExpectedError({ name: "FatalError", message: "Test workflow error from background job" })).toBe(false);
+    expect(isExpectedError({ name: "FatalError", message: "Cannot read properties of undefined" })).toBe(false);
+  });
+
+  it("does not suppress genuinely unexpected errors", () => {
+    expect(isExpectedError(new Error("boom"))).toBe(false);
+    expect(isExpectedError({ name: "TypeError", message: "x is not a function" })).toBe(false);
+    expect(isExpectedError(null)).toBe(false);
+    expect(isExpectedError("just a string")).toBe(false);
   });
 });

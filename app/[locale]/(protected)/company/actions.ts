@@ -37,11 +37,11 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function createCheckoutSessionAction() {
-  return getCreateCheckoutSessionInteractor().invoke();
+  return serializeResult(getCreateCheckoutSessionInteractor().invoke());
 }
 
 export async function refreshSubscriptionAction() {
-  return getRefreshSubscriptionInteractor().invoke();
+  return serializeResult(getRefreshSubscriptionInteractor().invoke());
 }
 
 export async function getSubscriptionAction() {
@@ -85,8 +85,7 @@ export async function upsertRoleAction(data: UpsertRoleData) {
 }
 
 export async function deleteRoleAction(data: DeleteRoleData) {
-  const result = await getDeleteRoleInteractor().invoke(data);
-  return result.data;
+  return serializeResult(getDeleteRoleInteractor().invoke(data));
 }
 
 export async function getUsersAction(params?: GetQueryParams) {
@@ -96,7 +95,7 @@ export async function getUsersAction(params?: GetQueryParams) {
 
 export async function getUserByIdAction(data: GetUserByIdData) {
   const result = await getGetUserByIdInteractor().invoke(data);
-  return result.ok ? result.data : { user: null };
+  return result.data;
 }
 
 export async function getAuditLogsAction(params?: GetQueryParams) {
@@ -123,5 +122,5 @@ export async function getWebhookDeliveriesAction(params?: GetQueryParams) {
 }
 
 export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryData) {
-  return getResendWebhookDeliveryInteractor().invoke(data);
+  return serializeResult(getResendWebhookDeliveryInteractor().invoke(data));
 }

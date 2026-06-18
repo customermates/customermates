@@ -3,7 +3,7 @@ import type { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { getSourceFromRoute } from "./route-source-map";
 
-import { BASE_URL } from "@/constants/env";
+import { env } from "@/env";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
 
 type GenerateMetadataParams = {
@@ -37,15 +37,15 @@ export function generateMetadataFromMeta({
 
   for (const loc of ROUTING_LOCALES) {
     const localeRoute = routePath === "/" ? `/${loc}` : `/${loc}${routePath}`;
-    alternates[loc] = `${BASE_URL}${localeRoute}`;
+    alternates[loc] = `${env.BASE_URL}${localeRoute}`;
   }
 
   const xDefaultLocaleRoute =
     routePath === "/" ? `/${ROUTING_DEFAULT_LOCALE}` : `/${ROUTING_DEFAULT_LOCALE}${routePath}`;
-  alternates["x-default"] = `${BASE_URL}${xDefaultLocaleRoute}`;
+  alternates["x-default"] = `${env.BASE_URL}${xDefaultLocaleRoute}`;
 
   const canonicalRoute = routePath === "/" ? `/${locale}` : `/${locale}${routePath}`;
-  const canonical = `${BASE_URL}${canonicalRoute}`;
+  const canonical = `${env.BASE_URL}${canonicalRoute}`;
   const ogImageParams = new URLSearchParams({ title });
 
   if (description) ogImageParams.set("description", description);

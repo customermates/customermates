@@ -4,7 +4,7 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { type ServiceDto } from "../service.schema";
 
-import { TentantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
@@ -15,7 +15,7 @@ import { ServiceDtoSchema } from "../service.schema";
 export abstract class GetServicesRepo extends BaseGetRepo<ServiceDto> {}
 
 @AllowInDemoMode
-@TentantInteractor({
+@TenantInteractor({
   permissions: [
     { resource: Resource.services, action: Action.readAll },
     { resource: Resource.services, action: Action.readOwn },

@@ -21,62 +21,64 @@ type Props = {
   showInitially?: boolean;
 };
 
-export const FormActions = observer(function FormActions({
-  store: storeProp,
-  variant = "card",
-  formId,
-  primaryButtonLabel = "Common.actions.save",
-  overrideDisabled,
-  showInitially,
-}: Props) {
-  const t = useTranslations("");
-  const ctxStore = useAppForm();
-  const store = storeProp ?? ctxStore;
+export const FormActions = observer(
+  ({
+    store: storeProp,
+    variant = "card",
+    formId,
+    primaryButtonLabel = "Common.actions.save",
+    overrideDisabled,
+    showInitially,
+  }: Props) => {
+    const t = useTranslations();
+    const ctxStore = useAppForm();
+    const store = storeProp ?? ctxStore;
 
-  const dirty = store?.hasUnsavedChanges ?? false;
-  const loading = store?.isLoading ?? false;
-  const canManage = store?.canManage ?? true;
-  const disabled = !dirty || Boolean(overrideDisabled) || (store?.isDisabled ?? loading);
+    const dirty = store?.hasUnsavedChanges ?? false;
+    const loading = store?.isLoading ?? false;
+    const canManage = store?.canManage ?? true;
+    const disabled = !dirty || Boolean(overrideDisabled) || (store?.isDisabled ?? loading);
 
-  const isTopBar = variant === "topbar";
-  const buttonSize = isTopBar ? "sm" : undefined;
-  const buttonClassName = isTopBar ? "h-8" : undefined;
+    const isTopBar = variant === "topbar";
+    const buttonSize = isTopBar ? "sm" : undefined;
+    const buttonClassName = isTopBar ? "h-8" : undefined;
 
-  if (!canManage) return null;
+    if (!canManage) return null;
 
-  const buttons = (
-    <>
-      {dirty && (
+    const buttons = (
+      <>
+        {dirty && (
+          <Button
+            className={buttonClassName}
+            size={buttonSize}
+            type="button"
+            variant="outline"
+            onClick={() => store?.resetForm()}
+          >
+            {t("Common.actions.reset")}
+          </Button>
+        )}
+
         <Button
           className={buttonClassName}
+          disabled={disabled}
+          form={formId}
           size={buttonSize}
-          type="button"
-          variant="outline"
-          onClick={() => store?.resetForm()}
+          type="submit"
+          variant="default"
         >
-          {t("Common.actions.reset")}
+          {t(primaryButtonLabel)}
         </Button>
-      )}
+      </>
+    );
 
-      <Button
-        className={buttonClassName}
-        disabled={disabled}
-        form={formId}
-        size={buttonSize}
-        type="submit"
-        variant="default"
-      >
-        {t(primaryButtonLabel)}
-      </Button>
-    </>
-  );
+    if (isTopBar) return <div className="flex items-center gap-2">{buttons}</div>;
 
-  if (isTopBar) return <div className="flex items-center gap-2">{buttons}</div>;
-
-  const shouldShow = Boolean(showInitially) || dirty || loading;
-  return (
-    <Reveal show={shouldShow}>
-      <AppCardFooter>{buttons}</AppCardFooter>
-    </Reveal>
-  );
-});
+    const shouldShow = Boolean(showInitially) || dirty || loading;
+    return (
+      <Reveal show={shouldShow}>
+        <AppCardFooter>{buttons}</AppCardFooter>
+      </Reveal>
+    );
+  },
+);

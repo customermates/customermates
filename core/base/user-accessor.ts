@@ -8,4 +8,12 @@ export class UserAccessor {
 
     return getTenantUser();
   }
+
+  public get companyId(): string {
+    return this.user.companyId;
+  }
+
+  public get userId(): string {
+    return this.user.id;
+  }
 }

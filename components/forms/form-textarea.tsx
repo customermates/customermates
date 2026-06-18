@@ -3,13 +3,13 @@
 import type { ComponentProps } from "react";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 
 import { Textarea } from "@/components/ui/textarea";
 import { FormLabel } from "./form-label";
 import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
+import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Props = Omit<ComponentProps<"textarea">, "value" | "onChange" | "id" | "disabled" | "readOnly"> & {
   id: string;
@@ -24,11 +24,9 @@ type Props = Omit<ComponentProps<"textarea">, "value" | "onChange" | "id" | "dis
 export const FormTextarea = observer(
   ({ id, label, required, className, containerClassName, disabled, readOnly, ...props }: Props) => {
     const store = useAppForm();
-    const t = useTranslations("Common.inputs");
-    const resolvedLabel = label === null ? undefined : (label ?? t(id));
+    const resolvedLabel = useResolvedFieldLabel(id, label);
     const value = (store?.getValue(id) as string | undefined) ?? "";
-    const errors = store?.getError(id);
-    const hasError = Array.isArray(errors) ? errors.length > 0 : Boolean(errors);
+    const { hasError } = useFormFieldErrors(id);
     const isDisabled = disabled ?? store?.isLoading;
     const isReadOnly = readOnly ?? store?.isReadOnly;
 
