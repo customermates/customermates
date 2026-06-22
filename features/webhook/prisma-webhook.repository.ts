@@ -2,6 +2,7 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { GetWebhooksRepo } from "./get-webhooks.interactor";
 import type { UpsertWebhookRepo } from "./upsert-webhook.interactor";
 import type { DeleteWebhookRepo } from "./delete-webhook.interactor";
+import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
 
@@ -16,7 +17,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
-  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo
+  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo, FindWebhooksByIdsRepo
 {
   private get baseSelect() {
     return {
@@ -73,40 +74,35 @@ export class PrismaWebhookRepo
     const { id, ...webhookData } = args;
 
     if (id) {
-      await this.prisma.webhook.findFirstOrThrow({
-        where: {
-          id,
-          companyId,
+      await this.prisma.webhook.findFirstOrThrow({ where: { id, companyId } });
+
+      await this.prisma.webhook.update({
+        where: { id, companyId },
+        data: {
+          url: webhookData.url,
+          events: webhookData.events,
+          description: webhookData.description,
+          secret: webhookData.secret,
+          enabled: webhookData.enabled,
         },
       });
+
+      return this.getWebhookByIdOrThrow(id);
     }
 
-    const webhookPayload = {
-      url: webhookData.url,
-      description: webhookData.description ?? null,
-      events: webhookData.events,
-      secret: webhookData.secret ?? null,
-      enabled: webhookData.enabled,
-      companyId,
-    };
-
-    const webhook = await this.prisma.webhook.upsert({
-      where: {
-        id: id ?? "",
+    const created = await this.prisma.webhook.create({
+      data: {
+        companyId,
+        url: webhookData.url as string,
+        events: webhookData.events as WebhookDto["events"],
+        description: webhookData.description ?? null,
+        secret: webhookData.secret ?? null,
+        enabled: webhookData.enabled ?? true,
       },
-      create: webhookPayload,
-      update: webhookPayload,
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    const updatedWebhook = await this.prisma.webhook.findFirstOrThrow({
-      where: { id: webhook.id, companyId },
-      select: this.baseSelect,
-    });
-
-    return updatedWebhook as WebhookDto;
+    return this.getWebhookByIdOrThrow(created.id);
   }
 
   @Transaction
@@ -150,5 +146,29 @@ export class PrismaWebhookRepo
     });
 
     return webhook as WebhookDto;
+  }
+
+  async getWebhookById(id: string) {
+    const { companyId } = this.user;
+
+    const webhook = await this.prisma.webhook.findFirst({
+      where: { id, companyId },
+      select: this.baseSelect,
+    });
+
+    return webhook as WebhookDto | null;
+  }
+
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const { companyId } = this.user;
+
+    const webhooks = await this.prisma.webhook.findMany({
+      where: { id: { in: Array.from(ids) }, companyId },
+      select: { id: true },
+    });
+
+    return new Set(webhooks.map((webhook) => webhook.id));
   }
 }

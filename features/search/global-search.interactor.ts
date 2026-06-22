@@ -30,7 +30,7 @@ export type GlobalSearchResult = {
   results: GlobalSearchResultItem[];
 };
 
-const GlobalSearchResultSchema = z.object({
+const OutputSchema = z.object({
   results: z.array(
     z.object({
       type: z.enum(["contact", "organization", "deal", "service"]),
@@ -60,7 +60,7 @@ const UI_RESULTS_PER_ENTITY = 50;
 })
 export class GlobalSearchInteractor extends AuthenticatedInteractor<GlobalSearchData, GlobalSearchResult> {
   @Enforce(Schema)
-  @ValidateOutput(GlobalSearchResultSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {
     const { searchTerm } = data;
 
@@ -72,18 +72,12 @@ export class GlobalSearchInteractor extends AuthenticatedInteractor<GlobalSearch
         });
         if (!result.ok) return [];
         const items: any[] = result.data?.items ?? [];
-        return items.slice(0, UI_RESULTS_PER_ENTITY).map((item) => {
-          const identifiers: any[] = entity === "contact" && Array.isArray(item.identifiers) ? item.identifiers : [];
-          const pictureUrl =
-            identifiers.map((i) => (typeof i?.pictureUrl === "string" ? i.pictureUrl.trim() : "")).find(Boolean) ??
-            null;
-          return {
-            type: entity,
-            id: item.id,
-            name: entityNameExtractors[entity](item),
-            pictureUrl,
-          };
-        }) as GlobalSearchResultItem[];
+        return items.slice(0, UI_RESULTS_PER_ENTITY).map((item) => ({
+          type: entity,
+          id: item.id,
+          name: entityNameExtractors[entity](item),
+          pictureUrl: entity === "contact" && typeof item.avatarUrl === "string" ? item.avatarUrl : null,
+        })) as GlobalSearchResultItem[];
       }),
     );
 

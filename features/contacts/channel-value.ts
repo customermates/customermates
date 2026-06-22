@@ -2,7 +2,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { z } from "zod";
 
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider-icon";
+import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
 
 const HANDLE_URL_PATTERNS: Partial<Record<MessagingProvider, RegExp>> = {
   linkedin: /linkedin\.com\/in\/([^/?#]+)/i,

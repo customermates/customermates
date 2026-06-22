@@ -17,7 +17,7 @@ import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { ServiceDtoSchema } from "../service.schema";
 
-const GetServicesQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
+const Schema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
   await getValidateQueryParams().invoke(getServiceRepo(), EntityType.service, data, ctx);
 });
 
@@ -36,7 +36,7 @@ export class GetServicesApiInteractor extends BaseGetInteractor<ServiceDto> {
     });
   }
 
-  @Validate(GetServicesQueryParamsApiSchema)
+  @Validate(Schema)
   @ValidateOutput(createGetResultSchema(ServiceDtoSchema))
   async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<ServiceDto>> {
     return await super.invoke(params);

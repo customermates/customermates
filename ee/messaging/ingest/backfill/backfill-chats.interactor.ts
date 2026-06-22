@@ -1,6 +1,7 @@
 import type { MessagingService } from "../../messaging.service";
 import type { MessagingIngestRepo } from "../messaging-ingest.repo";
-import type { ConnectedAccount, MessageReactionEntry, MessagingAttendee } from "../../messaging.schema";
+import type { MessageReactionEntry, MessagingAttendee } from "../../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
@@ -70,7 +71,7 @@ export class BackfillChatsInteractor {
     const index = await this.loadAccountAttendees(account);
 
     if (index.selfAttendeeId) {
-      await this.repo.setAccountOwnAttendeeId({
+      await this.repo.setAccountOwnAttendeeIdUnscoped({
         unipileAccountId: account.unipileAccountId,
         ownUnipileAttendeeId: index.selfAttendeeId,
       });
@@ -89,7 +90,7 @@ export class BackfillChatsInteractor {
         }),
       handleItem: (item) => this.processMessage(account, item, index),
       onPageEnd: (cursor) =>
-        this.repo.saveBackfillStepCheckpoint({
+        this.repo.saveBackfillStepCheckpointUnscoped({
           unipileAccountId: account.unipileAccountId,
           step: "chat",
           checkpoint: { cursor },
@@ -114,7 +115,7 @@ export class BackfillChatsInteractor {
     const parsed = UnipileChatSchema.safeParse(rawItem);
 
     if (!parsed.success || !parsed.data.id) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: rawItem,
@@ -143,7 +144,7 @@ export class BackfillChatsInteractor {
       return 1;
     } catch (err) {
       Sentry.captureException(err);
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: chat,
@@ -157,7 +158,7 @@ export class BackfillChatsInteractor {
     const parsed = UnipileChatMessageSchema.safeParse(rawItem);
 
     if (!parsed.success) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: rawItem,
@@ -170,7 +171,7 @@ export class BackfillChatsInteractor {
     if (raw.hidden) return 1;
 
     if (!raw.id || !raw.chat_id) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: raw,
@@ -215,7 +216,7 @@ export class BackfillChatsInteractor {
       return 1;
     } catch (err) {
       Sentry.captureException(err);
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: normalized,
@@ -243,7 +244,7 @@ export class BackfillChatsInteractor {
         const parsed = UnipileChatAttendeeSchema.safeParse(raw);
 
         if (!parsed.success) {
-          await this.repo.recordUnusableItem({
+          await this.repo.recordUnusableItemUnscoped({
             companyId: account.companyId,
             connectedAccountId: account.id,
             payload: raw,
@@ -263,7 +264,7 @@ export class BackfillChatsInteractor {
     });
 
     if (lastCursor) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: { cursor: lastCursor },

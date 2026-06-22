@@ -4,6 +4,6 @@ import { type UpdateContactData } from "./update-contact.interactor";
 
 export abstract class UpdateContactRepo {
   abstract updateContactOrThrow(args: UpdateContactData): Promise<ContactDto>;
-  abstract getOrThrowUnscoped(id: string): Promise<ContactDto>;
-  abstract getManyOrThrowUnscoped(ids: string[]): Promise<ContactDto[]>;
+  abstract getOrThrowCompanyWide(id: string): Promise<ContactDto>;
+  abstract getManyOrThrowCompanyWide(ids: string[]): Promise<ContactDto[]>;
 }

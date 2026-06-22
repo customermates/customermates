@@ -3,7 +3,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import type { IdentifierInput } from "@/features/contacts/contact.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { isDeterministicProvider } from "@/ee/messaging/provider-icon";
+import { channelClass, isDeterministicProvider } from "@/ee/messaging/provider";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 
 export type ContactIdentifiers = {
@@ -12,7 +12,7 @@ export type ContactIdentifiers = {
 };
 
 export function identifierKey(provider: MessagingProvider, value: string): string {
-  return `${provider}:${value}`;
+  return `${channelClass(provider)}:${value}`;
 }
 
 export function channelStrings(identifier: { value: string; messagingId?: string | null }): string[] {

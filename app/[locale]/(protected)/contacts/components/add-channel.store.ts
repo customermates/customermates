@@ -11,7 +11,7 @@ import { checkChannelConflictAction, searchChannelCandidatesAction } from "../ac
 import { resolveProviderProfileAction } from "../../inbox/actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { isHandleProvider } from "@/ee/messaging/provider-icon";
+import { isHandleProvider } from "@/ee/messaging/provider";
 import { parseChannelHandle } from "@/features/contacts/channel-value";
 import { Debouncer } from "@/core/utils/debounce";
 

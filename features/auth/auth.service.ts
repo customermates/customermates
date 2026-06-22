@@ -34,7 +34,11 @@ export class AuthService {
 
     if (!this.hasAuthToken(headersList)) return null;
 
-    return await auth.api.getSession({ headers: headersList });
+    try {
+      return await auth.api.getSession({ headers: headersList });
+    } catch {
+      return null;
+    }
   }
 
   async resolveSession(): Promise<SessionOrRedirect> {

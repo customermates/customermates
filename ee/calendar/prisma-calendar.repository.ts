@@ -8,7 +8,7 @@ import type { CalendarWriteRepo } from "./calendar-write.repo";
 
 export class PrismaCalendarRepo extends BaseRepository implements CalendarWriteRepo {
   @BypassTenantGuard
-  async upsertCalendar(args: RepoArgs<CalendarWriteRepo, "upsertCalendar">) {
+  async upsertCalendarUnscoped(args: RepoArgs<CalendarWriteRepo, "upsertCalendarUnscoped">) {
     const data = {
       name: args.name,
       description: args.description ?? null,
@@ -54,7 +54,7 @@ export class PrismaCalendarRepo extends BaseRepository implements CalendarWriteR
   }
 
   @BypassTenantGuard
-  async upsertCalendarEvent(args: RepoArgs<CalendarWriteRepo, "upsertCalendarEvent">) {
+  async upsertCalendarEventUnscoped(args: RepoArgs<CalendarWriteRepo, "upsertCalendarEventUnscoped">) {
     const data = {
       companyId: args.companyId,
       connectedAccountId: args.connectedAccountId,
@@ -91,7 +91,7 @@ export class PrismaCalendarRepo extends BaseRepository implements CalendarWriteR
   }
 
   @BypassTenantGuard
-  async softDeleteCalendarEvent(args: RepoArgs<CalendarWriteRepo, "softDeleteCalendarEvent">) {
+  async softDeleteCalendarEventUnscoped(args: RepoArgs<CalendarWriteRepo, "softDeleteCalendarEventUnscoped">) {
     const { connectedAccountId, unipileEventId } = args;
 
     const existing = await this.prisma.calendarEvent.findUnique({

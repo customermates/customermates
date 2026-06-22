@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -24,7 +24,7 @@ export class ProcessCalendarWebhookInteractor {
     const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(payload.account_id);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    if (!account.hasCalendar) await this.accountRepo.markAccountHasCalendar(payload.account_id);
+    if (!account.hasCalendar) await this.accountRepo.markAccountHasCalendarUnscoped(payload.account_id);
 
     if (payload.event === "calendar_event_deleted") return this.handleDeleted(account, payload.id);
 
@@ -32,7 +32,7 @@ export class ProcessCalendarWebhookInteractor {
   }
 
   private async handleDeleted(account: ConnectedAccount, unipileEventId: string): Promise<void> {
-    await this.repo.softDeleteCalendarEvent({ connectedAccountId: account.id, unipileEventId });
+    await this.repo.softDeleteCalendarEventUnscoped({ connectedAccountId: account.id, unipileEventId });
   }
 
   private async handleUpsert(account: ConnectedAccount, payload: UnipileCalendarUpsertWebhook): Promise<void> {
@@ -49,7 +49,7 @@ export class ProcessCalendarWebhookInteractor {
       );
     }
 
-    await this.repo.upsertCalendarEvent({
+    await this.repo.upsertCalendarEventUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       calendarId: calendar.id,

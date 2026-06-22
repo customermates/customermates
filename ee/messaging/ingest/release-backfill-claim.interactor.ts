@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -7,7 +7,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 
 export abstract class ReleaseBackfillClaimRepo {
   abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
-  abstract releaseBackfillClaim(unipileAccountId: string, token: string): Promise<void>;
+  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<void>;
 }
 
 const ReleaseBackfillClaimPayloadSchema = z.object({
@@ -23,6 +23,6 @@ export class ReleaseBackfillClaimInteractor {
   @Enforce(ReleaseBackfillClaimPayloadSchema)
   async invoke(payload: ReleaseBackfillClaimPayload): Promise<void> {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
-    await this.repo.releaseBackfillClaim(account.unipileAccountId, payload.token);
+    await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, payload.token);
   }
 }

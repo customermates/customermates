@@ -5,11 +5,17 @@ import { tenantStorage } from "./tenant-context";
 
 import { prisma, type AppPrismaClient } from "@/prisma/db";
 
-export async function runInTransaction<T>(fn: () => Promise<T>, options?: { companyId?: string }): Promise<T> {
+export async function runInTransaction<T>(
+  fn: () => Promise<T>,
+  options?: { companyId?: string; timeout?: number; maxWait?: number },
+): Promise<T> {
   const client = getTransactionClient<AppPrismaClient>() ?? prisma;
   if (!client.$transaction) return await fn();
 
   const txStore: { value: ReturnType<typeof transactionStorage.getStore> } = { value: undefined };
+
+  const transactionOptions =
+    options?.timeout || options?.maxWait ? { timeout: options.timeout, maxWait: options.maxWait } : undefined;
 
   const result = await client.$transaction(async (tx: any) => {
     const store = tenantStorage.getStore();
@@ -17,7 +23,13 @@ export async function runInTransaction<T>(fn: () => Promise<T>, options?: { comp
     if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
 
     return await transactionStorage.run(
-      { client: tx, auditLogBatch: [], webhookDeliveryBatch: [], afterCommit: [], enabledWebhooks: null },
+      {
+        client: tx,
+        auditLogBatch: [],
+        webhookDeliveryBatch: [],
+        afterCommit: [],
+        enabledWebhooks: null,
+      },
       async () => {
         const callResult = await fn();
 
@@ -32,7 +44,7 @@ export async function runInTransaction<T>(fn: () => Promise<T>, options?: { comp
         return callResult;
       },
     );
-  });
+  }, transactionOptions);
 
   const afterCommit = txStore.value?.afterCommit;
   if (afterCommit?.length) {

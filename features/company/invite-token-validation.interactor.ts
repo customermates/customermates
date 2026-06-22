@@ -8,7 +8,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
-const ValidatedInviteTokenSchema = z.discriminatedUnion("valid", [
+const OutputSchema = z.discriminatedUnion("valid", [
   z.object({ valid: z.literal(true), companyId: z.string(), companyName: z.string() }),
   z.object({ valid: z.literal(false), errorMessage: z.string() }),
 ]);
@@ -33,7 +33,7 @@ export type ValidatedInviteToken =
     };
 
 export abstract class InviteTokenRepo {
-  abstract findToken(token: string): Promise<(InviteToken & { companyName: string }) | null>;
+  abstract findTokenUnscoped(token: string): Promise<(InviteToken & { companyName: string }) | null>;
 }
 
 @SystemInteractor
@@ -41,7 +41,7 @@ export class InviteTokenValidationInteractor {
   constructor(private repo: InviteTokenRepo) {}
 
   @Enforce(Schema)
-  @ValidateOutput(ValidatedInviteTokenSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: InviteTokenData): Promise<{ ok: true; data: ValidatedInviteToken }> {
     if (!data.token) {
       return {
@@ -53,7 +53,7 @@ export class InviteTokenValidationInteractor {
       };
     }
 
-    const inviteToken = await this.repo.findToken(data.token);
+    const inviteToken = await this.repo.findTokenUnscoped(data.token);
 
     if (!inviteToken) {
       return {

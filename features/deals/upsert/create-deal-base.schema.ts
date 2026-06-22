@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-import { CustomFieldValueSchema, NotesSchema } from "@/core/base/base-entity.schema";
+import { CustomFieldValueInputSchema, NotesSchema } from "@/core/base/base-entity.schema";
+import { zx } from "@/core/validation/validation.utils";
 
 export const BaseCreateDealSchema = z.object({
-  name: z.string().min(1).max(255),
+  name: zx.nonBlankText(255),
   notes: NotesSchema,
   organizationIds: z.array(z.uuid()).optional().default([]),
   userIds: z.array(z.uuid()).optional().default([]),
@@ -18,5 +19,5 @@ export const BaseCreateDealSchema = z.object({
     .optional()
     .default([]),
   taskIds: z.array(z.uuid()).optional().default([]),
-  customFieldValues: z.array(CustomFieldValueSchema).optional().default([]),
+  customFieldValues: z.array(CustomFieldValueInputSchema).optional().default([]),
 });

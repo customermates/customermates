@@ -1,15 +1,14 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsContactRepo } from "../widget/get-widget-filterable-fields.interactor";
-import type { GetUnscopedContactRepo } from "./get-unscoped-contact.repo";
+import type { GetCompanyWideContactRepo } from "./get-company-wide-contact.repo";
 import type { GetContactsRepo } from "./get/get-contacts.interactor";
-import type { GetContactsConfigurationRepo } from "./get/get-contacts-configuration.interactor";
+import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetContactByIdRepo } from "./get/get-contact-by-id.interactor";
 import type { CreateContactRepo } from "./upsert/create-contact.repo";
 import type { UpdateContactRepo } from "./upsert/update-contact.repo";
 import type { DeleteContactRepo } from "./delete/delete-contact.repo";
 import type { FindContactsByIdsRepo } from "./find-contacts-by-ids.repo";
 import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
-import type { AssignContactToThreadContactRepo } from "@/ee/messaging/contact-assignment/assign-contact-to-thread.interactor";
 import type { ActivityContactRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 
 import { EntityType, Resource } from "@/generated/prisma";
@@ -19,14 +18,16 @@ import type { Prisma, MessagingProvider } from "@/generated/prisma";
 import { type ContactDto, type IdentifierInput } from "./contact.schema";
 
 import { channelStrings, identifierKey } from "./upsert/validate-identifiers";
+import { parseContactKey } from "./contact-key";
+import { normalizeChannelValue } from "./channel-value";
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { getContactAvatarRepo, getCustomColumnRepo } from "@/core/di";
+import { getCustomColumnRepo, getMessagingRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { EMAIL_PROVIDERS, isHandleProvider } from "@/ee/messaging/provider-icon";
+import { EMAIL_PROVIDERS, channelClass, classWhere } from "@/ee/messaging/provider";
 
 export class PrismaContactRepo
   extends BaseRepository<Prisma.ContactWhereInput>
@@ -37,11 +38,10 @@ export class PrismaContactRepo
     UpdateContactRepo,
     DeleteContactRepo,
     GetWidgetFilterableFieldsContactRepo,
-    GetContactsConfigurationRepo,
+    GetConfigurationRepo,
     FindContactsByIdsRepo,
-    GetUnscopedContactRepo,
+    GetCompanyWideContactRepo,
     StartChatContactRepo,
-    AssignContactToThreadContactRepo,
     ActivityContactRepo
 {
   private get userScopedSelect() {
@@ -177,9 +177,12 @@ export class PrismaContactRepo
   }
 
   async getContactById(id: string) {
+    const resolvedId = (await this.resolveKeysToIds([id])).get(id);
+    if (!resolvedId) return null;
+
     const contact = await this.prisma.contact.findFirst({
       where: {
-        id,
+        id: resolvedId,
         ...this.accessWhere("contact"),
       },
       select: this.userScopedSelect,
@@ -187,53 +190,51 @@ export class PrismaContactRepo
 
     if (!contact) return null;
 
-    return {
-      ...contact,
-      organizations: contact.organizations.map((it) => it.organization),
-      users: contact.users.map((it) => it.user),
-      deals: contact.deals.map((it) => it.deal),
-      tasks: contact.tasks.map((it) => it.task),
-    };
+    return this.toDto(contact);
   }
 
-  async getOrThrowUnscoped(id: string) {
+  async getOrThrowCompanyWide(id: string) {
     const { companyId } = this.user;
+    const resolvedId = (await this.resolveKeysToIds([id])).get(id);
+    if (!resolvedId) throw new Error("Contact not found");
 
     const contact = await this.prisma.contact.findFirstOrThrow({
-      where: { id, companyId },
+      where: { id: resolvedId, companyId },
       select: this.companyScopedSelect,
     });
 
-    return {
-      ...contact,
-      organizations: contact.organizations.map((it) => it.organization),
-      users: contact.users.map((it) => it.user),
-      deals: contact.deals.map((it) => it.deal),
-      tasks: contact.tasks.map((it) => it.task),
-    };
+    return this.toDto(contact);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]) {
+  async getManyOrThrowCompanyWide(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;
-    const uniqueIds = [...new Set(ids)];
+    const uniqueKeys = [...new Set(ids)];
+
+    const resolved = await this.resolveKeysToIds(uniqueKeys);
+    if (resolved.size !== uniqueKeys.length) throw new Error("One or more contacts not found");
+    const uuids = [...new Set(resolved.values())];
 
     const contacts = await this.prisma.contact.findMany({
-      where: { id: { in: uniqueIds }, companyId },
+      where: { id: { in: uuids }, companyId },
       select: this.companyScopedSelect,
       orderBy: { id: "asc" },
     });
 
-    if (contacts.length !== uniqueIds.length) throw new Error("One or more contacts not found");
+    if (contacts.length !== uuids.length) throw new Error("One or more contacts not found");
 
-    return contacts.map((contact) => ({
+    return contacts.map((contact) => this.toDto(contact));
+  }
+
+  private toDto(contact: Prisma.ContactGetPayload<{ select: PrismaContactRepo["userScopedSelect"] }>): ContactDto {
+    return {
       ...contact,
       organizations: contact.organizations.map((it) => it.organization),
       users: contact.users.map((it) => it.user),
       deals: contact.deals.map((it) => it.deal),
       tasks: contact.tasks.map((it) => it.task),
-    }));
+    };
   }
 
   async getItems(params: GetQueryParams) {
@@ -242,17 +243,8 @@ export class PrismaContactRepo
       baseWhere: this.accessWhere("contact"),
       select: this.userScopedSelect,
       params,
-      map: (
-        contact: Prisma.ContactGetPayload<{
-          select: PrismaContactRepo["userScopedSelect"];
-        }>,
-      ) => ({
-        ...contact,
-        organizations: contact.organizations.map((it) => it.organization),
-        users: contact.users.map((it) => it.user),
-        deals: contact.deals.map((it) => it.deal),
-        tasks: contact.tasks.map((it) => it.task),
-      }),
+      map: (contact: Prisma.ContactGetPayload<{ select: PrismaContactRepo["userScopedSelect"] }>) =>
+        this.toDto(contact),
     });
   }
 
@@ -343,19 +335,24 @@ export class PrismaContactRepo
       select: this.userScopedSelect,
     });
 
-    return {
-      ...createdContact,
-      organizations: createdContact.organizations.map((it) => it.organization),
-      users: createdContact.users.map((it) => it.user),
-      deals: createdContact.deals.map((it) => it.deal),
-      tasks: createdContact.tasks.map((it) => it.task),
-    };
+    return this.toDto(createdContact);
   }
 
   @Transaction
   async updateContactOrThrow(args: RepoArgs<UpdateContactRepo, "updateContactOrThrow">) {
     const { companyId } = this.user;
-    const { id, organizationIds, userIds, dealIds, taskIds, customFieldValues, identifiers, ...contactData } = args;
+    const {
+      id: idKey,
+      organizationIds,
+      userIds,
+      dealIds,
+      taskIds,
+      customFieldValues,
+      identifiers,
+      ...contactData
+    } = args;
+    const id = (await this.resolveKeysToIds([idKey])).get(idKey);
+    if (!id) throw new Error("Contact not found");
 
     const data: Prisma.ContactUpdateManyArgs["data"] = { companyId };
 
@@ -475,59 +472,85 @@ export class PrismaContactRepo
       select: this.userScopedSelect,
     });
 
-    return {
-      ...updatedContact,
-      organizations: updatedContact.organizations.map((it) => it.organization),
-      users: updatedContact.users.map((it) => it.user),
-      deals: updatedContact.deals.map((it) => it.deal),
-      tasks: updatedContact.tasks.map((it) => it.task),
-    };
+    return this.toDto(updatedContact);
   }
 
   @Transaction
   async deleteContactOrThrow(id: string) {
+    const resolvedId = (await this.resolveKeysToIds([id])).get(id);
+    if (!resolvedId) throw new Error("Contact not found");
+
     const contact = await this.prisma.contact.findFirstOrThrow({
-      where: { id, ...this.accessWhere("contact") },
+      where: { id: resolvedId, ...this.accessWhere("contact") },
       select: this.userScopedSelect,
     });
 
-    const contactDto: ContactDto = {
-      ...contact,
-      organizations: contact.organizations.map((it) => it.organization),
-      users: contact.users.map((it) => it.user),
-      deals: contact.deals.map((it) => it.deal),
-      tasks: contact.tasks.map((it) => it.task),
-    };
+    const contactDto: ContactDto = this.toDto(contact);
 
     await this.prisma.contact.deleteMany({
-      where: { id, ...this.accessWhere("contact") },
+      where: { id: resolvedId, ...this.accessWhere("contact") },
     });
 
     return contactDto;
   }
 
   async findIds(ids: Set<string>) {
-    if (ids.size === 0) return new Set<string>();
+    if (ids.size === 0) return new Map<string, string>();
+
+    const resolved = await this.resolveKeysToIds([...ids]);
+    const candidateUuids = [...new Set(resolved.values())];
+    if (candidateUuids.length === 0) return new Map<string, string>();
 
     const contacts = await this.prisma.contact.findMany({
       where: {
-        id: { in: Array.from(ids) },
+        id: { in: candidateUuids },
         ...this.accessWhere("contact"),
       },
       select: { id: true },
     });
+    const visible = new Set(contacts.map((contact) => contact.id));
 
-    return new Set(contacts.map((contact) => contact.id));
+    const out = new Map<string, string>();
+    for (const [key, uuid] of resolved) if (visible.has(uuid)) out.set(key, uuid);
+    return out;
   }
 
-  async findIdentifierOwners(pairs: { provider: MessagingProvider; value: string }[]): Promise<Map<string, string>> {
+  private async resolveKeysToIds(keys: string[]): Promise<Map<string, string>> {
+    const out = new Map<string, string>();
+    const channelLookups: { key: string; provider: MessagingProvider; value: string }[] = [];
+
+    for (const key of keys) {
+      const parsed = parseContactKey(key);
+      if (parsed.kind === "id") out.set(key, parsed.id);
+      else if (parsed.kind === "channel") {
+        const normalized = normalizeChannelValue(parsed.provider, parsed.value);
+        if (normalized) channelLookups.push({ key, provider: parsed.provider, value: normalized });
+      }
+    }
+
+    if (channelLookups.length > 0) {
+      const owners = await this.findIdentifierOwnersCompanyWide(
+        channelLookups.map(({ provider, value }) => ({ provider, value })),
+      );
+      for (const { key, provider, value } of channelLookups) {
+        const ownerId = owners.get(identifierKey(provider, value));
+        if (ownerId) out.set(key, ownerId);
+      }
+    }
+
+    return out;
+  }
+
+  async findIdentifierOwnersCompanyWide(
+    pairs: { provider: MessagingProvider; value: string }[],
+  ): Promise<Map<string, string>> {
     if (pairs.length === 0) return new Map();
 
     const rows = await this.prisma.contactIdentifier.findMany({
       where: {
         companyId: this.companyId,
         OR: pairs.map((pair) => ({
-          provider: pair.provider,
+          ...classWhere(pair.provider),
           OR: [{ value: pair.value }, { messagingId: pair.value }],
         })),
       },
@@ -548,9 +571,9 @@ export class PrismaContactRepo
     for (const identifier of identifiers) {
       await this.prisma.contactIdentifier.upsert({
         where: {
-          companyId_provider_value: {
+          companyId_channelClass_value: {
             companyId: this.companyId,
-            provider: identifier.provider,
+            channelClass: channelClass(identifier.provider),
             value: identifier.value,
           },
         },
@@ -558,6 +581,7 @@ export class PrismaContactRepo
           companyId: this.companyId,
           contactId,
           provider: identifier.provider,
+          channelClass: channelClass(identifier.provider),
           value: identifier.value,
           messagingId: identifier.messagingId ?? null,
           displayName: identifier.displayName ?? null,
@@ -573,7 +597,7 @@ export class PrismaContactRepo
       });
     }
 
-    await getContactAvatarRepo().recomputeContactAvatar({ contactId, companyId: this.companyId });
+    await this.recomputeContactAvatarUnscoped({ contactId, companyId: this.companyId });
   }
 
   private async replaceContactIdentifiers(contactId: string, identifiers: IdentifierInput[]): Promise<void> {
@@ -583,7 +607,7 @@ export class PrismaContactRepo
     });
 
     const matchesRow = (identifier: IdentifierInput, row: (typeof existing)[number]): boolean =>
-      identifier.provider === row.provider &&
+      channelClass(identifier.provider) === channelClass(row.provider) &&
       channelStrings(identifier).some((key) => key === row.value || key === row.messagingId);
 
     const remaining = [...identifiers];
@@ -614,6 +638,7 @@ export class PrismaContactRepo
           companyId: this.companyId,
           contactId,
           provider: identifier.provider,
+          channelClass: channelClass(identifier.provider),
           value: identifier.value,
           messagingId: identifier.messagingId ?? null,
           displayName: identifier.displayName ?? null,
@@ -622,10 +647,25 @@ export class PrismaContactRepo
       });
     }
 
-    await getContactAvatarRepo().recomputeContactAvatar({ contactId, companyId: this.companyId });
+    await this.recomputeContactAvatarUnscoped({ contactId, companyId: this.companyId });
   }
 
-  async resolveContactIdsForEntity(args: RepoArgs<ActivityContactRepo, "resolveContactIdsForEntity">) {
+  async recomputeContactAvatarUnscoped(args: { contactId: string; companyId: string }) {
+    const { contactId, companyId } = args;
+
+    await this.runAfterCommit(async () => {
+      const pictureUrl = await getMessagingRepo().findParticipantPictureUrlUnscoped({ companyId, contactId });
+
+      await this.prisma.contact.updateMany({
+        where: { id: contactId, companyId },
+        data: { avatarUrl: pictureUrl ?? null },
+      });
+    });
+  }
+
+  async resolveContactIdsForEntityCompanyWide(
+    args: RepoArgs<ActivityContactRepo, "resolveContactIdsForEntityCompanyWide">,
+  ) {
     const { entityType, entityId } = args;
 
     if (entityType === EntityType.contact) return [entityId];
@@ -657,7 +697,7 @@ export class PrismaContactRepo
     return [];
   }
 
-  async findContactEmails(contactIds: string[]) {
+  async findContactEmailsCompanyWide(contactIds: string[]) {
     if (contactIds.length === 0) return [];
 
     const identifiers = await this.prisma.contactIdentifier.findMany({
@@ -672,7 +712,42 @@ export class PrismaContactRepo
     return identifiers.map((i) => i.value.toLowerCase());
   }
 
-  async findContactChannel(args: RepoArgs<StartChatContactRepo, "findContactChannel">) {
+  async findContactIdentifierValuesCompanyWide(
+    contactIds: string[],
+  ): Promise<{ provider: MessagingProvider; value: string }[]> {
+    if (contactIds.length === 0) return [];
+
+    const rows = await this.prisma.contactIdentifier.findMany({
+      where: { contactId: { in: contactIds }, companyId: this.companyId },
+      select: { provider: true, value: true, messagingId: true },
+    });
+
+    const out: { provider: MessagingProvider; value: string }[] = [];
+    for (const row of rows) {
+      out.push({ provider: row.provider, value: row.value });
+      if (row.messagingId) out.push({ provider: row.provider, value: row.messagingId });
+    }
+    return out;
+  }
+
+  async classGroupedIdentifierWhereUnscoped(contactIds: string[]) {
+    if (contactIds.length === 0) return [];
+
+    const identifiers = await this.findContactIdentifierValuesCompanyWide(contactIds);
+    const byClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
+    for (const { provider, value } of identifiers) {
+      const entry = byClass.get(channelClass(provider)) ?? { provider, values: new Set<string>() };
+      entry.values.add(value);
+      byClass.set(channelClass(provider), entry);
+    }
+
+    return [...byClass.values()].map(({ provider, values }) => ({
+      providerWhere: classWhere(provider),
+      identifier: { in: [...values] },
+    }));
+  }
+
+  async findContactChannelCompanyWide(args: RepoArgs<StartChatContactRepo, "findContactChannelCompanyWide">) {
     return this.prisma.contactIdentifier.findFirst({
       where: {
         companyId: this.companyId,
@@ -692,25 +767,6 @@ export class PrismaContactRepo
         profileUrl: args.profileUrl ?? undefined,
       },
     });
-  }
-
-  async removeContactIdentifier(args: RepoArgs<AssignContactToThreadContactRepo, "removeContactIdentifier">) {
-    const { provider, value } = args;
-    const trimmed = value.trim();
-
-    if (!trimmed) return;
-
-    const removed = await this.prisma.contactIdentifier.findMany({
-      where: { companyId: this.companyId, provider, value: trimmed, contact: this.accessWhere("contact") },
-      select: { contactId: true },
-    });
-
-    await this.prisma.contactIdentifier.deleteMany({
-      where: { companyId: this.companyId, provider, value: trimmed, contact: this.accessWhere("contact") },
-    });
-
-    for (const { contactId } of removed)
-      await getContactAvatarRepo().recomputeContactAvatar({ contactId, companyId: this.companyId });
   }
 
   @BypassTenantGuard
@@ -747,73 +803,5 @@ export class PrismaContactRepo
     });
 
     return row ? { id: row.contactId } : null;
-  }
-
-  async findContactCoreByIdOrThrow(contactId: string) {
-    return this.prisma.contact.findFirstOrThrow({
-      where: { id: contactId, ...this.accessWhere("contact") },
-      select: { id: true, firstName: true, lastName: true },
-    });
-  }
-
-  async updateContactEnrichment(args: RepoArgs<AssignContactToThreadContactRepo, "updateContactEnrichment">) {
-    const { contactId } = args;
-
-    if (args.firstName !== undefined || args.lastName !== undefined) {
-      await this.prisma.contact.updateMany({
-        where: { id: contactId, ...this.accessWhere("contact") },
-        data: {
-          firstName: args.firstName,
-          lastName: args.lastName,
-        },
-      });
-    }
-
-    for (const u of args.identifierUpserts ?? []) {
-      const isHandle = isHandleProvider(u.provider);
-      const existing = await this.prisma.contactIdentifier.findFirst({
-        where: {
-          companyId: this.companyId,
-          provider: u.provider,
-          OR: [{ value: u.value }, { messagingId: u.value }],
-        },
-        select: { id: true, contactId: true, messagingId: true },
-      });
-      if (existing && existing.contactId !== contactId) continue;
-
-      if (existing) {
-        await this.prisma.contactIdentifier.updateMany({
-          where: { id: existing.id, companyId: this.companyId },
-          data: {
-            contactId,
-            messagingId: existing.messagingId ?? (isHandle ? u.value : undefined),
-            displayName: u.displayName ?? null,
-            pictureUrl: u.pictureUrl ?? null,
-            profileUrl: u.profileUrl ?? null,
-            headline: u.headline ?? null,
-            occupation: u.occupation ?? null,
-          },
-        });
-        continue;
-      }
-
-      await this.prisma.contactIdentifier.create({
-        data: {
-          companyId: this.companyId,
-          contactId,
-          provider: u.provider,
-          value: u.value,
-          messagingId: isHandle ? u.value : null,
-          displayName: u.displayName ?? null,
-          pictureUrl: u.pictureUrl ?? null,
-          profileUrl: u.profileUrl ?? null,
-          headline: u.headline ?? null,
-          occupation: u.occupation ?? null,
-        },
-      });
-    }
-
-    if (args.identifierUpserts?.length)
-      await getContactAvatarRepo().recomputeContactAvatar({ contactId, companyId: this.companyId });
   }
 }

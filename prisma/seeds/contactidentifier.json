@@ -1,5 +1,6 @@
 [
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "0218fa8d-5388-4a22-9248-964e93ed5db2",
     "createdAt": "2026-03-24T09:15:35.319Z",
@@ -9,6 +10,7 @@
     "value": "leon.becker@bmw.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "173e9084-63b8-4419-ab09-fed2aead7c39",
     "createdAt": "2026-03-24T09:25:43.880Z",
@@ -18,6 +20,7 @@
     "value": "tim.wagner@nrwbank.de"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "1e326939-d0aa-4a77-a9eb-a6f163e4f60e",
     "createdAt": "2026-03-24T09:16:50.411Z",
@@ -27,6 +30,7 @@
     "value": "lucio.ball@wavestone.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "31d9578f-9fce-40f2-bf5a-80a44496c551",
     "createdAt": "2026-03-24T09:18:14.430Z",
@@ -36,6 +40,7 @@
     "value": "mara.bauer@deutschebahn.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "33ac3248-948f-4192-9c6c-1e7d912afa58",
     "createdAt": "2026-03-24T09:18:58.793Z",
@@ -45,6 +50,7 @@
     "value": "max.schmidt@bmw.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "3e47a0cb-531e-4bab-8ac3-62628c35744a",
     "createdAt": "2026-03-24T09:24:35.288Z",
@@ -54,6 +60,7 @@
     "value": "sophie.hoffmann@deutschebahn.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "4ac6d7d4-34cb-46e1-a85f-2b1c2c34bb72",
     "createdAt": "2026-03-24T09:12:12.075Z",
@@ -63,6 +70,7 @@
     "value": "jonas.weber@continental-corporation.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "63496574-a466-4bec-9b84-39bf3373ef71",
     "createdAt": "2026-03-24T09:09:13.999Z",
@@ -72,6 +80,7 @@
     "value": "amin.hassan@tui.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "69b5dd99-66c4-40d5-9ee5-3aba6b24ebc7",
     "createdAt": "2026-03-24T09:14:21.932Z",
@@ -81,6 +90,7 @@
     "value": "lea.bauer@continental-corporation.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "71ad1cc5-485c-45c1-b633-4b086ce50d60",
     "createdAt": "2026-03-24T09:19:45.019Z",
@@ -90,6 +100,7 @@
     "value": "maxine.zoll@mckinsey.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "7330fac9-7413-4c41-9959-82baa23cb47a",
     "createdAt": "2026-03-24T09:16:12.366Z",
@@ -99,6 +110,7 @@
     "value": "lina.alvarez@wavestone.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "7fdd7093-40a3-4a81-b5d1-f537e8abb218",
     "createdAt": "2026-03-24T09:11:10.104Z",
@@ -108,6 +120,7 @@
     "value": "felix.koch@continental-corporation.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "84555ffb-b1dd-4c32-87b4-f5ebda13d38a",
     "createdAt": "2026-03-24T09:21:48.267Z",
@@ -117,6 +130,7 @@
     "value": "omar.khalil@deloitte.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "86ea94c7-d457-45ee-9b47-e6646aa922e4",
     "createdAt": "2026-03-24T09:26:12.756Z",
@@ -126,6 +140,7 @@
     "value": "tim.weber@arbeitsagentur.de"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "87f31c98-f322-4df5-9171-ac6e71d7753d",
     "createdAt": "2026-03-24T09:12:49.303Z",
@@ -135,6 +150,7 @@
     "value": "kian.rahimi@sthree.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "8b53e07a-ce38-48e3-b0a3-f040ab46e579",
     "createdAt": "2026-03-24T09:14:56.893Z",
@@ -144,6 +160,7 @@
     "value": "leila.chen@hays.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "90b23e1b-1c01-4399-8fc7-5608647e377f",
     "createdAt": "2026-03-24T09:20:23.538Z",
@@ -153,6 +170,7 @@
     "value": "mia.schneider@bayer.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "99ce08a4-4727-468c-b18e-e68e17f1531f",
     "createdAt": "2026-03-24T09:13:31.885Z",
@@ -162,6 +180,7 @@
     "value": "laura.fischer@arbeitsagentur.de"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "a34c6443-b50a-4f19-b282-a944adb4718d",
     "createdAt": "2026-03-24T09:09:52.511Z",
@@ -171,6 +190,7 @@
     "value": "amir.haddad@pwc.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "a957c9f3-d27b-4462-b4eb-2b0d020fbf83",
     "createdAt": "2026-03-24T09:25:08.480Z",
@@ -180,6 +200,7 @@
     "value": "sophie.wagner@bmw.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "ab7441bf-bbbd-4656-9c9f-a6356c087aa3",
     "createdAt": "2026-03-24T09:24:03.789Z",
@@ -189,6 +210,7 @@
     "value": "reinhold.mertens@siemens.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "baed574a-d2e8-4858-9dbc-64f3a57a340b",
     "createdAt": "2026-03-24T09:08:28.782Z",
@@ -198,6 +220,7 @@
     "value": "alexej.sofr@hays.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "bbd33bbe-4024-463d-8127-03fd5fcc1bb2",
     "createdAt": "2026-03-24T09:10:23.526Z",
@@ -207,6 +230,7 @@
     "value": "anna.muller@bayer.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "c9809459-b8ae-4873-aa8f-8dcf00f57bae",
     "createdAt": "2026-03-24T09:26:42.417Z",
@@ -216,6 +240,7 @@
     "value": "yasmin.farouk@sap.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "d33a0794-23c0-4496-9887-6cb25a16d4c3",
     "createdAt": "2026-03-24T09:17:35.547Z",
@@ -225,6 +250,7 @@
     "value": "lukas.fischer@bayer.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "d37f9eca-eece-4b34-96bb-5b0ccfef9b51",
     "createdAt": "2026-03-24T09:11:41.279Z",
@@ -234,6 +260,7 @@
     "value": "felix.schneider@telekom.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "da965f4d-9da2-4688-93fd-c8f7009f7c53",
     "createdAt": "2026-03-24T09:23:29.914Z",
@@ -243,6 +270,7 @@
     "value": "rashid.malik@kpmg.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "e33e7862-fa29-402e-a16b-98db16cca800",
     "createdAt": "2026-03-24T09:23:02.492Z",
@@ -252,6 +280,7 @@
     "value": "paul.koch@deutschepost.de"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "e7e92e29-b9fa-4592-9eeb-45f0382162cf",
     "createdAt": "2026-03-24T09:20:56.402Z",
@@ -261,6 +290,7 @@
     "value": "nia.johnson@mckinsey.com"
   },
   {
+    "channelClass": "email",
     "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
     "contactId": "ee47f4f3-ed27-4c3e-88ab-57bac6330db2",
     "createdAt": "2026-03-24T09:22:15.708Z",

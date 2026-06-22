@@ -1,24 +1,13 @@
 import { z } from "zod";
 import { CountryCode, Currency } from "@/generated/prisma";
 
-import { encodeToToon, enumHint } from "./utils";
+import { encodeToToon, enumHint, formatDatesInResponse, runInteractor } from "./utils";
 
 import { getGetCompanyDetailsInteractor, getGetRolesInteractor, getUpdateCompanyDetailsInteractor } from "@/core/di";
+import { UpdateCompanyDetailsSchema } from "@/features/company/update-company-details.interactor";
 
 const countryValues = Object.values(CountryCode);
 const currencyValues = Object.values(Currency);
-
-const UpdateCompanySchema = z.object({
-  name: z.string().min(1).describe("Company display name"),
-  street: z.string().min(1),
-  city: z.string().min(1),
-  postalCode: z.string().min(1),
-  country: z.enum(CountryCode).describe(`ISO country code ${enumHint(countryValues)}`),
-  currency: z
-    .enum(Currency)
-    .optional()
-    .describe(`Default currency ${enumHint(currencyValues)}. Omit to keep existing.`),
-});
 
 export const getCompanyTool = {
   name: "get_company",
@@ -28,17 +17,19 @@ export const getCompanyTool = {
   execute: async () => {
     const result = await getGetCompanyDetailsInteractor().invoke();
     const company = result.data;
-    return encodeToToon({
-      id: company.id,
-      name: company.name,
-      street: company.street,
-      city: company.city,
-      postalCode: company.postalCode,
-      country: company.country,
-      currency: company.currency,
-      createdAt: company.createdAt,
-      updatedAt: company.updatedAt,
-    });
+    return encodeToToon(
+      formatDatesInResponse({
+        id: company.id,
+        name: company.name,
+        street: company.street,
+        city: company.city,
+        postalCode: company.postalCode,
+        country: company.country,
+        currency: company.currency,
+        createdAt: company.createdAt,
+        updatedAt: company.updatedAt,
+      }),
+    );
   },
 };
 
@@ -50,23 +41,11 @@ export const updateCompanyTool = {
     `country ${enumHint(countryValues)}. currency ${enumHint(currencyValues)}. ` +
     "Full overwrite — send all required fields each time.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema: UpdateCompanySchema,
-  execute: async (params: z.infer<typeof UpdateCompanySchema>) => {
-    const current = await getGetCompanyDetailsInteractor().invoke();
-    const result = await getUpdateCompanyDetailsInteractor().invoke({
-      name: params.name,
-      street: params.street,
-      city: params.city,
-      postalCode: params.postalCode,
-      country: params.country,
-      currency: params.currency ?? current.data.currency,
-    });
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return encodeToToon({
-      name: result.data.name,
-      message: "Company profile updated",
-    });
-  },
+  inputSchema: UpdateCompanyDetailsSchema,
+  execute: (params: z.infer<typeof UpdateCompanyDetailsSchema>) =>
+    runInteractor(getUpdateCompanyDetailsInteractor().invoke(params), (data) =>
+      encodeToToon({ name: data.name, message: "Company profile updated" }),
+    ),
 };
 
 export const listRolesTool = {
@@ -76,20 +55,17 @@ export const listRolesTool = {
     "Returns { id, name, description, isSystemRole, permissions } per role.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
-  execute: async () => {
-    const result = await getGetRolesInteractor().invoke({
-      pagination: { page: 1, pageSize: 100 },
-    });
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return encodeToToon({
-      items: result.data.items.map((role) => ({
-        id: role.id,
-        name: role.name,
-        description: role.description,
-        isSystemRole: role.isSystemRole,
-        permissions: role.permissions,
-      })),
-      total: result.data.pagination?.total ?? result.data.items.length,
-    });
-  },
+  execute: () =>
+    runInteractor(getGetRolesInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }), (data) =>
+      encodeToToon({
+        items: data.items.map((role) => ({
+          id: role.id,
+          name: role.name,
+          description: role.description,
+          isSystemRole: role.isSystemRole,
+          permissions: role.permissions,
+        })),
+        total: data.pagination?.total ?? data.items.length,
+      }),
+    ),
 };

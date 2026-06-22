@@ -6,7 +6,7 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 
 import { createContactByNameAction, getContactsAction } from "../../contacts/actions";
 
-import { assignContactToThreadAction } from "../actions";
+import { linkContactToThreadAction, unlinkContactFromThreadAction } from "../actions";
 
 import { Debouncer } from "@/core/utils/debounce";
 
@@ -46,7 +46,7 @@ export class ThreadParticipantsStore extends BaseStore {
       startLink: action,
       backToList: action,
       setQuery: action,
-      assign: action,
+      link: action,
       createAndAssign: action,
       unlink: action,
     });
@@ -91,24 +91,22 @@ export class ThreadParticipantsStore extends BaseStore {
     this.debouncer.run(() => void this.refresh());
   };
 
-  assign = async (identifier: string, contactId: string | null): Promise<void> => {
-    const pickedFromResults = contactId ? (this.results.find((c) => c.id === contactId) ?? null) : null;
+  link = async (identifier: string, contactId: string): Promise<void> => {
+    const picked = this.results.find((c) => c.id === contactId) ?? null;
     await this.mutate(
-      () =>
-        assignContactToThreadAction({
-          threadId: this.threadId,
-          identifier,
-          contactId,
-        }),
+      () => {
+        const args = this.linkArgsFor(identifier, contactId);
+        return args ? linkContactToThreadAction(args) : Promise.resolve({ ok: true as const });
+      },
       () =>
         this.applyContact(
           identifier,
-          pickedFromResults
+          picked
             ? {
-                id: pickedFromResults.id,
-                firstName: pickedFromResults.firstName,
-                lastName: pickedFromResults.lastName,
-                avatarUrl: pickedFromResults.avatarUrl,
+                id: picked.id,
+                firstName: picked.firstName,
+                lastName: picked.lastName,
+                avatarUrl: picked.avatarUrl,
               }
             : null,
         ),
@@ -117,12 +115,10 @@ export class ThreadParticipantsStore extends BaseStore {
 
   unlink = async (identifier: string): Promise<void> => {
     await this.mutate(
-      () =>
-        assignContactToThreadAction({
-          threadId: this.threadId,
-          identifier,
-          contactId: null,
-        }),
+      () => {
+        const args = this.unlinkArgsFor(identifier);
+        return args ? unlinkContactFromThreadAction(args) : Promise.resolve({ ok: true as const });
+      },
       () => this.applyContact(identifier, null),
     );
   };
@@ -141,17 +137,34 @@ export class ThreadParticipantsStore extends BaseStore {
           lastName: created.lastName,
           avatarUrl: created.avatarUrl ?? null,
         };
-        return assignContactToThreadAction({
-          threadId: this.threadId,
-          identifier,
-          contactId: created.id,
-        });
+        const args = this.linkArgsFor(identifier, created.id);
+        return args ? linkContactToThreadAction(args) : { ok: false as const };
       },
       () => {
         if (createdContact) this.applyContact(identifier, createdContact);
       },
     );
   };
+
+  private linkArgsFor(identifier: string, contactId: string) {
+    const thread = this.rootStore.messagingThreadDetailStore.thread;
+    if (!thread) return null;
+    const participant = thread.participants.find((p) => p.identifier === identifier) ?? null;
+    return {
+      contactId,
+      provider: thread.provider,
+      identifier,
+      displayName: participant?.displayName ?? undefined,
+      profileUrl: participant?.profileUrl ?? undefined,
+    };
+  }
+
+  private unlinkArgsFor(identifier: string) {
+    const thread = this.rootStore.messagingThreadDetailStore.thread;
+    const participant = thread?.participants.find((p) => p.identifier === identifier) ?? null;
+    const ownerId = participant?.contact?.id;
+    return thread && ownerId ? { contactId: ownerId, provider: thread.provider, identifier } : null;
+  }
 
   private applyContact(identifier: string, contact: MessagingAttendee["contact"]) {
     this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, contact);

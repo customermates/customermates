@@ -1,7 +1,7 @@
 import type { CalendarEventCore } from "./calendar.schema";
 
 export abstract class CalendarWriteRepo {
-  abstract upsertCalendar(args: {
+  abstract upsertCalendarUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     unipileCalendarId: string;
@@ -14,12 +14,12 @@ export abstract class CalendarWriteRepo {
     connectedAccountId: string;
     unipileCalendarId: string;
   }): Promise<{ id: string }>;
-  abstract upsertCalendarEvent(args: {
+  abstract upsertCalendarEventUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     calendarId: string;
     event: CalendarEventCore;
     attendeeEmails: string[];
   }): Promise<{ id: string }>;
-  abstract softDeleteCalendarEvent(args: { connectedAccountId: string; unipileEventId: string }): Promise<void>;
+  abstract softDeleteCalendarEventUnscoped(args: { connectedAccountId: string; unipileEventId: string }): Promise<void>;
 }

@@ -31,7 +31,7 @@ export class ProcessUnipileWebhookEventInteractor {
 
   @Enforce(ProcessUnipileWebhookEventPayloadSchema)
   async invoke({ id }: ProcessUnipileWebhookEventPayload): Promise<void> {
-    const row = await this.repo.findWebhookEventByIdOrThrow(id);
+    const row = await this.repo.findWebhookEventByIdOrThrowUnscoped(id);
     if (row.processed) return;
 
     const payload = row.payload as never;
@@ -60,9 +60,9 @@ export class ProcessUnipileWebhookEventInteractor {
           throw new Error(`No webhook handler registered for Unipile source ${row.source}`);
       }
 
-      await this.repo.markWebhookEvent({ id, processed: true });
+      await this.repo.markWebhookEventUnscoped({ id, processed: true });
     } catch (err) {
-      await this.repo.markWebhookEvent({ id, processed: false });
+      await this.repo.markWebhookEventUnscoped({ id, processed: false });
 
       throw err;
     }

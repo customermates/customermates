@@ -16,7 +16,7 @@ const Schema = z.object({
 
 export type DeleteFilterPresetData = Data<typeof Schema>;
 
-const P13nEntrySchema = z.object({
+const OutputSchema = z.object({
   p13nId: z.string(),
   filters: z.array(z.any()).optional(),
   savedFilterPresets: z.array(z.any()).optional(),
@@ -42,7 +42,7 @@ export class DeleteFilterPresetInteractor extends AuthenticatedInteractor<Delete
   }
 
   @Enforce(Schema)
-  @ValidateOutput(P13nEntrySchema)
+  @ValidateOutput(OutputSchema)
   @Transaction
   async invoke(data: DeleteFilterPresetData): Promise<{ ok: true; data: P13nEntry }> {
     const p13nData = await this.repo.getP13n(data.p13nId);

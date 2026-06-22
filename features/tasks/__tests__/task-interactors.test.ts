@@ -57,10 +57,10 @@ describe("CreateTaskInteractor", () => {
     mockCreateRepo = {
       createTaskOrThrow: vi.fn().mockResolvedValue(makeTaskDto()),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -132,14 +132,14 @@ describe("UpdateTaskInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeTaskDto()),
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeTaskDto()]),
+      getOrThrowCompanyWide: vi.fn().mockResolvedValue(makeTaskDto()),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeTaskDto()]),
       updateTaskOrThrow: vi.fn().mockResolvedValue(makeTaskDto()),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -204,13 +204,13 @@ describe("DeleteTaskInteractor", () => {
     vi.clearAllMocks();
 
     mockDeleteRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeTaskDto()),
+      getOrThrowCompanyWide: vi.fn().mockResolvedValue(makeTaskDto()),
       deleteTaskOrThrow: vi.fn().mockResolvedValue(makeTaskDto()),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
@@ -266,10 +266,10 @@ describe("CreateManyTasksInteractor", () => {
     mockCreateRepo = {
       createTaskOrThrow: vi.fn().mockResolvedValueOnce(mockTask1).mockResolvedValueOnce(mockTask2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 
@@ -376,14 +376,14 @@ describe("UpdateManyTasksInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValueOnce(task1).mockResolvedValueOnce(task2),
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([task1, task2]),
+      getOrThrowCompanyWide: vi.fn().mockResolvedValueOnce(task1).mockResolvedValueOnce(task2),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([task1, task2]),
       updateTaskOrThrow: vi.fn().mockResolvedValueOnce(updated1).mockResolvedValueOnce(updated2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 
@@ -460,13 +460,13 @@ describe("DeleteManyTasksInteractor", () => {
     vi.clearAllMocks();
 
     mockDeleteRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([task1, task2]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([task1, task2]),
       deleteTaskOrThrow: vi.fn().mockResolvedValueOnce(task1).mockResolvedValueOnce(task2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockOrgRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockServiceRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 

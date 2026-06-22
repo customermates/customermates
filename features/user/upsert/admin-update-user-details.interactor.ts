@@ -11,12 +11,14 @@ import type { Subscription } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { createZodError, secureUrlSchema, type Validated } from "@/core/validation/validation.utils";
+import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import { validateUserIds } from "@/core/validation/ids-validators";
+import { getUserRepo } from "@/core/di";
 
 const Schema = z.object({
   email: z.email(),
@@ -24,13 +26,18 @@ const Schema = z.object({
   lastName: z.string().min(1),
   country: z.enum(CountryCode),
   status: z.enum([Status.active, Status.inactive]),
-  avatarUrl: secureUrlSchema().or(z.literal("")).nullable(),
+  avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
   roleId: z.uuid(),
 });
 export type AdminUpdateUserDetailsData = Data<typeof Schema>;
 
+const ValidateSchema = Schema.superRefine(async (data, ctx) => {
+  const validEmails = await getUserRepo().findExistingEmailsCompanyWide(new Set([data.email]));
+  validateUserIds(data.email, validEmails, ctx, ["email"]);
+});
+
 export abstract class AdminUpdateUserDetailsRepo {
-  abstract findOrThrow(email: string): Promise<ExtendedUser>;
+  abstract findOrThrowCompanyWide(email: string): Promise<ExtendedUser>;
   abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>; // TODO do we need the admin prefix?
 }
 
@@ -40,7 +47,7 @@ export abstract class UpdateUserRoleRepo {
 }
 
 export abstract class AdminUpdateUserSubscriptionRepo {
-  abstract getSubscriptionOrThrow(companyId: string): Promise<Subscription>;
+  abstract getSubscriptionOrThrow(): Promise<Subscription>;
   abstract countActiveUsers(): Promise<number>;
 }
 
@@ -59,11 +66,11 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(Schema)
+  @Validate(ValidateSchema)
   @ValidateOutput(Schema)
   @Transaction
   async invoke(data: AdminUpdateUserDetailsData): Validated<AdminUpdateUserDetailsData> {
-    const targetUser = await this.userRepo.findOrThrow(data.email);
+    const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
     const targetUserId = targetUser.id;
 
     if (targetUserId === getTenantUser().id) throw new Error("Cannot update own details.");
@@ -92,7 +99,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
     const statusChanged = targetUser.status !== data.status;
 
-    if (statusChanged) await this.handleSubscriptionQuantityUpdate(targetUser.companyId);
+    if (statusChanged) await this.handleSubscriptionQuantityUpdate();
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: targetUserId,
@@ -109,8 +116,8 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     return { ok: true as const, data };
   }
 
-  private async handleSubscriptionQuantityUpdate(companyId: string): Promise<void> {
-    const subscription = await this.subscriptionRepo.getSubscriptionOrThrow(companyId);
+  private async handleSubscriptionQuantityUpdate(): Promise<void> {
+    const subscription = await this.subscriptionRepo.getSubscriptionOrThrow();
 
     if (!subscription.lemonSqueezyId || !subscription.lemonSqueezyVariantId) return;
 

@@ -3,7 +3,7 @@ import type { P13nRepo } from "@/core/base/base-get.interactor";
 import type { EntityType } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
@@ -25,7 +25,7 @@ export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto>
     super(activitiesRepo, p13nRepo, { sortDescriptor: { field: "at", direction: "desc" } });
   }
 
-  @Enforce(ActivitiesParamsSchema)
+  @Validate(ActivitiesParamsSchema)
   @ValidateOutput(ActivitiesResultSchema)
   async invoke(params: ActivitiesParams = {}) {
     this.activitiesRepo.setScope(params.entityType, params.entityId);

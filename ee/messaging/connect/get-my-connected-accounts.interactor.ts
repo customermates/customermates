@@ -1,4 +1,4 @@
-import type { ConnectedAccountDto, ConnectedAccountWithOwner } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -11,7 +11,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export abstract class GetMyConnectedAccountsRepo {
-  abstract listAccountsForCurrentUser(): Promise<ConnectedAccountWithOwner[]>;
+  abstract listAccounts(): Promise<ConnectedAccountDto[]>;
 }
 
 @AllowInDemoMode
@@ -29,7 +29,7 @@ export class GetMyConnectedAccountsInteractor extends AuthenticatedInteractor<vo
 
   @ValidateOutput(ConnectedAccountDtoSchema)
   async invoke(): Validated<ConnectedAccountDto[]> {
-    const accounts = await this.repo.listAccountsForCurrentUser();
+    const accounts = await this.repo.listAccounts();
 
     return { ok: true as const, data: accounts };
   }

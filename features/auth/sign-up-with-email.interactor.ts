@@ -4,7 +4,7 @@ import type { Redirect } from "./auth-outcome";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
-import { createZodError, passwordSchema, type Data, type Validated } from "@/core/validation/validation.utils";
+import { createZodError, zx, type Data, type Validated } from "@/core/validation/validation.utils";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -14,7 +14,7 @@ const Schema = z
   .object({
     email: z.email(),
     confirmEmail: z.email(),
-    password: passwordSchema(),
+    password: zx.password(),
     confirmPassword: z.string(),
   })
   .superRefine((data, ctx) => {

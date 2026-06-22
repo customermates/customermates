@@ -10,6 +10,8 @@ import {
 } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();

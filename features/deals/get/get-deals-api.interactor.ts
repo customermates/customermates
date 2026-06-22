@@ -17,7 +17,7 @@ import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DealDtoSchema } from "../deal.schema";
 
-const GetDealsQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
+const Schema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
   await getValidateQueryParams().invoke(getDealRepo(), EntityType.deal, data, ctx);
 });
 
@@ -36,7 +36,7 @@ export class GetDealsApiInteractor extends BaseGetInteractor<DealDto> {
     });
   }
 
-  @Validate(GetDealsQueryParamsApiSchema)
+  @Validate(Schema)
   @ValidateOutput(createGetResultSchema(DealDtoSchema))
   async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<DealDto>> {
     return await super.invoke(params);

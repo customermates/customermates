@@ -1,8 +1,8 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsOrganizationRepo } from "../widget/get-widget-filterable-fields.interactor";
-import type { GetUnscopedOrganizationRepo } from "./get-unscoped-organization.repo";
+import type { GetCompanyWideOrganizationRepo } from "./get-company-wide-organization.repo";
 import type { GetOrganizationsRepo } from "./get/get-organizations.interactor";
-import type { GetOrganizationsConfigurationRepo } from "./get/get-organizations-configuration.interactor";
+import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetOrganizationByIdRepo } from "./get/get-organization-by-id.interactor";
 import type { CreateOrganizationRepo } from "./upsert/create-organization.repo";
 import type { UpdateOrganizationRepo } from "./upsert/update-organization.repo";
@@ -26,14 +26,14 @@ export class PrismaOrganizationRepo
   extends BaseRepository
   implements
     GetOrganizationsRepo,
-    GetOrganizationsConfigurationRepo,
+    GetConfigurationRepo,
     GetOrganizationByIdRepo,
     CreateOrganizationRepo,
     UpdateOrganizationRepo,
     DeleteOrganizationRepo,
     GetWidgetFilterableFieldsOrganizationRepo,
     FindOrganizationsByIdsRepo,
-    GetUnscopedOrganizationRepo
+    GetCompanyWideOrganizationRepo
 {
   private get userScopedSelect() {
     return {
@@ -152,7 +152,7 @@ export class PrismaOrganizationRepo
     return this.toDto(organization);
   }
 
-  async getOrThrowUnscoped(id: string) {
+  async getOrThrowCompanyWide(id: string) {
     const { companyId } = this.user;
 
     const organization = await this.prisma.organization.findFirstOrThrow({
@@ -163,7 +163,7 @@ export class PrismaOrganizationRepo
     return this.toDto(organization);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]) {
+  async getManyOrThrowCompanyWide(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;

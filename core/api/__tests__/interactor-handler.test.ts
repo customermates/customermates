@@ -31,7 +31,32 @@ describe("handleError", () => {
     expect(result.status).toBe(403);
   });
 
-  it("re-throws a regular Error", () => {
+  it("maps Prisma P2025 (record not found) to 404", () => {
+    const err = Object.assign(new Error("not found"), { code: "P2025" });
+    const result = handleError(err) as any;
+    expect(result.status).toBe(404);
+    expect(result.body).toBe("The requested record was not found");
+  });
+
+  it("maps Prisma P2003 (foreign key) to 400", () => {
+    const err = Object.assign(new Error("fk"), { code: "P2003" });
+    const result = handleError(err) as any;
+    expect(result.status).toBe(400);
+  });
+
+  it("maps Prisma P2002 (unique conflict) to 409", () => {
+    const err = Object.assign(new Error("dup"), { code: "P2002" });
+    const result = handleError(err) as any;
+    expect(result.status).toBe(409);
+  });
+
+  it("maps Prisma P2023 (malformed id) to 400", () => {
+    const err = Object.assign(new Error("bad uuid"), { code: "P2023" });
+    const result = handleError(err) as any;
+    expect(result.status).toBe(400);
+  });
+
+  it("re-throws a regular Error without a known Prisma code", () => {
     const err = new Error("unexpected");
     expect(() => handleError(err)).toThrow("unexpected");
   });

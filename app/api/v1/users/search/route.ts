@@ -13,15 +13,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 
-    return NextResponse.json(
-      {
-        searchTerm: result.data.searchTerm,
-        sortDescriptor: result.data.sortDescriptor,
-        pagination: result.data.pagination,
-        items: result.data.items,
-      },
-      { status: 200 },
-    );
+    return NextResponse.json(result.data, { status: 200 });
   } catch (error) {
     return handleError(error);
   }

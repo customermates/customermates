@@ -10,7 +10,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-const InviteTokenResultSchema = z.object({
+const OutputSchema = z.object({
   token: z.string(),
   expiresAt: z.date(),
 });
@@ -18,7 +18,7 @@ const InviteTokenResultSchema = z.object({
 const INVITE_TOKEN_EXPIRY_DAYS = 7;
 
 export abstract class GetOrCreateInviteTokenRepo {
-  abstract findUnexpiredTokenForCompany(): Promise<InviteToken | null>;
+  abstract findUnexpiredToken(): Promise<InviteToken | null>;
   abstract createInviteToken(data: { token: string; expiresAt: Date }): Promise<InviteToken>;
 }
 
@@ -32,10 +32,10 @@ export class GetOrCreateInviteTokenInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @ValidateOutput(InviteTokenResultSchema)
+  @ValidateOutput(OutputSchema)
   @Transaction
   async invoke(): Promise<{ ok: true; data: { token: string; expiresAt: Date } }> {
-    const existingToken = await this.repo.findUnexpiredTokenForCompany();
+    const existingToken = await this.repo.findUnexpiredToken();
 
     if (existingToken)
       return { ok: true as const, data: { token: existingToken.token, expiresAt: existingToken.expiresAt } };

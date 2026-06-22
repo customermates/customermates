@@ -1,9 +1,9 @@
 import type { DeleteDealRepo } from "./delete-deal.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -35,10 +35,10 @@ export type DeleteDealData = Data<typeof DeleteDealSchema>;
 export class DeleteDealInteractor extends AuthenticatedInteractor<DeleteDealData, string> {
   constructor(
     private repo: DeleteDealRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private servicesRepo: GetUnscopedServiceRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private servicesRepo: GetCompanyWideServiceRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -48,7 +48,7 @@ export class DeleteDealInteractor extends AuthenticatedInteractor<DeleteDealData
   @ValidateOutput(z.string())
   @Transaction
   async invoke(data: DeleteDealData): Validated<string> {
-    const previousDeal = await this.repo.getOrThrowUnscoped(data.id);
+    const previousDeal = await this.repo.getOrThrowCompanyWide(data.id);
 
     const relatedOrganizationIds = unique(previousDeal.organizations.map((it) => it.id));
     const relatedContactIds = unique(previousDeal.contacts.map((it) => it.id));
@@ -56,19 +56,19 @@ export class DeleteDealInteractor extends AuthenticatedInteractor<DeleteDealData
     const relatedTaskIds = unique(previousDeal.tasks.map((it) => it.id));
 
     const [previousOrganizations, previousContacts, previousServices, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const deal = await this.repo.deleteDealOrThrow(data.id);
 
     const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

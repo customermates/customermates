@@ -1,9 +1,9 @@
 import type { UpdateDealRepo } from "./update-deal.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -29,7 +29,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
 import {
@@ -107,10 +107,10 @@ export type UpdateManyDealsData = Data<typeof UpdateManyDealsSchema>;
 export class UpdateManyDealsInteractor extends AuthenticatedInteractor<UpdateManyDealsData, DealDto[]> {
   constructor(
     private dealsRepo: UpdateDealRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private servicesRepo: GetUnscopedServiceRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private servicesRepo: GetCompanyWideServiceRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -118,9 +118,9 @@ export class UpdateManyDealsInteractor extends AuthenticatedInteractor<UpdateMan
 
   @Validate(UpdateManyDealsSchema)
   @ValidateOutput(DealDtoSchema)
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: UpdateManyDealsData): Validated<DealDto[]> {
-    const previousDeals = await this.dealsRepo.getManyOrThrowUnscoped(data.deals.map((d) => d.id));
+    const previousDeals = await this.dealsRepo.getManyOrThrowCompanyWide(data.deals.map((d) => d.id));
     const previousDealsMap = new Map(previousDeals.map((d) => [d.id, d]));
 
     const relatedOrganizationIds = unique(
@@ -141,19 +141,19 @@ export class UpdateManyDealsInteractor extends AuthenticatedInteractor<UpdateMan
     );
 
     const [previousOrganizations, previousContacts, previousServices, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const deals = await Promise.all(data.deals.map((dealData) => this.dealsRepo.updateDealOrThrow(dealData)));
 
     const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

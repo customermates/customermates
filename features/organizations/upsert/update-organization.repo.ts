@@ -4,6 +4,6 @@ import { type UpdateOrganizationData } from "./update-organization.interactor";
 
 export abstract class UpdateOrganizationRepo {
   abstract updateOrganizationOrThrow(args: UpdateOrganizationData): Promise<OrganizationDto>;
-  abstract getOrThrowUnscoped(id: string): Promise<OrganizationDto>;
-  abstract getManyOrThrowUnscoped(ids: string[]): Promise<OrganizationDto[]>;
+  abstract getOrThrowCompanyWide(id: string): Promise<OrganizationDto>;
+  abstract getManyOrThrowCompanyWide(ids: string[]): Promise<OrganizationDto[]>;
 }

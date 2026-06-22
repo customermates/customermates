@@ -7,7 +7,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { UnipileUsersWebhookSchema, type UnipileUsersWebhook } from "../unipile.schema";
 
 export abstract class ProcessUsersWebhookRepo {
-  abstract insertAccountActivity(args: {
+  abstract insertAccountActivityUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     identifier: string;
@@ -37,7 +37,7 @@ export class ProcessUsersWebhookInteractor {
     if (candidates.length === 0)
       throw new Error(`relation webhook for account ${payload.account_id} has no user identifier`);
 
-    await this.repo.insertAccountActivity({
+    await this.repo.insertAccountActivityUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       identifier: candidates[0],

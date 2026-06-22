@@ -21,7 +21,6 @@
 
 // Repos
 import { PrismaContactRepo } from "@/features/contacts/prisma-contact.repository";
-import { PrismaContactAvatarRepo } from "@/features/contacts/prisma-contact-avatar.repository";
 import { PrismaOrganizationRepo } from "@/features/organizations/prisma-organization.repository";
 import { PrismaDealRepo } from "@/features/deals/prisma-deal.repository";
 import { PrismaServiceRepo } from "@/features/services/prisma-service.repository";
@@ -47,7 +46,6 @@ import { UnipileWebhookIngestService } from "@/ee/messaging/webhooks/unipile-web
 import { AuthService } from "@/features/auth/auth.service";
 import { UserService } from "@/features/user/user.service";
 import { RouteGuardService } from "@/features/auth/route-guard.service";
-import { TaskService } from "@/features/tasks/task.service";
 import { EventService } from "@/features/event/event.service";
 import { WidgetDataFetcher } from "@/features/widget/calculator/widget-data-fetcher.service";
 import { WidgetGroupingService } from "@/features/widget/calculator/widget-grouping.service";
@@ -181,9 +179,7 @@ import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-
 import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activities.interactor";
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
-import { AssignContactToThreadInteractor } from "@/ee/messaging/contact-assignment/assign-contact-to-thread.interactor";
-import { SetThreadStateInteractor } from "@/ee/messaging/thread-state/set-thread-state.interactor";
-import { ShareThreadToCrmInteractor } from "@/ee/messaging/thread-state/share-thread-to-crm.interactor";
+import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
 // Calendar interactors
 import { ProcessCalendarWebhookInteractor } from "@/ee/messaging/webhooks/process-calendar-webhook.interactor";
 // Webhook interactors
@@ -192,6 +188,8 @@ import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.inter
 import { DeleteWebhookInteractor } from "@/features/webhook/delete-webhook.interactor";
 import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-deliveries.interactor";
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
+import { GetWebhookByIdInteractor } from "@/features/webhook/get-webhook-by-id.interactor";
+import { ModifyEntityRelationInteractor } from "@/features/relations/modify-entity-relation.interactor";
 // Custom Column interactors
 import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-columns.interactor";
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
@@ -230,7 +228,6 @@ import { ValidateQueryParamsValidator } from "@/core/base/validate-query-params.
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
 
 export const getContactRepo = () => new PrismaContactRepo();
-export const getContactAvatarRepo = () => new PrismaContactAvatarRepo();
 export const getOrganizationRepo = () => new PrismaOrganizationRepo();
 export const getDealRepo = () => new PrismaDealRepo();
 export const getServiceRepo = () => new PrismaServiceRepo();
@@ -256,10 +253,9 @@ export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
 export const getRouteGuardService = () => new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo());
-export const getTaskService = () => new TaskService(getTaskRepo());
 export const getValidateQueryParams = () => new ValidateQueryParamsValidator();
 export const getBackgroundTaskService = () => new BackgroundTaskService();
-export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskService());
+export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
 const EXPECTED_EVENT_LISTENERS = [
   {
@@ -693,6 +689,22 @@ export const getGetWebhooksInteractor = () => new GetWebhooksInteractor(getWebho
 
 export const getUpsertWebhookInteractor = () => new UpsertWebhookInteractor(getWebhookRepo(), getEventService());
 
+export const getGetWebhookByIdInteractor = () => new GetWebhookByIdInteractor(getWebhookRepo());
+
+export const getModifyEntityRelationInteractor = () =>
+  new ModifyEntityRelationInteractor(
+    getContactRepo(),
+    getOrganizationRepo(),
+    getDealRepo(),
+    getServiceRepo(),
+    getTaskRepo(),
+    getUpdateManyContactsInteractor(),
+    getUpdateManyOrganizationsInteractor(),
+    getUpdateManyDealsInteractor(),
+    getUpdateManyServicesInteractor(),
+    getUpdateManyTasksInteractor(),
+  );
+
 export const getDeleteWebhookInteractor = () => new DeleteWebhookInteractor(getWebhookRepo(), getEventService());
 
 export const getGetWebhookDeliveriesInteractor = () =>
@@ -798,12 +810,7 @@ export const getGetActivitiesInteractor = () => new GetActivitiesInteractor(new 
 export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());
 
-export const getAssignContactToThreadInteractor = () =>
-  new AssignContactToThreadInteractor(getMessagingRepo(), getContactRepo());
-
-export const getSetThreadStateInteractor = () => new SetThreadStateInteractor(getMessagingRepo());
-
-export const getShareThreadToCrmInteractor = () => new ShareThreadToCrmInteractor(getMessagingRepo());
+export const getUpdateThreadInteractor = () => new UpdateThreadInteractor(getMessagingRepo());
 
 // --- Calendar ---
 

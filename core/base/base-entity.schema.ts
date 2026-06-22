@@ -49,3 +49,12 @@ export const CustomFieldValueSchema = z.object({
   value: z.string().nullish(),
 });
 export type CustomFieldValueDto = Data<typeof CustomFieldValueSchema>;
+
+export const CustomFieldValueInputSchema = CustomFieldValueSchema.extend({
+  value: z.coerce
+    .string()
+    .nullish()
+    .describe(
+      'Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like "1500" or "12.50" (dot decimal, no thousands separators).',
+    ),
+});

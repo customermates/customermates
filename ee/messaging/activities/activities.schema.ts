@@ -5,6 +5,7 @@ import { z } from "zod";
 import { EntityType, MessagingThreadType } from "@/generated/prisma";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { MessagingMessageDtoSchema } from "../inbox/inbox.schema";
 import { MessagingProviderSchema } from "../messaging.schema";
@@ -92,6 +93,14 @@ export type ActivityThreadOptionDto = z.infer<typeof ActivityThreadOptionDtoSche
 export const ActivitiesParamsSchema = GetQueryParamsSchema.extend({
   entityType: z.enum(EntityType).optional(),
   entityId: z.uuid().optional(),
+}).superRefine((data, ctx) => {
+  if ((data.entityType === undefined) !== (data.entityId === undefined)) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.activityScopeRequiresBoth },
+      path: ["entityId"],
+    });
+  }
 });
 export type ActivitiesParams = z.infer<typeof ActivitiesParamsSchema>;
 

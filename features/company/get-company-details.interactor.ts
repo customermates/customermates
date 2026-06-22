@@ -8,7 +8,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-const CompanyDtoSchema = z.object({
+const OutputSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
   country: z.enum(CountryCode),
@@ -36,7 +36,7 @@ export class GetCompanyDetailsInteractor extends AuthenticatedInteractor<void, C
     super();
   }
 
-  @ValidateOutput(CompanyDtoSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(): Promise<{ ok: true; data: Company }> {
     return { ok: true as const, data: await this.repo.getDetails() };
   }

@@ -16,7 +16,7 @@ const WebhookRoutingSchema = z.object({
 });
 
 export abstract class WebhookUserRepo {
-  abstract findUserCompanyById(userId: string): Promise<{ id: string; companyId: string } | null>;
+  abstract findUserCompanyByIdUnscoped(userId: string): Promise<{ id: string; companyId: string } | null>;
 }
 
 export class UnipileWebhookIngestService {
@@ -34,7 +34,7 @@ export class UnipileWebhookIngestService {
     }
 
     if (userId) {
-      const user = await this.userRepo.findUserCompanyById(userId);
+      const user = await this.userRepo.findUserCompanyByIdUnscoped(userId);
       if (user) return user.companyId;
     }
 
@@ -54,12 +54,12 @@ export class UnipileWebhookIngestService {
     // If the referenced account or company does not exist in the current environment, we return early as this is an expected condition.
     if (!companyId) return;
 
-    const { id } = await this.repo.createWebhookEvent({ companyId, source, eventType, accountId, payload });
+    const { id } = await this.repo.createWebhookEventUnscoped({ companyId, source, eventType, accountId, payload });
 
     try {
       await this.backgroundTaskService.dispatch("process-unipile-webhook-event", { id });
     } catch (err) {
-      await this.repo.markWebhookEvent({ id, processed: false });
+      await this.repo.markWebhookEventUnscoped({ id, processed: false });
 
       Sentry.captureException(err);
     }

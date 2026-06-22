@@ -1,5 +1,4 @@
 import type { Data } from "@/core/validation/validation.utils";
-import type { ConnectedAccount as ConnectedAccountRow } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -22,14 +21,6 @@ const ConnectedAccountOwnerSchema = z.object({
   lastName: z.string(),
   avatarUrl: z.string().nullable(),
 });
-type ConnectedAccountOwner = z.infer<typeof ConnectedAccountOwnerSchema>;
-
-export type ConnectedAccount = ConnectedAccountRow;
-
-export type ConnectedAccountWithOwner = ConnectedAccount & {
-  owner: ConnectedAccountOwner;
-  isOwner: boolean;
-};
 
 export const ConnectedAccountDtoSchema = z.object({
   id: z.uuid(),

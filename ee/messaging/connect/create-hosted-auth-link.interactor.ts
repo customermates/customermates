@@ -20,7 +20,7 @@ const MAX_OWNED_CHANNELS = 2;
 
 export abstract class CreateHostedAuthLinkRepo {
   abstract getSubscriptionStatus(): Promise<SubscriptionStatus>;
-  abstract countOwnedAccounts(): Promise<number>;
+  abstract countAccounts(): Promise<number>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
@@ -38,7 +38,7 @@ export class CreateHostedAuthLinkInteractor extends UserAccessor {
       return { ok: false, error: createZodError(t("ConnectedAccountsCard.paidSubscriptionRequired")) };
     }
 
-    if ((await this.repo.countOwnedAccounts()) >= MAX_OWNED_CHANNELS) {
+    if ((await this.repo.countAccounts()) >= MAX_OWNED_CHANNELS) {
       const t = await getTranslations();
       return { ok: false, error: createZodError(t("ConnectedAccountsCard.channelLimitReached")) };
     }

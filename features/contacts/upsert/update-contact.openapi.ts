@@ -1,5 +1,8 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
+import { z } from "zod";
+
+import { ContactKeySchema } from "../contact-key";
 import { ContactDtoSchema } from "../contact.schema";
 
 import { UpdateContactSchema } from "./update-contact.interactor";
@@ -12,17 +15,7 @@ export const updateContactOperation: ZodOpenApiOperationObject = {
   description: "Updates an existing contact. Only provided fields are updated. Set fields to null to clear them.",
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
-  parameters: [
-    {
-      name: "id",
-      in: "path",
-      required: true,
-      schema: {
-        type: "string",
-        format: "uuid",
-      },
-    },
-  ],
+  requestParams: { path: z.object({ id: ContactKeySchema }) },
   requestBody: {
     content: {
       "application/json": {

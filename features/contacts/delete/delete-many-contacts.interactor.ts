@@ -1,20 +1,21 @@
 import type { DeleteContactRepo } from "./delete-contact.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
 
 import { validateContactIds } from "@/core/validation/ids-validators";
+import { ContactKeySchema } from "../contact-key";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -22,7 +23,7 @@ import { getContactRepo } from "@/core/di";
 
 export const DeleteManyContactsSchema = z
   .object({
-    ids: z.array(z.uuid()).min(1).max(100),
+    ids: z.array(ContactKeySchema).min(1).max(100),
   })
   .superRefine(async (data, ctx) => {
     const contactSet = new Set(data.ids);
@@ -35,9 +36,9 @@ export type DeleteManyContactsData = Data<typeof DeleteManyContactsSchema>;
 export class DeleteManyContactsInteractor extends AuthenticatedInteractor<DeleteManyContactsData, string[]> {
   constructor(
     private repo: DeleteContactRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -45,9 +46,9 @@ export class DeleteManyContactsInteractor extends AuthenticatedInteractor<Delete
 
   @Validate(DeleteManyContactsSchema)
   @ValidateOutput(z.string())
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: DeleteManyContactsData): Validated<string[]> {
-    const previousContacts = await this.repo.getManyOrThrowUnscoped(data.ids);
+    const previousContacts = await this.repo.getManyOrThrowCompanyWide(data.ids);
 
     const relatedOrganizationIds = unique(
       previousContacts.flatMap((contact) => contact.organizations.map((it) => it.id)),
@@ -56,17 +57,17 @@ export class DeleteManyContactsInteractor extends AuthenticatedInteractor<Delete
     const relatedTaskIds = unique(previousContacts.flatMap((contact) => contact.tasks.map((it) => it.id)));
 
     const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
-    const contacts = await Promise.all(data.ids.map((id) => this.repo.deleteContactOrThrow(id)));
+    const contacts = await Promise.all(previousContacts.map((contact) => this.repo.deleteContactOrThrow(contact.id)));
 
     const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([
@@ -105,6 +106,6 @@ export class DeleteManyContactsInteractor extends AuthenticatedInteractor<Delete
       ),
     ]);
 
-    return { ok: true as const, data: data.ids };
+    return { ok: true as const, data: previousContacts.map((contact) => contact.id) };
   }
 }

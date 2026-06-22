@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
@@ -20,7 +20,7 @@ const Schema = z.object({ id: z.uuid() });
 type ReconnectConnectedAccountData = Data<typeof Schema>;
 
 export abstract class ReconnectConnectedAccountRepo {
-  abstract findOwnedAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
+  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -35,7 +35,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
 
   @Enforce(Schema)
   async invoke(data: ReconnectConnectedAccountData): Promise<Redirect> {
-    const account = await this.repo.findOwnedAccountByIdOrThrow(data.id);
+    const account = await this.repo.findAccountByIdOrThrow(data.id);
 
     const baseUrl = env.BASE_URL.replace(/\/+$/, "");
     const token = signHostedAuthName(this.userId);

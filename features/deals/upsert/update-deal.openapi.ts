@@ -1,5 +1,7 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
+import { z } from "zod";
+
 import { DealDtoSchema } from "../deal.schema";
 
 import { UpdateDealSchema } from "./update-deal.interactor";
@@ -12,17 +14,7 @@ export const updateDealOperation: ZodOpenApiOperationObject = {
   description: "Updates an existing deal. Only provided fields are updated. Set fields to null to clear them.",
   tags: ["deals"],
   security: [{ apiKeyAuth: [] }],
-  parameters: [
-    {
-      name: "id",
-      in: "path",
-      required: true,
-      schema: {
-        type: "string",
-        format: "uuid",
-      },
-    },
-  ],
+  requestParams: { path: z.object({ id: z.uuid() }) },
   requestBody: {
     content: {
       "application/json": {

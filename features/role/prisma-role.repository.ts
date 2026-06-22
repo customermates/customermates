@@ -3,6 +3,7 @@ import type { UpsertRoleRepo } from "./upsert-role.interactor";
 import type { GetRolesRepo } from "./get-roles.interactor";
 import type { DeleteRoleRepo } from "./delete-role.interactor";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
 import { Action } from "@/generated/prisma";
 
@@ -14,7 +15,7 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 
 export class PrismaRoleRepo
   extends BaseRepository
-  implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo
+  implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo
 {
   private get baseSelect() {
     return {
@@ -183,6 +184,19 @@ export class PrismaRoleRepo
     });
 
     return role;
+  }
+
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const { companyId } = this.user;
+
+    const roles = await this.prisma.userRole.findMany({
+      where: { id: { in: Array.from(ids) }, companyId },
+      select: { id: true },
+    });
+
+    return new Set(roles.map((role) => role.id));
   }
 
   @Transaction

@@ -1,8 +1,8 @@
 import type { UpdateContactRepo } from "./update-contact.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -46,7 +46,6 @@ export const UpdateContactSchema = BaseUpdateContactSchema.superRefine(async (da
   const dealSet = new Set(data.dealIds ?? []);
   const contactSet = new Set([data.id]);
   const taskSet = new Set(data.taskIds ?? []);
-  const identifierContacts = [{ selfContactId: data.id, identifiers: data.identifiers }];
 
   validateIdentifiers(data.identifiers, ctx, ["identifiers"]);
 
@@ -69,7 +68,9 @@ export const UpdateContactSchema = BaseUpdateContactSchema.superRefine(async (da
     getCustomColumnRepo().findByEntityType(EntityType.contact),
     getUserService().getActiveUserOrThrow(),
     getUserService().hasPermission(Resource.contacts, Action.readAll),
-    getContactRepo().findIdentifierOwners(collectIdentifierPairs(identifierContacts)),
+    getContactRepo().findIdentifierOwnersCompanyWide(
+      collectIdentifierPairs([{ selfContactId: undefined, identifiers: data.identifiers }]),
+    ),
   ]);
 
   validateContactIds(data.id, validContactIdsSet, ctx, ["id"]);
@@ -80,7 +81,12 @@ export const UpdateContactSchema = BaseUpdateContactSchema.superRefine(async (da
   validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
   validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
   data.notes = validateNotes(data.notes, ctx, ["notes"]);
-  validateIdentifierConflicts(identifierContacts, identifierOwners, ctx, () => ["identifiers"]);
+  validateIdentifierConflicts(
+    [{ selfContactId: validContactIdsSet.get(data.id), identifiers: data.identifiers }],
+    identifierOwners,
+    ctx,
+    () => ["identifiers"],
+  );
 });
 export type UpdateContactData = Data<typeof UpdateContactSchema>;
 
@@ -91,9 +97,9 @@ export type UpdateContactData = Data<typeof UpdateContactSchema>;
 export class UpdateContactInteractor extends AuthenticatedInteractor<UpdateContactData, ContactDto> {
   constructor(
     private contactsRepo: UpdateContactRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -103,7 +109,7 @@ export class UpdateContactInteractor extends AuthenticatedInteractor<UpdateConta
   @ValidateOutput(ContactDtoSchema)
   @Transaction
   async invoke(data: UpdateContactData): Validated<ContactDto> {
-    const previousContact = await this.contactsRepo.getOrThrowUnscoped(data.id);
+    const previousContact = await this.contactsRepo.getOrThrowCompanyWide(data.id);
 
     const relatedOrganizationIds = unique(
       previousContact.organizations.map((it) => it.id),
@@ -119,17 +125,17 @@ export class UpdateContactInteractor extends AuthenticatedInteractor<UpdateConta
     );
 
     const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const contact = await this.contactsRepo.updateContactOrThrow(data);
 
     const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const changes = calculateChanges(previousContact, contact);

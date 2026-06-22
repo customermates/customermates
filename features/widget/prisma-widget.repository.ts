@@ -5,6 +5,7 @@ import type { DeleteWidgetRepo } from "./delete-widget.interactor";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor";
+import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { ExtendedWidget, WidgetLayout } from "./widget.types";
 
 import { Prisma } from "@/generated/prisma";
@@ -22,7 +23,8 @@ export class PrismaWidgetRepo
     DeleteWidgetRepo,
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
-    UpdateWidgetLayoutsRepo
+    UpdateWidgetLayoutsRepo,
+    FindWidgetsByIdsRepo
 {
   async getWidgets() {
     const { id: userId, companyId } = this.user;
@@ -62,7 +64,7 @@ export class PrismaWidgetRepo
     };
 
     const widget = (await this.prisma.widget.upsert({
-      where: { id: widgetData.id ?? "", companyId },
+      where: { id: widgetData.id ?? "", companyId, userId },
       create: widgetDataForDb,
       update: widgetDataForDb,
     })) as unknown as ExtendedWidget;
@@ -72,9 +74,22 @@ export class PrismaWidgetRepo
 
   @Transaction
   async deleteWidget(id: string) {
-    const { companyId } = this.user;
+    const { id: userId, companyId } = this.user;
 
-    await this.prisma.widget.deleteMany({ where: { id, companyId } });
+    await this.prisma.widget.deleteMany({ where: { id, companyId, userId } });
+  }
+
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const { id: userId, companyId } = this.user;
+
+    const widgets = await this.prisma.widget.findMany({
+      where: { id: { in: Array.from(ids) }, companyId, userId },
+      select: { id: true },
+    });
+
+    return new Set(widgets.map((widget) => widget.id));
   }
 
   async getCompanyWidgets() {
@@ -125,7 +140,7 @@ export class PrismaWidgetRepo
 
   @Transaction
   async updateWidgetLayouts(args: RepoArgs<UpdateWidgetLayoutsRepo, "updateWidgetLayouts">) {
-    const { companyId } = this.user;
+    const { id: userId, companyId } = this.user;
     const widgetIds = new Set<string>();
 
     BREAKPOINTS.forEach((breakpoint) => args.layouts[breakpoint].forEach((layoutItem) => widgetIds.add(layoutItem.i)));
@@ -134,6 +149,7 @@ export class PrismaWidgetRepo
       where: {
         id: { in: Array.from(widgetIds) },
         companyId,
+        userId,
       },
     });
 
@@ -147,7 +163,7 @@ export class PrismaWidgetRepo
         };
 
         return this.prisma.widget.update({
-          where: { id: widget.id, companyId },
+          where: { id: widget.id, companyId, userId },
           data: { layout: widgetLayout },
         });
       }),

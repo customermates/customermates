@@ -17,7 +17,7 @@ import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { ContactDtoSchema } from "../contact.schema";
 
-const GetContactsQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
+const Schema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
   await getValidateQueryParams().invoke(getContactRepo(), EntityType.contact, data, ctx);
 });
 
@@ -36,7 +36,7 @@ export class GetContactsApiInteractor extends BaseGetInteractor<ContactDto> {
     });
   }
 
-  @Validate(GetContactsQueryParamsApiSchema)
+  @Validate(Schema)
   @ValidateOutput(createGetResultSchema(ContactDtoSchema))
   async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<ContactDto>> {
     return await super.invoke(params);

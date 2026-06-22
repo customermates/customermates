@@ -1,8 +1,8 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsServiceRepo } from "../widget/get-widget-filterable-fields.interactor";
-import type { GetUnscopedServiceRepo } from "./get-unscoped-service.repo";
+import type { GetCompanyWideServiceRepo } from "./get-company-wide-service.repo";
 import type { GetServicesRepo } from "./get/get-services.interactor";
-import type { GetServicesConfigurationRepo } from "./get/get-services-configuration.interactor";
+import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetServiceByIdRepo } from "./get/get-service-by-id.interactor";
 import type { CreateServiceRepo } from "./upsert/create-service.repo";
 import type { UpdateServiceRepo } from "./upsert/update-service.repo";
@@ -26,14 +26,14 @@ export class PrismaServiceRepo
   extends BaseRepository
   implements
     GetServicesRepo,
-    GetServicesConfigurationRepo,
+    GetConfigurationRepo,
     GetServiceByIdRepo,
     CreateServiceRepo,
     UpdateServiceRepo,
     DeleteServiceRepo,
     GetWidgetFilterableFieldsServiceRepo,
     FindServicesByIdsRepo,
-    GetUnscopedServiceRepo
+    GetCompanyWideServiceRepo
 {
   private get userScopedSelect() {
     return {
@@ -133,7 +133,7 @@ export class PrismaServiceRepo
     return this.toDto(service);
   }
 
-  async getOrThrowUnscoped(id: string) {
+  async getOrThrowCompanyWide(id: string) {
     const { companyId } = this.user;
 
     const service = await this.prisma.service.findFirstOrThrow({
@@ -144,7 +144,7 @@ export class PrismaServiceRepo
     return this.toDto(service);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]) {
+  async getManyOrThrowCompanyWide(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;

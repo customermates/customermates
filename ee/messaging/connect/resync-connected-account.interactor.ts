@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
@@ -17,10 +17,10 @@ const Schema = z.object({ id: z.uuid() });
 type ResyncConnectedAccountData = Data<typeof Schema>;
 
 export abstract class ResyncConnectedAccountRepo {
-  abstract findOwnedAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-  abstract resetBackfillCheckpoint(unipileAccountId: string): Promise<void>;
-  abstract markAccountSyncing(args: { unipileAccountId: string; syncing: boolean }): Promise<void>;
-  abstract claimBackfill(unipileAccountId: string): Promise<string | null>;
+  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
+  abstract resetBackfillCheckpointUnscoped(unipileAccountId: string): Promise<void>;
+  abstract markAccountSyncingUnscoped(args: { unipileAccountId: string; syncing: boolean }): Promise<void>;
+  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -36,18 +36,18 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
 
   @Enforce(Schema)
   async invoke(data: ResyncConnectedAccountData): Promise<{ ok: true; data: null }> {
-    const account = await this.repo.findOwnedAccountByIdOrThrow(data.id);
+    const account = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.messagingService.triggerHistoryResync({
       accountId: account.unipileAccountId,
       provider: account.provider,
     });
 
-    await this.repo.resetBackfillCheckpoint(account.unipileAccountId);
+    await this.repo.resetBackfillCheckpointUnscoped(account.unipileAccountId);
 
-    await this.repo.markAccountSyncing({ unipileAccountId: account.unipileAccountId, syncing: true });
+    await this.repo.markAccountSyncingUnscoped({ unipileAccountId: account.unipileAccountId, syncing: true });
 
-    const backfillToken = await this.repo.claimBackfill(account.unipileAccountId);
+    const backfillToken = await this.repo.claimBackfillUnscoped(account.unipileAccountId);
     if (backfillToken) {
       await this.backgroundTaskService.dispatch("backfill-connected-account", {
         connectedAccountId: account.id,

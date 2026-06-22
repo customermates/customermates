@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { DeleteContactSchema } from "./delete-contact.interactor";
+import { ContactKeySchema } from "../contact-key";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -12,9 +12,7 @@ export const deleteContactOperation: ZodOpenApiOperationObject = {
   description: "Deletes a contact from the database.",
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
-  requestParams: {
-    path: DeleteContactSchema,
-  },
+  requestParams: { path: z.object({ id: ContactKeySchema }) },
   responses: {
     "200": {
       description: "The contact was deleted successfully.",

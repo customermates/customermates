@@ -1,5 +1,5 @@
 import type { Data } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto, ConnectedAccountWithOwner } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EventService } from "@/features/event/event.service";
 
 import { z } from "zod";
@@ -21,8 +21,8 @@ const Schema = z.object({
 type SetConnectedAccountVisibilityData = Data<typeof Schema>;
 
 export abstract class SetConnectedAccountVisibilityRepo {
-  abstract findOwnedAccountByIdOrThrow(id: string): Promise<ConnectedAccountWithOwner>;
-  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountWithOwner>;
+  abstract getAccountByIdOrThrow(id: string): Promise<ConnectedAccountDto>;
+  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountDto>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
@@ -40,7 +40,7 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   @Enforce(Schema)
   @ValidateOutput(ConnectedAccountDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Promise<{ ok: true; data: ConnectedAccountDto }> {
-    const existing = await this.repo.findOwnedAccountByIdOrThrow(data.id);
+    const existing = await this.repo.getAccountByIdOrThrow(data.id);
 
     if (existing.shared === data.shared) return { ok: true as const, data: existing };
 

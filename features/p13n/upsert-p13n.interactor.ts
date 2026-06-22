@@ -30,7 +30,7 @@ const Schema = z.object({
 });
 export type UpsertP13nData = Data<typeof Schema>;
 
-const P13nEntrySchema = z.object({
+const OutputSchema = z.object({
   p13nId: z.string(),
   filters: z.array(z.any()).optional(),
   savedFilterPresets: z.array(z.any()).optional(),
@@ -55,7 +55,7 @@ export class UpsertP13nInteractor extends AuthenticatedInteractor<UpsertP13nData
   }
 
   @Enforce(Schema)
-  @ValidateOutput(P13nEntrySchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: UpsertP13nData): Promise<{ ok: true; data: P13nEntry }> {
     return { ok: true as const, data: await this.repo.upsertP13n(data) };
   }

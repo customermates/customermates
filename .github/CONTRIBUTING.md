@@ -70,6 +70,13 @@ Customermates uses a two-branch stability model:
 
 Unless maintainers specify otherwise, open pull requests against `develop`.
 
+## Architecture Conventions
+
+Customermates is **backend-first**: every read and write goes through an interactor in `features/**` or `ee/**`, and the interactor's zod schema is the single source of truth for input validation. The REST API routes (`app/api/v1/**`) and the MCP tools (`features/mcp-tools/**`) are thin adapters: each calls one interactor (or a thin compose of interactors), surfaces its validation result, and at most reshapes the output for presentation. Do not put validation or business logic in a route or tool that the interactor does not own.
+
+- An interactor exposed through an MCP tool or API route uses the `@Validate` decorator, which returns a structured `ok: false` error that the adapter renders for the caller. `@Enforce` (which throws) is reserved for internal/trusted callers such as webhook ingest and background jobs. `features/mcp-tools/__tests__/mcp-validate-contract.test.ts` enforces that no MCP tool is backed by an `@Enforce` interactor.
+- Custom validation messages are defined as a `CustomErrorCode` in `core/validation/validation.types.ts` with translations in `i18n/locales/en.json` and `i18n/locales/de.json`; avoid free-text issue messages.
+
 ## Reporting Issues
 
 If you face any issues or have suggestions, please feel free to [create an issue on Customermates' GitHub repository](https://github.com/customermates/customermates/issues/new). Please provide as much detail as possible.

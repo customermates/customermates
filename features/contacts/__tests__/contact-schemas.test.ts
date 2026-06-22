@@ -107,9 +107,9 @@ describe("BaseUpdateContactSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects invalid id", () => {
+  it("rejects empty id", () => {
     const result = BaseUpdateContactSchema.safeParse({
-      id: "not-a-uuid",
+      id: "",
       firstName: "Updated",
     });
     expect(result.success).toBe(false);

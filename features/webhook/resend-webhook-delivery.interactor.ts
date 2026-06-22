@@ -10,11 +10,18 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { validateWebhookDeliveryIds } from "@/core/validation/ids-validators";
+import { getWebhookDeliveryRepo } from "@/core/di";
 
-const ResendWebhookDeliverySchema = z.object({
-  id: z.uuid(),
-});
-export type ResendWebhookDeliveryData = z.infer<typeof ResendWebhookDeliverySchema>;
+const Schema = z
+  .object({
+    id: z.uuid(),
+  })
+  .superRefine(async (data, ctx) => {
+    const validIdsSet = await getWebhookDeliveryRepo().findIds(new Set([data.id]));
+    validateWebhookDeliveryIds(data.id, validIdsSet, ctx, ["id"]);
+  });
+export type ResendWebhookDeliveryData = z.infer<typeof Schema>;
 
 export abstract class GetWebhookDeliveryByIdRepo {
   abstract getDeliveryByIdOrThrow(id: string): Promise<WebhookDeliveryDto>;
@@ -30,7 +37,7 @@ export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<Res
     super();
   }
 
-  @Validate(ResendWebhookDeliverySchema)
+  @Validate(Schema)
   @ValidateOutput(z.string())
   async invoke(data: ResendWebhookDeliveryData): Validated<string> {
     const delivery = await this.deliveryRepo.getDeliveryByIdOrThrow(data.id);

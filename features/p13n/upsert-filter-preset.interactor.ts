@@ -22,7 +22,7 @@ const Schema = z.object({
 
 export type UpsertFilterPresetData = Data<typeof Schema>;
 
-const P13nEntrySchema = z.object({
+const OutputSchema = z.object({
   p13nId: z.string(),
   filters: z.array(z.any()).optional(),
   savedFilterPresets: z.array(z.any()).optional(),
@@ -48,7 +48,7 @@ export class UpsertFilterPresetInteractor extends AuthenticatedInteractor<Upsert
   }
 
   @Validate(Schema)
-  @ValidateOutput(P13nEntrySchema)
+  @ValidateOutput(OutputSchema)
   @Transaction
   async invoke(data: UpsertFilterPresetData): Validated<P13nEntry> {
     const p13nData = await this.repo.getP13n(data.p13nId);

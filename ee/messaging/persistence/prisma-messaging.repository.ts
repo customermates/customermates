@@ -7,9 +7,7 @@ import type { MessageReactionEntry, MessagingAttendee, MessagingMessage, IngestM
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
-import type { SetThreadStateRepo } from "../thread-state/set-thread-state.interactor";
-import type { ShareThreadToCrmRepo } from "../thread-state/share-thread-to-crm.interactor";
-import type { AssignContactToThreadRepo } from "../contact-assignment/assign-contact-to-thread.interactor";
+import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 import type { ProcessMessagingWebhookRepo } from "../webhooks/process-messaging-webhook.interactor";
 import type { ProcessEmailWebhookRepo } from "../webhooks/process-email-webhook.interactor";
 import type { ProcessUsersWebhookRepo } from "../webhooks/process-users-webhook.interactor";
@@ -19,6 +17,7 @@ import type { SendChatMessageRepo } from "../outbound/send-chat-message.interact
 import type { SendEmailRepo } from "../outbound/send-email.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
 import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
+import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
 import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.interactor";
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.interactor";
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
@@ -26,12 +25,14 @@ import type { ContactReference } from "@/core/base/base-entity.schema";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { getContactAvatarRepo, getContactRepo } from "@/core/di";
+import { getContactRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { contactFullName } from "../thread-display";
 import { threadAccessWhere } from "../messaging-access";
+import { channelClass, classWhere } from "../provider";
+import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
 
@@ -41,9 +42,7 @@ export class PrismaMessagingRepo
     GetMessagingThreadRepo,
     GetMessagingThreadsRepo,
     GetUnreadThreadCountRepo,
-    SetThreadStateRepo,
-    ShareThreadToCrmRepo,
-    AssignContactToThreadRepo,
+    UpdateThreadRepo,
     ProcessMessagingWebhookRepo,
     ProcessEmailWebhookRepo,
     ProcessUsersWebhookRepo,
@@ -51,7 +50,8 @@ export class PrismaMessagingRepo
     SendChatMessageRepo,
     SendEmailRepo,
     SearchChannelCandidatesRepo,
-    GetMessageAttachmentMetaRepo
+    GetMessageAttachmentMetaRepo,
+    FindThreadsByIdsRepo
 {
   async searchChannelCandidates(query: RepoArgs<SearchChannelCandidatesRepo, "searchChannelCandidates">) {
     const rows = await this.prisma.messagingThreadParticipant.findMany({
@@ -240,11 +240,11 @@ export class PrismaMessagingRepo
     const contactByKey = await this.resolveContactsByIdentifiers(pairs);
     for (const thread of threads) {
       for (const participant of thread.participants)
-        participant.contact = contactByKey.get(`${thread.provider}:${participant.identifier}`) ?? null;
+        participant.contact = contactByKey.get(identifierKey(thread.provider, participant.identifier)) ?? null;
 
       if (thread.lastMessageSenderIdentifier) {
         const senderName = contactFullName(
-          contactByKey.get(`${thread.provider}:${thread.lastMessageSenderIdentifier}`),
+          contactByKey.get(identifierKey(thread.provider, thread.lastMessageSenderIdentifier)),
         );
         if (senderName) thread.lastMessageSenderName = senderName;
       }
@@ -422,7 +422,7 @@ export class PrismaMessagingRepo
     }
   }
 
-  async setThreadState(args: RepoArgs<SetThreadStateRepo, "setThreadState">) {
+  async setThreadState(args: RepoArgs<UpdateThreadRepo, "setThreadState">) {
     const { threadId, state } = args;
 
     await this.prisma.messagingThread.updateMany({
@@ -434,13 +434,14 @@ export class PrismaMessagingRepo
     });
   }
 
-  async setThreadSharedToCrm(args: RepoArgs<ShareThreadToCrmRepo, "setThreadSharedToCrm">) {
+  async setThreadSharedToCrm(args: RepoArgs<UpdateThreadRepo, "setThreadSharedToCrm">) {
     const { threadId, shared } = args;
 
     await this.prisma.messagingThread.updateMany({
       where: {
         id: threadId,
-        ...threadAccessWhere(this.companyId, this.userId),
+        companyId: this.companyId,
+        connectedAccount: { is: { userId: this.userId } },
       },
       data: { sharedToCrm: shared },
     });
@@ -456,18 +457,15 @@ export class PrismaMessagingRepo
     return hydrated;
   }
 
-  async findOwnedThreadByIdOrThrow(id: string) {
-    const row = await this.prisma.messagingThread.findFirstOrThrow({
-      where: {
-        id,
-        companyId: this.companyId,
-        connectedAccount: { is: { userId: this.userId } },
-      },
-      select: this.threadSelect,
+  async findThreadIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const threads = await this.prisma.messagingThread.findMany({
+      where: { id: { in: Array.from(ids) }, ...threadAccessWhere(this.companyId, this.userId) },
+      select: { id: true },
     });
 
-    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
-    return hydrated;
+    return new Set(threads.map((thread) => thread.id));
   }
 
   private mapThreadRow(
@@ -580,7 +578,7 @@ export class PrismaMessagingRepo
     const contactByKey = await this.resolveContactsByIdentifiers(pairs);
     messages.forEach((message, index) => {
       const value = senderIds[index];
-      message.sender.contact = value.length > 0 ? (contactByKey.get(`${provider}:${value}`) ?? null) : null;
+      message.sender.contact = value.length > 0 ? (contactByKey.get(identifierKey(provider, value)) ?? null) : null;
     });
   }
 
@@ -594,22 +592,22 @@ export class PrismaMessagingRepo
     });
   }
 
-  async findParticipantPictureUrl(args: { companyId: string; contactId: string }) {
+  async findParticipantPictureUrlUnscoped(args: { companyId: string; contactId: string }) {
     const identifiers = await this.prisma.contactIdentifier.findMany({
       where: { companyId: args.companyId, contactId: args.contactId },
       select: { provider: true, value: true, messagingId: true },
     });
     if (identifiers.length === 0) return null;
 
-    const byProvider = new Map<MessagingProvider, Set<string>>();
+    const byClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
     for (const row of identifiers) {
-      const set = byProvider.get(row.provider) ?? new Set<string>();
-      set.add(row.value);
-      if (row.messagingId) set.add(row.messagingId);
-      byProvider.set(row.provider, set);
+      const entry = byClass.get(channelClass(row.provider)) ?? { provider: row.provider, values: new Set<string>() };
+      entry.values.add(row.value);
+      if (row.messagingId) entry.values.add(row.messagingId);
+      byClass.set(channelClass(row.provider), entry);
     }
-    const orGroups = [...byProvider].map(([provider, values]) => ({
-      provider,
+    const orGroups = [...byClass.values()].map(({ provider, values }) => ({
+      ...classWhere(provider),
       identifier: { in: [...values] },
     }));
 
@@ -626,40 +624,22 @@ export class PrismaMessagingRepo
     return participant?.pictureUrl ?? null;
   }
 
-  private async findContactIdentifiers(
-    contactIds: string[],
-  ): Promise<{ provider: MessagingProvider; value: string }[]> {
-    if (contactIds.length === 0) return [];
-
-    const rows = await this.prisma.contactIdentifier.findMany({
-      where: { contactId: { in: contactIds }, companyId: this.companyId },
-      select: { provider: true, value: true, messagingId: true },
-    });
-
-    const out: { provider: MessagingProvider; value: string }[] = [];
-    for (const row of rows) {
-      out.push({ provider: row.provider, value: row.value });
-      if (row.messagingId) out.push({ provider: row.provider, value: row.messagingId });
-    }
-    return out;
-  }
-
-  private async listLinkedIdentifierGroups(): Promise<{ provider: MessagingProvider; identifier: { in: string[] } }[]> {
+  private async listLinkedIdentifierGroups(): Promise<Prisma.MessagingThreadParticipantWhereInput[]> {
     const rows = await this.prisma.contactIdentifier.findMany({
       where: { companyId: this.companyId },
       select: { provider: true, value: true, messagingId: true },
     });
 
-    const byProvider = new Map<MessagingProvider, Set<string>>();
+    const byClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
     for (const row of rows) {
-      const set = byProvider.get(row.provider) ?? new Set<string>();
-      set.add(row.value);
-      if (row.messagingId) set.add(row.messagingId);
-      byProvider.set(row.provider, set);
+      const entry = byClass.get(channelClass(row.provider)) ?? { provider: row.provider, values: new Set<string>() };
+      entry.values.add(row.value);
+      if (row.messagingId) entry.values.add(row.messagingId);
+      byClass.set(channelClass(row.provider), entry);
     }
 
-    return [...byProvider].map(([provider, values]) => ({
-      provider,
+    return [...byClass.values()].map(({ provider, values }) => ({
+      ...classWhere(provider),
       identifier: { in: [...values] },
     }));
   }
@@ -670,18 +650,21 @@ export class PrismaMessagingRepo
     const result = new Map<string, ContactReference>();
     if (pairs.length === 0) return result;
 
-    const valuesByProvider = new Map<MessagingProvider, Set<string>>();
+    const valuesByClass = new Map<string, { provider: MessagingProvider; values: Set<string> }>();
     for (const pair of pairs) {
-      const set = valuesByProvider.get(pair.provider) ?? new Set<string>();
-      set.add(pair.value);
-      valuesByProvider.set(pair.provider, set);
+      const entry = valuesByClass.get(channelClass(pair.provider)) ?? {
+        provider: pair.provider,
+        values: new Set<string>(),
+      };
+      entry.values.add(pair.value);
+      valuesByClass.set(channelClass(pair.provider), entry);
     }
 
     const rows = await this.prisma.contactIdentifier.findMany({
       where: {
         companyId: this.companyId,
-        OR: [...valuesByProvider].map(([provider, values]) => ({
-          provider,
+        OR: [...valuesByClass.values()].map(({ provider, values }) => ({
+          ...classWhere(provider),
           OR: [{ value: { in: [...values] } }, { messagingId: { in: [...values] } }],
         })),
       },
@@ -701,29 +684,17 @@ export class PrismaMessagingRepo
     });
 
     for (const row of rows) {
-      result.set(`${row.provider}:${row.value}`, row.contact);
-      if (row.messagingId) result.set(`${row.provider}:${row.messagingId}`, row.contact);
+      result.set(identifierKey(row.provider, row.value), row.contact);
+      if (row.messagingId) result.set(identifierKey(row.provider, row.messagingId), row.contact);
     }
     return result;
   }
 
   private async identifierWhereForContacts(
     contactIds: string[],
-  ): Promise<{ provider: MessagingProvider; identifier: { in: string[] } }[]> {
-    if (contactIds.length === 0) return [];
-
-    const identifiers = await this.findContactIdentifiers(contactIds);
-    const byProvider = new Map<MessagingProvider, Set<string>>();
-    for (const { provider, value } of identifiers) {
-      const set = byProvider.get(provider) ?? new Set<string>();
-      set.add(value);
-      byProvider.set(provider, set);
-    }
-
-    return [...byProvider].map(([provider, values]) => ({
-      provider,
-      identifier: { in: [...values] },
-    }));
+  ): Promise<Prisma.MessagingThreadParticipantWhereInput[]> {
+    const groups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
+    return groups.map((group) => ({ ...group.providerWhere, identifier: group.identifier }));
   }
 
   async ingestMessage({
@@ -756,7 +727,7 @@ export class PrismaMessagingRepo
       markUnread: !backfill && !existing && isInbound,
     });
 
-    const upserted = await this.upsertMessage({
+    const upserted = await this.upsertMessageUnscoped({
       ...messageFields,
       companyId,
       connectedAccountId,
@@ -765,7 +736,7 @@ export class PrismaMessagingRepo
 
     const contactId = isInbound ? await this.resolveSenderContactId(companyId, message) : null;
     if (contactId) {
-      await getContactAvatarRepo().recomputeContactAvatar({
+      await getContactRepo().recomputeContactAvatarUnscoped({
         contactId,
         companyId,
       });
@@ -798,7 +769,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async countMessages(connectedAccountId: string) {
+  async countMessagesUnscoped(connectedAccountId: string) {
     return this.prisma.messagingMessage.count({
       where: { connectedAccountId },
     });
@@ -839,7 +810,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  private async upsertMessage(
+  private async upsertMessageUnscoped(
     args: Omit<IngestMessage, "unipileThreadId" | "threadType"> & {
       companyId: string;
       connectedAccountId: string;
@@ -888,7 +859,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async applyMessageReaction(args: RepoArgs<ProcessMessagingWebhookRepo, "applyMessageReaction">) {
+  async applyMessageReactionUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "applyMessageReactionUnscoped">) {
     await this.withCompanyTransaction(args.companyId, async () => {
       const row = await this.prisma.messagingMessage.findUnique({
         where: { id: args.messagingMessageId },
@@ -896,7 +867,7 @@ export class PrismaMessagingRepo
       });
       if (!row) {
         throw new Error(
-          `applyMessageReaction: message ${args.messagingMessageId} not found (value=${args.value}, attendeeId=${args.attendeeId})`,
+          `applyMessageReactionUnscoped: message ${args.messagingMessageId} not found (value=${args.value}, attendeeId=${args.attendeeId})`,
         );
       }
 
@@ -920,7 +891,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async updateMessageEdited(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageEdited">) {
+  async updateMessageEditedUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageEditedUnscoped">) {
     await this.prisma.messagingMessage.update({
       where: { id: args.messagingMessageId },
       data: {
@@ -931,7 +902,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async updateMessageDeleted(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageDeleted">) {
+  async updateMessageDeletedUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageDeletedUnscoped">) {
     await this.prisma.messagingMessage.update({
       where: { id: args.messagingMessageId },
       data: { deletedAt: args.deletedAt },
@@ -939,7 +910,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async applyThreadState(args: RepoArgs<ProcessEmailWebhookRepo, "applyThreadState">) {
+  async applyThreadStateUnscoped(args: RepoArgs<ProcessEmailWebhookRepo, "applyThreadStateUnscoped">) {
     await this.prisma.messagingThread.update({
       where: { id: args.messagingThreadId },
       data: { state: args.state },
@@ -947,7 +918,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async insertAccountActivity(args: RepoArgs<ProcessUsersWebhookRepo, "insertAccountActivity">) {
+  async insertAccountActivityUnscoped(args: RepoArgs<ProcessUsersWebhookRepo, "insertAccountActivityUnscoped">) {
     await this.prisma.accountActivity.createMany({
       data: [
         {

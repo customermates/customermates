@@ -1,4 +1,5 @@
-import type { ConnectedAccount, MessagingMessage } from "../messaging.schema";
+import type { MessagingMessage } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 
@@ -32,7 +33,7 @@ export abstract class ProcessMessagingWebhookRepo {
     connectedAccountId: string;
     unipileMessageId: string;
   }): Promise<MessagingMessage>;
-  abstract applyMessageReaction(args: {
+  abstract applyMessageReactionUnscoped(args: {
     companyId: string;
     messagingMessageId: string;
     attendeeId: string;
@@ -40,16 +41,16 @@ export abstract class ProcessMessagingWebhookRepo {
     value: string | null;
     isSelf: boolean;
   }): Promise<void>;
-  abstract updateMessageEdited(args: {
+  abstract updateMessageEditedUnscoped(args: {
     messagingMessageId: string;
     bodyText: string | null;
     editedAt: Date;
   }): Promise<void>;
-  abstract updateMessageDeleted(args: { messagingMessageId: string; deletedAt: Date }): Promise<void>;
+  abstract updateMessageDeletedUnscoped(args: { messagingMessageId: string; deletedAt: Date }): Promise<void>;
 }
 
 export abstract class MessagingWebhookAccountRepo extends FindAccountByUnipileIdUnscopedRepo {
-  abstract setAccountOwnAttendeeIdIfNull(args: {
+  abstract setAccountOwnAttendeeIdIfNullUnscoped(args: {
     unipileAccountId: string;
     ownUnipileAttendeeId: string;
   }): Promise<void>;
@@ -83,7 +84,7 @@ export class ProcessMessagingWebhookInteractor {
   private async captureOwnAttendeeId(payload: UnipileMessageReceivedEvent, account: ConnectedAccount): Promise<void> {
     if (account.ownUnipileAttendeeId || payload.is_sender !== true || !payload.sender?.attendee_id) return;
 
-    await this.accountRepo.setAccountOwnAttendeeIdIfNull({
+    await this.accountRepo.setAccountOwnAttendeeIdIfNullUnscoped({
       unipileAccountId: account.unipileAccountId,
       ownUnipileAttendeeId: payload.sender.attendee_id,
     });
@@ -135,7 +136,7 @@ export class ProcessMessagingWebhookInteractor {
     if (!reactor?.attendee_id)
       throw new Error(`reaction webhook for account ${payload.account_id} has no reactor attendee id`);
 
-    await this.repo.applyMessageReaction({
+    await this.repo.applyMessageReactionUnscoped({
       companyId: account.companyId,
       messagingMessageId: message.id,
       attendeeId: reactor.attendee_id,
@@ -151,7 +152,7 @@ export class ProcessMessagingWebhookInteractor {
       unipileMessageId: payload.message_id,
     });
 
-    await this.repo.updateMessageEdited({
+    await this.repo.updateMessageEditedUnscoped({
       messagingMessageId: message.id,
       bodyText: payload.message ?? message.bodyText,
       editedAt: payload.timestamp,
@@ -164,7 +165,7 @@ export class ProcessMessagingWebhookInteractor {
       unipileMessageId: payload.message_id,
     });
 
-    await this.repo.updateMessageDeleted({
+    await this.repo.updateMessageDeletedUnscoped({
       messagingMessageId: message.id,
       deletedAt: payload.timestamp,
     });

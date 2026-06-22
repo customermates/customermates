@@ -62,6 +62,13 @@ import { webhookTaskUpdatedOperation } from "@/features/tasks/webhooks/task-upda
 import { webhookTaskDeletedOperation } from "@/features/tasks/webhooks/task-deleted.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
 import { getUserProfileOperation } from "@/features/user/get/get-user-profile.openapi";
+import { getConnectedAccountsOperation } from "@/features/messaging/connect/get-my-connected-accounts.openapi";
+import { getMessagingThreadsOperation } from "@/features/messaging/inbox/get-messaging-threads.openapi";
+import { getMessagingThreadOperation } from "@/features/messaging/inbox/get-messaging-thread.openapi";
+import { sendChatMessageOperation } from "@/features/messaging/outbound/send-chat-message.openapi";
+import { getActivitiesOperation } from "@/features/messaging/activities/get-activities.openapi";
+import { sendEmailOperation } from "@/features/messaging/outbound/send-email.openapi";
+import { startChatOperation } from "@/features/messaging/outbound/start-chat.openapi";
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
 import { DeleteContactSchema } from "@/features/contacts/delete/delete-contact.interactor";
 import { DeleteManyContactsSchema } from "@/features/contacts/delete/delete-many-contacts.interactor";
@@ -115,6 +122,12 @@ import { WebhookTaskCreatedSchema } from "@/features/tasks/webhooks/task-created
 import { WebhookTaskUpdatedSchema } from "@/features/tasks/webhooks/task-updated.openapi";
 import { WebhookTaskDeletedSchema } from "@/features/tasks/webhooks/task-deleted.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
+import { ConnectedAccountDtoSchema, MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
+import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
+import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
+import { ActivitiesParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
+import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
+import { StartChatSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -232,6 +245,27 @@ export function generateOpenApiSpec() {
       "/v1/users/me": {
         get: getUserProfileOperation,
       },
+      "/v1/messaging/connected-accounts": {
+        get: getConnectedAccountsOperation,
+      },
+      "/v1/messaging/threads/search": {
+        post: getMessagingThreadsOperation,
+      },
+      "/v1/messaging/threads/{id}": {
+        get: getMessagingThreadOperation,
+      },
+      "/v1/messaging/threads/{id}/messages": {
+        post: sendChatMessageOperation,
+      },
+      "/v1/messaging/activities/search": {
+        post: getActivitiesOperation,
+      },
+      "/v1/messaging/send-email": {
+        post: sendEmailOperation,
+      },
+      "/v1/messaging/start-chat": {
+        post: startChatOperation,
+      },
     },
     webhooks: {
       contactCreated: {
@@ -334,6 +368,14 @@ export function generateOpenApiSpec() {
         WebhookTaskUpdatedSchema,
         WebhookTaskDeletedSchema,
         UserDtoSchema,
+        ConnectedAccountDtoSchema,
+        MessagingThreadSchema,
+        GetMessagingThreadResultSchema,
+        SendChatMessageSchema,
+        ActivitiesParamsSchema,
+        ActivitiesResultSchema,
+        SendEmailSchema,
+        StartChatSchema,
       },
       securitySchemes: {
         apiKeyAuth: {

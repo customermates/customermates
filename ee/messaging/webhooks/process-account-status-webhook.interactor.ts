@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
@@ -11,13 +11,13 @@ import { mapUnipileStatus } from "../unipile.mappers";
 import { FindAccountByUnipileIdUnscopedRepo } from "../persistence/find-account-by-unipile-id-unscoped.repo";
 
 export abstract class ProcessAccountStatusWebhookRepo extends FindAccountByUnipileIdUnscopedRepo {
-  abstract updateAccount(args: {
+  abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status: ConnectedAccountStatus;
     syncing?: boolean;
   }): Promise<ConnectedAccount | null>;
-  abstract resetBackfillCheckpoint(unipileAccountId: string): Promise<void>;
-  abstract claimBackfill(unipileAccountId: string): Promise<string | null>;
+  abstract resetBackfillCheckpointUnscoped(unipileAccountId: string): Promise<void>;
+  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
 }
 
 const BACKFILL_TRIGGERS = new Set(["SYNC_SUCCESS", "CREATION_SUCCESS", "RECONNECTED"]);
@@ -54,7 +54,7 @@ export class ProcessAccountStatusWebhookInteractor {
       : SYNC_SETTLED_STATUSES.has(statusRaw)
         ? false
         : undefined;
-    await this.repo.updateAccount({
+    await this.repo.updateAccountUnscoped({
       unipileAccountId: accountId,
       status: dbStatus,
       syncing,
@@ -64,9 +64,9 @@ export class ProcessAccountStatusWebhookInteractor {
       statusRaw === "SYNC_SUCCESS" && existing.status === ConnectedAccountStatus.ok && !existing.syncing;
 
     if (BACKFILL_TRIGGERS.has(statusRaw) && !isRedundantSyncSuccess) {
-      const backfillToken = await this.repo.claimBackfill(accountId);
+      const backfillToken = await this.repo.claimBackfillUnscoped(accountId);
       if (backfillToken) {
-        if (CHECKPOINT_RESET_STATUSES.has(statusRaw)) await this.repo.resetBackfillCheckpoint(accountId);
+        if (CHECKPOINT_RESET_STATUSES.has(statusRaw)) await this.repo.resetBackfillCheckpointUnscoped(accountId);
         await this.backgroundTaskService.dispatch("backfill-connected-account", {
           connectedAccountId: existing.id,
           token: backfillToken,

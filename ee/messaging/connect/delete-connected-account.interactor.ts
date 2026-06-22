@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -16,7 +16,7 @@ const Schema = z.object({ id: z.uuid() });
 type DeleteConnectedAccountData = Data<typeof Schema>;
 
 export abstract class DeleteConnectedAccountRepo {
-  abstract findOwnedAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
+  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
   abstract deleteAccount(id: string): Promise<void>;
 }
 
@@ -32,7 +32,7 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
 
   @Enforce(Schema)
   async invoke(data: DeleteConnectedAccountData): Promise<{ ok: true; data: null }> {
-    const existing = await this.repo.findOwnedAccountByIdOrThrow(data.id);
+    const existing = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.repo.deleteAccount(data.id);
 

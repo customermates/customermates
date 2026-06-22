@@ -1,9 +1,9 @@
 import type { CreateDealRepo } from "./create-deal.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -85,10 +85,10 @@ export type CreateDealData = Data<typeof CreateDealSchema>;
 export class CreateDealInteractor extends AuthenticatedInteractor<CreateDealData, DealDto> {
   constructor(
     private repo: CreateDealRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private servicesRepo: GetUnscopedServiceRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private servicesRepo: GetCompanyWideServiceRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -104,19 +104,19 @@ export class CreateDealInteractor extends AuthenticatedInteractor<CreateDealData
     const relatedTaskIds = unique(data.taskIds);
 
     const [previousOrganizations, previousContacts, previousServices, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const deal = await this.repo.createDealOrThrow(data);
 
     const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

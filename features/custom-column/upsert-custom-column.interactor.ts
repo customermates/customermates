@@ -11,16 +11,22 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { Transaction, BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { type Validated, zx } from "@/core/validation/validation.utils";
+import { validateCustomColumnIds } from "@/core/validation/ids-validators";
+import { getCustomColumnRepo } from "@/core/di";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const OptionSchema = z.object({
-  value: z.uuid(),
-  label: z.string().min(1).max(255),
+export const OptionSchema = z.object({
+  value: z
+    .uuid()
+    .describe(
+      "Stable option id: use a fresh uuid for a brand-new option, or keep an existing option's value to preserve its stored records.",
+    ),
+  label: zx.nonBlankText(255),
   color: z.enum(CHIP_COLORS),
   isDefault: z.boolean(),
   index: z.number().min(0),
@@ -28,7 +34,7 @@ const OptionSchema = z.object({
 
 const BaseSchema = z.object({
   id: z.uuid().optional(),
-  label: z.string().min(1).max(255),
+  label: zx.nonBlankText(255),
   entityType: z.enum(EntityType),
 });
 
@@ -110,7 +116,7 @@ const PhoneSchema = BaseSchema.extend({
   }),
 });
 
-const UpsertCustomColumnSchema = z.discriminatedUnion("type", [
+export const UpsertCustomColumnSchema = z.discriminatedUnion("type", [
   PlainSchema.meta({ title: "Plain" }),
   DateSchema.meta({ title: "Date" }),
   DateTimeSchema.meta({ title: "DateTime" }),
@@ -123,6 +129,13 @@ const UpsertCustomColumnSchema = z.discriminatedUnion("type", [
   PhoneSchema.meta({ title: "Phone" }),
 ]);
 export type UpsertCustomColumnData = Data<typeof UpsertCustomColumnSchema>;
+
+export const UpsertCustomColumnValidateSchema = UpsertCustomColumnSchema.superRefine(async (data, ctx) => {
+  if (data.id) {
+    const validIdsSet = await getCustomColumnRepo().findIds(new Set([data.id]));
+    validateCustomColumnIds(data.id, validIdsSet, ctx, ["id"]);
+  }
+});
 
 export abstract class UpsertCustomColumnRepo {
   abstract find(id: string): Promise<CustomColumnDto>;
@@ -139,9 +152,9 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
     super();
   }
 
-  @Validate(UpsertCustomColumnSchema)
+  @Validate(UpsertCustomColumnValidateSchema)
   @ValidateOutput(CustomColumnDtoSchema)
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto> {
     const updatePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
       [EntityType.contact]: { resource: Resource.contacts, action: Action.update },

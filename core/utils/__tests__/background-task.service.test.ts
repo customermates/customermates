@@ -37,7 +37,13 @@ describe("BackgroundTaskService.dispatch", () => {
     let startCallsDuringTransaction = -1;
 
     await transactionStorage.run(
-      { client: {} as never, auditLogBatch: [], webhookDeliveryBatch: [], afterCommit: [], enabledWebhooks: null },
+      {
+        client: {} as never,
+        auditLogBatch: [],
+        webhookDeliveryBatch: [],
+        afterCommit: [],
+        enabledWebhooks: null,
+      },
       async () => {
         const result = await service.dispatch("some-task" as never, { foo: "bar" } as never);
         expect(result).toBeUndefined();

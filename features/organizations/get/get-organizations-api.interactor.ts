@@ -17,7 +17,7 @@ import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { OrganizationDtoSchema } from "../organization.schema";
 
-const GetOrganizationsQueryParamsApiSchema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
+const Schema = GetQueryParamsApiSchema.superRefine(async (data, ctx) => {
   await getValidateQueryParams().invoke(getOrganizationRepo(), EntityType.organization, data, ctx);
 });
 
@@ -36,7 +36,7 @@ export class GetOrganizationsApiInteractor extends BaseGetInteractor<Organizatio
     });
   }
 
-  @Validate(GetOrganizationsQueryParamsApiSchema)
+  @Validate(Schema)
   @ValidateOutput(createGetResultSchema(OrganizationDtoSchema))
   async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<OrganizationDto>> {
     return await super.invoke(params);

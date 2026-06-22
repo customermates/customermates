@@ -24,27 +24,8 @@ import {
 import { getCurrentUserTool, listUsersTool, updateMyProfileTool } from "@/features/mcp-tools/user.mcp-tools";
 import { getCompanyTool, listRolesTool, updateCompanyTool } from "@/features/mcp-tools/company.mcp-tools";
 import {
-  createPlainCustomColumnTool,
-  createDateCustomColumnTool,
-  createDateTimeCustomColumnTool,
-  createDateRangeCustomColumnTool,
-  createDateTimeRangeCustomColumnTool,
-  createCurrencyCustomColumnTool,
-  createSingleSelectCustomColumnTool,
-  createLinkCustomColumnTool,
-  createEmailCustomColumnTool,
-  createPhoneCustomColumnTool,
   listCustomColumnsTool,
-  updatePlainCustomColumnTool,
-  updateDateCustomColumnTool,
-  updateDateTimeCustomColumnTool,
-  updateDateRangeCustomColumnTool,
-  updateDateTimeRangeCustomColumnTool,
-  updateCurrencyCustomColumnTool,
-  updateSingleSelectCustomColumnTool,
-  updateLinkCustomColumnTool,
-  updateEmailCustomColumnTool,
-  updatePhoneCustomColumnTool,
+  upsertCustomColumnTool,
   deleteCustomColumnTool,
 } from "@/features/mcp-tools/custom-column.mcp-tools";
 import {
@@ -60,6 +41,15 @@ import {
   unlinkEntitiesTool,
   searchAllEntitiesTool,
 } from "@/features/mcp-tools/entity-generic.mcp-tools";
+import {
+  listConnectedAccountsTool,
+  getMessagingThreadsTool,
+  getMessagingThreadTool,
+  getActivitiesTool,
+  sendEmailTool,
+  sendChatMessageTool,
+  startChatTool,
+} from "@/features/mcp-tools/messaging.mcp-tools";
 
 const ALL_TOOLS = [
   getEntityConfigurationTool,
@@ -111,29 +101,20 @@ const ALL_TOOLS = [
   updateCompanyTool,
   listRolesTool,
 
-  createPlainCustomColumnTool,
-  createDateCustomColumnTool,
-  createDateTimeCustomColumnTool,
-  createDateRangeCustomColumnTool,
-  createDateTimeRangeCustomColumnTool,
-  createCurrencyCustomColumnTool,
-  createSingleSelectCustomColumnTool,
-  createLinkCustomColumnTool,
-  createEmailCustomColumnTool,
-  createPhoneCustomColumnTool,
+  listConnectedAccountsTool,
+  getMessagingThreadsTool,
+  getMessagingThreadTool,
+  getActivitiesTool,
+  sendEmailTool,
+  sendChatMessageTool,
+  startChatTool,
+
   listCustomColumnsTool,
-  updatePlainCustomColumnTool,
-  updateDateCustomColumnTool,
-  updateDateTimeCustomColumnTool,
-  updateDateRangeCustomColumnTool,
-  updateDateTimeRangeCustomColumnTool,
-  updateCurrencyCustomColumnTool,
-  updateSingleSelectCustomColumnTool,
-  updateLinkCustomColumnTool,
-  updateEmailCustomColumnTool,
-  updatePhoneCustomColumnTool,
+  upsertCustomColumnTool,
   deleteCustomColumnTool,
 ];
+
+export const maxDuration = 60;
 
 const handler = createMcpRoute(ALL_TOOLS, "/api/v1/mcp");
 

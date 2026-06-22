@@ -1,6 +1,6 @@
 import type { ExtendedUser } from "@/features/user/user.types";
 
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
@@ -16,18 +16,18 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { DomainEvent } from "@/features/event/domain-events";
 
-import { isEmailProvider } from "../provider-icon";
+import { isEmailProvider } from "../provider";
 
 import { UnipileHostedAuthCallbackSchema, type UnipileHostedAuthCallback } from "../unipile.schema";
 import { deriveAccountFeatures, deriveAccountIdentity, mapUnipileProvider, mapUnipileStatus } from "../unipile.mappers";
 import { FindAccountByUnipileIdUnscopedRepo } from "../persistence/find-account-by-unipile-id-unscoped.repo";
 
 export abstract class AccountCallbackUserRepo {
-  abstract findExtendedUserByIdOrThrow(userId: string): Promise<ExtendedUser>;
+  abstract findExtendedUserByIdOrThrowUnscoped(userId: string): Promise<ExtendedUser>;
 }
 
 export abstract class ProcessAccountCallbackRepo extends FindAccountByUnipileIdUnscopedRepo {
-  abstract createAccount(args: {
+  abstract createAccountUnscoped(args: {
     companyId: string;
     userId: string;
     unipileAccountId: string;
@@ -38,7 +38,7 @@ export abstract class ProcessAccountCallbackRepo extends FindAccountByUnipileIdU
     hasMessaging: boolean;
     hasCalendar: boolean;
   }): Promise<ConnectedAccount>;
-  abstract updateAccount(args: {
+  abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
     displayName?: string | null;
@@ -49,7 +49,7 @@ export abstract class ProcessAccountCallbackRepo extends FindAccountByUnipileIdU
     hasMessaging?: boolean;
     hasCalendar?: boolean;
   }): Promise<ConnectedAccount | null>;
-  abstract claimBackfill(unipileAccountId: string): Promise<string | null>;
+  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
 }
 
 @SystemInteractor
@@ -68,7 +68,7 @@ export class ProcessAccountCallbackInteractor {
     // creating the link (see MessagingService.createHostedAuthLink), so it round-trips back here.
     const { status, account_id, name: userId } = payload;
 
-    const user = await this.userRepo.findExtendedUserByIdOrThrow(userId);
+    const user = await this.userRepo.findExtendedUserByIdOrThrowUnscoped(userId);
     const existingBefore = await this.repo.findAccountByUnipileIdUnscoped(account_id);
 
     if (existingBefore && existingBefore.companyId !== user.companyId) {
@@ -81,7 +81,7 @@ export class ProcessAccountCallbackInteractor {
 
     if (status === "CREATION_FAIL") {
       if (existingBefore) {
-        await this.repo.updateAccount({
+        await this.repo.updateAccountUnscoped({
           unipileAccountId: account_id,
           status: mapUnipileStatus(status),
         });
@@ -108,7 +108,7 @@ export class ProcessAccountCallbackInteractor {
       const id = existing
         ? existing.id
         : (
-            await this.repo.createAccount({
+            await this.repo.createAccountUnscoped({
               companyId: user.companyId,
               userId: user.id,
               unipileAccountId: account_id,
@@ -122,7 +122,7 @@ export class ProcessAccountCallbackInteractor {
           ).id;
 
       if (existing) {
-        await this.repo.updateAccount({
+        await this.repo.updateAccountUnscoped({
           unipileAccountId: account_id,
           status: dbStatus,
           displayName,
@@ -155,7 +155,7 @@ export class ProcessAccountCallbackInteractor {
       const ownerAvatarUrl = await this.messagingService.getOwnerAvatarUrl(account_id);
 
       if (ownerAvatarUrl) {
-        await this.repo.updateAccount({
+        await this.repo.updateAccountUnscoped({
           unipileAccountId: account_id,
           ownerAvatarUrl,
         });
@@ -173,7 +173,7 @@ export class ProcessAccountCallbackInteractor {
       Sentry.captureException(err);
     }
 
-    const backfillToken = await this.repo.claimBackfill(account_id);
+    const backfillToken = await this.repo.claimBackfillUnscoped(account_id);
     if (backfillToken) {
       await this.backgroundTaskService.dispatch("backfill-connected-account", {
         connectedAccountId,

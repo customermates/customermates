@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
-import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { channelLabelKey } from "@/ee/messaging/provider";
+import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
 type Props = {
@@ -18,21 +19,21 @@ type Props = {
 
 export function ChannelIconStack({ identifiers, maxVisible = 3, className, onItemClick }: Props) {
   const t = useTranslations();
-  const providers = [...new Set(identifiers.map((id) => id.provider))];
+  const channels = [...new Map(identifiers.map((id) => [channelLabelKey(id.provider), id.provider])).values()];
 
   return (
     <OverlappingStack
-      badgeKey={(provider) => provider}
-      badges={providers}
+      badgeKey={(provider) => channelLabelKey(provider)}
+      badges={channels}
       className={className}
       contentAlign="start"
       maxVisible={maxVisible}
       renderBadge={(provider) => {
-        const Icon = getProviderIcon(provider);
+        const Icon = getChannelIcon(provider);
         return (
           <span
             className="bg-foreground/10 dark:bg-foreground/15 flex size-6 items-center justify-center overflow-hidden rounded-full"
-            title={t(`Common.providers.${provider}`)}
+            title={t(`Common.providers.${channelLabelKey(provider)}`)}
           >
             <Icon className="size-6" />
           </span>
@@ -44,8 +45,8 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
         </span>
       )}
       renderRow={(id, close) => {
-        const Icon = getProviderIcon(id.provider);
-        const providerLabel = t(`Common.providers.${id.provider}`);
+        const Icon = getChannelIcon(id.provider);
+        const providerLabel = t(`Common.providers.${channelLabelKey(id.provider)}`);
         const primaryLabel =
           channelDisplayLabel(id.provider, id.value, id.profileUrl) || id.displayName || providerLabel;
         return (

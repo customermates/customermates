@@ -1,7 +1,7 @@
 import type { CreateServiceRepo } from "./create-service.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -54,8 +54,8 @@ export type CreateServiceData = Data<typeof CreateServiceSchema>;
 export class CreateServiceInteractor extends AuthenticatedInteractor<CreateServiceData, ServiceDto> {
   constructor(
     private repo: CreateServiceRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -69,15 +69,15 @@ export class CreateServiceInteractor extends AuthenticatedInteractor<CreateServi
     const relatedTaskIds = unique(data.taskIds);
 
     const [previousDeals, previousTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const service = await this.repo.createServiceOrThrow(data);
 
     const [currentDeals, currentTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

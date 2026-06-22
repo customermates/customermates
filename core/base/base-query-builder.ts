@@ -162,8 +162,17 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     return where;
   }
 
+  protected getDefaultOrderBy(): OrderByInput {
+    return [{ id: "desc" }];
+  }
+
+  protected withIdTiebreaker(orderBy: OrderByInput, direction: "asc" | "desc"): OrderByInput {
+    if (orderBy.some((clause) => "id" in clause)) return orderBy;
+    return [...orderBy, { id: direction }];
+  }
+
   private buildOrderBy({ sortDescriptor }: { sortDescriptor?: SortDescriptor | null } = {}): OrderByInput {
-    if (!sortDescriptor) return [];
+    if (!sortDescriptor) return this.getDefaultOrderBy();
 
     const sortableFields = this.getSortableFields();
     const validatedSortDescriptor = this.validateSortDescriptor({
@@ -171,7 +180,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
       sortableFields,
     });
 
-    if (!validatedSortDescriptor) return [];
+    if (!validatedSortDescriptor) return this.getDefaultOrderBy();
 
     const matched = sortableFields.find((s) => s.field === validatedSortDescriptor.field);
 
@@ -190,10 +199,10 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         })(f),
       );
 
-      return resolved;
+      return this.withIdTiebreaker(resolved, validatedSortDescriptor.direction);
     }
 
-    return [];
+    return this.getDefaultOrderBy();
   }
 
   private createClause(key: string, value: unknown) {

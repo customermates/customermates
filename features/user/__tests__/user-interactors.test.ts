@@ -52,7 +52,7 @@ describe("RegisterUserInteractor", () => {
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
     };
     mockRepo = {
-      findCompanyId: vi.fn().mockResolvedValue(null),
+      findCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
       createCompanyAndUser: vi.fn().mockResolvedValue(mockExtendedUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockExtendedUser),
     };
@@ -90,7 +90,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
-    mockRepo.findCompanyId.mockResolvedValue("existing-company-id");
+    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
     await interactor.invoke({

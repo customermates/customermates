@@ -5,7 +5,7 @@ import { MessagingProvider } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { getUnipileClient } from "./unipile.client";
-import { isEmailProvider } from "./provider-icon";
+import { isEmailProvider } from "./provider";
 import {
   UnipileAccountSchema,
   UnipileCursorPageSchema,

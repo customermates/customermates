@@ -1,9 +1,9 @@
 import type { DeleteDealRepo } from "./delete-deal.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -15,7 +15,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { DomainEvent } from "@/features/event/domain-events";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -36,10 +36,10 @@ export type DeleteManyDealsData = Data<typeof DeleteManyDealsSchema>;
 export class DeleteManyDealsInteractor extends AuthenticatedInteractor<DeleteManyDealsData, string[]> {
   constructor(
     private repo: DeleteDealRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private servicesRepo: GetUnscopedServiceRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private servicesRepo: GetCompanyWideServiceRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -47,9 +47,9 @@ export class DeleteManyDealsInteractor extends AuthenticatedInteractor<DeleteMan
 
   @Validate(DeleteManyDealsSchema)
   @ValidateOutput(z.string())
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: DeleteManyDealsData): Validated<string[]> {
-    const previousDeals = await this.repo.getManyOrThrowUnscoped(data.ids);
+    const previousDeals = await this.repo.getManyOrThrowCompanyWide(data.ids);
 
     const relatedOrganizationIds = unique(previousDeals.flatMap((deal) => deal.organizations.map((it) => it.id)));
     const relatedContactIds = unique(previousDeals.flatMap((deal) => deal.contacts.map((it) => it.id)));
@@ -57,19 +57,19 @@ export class DeleteManyDealsInteractor extends AuthenticatedInteractor<DeleteMan
     const relatedTaskIds = unique(previousDeals.flatMap((deal) => deal.tasks.map((it) => it.id)));
 
     const [previousOrganizations, previousContacts, previousServices, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const deals = await Promise.all(data.ids.map((id) => this.repo.deleteDealOrThrow(id)));
 
     const [currentOrganizations, currentContacts, currentServices, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

@@ -10,6 +10,7 @@ import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected
 import type { ProcessAccountCallbackRepo } from "../webhooks/process-account-callback.interactor";
 import type { ProcessAccountStatusWebhookRepo } from "../webhooks/process-account-status-webhook.interactor";
 import type { CalendarAccountRepo } from "@/ee/messaging/webhooks/calendar-account.repo";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
@@ -47,7 +48,7 @@ export class PrismaConnectedAccountRepo
     ThreadAccountOwnersRepo
 {
   @BypassTenantGuard
-  async createAccount(args: RepoArgs<ProcessAccountCallbackRepo, "createAccount">) {
+  async createAccountUnscoped(args: RepoArgs<ProcessAccountCallbackRepo, "createAccountUnscoped">) {
     const row = await this.prisma.connectedAccount.upsert({
       where: { unipileAccountId: args.unipileAccountId },
       update: {},
@@ -69,7 +70,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async updateAccount(args: {
+  async updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
     displayName?: string | null;
@@ -102,7 +103,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async markAccountSyncing(args: RepoArgs<ResyncConnectedAccountRepo, "markAccountSyncing">) {
+  async markAccountSyncingUnscoped(args: RepoArgs<ResyncConnectedAccountRepo, "markAccountSyncingUnscoped">) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId: args.unipileAccountId },
       data: { syncing: args.syncing },
@@ -110,7 +111,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async claimBackfill(unipileAccountId: string) {
+  async claimBackfillUnscoped(unipileAccountId: string) {
     const token = randomUUID();
     const staleBefore = new Date(Date.now() - BACKFILL_CLAIM_STALE_MS);
     const result = await this.prisma.connectedAccount.updateMany({
@@ -125,7 +126,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async refreshBackfillClaim(unipileAccountId: string, token: string) {
+  async refreshBackfillClaimUnscoped(unipileAccountId: string, token: string) {
     const result = await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId, backfillClaimToken: token },
       data: { backfillClaimedAt: new Date() },
@@ -135,7 +136,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async releaseBackfillClaim(unipileAccountId: string, token: string) {
+  async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId, backfillClaimToken: token },
       data: { backfillClaimedAt: null, backfillClaimToken: null },
@@ -143,7 +144,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async finalizeBackfill(args: { unipileAccountId: string; epoch: number; token: string }) {
+  async finalizeBackfillUnscoped(args: { unipileAccountId: string; epoch: number; token: string }) {
     const result = await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId: args.unipileAccountId, backfillEpoch: args.epoch, backfillClaimToken: args.token },
       data: { syncing: false, lastSyncedAt: new Date(), backfillClaimedAt: null, backfillClaimToken: null },
@@ -153,7 +154,9 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async setAccountOwnAttendeeId(args: RepoArgs<BackfillConnectedAccountRepo, "setAccountOwnAttendeeId">) {
+  async setAccountOwnAttendeeIdUnscoped(
+    args: RepoArgs<BackfillConnectedAccountRepo, "setAccountOwnAttendeeIdUnscoped">,
+  ) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId: args.unipileAccountId },
       data: { ownUnipileAttendeeId: args.ownUnipileAttendeeId },
@@ -161,7 +164,9 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async setAccountOwnAttendeeIdIfNull(args: RepoArgs<MessagingWebhookAccountRepo, "setAccountOwnAttendeeIdIfNull">) {
+  async setAccountOwnAttendeeIdIfNullUnscoped(
+    args: RepoArgs<MessagingWebhookAccountRepo, "setAccountOwnAttendeeIdIfNullUnscoped">,
+  ) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId: args.unipileAccountId, ownUnipileAttendeeId: null },
       data: { ownUnipileAttendeeId: args.ownUnipileAttendeeId },
@@ -169,7 +174,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async markAccountHasCalendar(unipileAccountId: string) {
+  async markAccountHasCalendarUnscoped(unipileAccountId: string) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId },
       data: { hasCalendar: true },
@@ -205,7 +210,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async loadBackfillCheckpoint(unipileAccountId: string) {
+  async loadBackfillCheckpointUnscoped(unipileAccountId: string) {
     const row = await this.prisma.connectedAccount.findUnique({
       where: { unipileAccountId },
       select: { backfillCheckpoint: true, backfillEpoch: true },
@@ -224,7 +229,9 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async saveBackfillStepCheckpoint(args: RepoArgs<BackfillConnectedAccountRepo, "saveBackfillStepCheckpoint">) {
+  async saveBackfillStepCheckpointUnscoped(
+    args: RepoArgs<BackfillConnectedAccountRepo, "saveBackfillStepCheckpointUnscoped">,
+  ) {
     await this.prisma.$executeRaw`
       UPDATE "ConnectedAccount"
       SET "backfillCheckpoint" = jsonb_set(
@@ -240,7 +247,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async recordUnusableItem(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItem">) {
+  async recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
     try {
       await this.prisma.messagingInboundEvent.create({
         data: {
@@ -260,7 +267,7 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async resetBackfillCheckpoint(unipileAccountId: string) {
+  async resetBackfillCheckpointUnscoped(unipileAccountId: string) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId },
       data: { backfillCheckpoint: {}, backfillEpoch: { increment: 1 } },
@@ -304,12 +311,33 @@ export class PrismaConnectedAccountRepo
     );
   }
 
-  private get ownerSelect() {
-    return { id: true, firstName: true, lastName: true, avatarUrl: true } as const;
+  private get dtoSelect() {
+    return {
+      id: true,
+      provider: true,
+      status: true,
+      hasMessaging: true,
+      hasCalendar: true,
+      emailAddress: true,
+      displayName: true,
+      shared: true,
+      syncing: true,
+      lastSyncedAt: true,
+      createdAt: true,
+      user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+    } as const;
   }
 
-  private toOwner(user: { id: string; firstName: string; lastName: string; avatarUrl: string | null }) {
-    return { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl };
+  private toDto(
+    row: Prisma.ConnectedAccountGetPayload<{ select: PrismaConnectedAccountRepo["dtoSelect"] }>,
+    isOwner: boolean,
+  ): ConnectedAccountDto {
+    const { user, ...account } = row;
+    return {
+      ...account,
+      owner: { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl },
+      isOwner,
+    };
   }
 
   async getSubscriptionStatus() {
@@ -321,45 +349,47 @@ export class PrismaConnectedAccountRepo
     return subscription.status;
   }
 
-  async countOwnedAccounts() {
+  async countAccounts() {
     return this.prisma.connectedAccount.count({
       where: { companyId: this.companyId, userId: this.userId },
     });
   }
 
-  async listAccountsForCurrentUser() {
+  async listAccounts() {
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
         companyId: this.companyId,
         OR: [{ userId: this.userId }, { shared: true }],
       },
-      include: { user: { select: this.ownerSelect } },
+      select: this.dtoSelect,
       orderBy: { createdAt: "desc" },
     });
 
     return rows
-      .map((row) => ({
-        ...row,
-        owner: this.toOwner(row.user),
-        isOwner: row.userId === this.userId,
-      }))
+      .map((row) => this.toDto(row, row.user.id === this.userId))
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || b.createdAt.getTime() - a.createdAt.getTime());
   }
 
-  async findOwnedAccountByIdOrThrow(id: string) {
+  async findAccountByIdOrThrow(id: string) {
+    return this.prisma.connectedAccount.findFirstOrThrow({
+      where: { id, companyId: this.companyId, userId: this.userId },
+    });
+  }
+
+  async getAccountByIdOrThrow(id: string) {
     const row = await this.prisma.connectedAccount.findFirstOrThrow({
       where: { id, companyId: this.companyId, userId: this.userId },
-      include: { user: { select: this.ownerSelect } },
+      select: this.dtoSelect,
     });
 
-    return { ...row, owner: this.toOwner(row.user), isOwner: true };
+    return this.toDto(row, true);
   }
 
   async setAccountSharedOrThrow(args: RepoArgs<SetConnectedAccountVisibilityRepo, "setAccountSharedOrThrow">) {
-    const existing = await this.findOwnedAccountByIdOrThrow(args.id);
+    const existing = await this.getAccountByIdOrThrow(args.id);
 
     await this.prisma.connectedAccount.updateMany({
-      where: { id: args.id, companyId: this.companyId },
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
       data: { shared: args.shared },
     });
 
@@ -367,6 +397,6 @@ export class PrismaConnectedAccountRepo
   }
 
   async deleteAccount(id: string) {
-    await this.prisma.connectedAccount.deleteMany({ where: { id, companyId: this.companyId } });
+    await this.prisma.connectedAccount.deleteMany({ where: { id, companyId: this.companyId, userId: this.userId } });
   }
 }

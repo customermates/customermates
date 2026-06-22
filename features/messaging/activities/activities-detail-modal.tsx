@@ -18,7 +18,7 @@ import { IntlLink as Link } from "@/i18n/navigation";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
 import { SanitizedHtml } from "@/app/[locale]/(protected)/inbox/components/sanitized-html";
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
-import { isEmailProvider } from "@/ee/messaging/provider-icon";
+import { isEmailProvider } from "@/ee/messaging/provider";
 import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AuditDetail } from "./audit-detail";

@@ -17,7 +17,7 @@ import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-p
 import { Icon } from "@/components/shared/icon";
 import { Favicon } from "@/components/shared/favicon";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
-import { secureUrlSchema } from "@/core/validation/validation.utils";
+import { zx } from "@/core/validation/validation.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
@@ -106,7 +106,7 @@ export const CustomFieldEditor = observer(({ column, value, onChange, id, label,
           }}
           value={value}
           onChipClick={(url) => {
-            if (secureUrlSchema().safeParse(url).success) window.open(url, "_blank", "noreferrer");
+            if (zx.secureUrl().safeParse(url).success) window.open(url, "_blank", "noreferrer");
           }}
           onValueChange={onChange}
         />

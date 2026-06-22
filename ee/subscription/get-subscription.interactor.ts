@@ -9,9 +9,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { getTenantUser } from "@/core/decorators/tenant-context";
 
-const SubscriptionDtoSchema = z.object({
+const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
   quantity: z.number().nullable(),
   trialEndDate: z.date().nullable(),
@@ -20,7 +19,7 @@ const SubscriptionDtoSchema = z.object({
 });
 
 export abstract class GetSubscriptionRepo {
-  abstract getSubscriptionOrThrow(companyId: string): Promise<Subscription>;
+  abstract getSubscriptionOrThrow(): Promise<Subscription>;
 }
 
 export type SubscriptionDto = {
@@ -41,14 +40,14 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
     super();
   }
 
-  @ValidateOutput(SubscriptionDtoSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(): Promise<{ ok: true; data: SubscriptionDto }> {
-    const subscription = await this.repo.getSubscriptionOrThrow(getTenantUser().companyId);
+    const subscription = await this.repo.getSubscriptionOrThrow();
 
     let customerPortalUrl: string | null = null;
 
     if (subscription.lemonSqueezyId) {
-      const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrow(
+      const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
         subscription.lemonSqueezyId,
       );
       customerPortalUrl = lemonSqueezySubscription.data.attributes.urls?.customer_portal || null;

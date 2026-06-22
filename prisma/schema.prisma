@@ -1259,23 +1259,21 @@ enum AccountActivityKind {
 }
 
 model ContactIdentifier {
-  id          String            @id @default(uuid())
-  companyId   String
-  company     Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contactId   String
-  contact     Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  provider    MessagingProvider
-  value       String
-  messagingId String?
-  displayName String?
-  pictureUrl  String?
-  profileUrl  String?
-  headline    String?
-  occupation  String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id           String            @id @default(uuid())
+  companyId    String
+  company      Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contactId    String
+  contact      Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  provider     MessagingProvider
+  channelClass String
+  value        String
+  messagingId  String?
+  displayName  String?
+  profileUrl   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
-  @@unique([companyId, provider, value])
+  @@unique([companyId, channelClass, value])
   @@unique([companyId, provider, messagingId])
   @@index([contactId])
 }

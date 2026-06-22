@@ -1,7 +1,7 @@
 import type { UpdateServiceRepo } from "./update-service.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -63,8 +63,8 @@ export type UpdateServiceData = Data<typeof UpdateServiceSchema>;
 export class UpdateServiceInteractor extends AuthenticatedInteractor<UpdateServiceData, ServiceDto> {
   constructor(
     private servicesRepo: UpdateServiceRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -74,7 +74,7 @@ export class UpdateServiceInteractor extends AuthenticatedInteractor<UpdateServi
   @ValidateOutput(ServiceDtoSchema)
   @Transaction
   async invoke(data: UpdateServiceData): Validated<ServiceDto> {
-    const previousService = await this.servicesRepo.getOrThrowUnscoped(data.id);
+    const previousService = await this.servicesRepo.getOrThrowCompanyWide(data.id);
 
     const relatedDealIds = unique(
       previousService.deals.map((it) => it.id),
@@ -86,15 +86,15 @@ export class UpdateServiceInteractor extends AuthenticatedInteractor<UpdateServi
     );
 
     const [previousDeals, previousTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const service = await this.servicesRepo.updateServiceOrThrow(data);
 
     const [currentDeals, currentTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const changes = calculateChanges(previousService, service);

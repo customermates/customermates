@@ -1,7 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingProvider } from "@/generated/prisma";
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 
 import { z } from "zod";
@@ -11,41 +11,40 @@ import { Resource, Action } from "@/generated/prisma";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { getConnectedAccountRepo } from "@/core/di";
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import { getConnectedAccountRepo } from "@/core/di";
-import { isHandleProvider } from "../provider-icon";
+import { isHandleProvider } from "../provider";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
-const Schema = z
-  .object({
-    connectedAccountId: z.uuid(),
-    attendeeIdentifiers: z.array(z.string().min(1)).min(1),
-    text: z.string().min(1).max(20_000),
-    subject: z.string().max(998).optional(),
-  })
-  .superRefine(async (data, ctx) => {
-    const account = await getConnectedAccountRepo().findUsableAccountByIdOrThrow(data.connectedAccountId);
+export const StartChatInputSchema = z.object({
+  connectedAccountId: z.uuid(),
+  attendeeIdentifiers: z.array(z.string().min(1)).min(1),
+  text: z.string().min(1).max(20_000),
+  subject: z.string().max(998).optional(),
+});
 
-    data.attendeeIdentifiers.forEach((raw, index) => {
-      const normalized = normalizeChannelValue(account.provider, raw);
-      if (!normalized) {
-        ctx.addIssue({
-          code: "custom",
-          params: { error: CustomErrorCode.invalidChannelValue },
-          path: ["attendeeIdentifiers", index],
-        });
-        return;
-      }
-      data.attendeeIdentifiers[index] = normalized;
-    });
+export const StartChatSchema = StartChatInputSchema.superRefine(async (data, ctx) => {
+  const account = await getConnectedAccountRepo().findUsableAccountByIdOrThrow(data.connectedAccountId);
+  data.attendeeIdentifiers.forEach((raw, index) => {
+    const normalized = normalizeChannelValue(account.provider, raw);
+    if (!normalized) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.invalidChannelValue },
+        path: ["attendeeIdentifiers", index],
+      });
+      return;
+    }
+    data.attendeeIdentifiers[index] = normalized;
   });
-export type StartChatData = Data<typeof Schema>;
+});
+export type StartChatData = Data<typeof StartChatSchema>;
 
 export abstract class StartChatContactRepo {
-  abstract findContactChannel(args: {
+  abstract findContactChannelCompanyWide(args: {
     provider: MessagingProvider;
     identifier: string;
   }): Promise<{ id: string; messagingId: string | null } | null>;
@@ -69,7 +68,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     super();
   }
 
-  @Validate(Schema)
+  @Validate(StartChatSchema)
   async invoke(data: StartChatData): Validated<null> {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
@@ -107,7 +106,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     const ids: string[] = [];
 
     for (const identifier of identifiers) {
-      const channel = await this.contactRepo.findContactChannel({ provider: account.provider, identifier });
+      const channel = await this.contactRepo.findContactChannelCompanyWide({ provider: account.provider, identifier });
 
       if (channel?.messagingId) {
         ids.push(channel.messagingId);

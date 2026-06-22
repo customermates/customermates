@@ -13,12 +13,19 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
+import { validateThreadIds } from "@/core/validation/ids-validators";
+import { getMessagingRepo } from "@/core/di";
 
-const Schema = z.object({
+export const SendChatMessageSchema = z.object({
   threadId: z.uuid(),
   text: z.string().min(1).max(20_000),
 });
-export type SendChatMessageData = Data<typeof Schema>;
+export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
+
+export const SendChatMessageValidateSchema = SendChatMessageSchema.superRefine(async (data, ctx) => {
+  const validIdsSet = await getMessagingRepo().findThreadIds(new Set([data.threadId]));
+  validateThreadIds(data.threadId, validIdsSet, ctx, ["threadId"]);
+});
 
 export abstract class SendChatMessageRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
@@ -34,7 +41,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     super();
   }
 
-  @Validate(Schema)
+  @Validate(SendChatMessageValidateSchema)
   async invoke(data: SendChatMessageData): Validated<null> {
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 

@@ -16,9 +16,12 @@ Im Header `x-api-key` bei jeder Request:
 ```bash
 curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
      -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
      https://customermates.com/api/v1/mcp \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
+
+Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`.
 
 Für MCP-Clients gehört der Key in die MCP-Config:
 

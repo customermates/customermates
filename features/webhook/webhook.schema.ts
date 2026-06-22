@@ -2,7 +2,7 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { secureUrlSchema } from "@/core/validation/validation.utils";
+import { zx } from "@/core/validation/validation.utils";
 
 export const WebhookEventSchema = z.enum([
   "contact.created",
@@ -24,7 +24,7 @@ export const WebhookEventSchema = z.enum([
 
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
-  url: secureUrlSchema(),
+  url: zx.secureUrl(),
   description: z.string().nullable(),
   events: z.array(WebhookEventSchema),
   secret: z.string().nullable(),

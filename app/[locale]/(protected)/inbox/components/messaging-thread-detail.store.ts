@@ -6,7 +6,7 @@ import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { getMessagingThreadAction, setThreadStateAction, shareThreadToCrmAction } from "../actions";
+import { getMessagingThreadAction, updateThreadAction } from "../actions";
 
 export type ThreadDetail = {
   thread: MessagingThread;
@@ -52,7 +52,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     if (!thread || next === thread.state) return;
 
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await setThreadStateAction({
+      const result = await updateThreadAction({
         threadId: thread.id,
         state: next,
       });
@@ -64,7 +64,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     const thread = this.thread;
     if (!thread || thread.state !== "unread") return;
 
-    const result = await setThreadStateAction({
+    const result = await updateThreadAction({
       threadId: thread.id,
       state: "open",
     });
@@ -81,9 +81,9 @@ export class MessagingThreadDetailStore extends BaseStore {
     });
 
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const result = await shareThreadToCrmAction({
+      const result = await updateThreadAction({
         threadId: thread.id,
-        shared,
+        sharedToCrm: shared,
       });
       if (!result.ok) {
         runInAction(() => {

@@ -1,6 +1,6 @@
 import type { MessagingService } from "../../messaging.service";
 import type { MessagingIngestRepo } from "../messaging-ingest.repo";
-import type { ConnectedAccount } from "../../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
@@ -47,7 +47,7 @@ export class BackfillEmailsInteractor {
         }),
       handleItem: (item) => this.processEmailItem(account, item),
       onPageEnd: (cursor) =>
-        this.repo.saveBackfillStepCheckpoint({
+        this.repo.saveBackfillStepCheckpointUnscoped({
           unipileAccountId: account.unipileAccountId,
           step: "email",
           checkpoint: { cursor },
@@ -60,7 +60,7 @@ export class BackfillEmailsInteractor {
     const parsed = UnipileEmailSchema.safeParse(item);
 
     if (!parsed.success) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: item,
@@ -71,7 +71,7 @@ export class BackfillEmailsInteractor {
     const normalized = buildEmailMessage(parsed.data, parsed.data.role === "sent");
 
     if (!normalized) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: parsed.data,
@@ -90,7 +90,7 @@ export class BackfillEmailsInteractor {
       return 1;
     } catch (err) {
       Sentry.captureException(err);
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: normalized,

@@ -1,7 +1,7 @@
 import type { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { secureUrlSchema } from "@/core/validation/validation.utils";
+import { zx } from "@/core/validation/validation.utils";
 
 export function validateCustomFieldLink(
   value: string | string[],
@@ -13,7 +13,7 @@ export function validateCustomFieldLink(
   const isArray = Array.isArray(value) || (allowMultiple && values.length > 1);
 
   for (let i = 0; i < values.length; i++) {
-    const urlResult = secureUrlSchema().safeParse(values[i]);
+    const urlResult = zx.secureUrl().safeParse(values[i]);
     if (!urlResult.success) {
       ctx.addIssue({
         code: "custom",

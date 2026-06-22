@@ -125,7 +125,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                       key={c.id}
                       disabled={store.pending}
                       value={c.id}
-                      onSelect={() => void store.assign(activeIdentifier, c.id)}
+                      onSelect={() => void store.link(activeIdentifier, c.id)}
                     >
                       <Avatar name={label} size="sm" src={c.avatarUrl ?? undefined} />
 

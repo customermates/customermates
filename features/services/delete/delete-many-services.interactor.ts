@@ -1,7 +1,7 @@
 import type { DeleteServiceRepo } from "./delete-service.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -13,7 +13,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -34,8 +34,8 @@ export type DeleteManyServicesData = Data<typeof DeleteManyServicesSchema>;
 export class DeleteManyServicesInteractor extends AuthenticatedInteractor<DeleteManyServicesData, string[]> {
   constructor(
     private repo: DeleteServiceRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -43,23 +43,23 @@ export class DeleteManyServicesInteractor extends AuthenticatedInteractor<Delete
 
   @Validate(DeleteManyServicesSchema)
   @ValidateOutput(z.string())
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: DeleteManyServicesData): Validated<string[]> {
-    const previousServices = await this.repo.getManyOrThrowUnscoped(data.ids);
+    const previousServices = await this.repo.getManyOrThrowCompanyWide(data.ids);
 
     const relatedDealIds = unique(previousServices.flatMap((service) => service.deals.map((it) => it.id)));
     const relatedTaskIds = unique(previousServices.flatMap((service) => service.tasks.map((it) => it.id)));
 
     const [previousDeals, previousTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const services = await Promise.all(data.ids.map((id) => this.repo.deleteServiceOrThrow(id)));
 
     const [currentDeals, currentTasks] = await Promise.all([
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

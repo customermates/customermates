@@ -20,10 +20,13 @@ Use [OpenAPI](/docs/openapi) instead when an engineer or integration service alr
 ```
 POST https://customermates.com/api/v1/mcp
 Content-Type: application/json
+Accept: application/json, text/event-stream
 x-api-key: <your-64-character-key>
 ```
 
 The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools/list` returns every tool with its JSON Schema. `tools/call` invokes a tool by name.
+
+Because it is the streamable HTTP variant, every request must send `Accept: application/json, text/event-stream`. Without it the endpoint returns `406 Not Acceptable`. All supported MCP clients set this automatically; only raw HTTP callers (curl, scripts) need to add it explicitly.
 
 ## Connect a client
 

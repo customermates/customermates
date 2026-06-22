@@ -6,6 +6,7 @@ import { Resource, Action, EntityType } from "@/generated/prisma";
 import { type ContactDto, ContactByIdResponseSchema } from "../contact.schema";
 
 import { type CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import { ContactKeySchema } from "../contact-key";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -13,7 +14,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export const GetContactByIdSchema = z.object({
-  id: z.uuid(),
+  id: ContactKeySchema,
 });
 export type GetContactByIdData = Data<typeof GetContactByIdSchema>;
 

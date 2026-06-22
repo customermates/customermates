@@ -45,6 +45,10 @@ export const MOCK_ENV_MODULE = {
 // @/core/di -- accepts a mock user reference, read lazily inside getters
 // ---------------------------------------------------------------------------
 const makeFindIds = () => vi.fn().mockImplementation((ids: Set<string>) => Promise.resolve(new Set(ids)));
+const makeFindIdsMap = () =>
+  vi.fn().mockImplementation((ids: Set<string>) =>
+    Promise.resolve(new Map([...ids].map((id): [string, string] => [id, id]))),
+  );
 
 /**
  * Returns the mock DI module. Accepts a getter function `() => mockUser`
@@ -64,17 +68,25 @@ export function createMockDiModule(getMockUser: () => ExtendedUser) {
         return user.role.permissions?.some((p) => p.resource === resource && p.action === action) ?? false;
       }),
     }),
-    getContactRepo: () => ({ findIds: makeFindIds(), findIdentifierOwners: vi.fn().mockResolvedValue(new Map()) }),
+    getContactRepo: () => ({
+      findIds: makeFindIdsMap(),
+      findIdentifierOwnersCompanyWide: vi.fn().mockResolvedValue(new Map()),
+    }),
     getOrganizationRepo: () => ({ findIds: makeFindIds() }),
     getDealRepo: () => ({ findIds: makeFindIds() }),
     getCompanyRepo: () => ({ findIds: makeFindIds() }),
-    getUserRepo: () => ({ findIds: makeFindIds() }),
-    getCustomColumnRepo: () => ({ findByEntityType: vi.fn().mockResolvedValue([]) }),
+    getUserRepo: () => ({ findIds: makeFindIds(), findExistingEmailsCompanyWide: makeFindIds() }),
+    getCustomColumnRepo: () => ({ findByEntityType: vi.fn().mockResolvedValue([]), findIds: makeFindIds() }),
     getServiceRepo: () => ({ findIds: makeFindIds() }),
     getTaskRepo: () => ({
       findIds: makeFindIds(),
       findSystemTaskIds: vi.fn().mockResolvedValue(new Set()),
     }),
+    getWidgetRepo: () => ({ findIds: makeFindIds() }),
+    getWebhookRepo: () => ({ findIds: makeFindIds() }),
+    getWebhookDeliveryRepo: () => ({ findIds: makeFindIds() }),
+    getRoleRepo: () => ({ findIds: makeFindIds() }),
+    getMessagingRepo: () => ({ findThreadIds: makeFindIds() }),
   };
 }
 

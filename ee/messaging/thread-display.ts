@@ -1,6 +1,6 @@
 import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 
-import { getProviderProfileUrl, isEmailProvider, isPhoneProvider } from "./provider-icon";
+import { getProviderProfileUrl, isEmailProvider, isPhoneProvider } from "./provider";
 
 export function contactFullName(contact: { firstName: string; lastName: string } | null | undefined): string {
   return contact ? `${contact.firstName} ${contact.lastName}`.trim() : "";

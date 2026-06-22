@@ -3,7 +3,7 @@ import type { Redirect } from "./auth-outcome";
 
 import { z } from "zod";
 
-import { passwordSchema, type Data, type Validated } from "@/core/validation/validation.utils";
+import { zx, type Data, type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -11,7 +11,7 @@ import { redirectTo } from "./auth-outcome";
 
 const Schema = z
   .object({
-    password: passwordSchema(),
+    password: zx.password(),
     confirmPassword: z.string(),
     token: z.string(),
   })

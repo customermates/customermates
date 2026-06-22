@@ -1,5 +1,5 @@
 import type { MessagingService } from "../../messaging.service";
-import type { ConnectedAccount } from "../../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
@@ -46,7 +46,7 @@ export class BackfillCalendarsInteractor {
           cursor,
           limit: UNIPILE_MAX_LIMIT,
         }),
-      mapOuter: (rawCalendar) => this.upsertCalendar(account, rawCalendar),
+      mapOuter: (rawCalendar) => this.upsertCalendarUnscoped(account, rawCalendar),
       fetchInnerPage: (calendar, cursor) =>
         this.messagingService.listCalendarEvents({
           accountId: account.unipileAccountId,
@@ -58,7 +58,7 @@ export class BackfillCalendarsInteractor {
         }),
       handleInner: (calendar, rawEvent) => this.processCalendarEvent(account, calendar.calendarId, rawEvent),
       onOuterPageEnd: (cursor) =>
-        this.repo.saveBackfillStepCheckpoint({
+        this.repo.saveBackfillStepCheckpointUnscoped({
           unipileAccountId: account.unipileAccountId,
           step: "calendar",
           checkpoint: { cursor },
@@ -66,12 +66,12 @@ export class BackfillCalendarsInteractor {
         }),
     });
 
-    if (sawOuter) await this.repo.markAccountHasCalendar(account.unipileAccountId);
+    if (sawOuter) await this.repo.markAccountHasCalendarUnscoped(account.unipileAccountId);
 
     const exhausted = processed < BACKFILL_MAX_MESSAGES;
     const sawCalendarsButNoEventsYet = sawOuter && processed === 0;
     if (exhausted && !sawCalendarsButNoEventsYet) {
-      await this.repo.saveBackfillStepCheckpoint({
+      await this.repo.saveBackfillStepCheckpointUnscoped({
         unipileAccountId: account.unipileAccountId,
         step: "calendar",
         checkpoint: { done: true },
@@ -80,14 +80,14 @@ export class BackfillCalendarsInteractor {
     }
   }
 
-  private async upsertCalendar(
+  private async upsertCalendarUnscoped(
     account: ConnectedAccount,
     rawCalendar: unknown,
   ): Promise<{ unipileCalendarId: string; calendarId: string } | null> {
     const parsed = UnipileCalendarSchema.safeParse(rawCalendar);
 
     if (!parsed.success) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: rawCalendar,
@@ -95,7 +95,7 @@ export class BackfillCalendarsInteractor {
       return null;
     }
 
-    const stored = await this.calendarRepo.upsertCalendar({
+    const stored = await this.calendarRepo.upsertCalendarUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       unipileCalendarId: parsed.data.id,
@@ -116,7 +116,7 @@ export class BackfillCalendarsInteractor {
     const parsed = UnipileCalendarEventSchema.safeParse(rawEvent);
 
     if (!parsed.success) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: rawEvent,
@@ -127,7 +127,7 @@ export class BackfillCalendarsInteractor {
     const normalized = buildCalendarEvent(parsed.data);
 
     if (!normalized) {
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: parsed.data,
@@ -137,7 +137,7 @@ export class BackfillCalendarsInteractor {
     }
 
     try {
-      await this.calendarRepo.upsertCalendarEvent({
+      await this.calendarRepo.upsertCalendarEventUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         calendarId,
@@ -146,7 +146,7 @@ export class BackfillCalendarsInteractor {
       });
     } catch (err) {
       Sentry.captureException(err);
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: normalized,

@@ -9,7 +9,9 @@ import { CommonApiResponses } from "@/core/api/interactor-handler";
 export const updateManyContactsOperation: ZodOpenApiOperationObject = {
   operationId: "updateManyContacts",
   summary: "Update many contacts",
-  description: "Updates many contacts in a single request. Each contact requires an ID. All other fields are optional.",
+  description:
+    "Updates many contacts in a single request. Each contact is addressed by id (the contact UUID, an " +
+    "email or phone, or 'provider:value' for a handle). All other fields are optional.",
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

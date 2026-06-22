@@ -14,7 +14,8 @@ import { FormSelect } from "@/components/forms/form-select";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { getProviderIcon, getProviderProfileUrl } from "@/ee/messaging/provider-icon";
+import { getProviderProfileUrl } from "@/ee/messaging/provider";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { formatChannelIdentifier } from "@/ee/messaging/thread-display";
 
 import { AppModal } from "@/components/modal/app-modal";

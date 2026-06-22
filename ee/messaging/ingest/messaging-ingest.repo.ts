@@ -10,7 +10,7 @@ export abstract class MessagingIngestRepo {
   }): Promise<
     { isEcho: true } | { isEcho: false; message: MessagingMessage; contactId: string | null; isNew: boolean }
   >;
-  abstract countMessages(connectedAccountId: string): Promise<number>;
+  abstract countMessagesUnscoped(connectedAccountId: string): Promise<number>;
   abstract upsertChatThread(
     args: Pick<MessagingThread, "connectedAccountId" | "unipileThreadId" | "provider" | "subject" | "participants"> & {
       companyId: string;

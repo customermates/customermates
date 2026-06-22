@@ -1,11 +1,10 @@
 import type { AuthService } from "./auth.service";
 import type { UserService } from "../user/user.service";
-import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 import type { Redirect } from "./auth-outcome";
 
 import { Action, Status } from "@/generated/prisma";
 
-import type { Resource } from "@/generated/prisma";
+import type { Resource, Subscription } from "@/generated/prisma";
 
 import { isRedirect, redirectTo } from "./auth-outcome";
 import { isSubscriptionExpired } from "@/ee/subscription/subscription-expiry";
@@ -18,11 +17,15 @@ export type AccessOptions = {
   skipOnboardingWizardCheck?: boolean;
 };
 
+export abstract class RouteGuardSubscriptionRepo {
+  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
+}
+
 export class RouteGuardService {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private subscriptionRepo: GetSubscriptionRepo,
+    private subscriptionRepo: RouteGuardSubscriptionRepo,
   ) {}
   private static readonly STATUS_REDIRECTS: Partial<Record<Status, string>> = {
     [Status.inactive]: "/auth/error?type=inactiveUser",
@@ -77,7 +80,7 @@ export class RouteGuardService {
   }
 
   private async checkSubscription(companyId: string): Promise<Redirect | null> {
-    const subscription = await this.subscriptionRepo.getSubscriptionOrThrow(companyId);
+    const subscription = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(companyId);
 
     if (isSubscriptionExpired(subscription)) return redirectTo("/subscription-expired");
     return null;

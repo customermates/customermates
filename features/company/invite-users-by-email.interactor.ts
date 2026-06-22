@@ -21,12 +21,12 @@ const Schema = z.object({
   emails: z.array(z.email()).min(1).max(20),
 });
 
-const ResultSchema = z.object({
+const OutputSchema = z.object({
   sent: z.number(),
 });
 
 export type InviteUsersByEmailData = Data<typeof Schema>;
-export type InviteUsersByEmailResult = Data<typeof ResultSchema>;
+export type InviteUsersByEmailResult = Data<typeof OutputSchema>;
 
 @TenantInteractor({ resource: Resource.users, action: Action.create })
 export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
@@ -42,7 +42,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   }
 
   @Validate(Schema)
-  @ValidateOutput(ResultSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: InviteUsersByEmailData): Validated<InviteUsersByEmailResult> {
     const user = getTenantUser();
     const [tokenResult, companyResult] = await Promise.all([

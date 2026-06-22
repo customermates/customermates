@@ -691,7 +691,7 @@
       "put": {
         "operationId": "updateManyContacts",
         "summary": "Update many contacts",
-        "description": "Updates many contacts in a single request. Each contact requires an ID. All other fields are optional.",
+        "description": "Updates many contacts in a single request. Each contact is addressed by id (the contact UUID, an email or phone, or 'provider:value' for a handle). All other fields are optional.",
         "tags": [
           "contacts"
         ],
@@ -1029,7 +1029,7 @@
       "delete": {
         "operationId": "deleteManyContacts",
         "summary": "Delete many contacts",
-        "description": "Deletes many contacts by their IDs in a single request. This operation cannot be undone.",
+        "description": "Deletes many contacts by their id (UUID, email/phone, or provider:value handle) in a single request. This operation cannot be undone.",
         "tags": [
           "contacts"
         ],
@@ -1057,9 +1057,10 @@
                   "maxItems": 100,
                   "type": "array",
                   "items": {
+                    "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
                     "type": "string",
-                    "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    "minLength": 1,
+                    "maxLength": 400
                   }
                 }
               }
@@ -3594,11 +3595,13 @@
             "in": "path",
             "name": "id",
             "schema": {
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
               "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minLength": 1,
+              "maxLength": 400
             },
-            "required": true
+            "required": true,
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
           }
         ],
         "responses": {
@@ -4574,13 +4577,16 @@
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "required": true,
+            "name": "id",
             "schema": {
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
               "type": "string",
-              "format": "uuid"
-            }
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "required": true,
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
           }
         ],
         "requestBody": {
@@ -4591,7 +4597,6 @@
                 "properties": {
                   "firstName": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 255
                   },
                   "lastName": {
@@ -4681,6 +4686,7 @@
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             "value": {
+                              "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -5081,11 +5087,13 @@
             "in": "path",
             "name": "id",
             "schema": {
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
               "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minLength": 1,
+              "maxLength": 400
             },
-            "required": true
+            "required": true,
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected."
           }
         ],
         "responses": {
@@ -9364,13 +9372,14 @@
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "required": true,
+            "name": "id",
             "schema": {
               "type": "string",
-              "format": "uuid"
-            }
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
           }
         ],
         "requestBody": {
@@ -9381,7 +9390,6 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 255
                   },
                   "notes": {
@@ -9466,6 +9474,7 @@
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             "value": {
+                              "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -14227,13 +14236,14 @@
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "required": true,
+            "name": "id",
             "schema": {
               "type": "string",
-              "format": "uuid"
-            }
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
           }
         ],
         "requestBody": {
@@ -14244,7 +14254,6 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 255
                   },
                   "notes": {
@@ -14357,6 +14366,7 @@
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             "value": {
+                              "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -18801,13 +18811,14 @@
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "required": true,
+            "name": "id",
             "schema": {
               "type": "string",
-              "format": "uuid"
-            }
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
           }
         ],
         "requestBody": {
@@ -18818,7 +18829,6 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 255
                   },
                   "amount": {
@@ -18892,6 +18902,7 @@
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             "value": {
+                              "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -23560,13 +23571,14 @@
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "path",
-            "required": true,
+            "name": "id",
             "schema": {
               "type": "string",
-              "format": "uuid"
-            }
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
           }
         ],
         "requestBody": {
@@ -23577,7 +23589,6 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 255
                   },
                   "notes": {
@@ -23677,6 +23688,7 @@
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                             },
                             "value": {
+                              "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -24322,6 +24334,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "type": "string"
+                    },
                     "firstName": {
                       "type": "string"
                     },
@@ -24536,15 +24551,975 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "roleId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "roleName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
+                    "id",
                     "firstName",
                     "lastName",
                     "country",
-                    "avatarUrl"
+                    "avatarUrl",
+                    "roleId",
+                    "roleName"
                   ],
                   "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/connected-accounts": {
+      "get": {
+        "operationId": "getConnectedAccounts",
+        "summary": "List own connected accounts",
+        "description": "Lists the messaging accounts connected to the workspace and visible to the authenticated user.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The connected accounts were retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConnectedAccountDtoSchema"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/threads/search": {
+      "post": {
+        "operationId": "getMessagingThreads",
+        "summary": "Get messaging threads",
+        "description": "Retrieves a list of inbox message threads with optional search, sorting, and pagination.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "title": "Single value filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "equals",
+                                  "type": "string",
+                                  "const": "equals"
+                                },
+                                {
+                                  "title": "contains",
+                                  "type": "string",
+                                  "const": "contains"
+                                },
+                                {
+                                  "title": "gt",
+                                  "type": "string",
+                                  "const": "gt"
+                                },
+                                {
+                                  "title": "gte",
+                                  "type": "string",
+                                  "const": "gte"
+                                },
+                                {
+                                  "title": "lt",
+                                  "type": "string",
+                                  "const": "lt"
+                                },
+                                {
+                                  "title": "lte",
+                                  "type": "string",
+                                  "const": "lte"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        },
+                        {
+                          "title": "Multi value filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "in",
+                                  "type": "string",
+                                  "const": "in"
+                                },
+                                {
+                                  "title": "notIn",
+                                  "type": "string",
+                                  "const": "notIn"
+                                },
+                                {
+                                  "title": "between",
+                                  "type": "string",
+                                  "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        },
+                        {
+                          "title": "Standalone filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "isNull",
+                                  "type": "string",
+                                  "const": "isNull"
+                                },
+                                {
+                                  "title": "isNotNull",
+                                  "type": "string",
+                                  "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        }
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "searchTerm": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "sortDescriptor": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "direction"
+                    ]
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "number",
+                        "minimum": 1
+                      },
+                      "pageSize": {
+                        "anyOf": [
+                          {
+                            "title": "5",
+                            "type": "number",
+                            "const": 5
+                          },
+                          {
+                            "title": "10",
+                            "type": "number",
+                            "const": 10
+                          },
+                          {
+                            "title": "25",
+                            "type": "number",
+                            "const": 25
+                          },
+                          {
+                            "title": "100",
+                            "type": "number",
+                            "const": 100
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "page",
+                      "pageSize"
+                    ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The messaging threads were retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "p13nId": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MessagingThreadSchemaOutput"
+                      }
+                    },
+                    "customColumns": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "searchTerm": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "sortDescriptor": {},
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "totalPages": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "totalPages",
+                        "total"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "columnOrder": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "columnWidths": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "hiddenColumns": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "savedFilterPresets": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "viewMode": {
+                      "type": "string"
+                    },
+                    "groupingColumnId": {
+                      "type": "string"
+                    },
+                    "groupCounts": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/threads/{id}": {
+      "get": {
+        "operationId": "getMessagingThread",
+        "summary": "Get a messaging thread by ID",
+        "description": "Fetches one message thread with its full message list. Returns the thread plus each message's direction, sender, subject, text body, and attachment metadata (HTML bodies and raw attachment urls are omitted).",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The messaging thread was retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMessagingThreadResultSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/threads/{id}/messages": {
+      "post": {
+        "operationId": "sendChatMessage",
+        "summary": "Send a chat message",
+        "description": "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The message was sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/activities/search": {
+      "post": {
+        "operationId": "getActivities",
+        "summary": "Get activities",
+        "description": "Retrieves the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record, with optional scoping to a single entity, sorting, and pagination.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivitiesParamsSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The activities were retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivitiesResultSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/send-email": {
+      "post": {
+        "operationId": "sendEmail",
+        "summary": "Send an email",
+        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). cc and bcc are plain email strings, unlike to which uses the { identifier } object form.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendEmailSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The email was sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/start-chat": {
+      "post": {
+        "operationId": "startChat",
+        "summary": "Start a chat",
+        "description": "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "attendeeIdentifiers": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000
+                  },
+                  "subject": {
+                    "type": "string",
+                    "maxLength": 998
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "attendeeIdentifiers",
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The chat was started and the first message was sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "null"
                 }
               }
             }
@@ -24965,9 +25940,10 @@
             "maxItems": 100,
             "type": "array",
             "items": {
+              "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
               "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              "minLength": 1,
+              "maxLength": 400
             }
           }
         },
@@ -24980,7 +25956,6 @@
         "properties": {
           "firstName": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "lastName": {
@@ -25043,6 +26018,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "value": {
+                  "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                   "anyOf": [
                     {
                       "type": "string"
@@ -25120,7 +26096,6 @@
               "properties": {
                 "firstName": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "lastName": {
@@ -25183,6 +26158,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
                       "value": {
+                        "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                         "anyOf": [
                           {
                             "type": "string"
@@ -25265,13 +26241,13 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
                   "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  "minLength": 1,
+                  "maxLength": 400
                 },
                 "firstName": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "lastName": {
@@ -25361,6 +26337,7 @@
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
                           "value": {
+                            "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                             "anyOf": [
                               {
                                 "type": "string"
@@ -25459,7 +26436,6 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -25519,6 +26495,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "value": {
+                  "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                   "anyOf": [
                     {
                       "type": "string"
@@ -25551,7 +26528,6 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -25611,6 +26587,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
                       "value": {
+                        "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                         "anyOf": [
                           {
                             "type": "string"
@@ -25654,7 +26631,6 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -25739,6 +26715,7 @@
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
                           "value": {
+                            "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                             "anyOf": [
                               {
                                 "type": "string"
@@ -25793,7 +26770,6 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -25875,6 +26851,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "value": {
+                  "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                   "anyOf": [
                     {
                       "type": "string"
@@ -25907,7 +26884,6 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -25989,6 +26965,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
                       "value": {
+                        "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                         "anyOf": [
                           {
                             "type": "string"
@@ -26032,7 +27009,6 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -26145,6 +27121,7 @@
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
                           "value": {
+                            "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                             "anyOf": [
                               {
                                 "type": "string"
@@ -26199,7 +27176,6 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "amount": {
@@ -26254,6 +27230,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "value": {
+                  "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                   "anyOf": [
                     {
                       "type": "string"
@@ -26287,7 +27264,6 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "amount": {
@@ -26342,6 +27318,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
                       "value": {
+                        "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                         "anyOf": [
                           {
                             "type": "string"
@@ -26386,7 +27363,6 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "amount": {
@@ -26460,6 +27436,7 @@
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
                           "value": {
+                            "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                             "anyOf": [
                               {
                                 "type": "string"
@@ -26514,7 +27491,6 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -26583,6 +27559,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "value": {
+                  "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                   "anyOf": [
                     {
                       "type": "string"
@@ -26615,7 +27592,6 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -26684,6 +27660,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       },
                       "value": {
+                        "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                         "anyOf": [
                           {
                             "type": "string"
@@ -26727,7 +27704,6 @@
                 },
                 "name": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 255
                 },
                 "notes": {
@@ -26827,6 +27803,7 @@
                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                           },
                           "value": {
+                            "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                             "anyOf": [
                               {
                                 "type": "string"
@@ -32721,6 +33698,597 @@
           "timestamp"
         ]
       },
+      "MessagingThreadSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "connectedAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "unipileThreadId": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "google",
+              "outlook",
+              "mail",
+              "linkedin",
+              "whatsapp",
+              "instagram",
+              "telegram"
+            ]
+          },
+          "type": {
+            "default": "single",
+            "type": "string",
+            "enum": [
+              "single",
+              "group",
+              "channel"
+            ]
+          },
+          "name": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastMessageAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attendeeId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "identifier": {
+                  "type": "string"
+                },
+                "pictureUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "profileUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "headline": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "occupation": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isSelf": {
+                  "type": "boolean"
+                },
+                "contact": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "attendeeId",
+                "displayName",
+                "identifier"
+              ]
+            }
+          },
+          "state": {
+            "default": "unread",
+            "type": "string",
+            "enum": [
+              "unread",
+              "open",
+              "closed",
+              "spam"
+            ]
+          },
+          "sharedToCrm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "accountShared": {
+            "default": false,
+            "type": "boolean"
+          },
+          "isOwner": {
+            "default": false,
+            "type": "boolean"
+          },
+          "lastMessageFromSelf": {
+            "default": false,
+            "type": "boolean"
+          },
+          "lastMessageSenderName": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "connectedAccountId",
+          "unipileThreadId",
+          "provider",
+          "subject",
+          "preview",
+          "lastMessageAt",
+          "participants",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ActivitiesParamsSchema": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "title": "Single value filter",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "title": "equals",
+                          "type": "string",
+                          "const": "equals"
+                        },
+                        {
+                          "title": "contains",
+                          "type": "string",
+                          "const": "contains"
+                        },
+                        {
+                          "title": "gt",
+                          "type": "string",
+                          "const": "gt"
+                        },
+                        {
+                          "title": "gte",
+                          "type": "string",
+                          "const": "gte"
+                        },
+                        {
+                          "title": "lt",
+                          "type": "string",
+                          "const": "lt"
+                        },
+                        {
+                          "title": "lte",
+                          "type": "string",
+                          "const": "lte"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ]
+                },
+                {
+                  "title": "Multi value filter",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "title": "in",
+                          "type": "string",
+                          "const": "in"
+                        },
+                        {
+                          "title": "notIn",
+                          "type": "string",
+                          "const": "notIn"
+                        },
+                        {
+                          "title": "between",
+                          "type": "string",
+                          "const": "between"
+                        },
+                        {
+                          "title": "hasNone",
+                          "type": "string",
+                          "const": "hasNone"
+                        },
+                        {
+                          "title": "hasSome",
+                          "type": "string",
+                          "const": "hasSome"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ]
+                },
+                {
+                  "title": "Standalone filter",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "anyOf": [
+                        {
+                          "title": "isNull",
+                          "type": "string",
+                          "const": "isNull"
+                        },
+                        {
+                          "title": "isNotNull",
+                          "type": "string",
+                          "const": "isNotNull"
+                        },
+                        {
+                          "title": "hasUnset",
+                          "type": "string",
+                          "const": "hasUnset"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
+                  ]
+                },
+                {
+                  "title": "Relative window filter",
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "title": "inLastDays",
+                      "type": "string",
+                      "const": "inLastDays"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ]
+                }
+              ],
+              "type": "object"
+            }
+          },
+          "searchTerm": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "sortDescriptor": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "direction"
+            ]
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "number",
+                "minimum": 1
+              },
+              "pageSize": {
+                "anyOf": [
+                  {
+                    "title": "5",
+                    "type": "number",
+                    "const": 5
+                  },
+                  {
+                    "title": "10",
+                    "type": "number",
+                    "const": 10
+                  },
+                  {
+                    "title": "25",
+                    "type": "number",
+                    "const": 25
+                  },
+                  {
+                    "title": "100",
+                    "type": "number",
+                    "const": 100
+                  }
+                ]
+              }
+            },
+            "required": [
+              "page",
+              "pageSize"
+            ]
+          },
+          "groupedPagination": {
+            "type": "object",
+            "properties": {
+              "groupingColumnId": {
+                "type": "string"
+              },
+              "perGroup": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 500
+              },
+              "overrides": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 500
+                }
+              }
+            },
+            "required": [
+              "groupingColumnId",
+              "perGroup"
+            ]
+          },
+          "p13nId": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "contact",
+              "organization",
+              "deal",
+              "service",
+              "task"
+            ]
+          },
+          "entityId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        }
+      },
+      "SendEmailSchema": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "connectedAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "to": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "identifier": {
+                  "type": "string",
+                  "format": "email",
+                  "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                },
+                "display_name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "identifier"
+              ]
+            }
+          },
+          "cc": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          },
+          "bcc": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 998
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100000
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ]
+      },
       "ErrorResponseSchema": {
         "type": "string"
       },
@@ -32993,13 +34561,1868 @@
         ],
         "additionalProperties": false
       },
-      "DeleteContactSchema": {
+      "ConnectedAccountDtoSchema": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "google",
+              "outlook",
+              "mail",
+              "linkedin",
+              "whatsapp",
+              "instagram",
+              "telegram"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "connecting",
+              "credentials",
+              "permissions",
+              "error",
+              "stopped",
+              "deleted"
+            ]
+          },
+          "hasMessaging": {
+            "type": "boolean"
+          },
+          "hasCalendar": {
+            "type": "boolean"
+          },
+          "emailAddress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "displayName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shared": {
+            "type": "boolean"
+          },
+          "syncing": {
+            "type": "boolean"
+          },
+          "lastSyncedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "avatarUrl": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "firstName",
+              "lastName",
+              "avatarUrl"
+            ],
+            "additionalProperties": false
+          },
+          "isOwner": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "status",
+          "hasMessaging",
+          "hasCalendar",
+          "emailAddress",
+          "displayName",
+          "shared",
+          "syncing",
+          "lastSyncedAt",
+          "createdAt",
+          "owner",
+          "isOwner"
+        ],
+        "additionalProperties": false
+      },
+      "GetMessagingThreadResultSchema": {
+        "type": "object",
+        "properties": {
+          "thread": {
+            "$ref": "#/components/schemas/MessagingThreadSchemaOutput"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "messagingThreadId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "connectedAccountId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "provider": {
+                  "type": "string",
+                  "enum": [
+                    "google",
+                    "outlook",
+                    "mail",
+                    "linkedin",
+                    "whatsapp",
+                    "instagram",
+                    "telegram"
+                  ]
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "inbound",
+                    "outbound"
+                  ]
+                },
+                "sender": {
+                  "type": "object",
+                  "properties": {
+                    "attendeeId": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "identifier": {
+                      "type": "string"
+                    },
+                    "pictureUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "profileUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "headline": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "occupation": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isSelf": {
+                      "type": "boolean"
+                    },
+                    "contact": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "firstName": {
+                              "type": "string"
+                            },
+                            "lastName": {
+                              "type": "string"
+                            },
+                            "avatarUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "firstName",
+                            "lastName",
+                            "avatarUrl"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "attendeeId",
+                    "displayName",
+                    "identifier"
+                  ],
+                  "additionalProperties": false
+                },
+                "recipients": {
+                  "type": "object",
+                  "properties": {
+                    "to": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "attendeeId": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "identifier": {
+                            "type": "string"
+                          },
+                          "pictureUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profileUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "occupation": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isSelf": {
+                            "type": "boolean"
+                          },
+                          "contact": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "firstName",
+                                  "lastName",
+                                  "avatarUrl"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "attendeeId",
+                          "displayName",
+                          "identifier"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                "subject": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "bodyText": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "bodyHtml": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "attachmentsMeta": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "fileName": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "type": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "mime": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "size": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sticker": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "voiceNote": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "gif": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "durationSeconds": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unavailable": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "linkUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "isEvent": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "sentAt": {
+                  "type": "string"
+                },
+                "editedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "deletedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reactions": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "messagingThreadId",
+                "connectedAccountId",
+                "provider",
+                "direction",
+                "sender",
+                "recipients",
+                "subject",
+                "bodyText",
+                "bodyHtml",
+                "attachmentsMeta",
+                "isEvent",
+                "sentAt",
+                "editedAt",
+                "deletedAt",
+                "reactions"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "accountOwners": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "displayName": {
+                  "type": "string"
+                },
+                "avatarUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "displayName",
+                "avatarUrl"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "thread",
+          "messages",
+          "accountOwners"
+        ],
+        "additionalProperties": false
+      },
+      "ActivitiesResultSchema": {
+        "type": "object",
+        "properties": {
+          "p13nId": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "audit"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string"
+                    },
+                    "actor": {
+                      "type": "object",
+                      "properties": {
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "firstName",
+                        "lastName",
+                        "avatarUrl",
+                        "email"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "event": {
+                      "type": "string"
+                    },
+                    "changes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "columnId": {
+                            "type": "string"
+                          },
+                          "previous": {},
+                          "current": {}
+                        },
+                        "required": [
+                          "field",
+                          "previous",
+                          "current"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "at",
+                    "actor",
+                    "event",
+                    "changes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "message"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "messagingThreadId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "connectedAccountId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "inbound",
+                            "outbound"
+                          ]
+                        },
+                        "sender": {
+                          "type": "object",
+                          "properties": {
+                            "attendeeId": {
+                              "type": "string"
+                            },
+                            "displayName": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "identifier": {
+                              "type": "string"
+                            },
+                            "pictureUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "profileUrl": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "headline": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "occupation": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "isSelf": {
+                              "type": "boolean"
+                            },
+                            "contact": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "firstName": {
+                                      "type": "string"
+                                    },
+                                    "lastName": {
+                                      "type": "string"
+                                    },
+                                    "avatarUrl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "firstName",
+                                    "lastName",
+                                    "avatarUrl"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "attendeeId",
+                            "displayName",
+                            "identifier"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "recipients": {
+                          "type": "object",
+                          "properties": {
+                            "to": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "attendeeId": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "identifier": {
+                                    "type": "string"
+                                  },
+                                  "pictureUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "profileUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "headline": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "occupation": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "isSelf": {
+                                    "type": "boolean"
+                                  },
+                                  "contact": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "firstName": {
+                                            "type": "string"
+                                          },
+                                          "lastName": {
+                                            "type": "string"
+                                          },
+                                          "avatarUrl": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "firstName",
+                                          "lastName",
+                                          "avatarUrl"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "attendeeId",
+                                  "displayName",
+                                  "identifier"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "to"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "subject": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "bodyText": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "bodyHtml": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "attachmentsMeta": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "fileName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "type": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "mime": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "size": {
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "sticker": {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "voiceNote": {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "gif": {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "durationSeconds": {
+                                "anyOf": [
+                                  {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "unavailable": {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "linkUrl": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "isEvent": {
+                          "default": false,
+                          "type": "boolean"
+                        },
+                        "sentAt": {
+                          "type": "string"
+                        },
+                        "editedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "deletedAt": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "reactions": {
+                          "default": [],
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "messagingThreadId",
+                        "connectedAccountId",
+                        "provider",
+                        "direction",
+                        "sender",
+                        "recipients",
+                        "subject",
+                        "bodyText",
+                        "bodyHtml",
+                        "attachmentsMeta",
+                        "isEvent",
+                        "sentAt",
+                        "editedAt",
+                        "deletedAt",
+                        "reactions"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "thread": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "single",
+                            "group",
+                            "channel"
+                          ]
+                        },
+                        "label": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "at",
+                    "message",
+                    "thread"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "activity"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "at",
+                    "payload"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "calendar_event"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "type": "string"
+                    },
+                    "event": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "location": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "conferenceUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "allDay": {
+                          "type": "boolean"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "confirmed",
+                            "cancelled"
+                          ]
+                        },
+                        "startsAt": {
+                          "type": "string"
+                        },
+                        "endsAt": {
+                          "type": "string"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "organizer": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "email": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "displayName"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "attendees": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "email": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "responseStatus": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "email",
+                              "displayName",
+                              "responseStatus"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "description",
+                        "location",
+                        "conferenceUrl",
+                        "allDay",
+                        "status",
+                        "startsAt",
+                        "endsAt",
+                        "provider",
+                        "organizer",
+                        "attendees"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "id",
+                    "at",
+                    "event"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "customColumns": {
+            "type": "array",
+            "items": {}
+          },
+          "filters": {
+            "type": "array",
+            "items": {}
+          },
+          "searchTerm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sortDescriptor": {},
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "number"
+              },
+              "pageSize": {
+                "type": "number"
+              },
+              "totalPages": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "page",
+              "pageSize",
+              "totalPages",
+              "total"
+            ],
+            "additionalProperties": false
+          },
+          "filterableFields": {
+            "type": "array",
+            "items": {}
+          },
+          "columnOrder": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "columnWidths": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "hiddenColumns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "savedFilterPresets": {
+            "type": "array",
+            "items": {}
+          },
+          "viewMode": {
+            "type": "string"
+          },
+          "groupingColumnId": {
+            "type": "string"
+          },
+          "groupCounts": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "MessagingThreadSchemaOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "connectedAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "unipileThreadId": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "google",
+              "outlook",
+              "mail",
+              "linkedin",
+              "whatsapp",
+              "instagram",
+              "telegram"
+            ]
+          },
+          "type": {
+            "default": "single",
+            "type": "string",
+            "enum": [
+              "single",
+              "group",
+              "channel"
+            ]
+          },
+          "name": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastMessageAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attendeeId": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "identifier": {
+                  "type": "string"
+                },
+                "pictureUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "profileUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "headline": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "occupation": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isSelf": {
+                  "type": "boolean"
+                },
+                "contact": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "attendeeId",
+                "displayName",
+                "identifier"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "state": {
+            "default": "unread",
+            "type": "string",
+            "enum": [
+              "unread",
+              "open",
+              "closed",
+              "spam"
+            ]
+          },
+          "sharedToCrm": {
+            "default": false,
+            "type": "boolean"
+          },
+          "accountShared": {
+            "default": false,
+            "type": "boolean"
+          },
+          "isOwner": {
+            "default": false,
+            "type": "boolean"
+          },
+          "lastMessageFromSelf": {
+            "default": false,
+            "type": "boolean"
+          },
+          "lastMessageSenderName": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "connectedAccountId",
+          "unipileThreadId",
+          "provider",
+          "type",
+          "name",
+          "subject",
+          "preview",
+          "lastMessageAt",
+          "participants",
+          "state",
+          "sharedToCrm",
+          "accountShared",
+          "isOwner",
+          "lastMessageFromSelf",
+          "lastMessageSenderName",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "DeleteContactSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
           }
         },
         "required": [
@@ -33011,13 +36434,13 @@
         "type": "object",
         "properties": {
           "id": {
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "minLength": 1,
+            "maxLength": 400
           },
           "firstName": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "lastName": {
@@ -33107,6 +36530,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
                     "value": {
+                      "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                       "anyOf": [
                         {
                           "type": "string"
@@ -33183,9 +36607,10 @@
         "type": "object",
         "properties": {
           "id": {
+            "description": "Which contact to address. Must be ONE of: the contact's UUID (e.g. '3fa85f64-5717-4562-b3fc-2c963f66afa6'); an email address (e.g. 'jane@example.com', matched across mail/Google/Outlook); a phone number (e.g. '+491234567890', matched across WhatsApp/Telegram); or 'provider:value' for a messaging handle where provider is one of linkedin, telegram, instagram (e.g. 'linkedin:john-doe', 'telegram:jdoe', 'instagram:jane'). The contact must already exist; unknown or malformed keys are rejected.",
             "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "minLength": 1,
+            "maxLength": 400
           }
         },
         "required": [
@@ -33217,7 +36642,6 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -33302,6 +36726,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
                     "value": {
+                      "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                       "anyOf": [
                         {
                           "type": "string"
@@ -33367,7 +36792,6 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -33482,6 +36906,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
                     "value": {
+                      "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                       "anyOf": [
                         {
                           "type": "string"
@@ -33547,7 +36972,6 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "amount": {
@@ -33621,6 +37045,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
                     "value": {
+                      "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                       "anyOf": [
                         {
                           "type": "string"
@@ -33686,7 +37111,6 @@
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 255
           },
           "notes": {
@@ -33786,6 +37210,7 @@
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
                     "value": {
+                      "description": "Column value. Stored as a string; currency columns also accept a raw number. Pass money as a plain number or number string like \"1500\" or \"12.50\" (dot decimal, no thousands separators).",
                       "anyOf": [
                         {
                           "type": "string"
@@ -33824,6 +37249,59 @@
         },
         "required": [
           "id"
+        ],
+        "additionalProperties": false
+      },
+      "SendChatMessageSchema": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "threadId",
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "StartChatSchema": {
+        "type": "object",
+        "properties": {
+          "connectedAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "attendeeIdentifiers": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 998
+          }
+        },
+        "required": [
+          "connectedAccountId",
+          "attendeeIdentifiers",
+          "text"
         ],
         "additionalProperties": false
       }

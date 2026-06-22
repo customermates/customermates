@@ -6,7 +6,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { action, computed, makeObservable } from "mobx";
 
-import { isUsableSenderFor } from "@/ee/messaging/provider-icon";
+import { isUsableSenderFor } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import {

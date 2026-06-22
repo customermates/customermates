@@ -13,7 +13,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { contactFullName, formatChannelIdentifier } from "../thread-display";
-import { EMAIL_PROVIDERS } from "../provider-icon";
+import { EMAIL_PROVIDERS } from "../provider";
 import { threadAccessWhere, calendarEventAccessWhere, accountActivityAccessWhere } from "../messaging-access";
 
 import type { GetActivitiesRepo } from "./get-activities.interactor";
@@ -22,8 +22,8 @@ import type { ActivityThreadOptionsData, ActivityThreadOptionsRepo } from "./get
 import { interpretFilters } from "./timeline-filters";
 
 export abstract class ActivityContactRepo {
-  abstract resolveContactIdsForEntity(args: { entityType: EntityType; entityId: string }): Promise<string[]>;
-  abstract findContactEmails(contactIds: string[]): Promise<string[]>;
+  abstract resolveContactIdsForEntityCompanyWide(args: { entityType: EntityType; entityId: string }): Promise<string[]>;
+  abstract findContactEmailsCompanyWide(contactIds: string[]): Promise<string[]>;
 }
 
 type ThreadLabelInput = {
@@ -79,7 +79,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   async listThreadOptions(args: ActivityThreadOptionsData) {
     if (!args.entityType || !args.entityId) return this.listThreads();
 
-    const contactIds = await getContactRepo().resolveContactIdsForEntity({
+    const contactIds = await getContactRepo().resolveContactIdsForEntityCompanyWide({
       entityType: args.entityType,
       entityId: args.entityId,
     });
@@ -173,8 +173,8 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const { entityType, entityId } = this.scope;
     if (!entityType || !entityId) return { contactIds: undefined, emails: undefined, entityIds: undefined };
 
-    const contactIds = await getContactRepo().resolveContactIdsForEntity({ entityType, entityId });
-    const emails = contactIds.length ? await getContactRepo().findContactEmails(contactIds) : [];
+    const contactIds = await getContactRepo().resolveContactIdsForEntityCompanyWide({ entityType, entityId });
+    const emails = contactIds.length ? await getContactRepo().findContactEmailsCompanyWide(contactIds) : [];
 
     return { contactIds, emails, entityIds: [entityId] };
   }
@@ -206,7 +206,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   private listAuditLogs(entityIds: string[] | undefined, limit: number) {
     return this.prisma.auditLog.findMany({
       where: { companyId: this.companyId, ...(entityIds?.length ? { entityId: { in: entityIds } } : {}) },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: limit,
       select: {
         id: true,
@@ -235,11 +235,17 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await this.identifierWhereForContacts(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
       if (identifierGroups.length === 0) return [];
       scoped.OR = [
-        { thread: { participants: { some: { OR: identifierGroups } } } },
-        ...identifierGroups.map((group) => ({ provider: group.provider, senderIdentifier: group.identifier })),
+        {
+          thread: {
+            participants: {
+              some: { OR: identifierGroups.map((group) => ({ ...group.providerWhere, identifier: group.identifier })) },
+            },
+          },
+        },
+        ...identifierGroups.map((group) => ({ ...group.providerWhere, senderIdentifier: group.identifier })),
       ];
     }
 
@@ -258,7 +264,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
             }
           : {}),
       },
-      orderBy: { sentAt: "desc" },
+      orderBy: [{ sentAt: "desc" }, { id: "desc" }],
       take: args.limit,
       include: {
         thread: {
@@ -293,11 +299,17 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await this.identifierWhereForContacts(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
       if (identifierGroups.length === 0) return 0;
       scoped.OR = [
-        { thread: { participants: { some: { OR: identifierGroups } } } },
-        ...identifierGroups.map((group) => ({ provider: group.provider, senderIdentifier: group.identifier })),
+        {
+          thread: {
+            participants: {
+              some: { OR: identifierGroups.map((group) => ({ ...group.providerWhere, identifier: group.identifier })) },
+            },
+          },
+        },
+        ...identifierGroups.map((group) => ({ ...group.providerWhere, senderIdentifier: group.identifier })),
       ];
     }
 
@@ -324,7 +336,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const scoped: Prisma.AccountActivityWhereInput = {};
     if (contactIds?.length) {
-      const identifiers = await this.findContactIdentifiers(contactIds);
+      const identifiers = await getContactRepo().findContactIdentifierValuesCompanyWide(contactIds);
       const values = identifiers.filter((i) => i.provider === MessagingProvider.linkedin).map((i) => i.value);
       if (values.length === 0) return [];
       scoped.identifier = { in: values };
@@ -332,7 +344,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const rows = await this.prisma.accountActivity.findMany({
       where: { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-      orderBy: { occurredAt: "desc" },
+      orderBy: [{ occurredAt: "desc" }, { id: "desc" }],
       take: limit,
       select: { id: true, payload: true, occurredAt: true },
     });
@@ -349,7 +361,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const scoped: Prisma.AccountActivityWhereInput = {};
     if (contactIds?.length) {
-      const identifiers = await this.findContactIdentifiers(contactIds);
+      const identifiers = await getContactRepo().findContactIdentifierValuesCompanyWide(contactIds);
       const values = identifiers.filter((i) => i.provider === MessagingProvider.linkedin).map((i) => i.value);
       if (values.length === 0) return 0;
       scoped.identifier = { in: values };
@@ -369,7 +381,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
       include: { connectedAccount: { select: { provider: true } } },
-      orderBy: { startsAt: "desc" },
+      orderBy: [{ startsAt: "desc" }, { id: "desc" }],
       take: limit,
     });
 
@@ -396,9 +408,11 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingThreadWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await this.identifierWhereForContacts(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
       if (identifierGroups.length === 0) return [];
-      scoped.participants = { some: { OR: identifierGroups } };
+      scoped.participants = {
+        some: { OR: identifierGroups.map((group) => ({ ...group.providerWhere, identifier: group.identifier })) },
+      };
     }
 
     const rows = await this.prisma.messagingThread.findMany({
@@ -420,36 +434,6 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
       label: this.threadOptionLabel(thread),
       provider: thread.provider,
     }));
-  }
-
-  private async findContactIdentifiers(contactIds: string[]) {
-    if (contactIds.length === 0) return [];
-
-    const rows = await this.prisma.contactIdentifier.findMany({
-      where: { contactId: { in: contactIds }, companyId: this.companyId },
-      select: { provider: true, value: true, messagingId: true },
-    });
-
-    const out: { provider: MessagingProvider; value: string }[] = [];
-    for (const row of rows) {
-      out.push({ provider: row.provider, value: row.value });
-      if (row.messagingId) out.push({ provider: row.provider, value: row.messagingId });
-    }
-    return out;
-  }
-
-  private async identifierWhereForContacts(contactIds: string[]) {
-    if (contactIds.length === 0) return [];
-
-    const identifiers = await this.findContactIdentifiers(contactIds);
-    const byProvider = new Map<MessagingProvider, Set<string>>();
-    for (const { provider, value } of identifiers) {
-      const set = byProvider.get(provider) ?? new Set<string>();
-      set.add(value);
-      byProvider.set(provider, set);
-    }
-
-    return [...byProvider].map(([provider, values]) => ({ provider, identifier: { in: [...values] } }));
   }
 
   private redactBcc<T extends { recipients: unknown }>(rows: T[]): T[] {

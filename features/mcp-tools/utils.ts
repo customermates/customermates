@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { encode } from "@toon-format/toon";
+import { getTranslations } from "next-intl/server";
+
+import type { CustomErrorCode } from "@/core/validation/validation.types";
 
 export function encodeToToon(data: unknown): string {
   try {
@@ -7,6 +10,27 @@ export function encodeToToon(data: unknown): string {
   } catch (error) {
     return String(error);
   }
+}
+
+const PAGE_SIZE_VALUES = z.literal([5, 10, 25, 100]);
+
+export const mcpPageSize = (defaultValue: 5 | 10 | 25 | 100, describe: string) =>
+  z
+    .preprocess((v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : v), PAGE_SIZE_VALUES)
+    .default(defaultValue)
+    .describe(describe);
+
+export const mcpPage = () => z.coerce.number().int().min(1).default(1).describe("1-indexed page number");
+
+export const VALIDATION_ERROR_PREFIX = "Validation error:";
+
+export const validationError = (error: z.ZodError): string => `${VALIDATION_ERROR_PREFIX} ${z.prettifyError(error)}`;
+
+export async function customErrorMessage(code: CustomErrorCode, values?: Record<string, string>): Promise<string> {
+  const t = await getTranslations("Common.errors");
+  let message = t.raw(code) as string;
+  if (values) for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, value);
+  return `${VALIDATION_ERROR_PREFIX} ${message}`;
 }
 
 function formatDate(date: Date | string): string {
@@ -123,3 +147,28 @@ export const NO_NULL_WIPE_WARNING =
   "NEVER pass null on relationship arrays — it would wipe existing links. " +
   "Omit the field to keep existing, pass [] to explicitly clear all, " +
   "or use unlink_entities to remove specific ids.";
+
+// Runs an interactor, returning its prettified validation error or the formatted success payload.
+export async function runInteractor<T>(
+  result: Promise<{ ok: true; data: T } | { ok: false; error: Parameters<typeof validationError>[0] }>,
+  format: (data: T) => string,
+): Promise<string> {
+  const outcome = await result;
+  return outcome.ok ? format(outcome.data) : validationError(outcome.error);
+}
+
+// Shared description fragments reused across the entity create/update tools.
+export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_entity_configuration for custom-column ids.";
+
+export const CUSTOM_FIELDS_MERGE_NOTE =
+  "customFieldValues is a per-column merge: only columns you include change; to clear one pass { columnId, value: null }.";
+
+export const IDEMPOTENT_NOTE = "Idempotent: same payload produces the same state.";
+
+export const relationsViaLinkNote = (relations: string) =>
+  `Relations (${relations}) are NOT changed here - add or remove them with link_entities / unlink_entities so existing links are preserved.`;
+
+export const CONTACT_KEY_FIELD_NOTE =
+  "For contacts, this may instead be a channel the contact owns: an email (e.g. 'jane@example.com'), " +
+  "a phone (e.g. '+491234567890'), or 'provider:value' for a handle where provider is one of linkedin, telegram, " +
+  "instagram (e.g. 'linkedin:john-doe').";

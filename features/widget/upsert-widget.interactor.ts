@@ -9,6 +9,8 @@ import { WidgetDtoSchema } from "./widget.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { validateWidgetIds, validateCustomColumnIds } from "@/core/validation/ids-validators";
+import { getWidgetRepo, getCustomColumnRepo } from "@/core/di";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -41,7 +43,17 @@ const Schema = z
     aggregationType: z.enum(AggregationType),
     isTemplate: z.boolean(),
   })
-  .superRefine((data, ctx) => {
+  .superRefine(async (data, ctx) => {
+    if (data.id) {
+      const validIdsSet = await getWidgetRepo().findIds(new Set([data.id]));
+      validateWidgetIds(data.id, validIdsSet, ctx, ["id"]);
+    }
+
+    if (data.groupByCustomColumnId) {
+      const validColumnIdsSet = await getCustomColumnRepo().findIds(new Set([data.groupByCustomColumnId]));
+      validateCustomColumnIds(data.groupByCustomColumnId, validColumnIdsSet, ctx, ["groupByCustomColumnId"]);
+    }
+
     if (data.groupByType === WidgetGroupByType.customColumn && !data.groupByCustomColumnId) {
       ctx.addIssue({
         code: "custom",

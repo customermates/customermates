@@ -3,6 +3,7 @@ import type { UpsertCustomColumnRepo } from "./upsert-custom-column.interactor";
 import type { GetCustomColumnsRepo } from "./get-custom-columns.interactor";
 import type { GetCustomColumnsByEntityTypeRepo } from "./get-custom-columns-by-entity-type.interactor";
 import type { FindCustomColumnRepo } from "./find-custom-column.repo";
+import type { FindCustomColumnsByIdsRepo } from "./find-custom-columns-by-ids.repo";
 import type { DeleteCustomColumnRepo } from "@/features/custom-column/delete-custom-column.interactor";
 import type { ContactCustomColumnRepo } from "@/features/contacts/get/get-contact-by-id.interactor";
 import type { OrganizationCustomColumnRepo } from "@/features/organizations/get/get-organization-by-id.interactor";
@@ -28,6 +29,7 @@ export class PrismaCustomColumnRepo
     GetCustomColumnsRepo,
     GetCustomColumnsByEntityTypeRepo,
     FindCustomColumnRepo,
+    FindCustomColumnsByIdsRepo,
     ContactCustomColumnRepo,
     OrganizationCustomColumnRepo,
     DealCustomColumnRepo,
@@ -143,6 +145,19 @@ export class PrismaCustomColumnRepo
     return column as CustomColumnDto;
   }
 
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const { companyId } = this.user;
+
+    const columns = await this.prisma.customColumn.findMany({
+      where: { id: { in: Array.from(ids) }, companyId },
+      select: { id: true },
+    });
+
+    return new Set(columns.map((column) => column.id));
+  }
+
   async getCustomColumns() {
     const { companyId } = this.user;
 
@@ -158,13 +173,11 @@ export class PrismaCustomColumnRepo
   async findByEntityType(entityType: EntityType) {
     const { companyId } = this.user;
 
-    const columns = await this.prisma.customColumn.findMany({
+    return (await this.prisma.customColumn.findMany({
       where: { companyId, entityType },
       select: this.baseSelect,
       orderBy: [{ label: "asc" }],
-    });
-
-    return columns as CustomColumnDto[];
+    })) as CustomColumnDto[];
   }
 
   @Transaction
@@ -275,7 +288,8 @@ export class PrismaCustomColumnRepo
 
     if (values.length === 0) return;
 
-    const columnIds = values.map((v) => v.columnId);
+    const deduped = Array.from(new Map(values.map((v) => [v.columnId, v])).values());
+    const columnIds = deduped.map((v) => v.columnId);
 
     await this.prisma.customFieldValue.deleteMany({
       where: {
@@ -285,7 +299,7 @@ export class PrismaCustomColumnRepo
       },
     });
 
-    const nonEmptyValues = values.filter((v) => v.value !== undefined && v.value !== null && v.value !== "");
+    const nonEmptyValues = deduped.filter((v) => v.value !== undefined && v.value !== null && v.value !== "");
 
     if (nonEmptyValues.length > 0) {
       const columns = await this.prisma.customColumn.findMany({

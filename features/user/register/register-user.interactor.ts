@@ -15,7 +15,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { secureUrlSchema } from "@/core/validation/validation.utils";
+import { zx } from "@/core/validation/validation.utils";
 import { isRedirect } from "../../auth/auth-outcome";
 
 const Schema = z
@@ -24,7 +24,7 @@ const Schema = z
     firstName: z.string().min(1),
     lastName: z.string().min(1),
     country: z.enum(CountryCode),
-    avatarUrl: secureUrlSchema().or(z.literal("")).nullable(),
+    avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
   })
   .superRefine((data, ctx) => {
@@ -39,7 +39,7 @@ const Schema = z
 export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
-  abstract findCompanyId(userId: string): Promise<string | null>;
+  abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
   abstract createCompanyAndUser(args: RegisterUserData): Promise<ExtendedUser>;
   abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<ExtendedUser>;
 }
@@ -60,7 +60,7 @@ export class RegisterUserInteractor {
     if (isRedirect(sessionResult)) return sessionResult;
     const session = sessionResult.session;
 
-    const companyId = await this.repo.findCompanyId(session.user.id);
+    const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
 
     const extendedUser = companyId
       ? await this.repo.registerExistingCompany({ ...data, companyId })

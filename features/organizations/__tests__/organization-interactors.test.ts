@@ -92,13 +92,13 @@ describe("CreateOrganizationInteractor", () => {
       createOrganizationOrThrow: vi.fn().mockResolvedValue(makeOrgDto()),
     };
     mockContactRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockDealRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockTaskRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -139,7 +139,7 @@ describe("CreateOrganizationInteractor", () => {
     const contact1 = makeContactDto(CONTACT_ID_1);
     const contact2 = makeContactDto(CONTACT_ID_2);
 
-    mockContactRepo.getManyOrThrowUnscoped.mockResolvedValue([contact1, contact2]);
+    mockContactRepo.getManyOrThrowCompanyWide.mockResolvedValue([contact1, contact2]);
 
     const orgWithContacts = makeOrgDto({
       contacts: [
@@ -185,7 +185,7 @@ describe("CreateOrganizationInteractor", () => {
 
   it("publishes DEAL_UPDATED events with payload for linked deals", async () => {
     const deal = makeDealDto(DEAL_ID_1);
-    mockDealRepo.getManyOrThrowUnscoped.mockResolvedValue([deal]);
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValue([deal]);
 
     const orgWithDeals = makeOrgDto({
       deals: [{ id: DEAL_ID_1, name: "Deal 20" }],
@@ -249,17 +249,17 @@ describe("UpdateOrganizationInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(makeOrgDto({ contacts: [], deals: [], tasks: [] })),
+      getOrThrowCompanyWide: vi.fn().mockResolvedValue(makeOrgDto({ contacts: [], deals: [], tasks: [] })),
       updateOrganizationOrThrow: vi.fn().mockResolvedValue(makeOrgDto()),
     };
     mockContactRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockDealRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockTaskRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -328,17 +328,17 @@ describe("DeleteOrganizationInteractor", () => {
     });
 
     mockDeleteRepo = {
-      getOrThrowUnscoped: vi.fn().mockResolvedValue(orgDto),
+      getOrThrowCompanyWide: vi.fn().mockResolvedValue(orgDto),
       deleteOrganizationOrThrow: vi.fn().mockResolvedValue(orgDto),
     };
     mockContactRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]),
     };
     mockDealRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]),
     };
     mockTaskRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -431,9 +431,9 @@ describe("CreateManyOrganizationsInteractor", () => {
     mockCreateRepo = {
       createOrganizationOrThrow: vi.fn().mockResolvedValueOnce(mockOrg1).mockResolvedValueOnce(mockOrg2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 
@@ -476,7 +476,7 @@ describe("CreateManyOrganizationsInteractor", () => {
 
   it("publishes CONTACT_UPDATED events with payload for related contacts", async () => {
     const contact = makeContactDto(CONTACT_ID_1);
-    mockContactRepo.getManyOrThrowUnscoped.mockResolvedValue([contact]);
+    mockContactRepo.getManyOrThrowCompanyWide.mockResolvedValue([contact]);
     mockCreateRepo.createOrganizationOrThrow.mockReset();
     mockCreateRepo.createOrganizationOrThrow.mockResolvedValueOnce(
       makeOrgDto({ contacts: [{ id: CONTACT_ID_1, firstName: "Jane", lastName: "Doe", avatarUrl: null }] }),
@@ -536,12 +536,12 @@ describe("UpdateManyOrganizationsInteractor", () => {
     vi.clearAllMocks();
 
     mockUpdateRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([org1, org2]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([org1, org2]),
       updateOrganizationOrThrow: vi.fn().mockResolvedValueOnce(updated1).mockResolvedValueOnce(updated2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
-    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
+    mockTaskRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 
@@ -592,7 +592,9 @@ describe("UpdateManyOrganizationsInteractor", () => {
     const contactBefore = { ...makeContactDto(CONTACT_ID_1), organizations: [] };
     const contactAfter = { ...makeContactDto(CONTACT_ID_1), organizations: [{ id: ORG_ID }] };
 
-    mockContactRepo.getManyOrThrowUnscoped.mockResolvedValueOnce([contactBefore]).mockResolvedValueOnce([contactAfter]);
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([contactBefore])
+      .mockResolvedValueOnce([contactAfter]);
 
     const interactor = createInteractor();
     await interactor.invoke({
@@ -618,7 +620,7 @@ describe("UpdateManyOrganizationsInteractor", () => {
     const dealBefore = { ...makeDealDto(DEAL_ID_1), organizations: [] };
     const dealAfter = { ...makeDealDto(DEAL_ID_1), organizations: [{ id: ORG_ID }] };
 
-    mockDealRepo.getManyOrThrowUnscoped.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
 
     const interactor = createInteractor();
     await interactor.invoke({
@@ -671,12 +673,12 @@ describe("DeleteManyOrganizationsInteractor", () => {
     vi.clearAllMocks();
 
     mockDeleteRepo = {
-      getManyOrThrowUnscoped: vi.fn().mockResolvedValue([org1, org2]),
+      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([org1, org2]),
       deleteOrganizationOrThrow: vi.fn().mockResolvedValueOnce(org1).mockResolvedValueOnce(org2),
     };
-    mockContactRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]) };
-    mockDealRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]) };
-    mockTaskRepo = { getManyOrThrowUnscoped: vi.fn().mockResolvedValue([]) };
+    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]) };
+    mockDealRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeDealDto(DEAL_ID_1)]) };
+    mockTaskRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 

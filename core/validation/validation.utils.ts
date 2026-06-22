@@ -52,28 +52,31 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
   };
 }
 
-export function secureUrlSchema() {
-  const allowedProtocols = ["https:", "http:", "mailto:", "tel:"];
-
-  return z.url().superRefine((url, ctx) => {
-    try {
-      const parsed = new URL(url);
-      if (!allowedProtocols.includes(parsed.protocol)) {
-        ctx.addIssue({
-          code: "custom",
-          params: { error: CustomErrorCode.urlInvalidProtocol },
-        });
-      }
-    } catch {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.urlInvalidProtocol },
-      });
-    }
-  });
+function secureUrlSchema() {
+  return z.preprocess(
+    (val) => {
+      if (typeof val !== "string") return val;
+      const trimmed = val.trim();
+      if (!trimmed || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
+      return `https://${trimmed}`;
+    },
+    z.url({ protocol: /^(https?|mailto|tel)$/ }),
+  );
 }
 
-export function passwordSchema() {
+function nonBlankText(max: number) {
+  return z
+    .string()
+    .max(max)
+    .superRefine((value, ctx) => {
+      if (value.trim().length === 0)
+        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotBeBlank } });
+      if (/\u0000/.test(value))
+        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+    });
+}
+
+function passwordSchema() {
   return z.string().superRefine((password, ctx) => {
     const hasMinLength = password.length >= 8;
     const hasUppercase = /[A-Z]/.test(password);
@@ -89,3 +92,9 @@ export function passwordSchema() {
     }
   });
 }
+
+export const zx = {
+  nonBlankText,
+  secureUrl: secureUrlSchema,
+  password: passwordSchema,
+};

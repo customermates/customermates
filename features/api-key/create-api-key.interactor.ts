@@ -14,7 +14,7 @@ import { type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const CreateApiKeyResultSchema = ApiKeyDtoSchema.extend({
+const OutputSchema = ApiKeyDtoSchema.extend({
   key: z.string(),
 });
 
@@ -46,7 +46,7 @@ export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKey
   }
 
   @Validate(Schema)
-  @ValidateOutput(CreateApiKeyResultSchema)
+  @ValidateOutput(OutputSchema)
   async invoke(data: CreateApiKeyData): Validated<CreateApiKeyResult> {
     const result = await this.authService.createApiKey({
       name: data.name,

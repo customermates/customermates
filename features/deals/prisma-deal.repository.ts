@@ -1,10 +1,10 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWidgetFilterableFieldsDealRepo } from "../widget/get-widget-filterable-fields.interactor";
-import type { GetUnscopedDealRepo } from "./get-unscoped-deal.repo";
+import type { GetCompanyWideDealRepo } from "./get-company-wide-deal.repo";
 import type { CreateDealRepo } from "./upsert/create-deal.repo";
 import type { UpdateDealRepo } from "./upsert/update-deal.repo";
 import type { GetDealsRepo } from "./get/get-deals.interactor";
-import type { GetDealsConfigurationRepo } from "./get/get-deals-configuration.interactor";
+import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { GetDealByIdRepo } from "./get/get-deal-by-id.interactor";
 import type { DeleteDealRepo } from "./delete/delete-deal.repo";
 import type { FindDealsByIdsRepo } from "./find-deals-by-ids.repo";
@@ -28,12 +28,12 @@ export class PrismaDealRepo
     CreateDealRepo,
     UpdateDealRepo,
     GetDealsRepo,
-    GetDealsConfigurationRepo,
+    GetConfigurationRepo,
     GetDealByIdRepo,
     DeleteDealRepo,
     GetWidgetFilterableFieldsDealRepo,
     FindDealsByIdsRepo,
-    GetUnscopedDealRepo
+    GetCompanyWideDealRepo
 {
   private get userScopedSelect() {
     return {
@@ -172,7 +172,7 @@ export class PrismaDealRepo
     return this.toDto(deal);
   }
 
-  async getOrThrowUnscoped(id: string) {
+  async getOrThrowCompanyWide(id: string) {
     const { companyId } = this.user;
 
     const deal = await this.prisma.deal.findFirstOrThrow({
@@ -183,7 +183,7 @@ export class PrismaDealRepo
     return this.toDto(deal);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]) {
+  async getManyOrThrowCompanyWide(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;

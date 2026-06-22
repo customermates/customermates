@@ -28,7 +28,7 @@ export default async function InboxPage({ searchParams }: Props) {
     threadId ? getGetMessagingThreadInteractor().invoke({ threadId }) : Promise.resolve(null),
   ]);
 
-  const threadDetail = threadResult?.data ?? null;
+  const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   return (
     <PageContainer padded={false}>

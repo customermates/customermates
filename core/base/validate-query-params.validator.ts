@@ -84,7 +84,10 @@ export class ValidateQueryParamsValidator {
       if (!isStaticField && !isCustomColumn) {
         ctx.addIssue({
           code: "custom",
-          params: { error: CustomErrorCode.invalidSortField },
+          params: {
+            error: CustomErrorCode.invalidSortField,
+            validValues: [...sortableFields.map((f) => f.field), ...customColumns.map((c) => c.id)].join(", "),
+          },
           path: ["sortDescriptor", "field"],
         });
       }
@@ -116,8 +119,8 @@ export class ValidateQueryParamsValidator {
       const validIdsSet = await getServiceRepo().findIds(valueSet);
       validateServiceIds(filter.value, validIdsSet, ctx, fieldPath);
     } else if (filter.field === "contactIds" && valueSet.size > 0) {
-      const validIdsSet = await getContactRepo().findIds(valueSet);
-      validateContactIds(filter.value, validIdsSet, ctx, fieldPath);
+      const resolved = await getContactRepo().findIds(valueSet);
+      validateContactIds(filter.value, new Set(resolved.values()), ctx, fieldPath);
     } else if (filter.field === "event") validateEvent(filter.value, ctx, fieldPath);
     else if (filter.field === "updatedAt" || filter.field === "createdAt") validateDate(filter.value, ctx, fieldPath);
     else if (isCustomField(filter.field)) {

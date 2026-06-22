@@ -12,11 +12,18 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { validateWebhookIds } from "@/core/validation/ids-validators";
+import { getWebhookRepo } from "@/core/di";
 
-export const DeleteWebhookSchema = z.object({
-  id: z.uuid(),
-});
-export type DeleteWebhookData = Data<typeof DeleteWebhookSchema>;
+const Schema = z
+  .object({
+    id: z.uuid(),
+  })
+  .superRefine(async (data, ctx) => {
+    const validIdsSet = await getWebhookRepo().findIds(new Set([data.id]));
+    validateWebhookIds(data.id, validIdsSet, ctx, ["id"]);
+  });
+export type DeleteWebhookData = Data<typeof Schema>;
 
 export abstract class DeleteWebhookRepo {
   abstract deleteWebhookOrThrow(id: string): Promise<WebhookDto>;
@@ -31,7 +38,7 @@ export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebho
     super();
   }
 
-  @Validate(DeleteWebhookSchema)
+  @Validate(Schema)
   @ValidateOutput(z.string())
   @Transaction
   async invoke(data: DeleteWebhookData): Validated<string> {

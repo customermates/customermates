@@ -77,7 +77,7 @@ export class PrismaUserRepo
     WebhookUserRepo
 {
   @BypassTenantGuard
-  async findUserCompanyById(userId: string) {
+  async findUserCompanyByIdUnscoped(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, companyId: true },
@@ -85,7 +85,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async findExtendedUserByIdOrThrow(userId: string) {
+  async findExtendedUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: this.extendedUserSelect,
@@ -467,6 +467,7 @@ export class PrismaUserRepo
               {
                 companyId,
                 provider: "mail",
+                channelClass: "email",
                 value: t(`Common.seedData.contact.${contact.emailKey}`),
               },
             ],
@@ -529,11 +530,11 @@ export class PrismaUserRepo
           companyId,
         },
       });
-      for (const contactKey of deal.contactKeys) {
+      for (const id of deal.ids) {
         await this.prisma.dealContact.create({
           data: {
             dealId: created.id,
-            contactId: contactIdByKey[contactKey],
+            contactId: contactIdByKey[id],
             companyId,
           },
         });
@@ -564,11 +565,11 @@ export class PrismaUserRepo
         data: { taskId: created.id, userId, companyId },
       });
 
-      for (const contactKey of task.contactKeys ?? []) {
+      for (const id of task.ids ?? []) {
         await this.prisma.taskContact.create({
           data: {
             taskId: created.id,
-            contactId: contactIdByKey[contactKey],
+            contactId: contactIdByKey[id],
             companyId,
           },
         });
@@ -929,7 +930,7 @@ export class PrismaUserRepo
     return extendedUser;
   }
 
-  async findOrThrow(email: string) {
+  async findOrThrowCompanyWide(email: string) {
     const { companyId } = this.user;
 
     const user = await this.prisma.user.findUniqueOrThrow({
@@ -940,8 +941,21 @@ export class PrismaUserRepo
     return user;
   }
 
+  async findExistingEmailsCompanyWide(emails: Set<string>) {
+    if (emails.size === 0) return new Set<string>();
+
+    const { companyId } = this.user;
+
+    const users = await this.prisma.user.findMany({
+      where: { email: { in: Array.from(emails) }, companyId },
+      select: { email: true },
+    });
+
+    return new Set(users.map((user) => user.email));
+  }
+
   @BypassTenantGuard
-  async findCurrentUserOrThrow(email: string) {
+  async findCurrentUserOrThrowUnscoped(email: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { email },
       select: this.extendedUserSelect,
@@ -951,7 +965,7 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async findCurrentUser(email: string) {
+  async findCurrentUserUnscoped(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
       select: this.extendedUserSelect,
@@ -960,7 +974,7 @@ export class PrismaUserRepo
     return user;
   }
 
-  async findCompanyId(userId: string) {
+  async findCompanyIdUnscoped(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },
       select: { companyId: true },

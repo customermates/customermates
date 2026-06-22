@@ -8,7 +8,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
 export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookEventRepo {
   @BypassTenantGuard
-  async createWebhookEvent(args: RepoArgs<WebhookEventRepo, "createWebhookEvent">) {
+  async createWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "createWebhookEventUnscoped">) {
     const row = await this.prisma.messagingInboundEvent.create({
       data: {
         companyId: args.companyId,
@@ -24,7 +24,7 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
   }
 
   @BypassTenantGuard
-  async findWebhookEventByIdOrThrow(id: string) {
+  async findWebhookEventByIdOrThrowUnscoped(id: string) {
     return this.prisma.messagingInboundEvent.findUniqueOrThrow({
       where: { id },
       select: { id: true, source: true, payload: true, processed: true },
@@ -32,7 +32,7 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
   }
 
   @BypassTenantGuard
-  async markWebhookEvent(args: RepoArgs<WebhookEventRepo, "markWebhookEvent">) {
+  async markWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "markWebhookEventUnscoped">) {
     await this.prisma.messagingInboundEvent.update({
       where: { id: args.id },
       data: {

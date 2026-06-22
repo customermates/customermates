@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
-import { isEmailProvider } from "@/ee/messaging/provider-icon";
+import { isEmailProvider } from "@/ee/messaging/provider";
 import {
   displayableIdentifier,
   isAttendeeUnlinked,

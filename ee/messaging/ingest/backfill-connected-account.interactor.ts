@@ -1,6 +1,6 @@
 import type { MessagingService } from "../messaging.service";
 import type { MessagingIngestRepo } from "./messaging-ingest.repo";
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillEmailsInteractor } from "./backfill/backfill-emails.interactor";
 import type { BackfillChatsInteractor } from "./backfill/backfill-chats.interactor";
 import type { BackfillCalendarsInteractor } from "./backfill/backfill-calendars.interactor";
@@ -11,7 +11,7 @@ import * as Sentry from "@sentry/node";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import { isEmailProvider } from "../provider-icon";
+import { isEmailProvider } from "../provider";
 import { deriveAccountFeatures, deriveAccountIdentity } from "../unipile.mappers";
 
 import type { BackfillConnectedAccountRepo } from "./backfill/backfill.repo";
@@ -45,9 +45,9 @@ export class BackfillConnectedAccountInteractor {
   @Enforce(BackfillConnectedAccountPayloadSchema)
   async invoke(payload: BackfillConnectedAccountPayload): Promise<boolean> {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
-    const { checkpoint, epoch } = await this.repo.loadBackfillCheckpoint(account.unipileAccountId);
+    const { checkpoint, epoch } = await this.repo.loadBackfillCheckpointUnscoped(account.unipileAccountId);
 
-    const ownsClaim = await this.repo.refreshBackfillClaim(account.unipileAccountId, payload.token);
+    const ownsClaim = await this.repo.refreshBackfillClaimUnscoped(account.unipileAccountId, payload.token);
     if (!ownsClaim) return false;
 
     const afterDate = new Date(Date.now() - BACKFILL_SINCE_DAYS * DAY_MS);
@@ -56,7 +56,7 @@ export class BackfillConnectedAccountInteractor {
     const snapshot = await this.waitForAccountReady(account.unipileAccountId);
     const { hasMessaging, hasCalendar } = await this.refreshAccountFromSnapshot(account, snapshot, isEmail);
 
-    const before = await this.ingest.countMessages(account.id);
+    const before = await this.ingest.countMessagesUnscoped(account.id);
 
     const messagingDone = !hasMessaging
       ? true
@@ -75,8 +75,8 @@ export class BackfillConnectedAccountInteractor {
       : false;
 
     const attempt = payload.attempt ?? 0;
-    const total = await this.ingest.countMessages(account.id);
-    const { checkpoint: reloaded, epoch: currentEpoch } = await this.repo.loadBackfillCheckpoint(
+    const total = await this.ingest.countMessagesUnscoped(account.id);
+    const { checkpoint: reloaded, epoch: currentEpoch } = await this.repo.loadBackfillCheckpointUnscoped(
       account.unipileAccountId,
     );
     const messagingStep = isEmail ? reloaded.email : reloaded.chat;
@@ -91,7 +91,7 @@ export class BackfillConnectedAccountInteractor {
       (ingestedSomethingNew || awaitingInitialSync || messagingTruncated || calendarIncomplete || epochChanged) &&
       attempt < MAX_PROGRESSIVE_ATTEMPTS
     ) {
-      await this.repo.updateAccount({
+      await this.repo.updateAccountUnscoped({
         unipileAccountId: account.unipileAccountId,
         lastSyncedAt: new Date(),
       });
@@ -100,7 +100,7 @@ export class BackfillConnectedAccountInteractor {
     }
 
     if (messagingDone && messagingExhausted) {
-      await this.repo.saveBackfillStepCheckpoint({
+      await this.repo.saveBackfillStepCheckpointUnscoped({
         unipileAccountId: account.unipileAccountId,
         step: isEmail ? "email" : "chat",
         checkpoint: { done: true },
@@ -108,7 +108,7 @@ export class BackfillConnectedAccountInteractor {
       });
     }
 
-    const finalized = await this.repo.finalizeBackfill({
+    const finalized = await this.repo.finalizeBackfillUnscoped({
       unipileAccountId: account.unipileAccountId,
       epoch,
       token: payload.token,
@@ -124,7 +124,7 @@ export class BackfillConnectedAccountInteractor {
       return true;
     } catch (err) {
       Sentry.captureException(err);
-      await this.repo.recordUnusableItem({
+      await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: { step },
@@ -144,14 +144,14 @@ export class BackfillConnectedAccountInteractor {
     const hasMessaging = account.hasMessaging || features.hasMessaging;
     const hasCalendar = account.hasCalendar || features.hasCalendar;
 
-    const update: Parameters<BackfillConnectedAccountRepo["updateAccount"]>[0] = {
+    const update: Parameters<BackfillConnectedAccountRepo["updateAccountUnscoped"]>[0] = {
       unipileAccountId: account.unipileAccountId,
     };
     if (hasMessaging !== account.hasMessaging) update.hasMessaging = hasMessaging;
     if (hasCalendar !== account.hasCalendar) update.hasCalendar = hasCalendar;
     if (!account.displayName && identity.displayName) update.displayName = identity.displayName;
     if (!account.emailAddress && identity.emailAddress) update.emailAddress = identity.emailAddress;
-    if (Object.keys(update).length > 1) await this.repo.updateAccount(update);
+    if (Object.keys(update).length > 1) await this.repo.updateAccountUnscoped(update);
 
     return { hasMessaging, hasCalendar };
   }

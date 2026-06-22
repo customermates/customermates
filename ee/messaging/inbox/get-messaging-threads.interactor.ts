@@ -9,7 +9,7 @@ import { MessagingThreadSchema } from "../messaging.schema";
 
 import { BaseGetInteractor, BaseGetRepo } from "@/core/base/base-get.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
@@ -31,7 +31,7 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     });
   }
 
-  @Enforce(GetQueryParamsSchema)
+  @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(MessagingThreadSchema))
   async invoke(params: GetQueryParams = {}) {
     return await super.invoke(params);

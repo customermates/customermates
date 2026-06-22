@@ -1,4 +1,5 @@
-import type { ConnectedAccount, MessagingMessage } from "../messaging.schema";
+import type { MessagingMessage } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 
 import { ConnectedAccountStatus, type MessagingThreadState } from "@/generated/prisma";
 import type { FindAccountByUnipileIdUnscopedRepo } from "../persistence/find-account-by-unipile-id-unscoped.repo";
@@ -22,7 +23,7 @@ export abstract class ProcessEmailWebhookRepo {
     connectedAccountId: string;
     unipileMessageId: string;
   }): Promise<MessagingMessage>;
-  abstract applyThreadState(args: { messagingThreadId: string; state: MessagingThreadState }): Promise<void>;
+  abstract applyThreadStateUnscoped(args: { messagingThreadId: string; state: MessagingThreadState }): Promise<void>;
 }
 
 @SystemInteractor
@@ -70,6 +71,6 @@ export class ProcessEmailWebhookInteractor {
     const state = emailMoveToThreadState({ role: payload.role, folders: payload.folders });
     if (!state) return;
 
-    await this.repo.applyThreadState({ messagingThreadId: message.messagingThreadId, state });
+    await this.repo.applyThreadStateUnscoped({ messagingThreadId: message.messagingThreadId, state });
   }
 }

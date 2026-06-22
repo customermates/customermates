@@ -10,56 +10,65 @@ import { RoleDtoSchema } from "./role.schema";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { zx, type Validated } from "@/core/validation/validation.utils";
+import { validateRoleIds } from "@/core/validation/ids-validators";
+import { getRoleRepo } from "@/core/di";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const Schema = z.object({
-  id: z.uuid().optional(),
-  name: z.string().min(1, "Name must be at least 1 character"),
-  description: z.string().min(1, "Description must be at least 1 character"),
-  permissions: z.object({
-    contacts: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "own", "all"]),
+const Schema = z
+  .object({
+    id: z.uuid().optional(),
+    name: zx.nonBlankText(255),
+    description: zx.nonBlankText(500),
+    permissions: z.object({
+      contacts: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "own", "all"]),
+      }),
+      deals: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "own", "all"]),
+      }),
+      organizations: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "own", "all"]),
+      }),
+      services: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "own", "all"]),
+      }),
+      users: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["own", "all"]),
+      }),
+      company: z.object({
+        canManage: z.enum(["yes", "no"]),
+      }),
+      api: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "all"]),
+      }),
+      tasks: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "own", "all"]),
+      }),
+      inboxMessages: z.object({
+        canManage: z.enum(["yes", "no"]),
+        readAccess: z.enum(["none", "all"]),
+      }),
+      auditLog: z.object({
+        readAccess: z.enum(["none", "all"]),
+      }),
     }),
-    deals: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "own", "all"]),
-    }),
-    organizations: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "own", "all"]),
-    }),
-    services: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "own", "all"]),
-    }),
-    users: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["own", "all"]),
-    }),
-    company: z.object({
-      canManage: z.enum(["yes", "no"]),
-    }),
-    api: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "all"]),
-    }),
-    tasks: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "own", "all"]),
-    }),
-    inboxMessages: z.object({
-      canManage: z.enum(["yes", "no"]),
-      readAccess: z.enum(["none", "all"]),
-    }),
-    auditLog: z.object({
-      readAccess: z.enum(["none", "all"]),
-    }),
-  }),
-});
+  })
+  .superRefine(async (data, ctx) => {
+    if (data.id) {
+      const validIdsSet = await getRoleRepo().findIds(new Set([data.id]));
+      validateRoleIds(data.id, validIdsSet, ctx, ["id"]);
+    }
+  });
 export type UpsertRoleData = Data<typeof Schema>;
 
 export abstract class UpsertRoleRepo {

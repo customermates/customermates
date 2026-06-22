@@ -8,7 +8,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export abstract class RefreshSubscriptionRepo {
-  abstract getSubscriptionOrThrow(companyId: string): Promise<{ lemonSqueezyId: string | null }>;
+  abstract getSubscriptionOrThrow(): Promise<{ lemonSqueezyId: string | null }>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.readOwn })
@@ -22,7 +22,7 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
 
   @ValidateOutput(z.null())
   async invoke(): Promise<{ ok: true; data: null }> {
-    const subscription = await this.repo.getSubscriptionOrThrow(this.companyId);
+    const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (!subscription.lemonSqueezyId) throw new Error("Subscription does not have a LemonSqueezy ID");
 

@@ -7,7 +7,9 @@ import { CommonApiResponses } from "@/core/api/interactor-handler";
 export const deleteManyContactsOperation: ZodOpenApiOperationObject = {
   operationId: "deleteManyContacts",
   summary: "Delete many contacts",
-  description: "Deletes many contacts by their IDs in a single request. This operation cannot be undone.",
+  description:
+    "Deletes many contacts by their id (UUID, email/phone, or provider:value handle) in a single request. " +
+    "This operation cannot be undone.",
   tags: ["contacts"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

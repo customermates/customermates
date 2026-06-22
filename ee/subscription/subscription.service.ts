@@ -14,7 +14,7 @@ import type { CountryCode } from "@/generated/prisma";
 import { env } from "@/env";
 
 export abstract class SubscriptionRepo {
-  abstract upsertSubscription(data: {
+  abstract upsertSubscriptionUnscoped(data: {
     companyId: string;
     lemonSqueezyId?: string;
     lemonSqueezyVariantId?: string;
@@ -80,7 +80,7 @@ export class SubscriptionService {
     return result.data;
   }
 
-  async getSubscriptionOrThrow(subscriptionId: string) {
+  async getSubscriptionOrThrowUnscoped(subscriptionId: string) {
     this.ensureConfigured();
 
     const result = await getSubscription(subscriptionId);
@@ -105,7 +105,7 @@ export class SubscriptionService {
   async updateSubscriptionOrThrow(subscriptionId: string, companyId: string): Promise<void> {
     this.ensureConfigured();
 
-    const subscription = await this.getSubscriptionOrThrow(subscriptionId);
+    const subscription = await this.getSubscriptionOrThrowUnscoped(subscriptionId);
 
     const attributes = subscription.data.attributes;
     const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
@@ -115,7 +115,7 @@ export class SubscriptionService {
     const quantity = attributes.first_subscription_item?.quantity;
     const variantId = attributes.variant_id?.toString();
 
-    await this.subscriptionRepo.upsertSubscription({
+    await this.subscriptionRepo.upsertSubscriptionUnscoped({
       companyId,
       lemonSqueezyId: subscription.data.id,
       lemonSqueezyVariantId: variantId,

@@ -8,6 +8,7 @@ import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.int
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
+import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.service";
 
 import { Status, SubscriptionStatus } from "@/generated/prisma";
 
@@ -26,7 +27,8 @@ export class PrismaCompanyRepo
     GetSubscriptionRepo,
     RefreshSubscriptionRepo,
     AdminUpdateUserSubscriptionRepo,
-    CreateCheckoutCompanyRepo
+    CreateCheckoutCompanyRepo,
+    RouteGuardSubscriptionRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanyDetailsRepo, "updateDetails">) {
@@ -43,6 +45,17 @@ export class PrismaCompanyRepo
     return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
   }
 
+  async getCurrentCurrency() {
+    const { companyId } = this.user;
+
+    const company = await this.prisma.company.findUniqueOrThrow({
+      where: { id: companyId },
+      select: { currency: true },
+    });
+
+    return company.currency;
+  }
+
   @Transaction
   async createInviteToken(data: RepoArgs<GetOrCreateInviteTokenRepo, "createInviteToken">) {
     const { id, companyId } = this.user;
@@ -57,7 +70,7 @@ export class PrismaCompanyRepo
     });
   }
 
-  async findUnexpiredTokenForCompany() {
+  async findUnexpiredToken() {
     const { companyId } = this.user;
 
     return await this.prisma.inviteToken.findFirst({
@@ -71,7 +84,7 @@ export class PrismaCompanyRepo
     });
   }
 
-  async findToken(token: string) {
+  async findTokenUnscoped(token: string) {
     const res = await this.prisma.inviteToken.findUnique({
       where: { token },
       include: { company: { select: { name: true } } },
@@ -87,7 +100,7 @@ export class PrismaCompanyRepo
 
   @Transaction
   @BypassTenantGuard
-  async upsertSubscription(data: RepoArgs<SubscriptionRepo, "upsertSubscription">) {
+  async upsertSubscriptionUnscoped(data: RepoArgs<SubscriptionRepo, "upsertSubscriptionUnscoped">) {
     const payload = {
       companyId: data.companyId,
       lemonSqueezyId: data.lemonSqueezyId,
@@ -105,8 +118,14 @@ export class PrismaCompanyRepo
     });
   }
 
+  async getSubscriptionOrThrow() {
+    return this.prisma.subscription.findUniqueOrThrow({
+      where: { companyId: this.companyId },
+    });
+  }
+
   @BypassTenantGuard
-  async getSubscriptionOrThrow(companyId: string) {
+  async getSubscriptionOrThrowUnscoped(companyId: string) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({
       where: { companyId },
     });

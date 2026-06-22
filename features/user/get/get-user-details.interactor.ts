@@ -9,7 +9,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
-const UserDetailsDtoSchema = z.object({
+export const UserDetailsDtoSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),

@@ -11,12 +11,19 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Transaction, BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { validateCustomColumnIds } from "@/core/validation/ids-validators";
+import { getCustomColumnRepo } from "@/core/di";
 
-const Schema = z.object({
-  id: z.uuid(),
-});
+const Schema = z
+  .object({
+    id: z.uuid(),
+  })
+  .superRefine(async (data, ctx) => {
+    const validIdsSet = await getCustomColumnRepo().findIds(new Set([data.id]));
+    validateCustomColumnIds(data.id, validIdsSet, ctx, ["id"]);
+  });
 export type DeleteCustomColumnData = Data<typeof Schema>;
 
 export abstract class DeleteCustomColumnRepo {
@@ -36,7 +43,7 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
 
   @Validate(Schema)
   @ValidateOutput(z.string())
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: DeleteCustomColumnData): Validated<string> {
     const customColumn = await this.repo.find(data.id);
 

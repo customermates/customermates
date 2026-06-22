@@ -9,7 +9,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import { sendEmailAction, startChatAction } from "@/app/[locale]/(protected)/inbox/actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
-import { isEmailProvider } from "@/ee/messaging/provider-icon";
+import { isEmailProvider } from "@/ee/messaging/provider";
 
 export interface StartChatModalData {
   provider: MessagingProvider | null;

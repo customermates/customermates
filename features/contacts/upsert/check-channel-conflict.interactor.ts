@@ -15,7 +15,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getContactRepo } from "@/core/di";
 
-export const CheckChannelConflictSchema = IdentifierInputSchema.pick({
+const Schema = IdentifierInputSchema.pick({
   provider: true,
   value: true,
   messagingId: true,
@@ -29,7 +29,7 @@ export const CheckChannelConflictSchema = IdentifierInputSchema.pick({
     }
 
     const identifier = { value: normalized, messagingId: data.messagingId };
-    const owners = await getContactRepo().findIdentifierOwners(
+    const owners = await getContactRepo().findIdentifierOwnersCompanyWide(
       channelStrings(identifier).map((value) => ({ provider: data.provider, value })),
     );
 
@@ -41,14 +41,14 @@ export const CheckChannelConflictSchema = IdentifierInputSchema.pick({
     if (conflict)
       ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.channelAlreadyLinked }, path: ["value"] });
   });
-export type CheckChannelConflictData = Data<typeof CheckChannelConflictSchema>;
+export type CheckChannelConflictData = Data<typeof Schema>;
 
 @TenantInteractor({
   resource: Resource.contacts,
   action: Action.update,
 })
 export class CheckChannelConflictInteractor extends AuthenticatedInteractor<CheckChannelConflictData, boolean> {
-  @Validate(CheckChannelConflictSchema)
+  @Validate(Schema)
   invoke(_data: CheckChannelConflictData): Validated<boolean> {
     return Promise.resolve({ ok: true, data: true });
   }

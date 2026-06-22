@@ -5,7 +5,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 export function makeIdsValidator(errorCode: CustomErrorCode) {
   return function validateIds(
     source: string | string[] | null | undefined,
-    validIds: Set<string>,
+    validIds: { has(key: string): boolean },
     ctx: z.RefinementCtx,
     basePath: (string | number)[],
   ) {
@@ -34,6 +34,12 @@ export const validateOrganizationIds = makeIdsValidator(CustomErrorCode.organiza
 export const validateServiceIds = makeIdsValidator(CustomErrorCode.serviceNotFound);
 export const validateTaskIds = makeIdsValidator(CustomErrorCode.taskNotFound);
 export const validateUserIds = makeIdsValidator(CustomErrorCode.userNotFound);
+export const validateWidgetIds = makeIdsValidator(CustomErrorCode.widgetNotFound);
+export const validateCustomColumnIds = makeIdsValidator(CustomErrorCode.customColumnIdNotFound);
+export const validateWebhookIds = makeIdsValidator(CustomErrorCode.webhookNotFound);
+export const validateWebhookDeliveryIds = makeIdsValidator(CustomErrorCode.webhookDeliveryNotFound);
+export const validateThreadIds = makeIdsValidator(CustomErrorCode.threadNotFound);
+export const validateRoleIds = makeIdsValidator(CustomErrorCode.roleNotFound);
 
 export function validateSystemTaskIds(
   source: string | string[] | null | undefined,

@@ -10,8 +10,8 @@ import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
 export type { ExtendedUser } from "./user.types";
 
 export abstract class FindUserRepo {
-  abstract findCurrentUser(email: string): Promise<ExtendedUser | null>;
-  abstract findCurrentUserOrThrow(email: string): Promise<ExtendedUser>;
+  abstract findCurrentUserUnscoped(email: string): Promise<ExtendedUser | null>;
+  abstract findCurrentUserOrThrowUnscoped(email: string): Promise<ExtendedUser>;
 }
 
 export class UserService {
@@ -27,7 +27,7 @@ export class UserService {
 
     if (!email) return null;
 
-    return await this.repo.findCurrentUser(email);
+    return await this.repo.findCurrentUserUnscoped(email);
   }
 
   async getUserOrThrow() {
@@ -37,7 +37,7 @@ export class UserService {
 
     if (!email) throw new AuthError();
 
-    return await this.repo.findCurrentUserOrThrow(email);
+    return await this.repo.findCurrentUserOrThrowUnscoped(email);
   }
 
   async getActiveUserOrThrow() {
@@ -55,7 +55,7 @@ export class UserService {
 
     if (!email) return false;
 
-    return (await this.repo.findCurrentUser(email)) !== null;
+    return (await this.repo.findCurrentUserUnscoped(email)) !== null;
   }
 
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {

@@ -28,6 +28,12 @@ import {
   validateServiceIds,
   validateTaskIds,
   validateSystemTaskIds,
+  validateWidgetIds,
+  validateCustomColumnIds,
+  validateWebhookIds,
+  validateWebhookDeliveryIds,
+  validateThreadIds,
+  validateRoleIds,
 } from "../ids-validators";
 
 function createMockCtx() {
@@ -433,6 +439,33 @@ describe("validateUserIds", () => {
   });
 });
 
+describe("entity id validators (widget/customColumn/webhook/webhookDelivery/thread/role)", () => {
+  const cases = [
+    { name: "validateWidgetIds", fn: validateWidgetIds, code: CustomErrorCode.widgetNotFound },
+    { name: "validateCustomColumnIds", fn: validateCustomColumnIds, code: CustomErrorCode.customColumnIdNotFound },
+    { name: "validateWebhookIds", fn: validateWebhookIds, code: CustomErrorCode.webhookNotFound },
+    {
+      name: "validateWebhookDeliveryIds",
+      fn: validateWebhookDeliveryIds,
+      code: CustomErrorCode.webhookDeliveryNotFound,
+    },
+    { name: "validateThreadIds", fn: validateThreadIds, code: CustomErrorCode.threadNotFound },
+    { name: "validateRoleIds", fn: validateRoleIds, code: CustomErrorCode.roleNotFound },
+  ];
+
+  for (const { name, fn, code } of cases) {
+    it(`${name} passes a present id and flags a missing one`, () => {
+      const ok = createMockCtx();
+      fn("present", new Set(["present"]), ok, ["id"]);
+      expect(ok.addIssue).not.toHaveBeenCalled();
+
+      const bad = createMockCtx();
+      fn("missing", new Set(["present"]), bad, ["id"]);
+      expect(bad.addIssue).toHaveBeenCalledWith(expect.objectContaining({ params: { error: code } }));
+    });
+  }
+});
+
 describe("validateDealIds", () => {
   const validIds = new Set(["deal-1"]);
 
@@ -600,7 +633,7 @@ describe("validateIdentifierConflicts", () => {
 
   it("passes when the identifier belongs to the same contact", () => {
     const ctx = createMockCtx();
-    const owners = new Map([["mail:a@b.com", "contact-1"]]);
+    const owners = new Map([["email:a@b.com", "contact-1"]]);
     validateIdentifierConflicts(
       [{ selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] }],
       owners,
@@ -612,9 +645,28 @@ describe("validateIdentifierConflicts", () => {
 
   it("adds issue when the identifier belongs to another contact", () => {
     const ctx = createMockCtx();
-    const owners = new Map([["mail:a@b.com", "contact-2"]]);
+    const owners = new Map([["email:a@b.com", "contact-2"]]);
     validateIdentifierConflicts(
       [{ selfContactId: "contact-1", identifiers: [mailIdentifier("a@b.com")] }],
+      owners,
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.channelAlreadyLinked } }),
+    );
+  });
+
+  it("treats the same email under different providers as one identity (class-keyed)", () => {
+    const ctx = createMockCtx();
+    const owners = new Map([["email:a@b.com", "contact-2"]]);
+    validateIdentifierConflicts(
+      [
+        {
+          selfContactId: "contact-1",
+          identifiers: [{ provider: MessagingProvider.google, value: "a@b.com" } as IdentifierInput],
+        },
+      ],
       owners,
       ctx,
       () => ["identifiers"],

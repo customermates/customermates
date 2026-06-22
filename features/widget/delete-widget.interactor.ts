@@ -6,10 +6,17 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { validateWidgetIds } from "@/core/validation/ids-validators";
+import { getWidgetRepo } from "@/core/di";
 
-const Schema = z.object({
-  id: z.uuid(),
-});
+const Schema = z
+  .object({
+    id: z.uuid(),
+  })
+  .superRefine(async (data, ctx) => {
+    const validIdsSet = await getWidgetRepo().findIds(new Set([data.id]));
+    validateWidgetIds(data.id, validIdsSet, ctx, ["id"]);
+  });
 export type DeleteWidgetData = Data<typeof Schema>;
 
 export abstract class DeleteWidgetRepo {

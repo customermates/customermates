@@ -7,26 +7,27 @@ import { CountryCode, Currency, Resource, Action } from "@/generated/prisma";
 import { DomainEvent } from "../event/domain-events";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { type Validated } from "@/core/validation/validation.utils";
+import { type Validated, zx } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
-const Schema = z.object({
-  name: z.string().min(1).max(255),
+export const UpdateCompanyDetailsSchema = z.object({
+  name: zx.nonBlankText(255),
   street: z.string().max(255),
   city: z.string().max(255),
   postalCode: z.string().max(32),
   country: z.enum(CountryCode),
-  currency: z.enum(Currency).default(Currency.eur),
+  currency: z.enum(Currency).optional(),
 });
 
-export type UpdateCompanyDetailsData = Data<typeof Schema>;
+export type UpdateCompanyDetailsData = Data<typeof UpdateCompanyDetailsSchema>;
 
 export abstract class UpdateCompanyDetailsRepo {
   abstract updateDetails(args: UpdateCompanyDetailsData): Promise<void>;
+  abstract getCurrentCurrency(): Promise<Currency>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
@@ -41,19 +42,21 @@ export class UpdateCompanyDetailsInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(Schema)
+  @Validate(UpdateCompanyDetailsSchema)
+  @ValidateOutput(UpdateCompanyDetailsSchema)
   @Transaction
   async invoke(data: UpdateCompanyDetailsData): Validated<UpdateCompanyDetailsData> {
     await this.repo.updateDetails({ ...data });
 
     const { companyId } = getTenantUser();
 
+    const currency = data.currency ?? (await this.repo.getCurrentCurrency());
+
     await this.eventService.publish(DomainEvent.COMPANY_UPDATED, {
       entityId: companyId,
       payload: {
         ...data,
-        currency: data.currency ?? Currency.eur,
+        currency,
       },
     });
 

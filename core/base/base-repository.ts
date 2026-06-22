@@ -127,6 +127,7 @@ export abstract class BaseRepository<
     if (args.customSort) {
       const candidates = (await findMany({
         where: args.where,
+        orderBy: { id: "asc" },
         select: {
           id: true,
           customFieldValues: {

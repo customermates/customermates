@@ -1,6 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { ConnectedAccount, MessagingThread } from "../messaging.schema";
+import type { MessagingThread } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
@@ -20,7 +21,7 @@ const AttendeeSchema = z.object({
   display_name: z.string().optional(),
 });
 
-const Schema = z
+export const SendEmailSchema = z
   .object({
     threadId: z.uuid().optional(),
     connectedAccountId: z.uuid().optional(),
@@ -39,7 +40,7 @@ const Schema = z
       });
     }
   });
-export type SendEmailData = Data<typeof Schema>;
+export type SendEmailData = Data<typeof SendEmailSchema>;
 
 export abstract class SendEmailRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
@@ -56,7 +57,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     super();
   }
 
-  @Validate(Schema)
+  @Validate(SendEmailSchema)
   async invoke(data: SendEmailData): Validated<null> {
     let account: ConnectedAccount;
     let replyTo: string | undefined;

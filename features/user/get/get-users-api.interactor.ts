@@ -8,7 +8,7 @@ import { Resource, Action } from "@/generated/prisma";
 
 import { type UserDto } from "../user.schema";
 
-import { getCompanyRepo, getValidateQueryParams } from "@/core/di";
+import { getUserRepo, getValidateQueryParams } from "@/core/di";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -17,8 +17,8 @@ import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { UserDtoSchema } from "../user.schema";
 
-const GetUsersQueryParamsApiSchema = GetQueryParamsApiSchema.omit({ filters: true }).superRefine(async (data, ctx) => {
-  await getValidateQueryParams().invoke(getCompanyRepo(), undefined, data, ctx);
+const Schema = GetQueryParamsApiSchema.omit({ filters: true }).superRefine(async (data, ctx) => {
+  await getValidateQueryParams().invoke(getUserRepo(), undefined, data, ctx);
 });
 
 @AllowInDemoMode
@@ -36,7 +36,7 @@ export class GetUsersApiInteractor extends BaseGetInteractor<UserDto> {
     });
   }
 
-  @Validate(GetUsersQueryParamsApiSchema)
+  @Validate(Schema)
   @ValidateOutput(createGetResultSchema(UserDtoSchema))
   async invoke(params: GetQueryParamsApi = {}): Validated<GetResult<UserDto>> {
     return await super.invoke(params);

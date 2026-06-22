@@ -1,8 +1,8 @@
 import type { CreateOrganizationRepo } from "./create-organization.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -25,7 +25,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
@@ -86,9 +86,9 @@ export class CreateManyOrganizationsInteractor extends AuthenticatedInteractor<
 > {
   constructor(
     private repo: CreateOrganizationRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -96,16 +96,16 @@ export class CreateManyOrganizationsInteractor extends AuthenticatedInteractor<
 
   @Validate(CreateManyOrganizationsSchema)
   @ValidateOutput(OrganizationDtoSchema)
-  @Transaction
+  @Transaction(BULK_WRITE_TRANSACTION)
   async invoke(data: CreateManyOrganizationsData): Validated<OrganizationDto[]> {
     const relatedContactIds = unique(data.organizations.flatMap((organization) => organization.contactIds));
     const relatedDealIds = unique(data.organizations.flatMap((organization) => organization.dealIds));
     const relatedTaskIds = unique(data.organizations.flatMap((organization) => organization.taskIds));
 
     const [previousContacts, previousDeals, previousTasks] = await Promise.all([
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const organizations = await Promise.all(
@@ -113,9 +113,9 @@ export class CreateManyOrganizationsInteractor extends AuthenticatedInteractor<
     );
 
     const [currentContacts, currentDeals, currentTasks] = await Promise.all([
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

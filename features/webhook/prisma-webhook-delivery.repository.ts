@@ -1,6 +1,7 @@
 import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.interactor";
 import type { GetWebhookDeliveryByIdRepo } from "./resend-webhook-delivery.interactor";
 import type { DeliverWebhookRepo } from "./deliver-webhook.interactor";
+import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
@@ -19,7 +20,12 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaWebhookDeliveryRepo
   extends BaseRepository<Prisma.WebhookDeliveryWhereInput>
-  implements GetWebhookDeliveriesRepo, GetWebhookDeliveryByIdRepo, CreateWebhookDeliveryRepo, DeliverWebhookRepo
+  implements
+    GetWebhookDeliveriesRepo,
+    GetWebhookDeliveryByIdRepo,
+    CreateWebhookDeliveryRepo,
+    DeliverWebhookRepo,
+    FindWebhookDeliveriesByIdsRepo
 {
   private get baseSelect() {
     return {
@@ -85,6 +91,19 @@ export class PrismaWebhookDeliveryRepo
       event: delivery.event as DomainEvent,
       requestBody: delivery.requestBody as WebhookDeliveryDto["requestBody"],
     };
+  }
+
+  async findIds(ids: Set<string>) {
+    if (ids.size === 0) return new Set<string>();
+
+    const { companyId } = this.user;
+
+    const deliveries = await this.prisma.webhookDelivery.findMany({
+      where: { id: { in: Array.from(ids) }, companyId },
+      select: { id: true },
+    });
+
+    return new Set(deliveries.map((delivery) => delivery.id));
   }
 
   async create(args: RepoArgs<CreateWebhookDeliveryRepo, "create">) {

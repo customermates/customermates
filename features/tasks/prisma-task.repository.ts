@@ -1,7 +1,7 @@
 import type { GetWidgetFilterableFieldsTaskRepo } from "../widget/get-widget-filterable-fields.interactor";
-import type { TaskRepo as TaskWorkerRepo } from "./task.service";
+import type { TaskRepo as TaskWorkerRepo } from "./listener/user-pending-authorization-task.listener";
 import type { GetTasksRepo } from "@/features/tasks/get/get-tasks.interactor";
-import type { GetTasksConfigurationRepo } from "@/features/tasks/get/get-tasks-configuration.interactor";
+import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.interactor";
 import type { CountTasksRepo } from "@/features/tasks/count-user-tasks.interactor";
 import type { CountSystemTasksRepo } from "@/features/tasks/count-system-tasks.interactor";
 import type { CreateTaskRepo } from "@/features/tasks/upsert/create-task.repo";
@@ -9,7 +9,7 @@ import type { UpdateTaskRepo } from "@/features/tasks/upsert/update-task.repo";
 import type { DeleteTaskRepo } from "@/features/tasks/delete/delete-task.repo";
 import type { GetTaskByIdRepo } from "@/features/tasks/get/get-task-by-id.interactor";
 import type { FindTasksByIdsRepo } from "@/features/tasks/find-tasks-by-ids.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 
 import { EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 
@@ -29,7 +29,7 @@ export class PrismaTaskRepo
   implements
     TaskWorkerRepo,
     GetTasksRepo,
-    GetTasksConfigurationRepo,
+    GetConfigurationRepo,
     CountTasksRepo,
     CountSystemTasksRepo,
     CreateTaskRepo,
@@ -38,7 +38,7 @@ export class PrismaTaskRepo
     GetTaskByIdRepo,
     GetWidgetFilterableFieldsTaskRepo,
     FindTasksByIdsRepo,
-    GetUnscopedTaskRepo
+    GetCompanyWideTaskRepo
 {
   private get userScopedSelect() {
     return {
@@ -200,19 +200,9 @@ export class PrismaTaskRepo
     });
   }
 
-  async findByType(args: RepoArgs<TaskWorkerRepo, "findByType">) {
-    const { companyId } = this.user;
-    const { type } = args;
-
-    return this.prisma.task.findFirst({
-      where: {
-        type,
-        companyId,
-      },
-    });
-  }
-
-  async findByTypeAndRelatedUserId(args: Parameters<TaskWorkerRepo["findByTypeAndRelatedUserId"]>[0]) {
+  async findByTypeAndRelatedUserIdCompanyWide(
+    args: Parameters<TaskWorkerRepo["findByTypeAndRelatedUserIdCompanyWide"]>[0],
+  ) {
     const { companyId } = this.user;
     const { type, relatedUserId } = args;
 
@@ -220,7 +210,7 @@ export class PrismaTaskRepo
   }
 
   @Transaction
-  async delete(args: RepoArgs<TaskWorkerRepo, "delete">) {
+  async deleteById(args: RepoArgs<TaskWorkerRepo, "deleteById">) {
     const { companyId } = this.user;
     const { id } = args;
 
@@ -521,7 +511,7 @@ export class PrismaTaskRepo
     return this.toDto(task);
   }
 
-  async getOrThrowUnscoped(id: string) {
+  async getOrThrowCompanyWide(id: string) {
     const { companyId } = this.user;
 
     const task = await this.prisma.task.findFirstOrThrow({
@@ -532,7 +522,7 @@ export class PrismaTaskRepo
     return this.toDto(task);
   }
 
-  async getManyOrThrowUnscoped(ids: string[]) {
+  async getManyOrThrowCompanyWide(ids: string[]) {
     if (ids.length === 0) return [];
 
     const { companyId } = this.user;

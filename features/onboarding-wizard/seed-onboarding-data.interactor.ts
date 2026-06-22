@@ -9,12 +9,12 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
-const SeedSchema = z.object({
+const Schema = z.object({
   salesType: z.enum(SalesType),
   keepDemoData: z.boolean().default(true),
 });
 
-export type SeedOnboardingData = Data<typeof SeedSchema>;
+export type SeedOnboardingData = Data<typeof Schema>;
 
 export abstract class SeedOnboardingDataRepo {
   abstract seedOnboardingData(args: {
@@ -30,7 +30,7 @@ export class SeedOnboardingDataInteractor extends AuthenticatedInteractor<SeedOn
     super();
   }
 
-  @Validate(SeedSchema)
+  @Validate(Schema)
   @ValidateOutput(z.null())
   async invoke(data: SeedOnboardingData): Validated<null> {
     const { id } = getTenantUser();

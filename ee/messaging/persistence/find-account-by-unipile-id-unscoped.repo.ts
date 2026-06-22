@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "../messaging.schema";
+import type { ConnectedAccount } from "@/generated/prisma";
 
 export abstract class FindAccountByUnipileIdUnscopedRepo {
   abstract findAccountByUnipileIdUnscoped(unipileAccountId: string): Promise<ConnectedAccount | null>;

@@ -16,7 +16,7 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { getConnectedAccountRepo } from "@/core/di";
-import { getProviderProfileUrl, isHandleProvider } from "../provider-icon";
+import { getProviderProfileUrl, isHandleProvider } from "../provider";
 
 const Schema = z
   .object({

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Currency } from "@/generated/prisma";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -37,6 +38,7 @@ describe("UpdateCompanyDetailsInteractor", () => {
 
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(undefined),
+      getCurrentCurrency: vi.fn().mockResolvedValue(Currency.eur),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -78,5 +80,25 @@ describe("UpdateCompanyDetailsInteractor", () => {
 
     expect(result.ok).toBe(true);
     expect(result.data).toEqual(expect.objectContaining({ name: "Acme Corp" }));
+  });
+
+  it("preserves the stored currency when currency is omitted, never silently resetting to EUR", async () => {
+    mockRepo.getCurrentCurrency.mockResolvedValue(Currency.usd);
+    const withoutCurrency = {
+      name: companyData.name,
+      street: companyData.street,
+      city: companyData.city,
+      postalCode: companyData.postalCode,
+      country: companyData.country,
+    };
+
+    const result: any = await createInteractor().invoke(withoutCurrency);
+
+    expect(result.ok).toBe(true);
+    expect(mockRepo.updateDetails.mock.calls[0][0].currency).toBeUndefined();
+    expect(mockEventService.publish).toHaveBeenCalledWith(
+      DomainEvent.COMPANY_UPDATED,
+      expect.objectContaining({ payload: expect.objectContaining({ currency: "usd" }) }),
+    );
   });
 });

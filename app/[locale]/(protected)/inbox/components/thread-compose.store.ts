@@ -6,7 +6,7 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 import { sendChatMessageAction, sendEmailAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { isEmailProvider } from "@/ee/messaging/provider-icon";
+import { isEmailProvider } from "@/ee/messaging/provider";
 
 export class ThreadComposeStore extends BaseFormStore<{
   provider: MessagingProvider | null;

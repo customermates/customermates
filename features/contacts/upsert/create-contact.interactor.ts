@@ -1,8 +1,8 @@
 import type { CreateContactRepo } from "./create-contact.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedTaskRepo } from "@/features/tasks/get-unscoped-task.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -65,7 +65,7 @@ export const CreateContactSchema = BaseCreateContactSchema.superRefine(async (da
     getCustomColumnRepo().findByEntityType(EntityType.contact),
     getUserService().getActiveUserOrThrow(),
     getUserService().hasPermission(Resource.contacts, Action.readAll),
-    getContactRepo().findIdentifierOwners(collectIdentifierPairs(identifierContacts)),
+    getContactRepo().findIdentifierOwnersCompanyWide(collectIdentifierPairs(identifierContacts)),
   ]);
 
   validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);
@@ -86,9 +86,9 @@ export type CreateContactData = Data<typeof CreateContactSchema>;
 export class CreateContactInteractor extends AuthenticatedInteractor<CreateContactData, ContactDto> {
   constructor(
     private repo: CreateContactRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private tasksRepo: GetUnscopedTaskRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
   ) {
     super();
@@ -103,17 +103,17 @@ export class CreateContactInteractor extends AuthenticatedInteractor<CreateConta
     const relatedTaskIds = unique(data.taskIds);
 
     const [previousOrganizations, previousDeals, previousTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     const contact = await this.repo.createContactOrThrow(data);
 
     const [currentOrganizations, currentDeals, currentTasks] = await Promise.all([
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.tasksRepo.getManyOrThrowUnscoped(relatedTaskIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.tasksRepo.getManyOrThrowCompanyWide(relatedTaskIds),
     ]);
 
     await Promise.all([

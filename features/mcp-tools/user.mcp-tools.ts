@@ -1,20 +1,16 @@
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
-import { encodeToToon, enumHint } from "./utils";
+import { encodeToToon, enumHint, runInteractor } from "./utils";
 
 import { getGetUserDetailsInteractor, getGetUsersInteractor, getUpdateUserDetailsInteractor } from "@/core/di";
+import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
 
 const countryValues = Object.values(CountryCode);
 
-const UpdateMyProfileSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  country: z.enum(CountryCode).describe(`ISO country code ${enumHint(countryValues)}`),
-  avatarUrl: z
-    .url()
-    .or(z.literal(""))
-    .nullable()
+const UpdateMyProfileSchema = UpdateUserDetailsSchema.extend({
+  country: UpdateUserDetailsSchema.shape.country.describe(`ISO country code ${enumHint(countryValues)}`),
+  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl
     .optional()
     .describe("HTTPS avatar URL, or '' / null to clear. Omit to keep existing."),
 });
@@ -40,18 +36,19 @@ export const updateMyProfileTool = {
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateMyProfileSchema,
   execute: async (params: z.infer<typeof UpdateMyProfileSchema>) => {
-    const result = await getUpdateUserDetailsInteractor().invoke({
-      firstName: params.firstName,
-      lastName: params.lastName,
-      country: params.country,
-      avatarUrl: params.avatarUrl ?? null,
-    });
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return encodeToToon({
-      firstName: result.data.firstName,
-      lastName: result.data.lastName,
-      message: "Profile updated",
-    });
+    const avatarUrl =
+      params.avatarUrl === undefined
+        ? ((await getGetUserDetailsInteractor().invoke()).data.avatarUrl ?? null)
+        : params.avatarUrl;
+    return runInteractor(
+      getUpdateUserDetailsInteractor().invoke({
+        firstName: params.firstName,
+        lastName: params.lastName,
+        country: params.country,
+        avatarUrl,
+      }),
+      (data) => encodeToToon({ firstName: data.firstName, lastName: data.lastName, message: "Profile updated" }),
+    );
   },
 };
 
@@ -63,16 +60,11 @@ export const listUsersTool = {
     "Use this to look up user ids before calling link_entities / update_* with userIds.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
-  execute: async () => {
-    const result = await getGetUsersInteractor().invoke({ pagination: { page: 1, pageSize: 100 } });
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
-    return encodeToToon({
-      items: result.data.items.map((item) => ({
-        id: item.id,
-        firstName: item.firstName,
-        lastName: item.lastName,
-      })),
-      total: result.data.pagination?.total ?? result.data.items.length,
-    });
-  },
+  execute: () =>
+    runInteractor(getGetUsersInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }), (data) =>
+      encodeToToon({
+        items: data.items.map((item) => ({ id: item.id, firstName: item.firstName, lastName: item.lastName })),
+        total: data.pagination?.total ?? data.items.length,
+      }),
+    ),
 };

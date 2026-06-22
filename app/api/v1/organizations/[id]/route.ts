@@ -28,7 +28,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     const result = await getGetOrganizationByIdInteractor().invoke({ id });
 
-    return NextResponse.json(result, { status: 200 });
+    if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
+
+    return NextResponse.json(result.data, { status: 200 });
   } catch (error) {
     return handleError(error);
   }

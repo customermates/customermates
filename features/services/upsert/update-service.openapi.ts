@@ -1,5 +1,7 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
+import { z } from "zod";
+
 import { ServiceDtoSchema } from "../service.schema";
 
 import { UpdateServiceSchema } from "./update-service.interactor";
@@ -12,17 +14,7 @@ export const updateServiceOperation: ZodOpenApiOperationObject = {
   description: "Updates an existing service. Only provided fields are updated. Set fields to null to clear them.",
   tags: ["services"],
   security: [{ apiKeyAuth: [] }],
-  parameters: [
-    {
-      name: "id",
-      in: "path",
-      required: true,
-      schema: {
-        type: "string",
-        format: "uuid",
-      },
-    },
-  ],
+  requestParams: { path: z.object({ id: z.uuid() }) },
   requestBody: {
     content: {
       "application/json": {

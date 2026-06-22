@@ -1,5 +1,5 @@
 import type { MessagingMessage, MessagingThread } from "../messaging.schema";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
@@ -9,7 +9,7 @@ import { MessagingThreadSchema } from "../messaging.schema";
 import { MessagingMessageDtoSchema } from "./inbox.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -23,12 +23,12 @@ export type AccountOwnerDto = z.infer<typeof AccountOwnerDtoSchema>;
 const Schema = z.object({ threadId: z.uuid() });
 type GetMessagingThreadData = Data<typeof Schema>;
 
-const ResultSchema = z.object({
+export const GetMessagingThreadResultSchema = z.object({
   thread: MessagingThreadSchema,
   messages: z.array(MessagingMessageDtoSchema),
   accountOwners: z.record(z.string(), AccountOwnerDtoSchema),
 });
-type GetMessagingThreadResult = z.infer<typeof ResultSchema>;
+type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
 
 export abstract class GetMessagingThreadRepo {
   abstract findThreadByIdOrThrow(id: string): Promise<MessagingThread>;
@@ -58,9 +58,9 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Enforce(Schema)
-  @ValidateOutput(ResultSchema)
-  async invoke(data: GetMessagingThreadData): Promise<{ ok: true; data: GetMessagingThreadResult }> {
+  @Validate(Schema)
+  @ValidateOutput(GetMessagingThreadResultSchema)
+  async invoke(data: GetMessagingThreadData): Validated<GetMessagingThreadResult> {
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 
     const rawMessages = await this.repo.listMessagesForThread(thread.id);

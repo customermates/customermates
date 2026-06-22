@@ -7,6 +7,8 @@ import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
+export const maxDuration = 60;
+
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };

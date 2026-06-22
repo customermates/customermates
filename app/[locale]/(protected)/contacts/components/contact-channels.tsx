@@ -13,7 +13,8 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getProviderIcon, isHandleProvider } from "@/ee/messaging/provider-icon";
+import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
+import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel, channelUrl } from "@/ee/messaging/thread-display";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -67,8 +68,8 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
 
       <div className="flex flex-col gap-2">
         {identifiers.map((identifier, index) => {
-          const ProviderIcon = getProviderIcon(identifier.provider);
-          const providerLabel = t(`Common.providers.${identifier.provider}`);
+          const ProviderIcon = getChannelIcon(identifier.provider);
+          const providerLabel = t(`Common.providers.${channelLabelKey(identifier.provider)}`);
           const primaryLabel =
             channelDisplayLabel(identifier.provider, identifier.value, identifier.profileUrl) ||
             identifier.displayName ||

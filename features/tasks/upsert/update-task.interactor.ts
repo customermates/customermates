@@ -1,9 +1,9 @@
 import type { UpdateTaskRepo } from "./update-task.repo";
 import type { EventService } from "@/features/event/event.service";
-import type { GetUnscopedContactRepo } from "@/features/contacts/get-unscoped-contact.repo";
-import type { GetUnscopedOrganizationRepo } from "@/features/organizations/get-unscoped-organization.repo";
-import type { GetUnscopedDealRepo } from "@/features/deals/get-unscoped-deal.repo";
-import type { GetUnscopedServiceRepo } from "@/features/services/get-unscoped-service.repo";
+import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-wide-contact.repo";
+import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
+import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
+import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action, EntityType } from "@/generated/prisma";
@@ -95,10 +95,10 @@ export type UpdateTaskData = Data<typeof UpdateTaskSchema>;
 export class UpdateTaskInteractor extends AuthenticatedInteractor<UpdateTaskData, TaskDto> {
   constructor(
     private repo: UpdateTaskRepo,
-    private contactsRepo: GetUnscopedContactRepo,
-    private organizationsRepo: GetUnscopedOrganizationRepo,
-    private dealsRepo: GetUnscopedDealRepo,
-    private servicesRepo: GetUnscopedServiceRepo,
+    private contactsRepo: GetCompanyWideContactRepo,
+    private organizationsRepo: GetCompanyWideOrganizationRepo,
+    private dealsRepo: GetCompanyWideDealRepo,
+    private servicesRepo: GetCompanyWideServiceRepo,
     private eventService: EventService,
   ) {
     super();
@@ -108,7 +108,7 @@ export class UpdateTaskInteractor extends AuthenticatedInteractor<UpdateTaskData
   @ValidateOutput(TaskDtoSchema)
   @Transaction
   async invoke(data: UpdateTaskData): Validated<TaskDto> {
-    const previousTask = await this.repo.getOrThrowUnscoped(data.id);
+    const previousTask = await this.repo.getOrThrowCompanyWide(data.id);
 
     const relatedContactIds = unique(
       previousTask.contacts.map((it) => it.id),
@@ -128,19 +128,19 @@ export class UpdateTaskInteractor extends AuthenticatedInteractor<UpdateTaskData
     );
 
     const [previousContacts, previousOrganizations, previousDeals, previousServices] = await Promise.all([
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
     ]);
 
     const task = await this.repo.updateTaskOrThrow(data);
 
     const [currentContacts, currentOrganizations, currentDeals, currentServices] = await Promise.all([
-      this.contactsRepo.getManyOrThrowUnscoped(relatedContactIds),
-      this.organizationsRepo.getManyOrThrowUnscoped(relatedOrganizationIds),
-      this.dealsRepo.getManyOrThrowUnscoped(relatedDealIds),
-      this.servicesRepo.getManyOrThrowUnscoped(relatedServiceIds),
+      this.contactsRepo.getManyOrThrowCompanyWide(relatedContactIds),
+      this.organizationsRepo.getManyOrThrowCompanyWide(relatedOrganizationIds),
+      this.dealsRepo.getManyOrThrowCompanyWide(relatedDealIds),
+      this.servicesRepo.getManyOrThrowCompanyWide(relatedServiceIds),
     ]);
 
     const changes = calculateChanges(previousTask, task);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
-import { encodeToToon, enumHint, FILTER_FIELD_DESCRIPTION } from "./utils";
+import { encodeToToon, validationError, customErrorMessage, enumHint, FILTER_FIELD_DESCRIPTION } from "./utils";
 
 import {
   getUpsertWidgetInteractor,
@@ -10,6 +10,7 @@ import {
   getDeleteWidgetInteractor,
 } from "@/core/di";
 import { type UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
@@ -73,7 +74,7 @@ const UpdateWidgetSchema = z.object({
 });
 
 const GetWidgetsSchema = z.object({
-  ids: z.array(z.uuid()).min(1).describe("Widget ids to fetch"),
+  ids: z.array(z.uuid()).min(1).max(100).describe("Widget ids to fetch"),
 });
 
 const DeleteWidgetSchema = z.object({
@@ -100,6 +101,7 @@ export const getWidgetsTool = {
   description:
     "Fetch full configuration for one or more widgets by id. " +
     "Required: ids. " +
+    "Each result item is the widget config, or { error } for an id that was not found — inspect every item even when the call itself succeeds. " +
     "Use this before update_widget when you need the current groupBy / filters / displayOptions.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: GetWidgetsSchema,
@@ -107,9 +109,9 @@ export const getWidgetsTool = {
     const results = await Promise.all(
       ids.map(async (id) => {
         const result = await getGetWidgetByIdInteractor().invoke({ id });
-        if (!result.ok) return { error: `Validation error: ${z.prettifyError(result.error)}` };
+        if (!result.ok) return { error: validationError(result.error) };
         const widget = result.data;
-        if (!widget) return { error: `Widget ${id} not found` };
+        if (!widget) return { error: await customErrorMessage(CustomErrorCode.widgetNotFound) };
         return {
           id: widget.id,
           name: widget.name,
@@ -155,7 +157,7 @@ export const createWidgetTool = {
       isTemplate: false,
     };
     const result = await getUpsertWidgetInteractor().invoke(payload);
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    if (!result.ok) return validationError(result.error);
 
     return encodeToToon({
       id: result.data.id,
@@ -176,9 +178,9 @@ export const updateWidgetTool = {
   inputSchema: UpdateWidgetSchema,
   execute: async (params: z.infer<typeof UpdateWidgetSchema>) => {
     const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: params.id });
-    if (!widgetResult.ok) return `Validation error: ${z.prettifyError(widgetResult.error)}`;
+    if (!widgetResult.ok) return validationError(widgetResult.error);
     const widget = widgetResult.data;
-    if (!widget) return `Validation error: Widget ${params.id} not found`;
+    if (!widget) return customErrorMessage(CustomErrorCode.widgetNotFound);
 
     const displayOptionsChanged =
       params.displayType !== undefined ||
@@ -216,7 +218,7 @@ export const updateWidgetTool = {
       ...updates,
     });
 
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    if (!result.ok) return validationError(result.error);
 
     return encodeToToon({
       id: result.data.id,
@@ -232,8 +234,11 @@ export const deleteWidgetTool = {
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteWidgetSchema,
   execute: async ({ id }: z.infer<typeof DeleteWidgetSchema>) => {
+    const widgetResult = await getGetWidgetByIdInteractor().invoke({ id });
+    if (!widgetResult.ok) return validationError(widgetResult.error);
+    if (!widgetResult.data) return customErrorMessage(CustomErrorCode.widgetNotFound);
     const result = await getDeleteWidgetInteractor().invoke({ id });
-    if (!result.ok) return `Validation error: ${z.prettifyError(result.error)}`;
+    if (!result.ok) return validationError(result.error);
     return `Deleted widget ${id}`;
   },
 };

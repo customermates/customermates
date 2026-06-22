@@ -29,7 +29,7 @@ type SeedDeal = {
   key: string;
   nameKey: string;
   orgKey: string;
-  contactKeys: string[];
+  ids: string[];
   serviceLineItems: Array<{ serviceKey: string; quantity: number }>;
   stage: StageKey;
 };
@@ -37,7 +37,7 @@ type SeedTask = {
   key: string;
   nameKey: string;
   statusKey: "open" | "inProgress" | "done";
-  contactKeys?: string[];
+  ids?: string[];
   orgKeys?: string[];
   dealKeys?: string[];
   serviceKeys?: string[];
@@ -117,37 +117,37 @@ const SHARED_TASKS: SeedTask[] = [
     key: "intro-call",
     nameKey: "introCall",
     statusKey: "open",
-    contactKeys: ["alex"],
+    ids: ["alex"],
     orgKeys: ["north-light"],
   },
-  { key: "send-quote", nameKey: "sendQuote", statusKey: "inProgress", contactKeys: ["marius"] },
+  { key: "send-quote", nameKey: "sendQuote", statusKey: "inProgress", ids: ["marius"] },
   {
     key: "kickoff-prep",
     nameKey: "kickoffPrep",
     statusKey: "open",
-    contactKeys: ["elena", "tomas"],
+    ids: ["elena", "tomas"],
     orgKeys: ["harbor-and-line"],
   },
   {
     key: "post-mortem",
     nameKey: "postMortem",
     statusKey: "done",
-    contactKeys: ["linnea"],
+    ids: ["linnea"],
     orgKeys: ["kestrel-studios"],
   },
-  { key: "follow-up", nameKey: "followUp", statusKey: "open", contactKeys: ["rashid"] },
+  { key: "follow-up", nameKey: "followUp", statusKey: "open", ids: ["rashid"] },
   {
     key: "contract-review",
     nameKey: "contractReview",
     statusKey: "inProgress",
-    contactKeys: ["sara"],
+    ids: ["sara"],
     orgKeys: ["atlas-mobility"],
   },
   {
     key: "gather-requirements",
     nameKey: "gatherRequirements",
     statusKey: "open",
-    contactKeys: ["priya"],
+    ids: ["priya"],
     orgKeys: ["north-light"],
   },
 ];
@@ -245,7 +245,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "north-light-starter",
     nameKey: "northLightStarter",
     orgKey: "north-light",
-    contactKeys: ["alex", "priya"],
+    ids: ["alex", "priya"],
     serviceLineItems: [{ serviceKey: "starter-kit", quantity: 50 }],
     stage: "new",
   },
@@ -253,7 +253,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "marlowe-bulk",
     nameKey: "marloweBulk",
     orgKey: "marlowe-and-cole",
-    contactKeys: ["marius"],
+    ids: ["marius"],
     serviceLineItems: [{ serviceKey: "premium-kit", quantity: 20 }],
     stage: "qualified",
   },
@@ -261,7 +261,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "harbor-rollout",
     nameKey: "harborRollout",
     orgKey: "harbor-and-line",
-    contactKeys: ["elena", "tomas"],
+    ids: ["elena", "tomas"],
     serviceLineItems: [{ serviceKey: "premium-kit", quantity: 18 }],
     stage: "quoted",
   },
@@ -269,7 +269,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "kestrel-flagship",
     nameKey: "kestrelFlagship",
     orgKey: "kestrel-studios",
-    contactKeys: ["linnea"],
+    ids: ["linnea"],
     serviceLineItems: [
       { serviceKey: "enterprise-kit", quantity: 6 },
       { serviceKey: "starter-kit", quantity: 8 },
@@ -280,7 +280,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "atlas-pilot",
     nameKey: "atlasPilot",
     orgKey: "atlas-mobility",
-    contactKeys: ["rashid"],
+    ids: ["rashid"],
     serviceLineItems: [{ serviceKey: "starter-kit", quantity: 50 }],
     stage: "lost",
   },
@@ -288,7 +288,7 @@ const PRODUCT_DEALS: SeedDeal[] = [
     key: "atlas-expansion",
     nameKey: "atlasExpansion",
     orgKey: "atlas-mobility",
-    contactKeys: ["sara"],
+    ids: ["sara"],
     serviceLineItems: [{ serviceKey: "premium-kit", quantity: 22 }],
     stage: "qualified",
   },
@@ -299,7 +299,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "north-light-discovery",
     nameKey: "northLightDiscovery",
     orgKey: "north-light",
-    contactKeys: ["alex", "priya"],
+    ids: ["alex", "priya"],
     serviceLineItems: [{ serviceKey: "discovery", quantity: 20 }],
     stage: "new",
   },
@@ -307,7 +307,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "marlowe-implementation",
     nameKey: "marloweImplementation",
     orgKey: "marlowe-and-cole",
-    contactKeys: ["marius"],
+    ids: ["marius"],
     serviceLineItems: [{ serviceKey: "implementation", quantity: 4 }],
     stage: "qualified",
   },
@@ -315,7 +315,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "harbor-discovery",
     nameKey: "harborDiscovery",
     orgKey: "harbor-and-line",
-    contactKeys: ["elena"],
+    ids: ["elena"],
     serviceLineItems: [
       { serviceKey: "discovery", quantity: 5 },
       { serviceKey: "implementation", quantity: 3 },
@@ -326,7 +326,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "kestrel-retainer",
     nameKey: "kestrelRetainer",
     orgKey: "kestrel-studios",
-    contactKeys: ["linnea"],
+    ids: ["linnea"],
     serviceLineItems: [
       { serviceKey: "implementation", quantity: 1 },
       { serviceKey: "retainer", quantity: 9 },
@@ -337,7 +337,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "atlas-discovery",
     nameKey: "atlasDiscovery",
     orgKey: "atlas-mobility",
-    contactKeys: ["rashid"],
+    ids: ["rashid"],
     serviceLineItems: [{ serviceKey: "discovery", quantity: 18 }],
     stage: "lost",
   },
@@ -345,7 +345,7 @@ const SERVICE_DEALS: SeedDeal[] = [
     key: "atlas-retainer",
     nameKey: "atlasRetainer",
     orgKey: "atlas-mobility",
-    contactKeys: ["sara"],
+    ids: ["sara"],
     serviceLineItems: [{ serviceKey: "retainer", quantity: 12 }],
     stage: "qualified",
   },
