@@ -16,13 +16,13 @@ import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
 
 import { paginate, UNIPILE_MAX_LIMIT } from "./paginate";
 
-const BackfillEmailsPayloadSchema = z.object({
+const Schema = z.object({
   account: z.custom<ConnectedAccount>(),
   afterDate: z.date(),
   checkpoint: BackfillCheckpointSchema,
   epoch: z.number(),
 });
-export type BackfillEmailsPayload = z.infer<typeof BackfillEmailsPayloadSchema>;
+type BackfillEmailsPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class BackfillEmailsInteractor {
@@ -32,7 +32,7 @@ export class BackfillEmailsInteractor {
     private ingest: MessagingIngestRepo,
   ) {}
 
-  @Enforce(BackfillEmailsPayloadSchema)
+  @Enforce(Schema)
   async invoke({ account, afterDate, checkpoint, epoch }: BackfillEmailsPayload): Promise<void> {
     if (checkpoint.email?.done) return;
 

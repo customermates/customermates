@@ -19,9 +19,15 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { DeleteWidgetInteractor } from "../delete-widget.interactor";
+import { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
+import { getWidgetRepo } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const WIDGET_ID = "00000000-0000-4000-8000-000000000001";
+
+function makeInteractor(repo: any) {
+  return new DeleteWidgetInteractor(repo, new ValidateWidgetIdsInteractor(getWidgetRepo()));
+}
 
 describe("DeleteWidgetInteractor", () => {
   let repo: any;
@@ -34,7 +40,7 @@ describe("DeleteWidgetInteractor", () => {
   it("deletes a widget that exists", async () => {
     widgetFindIds.mockResolvedValue(new Set([WIDGET_ID]));
 
-    const result: any = await new DeleteWidgetInteractor(repo).invoke({ id: WIDGET_ID });
+    const result: any = await makeInteractor(repo).invoke({ id: WIDGET_ID });
 
     expect(result.ok).toBe(true);
     expect(repo.deleteWidget).toHaveBeenCalledWith(WIDGET_ID);
@@ -43,7 +49,7 @@ describe("DeleteWidgetInteractor", () => {
   it("rejects a missing widget with widgetNotFound instead of silently succeeding", async () => {
     widgetFindIds.mockResolvedValue(new Set<string>());
 
-    const result: any = await new DeleteWidgetInteractor(repo).invoke({ id: WIDGET_ID });
+    const result: any = await makeInteractor(repo).invoke({ id: WIDGET_ID });
 
     expect(result.ok).toBe(false);
     expect(result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.widgetNotFound)).toBe(true);

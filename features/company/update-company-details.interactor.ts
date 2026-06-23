@@ -46,7 +46,7 @@ export class UpdateCompanyDetailsInteractor extends AuthenticatedInteractor<
   @ValidateOutput(UpdateCompanyDetailsSchema)
   @Transaction
   async invoke(data: UpdateCompanyDetailsData): Validated<UpdateCompanyDetailsData> {
-    await this.repo.updateDetails({ ...data });
+    await this.repo.updateDetails(data);
 
     const { companyId } = getTenantUser();
 

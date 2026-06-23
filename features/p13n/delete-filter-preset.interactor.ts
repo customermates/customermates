@@ -8,6 +8,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -15,20 +16,6 @@ const Schema = z.object({
 });
 
 export type DeleteFilterPresetData = Data<typeof Schema>;
-
-const OutputSchema = z.object({
-  p13nId: z.string(),
-  filters: z.array(z.any()).optional(),
-  savedFilterPresets: z.array(z.any()).optional(),
-  searchTerm: z.string().optional(),
-  sortDescriptor: z.any().optional(),
-  pagination: z.any().optional(),
-  columnWidths: z.record(z.string(), z.number()).optional(),
-  columnOrder: z.array(z.string()).optional(),
-  hiddenColumns: z.array(z.string()).optional(),
-  viewMode: z.string().optional(),
-  groupingColumnId: z.string().optional(),
-});
 
 export abstract class DeleteFilterPresetRepo {
   abstract getP13n(p13nId: string): Promise<P13nEntry | undefined>;
@@ -42,16 +29,13 @@ export class DeleteFilterPresetInteractor extends AuthenticatedInteractor<Delete
   }
 
   @Enforce(Schema)
-  @ValidateOutput(OutputSchema)
+  @ValidateOutput(P13nEntrySchema)
   @Transaction
   async invoke(data: DeleteFilterPresetData): Promise<{ ok: true; data: P13nEntry }> {
     const p13nData = await this.repo.getP13n(data.p13nId);
     const existingPresets = p13nData?.savedFilterPresets ?? [];
 
-    const presetIndex = existingPresets.findIndex((p) => p.id === data.presetId);
-    const presetExists = presetIndex >= 0;
-
-    if (!presetExists) throw new Error("Preset not found");
+    if (existingPresets.findIndex((p) => p.id === data.presetId) < 0) throw new Error("Preset not found");
 
     const updatedPresets = existingPresets.filter((p) => p.id !== data.presetId);
 

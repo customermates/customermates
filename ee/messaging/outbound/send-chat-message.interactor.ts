@@ -1,3 +1,4 @@
+import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingThread } from "../messaging.schema";
@@ -10,22 +11,15 @@ import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
-import { validateThreadIds } from "@/core/validation/ids-validators";
-import { getMessagingRepo } from "@/core/di";
 
 export const SendChatMessageSchema = z.object({
   threadId: z.uuid(),
   text: z.string().min(1).max(20_000),
 });
 export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
-
-export const SendChatMessageValidateSchema = SendChatMessageSchema.superRefine(async (data, ctx) => {
-  const validIdsSet = await getMessagingRepo().findThreadIds(new Set([data.threadId]));
-  validateThreadIds(data.threadId, validIdsSet, ctx, ["threadId"]);
-});
 
 export abstract class SendChatMessageRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
@@ -37,11 +31,16 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     private repo: SendChatMessageRepo,
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private validator: ValidateThreadIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(SendChatMessageValidateSchema)
+  @Write({
+    input: SendChatMessageSchema,
+    tx: false,
+    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.threadId, path: ["threadId"] }], ctx),
+  })
   async invoke(data: SendChatMessageData): Validated<null> {
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 

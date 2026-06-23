@@ -3,7 +3,7 @@ import { CountryCode } from "@/generated/prisma";
 
 import { encodeToToon, enumHint, runInteractor } from "./utils";
 
-import { getGetUserDetailsInteractor, getGetUsersInteractor, getUpdateUserDetailsInteractor } from "@/core/di";
+import { getGetUserDetailsInteractor, getGetUsersApiInteractor, getUpdateUserDetailsInteractor } from "@/core/di";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
 
 const countryValues = Object.values(CountryCode);
@@ -61,7 +61,7 @@ export const listUsersTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   execute: () =>
-    runInteractor(getGetUsersInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }), (data) =>
+    runInteractor(getGetUsersApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }), (data) =>
       encodeToToon({
         items: data.items.map((item) => ({ id: item.id, firstName: item.firstName, lastName: item.lastName })),
         total: data.pagination?.total ?? data.items.length,

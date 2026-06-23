@@ -22,6 +22,40 @@ import { UpdateManyDealsInteractor } from "../upsert/update-many-deals.interacto
 import { DeleteManyDealsInteractor } from "../delete/delete-many-deals.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 
+import { DealWritePrecheckInteractor } from "../upsert/deal-write-precheck.interactor";
+import { ValidateAssigneeGuardInteractor } from "@/core/validation/validators/validate-assignee-guard.interactor";
+import { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
+import { ValidateCustomFieldValuesInteractor } from "@/core/validation/validators/validate-custom-field-values.interactor";
+import { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import { ValidateOrganizationIdsInteractor } from "@/core/validation/validators/validate-organization-ids.interactor";
+import { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
+import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
+import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import {
+  getOrganizationRepo,
+  getUserRepo,
+  getContactRepo,
+  getServiceRepo,
+  getTaskRepo,
+  getDealRepo,
+  getCustomColumnRepo,
+  getUserService,
+} from "@/core/di";
+import type { UserService } from "@/features/user/user.service";
+
+function makeDealWritePrecheck(): DealWritePrecheckInteractor {
+  return new DealWritePrecheckInteractor(
+    new ValidateOrganizationIdsInteractor(getOrganizationRepo()),
+    new ValidateUserIdsInteractor(getUserRepo()),
+    new ValidateContactIdsInteractor(getContactRepo()),
+    new ValidateServiceIdsInteractor(getServiceRepo()),
+    new ValidateTaskIdsInteractor(getTaskRepo()),
+    new ValidateDealIdsInteractor(getDealRepo()),
+    new ValidateCustomFieldValuesInteractor(getCustomColumnRepo()),
+    new ValidateAssigneeGuardInteractor(getUserService() as unknown as UserService),
+  );
+}
+
 const DEAL_ID = "00000000-0000-4000-8000-000000000001";
 const DEAL_ID_2 = "00000000-0000-4000-8000-000000000002";
 const ORG_ID_1 = "00000000-0000-4000-8000-000000000010";
@@ -121,6 +155,7 @@ describe("CreateDealInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 
@@ -147,7 +182,9 @@ describe("CreateDealInteractor", () => {
 
   it("publishes ORGANIZATION_UPDATED events with payload for linked organizations", async () => {
     const org = makeOrgDto(ORG_ID_1);
-    mockOrgRepo.getManyOrThrowCompanyWide.mockResolvedValue([org]);
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...org, deals: [] }])
+      .mockResolvedValueOnce([{ ...org, deals: [{ id: DEAL_ID }] }]);
 
     const dealWithOrgs = makeDealDto({
       organizations: [org],
@@ -182,7 +219,9 @@ describe("CreateDealInteractor", () => {
 
   it("publishes CONTACT_UPDATED events with payload for linked contacts", async () => {
     const contact = makeContactDto(CONTACT_ID_1);
-    mockContactRepo.getManyOrThrowCompanyWide.mockResolvedValue([contact]);
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...contact, deals: [] }])
+      .mockResolvedValueOnce([{ ...contact, deals: [{ id: DEAL_ID }] }]);
 
     const dealWithContacts = makeDealDto({
       contacts: [{ id: CONTACT_ID_1, firstName: "Jane", lastName: "Doe", avatarUrl: null }],
@@ -217,7 +256,9 @@ describe("CreateDealInteractor", () => {
 
   it("publishes SERVICE_UPDATED events with payload for linked services", async () => {
     const service = makeServiceDto(SERVICE_ID_1);
-    mockServiceRepo.getManyOrThrowCompanyWide.mockResolvedValue([service]);
+    mockServiceRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...service, deals: [] }])
+      .mockResolvedValueOnce([{ ...service, deals: [{ id: DEAL_ID }] }]);
 
     const dealWithServices = makeDealDto({
       services: [{ id: SERVICE_ID_1, name: "Service 30", amount: 50, quantity: 2 }],
@@ -335,6 +376,7 @@ describe("UpdateDealInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 
@@ -455,13 +497,22 @@ describe("DeleteDealInteractor", () => {
       deleteDealOrThrow: vi.fn().mockResolvedValue(dealWithRelations),
     };
     mockOrgRepo = {
-      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeOrgDto(ORG_ID_1)]),
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), deals: [] }]),
     };
     mockContactRepo = {
-      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]),
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeContactDto(CONTACT_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeContactDto(CONTACT_ID_1), deals: [] }]),
     };
     mockServiceRepo = {
-      getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeServiceDto(SERVICE_ID_1)]),
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [] }]),
     };
     mockTaskRepo = {
       getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]),
@@ -479,6 +530,7 @@ describe("DeleteDealInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 
@@ -587,6 +639,7 @@ describe("CreateManyDealsInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 
@@ -635,7 +688,9 @@ describe("CreateManyDealsInteractor", () => {
 
   it("publishes ORGANIZATION_UPDATED events with payload for related organizations", async () => {
     const org = makeOrgDto(ORG_ID_1);
-    mockOrgRepo.getManyOrThrowCompanyWide.mockResolvedValue([org]);
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...org, deals: [] }])
+      .mockResolvedValueOnce([{ ...org, deals: [{ id: DEAL_ID }] }]);
     mockCreateRepo.createDealOrThrow.mockReset();
     mockCreateRepo.createDealOrThrow.mockResolvedValueOnce(makeDealDto({ organizations: [org] }));
 
@@ -736,6 +791,7 @@ describe("UpdateManyDealsInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 
@@ -890,9 +946,24 @@ describe("DeleteManyDealsInteractor", () => {
       getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([deal1, deal2]),
       deleteDealOrThrow: vi.fn().mockResolvedValueOnce(deal1).mockResolvedValueOnce(deal2),
     };
-    mockOrgRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeOrgDto(ORG_ID_1)]) };
-    mockContactRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeContactDto(CONTACT_ID_1)]) };
-    mockServiceRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([makeServiceDto(SERVICE_ID_1)]) };
+    mockOrgRepo = {
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), deals: [] }]),
+    };
+    mockContactRepo = {
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeContactDto(CONTACT_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeContactDto(CONTACT_ID_1), deals: [] }]),
+    };
+    mockServiceRepo = {
+      getManyOrThrowCompanyWide: vi
+        .fn()
+        .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [{ id: DEAL_ID }] }])
+        .mockResolvedValueOnce([{ ...makeServiceDto(SERVICE_ID_1), deals: [] }]),
+    };
     mockTaskRepo = { getManyOrThrowCompanyWide: vi.fn().mockResolvedValue([]) };
     mockEventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
@@ -905,6 +976,7 @@ describe("DeleteManyDealsInteractor", () => {
       mockServiceRepo,
       mockTaskRepo,
       mockEventService,
+      makeDealWritePrecheck(),
     );
   }
 

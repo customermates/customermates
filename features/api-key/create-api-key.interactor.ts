@@ -37,7 +37,7 @@ const Schema = z
 
 export type CreateApiKeyData = Data<typeof Schema>;
 
-export type CreateApiKeyResult = ApiKey & { key: string };
+type CreateApiKeyResult = ApiKey & { key: string };
 
 @TenantInteractor({ resource: Resource.api, action: Action.create })
 export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKeyData, CreateApiKeyResult> {

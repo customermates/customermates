@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { Resource, Action, CountryCode as CountryCodeEnum } from "@/generated/prisma";
 
-import type { CountryCode } from "@/generated/prisma";
-
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -19,15 +17,7 @@ export const UserDetailsDtoSchema = z.object({
   roleName: z.string().nullable(),
 });
 
-export interface UserDetails {
-  id: string;
-  firstName: string;
-  lastName: string;
-  country: CountryCode;
-  avatarUrl: string | null;
-  roleId: string | null;
-  roleName: string | null;
-}
+export type UserDetails = z.infer<typeof UserDetailsDtoSchema>;
 
 @AllowInDemoMode
 @TenantInteractor({

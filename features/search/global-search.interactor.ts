@@ -62,12 +62,10 @@ export class GlobalSearchInteractor extends AuthenticatedInteractor<GlobalSearch
   @Enforce(Schema)
   @ValidateOutput(OutputSchema)
   async invoke(data: GlobalSearchData): Promise<{ ok: true; data: GlobalSearchResult }> {
-    const { searchTerm } = data;
-
     const perEntity = await Promise.all(
       UI_SEARCHABLE_ENTITIES.map(async (entity): Promise<GlobalSearchResultItem[]> => {
         const result = await entityListExecutors[entity]({
-          searchTerm,
+          searchTerm: data.searchTerm,
           pagination: { page: 1, pageSize: 100 },
         });
         if (!result.ok) return [];

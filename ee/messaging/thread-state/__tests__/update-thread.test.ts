@@ -19,6 +19,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { UpdateThreadInteractor } from "../update-thread.interactor";
+import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
+import { getMessagingRepo } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const THREAD_ID = "00000000-0000-4000-8000-000000000001";
@@ -37,7 +39,13 @@ describe("UpdateThreadInteractor", () => {
   it("updates a thread that exists", async () => {
     threadFindIds.mockResolvedValue(new Set([THREAD_ID]));
 
-    const result: any = await new UpdateThreadInteractor(repo).invoke({ threadId: THREAD_ID, sharedToCrm: true });
+    const result: any = await new UpdateThreadInteractor(
+      repo,
+      new ValidateThreadIdsInteractor(getMessagingRepo()),
+    ).invoke({
+      threadId: THREAD_ID,
+      sharedToCrm: true,
+    });
 
     expect(result.ok).toBe(true);
     expect(repo.setThreadSharedToCrm).toHaveBeenCalledWith({ threadId: THREAD_ID, shared: true });
@@ -46,7 +54,13 @@ describe("UpdateThreadInteractor", () => {
   it("rejects a missing thread with threadNotFound instead of silently succeeding", async () => {
     threadFindIds.mockResolvedValue(new Set<string>());
 
-    const result: any = await new UpdateThreadInteractor(repo).invoke({ threadId: THREAD_ID, sharedToCrm: true });
+    const result: any = await new UpdateThreadInteractor(
+      repo,
+      new ValidateThreadIdsInteractor(getMessagingRepo()),
+    ).invoke({
+      threadId: THREAD_ID,
+      sharedToCrm: true,
+    });
 
     expect(result.ok).toBe(false);
     expect(result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.threadNotFound)).toBe(true);

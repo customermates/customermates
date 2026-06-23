@@ -19,18 +19,9 @@ const Schema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/)
     .optional(),
 });
-export type InviteTokenData = Data<typeof Schema>;
+type InviteTokenData = Data<typeof Schema>;
 
-export type ValidatedInviteToken =
-  | {
-      valid: true;
-      companyId: string;
-      companyName: string;
-    }
-  | {
-      valid: false;
-      errorMessage: string;
-    };
+type ValidatedInviteToken = z.infer<typeof OutputSchema>;
 
 export abstract class InviteTokenRepo {
   abstract findTokenUnscoped(token: string): Promise<(InviteToken & { companyName: string }) | null>;

@@ -30,6 +30,7 @@ describe("ModifyEntityRelationInteractor", () => {
   let updateDeals: any;
   let stubRepo: any;
   let stubPort: any;
+  let stubValidator: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,6 +40,7 @@ describe("ModifyEntityRelationInteractor", () => {
     updateDeals = { invoke: vi.fn().mockResolvedValue({ ok: true, data: [] }) };
     stubRepo = { getOrThrowCompanyWide: vi.fn() };
     stubPort = { invoke: vi.fn().mockResolvedValue({ ok: true, data: [] }) };
+    stubValidator = { invoke: vi.fn() };
   });
 
   function createInteractor() {
@@ -53,6 +55,11 @@ describe("ModifyEntityRelationInteractor", () => {
       updateDeals,
       stubPort,
       stubPort,
+      stubValidator,
+      stubValidator,
+      stubValidator,
+      stubValidator,
+      stubValidator,
     );
   }
 

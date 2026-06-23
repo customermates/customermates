@@ -24068,7 +24068,7 @@
       "post": {
         "operationId": "getUsers",
         "summary": "Get users",
-        "description": "Retrieves a list of users with optional sorting and pagination.",
+        "description": "Retrieves a list of users with optional filtering, sorting and pagination.",
         "tags": [
           "users"
         ],
@@ -24083,6 +24083,171 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "filters": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "title": "Single value filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "equals",
+                                  "type": "string",
+                                  "const": "equals"
+                                },
+                                {
+                                  "title": "contains",
+                                  "type": "string",
+                                  "const": "contains"
+                                },
+                                {
+                                  "title": "gt",
+                                  "type": "string",
+                                  "const": "gt"
+                                },
+                                {
+                                  "title": "gte",
+                                  "type": "string",
+                                  "const": "gte"
+                                },
+                                {
+                                  "title": "lt",
+                                  "type": "string",
+                                  "const": "lt"
+                                },
+                                {
+                                  "title": "lte",
+                                  "type": "string",
+                                  "const": "lte"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        },
+                        {
+                          "title": "Multi value filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "in",
+                                  "type": "string",
+                                  "const": "in"
+                                },
+                                {
+                                  "title": "notIn",
+                                  "type": "string",
+                                  "const": "notIn"
+                                },
+                                {
+                                  "title": "between",
+                                  "type": "string",
+                                  "const": "between"
+                                },
+                                {
+                                  "title": "hasNone",
+                                  "type": "string",
+                                  "const": "hasNone"
+                                },
+                                {
+                                  "title": "hasSome",
+                                  "type": "string",
+                                  "const": "hasSome"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        },
+                        {
+                          "title": "Standalone filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "title": "isNull",
+                                  "type": "string",
+                                  "const": "isNull"
+                                },
+                                {
+                                  "title": "isNotNull",
+                                  "type": "string",
+                                  "const": "isNotNull"
+                                },
+                                {
+                                  "title": "hasUnset",
+                                  "type": "string",
+                                  "const": "hasUnset"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ]
+                        },
+                        {
+                          "title": "Relative window filter",
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "title": "inLastDays",
+                              "type": "string",
+                              "const": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ]
+                        }
+                      ],
+                      "type": "object"
+                    }
+                  },
                   "searchTerm": {
                     "type": "string",
                     "maxLength": 200
@@ -25479,36 +25644,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "connectedAccountId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                  },
-                  "attendeeIdentifiers": {
-                    "minItems": 1,
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "text": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 20000
-                  },
-                  "subject": {
-                    "type": "string",
-                    "maxLength": 998
-                  }
-                },
-                "required": [
-                  "connectedAccountId",
-                  "attendeeIdentifiers",
-                  "text"
-                ]
+                "$ref": "#/components/schemas/StartChatInputSchema"
               }
             }
           }
@@ -34289,6 +34425,38 @@
           "body"
         ]
       },
+      "StartChatInputSchema": {
+        "type": "object",
+        "properties": {
+          "connectedAccountId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "attendeeIdentifiers": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20000
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 998
+          }
+        },
+        "required": [
+          "connectedAccountId",
+          "attendeeIdentifiers",
+          "text"
+        ]
+      },
       "ErrorResponseSchema": {
         "type": "string"
       },
@@ -37268,39 +37436,6 @@
         },
         "required": [
           "threadId",
-          "text"
-        ],
-        "additionalProperties": false
-      },
-      "StartChatSchema": {
-        "type": "object",
-        "properties": {
-          "connectedAccountId": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-          },
-          "attendeeIdentifiers": {
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "text": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 20000
-          },
-          "subject": {
-            "type": "string",
-            "maxLength": 998
-          }
-        },
-        "required": [
-          "connectedAccountId",
-          "attendeeIdentifiers",
           "text"
         ],
         "additionalProperties": false

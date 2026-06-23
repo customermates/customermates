@@ -1,19 +1,18 @@
 import type { ExtendedWidget } from "./widget.types";
 import type { Data } from "@/core/validation/validation.utils";
+import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
+import type { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
 
 import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
 import { WidgetDtoSchema } from "./widget.schema";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { validateWidgetIds, validateCustomColumnIds } from "@/core/validation/ids-validators";
-import { getWidgetRepo, getCustomColumnRepo } from "@/core/di";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
 const DisplayOptionsSchema = z
@@ -43,17 +42,7 @@ const Schema = z
     aggregationType: z.enum(AggregationType),
     isTemplate: z.boolean(),
   })
-  .superRefine(async (data, ctx) => {
-    if (data.id) {
-      const validIdsSet = await getWidgetRepo().findIds(new Set([data.id]));
-      validateWidgetIds(data.id, validIdsSet, ctx, ["id"]);
-    }
-
-    if (data.groupByCustomColumnId) {
-      const validColumnIdsSet = await getCustomColumnRepo().findIds(new Set([data.groupByCustomColumnId]));
-      validateCustomColumnIds(data.groupByCustomColumnId, validColumnIdsSet, ctx, ["groupByCustomColumnId"]);
-    }
-
+  .superRefine((data, ctx) => {
     if (data.groupByType === WidgetGroupByType.customColumn && !data.groupByCustomColumnId) {
       ctx.addIssue({
         code: "custom",
@@ -141,13 +130,30 @@ export abstract class UpsertWidgetRepo {
 
 @TenantInteractor()
 export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidgetData, ExtendedWidget> {
-  constructor(private repo: UpsertWidgetRepo) {
+  constructor(
+    private repo: UpsertWidgetRepo,
+    private widgetValidator: ValidateWidgetIdsInteractor,
+    private customColumnValidator: ValidateCustomColumnIdsInteractor,
+  ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(WidgetDtoSchema)
+  @Write({
+    input: Schema,
+    output: WidgetDtoSchema,
+    tx: false,
+    precheck: (self, data, ctx) => self.precheck(data, ctx),
+  })
   async invoke(data: UpsertWidgetData): Validated<ExtendedWidget> {
     return { ok: true as const, data: await this.repo.upsertWidget({ data }) };
+  }
+
+  private async precheck(data: UpsertWidgetData, ctx: z.RefinementCtx) {
+    await Promise.all([
+      data.id ? this.widgetValidator.invoke([{ ids: data.id, path: ["id"] }], ctx) : undefined,
+      data.groupByCustomColumnId
+        ? this.customColumnValidator.invoke([{ ids: data.groupByCustomColumnId, path: ["groupByCustomColumnId"] }], ctx)
+        : undefined,
+    ]);
   }
 }

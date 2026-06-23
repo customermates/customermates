@@ -12,10 +12,10 @@ import { UnipileWebhookSource } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-const ProcessUnipileWebhookEventPayloadSchema = z.object({
+const Schema = z.object({
   id: z.uuid(),
 });
-export type ProcessUnipileWebhookEventPayload = z.infer<typeof ProcessUnipileWebhookEventPayloadSchema>;
+export type ProcessUnipileWebhookEventPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class ProcessUnipileWebhookEventInteractor {
@@ -29,7 +29,7 @@ export class ProcessUnipileWebhookEventInteractor {
     private processUsers: ProcessUsersWebhookInteractor,
   ) {}
 
-  @Enforce(ProcessUnipileWebhookEventPayloadSchema)
+  @Enforce(Schema)
   async invoke({ id }: ProcessUnipileWebhookEventPayload): Promise<void> {
     const row = await this.repo.findWebhookEventByIdOrThrowUnscoped(id);
     if (row.processed) return;

@@ -12,13 +12,11 @@ import type { Subscription } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { validateUserIds } from "@/core/validation/ids-validators";
-import { getUserRepo } from "@/core/di";
+import { checkIds } from "@/core/validation/validators/check-ids";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
   email: z.email(),
@@ -31,12 +29,8 @@ const Schema = z.object({
 });
 export type AdminUpdateUserDetailsData = Data<typeof Schema>;
 
-const ValidateSchema = Schema.superRefine(async (data, ctx) => {
-  const validEmails = await getUserRepo().findExistingEmailsCompanyWide(new Set([data.email]));
-  validateUserIds(data.email, validEmails, ctx, ["email"]);
-});
-
 export abstract class AdminUpdateUserDetailsRepo {
+  abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
   abstract findOrThrowCompanyWide(email: string): Promise<ExtendedUser>;
   abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>; // TODO do we need the admin prefix?
 }
@@ -66,9 +60,11 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(ValidateSchema)
-  @ValidateOutput(Schema)
-  @Transaction
+  @Write({
+    input: Schema,
+    output: Schema,
+    precheck: (self, data, ctx) => self.precheck(data, ctx),
+  })
   async invoke(data: AdminUpdateUserDetailsData): Validated<AdminUpdateUserDetailsData> {
     const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
     const targetUserId = targetUser.id;
@@ -127,6 +123,15 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       subscription.lemonSqueezyId,
       subscription.lemonSqueezyVariantId,
       activeUsersCount,
+    );
+  }
+
+  private async precheck(data: AdminUpdateUserDetailsData, ctx: z.RefinementCtx) {
+    await checkIds(
+      [{ ids: data.email, path: ["email"] }],
+      ctx,
+      (emails) => this.userRepo.findExistingEmailsCompanyWide(emails),
+      CustomErrorCode.userNotFound,
     );
   }
 }

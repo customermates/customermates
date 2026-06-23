@@ -127,7 +127,7 @@ import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messagi
 import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { ActivitiesParamsSchema, ActivitiesResultSchema } from "@/ee/messaging/activities/activities.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
-import { StartChatSchema } from "@/ee/messaging/outbound/start-chat.interactor";
+import { StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -375,7 +375,7 @@ export function generateOpenApiSpec() {
         ActivitiesParamsSchema,
         ActivitiesResultSchema,
         SendEmailSchema,
-        StartChatSchema,
+        StartChatInputSchema,
       },
       securitySchemes: {
         apiKeyAuth: {

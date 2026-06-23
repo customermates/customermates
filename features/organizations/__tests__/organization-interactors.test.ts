@@ -22,6 +22,25 @@ import { UpdateManyOrganizationsInteractor } from "../upsert/update-many-organiz
 import { DeleteManyOrganizationsInteractor } from "../delete/delete-many-organizations.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 
+import { OrganizationWritePrecheckInteractor } from "../upsert/organization-write-precheck.interactor";
+import { ValidateAssigneeGuardInteractor } from "@/core/validation/validators/validate-assignee-guard.interactor";
+import { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
+import { ValidateCustomFieldValuesInteractor } from "@/core/validation/validators/validate-custom-field-values.interactor";
+import { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import { ValidateOrganizationIdsInteractor } from "@/core/validation/validators/validate-organization-ids.interactor";
+import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
+import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import {
+  getOrganizationRepo,
+  getContactRepo,
+  getUserRepo,
+  getDealRepo,
+  getTaskRepo,
+  getCustomColumnRepo,
+  getUserService,
+} from "@/core/di";
+import type { UserService } from "@/features/user/user.service";
+
 const ORG_ID = "00000000-0000-4000-8000-000000000001";
 const ORG_ID_2 = "00000000-0000-4000-8000-000000000002";
 const CONTACT_ID_1 = "00000000-0000-4000-8000-000000000010";
@@ -78,6 +97,18 @@ function makeDealDto(id: string) {
   };
 }
 
+function makeOrganizationWritePrecheck(): OrganizationWritePrecheckInteractor {
+  return new OrganizationWritePrecheckInteractor(
+    new ValidateOrganizationIdsInteractor(getOrganizationRepo()),
+    new ValidateContactIdsInteractor(getContactRepo()),
+    new ValidateUserIdsInteractor(getUserRepo()),
+    new ValidateDealIdsInteractor(getDealRepo()),
+    new ValidateTaskIdsInteractor(getTaskRepo()),
+    new ValidateCustomFieldValuesInteractor(getCustomColumnRepo()),
+    new ValidateAssigneeGuardInteractor(getUserService() as unknown as UserService),
+  );
+}
+
 describe("CreateOrganizationInteractor", () => {
   let mockCreateRepo: any;
   let mockContactRepo: any;
@@ -112,6 +143,7 @@ describe("CreateOrganizationInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -136,10 +168,14 @@ describe("CreateOrganizationInteractor", () => {
   });
 
   it("publishes CONTACT_UPDATED events with payload for linked contacts", async () => {
-    const contact1 = makeContactDto(CONTACT_ID_1);
-    const contact2 = makeContactDto(CONTACT_ID_2);
+    const contact1Before = { ...makeContactDto(CONTACT_ID_1), organizations: [] };
+    const contact2Before = { ...makeContactDto(CONTACT_ID_2), organizations: [] };
+    const contact1After = { ...makeContactDto(CONTACT_ID_1), organizations: [{ id: ORG_ID }] };
+    const contact2After = { ...makeContactDto(CONTACT_ID_2), organizations: [{ id: ORG_ID }] };
 
-    mockContactRepo.getManyOrThrowCompanyWide.mockResolvedValue([contact1, contact2]);
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([contact1Before, contact2Before])
+      .mockResolvedValueOnce([contact1After, contact2After]);
 
     const orgWithContacts = makeOrgDto({
       contacts: [
@@ -184,8 +220,9 @@ describe("CreateOrganizationInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for linked deals", async () => {
-    const deal = makeDealDto(DEAL_ID_1);
-    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValue([deal]);
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), organizations: [] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), organizations: [{ id: ORG_ID }] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
 
     const orgWithDeals = makeOrgDto({
       deals: [{ id: DEAL_ID_1, name: "Deal 20" }],
@@ -273,6 +310,7 @@ describe("UpdateOrganizationInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -352,6 +390,7 @@ describe("DeleteOrganizationInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -369,6 +408,12 @@ describe("DeleteOrganizationInteractor", () => {
   });
 
   it("publishes CONTACT_UPDATED events with payload for contacts linked to the deleted organization", async () => {
+    const contactBefore = { ...makeContactDto(CONTACT_ID_1), organizations: [{ id: ORG_ID }] };
+    const contactAfter = { ...makeContactDto(CONTACT_ID_1), organizations: [] };
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([contactBefore])
+      .mockResolvedValueOnce([contactAfter]);
+
     const interactor = createInteractor();
     await interactor.invoke({ id: ORG_ID });
 
@@ -388,6 +433,10 @@ describe("DeleteOrganizationInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for deals linked to the deleted organization", async () => {
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), organizations: [{ id: ORG_ID }] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), organizations: [] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
+
     const interactor = createInteractor();
     await interactor.invoke({ id: ORG_ID });
 
@@ -444,6 +493,7 @@ describe("CreateManyOrganizationsInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -475,8 +525,11 @@ describe("CreateManyOrganizationsInteractor", () => {
   });
 
   it("publishes CONTACT_UPDATED events with payload for related contacts", async () => {
-    const contact = makeContactDto(CONTACT_ID_1);
-    mockContactRepo.getManyOrThrowCompanyWide.mockResolvedValue([contact]);
+    const contactBefore = { ...makeContactDto(CONTACT_ID_1), organizations: [] };
+    const contactAfter = { ...makeContactDto(CONTACT_ID_1), organizations: [{ id: ORG_ID }] };
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([contactBefore])
+      .mockResolvedValueOnce([contactAfter]);
     mockCreateRepo.createOrganizationOrThrow.mockReset();
     mockCreateRepo.createOrganizationOrThrow.mockResolvedValueOnce(
       makeOrgDto({ contacts: [{ id: CONTACT_ID_1, firstName: "Jane", lastName: "Doe", avatarUrl: null }] }),
@@ -552,6 +605,7 @@ describe("UpdateManyOrganizationsInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -689,6 +743,7 @@ describe("DeleteManyOrganizationsInteractor", () => {
       mockDealRepo,
       mockTaskRepo,
       mockEventService,
+      makeOrganizationWritePrecheck(),
     );
   }
 
@@ -715,6 +770,15 @@ describe("DeleteManyOrganizationsInteractor", () => {
   });
 
   it("publishes related entity UPDATED events with payload", async () => {
+    const contactBefore = { ...makeContactDto(CONTACT_ID_1), organizations: [{ id: ORG_ID }] };
+    const contactAfter = { ...makeContactDto(CONTACT_ID_1), organizations: [] };
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), organizations: [{ id: ORG_ID }] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), organizations: [] };
+    mockContactRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([contactBefore])
+      .mockResolvedValueOnce([contactAfter]);
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
+
     const interactor = createInteractor();
     await interactor.invoke({ ids: [ORG_ID, ORG_ID_2] });
 

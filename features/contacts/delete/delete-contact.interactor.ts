@@ -4,32 +4,23 @@ import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-d
 import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ContactWritePrecheckInteractor } from "../upsert/contact-write-precheck.interactor";
 
 import { Resource, Action } from "@/generated/prisma";
 import { z } from "zod";
 
-import { validateContactIds } from "@/core/validation/ids-validators";
 import { ContactKeySchema } from "../contact-key";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getContactRepo } from "@/core/di";
 
-export const DeleteContactSchema = z
-  .object({
-    id: ContactKeySchema,
-  })
-  .superRefine(async (data, ctx) => {
-    const contactSet = new Set([data.id]);
-    const validIdsSet = await getContactRepo().findIds(contactSet);
-    validateContactIds(data.id, validIdsSet, ctx, ["id"]);
-  });
+export const DeleteContactSchema = z.object({
+  id: ContactKeySchema,
+});
 export type DeleteContactData = Data<typeof DeleteContactSchema>;
 
 @TenantInteractor({ resource: Resource.contacts, action: Action.delete })
@@ -40,13 +31,16 @@ export class DeleteContactInteractor extends AuthenticatedInteractor<DeleteConta
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: ContactWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(DeleteContactSchema)
-  @ValidateOutput(z.string())
-  @Transaction
+  @Write({
+    input: DeleteContactSchema,
+    output: z.string(),
+    precheck: (self, data, ctx) => self.precheck.delete(data, ctx),
+  })
   async invoke(data: DeleteContactData): Validated<string> {
     const previousContact = await this.repo.getOrThrowCompanyWide(data.id);
 
@@ -69,30 +63,34 @@ export class DeleteContactInteractor extends AuthenticatedInteractor<DeleteConta
     ]);
 
     await Promise.all([
-      ...currentOrganizations.map((organization, index) =>
-        this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
-          entityId: organization.id,
-          payload: {
-            organization,
-            changes: calculateChanges(previousOrganizations[index], organization),
-          },
-        }),
+      ...buildRelationChangePublishes(
+        previousOrganizations,
+        currentOrganizations,
+        "contacts",
+        (organization, changes) =>
+          this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
+            entityId: organization.id,
+            payload: {
+              organization,
+              changes,
+            },
+          }),
       ),
-      ...currentDeals.map((deal, index) =>
+      ...buildRelationChangePublishes(previousDeals, currentDeals, "contacts", (deal, changes) =>
         this.eventService.publish(DomainEvent.DEAL_UPDATED, {
           entityId: deal.id,
           payload: {
             deal,
-            changes: calculateChanges(previousDeals[index], deal),
+            changes,
           },
         }),
       ),
-      ...currentTasks.map((task, index) =>
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "contacts", (task, changes) =>
         this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasks[index], task),
+            changes,
           },
         }),
       ),

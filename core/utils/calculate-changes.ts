@@ -2,6 +2,8 @@ import deepEqual from "fast-deep-equal/es6";
 
 export type ChangeRecord = Record<string, { previous: unknown; current: unknown }>;
 
+const IGNORED_CHANGE_KEYS = new Set(["updatedAt", "createdAt"]);
+
 export function hasRelationChanged(
   changes: ChangeRecord,
   relationField: string,
@@ -107,6 +109,8 @@ export function calculateChanges<T extends Record<string, unknown>>(previous: T 
   const allKeys = new Set([...Object.keys(previous), ...Object.keys(current)]);
 
   for (const key of allKeys) {
+    if (IGNORED_CHANGE_KEYS.has(key)) continue;
+
     const previousValue = previous[key];
     const currentValue = current[key];
 

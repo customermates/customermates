@@ -7,18 +7,16 @@ import { UserDtoSchema } from "../user.schema";
 import { GetQueryParamsApiSchema, PaginationResponseSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
-const GetUsersQueryParamsApiSchema = GetQueryParamsApiSchema.omit({ filters: true });
-
 export const getUsersOperation: ZodOpenApiOperationObject = {
   operationId: "getUsers",
   summary: "Get users",
-  description: "Retrieves a list of users with optional sorting and pagination.",
+  description: "Retrieves a list of users with optional filtering, sorting and pagination.",
   tags: ["users"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {
     content: {
       "application/json": {
-        schema: GetUsersQueryParamsApiSchema,
+        schema: GetQueryParamsApiSchema,
       },
     },
   },

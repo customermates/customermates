@@ -4,89 +4,26 @@ import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-d
 import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ContactWritePrecheckInteractor } from "./contact-write-precheck.interactor";
 
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import {
-  validateContactIds,
-  validateDealIds,
-  validateOrganizationIds,
-  validateUserIds,
-  validateTaskIds,
-} from "../../../core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseUpdateContactSchema } from "./update-contact-base.schema";
-import { collectIdentifierPairs, validateIdentifierConflicts, validateIdentifiers } from "./validate-identifiers";
+import { validateIdentifiers } from "./validate-identifiers";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
-import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
 import { unique } from "@/core/utils/unique";
-import {
-  getUserRepo,
-  getUserService,
-  getContactRepo,
-  getCustomColumnRepo,
-  getDealRepo,
-  getOrganizationRepo,
-  getTaskRepo,
-} from "@/core/di";
 
-export const UpdateContactSchema = BaseUpdateContactSchema.superRefine(async (data, ctx) => {
-  const organizationSet = new Set(data.organizationIds ?? []);
-  const userSet = new Set(data.userIds ?? []);
-  const dealSet = new Set(data.dealIds ?? []);
-  const contactSet = new Set([data.id]);
-  const taskSet = new Set(data.taskIds ?? []);
-
+export const UpdateContactSchema = BaseUpdateContactSchema.superRefine((data, ctx) => {
   validateIdentifiers(data.identifiers, ctx, ["identifiers"]);
-
-  const [
-    validOrgIdsSet,
-    validUserIdsSet,
-    validDealIdsSet,
-    validContactIdsSet,
-    validTaskIdsSet,
-    allColumns,
-    currentUser,
-    canReadAll,
-    identifierOwners,
-  ] = await Promise.all([
-    getOrganizationRepo().findIds(organizationSet),
-    getUserRepo().findIds(userSet),
-    getDealRepo().findIds(dealSet),
-    getContactRepo().findIds(contactSet),
-    getTaskRepo().findIds(taskSet),
-    getCustomColumnRepo().findByEntityType(EntityType.contact),
-    getUserService().getActiveUserOrThrow(),
-    getUserService().hasPermission(Resource.contacts, Action.readAll),
-    getContactRepo().findIdentifierOwnersCompanyWide(
-      collectIdentifierPairs([{ selfContactId: undefined, identifiers: data.identifiers }]),
-    ),
-  ]);
-
-  validateContactIds(data.id, validContactIdsSet, ctx, ["id"]);
-  validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);
-  validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
-  validateAssigneeGuard(data.userIds, currentUser.id, canReadAll, ctx, ["userIds"]);
-  validateDealIds(data.dealIds, validDealIdsSet, ctx, ["dealIds"]);
-  validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
-  validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
   data.notes = validateNotes(data.notes, ctx, ["notes"]);
-  validateIdentifierConflicts(
-    [{ selfContactId: validContactIdsSet.get(data.id), identifiers: data.identifiers }],
-    identifierOwners,
-    ctx,
-    () => ["identifiers"],
-  );
 });
 export type UpdateContactData = Data<typeof UpdateContactSchema>;
 
@@ -101,13 +38,16 @@ export class UpdateContactInteractor extends AuthenticatedInteractor<UpdateConta
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: ContactWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(UpdateContactSchema)
-  @ValidateOutput(ContactDtoSchema)
-  @Transaction
+  @Write({
+    input: UpdateContactSchema,
+    output: ContactDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.update(data, ctx),
+  })
   async invoke(data: UpdateContactData): Validated<ContactDto> {
     const previousContact = await this.contactsRepo.getOrThrowCompanyWide(data.id);
 

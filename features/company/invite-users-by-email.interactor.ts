@@ -26,7 +26,7 @@ const OutputSchema = z.object({
 });
 
 export type InviteUsersByEmailData = Data<typeof Schema>;
-export type InviteUsersByEmailResult = Data<typeof OutputSchema>;
+type InviteUsersByEmailResult = Data<typeof OutputSchema>;
 
 @TenantInteractor({ resource: Resource.users, action: Action.create })
 export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<

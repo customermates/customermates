@@ -9,22 +9,19 @@ import type { DealDto } from "@/features/deals/deal.schema";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
+import type { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import type { ValidateOrganizationIdsInteractor } from "@/core/validation/validators/validate-organization-ids.interactor";
+import type { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
+import type { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
 
 import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { Transaction, BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import {
-  validateContactIds,
-  validateOrganizationIds,
-  validateDealIds,
-  validateServiceIds,
-  validateTaskIds,
-} from "@/core/validation/ids-validators";
-import { getContactRepo, getOrganizationRepo, getDealRepo, getServiceRepo, getTaskRepo } from "@/core/di";
 
 const RELATION_ENTITY = ["contact", "organization", "deal", "service", "task"] as const;
 const RELATION = ["organizations", "contacts", "deals", "services", "tasks", "users"] as const;
@@ -54,7 +51,7 @@ const WRITE_FIELD: Record<RelationEntity, Partial<Record<Relation, string>>> = {
   },
 };
 
-export const ModifyEntityRelationSchema = z
+const Schema = z
   .object({
     entity: z.enum(RELATION_ENTITY),
     sourceId: z.string().min(1),
@@ -62,7 +59,7 @@ export const ModifyEntityRelationSchema = z
     mode: z.enum(["add", "remove"]),
     ids: z.array(z.uuid()).min(1),
   })
-  .superRefine(async (data, ctx) => {
+  .superRefine((data, ctx) => {
     if (!ALLOWED_RELATIONS[data.entity].includes(data.relation)) {
       ctx.addIssue({
         code: "custom",
@@ -75,26 +72,8 @@ export const ModifyEntityRelationSchema = z
         path: ["relation"],
       });
     }
-
-    const repoByEntity = {
-      contact: getContactRepo,
-      organization: getOrganizationRepo,
-      deal: getDealRepo,
-      service: getServiceRepo,
-      task: getTaskRepo,
-    };
-    const validatorByEntity = {
-      contact: validateContactIds,
-      organization: validateOrganizationIds,
-      deal: validateDealIds,
-      service: validateServiceIds,
-      task: validateTaskIds,
-    };
-
-    const validIdsSet = await repoByEntity[data.entity]().findIds(new Set([data.sourceId]));
-    validatorByEntity[data.entity](data.sourceId, validIdsSet, ctx, ["sourceId"]);
   });
-export type ModifyEntityRelationData = Data<typeof ModifyEntityRelationSchema>;
+export type ModifyEntityRelationData = Data<typeof Schema>;
 
 export type ModifyEntityRelationResult = {
   entity: RelationEntity;
@@ -154,12 +133,20 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     private updateDeals: ModifyRelationUpdateDealsPort,
     private updateServices: ModifyRelationUpdateServicesPort,
     private updateTasks: ModifyRelationUpdateTasksPort,
+    private contactValidator: ValidateContactIdsInteractor,
+    private organizationValidator: ValidateOrganizationIdsInteractor,
+    private dealValidator: ValidateDealIdsInteractor,
+    private serviceValidator: ValidateServiceIdsInteractor,
+    private taskValidator: ValidateTaskIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(ModifyEntityRelationSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: Schema,
+    precheck: (self, data, ctx) => self.precheck(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: ModifyEntityRelationData): Validated<ModifyEntityRelationResult> {
     const { entity, sourceId, relation, mode, ids } = data;
 
@@ -253,5 +240,17 @@ export class ModifyEntityRelationInteractor extends AuthenticatedInteractor<
     if (entity === "service")
       return this.updateServices.invoke({ services: [{ id, [field]: ids }] as UpdateManyServicesData["services"] });
     return this.updateTasks.invoke({ tasks: [{ id, [field]: ids }] as UpdateManyTasksData["tasks"] });
+  }
+
+  private precheck(data: ModifyEntityRelationData, ctx: z.RefinementCtx) {
+    const validator = {
+      contact: this.contactValidator,
+      organization: this.organizationValidator,
+      deal: this.dealValidator,
+      service: this.serviceValidator,
+      task: this.taskValidator,
+    }[data.entity];
+
+    return validator.invoke([{ ids: data.sourceId, path: ["sourceId"] }], ctx);
   }
 }

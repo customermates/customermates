@@ -4,100 +4,35 @@ import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-d
 import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/get-company-wide-organization.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ContactWritePrecheckInteractor } from "./contact-write-precheck.interactor";
 
 import { z } from "zod";
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import {
-  validateOrganizationIds,
-  validateUserIds,
-  validateDealIds,
-  validateTaskIds,
-} from "../../../core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateNotes } from "../../../core/validation/validate-notes";
+import { validateNotes } from "@/core/validation/validate-notes";
 import { type ContactDto, ContactDtoSchema } from "../contact.schema";
 
 import { BaseCreateContactSchema } from "./create-contact-base.schema";
-import {
-  type ContactIdentifiers,
-  collectIdentifierPairs,
-  validateIdentifierConflicts,
-  validateIdentifiers,
-} from "./validate-identifiers";
+import { validateIdentifiers } from "./validate-identifiers";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import {
-  getUserRepo,
-  getUserService,
-  getContactRepo,
-  getCustomColumnRepo,
-  getDealRepo,
-  getOrganizationRepo,
-  getTaskRepo,
-} from "@/core/di";
 
 export const CreateManyContactsSchema = z
   .object({
     contacts: z.array(BaseCreateContactSchema).min(1).max(100),
   })
-  .superRefine(async (data, ctx) => {
-    const organizationSet = new Set<string>();
-    const userSet = new Set<string>();
-    const dealSet = new Set<string>();
-    const taskSet = new Set<string>();
-    const identifierContacts: ContactIdentifiers[] = [];
-
+  .superRefine((data, ctx) => {
     for (let i = 0; i < data.contacts.length; i++) {
       const contact = data.contacts[i];
-      contact.organizationIds.forEach((id) => organizationSet.add(id));
-      contact.userIds.forEach((id) => userSet.add(id));
-      contact.dealIds.forEach((id) => dealSet.add(id));
-      contact.taskIds.forEach((id) => taskSet.add(id));
       validateIdentifiers(contact.identifiers, ctx, ["contacts", i, "identifiers"]);
-      identifierContacts.push({ selfContactId: String(i), identifiers: contact.identifiers });
-    }
-
-    const [
-      validOrgIdsSet,
-      validUserIdsSet,
-      validDealIdsSet,
-      validTaskIdsSet,
-      allColumns,
-      currentUser,
-      canReadAll,
-      identifierOwners,
-    ] = await Promise.all([
-      getOrganizationRepo().findIds(organizationSet),
-      getUserRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getTaskRepo().findIds(taskSet),
-      getCustomColumnRepo().findByEntityType(EntityType.contact),
-      getUserService().getActiveUserOrThrow(),
-      getUserService().hasPermission(Resource.contacts, Action.readAll),
-      getContactRepo().findIdentifierOwnersCompanyWide(collectIdentifierPairs(identifierContacts)),
-    ]);
-
-    for (let i = 0; i < data.contacts.length; i++) {
-      const contact = data.contacts[i];
-      validateOrganizationIds(contact.organizationIds, validOrgIdsSet, ctx, ["contacts", i, "organizationIds"]);
-      validateUserIds(contact.userIds, validUserIdsSet, ctx, ["contacts", i, "userIds"]);
-      validateAssigneeGuard(contact.userIds, currentUser.id, canReadAll, ctx, ["contacts", i, "userIds"]);
-      validateDealIds(contact.dealIds, validDealIdsSet, ctx, ["contacts", i, "dealIds"]);
-      validateTaskIds(contact.taskIds, validTaskIdsSet, ctx, ["contacts", i, "taskIds"]);
-      validateCustomFieldValues(contact.customFieldValues, allColumns, ctx, ["contacts", i, "customFieldValues"]);
       contact.notes = validateNotes(contact.notes, ctx, ["contacts", i, "notes"]);
     }
-
-    validateIdentifierConflicts(identifierContacts, identifierOwners, ctx, (i) => ["contacts", i, "identifiers"]);
   });
 export type CreateManyContactsData = Data<typeof CreateManyContactsSchema>;
 
@@ -112,13 +47,17 @@ export class CreateManyContactsInteractor extends AuthenticatedInteractor<Create
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: ContactWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(CreateManyContactsSchema)
-  @ValidateOutput(ContactDtoSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: CreateManyContactsSchema,
+    output: ContactDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.createMany(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: CreateManyContactsData): Validated<ContactDto[]> {
     const relatedOrganizationIds = unique(data.contacts.flatMap((contact) => contact.organizationIds));
     const relatedDealIds = unique(data.contacts.flatMap((contact) => contact.dealIds));
@@ -139,30 +78,34 @@ export class CreateManyContactsInteractor extends AuthenticatedInteractor<Create
     ]);
 
     await Promise.all([
-      ...currentOrganizations.map((organization, index) =>
-        this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
-          entityId: organization.id,
-          payload: {
-            organization,
-            changes: calculateChanges(previousOrganizations[index], organization),
-          },
-        }),
+      ...buildRelationChangePublishes(
+        previousOrganizations,
+        currentOrganizations,
+        "contacts",
+        (organization, changes) =>
+          this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
+            entityId: organization.id,
+            payload: {
+              organization,
+              changes,
+            },
+          }),
       ),
-      ...currentDeals.map((deal, index) =>
+      ...buildRelationChangePublishes(previousDeals, currentDeals, "contacts", (deal, changes) =>
         this.eventService.publish(DomainEvent.DEAL_UPDATED, {
           entityId: deal.id,
           payload: {
             deal,
-            changes: calculateChanges(previousDeals[index], deal),
+            changes,
           },
         }),
       ),
-      ...currentTasks.map((task, index) =>
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "contacts", (task, changes) =>
         this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasks[index], task),
+            changes,
           },
         }),
       ),

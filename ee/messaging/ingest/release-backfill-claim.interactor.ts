@@ -10,17 +10,17 @@ export abstract class ReleaseBackfillClaimRepo {
   abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<void>;
 }
 
-const ReleaseBackfillClaimPayloadSchema = z.object({
+const Schema = z.object({
   connectedAccountId: z.uuid(),
   token: z.string(),
 });
-export type ReleaseBackfillClaimPayload = z.infer<typeof ReleaseBackfillClaimPayloadSchema>;
+type ReleaseBackfillClaimPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class ReleaseBackfillClaimInteractor {
   constructor(private repo: ReleaseBackfillClaimRepo) {}
 
-  @Enforce(ReleaseBackfillClaimPayloadSchema)
+  @Enforce(Schema)
   async invoke(payload: ReleaseBackfillClaimPayload): Promise<void> {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
     await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, payload.token);

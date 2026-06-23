@@ -17,6 +17,8 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { UpsertWebhookInteractor } from "../upsert-webhook.interactor";
 import { DeleteWebhookInteractor } from "../delete-webhook.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
+import { getWebhookRepo } from "@/core/di";
 
 const WEBHOOK_ID = "00000000-0000-4000-8000-000000000001";
 
@@ -51,7 +53,7 @@ describe("UpsertWebhookInteractor (create)", () => {
   });
 
   function createInteractor() {
-    return new UpsertWebhookInteractor(mockRepo, mockEventService);
+    return new UpsertWebhookInteractor(mockRepo, mockEventService, new ValidateWebhookIdsInteractor(getWebhookRepo()));
   }
 
   it("publishes WEBHOOK_CREATED event when no id is provided", async () => {
@@ -104,7 +106,7 @@ describe("UpsertWebhookInteractor (update)", () => {
   });
 
   function createInteractor() {
-    return new UpsertWebhookInteractor(mockRepo, mockEventService);
+    return new UpsertWebhookInteractor(mockRepo, mockEventService, new ValidateWebhookIdsInteractor(getWebhookRepo()));
   }
 
   it("publishes WEBHOOK_UPDATED event when id is provided", async () => {
@@ -145,7 +147,7 @@ describe("DeleteWebhookInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteWebhookInteractor(mockRepo, mockEventService);
+    return new DeleteWebhookInteractor(mockRepo, mockEventService, new ValidateWebhookIdsInteractor(getWebhookRepo()));
   }
 
   it("publishes WEBHOOK_DELETED event", async () => {

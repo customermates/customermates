@@ -24,6 +24,26 @@ import { DeleteManyContactsInteractor } from "../delete/delete-many-contacts.int
 
 import { DomainEvent } from "@/features/event/domain-events";
 
+import { ContactWritePrecheckInteractor } from "../upsert/contact-write-precheck.interactor";
+import { ValidateIdentifierConflictsInteractor } from "../upsert/validate-identifier-conflicts.interactor";
+import { ValidateAssigneeGuardInteractor } from "@/core/validation/validators/validate-assignee-guard.interactor";
+import { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
+import { ValidateCustomFieldValuesInteractor } from "@/core/validation/validators/validate-custom-field-values.interactor";
+import { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import { ValidateOrganizationIdsInteractor } from "@/core/validation/validators/validate-organization-ids.interactor";
+import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
+import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import {
+  getOrganizationRepo,
+  getUserRepo,
+  getDealRepo,
+  getTaskRepo,
+  getContactRepo,
+  getCustomColumnRepo,
+  getUserService,
+} from "@/core/di";
+import type { UserService } from "@/features/user/user.service";
+
 const CONTACT_ID = "00000000-0000-4000-8000-000000000001";
 const CONTACT_ID_2 = "00000000-0000-4000-8000-000000000002";
 const ORG_ID_1 = "00000000-0000-4000-8000-000000000010";
@@ -71,6 +91,98 @@ function makeDealDto(id: string) {
   };
 }
 
+function makeContactWritePrecheck(): ContactWritePrecheckInteractor {
+  return new ContactWritePrecheckInteractor(
+    new ValidateOrganizationIdsInteractor(getOrganizationRepo()),
+    new ValidateUserIdsInteractor(getUserRepo()),
+    new ValidateDealIdsInteractor(getDealRepo()),
+    new ValidateTaskIdsInteractor(getTaskRepo()),
+    new ValidateContactIdsInteractor(getContactRepo()),
+    new ValidateCustomFieldValuesInteractor(getCustomColumnRepo()),
+    new ValidateAssigneeGuardInteractor(getUserService() as unknown as UserService),
+    new ValidateIdentifierConflictsInteractor(getContactRepo()),
+    getContactRepo(),
+  );
+}
+
+describe("ContactWritePrecheckInteractor identifier self-exclusion", () => {
+  const ctx = { addIssue: vi.fn() } as any;
+
+  function makePrecheck(findIdsResult: Map<string, string>) {
+    const identifierConflicts = { invoke: vi.fn() };
+    const contactByIds = { findIds: vi.fn().mockResolvedValue(findIdsResult) };
+    const noop = () => ({ invoke: vi.fn() }) as any;
+    const precheck = new ContactWritePrecheckInteractor(
+      noop(),
+      noop(),
+      noop(),
+      noop(),
+      noop(),
+      noop(),
+      noop(),
+      identifierConflicts as any,
+      contactByIds as any,
+    );
+    return { precheck, identifierConflicts };
+  }
+
+  it("update self-excludes by the RESOLVED canonical id, not the raw contact key", async () => {
+    const emailKey = "alice@example.com";
+    const selfUuid = "00000000-0000-4000-8000-000000000099";
+    const identifiers = [{ provider: "google", value: emailKey }];
+    const { precheck, identifierConflicts } = makePrecheck(new Map([[emailKey, selfUuid]]));
+
+    await precheck.update(
+      {
+        id: emailKey,
+        identifiers,
+        organizationIds: [],
+        userIds: [],
+        dealIds: [],
+        taskIds: [],
+        customFieldValues: [],
+      } as any,
+      ctx,
+    );
+
+    expect(identifierConflicts.invoke).toHaveBeenCalledWith(
+      [{ selfContactId: selfUuid, identifiers }],
+      ctx,
+      expect.any(Function),
+    );
+  });
+
+  it("updateMany self-excludes by each contact's RESOLVED canonical id", async () => {
+    const emailKey = "bob@example.com";
+    const selfUuid = "00000000-0000-4000-8000-000000000098";
+    const identifiers = [{ provider: "google", value: emailKey }];
+    const { precheck, identifierConflicts } = makePrecheck(new Map([[emailKey, selfUuid]]));
+
+    await precheck.updateMany(
+      {
+        contacts: [
+          {
+            id: emailKey,
+            identifiers,
+            organizationIds: [],
+            userIds: [],
+            dealIds: [],
+            taskIds: [],
+            customFieldValues: [],
+          },
+        ],
+      } as any,
+      ctx,
+    );
+
+    expect(identifierConflicts.invoke).toHaveBeenCalledWith(
+      [{ selfContactId: selfUuid, identifiers }],
+      ctx,
+      expect.any(Function),
+    );
+  });
+});
+
 describe("CreateContactInteractor", () => {
   let mockCreateRepo: any;
   let mockOrgRepo: any;
@@ -99,7 +211,14 @@ describe("CreateContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateContactInteractor(mockCreateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new CreateContactInteractor(
+      mockCreateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_CREATED event with correct entityId and payload", async () => {
@@ -127,7 +246,15 @@ describe("CreateContactInteractor", () => {
     const org1 = makeOrgDto(ORG_ID_1);
     const org2 = makeOrgDto(ORG_ID_2);
 
-    mockOrgRepo.getManyOrThrowCompanyWide.mockResolvedValue([org1, org2]);
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([
+        { ...org1, contacts: [] },
+        { ...org2, contacts: [] },
+      ])
+      .mockResolvedValueOnce([
+        { ...org1, contacts: [{ id: CONTACT_ID }] },
+        { ...org2, contacts: [{ id: CONTACT_ID }] },
+      ]);
 
     const contactWithOrgs = makeContactDto({
       organizations: [org1, org2],
@@ -172,7 +299,9 @@ describe("CreateContactInteractor", () => {
   it("publishes DEAL_UPDATED events with payload for related deals", async () => {
     const deal = makeDealDto(DEAL_ID_1);
 
-    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValue([deal]);
+    mockDealRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...deal, contacts: [] }])
+      .mockResolvedValueOnce([{ ...deal, contacts: [{ id: CONTACT_ID }] }]);
 
     const contactWithDeals = makeContactDto({
       deals: [{ id: DEAL_ID_1, name: "Deal 20" }],
@@ -262,7 +391,14 @@ describe("DeleteContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteContactInteractor(mockDeleteRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new DeleteContactInteractor(
+      mockDeleteRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_DELETED event with correct entityId and payload", async () => {
@@ -279,6 +415,11 @@ describe("DeleteContactInteractor", () => {
   });
 
   it("publishes ORGANIZATION_UPDATED events with payload for orgs linked to the deleted contact", async () => {
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), contacts: [{ id: CONTACT_ID }] }])
+      .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), contacts: [] }]);
+
     const interactor = createInteractor();
     await interactor.invoke({ id: CONTACT_ID });
 
@@ -298,6 +439,11 @@ describe("DeleteContactInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for deals linked to the deleted contact", async () => {
+    mockDealRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [{ id: CONTACT_ID }] }])
+      .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [] }]);
+
     const interactor = createInteractor();
     await interactor.invoke({ id: CONTACT_ID });
 
@@ -372,7 +518,14 @@ describe("UpdateContactInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateContactInteractor(mockUpdateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new UpdateContactInteractor(
+      mockUpdateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_UPDATED event with entityId and changes payload", async () => {
@@ -505,7 +658,14 @@ describe("CreateManyContactsInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateManyContactsInteractor(mockCreateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new CreateManyContactsInteractor(
+      mockCreateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_CREATED events for each item created", async () => {
@@ -553,7 +713,9 @@ describe("CreateManyContactsInteractor", () => {
 
   it("publishes ORGANIZATION_UPDATED events with payload for related organizations", async () => {
     const org = makeOrgDto(ORG_ID_1);
-    mockOrgRepo.getManyOrThrowCompanyWide.mockResolvedValue([org]);
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockResolvedValueOnce([{ ...org, contacts: [] }])
+      .mockResolvedValueOnce([{ ...org, contacts: [{ id: CONTACT_ID }] }]);
     mockCreateRepo.createContactOrThrow.mockReset();
     mockCreateRepo.createContactOrThrow.mockResolvedValueOnce(makeContactDto({ organizations: [org] }));
 
@@ -653,7 +815,14 @@ describe("UpdateManyContactsInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateManyContactsInteractor(mockUpdateRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new UpdateManyContactsInteractor(
+      mockUpdateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_UPDATED events with payload for each item", async () => {
@@ -807,7 +976,14 @@ describe("DeleteManyContactsInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteManyContactsInteractor(mockDeleteRepo, mockOrgRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new DeleteManyContactsInteractor(
+      mockDeleteRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeContactWritePrecheck(),
+    );
   }
 
   it("publishes CONTACT_DELETED events with payload for each deleted item", async () => {
@@ -833,6 +1009,15 @@ describe("DeleteManyContactsInteractor", () => {
   });
 
   it("publishes related entity UPDATED events with payload", async () => {
+    mockOrgRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), contacts: [{ id: CONTACT_ID }] }])
+      .mockResolvedValueOnce([{ ...makeOrgDto(ORG_ID_1), contacts: [] }]);
+    mockDealRepo.getManyOrThrowCompanyWide
+      .mockReset()
+      .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [{ id: CONTACT_ID }] }])
+      .mockResolvedValueOnce([{ ...makeDealDto(DEAL_ID_1), contacts: [] }]);
+
     const interactor = createInteractor();
     await interactor.invoke({ ids: [CONTACT_ID, CONTACT_ID_2] });
 

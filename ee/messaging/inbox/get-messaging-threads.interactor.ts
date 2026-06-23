@@ -26,7 +26,7 @@ export abstract class GetMessagingThreadsRepo extends BaseGetRepo<MessagingThrea
 })
 export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingThread> {
   constructor(repo: GetMessagingThreadsRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, {
+    super(repo, p13nRepo, "interactive", undefined, {
       pagination: { page: 1, pageSize: 25 },
     });
   }

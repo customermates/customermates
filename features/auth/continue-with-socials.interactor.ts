@@ -16,7 +16,7 @@ const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
   callbackURL: callbackUrlSchema.optional(),
 });
-export type ContinueWithSocialsData = Data<typeof Schema>;
+type ContinueWithSocialsData = Data<typeof Schema>;
 
 @SystemInteractor
 export class ContinueWithSocialsInteractor {

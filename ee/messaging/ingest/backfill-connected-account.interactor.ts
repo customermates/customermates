@@ -24,12 +24,12 @@ const ACCOUNT_OK_POLL_INTERVAL_MS = 2000;
 const ACCOUNT_OK_POLL_MAX_ATTEMPTS = 30;
 const MAX_PROGRESSIVE_ATTEMPTS = 100;
 
-const BackfillConnectedAccountPayloadSchema = z.object({
+const Schema = z.object({
   connectedAccountId: z.uuid(),
   attempt: z.number().int().nonnegative().optional(),
   token: z.string(),
 });
-export type BackfillConnectedAccountPayload = z.infer<typeof BackfillConnectedAccountPayloadSchema>;
+export type BackfillConnectedAccountPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class BackfillConnectedAccountInteractor {
@@ -42,7 +42,7 @@ export class BackfillConnectedAccountInteractor {
     private backfillCalendars: BackfillCalendarsInteractor,
   ) {}
 
-  @Enforce(BackfillConnectedAccountPayloadSchema)
+  @Enforce(Schema)
   async invoke(payload: BackfillConnectedAccountPayload): Promise<boolean> {
     const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
     const { checkpoint, epoch } = await this.repo.loadBackfillCheckpointUnscoped(account.unipileAccountId);
@@ -83,7 +83,7 @@ export class BackfillConnectedAccountInteractor {
     const messagingExhausted = !hasMessaging || !messagingStep?.cursor;
     const ingestedSomethingNew = total > before;
     const awaitingInitialSync = total === 0;
-    const messagingTruncated = messagingDone && hasMessaging && !messagingExhausted;
+    const messagingTruncated = messagingDone && !messagingExhausted;
     const calendarIncomplete = calendarRan && reloaded.calendar?.done !== true;
     const epochChanged = currentEpoch !== epoch;
 

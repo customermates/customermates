@@ -1,22 +1,15 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
 
 import { z } from "zod";
 
-import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { validateWidgetIds } from "@/core/validation/ids-validators";
-import { getWidgetRepo } from "@/core/di";
+import { Write } from "@/core/decorators/write.decorator";
 
-const Schema = z
-  .object({
-    id: z.uuid(),
-  })
-  .superRefine(async (data, ctx) => {
-    const validIdsSet = await getWidgetRepo().findIds(new Set([data.id]));
-    validateWidgetIds(data.id, validIdsSet, ctx, ["id"]);
-  });
+const Schema = z.object({
+  id: z.uuid(),
+});
 export type DeleteWidgetData = Data<typeof Schema>;
 
 export abstract class DeleteWidgetRepo {
@@ -25,12 +18,19 @@ export abstract class DeleteWidgetRepo {
 
 @TenantInteractor()
 export class DeleteWidgetInteractor extends AuthenticatedInteractor<DeleteWidgetData, string> {
-  constructor(private repo: DeleteWidgetRepo) {
+  constructor(
+    private repo: DeleteWidgetRepo,
+    private validator: ValidateWidgetIdsInteractor,
+  ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(z.string())
+  @Write({
+    input: Schema,
+    output: z.string(),
+    tx: false,
+    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+  })
   async invoke(data: DeleteWidgetData): Validated<string> {
     await this.repo.deleteWidget(data.id);
     return { ok: true as const, data: data.id };

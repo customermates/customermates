@@ -2,25 +2,18 @@ import type { WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validators/validate-webhook-delivery-ids.interactor";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { validateWebhookDeliveryIds } from "@/core/validation/ids-validators";
-import { getWebhookDeliveryRepo } from "@/core/di";
 
-const Schema = z
-  .object({
-    id: z.uuid(),
-  })
-  .superRefine(async (data, ctx) => {
-    const validIdsSet = await getWebhookDeliveryRepo().findIds(new Set([data.id]));
-    validateWebhookDeliveryIds(data.id, validIdsSet, ctx, ["id"]);
-  });
+const Schema = z.object({
+  id: z.uuid(),
+});
 export type ResendWebhookDeliveryData = z.infer<typeof Schema>;
 
 export abstract class GetWebhookDeliveryByIdRepo {
@@ -33,12 +26,17 @@ export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<Res
     private deliveryRepo: GetWebhookDeliveryByIdRepo,
     private createRepo: CreateWebhookDeliveryRepo,
     private backgroundTaskService: BackgroundTaskService,
+    private validator: ValidateWebhookDeliveryIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(z.string())
+  @Write({
+    input: Schema,
+    output: z.string(),
+    tx: false,
+    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+  })
   async invoke(data: ResendWebhookDeliveryData): Validated<string> {
     const delivery = await this.deliveryRepo.getDeliveryByIdOrThrow(data.id);
     const requestBody = delivery.requestBody as Record<string, unknown>;

@@ -14,6 +14,7 @@ import {
   PaginationRequestSchema,
 } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { P13nEntrySchema } from "./p13n.schema";
 
 const Schema = z.object({
   p13nId: z.string().min(1),
@@ -30,20 +31,6 @@ const Schema = z.object({
 });
 export type UpsertP13nData = Data<typeof Schema>;
 
-const OutputSchema = z.object({
-  p13nId: z.string(),
-  filters: z.array(z.any()).optional(),
-  savedFilterPresets: z.array(z.any()).optional(),
-  searchTerm: z.string().optional(),
-  sortDescriptor: z.any().optional(),
-  pagination: z.any().optional(),
-  columnWidths: z.record(z.string(), z.number()).optional(),
-  columnOrder: z.array(z.string()).optional(),
-  hiddenColumns: z.array(z.string()).optional(),
-  viewMode: z.string().optional(),
-  groupingColumnId: z.string().optional(),
-});
-
 export abstract class UpsertP13nRepo {
   abstract upsertP13n(data: UpsertP13nData): Promise<P13nEntry>;
 }
@@ -55,7 +42,7 @@ export class UpsertP13nInteractor extends AuthenticatedInteractor<UpsertP13nData
   }
 
   @Enforce(Schema)
-  @ValidateOutput(OutputSchema)
+  @ValidateOutput(P13nEntrySchema)
   async invoke(data: UpsertP13nData): Promise<{ ok: true; data: P13nEntry }> {
     return { ok: true as const, data: await this.repo.upsertP13n(data) };
   }

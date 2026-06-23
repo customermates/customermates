@@ -5,13 +5,13 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 
 const HTTP_TIMEOUT_MS = 5000;
 
-export const DeliverWebhookPayloadSchema = z.object({
+const Schema = z.object({
   deliveryId: z.uuid(),
   url: z.url(),
   companyId: z.uuid(),
   requestBody: z.record(z.string(), z.unknown()),
 });
-export type DeliverWebhookPayload = z.infer<typeof DeliverWebhookPayloadSchema>;
+export type DeliverWebhookPayload = z.infer<typeof Schema>;
 
 export abstract class DeliverWebhookRepo {
   abstract getSecret(args: { companyId: string; url: string }): Promise<string | null>;
@@ -19,7 +19,7 @@ export abstract class DeliverWebhookRepo {
   abstract markFailed(args: { id: string; statusCode: number | null; responseMessage: string | null }): Promise<void>;
 }
 
-export type DeliveryOutcome = {
+type DeliveryOutcome = {
   status: "success" | "failed";
   statusCode: number | null;
   responseMessage: string | null;
@@ -29,7 +29,7 @@ export type DeliveryOutcome = {
 export class DeliverWebhookInteractor {
   constructor(private readonly repo: DeliverWebhookRepo) {}
 
-  @Enforce(DeliverWebhookPayloadSchema)
+  @Enforce(Schema)
   async invoke(payload: DeliverWebhookPayload): Promise<DeliveryOutcome> {
     const secret = await this.repo.getSecret({ companyId: payload.companyId, url: payload.url });
     const result = await this.postWebhook({ url: payload.url, secret, requestBody: payload.requestBody });

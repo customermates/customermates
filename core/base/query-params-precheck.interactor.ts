@@ -2,20 +2,19 @@ import type { Filter, FilterableField, SortDescriptor } from "./base-get.schema"
 import type { SortableField } from "./base-query-builder";
 
 import type { z } from "zod";
+import type { EntityType } from "@/generated/prisma";
+import type { ValidateContactIdsInteractor } from "@/core/validation/validators/validate-contact-ids.interactor";
+import type { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import type { ValidateOrganizationIdsInteractor } from "@/core/validation/validators/validate-organization-ids.interactor";
+import type { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
+import type { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import type { FindCustomColumnRepo } from "@/features/custom-column/find-custom-column.repo";
+
 import { CustomColumnType } from "@/generated/prisma";
 
 import { FilterOperatorKey } from "./base-query-builder";
 
-import type { EntityType } from "@/generated/prisma";
-
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import {
-  validateOrganizationIds,
-  validateUserIds,
-  validateDealIds,
-  validateServiceIds,
-  validateContactIds,
-} from "@/core/validation/ids-validators";
 import { validateCustomFieldEmail } from "@/core/validation/validate-custom-field-email";
 import { validateCustomFieldPhone } from "@/core/validation/validate-custom-field-phone";
 import { validateCustomFieldCurrency } from "@/core/validation/validate-custom-field-currency";
@@ -26,34 +25,33 @@ import { validateCustomFieldDateTime } from "@/core/validation/validate-custom-f
 import { validateCustomColumnExists } from "@/core/validation/validate-custom-column-exists";
 import { validateDate } from "@/core/validation/validate-date";
 import { validateEvent } from "@/core/validation/validate-event";
-import {
-  getOrganizationRepo,
-  getDealRepo,
-  getUserRepo,
-  getServiceRepo,
-  getContactRepo,
-  getCustomColumnRepo,
-} from "@/core/di";
 import { isCustomField } from "@/core/utils/custom-field";
 
-export class ValidateQueryParamsValidator {
+type StrictFields = {
+  filterableFields: FilterableField[];
+  customColumns: { id: string }[];
+  sortableFields: SortableField[];
+};
+
+export class QueryParamsPrecheckInteractor {
+  constructor(
+    private organizationValidator: ValidateOrganizationIdsInteractor,
+    private contactValidator: ValidateContactIdsInteractor,
+    private userValidator: ValidateUserIdsInteractor,
+    private dealValidator: ValidateDealIdsInteractor,
+    private serviceValidator: ValidateServiceIdsInteractor,
+    private customColumnRepo: FindCustomColumnRepo,
+  ) {}
+
   async invoke(
-    repo: {
-      getFilterableFields: () => Promise<FilterableField[]>;
-      getSortableFields: () => SortableField[];
-      getCustomColumns?: () => Promise<Array<{ id: string }>>;
-    },
+    fields: StrictFields,
     entityType: EntityType | undefined,
     data: { filters?: Filter[]; sortDescriptor?: SortDescriptor },
     ctx: z.RefinementCtx,
   ) {
-    const [filterableFields, customColumns] = await Promise.all([
-      repo.getFilterableFields(),
-      repo.getCustomColumns ? repo.getCustomColumns() : Promise.resolve([]),
-    ]);
-    const sortableFields = repo.getSortableFields();
+    const { filterableFields, customColumns, sortableFields } = fields;
 
-    if (data.filters && entityType) {
+    if (data.filters) {
       await Promise.all(
         data.filters.map(async (filter, i) => {
           const found = filterableFields.find((f) => f.field === filter.field && f.operators.includes(filter.operator));
@@ -72,7 +70,7 @@ export class ValidateQueryParamsValidator {
             return;
           }
 
-          await this.validateFilterValue(filter, i, entityType, ctx);
+          await this.checkFilterValue(filter, i, entityType, ctx);
         }),
       );
     }
@@ -94,37 +92,37 @@ export class ValidateQueryParamsValidator {
     }
   }
 
-  private async validateFilterValue(filter: Filter, filterIndex: number, entityType: EntityType, ctx: z.RefinementCtx) {
+  private async checkFilterValue(
+    filter: Filter,
+    filterIndex: number,
+    entityType: EntityType | undefined,
+    ctx: z.RefinementCtx,
+  ) {
     if (!("value" in filter)) return;
 
     if (filter.operator === FilterOperatorKey.contains) return;
 
     if (filter.operator === FilterOperatorKey.inLastDays) return;
 
-    const fieldPath = ["filters", filterIndex, "value"];
+    const path = ["filters", filterIndex, "value"];
 
     const values = Array.isArray(filter.value) ? filter.value : [filter.value];
     const valueSet = new Set(values);
 
-    if (filter.field === "organizationIds" && valueSet.size > 0) {
-      const validIdsSet = await getOrganizationRepo().findIds(valueSet);
-      validateOrganizationIds(filter.value, validIdsSet, ctx, fieldPath);
-    } else if (filter.field === "dealIds" && valueSet.size > 0) {
-      const validIdsSet = await getDealRepo().findIds(valueSet);
-      validateDealIds(filter.value, validIdsSet, ctx, fieldPath);
-    } else if (filter.field === "userIds" && valueSet.size > 0) {
-      const validIdsSet = await getUserRepo().findIds(valueSet);
-      validateUserIds(filter.value, validIdsSet, ctx, fieldPath);
-    } else if (filter.field === "serviceIds" && valueSet.size > 0) {
-      const validIdsSet = await getServiceRepo().findIds(valueSet);
-      validateServiceIds(filter.value, validIdsSet, ctx, fieldPath);
-    } else if (filter.field === "contactIds" && valueSet.size > 0) {
-      const resolved = await getContactRepo().findIds(valueSet);
-      validateContactIds(filter.value, new Set(resolved.values()), ctx, fieldPath);
-    } else if (filter.field === "event") validateEvent(filter.value, ctx, fieldPath);
-    else if (filter.field === "updatedAt" || filter.field === "createdAt") validateDate(filter.value, ctx, fieldPath);
-    else if (isCustomField(filter.field)) {
-      const allColumns = await getCustomColumnRepo().findByEntityType(entityType);
+    if (filter.field === "organizationIds" && valueSet.size > 0)
+      await this.organizationValidator.invoke([{ ids: filter.value, path }], ctx);
+    else if (filter.field === "dealIds" && valueSet.size > 0)
+      await this.dealValidator.invoke([{ ids: filter.value, path }], ctx);
+    else if (filter.field === "userIds" && valueSet.size > 0)
+      await this.userValidator.invoke([{ ids: filter.value, path }], ctx);
+    else if (filter.field === "serviceIds" && valueSet.size > 0)
+      await this.serviceValidator.invoke([{ ids: filter.value, path }], ctx);
+    else if (filter.field === "contactIds" && valueSet.size > 0)
+      await this.contactValidator.invoke([{ ids: filter.value, path }], ctx);
+    else if (filter.field === "event") validateEvent(filter.value, ctx, path);
+    else if (filter.field === "updatedAt" || filter.field === "createdAt") validateDate(filter.value, ctx, path);
+    else if (isCustomField(filter.field) && entityType) {
+      const allColumns = await this.customColumnRepo.findByEntityType(entityType);
       const fieldPathForField = ["filters", filterIndex, "field"];
 
       const column = validateCustomColumnExists(filter.field, allColumns, ctx, fieldPathForField);
@@ -134,7 +132,7 @@ export class ValidateQueryParamsValidator {
         const value = values[i];
         if (value === undefined || value === null || value === "") continue;
 
-        const valuePath = Array.isArray(filter.value) ? [...fieldPath, i] : fieldPath;
+        const valuePath = Array.isArray(filter.value) ? [...path, i] : path;
 
         switch (column.type) {
           case CustomColumnType.email: {

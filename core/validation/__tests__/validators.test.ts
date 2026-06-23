@@ -21,20 +21,8 @@ import { validateCustomFieldDateTimeRange } from "../validate-custom-field-date-
 import { validateCustomFieldSingleSelect } from "../validate-custom-field-single-select";
 import { validateCustomColumnExists } from "../validate-custom-column-exists";
 import { validateEvent } from "../validate-event";
-import {
-  validateOrganizationIds,
-  validateUserIds,
-  validateDealIds,
-  validateServiceIds,
-  validateTaskIds,
-  validateSystemTaskIds,
-  validateWidgetIds,
-  validateCustomColumnIds,
-  validateWebhookIds,
-  validateWebhookDeliveryIds,
-  validateThreadIds,
-  validateRoleIds,
-} from "../ids-validators";
+import { checkIds } from "@/core/validation/validators/check-ids";
+import { ValidateSystemTaskIdsInteractor } from "@/features/tasks/upsert/validate-system-task-ids.interactor";
 
 function createMockCtx() {
   const issues: unknown[] = [];
@@ -381,147 +369,104 @@ describe("validateEvent", () => {
   });
 });
 
-describe("validateOrganizationIds", () => {
-  const validIds = new Set(["org-1", "org-2", "org-3"]);
+describe("checkIds (entity id existence)", () => {
+  const lookup = (valid: Set<string>) => () => Promise.resolve(valid);
 
-  it("does not add issues when all IDs are valid", () => {
+  it("does not add issues when all ids are valid", async () => {
     const ctx = createMockCtx();
-    validateOrganizationIds(["org-1", "org-2"], validIds, ctx, ["organizationIds"]);
+    await checkIds(
+      [{ ids: ["org-1", "org-2"], path: ["organizationIds"] }],
+      ctx,
+      lookup(new Set(["org-1", "org-2", "org-3"])),
+      CustomErrorCode.organizationNotFound,
+    );
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 
-  it("adds issue for each invalid ID", () => {
+  it("adds an issue for each invalid id, indexed by array position", async () => {
     const ctx = createMockCtx();
-    validateOrganizationIds(["org-1", "org-bad", "org-worse"], validIds, ctx, ["organizationIds"]);
+    await checkIds(
+      [{ ids: ["org-1", "org-bad", "org-worse"], path: ["organizationIds"] }],
+      ctx,
+      lookup(new Set(["org-1"])),
+      CustomErrorCode.organizationNotFound,
+    );
     expect(ctx.addIssue).toHaveBeenCalledTimes(2);
+    expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ path: ["organizationIds", 1] }));
   });
 
-  it("does not add issues for empty array", () => {
-    const ctx = createMockCtx();
-    validateOrganizationIds([], validIds, ctx, ["organizationIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
+  it("skips null, undefined, and empty sources", async () => {
+    for (const ids of [null, undefined, []] as (string[] | null | undefined)[]) {
+      const ctx = createMockCtx();
+      await checkIds(
+        [{ ids, path: ["organizationIds"] }],
+        ctx,
+        lookup(new Set()),
+        CustomErrorCode.organizationNotFound,
+      );
+      expect(ctx.addIssue).not.toHaveBeenCalled();
+    }
   });
 
-  it("skips validation for null", () => {
+  it("handles a single string source with a base path", async () => {
     const ctx = createMockCtx();
-    validateOrganizationIds(null, validIds, ctx, ["organizationIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("skips validation for undefined", () => {
-    const ctx = createMockCtx();
-    validateOrganizationIds(undefined, validIds, ctx, ["organizationIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("handles single string input", () => {
-    const ctx = createMockCtx();
-    validateOrganizationIds("org-bad", validIds, ctx, ["organizationIds"]);
+    await checkIds(
+      [{ ids: "org-bad", path: ["organizationIds"] }],
+      ctx,
+      lookup(new Set()),
+      CustomErrorCode.organizationNotFound,
+    );
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ path: ["organizationIds"] }));
+  });
+
+  it("resolves all entries in one findIds call and raises the supplied error code", async () => {
+    const codes = [
+      CustomErrorCode.userNotFound,
+      CustomErrorCode.dealNotFound,
+      CustomErrorCode.serviceNotFound,
+      CustomErrorCode.taskNotFound,
+      CustomErrorCode.widgetNotFound,
+      CustomErrorCode.customColumnIdNotFound,
+      CustomErrorCode.webhookNotFound,
+      CustomErrorCode.webhookDeliveryNotFound,
+      CustomErrorCode.threadNotFound,
+      CustomErrorCode.roleNotFound,
+    ];
+    for (const code of codes) {
+      const ctx = createMockCtx();
+      const findIds = vi.fn(() => Promise.resolve(new Set(["present"])));
+      await checkIds(
+        [
+          { ids: "present", path: ["a"] },
+          { ids: "missing", path: ["b"] },
+        ],
+        ctx,
+        findIds,
+        code,
+      );
+      expect(findIds).toHaveBeenCalledTimes(1);
+      expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+      expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ params: { error: code }, path: ["b"] }));
+    }
   });
 });
 
-describe("validateUserIds", () => {
-  const validIds = new Set(["user-1", "user-2"]);
+describe("ValidateSystemTaskIdsInteractor.invoke", () => {
+  const makeGuard = (systemIds: string[]) =>
+    new ValidateSystemTaskIdsInteractor({ findSystemTaskIds: () => Promise.resolve(new Set(systemIds)) } as never);
 
-  it("does not add issues when all IDs are valid", () => {
+  it("adds an issue when trying to delete a system task", async () => {
     const ctx = createMockCtx();
-    validateUserIds(["user-1"], validIds, ctx, ["userIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("adds issue with userNotFound error code", () => {
-    const ctx = createMockCtx();
-    validateUserIds(["user-bad"], validIds, ctx, ["userIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.userNotFound } }),
-    );
-  });
-});
-
-describe("entity id validators (widget/customColumn/webhook/webhookDelivery/thread/role)", () => {
-  const cases = [
-    { name: "validateWidgetIds", fn: validateWidgetIds, code: CustomErrorCode.widgetNotFound },
-    { name: "validateCustomColumnIds", fn: validateCustomColumnIds, code: CustomErrorCode.customColumnIdNotFound },
-    { name: "validateWebhookIds", fn: validateWebhookIds, code: CustomErrorCode.webhookNotFound },
-    {
-      name: "validateWebhookDeliveryIds",
-      fn: validateWebhookDeliveryIds,
-      code: CustomErrorCode.webhookDeliveryNotFound,
-    },
-    { name: "validateThreadIds", fn: validateThreadIds, code: CustomErrorCode.threadNotFound },
-    { name: "validateRoleIds", fn: validateRoleIds, code: CustomErrorCode.roleNotFound },
-  ];
-
-  for (const { name, fn, code } of cases) {
-    it(`${name} passes a present id and flags a missing one`, () => {
-      const ok = createMockCtx();
-      fn("present", new Set(["present"]), ok, ["id"]);
-      expect(ok.addIssue).not.toHaveBeenCalled();
-
-      const bad = createMockCtx();
-      fn("missing", new Set(["present"]), bad, ["id"]);
-      expect(bad.addIssue).toHaveBeenCalledWith(expect.objectContaining({ params: { error: code } }));
-    });
-  }
-});
-
-describe("validateDealIds", () => {
-  const validIds = new Set(["deal-1"]);
-
-  it("adds issue with dealNotFound error code", () => {
-    const ctx = createMockCtx();
-    validateDealIds(["deal-bad"], validIds, ctx, ["dealIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.dealNotFound } }),
-    );
-  });
-});
-
-describe("validateServiceIds", () => {
-  const validIds = new Set(["svc-1"]);
-
-  it("adds issue with serviceNotFound error code", () => {
-    const ctx = createMockCtx();
-    validateServiceIds(["svc-bad"], validIds, ctx, ["serviceIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.serviceNotFound } }),
-    );
-  });
-});
-
-describe("validateTaskIds", () => {
-  const validIds = new Set(["task-1"]);
-
-  it("adds issue with taskNotFound error code", () => {
-    const ctx = createMockCtx();
-    validateTaskIds(["task-bad"], validIds, ctx, ["taskIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.taskNotFound } }),
-    );
-  });
-});
-
-describe("validateSystemTaskIds", () => {
-  const systemTaskIds = new Set(["sys-1", "sys-2"]);
-
-  it("adds issue when trying to delete a system task", () => {
-    const ctx = createMockCtx();
-    validateSystemTaskIds(["sys-1"], systemTaskIds, ctx, ["ids"]);
+    await makeGuard(["sys-1", "sys-2"]).invoke([{ ids: ["sys-1"], path: ["ids"] }], ctx);
     expect(ctx.addIssue).toHaveBeenCalledWith(
       expect.objectContaining({ params: { error: CustomErrorCode.taskOnlyCustomTasksCanBeDeleted } }),
     );
   });
 
-  it("does not add issue for non-system task IDs", () => {
+  it("does not add an issue for non-system task ids", async () => {
     const ctx = createMockCtx();
-    validateSystemTaskIds(["custom-1"], systemTaskIds, ctx, ["ids"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("skips validation for null/undefined", () => {
-    const ctx = createMockCtx();
-    validateSystemTaskIds(null, systemTaskIds, ctx, ["ids"]);
+    await makeGuard(["sys-1"]).invoke([{ ids: ["custom-1"], path: ["ids"] }], ctx);
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
 });

@@ -22,6 +22,27 @@ import { UpdateManyServicesInteractor } from "../upsert/update-many-services.int
 import { DeleteManyServicesInteractor } from "../delete/delete-many-services.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 
+import { ServiceWritePrecheckInteractor } from "../upsert/service-write-precheck.interactor";
+import { ValidateAssigneeGuardInteractor } from "@/core/validation/validators/validate-assignee-guard.interactor";
+import { ValidateCustomFieldValuesInteractor } from "@/core/validation/validators/validate-custom-field-values.interactor";
+import { ValidateDealIdsInteractor } from "@/core/validation/validators/validate-deal-ids.interactor";
+import { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
+import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
+import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
+import { getUserRepo, getDealRepo, getTaskRepo, getServiceRepo, getCustomColumnRepo, getUserService } from "@/core/di";
+import type { UserService } from "@/features/user/user.service";
+
+function makeServiceWritePrecheck(): ServiceWritePrecheckInteractor {
+  return new ServiceWritePrecheckInteractor(
+    new ValidateUserIdsInteractor(getUserRepo()),
+    new ValidateDealIdsInteractor(getDealRepo()),
+    new ValidateTaskIdsInteractor(getTaskRepo()),
+    new ValidateServiceIdsInteractor(getServiceRepo()),
+    new ValidateCustomFieldValuesInteractor(getCustomColumnRepo()),
+    new ValidateAssigneeGuardInteractor(getUserService() as unknown as UserService),
+  );
+}
+
 const SERVICE_ID = "00000000-0000-4000-8000-000000000001";
 const SERVICE_ID_2 = "00000000-0000-4000-8000-000000000002";
 const DEAL_ID_1 = "00000000-0000-4000-8000-000000000020";
@@ -84,7 +105,13 @@ describe("CreateServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateServiceInteractor(mockCreateRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new CreateServiceInteractor(
+      mockCreateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_CREATED event with correct entityId and payload", async () => {
@@ -108,8 +135,9 @@ describe("CreateServiceInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for linked deals", async () => {
-    const deal = makeDealDto(DEAL_ID_1);
-    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValue([deal]);
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), services: [] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), services: [{ id: SERVICE_ID }] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
 
     const serviceWithDeals = makeServiceDto({
       deals: [{ id: DEAL_ID_1, name: "Deal 20" }],
@@ -188,7 +216,13 @@ describe("UpdateServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateServiceInteractor(mockUpdateRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new UpdateServiceInteractor(
+      mockUpdateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_UPDATED event with entityId and changes", async () => {
@@ -256,7 +290,13 @@ describe("DeleteServiceInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteServiceInteractor(mockDeleteRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new DeleteServiceInteractor(
+      mockDeleteRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_DELETED event with correct entityId and payload", async () => {
@@ -273,6 +313,11 @@ describe("DeleteServiceInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for deals linked to the deleted service", async () => {
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), services: [{ id: SERVICE_ID }] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), services: [] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockReset();
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
+
     const interactor = createInteractor();
     await interactor.invoke({ id: SERVICE_ID });
 
@@ -321,7 +366,13 @@ describe("CreateManyServicesInteractor", () => {
   });
 
   function createInteractor() {
-    return new CreateManyServicesInteractor(mockCreateRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new CreateManyServicesInteractor(
+      mockCreateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_CREATED events for each item created", async () => {
@@ -352,8 +403,9 @@ describe("CreateManyServicesInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for related deals", async () => {
-    const deal = makeDealDto(DEAL_ID_1);
-    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValue([deal]);
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), services: [] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), services: [{ id: SERVICE_ID }] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
     mockCreateRepo.createServiceOrThrow.mockReset();
     mockCreateRepo.createServiceOrThrow.mockResolvedValueOnce(
       makeServiceDto({ deals: [{ id: DEAL_ID_1, name: "Deal 20" }] }),
@@ -421,7 +473,13 @@ describe("UpdateManyServicesInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateManyServicesInteractor(mockUpdateRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new UpdateManyServicesInteractor(
+      mockUpdateRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_UPDATED events with payload for each item", async () => {
@@ -519,7 +577,13 @@ describe("DeleteManyServicesInteractor", () => {
   });
 
   function createInteractor() {
-    return new DeleteManyServicesInteractor(mockDeleteRepo, mockDealRepo, mockTaskRepo, mockEventService);
+    return new DeleteManyServicesInteractor(
+      mockDeleteRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      makeServiceWritePrecheck(),
+    );
   }
 
   it("publishes SERVICE_DELETED events with payload for each deleted item", async () => {
@@ -545,6 +609,11 @@ describe("DeleteManyServicesInteractor", () => {
   });
 
   it("publishes DEAL_UPDATED events with payload for related deals", async () => {
+    const dealBefore = { ...makeDealDto(DEAL_ID_1), services: [{ id: SERVICE_ID }] };
+    const dealAfter = { ...makeDealDto(DEAL_ID_1), services: [] };
+    mockDealRepo.getManyOrThrowCompanyWide.mockReset();
+    mockDealRepo.getManyOrThrowCompanyWide.mockResolvedValueOnce([dealBefore]).mockResolvedValueOnce([dealAfter]);
+
     const interactor = createInteractor();
     await interactor.invoke({ ids: [SERVICE_ID, SERVICE_ID_2] });
 

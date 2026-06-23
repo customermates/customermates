@@ -4,94 +4,31 @@ import type { GetCompanyWideContactRepo } from "@/features/contacts/get-company-
 import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { OrganizationWritePrecheckInteractor } from "./organization-write-precheck.interactor";
 
 import { z } from "zod";
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateNotes } from "../../../core/validation/validate-notes";
-import {
-  validateContactIds,
-  validateUserIds,
-  validateDealIds,
-  validateOrganizationIds,
-  validateTaskIds,
-} from "@/core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
+import { validateNotes } from "@/core/validation/validate-notes";
 import { type OrganizationDto, OrganizationDtoSchema } from "../organization.schema";
 
 import { BaseUpdateOrganizationSchema } from "./update-organization-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
-import {
-  getUserRepo,
-  getUserService,
-  getContactRepo,
-  getCustomColumnRepo,
-  getDealRepo,
-  getOrganizationRepo,
-  getTaskRepo,
-} from "@/core/di";
 
 export const UpdateManyOrganizationsSchema = z
   .object({
     organizations: z.array(BaseUpdateOrganizationSchema).min(1).max(100),
   })
-  .superRefine(async (data, ctx) => {
-    const contactSet = new Set<string>();
-    const userSet = new Set<string>();
-    const dealSet = new Set<string>();
-    const organizationSet = new Set<string>();
-    const taskSet = new Set<string>();
-
-    for (const organization of data.organizations) {
-      organizationSet.add(organization.id);
-      organization.contactIds?.forEach((id) => contactSet.add(id));
-      organization.userIds?.forEach((id) => userSet.add(id));
-      organization.dealIds?.forEach((id) => dealSet.add(id));
-      organization.taskIds?.forEach((id) => taskSet.add(id));
-    }
-
-    const [
-      validContactIdsSet,
-      validUserIdsSet,
-      validDealIdsSet,
-      validOrgIdsSet,
-      validTaskIdsSet,
-      allColumns,
-      currentUser,
-      canReadAll,
-    ] = await Promise.all([
-      getContactRepo().findIds(contactSet),
-      getUserRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getOrganizationRepo().findIds(organizationSet),
-      getTaskRepo().findIds(taskSet),
-      getCustomColumnRepo().findByEntityType(EntityType.organization),
-      getUserService().getActiveUserOrThrow(),
-      getUserService().hasPermission(Resource.organizations, Action.readAll),
-    ]);
-
+  .superRefine((data, ctx) => {
     for (let i = 0; i < data.organizations.length; i++) {
       const organization = data.organizations[i];
-      validateOrganizationIds(organization.id, validOrgIdsSet, ctx, ["organizations", i, "id"]);
-      validateContactIds(organization.contactIds, validContactIdsSet, ctx, ["organizations", i, "contactIds"]);
-      validateUserIds(organization.userIds, validUserIdsSet, ctx, ["organizations", i, "userIds"]);
-      validateAssigneeGuard(organization.userIds, currentUser.id, canReadAll, ctx, ["organizations", i, "userIds"]);
-      validateDealIds(organization.dealIds, validDealIdsSet, ctx, ["organizations", i, "dealIds"]);
-      validateTaskIds(organization.taskIds, validTaskIdsSet, ctx, ["organizations", i, "taskIds"]);
-      validateCustomFieldValues(organization.customFieldValues, allColumns, ctx, [
-        "organizations",
-        i,
-        "customFieldValues",
-      ]);
       organization.notes = validateNotes(organization.notes, ctx, ["organizations", i, "notes"]);
     }
   });
@@ -111,13 +48,17 @@ export class UpdateManyOrganizationsInteractor extends AuthenticatedInteractor<
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: OrganizationWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(UpdateManyOrganizationsSchema)
-  @ValidateOutput(OrganizationDtoSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: UpdateManyOrganizationsSchema,
+    output: OrganizationDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.updateMany(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: UpdateManyOrganizationsData): Validated<OrganizationDto[]> {
     const previousOrganizations = await this.organizationsRepo.getManyOrThrowCompanyWide(
       data.organizations.map((o) => o.id),
@@ -182,8 +123,7 @@ export class UpdateManyOrganizationsInteractor extends AuthenticatedInteractor<
         }),
       ),
       ...organizations.map((organization) => {
-        const previousOrganization = previousOrganizationsMap.get(organization.id);
-        const changes = previousOrganization ? calculateChanges(previousOrganization, organization) : {};
+        const changes = calculateChanges(previousOrganizationsMap.get(organization.id), organization);
 
         return this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
           entityId: organization.id,

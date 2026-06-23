@@ -16,13 +16,13 @@ import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
 
 import { BACKFILL_MAX_MESSAGES, UNIPILE_MAX_LIMIT, paginateNested } from "./paginate";
 
-const BackfillCalendarsPayloadSchema = z.object({
+const Schema = z.object({
   account: z.custom<ConnectedAccount>(),
   afterDate: z.date(),
   checkpoint: BackfillCheckpointSchema,
   epoch: z.number(),
 });
-export type BackfillCalendarsPayload = z.infer<typeof BackfillCalendarsPayloadSchema>;
+type BackfillCalendarsPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class BackfillCalendarsInteractor {
@@ -32,7 +32,7 @@ export class BackfillCalendarsInteractor {
     private calendarRepo: CalendarWriteRepo,
   ) {}
 
-  @Enforce(BackfillCalendarsPayloadSchema)
+  @Enforce(Schema)
   async invoke({ account, afterDate, checkpoint, epoch }: BackfillCalendarsPayload): Promise<void> {
     if (checkpoint.calendar?.done) return;
 

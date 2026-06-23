@@ -5,32 +5,21 @@ import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/ge
 import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
 import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { TaskWritePrecheckInteractor } from "../upsert/task-write-precheck.interactor";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { validateTaskIds, validateSystemTaskIds } from "@/core/validation/ids-validators";
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getTaskRepo } from "@/core/di";
 
-export const DeleteTaskSchema = z
-  .object({
-    id: z.uuid(),
-  })
-  .superRefine(async (data, ctx) => {
-    const taskSet = new Set([data.id]);
-    const repo = getTaskRepo();
-    const [validIdsSet, systemTaskIdsSet] = await Promise.all([repo.findIds(taskSet), repo.findSystemTaskIds(taskSet)]);
-    validateTaskIds(data.id, validIdsSet, ctx, ["id"]);
-    validateSystemTaskIds(data.id, systemTaskIdsSet, ctx, ["id"]);
-  });
+export const DeleteTaskSchema = z.object({
+  id: z.uuid(),
+});
 export type DeleteTaskData = Data<typeof DeleteTaskSchema>;
 
 @TenantInteractor({ resource: Resource.tasks, action: Action.delete })
@@ -42,13 +31,16 @@ export class DeleteTaskInteractor extends AuthenticatedInteractor<DeleteTaskData
     private dealsRepo: GetCompanyWideDealRepo,
     private servicesRepo: GetCompanyWideServiceRepo,
     private eventService: EventService,
+    private precheck: TaskWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(DeleteTaskSchema)
-  @ValidateOutput(z.string())
-  @Transaction
+  @Write({
+    input: DeleteTaskSchema,
+    output: z.string(),
+    precheck: (self, data, ctx) => self.precheck.delete(data, ctx),
+  })
   async invoke(data: DeleteTaskData): Validated<string> {
     const previousTask = await this.repo.getOrThrowCompanyWide(data.id);
 
@@ -74,39 +66,39 @@ export class DeleteTaskInteractor extends AuthenticatedInteractor<DeleteTaskData
     ]);
 
     await Promise.all([
-      ...currentContacts.map((contact, index) =>
+      ...buildRelationChangePublishes(previousContacts, currentContacts, "tasks", (contact, changes) =>
         this.eventService.publish(DomainEvent.CONTACT_UPDATED, {
           entityId: contact.id,
           payload: {
             contact,
-            changes: calculateChanges(previousContacts[index], contact),
+            changes,
           },
         }),
       ),
-      ...currentOrganizations.map((organization, index) =>
+      ...buildRelationChangePublishes(previousOrganizations, currentOrganizations, "tasks", (organization, changes) =>
         this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
           entityId: organization.id,
           payload: {
             organization,
-            changes: calculateChanges(previousOrganizations[index], organization),
+            changes,
           },
         }),
       ),
-      ...currentDeals.map((deal, index) =>
+      ...buildRelationChangePublishes(previousDeals, currentDeals, "tasks", (deal, changes) =>
         this.eventService.publish(DomainEvent.DEAL_UPDATED, {
           entityId: deal.id,
           payload: {
             deal,
-            changes: calculateChanges(previousDeals[index], deal),
+            changes,
           },
         }),
       ),
-      ...currentServices.map((service, index) =>
+      ...buildRelationChangePublishes(previousServices, currentServices, "tasks", (service, changes) =>
         this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
           entityId: service.id,
           payload: {
             service,
-            changes: calculateChanges(previousServices[index], service),
+            changes,
           },
         }),
       ),

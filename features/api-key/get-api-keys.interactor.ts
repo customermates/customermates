@@ -16,13 +16,7 @@ export const ApiKeyDtoSchema = z.object({
   lastRequest: z.date().nullable(),
 });
 
-export interface ApiKey {
-  id: string;
-  name: string | null;
-  createdAt: Date;
-  expiresAt: Date | null;
-  lastRequest: Date | null;
-}
+export type ApiKey = z.infer<typeof ApiKeyDtoSchema>;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })

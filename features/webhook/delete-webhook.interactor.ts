@@ -1,6 +1,7 @@
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
+import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
@@ -8,21 +9,12 @@ import { Resource, Action } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { validateWebhookIds } from "@/core/validation/ids-validators";
-import { getWebhookRepo } from "@/core/di";
 
-const Schema = z
-  .object({
-    id: z.uuid(),
-  })
-  .superRefine(async (data, ctx) => {
-    const validIdsSet = await getWebhookRepo().findIds(new Set([data.id]));
-    validateWebhookIds(data.id, validIdsSet, ctx, ["id"]);
-  });
+const Schema = z.object({
+  id: z.uuid(),
+});
 export type DeleteWebhookData = Data<typeof Schema>;
 
 export abstract class DeleteWebhookRepo {
@@ -34,13 +26,16 @@ export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebho
   constructor(
     private repo: DeleteWebhookRepo,
     private eventService: EventService,
+    private validator: ValidateWebhookIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(z.string())
-  @Transaction
+  @Write({
+    input: Schema,
+    output: z.string(),
+    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+  })
   async invoke(data: DeleteWebhookData): Validated<string> {
     const webhook = await this.repo.deleteWebhookOrThrow(data.id);
 

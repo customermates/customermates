@@ -22,7 +22,7 @@ export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto>
     private activitiesRepo: GetActivitiesRepo,
     p13nRepo: P13nRepo,
   ) {
-    super(activitiesRepo, p13nRepo, { sortDescriptor: { field: "at", direction: "desc" } });
+    super(activitiesRepo, p13nRepo, "interactive", undefined, { sortDescriptor: { field: "at", direction: "desc" } });
   }
 
   @Validate(ActivitiesParamsSchema)

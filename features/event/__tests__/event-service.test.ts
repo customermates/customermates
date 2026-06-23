@@ -77,3 +77,46 @@ describe("EventService webhook dispatch", () => {
     expect(webhookDeliveryRepo.create).not.toHaveBeenCalled();
   });
 });
+
+describe("EventService no-op update skip", () => {
+  let auditLogRepo: any;
+  let webhookRepo: any;
+  let webhookDeliveryRepo: any;
+  let backgroundTaskService: { dispatch: ReturnType<typeof vi.fn> };
+  let service: EventService;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    auditLogRepo = { log: vi.fn().mockResolvedValue(undefined) };
+    webhookRepo = { getWebhooksForEvent: vi.fn().mockResolvedValue([]) };
+    webhookDeliveryRepo = { create: vi.fn().mockResolvedValue([]) };
+    backgroundTaskService = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    service = new EventService([], webhookRepo, webhookDeliveryRepo, auditLogRepo, backgroundTaskService as never);
+  });
+
+  it("skips an update whose changes are empty, writing no audit log and dispatching no webhook", async () => {
+    const result = await runWithTenant(mockUser, () =>
+      service.publish(DomainEvent.CONTACT_UPDATED, {
+        entityId: CONTACT_ID,
+        payload: { contact: { id: CONTACT_ID }, changes: {} } as any,
+      }),
+    );
+
+    expect(result.skipped).toBe("no-op-update");
+    expect(auditLogRepo.log).not.toHaveBeenCalled();
+    expect(webhookRepo.getWebhooksForEvent).not.toHaveBeenCalled();
+    expect(backgroundTaskService.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("publishes an update whose changes are non-empty", async () => {
+    const result = await runWithTenant(mockUser, () =>
+      service.publish(DomainEvent.CONTACT_UPDATED, {
+        entityId: CONTACT_ID,
+        payload: { contact: { id: CONTACT_ID }, changes: { firstName: { previous: "A", current: "B" } } } as any,
+      }),
+    );
+
+    expect(result.skipped).toBeNull();
+    expect(auditLogRepo.log).toHaveBeenCalledTimes(1);
+  });
+});

@@ -3,31 +3,22 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ServiceWritePrecheckInteractor } from "../upsert/service-write-precheck.interactor";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { validateServiceIds } from "../../../core/validation/ids-validators";
-
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getServiceRepo } from "@/core/di";
 
-export const DeleteManyServicesSchema = z
-  .object({
-    ids: z.array(z.uuid()).min(1).max(100),
-  })
-  .superRefine(async (data, ctx) => {
-    const serviceSet = new Set(data.ids);
-    const validIdsSet = await getServiceRepo().findIds(serviceSet);
-    validateServiceIds(data.ids, validIdsSet, ctx, ["ids"]);
-  });
+export const DeleteManyServicesSchema = z.object({
+  ids: z.array(z.uuid()).min(1).max(100),
+});
 export type DeleteManyServicesData = Data<typeof DeleteManyServicesSchema>;
 
 @TenantInteractor({ resource: Resource.services, action: Action.delete })
@@ -37,13 +28,17 @@ export class DeleteManyServicesInteractor extends AuthenticatedInteractor<Delete
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: ServiceWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(DeleteManyServicesSchema)
-  @ValidateOutput(z.string())
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: DeleteManyServicesSchema,
+    output: z.string(),
+    precheck: (self, data, ctx) => self.precheck.deleteMany(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: DeleteManyServicesData): Validated<string[]> {
     const previousServices = await this.repo.getManyOrThrowCompanyWide(data.ids);
 
@@ -63,21 +58,26 @@ export class DeleteManyServicesInteractor extends AuthenticatedInteractor<Delete
     ]);
 
     await Promise.all([
-      ...currentDeals.map((deal, index) =>
-        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
-          entityId: deal.id,
-          payload: {
-            deal,
-            changes: calculateChanges(previousDeals[index], deal),
-          },
-        }),
+      ...buildRelationChangePublishes(
+        previousDeals,
+        currentDeals,
+        "services",
+        (deal, changes) =>
+          this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+            entityId: deal.id,
+            payload: {
+              deal,
+              changes,
+            },
+          }),
+        ["totalValue", "totalQuantity"],
       ),
-      ...currentTasks.map((task, index) =>
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "services", (task, changes) =>
         this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasks[index], task),
+            changes,
           },
         }),
       ),

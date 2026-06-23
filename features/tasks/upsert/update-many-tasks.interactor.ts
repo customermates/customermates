@@ -5,101 +5,31 @@ import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/ge
 import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
 import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { TaskWritePrecheckInteractor } from "./task-write-precheck.interactor";
 
 import { z } from "zod";
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateNotes } from "../../../core/validation/validate-notes";
-import {
-  validateContactIds,
-  validateUserIds,
-  validateSystemTaskName,
-  validateTaskIds,
-  validateOrganizationIds,
-  validateDealIds,
-  validateServiceIds,
-} from "../../../core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
+import { validateNotes } from "@/core/validation/validate-notes";
 import { type TaskDto, TaskDtoSchema } from "../task.schema";
 
 import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { buildRelationChangePublishes, calculateChanges } from "@/core/utils/calculate-changes";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { unique } from "@/core/utils/unique";
-import {
-  getUserRepo,
-  getUserService,
-  getContactRepo,
-  getCustomColumnRepo,
-  getDealRepo,
-  getOrganizationRepo,
-  getServiceRepo,
-  getTaskRepo,
-} from "@/core/di";
 
 export const UpdateManyTasksSchema = z
   .object({
     tasks: z.array(BaseUpdateTaskSchema).min(1).max(100),
   })
-  .superRefine(async (data, ctx) => {
-    const userSet = new Set<string>();
-    const taskSet = new Set<string>();
-    const contactSet = new Set<string>();
-    const orgSet = new Set<string>();
-    const dealSet = new Set<string>();
-    const serviceSet = new Set<string>();
-
-    for (const task of data.tasks) {
-      taskSet.add(task.id);
-      task.userIds?.forEach((id) => userSet.add(id));
-      task.contactIds?.forEach((id) => contactSet.add(id));
-      task.organizationIds?.forEach((id) => orgSet.add(id));
-      task.dealIds?.forEach((id) => dealSet.add(id));
-      task.serviceIds?.forEach((id) => serviceSet.add(id));
-    }
-
-    const [
-      validUserIdsSet,
-      validTaskIdsSet,
-      systemTaskIdsSet,
-      validContactIdsSet,
-      validOrgIdsSet,
-      validDealIdsSet,
-      validServiceIdsSet,
-      allColumns,
-      currentUser,
-      canReadAll,
-    ] = await Promise.all([
-      getUserRepo().findIds(userSet),
-      getTaskRepo().findIds(taskSet),
-      getTaskRepo().findSystemTaskIds(taskSet),
-      getContactRepo().findIds(contactSet),
-      getOrganizationRepo().findIds(orgSet),
-      getDealRepo().findIds(dealSet),
-      getServiceRepo().findIds(serviceSet),
-      getCustomColumnRepo().findByEntityType(EntityType.task),
-      getUserService().getActiveUserOrThrow(),
-      getUserService().hasPermission(Resource.tasks, Action.readAll),
-    ]);
-
+  .superRefine((data, ctx) => {
     for (let i = 0; i < data.tasks.length; i++) {
       const task = data.tasks[i];
-      validateTaskIds(task.id, validTaskIdsSet, ctx, ["tasks", i, "id"]);
-      validateSystemTaskName(task, systemTaskIdsSet, ctx, ["tasks", i]);
-      validateUserIds(task.userIds, validUserIdsSet, ctx, ["tasks", i, "userIds"]);
-      validateAssigneeGuard(task.userIds, currentUser.id, canReadAll, ctx, ["tasks", i, "userIds"]);
-      validateContactIds(task.contactIds, validContactIdsSet, ctx, ["tasks", i, "contactIds"]);
-      validateOrganizationIds(task.organizationIds, validOrgIdsSet, ctx, ["tasks", i, "organizationIds"]);
-      validateDealIds(task.dealIds, validDealIdsSet, ctx, ["tasks", i, "dealIds"]);
-      validateServiceIds(task.serviceIds, validServiceIdsSet, ctx, ["tasks", i, "serviceIds"]);
-      validateCustomFieldValues(task.customFieldValues, allColumns, ctx, ["tasks", i, "customFieldValues"]);
       task.notes = validateNotes(task.notes, ctx, ["tasks", i, "notes"]);
     }
   });
@@ -117,13 +47,17 @@ export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateMan
     private dealsRepo: GetCompanyWideDealRepo,
     private servicesRepo: GetCompanyWideServiceRepo,
     private eventService: EventService,
+    private precheck: TaskWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(UpdateManyTasksSchema)
-  @ValidateOutput(TaskDtoSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: UpdateManyTasksSchema,
+    output: TaskDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.updateMany(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: UpdateManyTasksData): Validated<TaskDto[]> {
     const previousTasks = await this.repo.getManyOrThrowCompanyWide(data.tasks.map((t) => t.id));
 
@@ -199,18 +133,15 @@ export class UpdateManyTasksInteractor extends AuthenticatedInteractor<UpdateMan
           },
         }),
       ),
-      ...tasks.map((task) => {
-        const previousTask = previousTasksMap.get(task.id);
-        const changes = previousTask ? calculateChanges(previousTask, task) : {};
-
-        return this.eventService.publish(DomainEvent.TASK_UPDATED, {
+      ...tasks.map((task) =>
+        this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes,
+            changes: calculateChanges(previousTasksMap.get(task.id), task),
           },
-        });
-      }),
+        }),
+      ),
     ]);
 
     return { ok: true as const, data: tasks };

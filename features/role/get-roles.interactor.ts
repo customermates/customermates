@@ -26,7 +26,7 @@ export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
 })
 export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
   constructor(repo: GetRolesRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, {
+    super(repo, p13nRepo, "interactive", undefined, {
       sortDescriptor: { field: "type", direction: "asc" },
     });
   }

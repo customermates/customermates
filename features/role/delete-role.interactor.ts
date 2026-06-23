@@ -41,12 +41,10 @@ export class DeleteRoleInteractor extends AuthenticatedInteractor<DeleteRoleData
 
     const role = await this.repo.deleteRoleOrThrow(data.id);
 
-    await Promise.all([
-      this.eventService.publish(DomainEvent.ROLE_DELETED, {
-        entityId: role.id,
-        payload: role,
-      }),
-    ]);
+    await this.eventService.publish(DomainEvent.ROLE_DELETED, {
+      entityId: role.id,
+      payload: role,
+    });
 
     return { ok: true as const, data: data.id };
   }

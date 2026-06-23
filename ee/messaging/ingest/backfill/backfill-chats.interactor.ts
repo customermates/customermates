@@ -48,13 +48,13 @@ type AttendeeIndex = {
   selfSender: MessagingAttendee | undefined;
 };
 
-const BackfillChatsPayloadSchema = z.object({
+const Schema = z.object({
   account: z.custom<ConnectedAccount>(),
   afterDate: z.date(),
   checkpoint: BackfillCheckpointSchema,
   epoch: z.number(),
 });
-export type BackfillChatsPayload = z.infer<typeof BackfillChatsPayloadSchema>;
+type BackfillChatsPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class BackfillChatsInteractor {
@@ -64,7 +64,7 @@ export class BackfillChatsInteractor {
     private ingest: MessagingIngestRepo,
   ) {}
 
-  @Enforce(BackfillChatsPayloadSchema)
+  @Enforce(Schema)
   async invoke({ account, afterDate, checkpoint, epoch }: BackfillChatsPayload): Promise<void> {
     if (checkpoint.chat?.done) return;
 

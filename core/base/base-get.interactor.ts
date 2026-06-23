@@ -15,9 +15,13 @@ import type {
 
 import { CustomColumnType } from "@/generated/prisma";
 
+import type { EntityType } from "@/generated/prisma";
+import type { QueryParamsPrecheckInteractor } from "./query-params-precheck.interactor";
+
 import { env } from "@/env";
 import { KANBAN_EMPTY_GROUP_KEY, KANBAN_PER_GROUP_DEFAULT } from "./base-get.schema";
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
+import { runPrecheck } from "../validation/run-precheck";
 
 export interface GetResult<T> {
   p13nId?: string;
@@ -67,7 +71,10 @@ export abstract class BaseGetInteractor<T> {
   constructor(
     protected repo: BaseGetRepo<T>,
     protected p13nRepo: P13nRepo,
+    protected mode: "interactive" | "api",
+    protected entityType: EntityType | undefined,
     protected defaultParams?: GetQueryParams,
+    protected queryParamsPrecheck?: QueryParamsPrecheckInteractor,
   ) {}
 
   async invoke(params: GetQueryParams = {}): Validated<GetResult<T>> {
@@ -88,7 +95,7 @@ export abstract class BaseGetInteractor<T> {
     let groupingColumnId: string | undefined = undefined;
     let savedFilterPresets: SavedFilterPreset[] | undefined = undefined;
 
-    if (p13nId) {
+    if (p13nId && this.mode === "interactive") {
       const p13nData = await this.p13nRepo.getP13n(p13nId);
 
       if (p13nData) {
@@ -124,10 +131,21 @@ export abstract class BaseGetInteractor<T> {
     ]);
     const sortableFields = this.repo.getSortableFields();
 
-    filters = this.repo.validateFilters({ filters, filterableFields });
+    if (this.mode === "api") {
+      const precheck = this.queryParamsPrecheck;
+      if (!precheck) throw new Error("api mode requires a queryParamsPrecheck");
+
+      const checked = await runPrecheck({ filters, sortDescriptor }, (data, ctx) =>
+        precheck.invoke({ filterableFields, customColumns, sortableFields }, this.entityType, data, ctx),
+      );
+      if (!checked.ok) return { ok: false as const, error: checked.error };
+    }
+
+    const keptFilters = this.repo.validateFilters({ filters, filterableFields });
+    filters = keptFilters;
     sortDescriptor = this.repo.validateSortDescriptor({ sortDescriptor, sortableFields, customColumns });
 
-    if (p13nId && !env.DEMO_MODE) {
+    if (p13nId && this.mode === "interactive" && !env.DEMO_MODE) {
       await this.p13nRepo.upsertP13n({
         p13nId,
         filters: filters ?? null,

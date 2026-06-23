@@ -32,7 +32,7 @@ export type WebhookDeliveryDto = {
   createdAt: Date;
 };
 
-const WebhookDeliveryDtoSchema = z.object({
+const OutputSchema = z.object({
   id: z.string(),
   url: z.string(),
   event: z.string(),
@@ -51,14 +51,14 @@ export abstract class GetWebhookDeliveriesRepo extends BaseGetRepo<WebhookDelive
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
   constructor(repo: GetWebhookDeliveriesRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, {
+    super(repo, p13nRepo, "interactive", undefined, {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });
   }
 
   @Validate(GetQueryParamsSchema)
-  @ValidateOutput(createGetResultSchema(WebhookDeliveryDtoSchema))
+  @ValidateOutput(createGetResultSchema(OutputSchema))
   async invoke(params: GetQueryParams = {}): Validated<GetResult<WebhookDeliveryDto>> {
     return await super.invoke(params);
   }

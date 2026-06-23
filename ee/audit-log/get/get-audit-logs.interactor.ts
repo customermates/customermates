@@ -15,7 +15,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { CloudOnly } from "@/core/decorators/cloud-only.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-export const AuditLogDtoSchema = z.object({
+const AuditLogDtoSchema = z.object({
   id: z.string(),
   event: z.string(),
   eventData: z.any(),
@@ -35,7 +35,7 @@ export abstract class GetAuditLogsRepo extends BaseGetRepo<AuditLogDto> {}
 @TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
 export class GetAuditLogsInteractor extends BaseGetInteractor<AuditLogDto> {
   constructor(repo: GetAuditLogsRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, {
+    super(repo, p13nRepo, "interactive", undefined, {
       sortDescriptor: { field: "createdAt", direction: "desc" },
       pagination: { pageSize: 25, page: 1 },
     });

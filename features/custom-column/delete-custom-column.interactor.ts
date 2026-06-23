@@ -1,6 +1,7 @@
 import type { UserService } from "../user/user.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
 
 import { z } from "zod";
 import { Action, EntityType, Resource } from "@/generated/prisma";
@@ -9,22 +10,14 @@ import { type CustomColumnDto } from "./custom-column.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction, BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { validateCustomColumnIds } from "@/core/validation/ids-validators";
-import { getCustomColumnRepo } from "@/core/di";
 
-const Schema = z
-  .object({
-    id: z.uuid(),
-  })
-  .superRefine(async (data, ctx) => {
-    const validIdsSet = await getCustomColumnRepo().findIds(new Set([data.id]));
-    validateCustomColumnIds(data.id, validIdsSet, ctx, ["id"]);
-  });
-export type DeleteCustomColumnData = Data<typeof Schema>;
+const Schema = z.object({
+  id: z.uuid(),
+});
+type DeleteCustomColumnData = Data<typeof Schema>;
 
 export abstract class DeleteCustomColumnRepo {
   abstract find(id: string): Promise<CustomColumnDto>;
@@ -37,13 +30,17 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     private repo: DeleteCustomColumnRepo,
     private userService: UserService,
     private eventService: EventService,
+    private validator: ValidateCustomColumnIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(Schema)
-  @ValidateOutput(z.string())
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: Schema,
+    output: z.string(),
+    tx: BULK_WRITE_TRANSACTION,
+    precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
+  })
   async invoke(data: DeleteCustomColumnData): Validated<string> {
     const customColumn = await this.repo.find(data.id);
 
@@ -56,8 +53,6 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     };
 
     const permission = entityTypePermissionMap[customColumn.entityType];
-
-    if (!permission) throw new Error("You are not allowed to delete this custom column");
 
     await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
 

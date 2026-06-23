@@ -5,75 +5,23 @@ import type { GetCompanyWideOrganizationRepo } from "@/features/organizations/ge
 import type { GetCompanyWideServiceRepo } from "@/features/services/get-company-wide-service.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { DealWritePrecheckInteractor } from "./deal-write-precheck.interactor";
 
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import {
-  validateContactIds,
-  validateOrganizationIds,
-  validateUserIds,
-  validateServiceIds,
-  validateTaskIds,
-} from "../../../core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type DealDto, DealDtoSchema } from "../deal.schema";
 
 import { BaseCreateDealSchema } from "./create-deal-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { validateNotes } from "@/core/validation/validate-notes";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import {
-  getUserRepo,
-  getUserService,
-  getContactRepo,
-  getCustomColumnRepo,
-  getOrganizationRepo,
-  getServiceRepo,
-  getTaskRepo,
-} from "@/core/di";
 
-export const CreateDealSchema = BaseCreateDealSchema.superRefine(async (data, ctx) => {
-  const organizationSet = new Set(data.organizationIds);
-  const userSet = new Set(data.userIds);
-  const contactSet = new Set(data.contactIds);
-  const serviceSet = new Set(data.services.map((s) => s.serviceId));
-  const taskSet = new Set(data.taskIds);
-
-  const [
-    validOrgIdsSet,
-    validUserIdsSet,
-    validContactIdsSet,
-    validServiceIdsSet,
-    validTaskIdsSet,
-    allColumns,
-    currentUser,
-    canReadAll,
-  ] = await Promise.all([
-    getOrganizationRepo().findIds(organizationSet),
-    getUserRepo().findIds(userSet),
-    getContactRepo().findIds(contactSet),
-    getServiceRepo().findIds(serviceSet),
-    getTaskRepo().findIds(taskSet),
-    getCustomColumnRepo().findByEntityType(EntityType.deal),
-    getUserService().getActiveUserOrThrow(),
-    getUserService().hasPermission(Resource.deals, Action.readAll),
-  ]);
-
-  validateOrganizationIds(data.organizationIds, validOrgIdsSet, ctx, ["organizationIds"]);
-  validateUserIds(data.userIds, validUserIdsSet, ctx, ["userIds"]);
-  validateAssigneeGuard(data.userIds, currentUser.id, canReadAll, ctx, ["userIds"]);
-  validateContactIds(data.contactIds, validContactIdsSet, ctx, ["contactIds"]);
-  validateServiceIds(Array.from(serviceSet), validServiceIdsSet, ctx, ["services"]);
-  validateTaskIds(data.taskIds, validTaskIdsSet, ctx, ["taskIds"]);
-  validateCustomFieldValues(data.customFieldValues, allColumns, ctx, ["customFieldValues"]);
+export const CreateDealSchema = BaseCreateDealSchema.superRefine((data, ctx) => {
   data.notes = validateNotes(data.notes, ctx, ["notes"]);
 });
 export type CreateDealData = Data<typeof CreateDealSchema>;
@@ -90,13 +38,16 @@ export class CreateDealInteractor extends AuthenticatedInteractor<CreateDealData
     private servicesRepo: GetCompanyWideServiceRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: DealWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(CreateDealSchema)
-  @ValidateOutput(DealDtoSchema)
-  @Transaction
+  @Write({
+    input: CreateDealSchema,
+    output: DealDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.create(data, ctx),
+  })
   async invoke(data: CreateDealData): Validated<DealDto> {
     const relatedOrganizationIds = unique(data.organizationIds);
     const relatedContactIds = unique(data.contactIds);
@@ -120,39 +71,39 @@ export class CreateDealInteractor extends AuthenticatedInteractor<CreateDealData
     ]);
 
     await Promise.all([
-      ...currentOrganizations.map((organization, index) =>
+      ...buildRelationChangePublishes(previousOrganizations, currentOrganizations, "deals", (organization, changes) =>
         this.eventService.publish(DomainEvent.ORGANIZATION_UPDATED, {
           entityId: organization.id,
           payload: {
             organization,
-            changes: calculateChanges(previousOrganizations[index], organization),
+            changes,
           },
         }),
       ),
-      ...currentContacts.map((contact, index) =>
+      ...buildRelationChangePublishes(previousContacts, currentContacts, "deals", (contact, changes) =>
         this.eventService.publish(DomainEvent.CONTACT_UPDATED, {
           entityId: contact.id,
           payload: {
             contact,
-            changes: calculateChanges(previousContacts[index], contact),
+            changes,
           },
         }),
       ),
-      ...currentServices.map((service, index) =>
+      ...buildRelationChangePublishes(previousServices, currentServices, "deals", (service, changes) =>
         this.eventService.publish(DomainEvent.SERVICE_UPDATED, {
           entityId: service.id,
           payload: {
             service,
-            changes: calculateChanges(previousServices[index], service),
+            changes,
           },
         }),
       ),
-      ...currentTasks.map((task, index) =>
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "deals", (task, changes) =>
         this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasks[index], task),
+            changes,
           },
         }),
       ),

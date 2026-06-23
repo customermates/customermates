@@ -20,7 +20,7 @@ export abstract class GetWebhooksRepo extends BaseGetRepo<WebhookDto> {}
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
   constructor(repo: GetWebhooksRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, {
+    super(repo, p13nRepo, "interactive", undefined, {
       sortDescriptor: { field: "createdAt", direction: "desc" },
     });
   }

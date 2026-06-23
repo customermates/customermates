@@ -1,10 +1,9 @@
 import type { ExtendedUser } from "@/features/user/user.types";
 
-import type { ConnectedAccount } from "@/generated/prisma";
+import type { ConnectedAccount, MessagingProvider } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
-import type { MessagingProvider } from "@/generated/prisma";
 
 import { ConnectedAccountStatus } from "@/generated/prisma";
 

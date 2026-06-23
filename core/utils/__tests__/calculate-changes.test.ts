@@ -12,6 +12,18 @@ describe("calculateChanges", () => {
     expect(calculateChanges(undefined, { name: "Alice" })).toEqual({});
   });
 
+  it("ignores updatedAt and createdAt so a timestamp-only diff yields no changes", () => {
+    const previous = { name: "Alice", createdAt: new Date("2024-01-01"), updatedAt: new Date("2025-01-01") };
+    const current = { name: "Alice", createdAt: new Date("2024-01-01"), updatedAt: new Date("2025-02-01") };
+    expect(calculateChanges(previous, current)).toEqual({});
+  });
+
+  it("strips updatedAt while still reporting a real field change", () => {
+    const previous = { name: "Alice", updatedAt: new Date("2025-01-01") };
+    const current = { name: "Bob", updatedAt: new Date("2025-02-01") };
+    expect(calculateChanges(previous, current)).toEqual({ name: { previous: "Alice", current: "Bob" } });
+  });
+
   it("detects added fields", () => {
     const previous = { name: "Alice" } as Record<string, unknown>;
     const current = { name: "Alice", age: 30 };

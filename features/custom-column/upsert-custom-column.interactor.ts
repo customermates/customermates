@@ -1,6 +1,7 @@
 import type { EventService } from "@/features/event/event.service";
 import type { UserService } from "@/features/user/user.service";
 import type { Data } from "@/core/validation/validation.utils";
+import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
 
 import { z } from "zod";
 import { Action, CustomColumnType, EntityType, Resource, Currency } from "@/generated/prisma";
@@ -9,18 +10,15 @@ import { type CustomColumnDto, CustomColumnDtoSchema } from "./custom-column.sch
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { Transaction, BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { type Validated, zx } from "@/core/validation/validation.utils";
-import { validateCustomColumnIds } from "@/core/validation/ids-validators";
-import { getCustomColumnRepo } from "@/core/di";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-export const OptionSchema = z.object({
+const OptionSchema = z.object({
   value: z
     .uuid()
     .describe(
@@ -130,13 +128,6 @@ export const UpsertCustomColumnSchema = z.discriminatedUnion("type", [
 ]);
 export type UpsertCustomColumnData = Data<typeof UpsertCustomColumnSchema>;
 
-export const UpsertCustomColumnValidateSchema = UpsertCustomColumnSchema.superRefine(async (data, ctx) => {
-  if (data.id) {
-    const validIdsSet = await getCustomColumnRepo().findIds(new Set([data.id]));
-    validateCustomColumnIds(data.id, validIdsSet, ctx, ["id"]);
-  }
-});
-
 export abstract class UpsertCustomColumnRepo {
   abstract find(id: string): Promise<CustomColumnDto>;
   abstract upsertCustomColumn(args: UpsertCustomColumnData): Promise<CustomColumnDto>;
@@ -148,41 +139,34 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
     private repo: UpsertCustomColumnRepo,
     private userService: UserService,
     private eventService: EventService,
+    private validator: ValidateCustomColumnIdsInteractor,
   ) {
     super();
   }
 
-  @Validate(UpsertCustomColumnValidateSchema)
-  @ValidateOutput(CustomColumnDtoSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: UpsertCustomColumnSchema,
+    output: CustomColumnDtoSchema,
+    tx: BULK_WRITE_TRANSACTION,
+    precheck: (self, data, ctx) => self.precheck(data, ctx),
+  })
   async invoke(data: UpsertCustomColumnData): Validated<CustomColumnDto> {
-    const updatePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
-      [EntityType.contact]: { resource: Resource.contacts, action: Action.update },
-      [EntityType.organization]: { resource: Resource.organizations, action: Action.update },
-      [EntityType.deal]: { resource: Resource.deals, action: Action.update },
-      [EntityType.service]: { resource: Resource.services, action: Action.update },
-      [EntityType.task]: { resource: Resource.tasks, action: Action.update },
+    const resourceByEntityType: Record<EntityType, Resource> = {
+      [EntityType.contact]: Resource.contacts,
+      [EntityType.organization]: Resource.organizations,
+      [EntityType.deal]: Resource.deals,
+      [EntityType.service]: Resource.services,
+      [EntityType.task]: Resource.tasks,
     };
 
-    const createPermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
-      [EntityType.contact]: { resource: Resource.contacts, action: Action.create },
-      [EntityType.organization]: { resource: Resource.organizations, action: Action.create },
-      [EntityType.deal]: { resource: Resource.deals, action: Action.create },
-      [EntityType.service]: { resource: Resource.services, action: Action.create },
-      [EntityType.task]: { resource: Resource.tasks, action: Action.create },
-    };
+    const action = data.id ? Action.update : Action.create;
 
-    const permission = data.id ? updatePermissionMap[data.entityType] : createPermissionMap[data.entityType];
+    await this.userService.hasPermissionOrThrow(resourceByEntityType[data.entityType], action);
 
-    if (!permission) throw new Error("You are not allowed to modify this custom column");
-
-    await this.userService.hasPermissionOrThrow(permission.resource, permission.action);
-
-    const isUpdate = Boolean(data.id);
     const previousCustomColumn = data.id ? await this.repo.find(data.id) : undefined;
     const customColumn = await this.repo.upsertCustomColumn(data);
 
-    if (isUpdate && previousCustomColumn) {
+    if (previousCustomColumn) {
       const changes = calculateChanges(previousCustomColumn, customColumn);
 
       await this.eventService.publish(DomainEvent.CUSTOM_COLUMN_UPDATED, {
@@ -200,5 +184,9 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
     }
 
     return { ok: true as const, data: customColumn };
+  }
+
+  private async precheck(data: UpsertCustomColumnData, ctx: z.RefinementCtx) {
+    if (data.id) await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
   }
 }

@@ -3,59 +3,31 @@ import type { EventService } from "@/features/event/event.service";
 import type { GetCompanyWideDealRepo } from "@/features/deals/get-company-wide-deal.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { ServiceWritePrecheckInteractor } from "./service-write-precheck.interactor";
 
 import { z } from "zod";
-import { Resource, Action, EntityType } from "@/generated/prisma";
+import { Resource, Action } from "@/generated/prisma";
 
-import { validateCustomFieldValues } from "../../../core/validation/validate-custom-field-values";
-import { validateNotes } from "../../../core/validation/validate-notes";
-import { validateUserIds, validateDealIds, validateTaskIds } from "../../../core/validation/ids-validators";
-import { validateAssigneeGuard } from "../../../core/validation/validate-assignee-guard";
 import { type ServiceDto, ServiceDtoSchema } from "../service.schema";
 
 import { BaseCreateServiceSchema } from "./create-service-base.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { calculateChanges } from "@/core/utils/calculate-changes";
+import { validateNotes } from "@/core/validation/validate-notes";
+import { buildRelationChangePublishes } from "@/core/utils/calculate-changes";
 import { unique } from "@/core/utils/unique";
-import { getUserRepo, getUserService, getCustomColumnRepo, getDealRepo, getTaskRepo } from "@/core/di";
 
 export const CreateManyServicesSchema = z
   .object({
     services: z.array(BaseCreateServiceSchema).min(1).max(100),
   })
-  .superRefine(async (data, ctx) => {
-    const userSet = new Set<string>();
-    const dealSet = new Set<string>();
-    const taskSet = new Set<string>();
-
-    for (const service of data.services) {
-      service.userIds.forEach((id) => userSet.add(id));
-      service.dealIds.forEach((id) => dealSet.add(id));
-      service.taskIds.forEach((id) => taskSet.add(id));
-    }
-
-    const [validUserIdsSet, validDealIdsSet, validTaskIdsSet, allColumns, currentUser, canReadAll] = await Promise.all([
-      getUserRepo().findIds(userSet),
-      getDealRepo().findIds(dealSet),
-      getTaskRepo().findIds(taskSet),
-      getCustomColumnRepo().findByEntityType(EntityType.service),
-      getUserService().getActiveUserOrThrow(),
-      getUserService().hasPermission(Resource.services, Action.readAll),
-    ]);
-
+  .superRefine((data, ctx) => {
     for (let i = 0; i < data.services.length; i++) {
       const service = data.services[i];
-      validateUserIds(service.userIds, validUserIdsSet, ctx, ["services", i, "userIds"]);
-      validateAssigneeGuard(service.userIds, currentUser.id, canReadAll, ctx, ["services", i, "userIds"]);
-      validateDealIds(service.dealIds, validDealIdsSet, ctx, ["services", i, "dealIds"]);
-      validateTaskIds(service.taskIds, validTaskIdsSet, ctx, ["services", i, "taskIds"]);
-      validateCustomFieldValues(service.customFieldValues, allColumns, ctx, ["services", i, "customFieldValues"]);
       service.notes = validateNotes(service.notes, ctx, ["services", i, "notes"]);
     }
   });
@@ -71,13 +43,17 @@ export class CreateManyServicesInteractor extends AuthenticatedInteractor<Create
     private dealsRepo: GetCompanyWideDealRepo,
     private tasksRepo: GetCompanyWideTaskRepo,
     private eventService: EventService,
+    private precheck: ServiceWritePrecheckInteractor,
   ) {
     super();
   }
 
-  @Validate(CreateManyServicesSchema)
-  @ValidateOutput(ServiceDtoSchema)
-  @Transaction(BULK_WRITE_TRANSACTION)
+  @Write({
+    input: CreateManyServicesSchema,
+    output: ServiceDtoSchema,
+    precheck: (self, data, ctx) => self.precheck.createMany(data, ctx),
+    tx: BULK_WRITE_TRANSACTION,
+  })
   async invoke(data: CreateManyServicesData): Validated<ServiceDto[]> {
     const relatedDealIds = unique(data.services.flatMap((service) => service.dealIds));
     const relatedTaskIds = unique(data.services.flatMap((service) => service.taskIds));
@@ -95,21 +71,26 @@ export class CreateManyServicesInteractor extends AuthenticatedInteractor<Create
     ]);
 
     await Promise.all([
-      ...currentDeals.map((deal, index) =>
-        this.eventService.publish(DomainEvent.DEAL_UPDATED, {
-          entityId: deal.id,
-          payload: {
-            deal,
-            changes: calculateChanges(previousDeals[index], deal),
-          },
-        }),
+      ...buildRelationChangePublishes(
+        previousDeals,
+        currentDeals,
+        "services",
+        (deal, changes) =>
+          this.eventService.publish(DomainEvent.DEAL_UPDATED, {
+            entityId: deal.id,
+            payload: {
+              deal,
+              changes,
+            },
+          }),
+        ["totalValue", "totalQuantity"],
       ),
-      ...currentTasks.map((task, index) =>
+      ...buildRelationChangePublishes(previousTasks, currentTasks, "services", (task, changes) =>
         this.eventService.publish(DomainEvent.TASK_UPDATED, {
           entityId: task.id,
           payload: {
             task,
-            changes: calculateChanges(previousTasks[index], task),
+            changes,
           },
         }),
       ),

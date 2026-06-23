@@ -1,13 +1,13 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ExtendedUser } from "../../user/user.service";
-import type { AuthService } from "../../auth/auth.service";
-import type { EventService } from "../../event/event.service";
-import type { Redirect } from "../../auth/auth-outcome";
+import type { ExtendedUser } from "@/features/user/user.service";
+import type { AuthService } from "@/features/auth/auth.service";
+import type { EventService } from "@/features/event/event.service";
+import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
-import { DomainEvent } from "../../event/domain-events";
+import { DomainEvent } from "@/features/event/domain-events";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -16,7 +16,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { isRedirect } from "../../auth/auth-outcome";
+import { isRedirect } from "@/features/auth/auth-outcome";
 
 const Schema = z
   .object({
@@ -64,7 +64,7 @@ export class RegisterUserInteractor {
 
     const extendedUser = companyId
       ? await this.repo.registerExistingCompany({ ...data, companyId })
-      : await this.repo.createCompanyAndUser({ ...data });
+      : await this.repo.createCompanyAndUser(data);
 
     await runWithTenant(extendedUser, async () => {
       await this.eventService.publish(DomainEvent.USER_REGISTERED, {
