@@ -10,9 +10,12 @@ export abstract class CalendarWriteRepo {
     color?: string | null;
     timezone?: string | null;
   }): Promise<{ id: string }>;
-  abstract findCalendarByUnipileIdOrThrowUnscoped(args: {
+  abstract findOrCreateCalendarByUnipileIdUnscoped(args: {
+    companyId: string;
     connectedAccountId: string;
     unipileCalendarId: string;
+    name: string;
+    timezone?: string | null;
   }): Promise<{ id: string }>;
   abstract upsertCalendarEventUnscoped(args: {
     companyId: string;

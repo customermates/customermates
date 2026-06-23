@@ -36,11 +36,6 @@ export class ProcessCalendarWebhookInteractor {
   }
 
   private async handleUpsert(account: ConnectedAccount, payload: UnipileCalendarUpsertWebhook): Promise<void> {
-    const calendar = await this.repo.findCalendarByUnipileIdOrThrowUnscoped({
-      connectedAccountId: account.id,
-      unipileCalendarId: payload.calendar_id,
-    });
-
     const event = buildCalendarEvent(payload);
 
     if (!event) {
@@ -48,6 +43,14 @@ export class ProcessCalendarWebhookInteractor {
         `calendar webhook ${payload.event} for account ${payload.account_id} event ${payload.id} has an unparseable start`,
       );
     }
+
+    const calendar = await this.repo.findOrCreateCalendarByUnipileIdUnscoped({
+      companyId: account.companyId,
+      connectedAccountId: account.id,
+      unipileCalendarId: payload.calendar_id,
+      name: payload.calendar_id,
+      timezone: event.timezone,
+    });
 
     await this.repo.upsertCalendarEventUnscoped({
       companyId: account.companyId,

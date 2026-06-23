@@ -247,7 +247,7 @@ export class MessagingService {
     const raw = UnipileCursorPageSchema.parse(
       await this.unipile.request.send({
         method: "GET",
-        path: ["calendars", input.calendarId, "events"],
+        path: ["calendars", encodeURIComponent(input.calendarId), "events"],
         parameters: {
           account_id: input.accountId,
           ...(input.cursor ? { cursor: input.cursor } : {}),

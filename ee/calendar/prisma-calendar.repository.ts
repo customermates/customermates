@@ -35,22 +35,31 @@ export class PrismaCalendarRepo extends BaseRepository implements CalendarWriteR
   }
 
   @BypassTenantGuard
-  async findCalendarByUnipileIdOrThrowUnscoped(
-    args: RepoArgs<CalendarWriteRepo, "findCalendarByUnipileIdOrThrowUnscoped">,
+  async findOrCreateCalendarByUnipileIdUnscoped(
+    args: RepoArgs<CalendarWriteRepo, "findOrCreateCalendarByUnipileIdUnscoped">,
   ) {
-    const { connectedAccountId, unipileCalendarId } = args;
-
-    const row = await this.prisma.calendar.findUniqueOrThrow({
-      where: {
-        connectedAccountId_unipileCalendarId: {
-          connectedAccountId,
-          unipileCalendarId,
-        },
+    const where = {
+      connectedAccountId_unipileCalendarId: {
+        connectedAccountId: args.connectedAccountId,
+        unipileCalendarId: args.unipileCalendarId,
       },
+    };
+
+    const existing = await this.prisma.calendar.findUnique({ where, select: { id: true } });
+    if (existing) return existing;
+
+    return this.prisma.calendar.upsert({
+      where,
+      create: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileCalendarId: args.unipileCalendarId,
+        name: args.name,
+        timezone: args.timezone ?? null,
+      },
+      update: {},
       select: { id: true },
     });
-
-    return row;
   }
 
   @BypassTenantGuard

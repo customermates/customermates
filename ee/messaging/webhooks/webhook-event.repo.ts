@@ -12,4 +12,9 @@ export abstract class WebhookEventRepo {
   }): Promise<{ id: string }>;
   abstract findWebhookEventByIdOrThrowUnscoped(id: string): Promise<InboundEventRow>;
   abstract markWebhookEventUnscoped(args: { id: string; processed: boolean }): Promise<void>;
+  abstract findReprocessableEventIdsUnscoped(args: {
+    olderThan: Date;
+    maxAgeDays: number;
+    limit: number;
+  }): Promise<string[]>;
 }

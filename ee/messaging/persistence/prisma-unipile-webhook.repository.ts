@@ -1,5 +1,7 @@
 import type { Prisma } from "@/generated/prisma";
 
+import { UnipileWebhookSource } from "@/generated/prisma";
+
 import type { RepoArgs } from "@/core/utils/types";
 import type { WebhookEventRepo } from "../webhooks/webhook-event.repo";
 
@@ -40,5 +42,24 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
         processedAt: args.processed ? new Date() : null,
       },
     });
+  }
+
+  @BypassTenantGuard
+  async findReprocessableEventIdsUnscoped(args: RepoArgs<WebhookEventRepo, "findReprocessableEventIdsUnscoped">) {
+    const rows = await this.prisma.messagingInboundEvent.findMany({
+      where: {
+        processed: false,
+        source: { in: Object.values(UnipileWebhookSource) },
+        receivedAt: {
+          lte: args.olderThan,
+          gte: new Date(Date.now() - args.maxAgeDays * 86_400_000),
+        },
+      },
+      orderBy: { receivedAt: "asc" },
+      take: args.limit,
+      select: { id: true },
+    });
+
+    return rows.map((row) => row.id);
   }
 }

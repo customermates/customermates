@@ -189,6 +189,7 @@ import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interact
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 import { ProcessUnipileWebhookEventInteractor } from "@/ee/messaging/ingest/process-unipile-webhook-event.interactor";
+import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
 import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
 import { GetMessagingThreadInteractor } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message-attachment.interactor";
@@ -1054,6 +1055,9 @@ export const getProcessUnipileWebhookEventInteractor = () =>
     getProcessCalendarWebhookInteractor(),
     getProcessUsersWebhookInteractor(),
   );
+
+export const getReprocessStuckWebhookEventsInteractor = () =>
+  new ReprocessStuckWebhookEventsInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookEventInteractor());
 
 // --- Custom Column ---
 
