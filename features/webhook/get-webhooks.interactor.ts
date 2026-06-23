@@ -1,4 +1,5 @@
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -19,10 +20,20 @@ export abstract class GetWebhooksRepo extends BaseGetRepo<WebhookDto> {}
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
-  constructor(repo: GetWebhooksRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, "interactive", undefined, {
-      sortDescriptor: { field: "createdAt", direction: "desc" },
-    });
+  constructor(
+    repo: GetWebhooksRepo,
+    p13nRepo: P13nRepo,
+    mode: "interactive" | "api",
+    queryParamsPrecheck: QueryParamsPrecheckInteractor,
+  ) {
+    super(
+      repo,
+      p13nRepo,
+      mode,
+      undefined,
+      { sortDescriptor: { field: "createdAt", direction: "desc" } },
+      queryParamsPrecheck,
+    );
   }
 
   @Validate(GetQueryParamsSchema)

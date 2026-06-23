@@ -345,6 +345,8 @@ export const getQueryParamsPrecheck = () =>
     getUserIdsValidator(),
     getDealIdsValidator(),
     getServiceIdsValidator(),
+    getTaskIdsValidator(),
+    getThreadIdsValidator(),
     getCustomColumnRepo(),
   );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
@@ -848,7 +850,10 @@ export const getInviteTokenValidationInteractor = () => new InviteTokenValidatio
 export const getUpsertRoleInteractor = () =>
   new UpsertRoleInteractor(getRoleRepo(), getEventService(), getRoleIdsValidator());
 
-export const getGetRolesInteractor = () => new GetRolesInteractor(getRoleRepo(), getP13nRepo());
+export const getGetRolesInteractor = () =>
+  new GetRolesInteractor(getRoleRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+export const getGetRolesApiInteractor = () =>
+  new GetRolesInteractor(getRoleRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleRepo(), getEventService());
 
@@ -878,7 +883,10 @@ export const getGetWidgetFilterableFieldsInteractor = () =>
 
 // --- Webhook ---
 
-export const getGetWebhooksInteractor = () => new GetWebhooksInteractor(getWebhookRepo(), getP13nRepo());
+export const getGetWebhooksInteractor = () =>
+  new GetWebhooksInteractor(getWebhookRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+export const getGetWebhooksApiInteractor = () =>
+  new GetWebhooksInteractor(getWebhookRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getUpsertWebhookInteractor = () =>
   new UpsertWebhookInteractor(getWebhookRepo(), getEventService(), getWebhookIdsValidator());
@@ -908,7 +916,9 @@ export const getDeleteWebhookInteractor = () =>
   new DeleteWebhookInteractor(getWebhookRepo(), getEventService(), getWebhookIdsValidator());
 
 export const getGetWebhookDeliveriesInteractor = () =>
-  new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getP13nRepo());
+  new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+export const getGetWebhookDeliveriesApiInteractor = () =>
+  new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getResendWebhookDeliveryInteractor = () =>
   new ResendWebhookDeliveryInteractor(
@@ -1005,7 +1015,9 @@ export const getResolveProviderProfileInteractor = () =>
 export const getSearchChannelCandidatesInteractor = () => new SearchChannelCandidatesInteractor(getMessagingRepo());
 
 export const getGetMessagingThreadsInteractor = () =>
-  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo());
+  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+export const getGetMessagingThreadsApiInteractor = () =>
+  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getGetMessagingThreadInteractor = () =>
   new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo());
@@ -1015,7 +1027,10 @@ export const getGetMessageAttachmentInteractor = () =>
 
 export const getGetUnreadThreadCountInteractor = () => new GetUnreadThreadCountInteractor(getMessagingRepo());
 
-export const getGetActivitiesInteractor = () => new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo());
+export const getGetActivitiesInteractor = () =>
+  new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+export const getGetActivitiesApiInteractor = () =>
+  new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());

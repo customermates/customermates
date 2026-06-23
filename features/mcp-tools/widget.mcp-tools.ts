@@ -1,7 +1,14 @@
 import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
-import { encodeToToon, validationError, customErrorMessage, enumHint, FILTER_FIELD_DESCRIPTION } from "./utils";
+import {
+  encodeToToon,
+  validationError,
+  runInteractor,
+  customErrorMessage,
+  enumHint,
+  FILTER_FIELD_DESCRIPTION,
+} from "./utils";
 
 import {
   getUpsertWidgetInteractor,
@@ -139,7 +146,7 @@ export const createWidgetTool = {
     "Returns the new widget id and name.",
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   inputSchema: CreateWidgetSchema,
-  execute: async (params: z.infer<typeof CreateWidgetSchema>) => {
+  execute: (params: z.infer<typeof CreateWidgetSchema>) => {
     const payload = {
       name: params.name,
       entityType: params.entityType,
@@ -156,14 +163,9 @@ export const createWidgetTool = {
       },
       isTemplate: false,
     };
-    const result = await getUpsertWidgetInteractor().invoke(payload);
-    if (!result.ok) return validationError(result.error);
-
-    return encodeToToon({
-      id: result.data.id,
-      name: result.data.name,
-      message: `Widget "${result.data.name}" created successfully`,
-    });
+    return runInteractor(getUpsertWidgetInteractor().invoke(payload), (data) =>
+      encodeToToon({ id: data.id, name: data.name, message: `Widget "${data.name}" created successfully` }),
+    );
   },
 };
 
@@ -180,7 +182,7 @@ export const updateWidgetTool = {
     const widgetResult = await getGetWidgetByIdInteractor().invoke({ id: params.id });
     if (!widgetResult.ok) return validationError(widgetResult.error);
     const widget = widgetResult.data;
-    if (!widget) return customErrorMessage(CustomErrorCode.widgetNotFound);
+    if (!widget) return await customErrorMessage(CustomErrorCode.widgetNotFound);
 
     const displayOptionsChanged =
       params.displayType !== undefined ||
@@ -236,7 +238,7 @@ export const deleteWidgetTool = {
   execute: async ({ id }: z.infer<typeof DeleteWidgetSchema>) => {
     const widgetResult = await getGetWidgetByIdInteractor().invoke({ id });
     if (!widgetResult.ok) return validationError(widgetResult.error);
-    if (!widgetResult.data) return customErrorMessage(CustomErrorCode.widgetNotFound);
+    if (!widgetResult.data) return await customErrorMessage(CustomErrorCode.widgetNotFound);
     const result = await getDeleteWidgetInteractor().invoke({ id });
     if (!result.ok) return validationError(result.error);
     return `Deleted widget ${id}`;

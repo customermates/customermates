@@ -58,21 +58,31 @@ type WithDynamicFields<T> = T & {
 
 type OrderByInput = Record<string, unknown>[];
 
-const RELATION_FIELD_MAPPING: Partial<Record<FilterFieldKey, string>> = {
+// Maps every filter field to the row path it queries. Exhaustive on purpose: a new FilterFieldKey
+// will not compile until its path is declared, so a relation field can never silently fall through
+// to a same-named (nonexistent) column. A path with a "." is a relation traversal; otherwise it is a
+// direct column on the row.
+const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
+  // Relation traversals.
   [FilterFieldKey.userIds]: "users.userId",
   [FilterFieldKey.serviceIds]: "services.serviceId",
   [FilterFieldKey.dealIds]: "deals.dealId",
   [FilterFieldKey.organizationIds]: "organizations.organizationId",
   [FilterFieldKey.contactIds]: "contacts.contactId",
+  [FilterFieldKey.taskIds]: "tasks.taskId",
+  // Direct columns.
   [FilterFieldKey.timelineKind]: "timelineKind",
   [FilterFieldKey.timelineThreadId]: "timelineThreadId",
-  [FilterFieldKey.taskIds]: "tasks.taskId",
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",
   [FilterFieldKey.event]: "event",
   [FilterFieldKey.status]: "status",
   [FilterFieldKey.provider]: "provider",
   [FilterFieldKey.state]: "state",
+  // Handled by a repo-specific where-builder (PrismaMessagingRepo.participantWhereForContactFilters);
+  // never routed through this generic map. Listed only to keep the Record exhaustive.
+  [FilterFieldKey.participantContactId]: "participantContactId",
+  [FilterFieldKey.participants]: "participants",
 };
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {
@@ -230,7 +240,7 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
     }
 
     const enumValue = Object.values(FilterFieldKey).find((key) => key.toString() === filter.field);
-    const relationFieldPath = enumValue ? (RELATION_FIELD_MAPPING[enumValue] ?? filter.field) : filter.field;
+    const relationFieldPath = enumValue ? RELATION_FIELD_MAPPING[enumValue] : filter.field;
     const isRelationField = relationFieldPath.includes(".");
 
     if (isRelationField) {

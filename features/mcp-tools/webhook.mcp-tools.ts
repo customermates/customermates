@@ -3,27 +3,40 @@ import { z } from "zod";
 import {
   encodeToToon,
   validationError,
+  runInteractor,
   enumHint,
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
   customErrorMessage,
+  filtersDescription,
+  sortDescription,
 } from "./utils";
 
+import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import {
-  getGetWebhooksInteractor,
+  getGetWebhooksApiInteractor,
   getGetWebhookByIdInteractor,
   getUpsertWebhookInteractor,
   getDeleteWebhookInteractor,
-  getGetWebhookDeliveriesInteractor,
+  getGetWebhookDeliveriesApiInteractor,
   getResendWebhookDeliveryInteractor,
 } from "@/core/di";
 
 const ListWebhooksSchema = z.object({
   searchTerm: z.string().optional().describe("Free-text search against url and description"),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(filtersDescription(filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt]))),
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name, createdAt, updatedAt")),
+  page: mcpPage(),
+  pageSize: mcpPageSize(100, "Results per page: 5, 10, 25, or 100 (default 100)"),
 });
 
 const CreateWebhookSchema = z.object({
@@ -66,36 +79,44 @@ const ListWebhookDeliveriesSchema = z.object({
   searchTerm: z.string().optional().describe("Free-text search against url and event name"),
   page: mcpPage(),
   pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(filtersDescription(filterFieldsHint([FilterFieldKey.event, FilterFieldKey.createdAt]))),
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("createdAt")),
 });
 
 export const listWebhooksTool = {
   name: "list_webhooks",
   description:
     "List configured webhooks. " +
-    "Optional: searchTerm (matches url and description). " +
+    "Optional: searchTerm (matches url and description), filters, sortDescriptor, page, pageSize. " +
     "Returns items with { id, url, description, events, enabled, createdAt, updatedAt }.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ListWebhooksSchema,
-  execute: async (params: z.infer<typeof ListWebhooksSchema>) => {
-    const result = await getGetWebhooksInteractor().invoke({
-      searchTerm: params.searchTerm,
-      pagination: { page: 1, pageSize: 100 },
-    });
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon(
-      formatDatesInResponse(
-        result.data.items.map((webhook) => ({
-          id: webhook.id,
-          url: webhook.url,
-          description: webhook.description,
-          events: webhook.events,
-          enabled: webhook.enabled,
-          createdAt: webhook.createdAt,
-          updatedAt: webhook.updatedAt,
-        })),
-      ),
-    );
-  },
+  execute: (params: z.infer<typeof ListWebhooksSchema>) =>
+    runInteractor(
+      getGetWebhooksApiInteractor().invoke({
+        searchTerm: params.searchTerm,
+        filters: params.filters,
+        sortDescriptor: params.sortDescriptor,
+        pagination: { page: params.page, pageSize: params.pageSize },
+      }),
+      (data) =>
+        encodeToToon(
+          formatDatesInResponse(
+            data.items.map((webhook) => ({
+              id: webhook.id,
+              url: webhook.url,
+              description: webhook.description,
+              events: webhook.events,
+              enabled: webhook.enabled,
+              createdAt: webhook.createdAt,
+              updatedAt: webhook.updatedAt,
+            })),
+          ),
+        ),
+    ),
 };
 
 export const createWebhookTool = {
@@ -108,16 +129,10 @@ export const createWebhookTool = {
     "Returns the new webhook id, url, events.",
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   inputSchema: CreateWebhookSchema,
-  execute: async (params: z.infer<typeof CreateWebhookSchema>) => {
-    const result = await getUpsertWebhookInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon({
-      id: result.data.id,
-      url: result.data.url,
-      description: result.data.description,
-      events: result.data.events,
-    });
-  },
+  execute: (params: z.infer<typeof CreateWebhookSchema>) =>
+    runInteractor(getUpsertWebhookInteractor().invoke(params), (data) =>
+      encodeToToon({ id: data.id, url: data.url, description: data.description, events: data.events }),
+    ),
 };
 
 export const updateWebhookTool = {
@@ -129,24 +144,25 @@ export const updateWebhookTool = {
     "Idempotent: same payload produces the same state.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateWebhookSchema,
-  execute: async (params: z.infer<typeof UpdateWebhookSchema>) => {
-    const result = await getUpsertWebhookInteractor().invoke({
-      id: params.id,
-      url: params.url,
-      description: params.description,
-      events: params.events,
-      secret: params.secret,
-      enabled: params.enabled,
-    });
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon({
-      id: result.data.id,
-      url: result.data.url,
-      description: result.data.description,
-      events: result.data.events,
-      enabled: result.data.enabled,
-    });
-  },
+  execute: (params: z.infer<typeof UpdateWebhookSchema>) =>
+    runInteractor(
+      getUpsertWebhookInteractor().invoke({
+        id: params.id,
+        url: params.url,
+        description: params.description,
+        events: params.events,
+        secret: params.secret,
+        enabled: params.enabled,
+      }),
+      (data) =>
+        encodeToToon({
+          id: data.id,
+          url: data.url,
+          description: data.description,
+          events: data.events,
+          enabled: data.enabled,
+        }),
+    ),
 };
 
 export const getWebhookTool = {
@@ -162,7 +178,7 @@ export const getWebhookTool = {
     const result = await getGetWebhookByIdInteractor().invoke({ id });
     if (!result.ok) return validationError(result.error);
     const webhook = result.data;
-    if (!webhook) return customErrorMessage(CustomErrorCode.webhookNotFound);
+    if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
     return encodeToToon(
       formatDatesInResponse({
         id: webhook.id,
@@ -182,23 +198,26 @@ export const listWebhookDeliveriesTool = {
   name: "list_webhook_deliveries",
   description:
     "List recent webhook delivery attempts (success + failure). " +
-    "Optional: searchTerm (matches url and event name), page, pageSize (5, 10, 25, or 100). " +
+    "Optional: searchTerm (matches url and event name), page, pageSize (5, 10, 25, or 100), filters, sortDescriptor. " +
     "Sorted newest first. Each item has { id, url, event, statusCode, responseMessage, success, status, deliveredAt, createdAt }. " +
     "Use this to debug failing webhooks.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ListWebhookDeliveriesSchema,
-  execute: async ({ searchTerm, page, pageSize }: z.infer<typeof ListWebhookDeliveriesSchema>) => {
-    const result = await getGetWebhookDeliveriesInteractor().invoke({
-      searchTerm,
-      pagination: { page, pageSize },
-    });
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon({
-      items: formatDatesInResponse(result.data.items),
-      total: result.data.pagination?.total ?? result.data.items.length,
-      page,
-    });
-  },
+  execute: ({ searchTerm, page, pageSize, filters, sortDescriptor }: z.infer<typeof ListWebhookDeliveriesSchema>) =>
+    runInteractor(
+      getGetWebhookDeliveriesApiInteractor().invoke({
+        searchTerm,
+        filters,
+        sortDescriptor,
+        pagination: { page, pageSize },
+      }),
+      (data) =>
+        encodeToToon({
+          items: formatDatesInResponse(data.items),
+          total: data.pagination?.total ?? data.items.length,
+          page,
+        }),
+    ),
 };
 
 const ResendWebhookDeliverySchema = z.object({
@@ -214,11 +233,11 @@ export const resendWebhookDeliveryTool = {
     "Creates a NEW delivery record — does not modify the original.",
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
   inputSchema: ResendWebhookDeliverySchema,
-  execute: async ({ id }: z.infer<typeof ResendWebhookDeliverySchema>) => {
-    const result = await getResendWebhookDeliveryInteractor().invoke({ id });
-    if (!result.ok) return validationError(result.error);
-    return `Re-sent webhook delivery ${id} as new delivery ${result.data}`;
-  },
+  execute: ({ id }: z.infer<typeof ResendWebhookDeliverySchema>) =>
+    runInteractor(
+      getResendWebhookDeliveryInteractor().invoke({ id }),
+      (data) => `Re-sent webhook delivery ${id} as new delivery ${data}`,
+    ),
 };
 
 export const deleteWebhookTool = {
@@ -226,9 +245,6 @@ export const deleteWebhookTool = {
   description: "IRREVERSIBLE. Delete a webhook subscription by id. Required: id.",
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteWebhookSchema,
-  execute: async (params: z.infer<typeof DeleteWebhookSchema>) => {
-    const result = await getDeleteWebhookInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return `Deleted webhook ${result.data}`;
-  },
+  execute: (params: z.infer<typeof DeleteWebhookSchema>) =>
+    runInteractor(getDeleteWebhookInteractor().invoke(params), (data) => `Deleted webhook ${data}`),
 };

@@ -120,6 +120,14 @@ export const FILTER_FIELD_DESCRIPTION =
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"gte","value":"2024-01-01"}]. ' +
   "Call get_entity_configuration to see all filterable fields.";
 
+export const filtersDescription = (filterableFields: string) =>
+  "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
+  "Operators: equals, contains, gt, gte, lt, lte, in, notIn, between, isNull, isNotNull, hasNone, hasSome. " +
+  `Filterable fields: ${filterableFields}.`;
+
+export const sortDescription = (sortableFields: string) =>
+  `Sort by one field: { field, direction: "asc" | "desc" }. Sortable fields: ${sortableFields}.`;
+
 export function enumHint(values: readonly string[]): string {
   return `(one of: ${values.join(", ")})`;
 }

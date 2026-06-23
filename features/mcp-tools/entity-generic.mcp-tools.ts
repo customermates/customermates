@@ -9,6 +9,7 @@ import {
   mcpPage,
   mcpPageSize,
   validationError,
+  runInteractor,
   customErrorMessage,
   CONTACT_KEY_FIELD_NOTE,
 } from "./utils";
@@ -354,14 +355,15 @@ export const updateEntityNotesTool = {
     "Pass empty string to clear notes. Idempotent.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: NotesEntitySchema,
-  execute: async ({ entity, items }: z.infer<typeof NotesEntitySchema>) => {
+  execute: ({ entity, items }: z.infer<typeof NotesEntitySchema>) => {
     const normalized = items.map(({ id, notes }) => ({
       id,
       notes: notes.trim() === "" ? null : parseMarkdownToJSON(notes),
     }));
-    const result = await updateManyEntities(entity, normalized);
-    if (!result.ok) return validationError(result.error);
-    return `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`;
+    return runInteractor(
+      updateManyEntities(entity, normalized),
+      () => `Updated notes for ${normalized.length} ${singularLabels[entity]}(s)`,
+    );
   },
 };
 
@@ -373,11 +375,8 @@ export const deleteEntitiesTool = {
     "This cannot be undone. Consider exporting first. Idempotent on repeat (missing ids are reported as errors).",
   annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   inputSchema: DeleteEntitySchema,
-  execute: async ({ entity, ids }: z.infer<typeof DeleteEntitySchema>) => {
-    const result = await deleteExecutors[entity](ids);
-    if (!result.ok) return validationError(result.error);
-    return `Deleted ${result.data.length} ${singularLabels[entity]}(s)`;
-  },
+  execute: ({ entity, ids }: z.infer<typeof DeleteEntitySchema>) =>
+    runInteractor(deleteExecutors[entity](ids), (data: any) => `Deleted ${data.length} ${singularLabels[entity]}(s)`),
 };
 
 export const updateEntityCustomFieldsTool = {
@@ -392,11 +391,11 @@ export const updateEntityCustomFieldsTool = {
     "Call get_entity_configuration or list_custom_columns to discover column ids.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateCustomFieldEntitySchema,
-  execute: async ({ entity, items }: z.infer<typeof UpdateCustomFieldEntitySchema>) => {
-    const result = await updateManyEntities(entity, items);
-    if (!result.ok) return validationError(result.error);
-    return `Updated custom fields on ${result.data.length} ${singularLabels[entity]}(s)`;
-  },
+  execute: ({ entity, items }: z.infer<typeof UpdateCustomFieldEntitySchema>) =>
+    runInteractor(
+      updateManyEntities(entity, items),
+      (data: any) => `Updated custom fields on ${data.length} ${singularLabels[entity]}(s)`,
+    ),
 };
 
 export const linkEntitiesTool = {
@@ -412,12 +411,12 @@ export const linkEntitiesTool = {
     "Idempotent: linking an already-linked id is a no-op.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: LinkEntitiesSchema,
-  execute: async ({ entity, sourceId, relation, ids }: z.infer<typeof LinkEntitiesSchema>) => {
-    const result = await getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: "add", ids });
-    if (!result.ok) return validationError(result.error);
-    const { requested, before, after } = result.data;
-    return `Linked ${requested} ${relation} to ${entity} ${sourceId} (was ${before}, now ${after})`;
-  },
+  execute: ({ entity, sourceId, relation, ids }: z.infer<typeof LinkEntitiesSchema>) =>
+    runInteractor(
+      getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: "add", ids }),
+      ({ requested, before, after }) =>
+        `Linked ${requested} ${relation} to ${entity} ${sourceId} (was ${before}, now ${after})`,
+    ),
 };
 
 export const unlinkEntitiesTool = {
@@ -433,18 +432,12 @@ export const unlinkEntitiesTool = {
     "This does NOT delete the related entity; it only removes the link.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: LinkEntitiesSchema,
-  execute: async ({ entity, sourceId, relation, ids }: z.infer<typeof LinkEntitiesSchema>) => {
-    const result = await getModifyEntityRelationInteractor().invoke({
-      entity,
-      sourceId,
-      relation,
-      mode: "remove",
-      ids,
-    });
-    if (!result.ok) return validationError(result.error);
-    const { requested, before, after } = result.data;
-    return `Unlinked ${requested} ${relation} from ${entity} ${sourceId} (was ${before}, now ${after})`;
-  },
+  execute: ({ entity, sourceId, relation, ids }: z.infer<typeof LinkEntitiesSchema>) =>
+    runInteractor(
+      getModifyEntityRelationInteractor().invoke({ entity, sourceId, relation, mode: "remove", ids }),
+      ({ requested, before, after }) =>
+        `Unlinked ${requested} ${relation} from ${entity} ${sourceId} (was ${before}, now ${after})`,
+    ),
 };
 
 export const appendEntityNotesTool = {

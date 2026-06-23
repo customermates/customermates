@@ -1,5 +1,6 @@
 import type { UserRoleDto } from "./role.types";
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -25,10 +26,20 @@ export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
   condition: "OR",
 })
 export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
-  constructor(repo: GetRolesRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, "interactive", undefined, {
-      sortDescriptor: { field: "type", direction: "asc" },
-    });
+  constructor(
+    repo: GetRolesRepo,
+    p13nRepo: P13nRepo,
+    mode: "interactive" | "api",
+    queryParamsPrecheck: QueryParamsPrecheckInteractor,
+  ) {
+    super(
+      repo,
+      p13nRepo,
+      mode,
+      undefined,
+      { sortDescriptor: { field: "type", direction: "asc" } },
+      queryParamsPrecheck,
+    );
   }
 
   @Validate(GetQueryParamsSchema)

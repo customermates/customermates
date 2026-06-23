@@ -1,5 +1,6 @@
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
+import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -50,11 +51,20 @@ export abstract class GetWebhookDeliveriesRepo extends BaseGetRepo<WebhookDelive
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.api, action: Action.readAll })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
-  constructor(repo: GetWebhookDeliveriesRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, "interactive", undefined, {
-      sortDescriptor: { field: "createdAt", direction: "desc" },
-      pagination: { pageSize: 25, page: 1 },
-    });
+  constructor(
+    repo: GetWebhookDeliveriesRepo,
+    p13nRepo: P13nRepo,
+    mode: "interactive" | "api",
+    queryParamsPrecheck: QueryParamsPrecheckInteractor,
+  ) {
+    super(
+      repo,
+      p13nRepo,
+      mode,
+      undefined,
+      { sortDescriptor: { field: "createdAt", direction: "desc" }, pagination: { pageSize: 25, page: 1 } },
+      queryParamsPrecheck,
+    );
   }
 
   @Validate(GetQueryParamsSchema)

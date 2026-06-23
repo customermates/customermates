@@ -1,4 +1,5 @@
 import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 
 import type { MessagingThread } from "../messaging.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -25,10 +26,13 @@ export abstract class GetMessagingThreadsRepo extends BaseGetRepo<MessagingThrea
   condition: "OR",
 })
 export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingThread> {
-  constructor(repo: GetMessagingThreadsRepo, p13nRepo: P13nRepo) {
-    super(repo, p13nRepo, "interactive", undefined, {
-      pagination: { page: 1, pageSize: 25 },
-    });
+  constructor(
+    repo: GetMessagingThreadsRepo,
+    p13nRepo: P13nRepo,
+    mode: "interactive" | "api",
+    queryParamsPrecheck: QueryParamsPrecheckInteractor,
+  ) {
+    super(repo, p13nRepo, mode, undefined, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

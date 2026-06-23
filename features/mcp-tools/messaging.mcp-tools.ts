@@ -1,17 +1,27 @@
 import { z } from "zod";
 
-import { encodeToToon, validationError, formatDatesInResponse, mcpPage, mcpPageSize } from "./utils";
+import {
+  encodeToToon,
+  runInteractor,
+  formatDatesInResponse,
+  mcpPage,
+  mcpPageSize,
+  filtersDescription,
+  sortDescription,
+} from "./utils";
 
-import { GetQueryParamsSchema } from "@/core/base/base-get.schema";
+import { GetQueryParamsSchema, FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { ActivitiesParamsSchema } from "@/ee/messaging/activities/activities.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
 import {
   getGetMyConnectedAccountsInteractor,
-  getGetMessagingThreadsInteractor,
+  getGetMessagingThreadsApiInteractor,
   getGetMessagingThreadInteractor,
-  getGetActivitiesInteractor,
+  getGetActivitiesApiInteractor,
   getSendEmailInteractor,
   getSendChatMessageInteractor,
   getStartChatInteractor,
@@ -21,6 +31,20 @@ const ListPaginationSchema = z.object({
   page: mcpPage(),
   pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
   searchTerm: z.string().optional().describe("Free-text search against thread name, subject, and participants"),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(
+      filtersDescription(
+        filterFieldsHint([
+          FilterFieldKey.state,
+          FilterFieldKey.provider,
+          FilterFieldKey.participantContactId,
+          FilterFieldKey.participants,
+        ]),
+      ),
+    ),
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
 
 const ThreadIdSchema = z.object({ threadId: z.uuid().describe("Thread id (from get_messaging_threads)") });
@@ -68,35 +92,35 @@ export const listConnectedAccountsTool = {
     "Use the id as connectedAccountId/accountId for send_email, start_chat, etc.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
-  execute: async () => {
-    const result = await getGetMyConnectedAccountsInteractor().invoke();
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon(formatDatesInResponse({ items: result.data }));
-  },
+  execute: () =>
+    runInteractor(getGetMyConnectedAccountsInteractor().invoke(), (data) =>
+      encodeToToon(formatDatesInResponse({ items: data })),
+    ),
 };
 
 export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
   description:
     "List inbox message threads across connected accounts. " +
-    "Optional: page, pageSize (max 100, default 25), searchTerm. " +
+    "Optional: page, pageSize (max 100, default 25), searchTerm, filters, sortDescriptor. " +
     "Returns id + name/subject/preview + state + lastMessageAt + participant count per thread (not message bodies). " +
     "Use get_messaging_thread for the full conversation.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ListPaginationSchema,
-  execute: async ({ page, pageSize, searchTerm }: z.infer<typeof ListPaginationSchema>) => {
-    const result = await getGetMessagingThreadsInteractor().invoke(
-      GetQueryParamsSchema.parse({ searchTerm, pagination: { page, pageSize } }),
-    );
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon(
-      formatDatesInResponse({
-        items: result.data.items.map(projectThread),
-        total: result.data.pagination?.total ?? result.data.items.length,
-        page,
-      }),
-    );
-  },
+  execute: ({ page, pageSize, searchTerm, filters, sortDescriptor }: z.infer<typeof ListPaginationSchema>) =>
+    runInteractor(
+      getGetMessagingThreadsApiInteractor().invoke(
+        GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } }),
+      ),
+      (data) =>
+        encodeToToon(
+          formatDatesInResponse({
+            items: data.items.map(projectThread),
+            total: data.pagination?.total ?? data.items.length,
+            page,
+          }),
+        ),
+    ),
 };
 
 export const getMessagingThreadTool = {
@@ -107,16 +131,15 @@ export const getMessagingThreadTool = {
     "Returns the thread plus each message's direction, sender, subject, text body, and attachment metadata (HTML bodies and raw attachment urls are omitted).",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ThreadIdSchema,
-  execute: async (params: z.infer<typeof ThreadIdSchema>) => {
-    const result = await getGetMessagingThreadInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon(
-      formatDatesInResponse({
-        thread: projectThread(result.data.thread),
-        messages: result.data.messages.map(projectMessage),
-      }),
-    );
-  },
+  execute: (params: z.infer<typeof ThreadIdSchema>) =>
+    runInteractor(getGetMessagingThreadInteractor().invoke(params), (data) =>
+      encodeToToon(
+        formatDatesInResponse({
+          thread: projectThread(data.thread),
+          messages: data.messages.map(projectMessage),
+        }),
+      ),
+    ),
 };
 
 const GetActivitiesSchema = z.object({
@@ -127,29 +150,39 @@ const GetActivitiesSchema = z.object({
     .optional()
     .describe("Scope activities to one entity type (must be paired with entityId)"),
   entityId: z.uuid().optional().describe("Scope activities to one record (must be paired with entityType)"),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(
+      filtersDescription(
+        filterFieldsHint([FilterFieldKey.timelineKind, FilterFieldKey.timelineThreadId, FilterFieldKey.provider]),
+      ),
+    ),
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("at (the event time)")),
 });
 
 export const getActivitiesTool = {
   name: "get_activities",
   description:
     "List the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record. " +
-    "Optional: page, pageSize, entityType + entityId to scope to a single contact/organization/deal/service/task. " +
+    "Optional: page, pageSize, entityType + entityId (scope to one record), filters, sortDescriptor. " +
     "Returns time-ordered entries by kind (message | audit | activity | calendar_event).",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: GetActivitiesSchema,
-  execute: async ({ page, pageSize, entityType, entityId }: z.infer<typeof GetActivitiesSchema>) => {
-    const result = await getGetActivitiesInteractor().invoke(
-      ActivitiesParamsSchema.parse({ pagination: { page, pageSize }, entityType, entityId }),
-    );
-    if (!result.ok) return validationError(result.error);
-    return encodeToToon(
-      formatDatesInResponse({
-        items: result.data.items,
-        total: result.data.pagination?.total ?? result.data.items.length,
-        page,
-      }),
-    );
-  },
+  execute: ({ page, pageSize, entityType, entityId, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
+    runInteractor(
+      getGetActivitiesApiInteractor().invoke(
+        ActivitiesParamsSchema.parse({ pagination: { page, pageSize }, entityType, entityId, filters, sortDescriptor }),
+      ),
+      (data) =>
+        encodeToToon(
+          formatDatesInResponse({
+            items: data.items,
+            total: data.pagination?.total ?? data.items.length,
+            page,
+          }),
+        ),
+    ),
 };
 
 export const sendEmailTool = {
@@ -161,11 +194,10 @@ export const sendEmailTool = {
     "Get account/thread ids from list_connected_accounts / get_messaging_threads.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: SendEmailSchema,
-  execute: async (params: z.infer<typeof SendEmailSchema>) => {
-    const result = await getSendEmailInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return params.threadId ? `Reply sent in thread ${params.threadId}` : "Email sent";
-  },
+  execute: (params: z.infer<typeof SendEmailSchema>) =>
+    runInteractor(getSendEmailInteractor().invoke(params), () =>
+      params.threadId ? `Reply sent in thread ${params.threadId}` : "Email sent",
+    ),
 };
 
 export const sendChatMessageTool = {
@@ -175,11 +207,8 @@ export const sendChatMessageTool = {
     "Required: threadId, text.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: SendChatMessageSchema,
-  execute: async (params: z.infer<typeof SendChatMessageSchema>) => {
-    const result = await getSendChatMessageInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return `Message sent in thread ${params.threadId}`;
-  },
+  execute: (params: z.infer<typeof SendChatMessageSchema>) =>
+    runInteractor(getSendChatMessageInteractor().invoke(params), () => `Message sent in thread ${params.threadId}`),
 };
 
 export const startChatTool = {
@@ -190,9 +219,6 @@ export const startChatTool = {
     "attendeeIdentifiers are the recipients' provider handles/usernames (the value of a contact's messaging channel).",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: StartChatInputSchema,
-  execute: async (params: z.infer<typeof StartChatInputSchema>) => {
-    const result = await getStartChatInteractor().invoke(params);
-    if (!result.ok) return validationError(result.error);
-    return "Chat started";
-  },
+  execute: (params: z.infer<typeof StartChatInputSchema>) =>
+    runInteractor(getStartChatInteractor().invoke(params), () => "Chat started"),
 };

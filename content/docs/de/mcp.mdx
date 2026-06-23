@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-MCP-Client auf `https://customermates.com/api/v1/mcp` zeigen, API-Key im Header `x-api-key`, und der Client entdeckt automatisch alle 57 CRM-Tools.
+MCP-Client auf `https://customermates.com/api/v1/mcp` zeigen, API-Key im Header `x-api-key`, und der Client entdeckt automatisch alle 49 CRM-Tools.
 
 Wenn du das volle End-to-End-Setup für einen bestimmten Client willst (API-Key, JSON-Config, Setup-Prompt, erster Befehl, alles auf einer Seite), spring direkt zu [Claude](/docs/mcp-connect-claude-desktop), [ChatGPT](/docs/mcp-connect-chatgpt) oder [Cursor](/docs/mcp-connect-cursor). Diese Seite ist die Protokoll-Referenz.
 
@@ -46,12 +46,12 @@ Jede Connect-Seite enthält den vollen Setup-Prompt, den du als erste Nachricht 
 
 Nicht jedes Modell plant so gut wie Claude Opus. Die MCP-Oberfläche ist auf den Weak-Model-Case zugeschnitten:
 
-- **Verb-first-imperative Namen**: `create_contacts`, `update_deal`, `delete_custom_column`. Kein Batch-Präfix. Verb passt zur Absicht.
-- **Schmale Per-Type-Tools**: acht `create_*_custom_column` und acht `update_*_custom_column` statt eines Discriminated-Union-Giganten. Modelle wählen per Name statt per Branch auf `type`.
+- **Verb-first-imperative Namen**: `create_contacts`, `update_deals`, `delete_custom_column`. Kein Batch-Präfix. Verb passt zur Absicht.
+- **Custom Columns über ein Tool**: `upsert_custom_column` legt eine Spalte eines der zehn Typen an oder aktualisiert sie, mit den per-Type-`options` inline in der Beschreibung, sodass das Modell `type` ausfüllt statt zwischen vielen fast identischen Tools zu wählen.
 - **Inline-Enum-Hinweise**: jedes Enum-Feld listet gültige Werte inline, kein Auflösen externer Typen.
 - **Filter-Beispiele inline**: jeder `filters`-Parameter mit JSON-Beispiel in der Beschreibung.
 - **Relationship-Sicherheit**: `link_entities` und `unlink_entities` mergen; `null` auf Relationship-Array wird mit Remediation-Hint abgelehnt.
-- **Type-Mismatch-Routing**: falsches Per-Type-Update liefert "this column is type X, use `update_X_custom_column`".
+- **Unveränderlicher Spaltentyp**: `upsert_custom_column` hält `type` und `entityType` beim Update fest (aus der bestehenden Spalte übernommen); ein Typwechsel bedeutet löschen und neu anlegen.
 - **Destructive Flags**: jedes `delete_*` hat `destructiveHint: true` und beginnt mit `IRREVERSIBLE`.
 
 Die volle Tool-Liste: [MCP-Tool-Katalog](/docs/mcp-tool-catalog).

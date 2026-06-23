@@ -21,6 +21,7 @@ import { validateCustomFieldDateTimeRange } from "../validate-custom-field-date-
 import { validateCustomFieldSingleSelect } from "../validate-custom-field-single-select";
 import { validateCustomColumnExists } from "../validate-custom-column-exists";
 import { validateEvent } from "../validate-event";
+import { validateEnumValue } from "../validate-enum-value";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { ValidateSystemTaskIdsInteractor } from "@/features/tasks/upsert/validate-system-task-ids.interactor";
 
@@ -366,6 +367,31 @@ describe("validateEvent", () => {
     const ctx = createMockCtx();
     validateEvent(["contact.created", "bad.event", "deal.updated"], ctx, ["events"]);
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("validateEnumValue", () => {
+  const states = ["unread", "open", "closed", "spam"] as const;
+
+  it("passes for a valid enum value", () => {
+    const ctx = createMockCtx();
+    validateEnumValue("unread", states, ctx, ["filters", 0, "value"]);
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("adds an invalidFilterValue issue for a value outside the enum", () => {
+    const ctx = createMockCtx();
+    validateEnumValue("bogus", states, ctx, ["filters", 0, "value"]);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.invalidFilterValue } }),
+    );
+  });
+
+  it("validates each element of an array and points the path at the bad index", () => {
+    const ctx = createMockCtx();
+    validateEnumValue(["unread", "bogus", "open"], states, ctx, ["filters", 0, "value"]);
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ path: ["filters", 0, "value", 1] }));
   });
 });
 

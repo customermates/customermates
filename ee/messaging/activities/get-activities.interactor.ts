@@ -1,4 +1,5 @@
 import type { P13nRepo } from "@/core/base/base-get.interactor";
+import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -21,8 +22,17 @@ export class GetActivitiesInteractor extends BaseGetInteractor<ActivityEntryDto>
   constructor(
     private activitiesRepo: GetActivitiesRepo,
     p13nRepo: P13nRepo,
+    mode: "interactive" | "api",
+    queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
-    super(activitiesRepo, p13nRepo, "interactive", undefined, { sortDescriptor: { field: "at", direction: "desc" } });
+    super(
+      activitiesRepo,
+      p13nRepo,
+      mode,
+      undefined,
+      { sortDescriptor: { field: "at", direction: "desc" } },
+      queryParamsPrecheck,
+    );
   }
 
   @Validate(ActivitiesParamsSchema)

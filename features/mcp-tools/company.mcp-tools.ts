@@ -1,9 +1,18 @@
 import { z } from "zod";
 import { CountryCode, Currency } from "@/generated/prisma";
 
-import { encodeToToon, enumHint, formatDatesInResponse, runInteractor } from "./utils";
+import {
+  encodeToToon,
+  enumHint,
+  formatDatesInResponse,
+  runInteractor,
+  mcpPage,
+  mcpPageSize,
+  sortDescription,
+} from "./utils";
 
-import { getGetCompanyDetailsInteractor, getGetRolesInteractor, getUpdateCompanyDetailsInteractor } from "@/core/di";
+import { SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { getGetCompanyDetailsInteractor, getGetRolesApiInteractor, getUpdateCompanyDetailsInteractor } from "@/core/di";
 import { UpdateCompanyDetailsSchema } from "@/features/company/update-company-details.interactor";
 
 const countryValues = Object.values(CountryCode);
@@ -48,24 +57,36 @@ export const updateCompanyTool = {
     ),
 };
 
+const ListRolesSchema = z.object({
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("type")),
+  page: mcpPage(),
+  pageSize: mcpPageSize(100, "Results per page: 5, 10, 25, or 100 (default 100)"),
+});
+
 export const listRolesTool = {
   name: "list_roles",
   description:
     "List every role defined in the company along with its permissions. " +
+    "Optional: sortDescriptor (sortable field: type), page, pageSize. " +
     "Returns { id, name, description, isSystemRole, permissions } per role.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: z.object({}),
-  execute: () =>
-    runInteractor(getGetRolesInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }), (data) =>
-      encodeToToon({
-        items: data.items.map((role) => ({
-          id: role.id,
-          name: role.name,
-          description: role.description,
-          isSystemRole: role.isSystemRole,
-          permissions: role.permissions,
-        })),
-        total: data.pagination?.total ?? data.items.length,
+  inputSchema: ListRolesSchema,
+  execute: (params: z.infer<typeof ListRolesSchema>) =>
+    runInteractor(
+      getGetRolesApiInteractor().invoke({
+        sortDescriptor: params.sortDescriptor,
+        pagination: { page: params.page, pageSize: params.pageSize },
       }),
+      (data) =>
+        encodeToToon({
+          items: data.items.map((role) => ({
+            id: role.id,
+            name: role.name,
+            description: role.description,
+            isSystemRole: role.isSystemRole,
+            permissions: role.permissions,
+          })),
+          total: data.pagination?.total ?? data.items.length,
+        }),
     ),
 };

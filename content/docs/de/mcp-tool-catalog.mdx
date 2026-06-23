@@ -3,7 +3,7 @@ title: MCP-Tool-Katalog
 description: Jedes Tool, das Customermates über MCP exponiert, gruppiert nach Oberfläche, mit Sicherheits-Flags und Einzeiler-Zweck.
 ---
 
-57 Tools für Entitäten, Widgets, Webhooks, Custom Columns und Admin. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Jedes Tool, das ein Relationship-Array ersetzt, warnt und verweist auf `link_entities` / `unlink_entities`.
+49 Tools für Entitäten, Widgets, Webhooks, Custom Columns, Admin und Messaging (Preview). Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Jedes Tool, das ein Relationship-Array ersetzt, warnt und verweist auf `link_entities` / `unlink_entities`.
 
 ## Wie diese Seite zu lesen ist
 
@@ -61,35 +61,23 @@ Die Update-Tools akzeptieren Partial-Payloads. `null` auf Relationship-Arrays wi
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `list_webhooks` | ✓ | | Konfigurierte Webhooks. |
+| `list_webhooks` | ✓ | | Konfigurierte Webhooks. Filter (createdAt, updatedAt), Sortierung, Suche, Pagination. |
 | `get_webhook` | ✓ | | Einen per ID (inkl. Secret). |
 | `create_webhook` | | | Events abonnieren. |
 | `update_webhook` | | | Partial-Update. |
 | `delete_webhook` | | ✓ | IRREVERSIBLE. |
-| `list_webhook_deliveries` | ✓ | | Recent Deliveries mit Statuscodes. |
+| `list_webhook_deliveries` | ✓ | | Recent Deliveries mit Statuscodes. Filter nach event/createdAt, Sortierung, Suche. |
 | `resend_webhook_delivery` | | | Past Delivery erneut zustellen. |
 
 ## Custom Columns
 
-Acht Typen; jeder hat eigenes Create- und Update-Tool, damit schwächere Modelle keine Discriminated-Union-Logik bauen müssen.
-
-| Create | Update |
-|---|---|
-| `create_plain_custom_column` | `update_plain_custom_column` |
-| `create_date_custom_column` | `update_date_custom_column` |
-| `create_datetime_custom_column` | `update_datetime_custom_column` |
-| `create_currency_custom_column` | `update_currency_custom_column` |
-| `create_single_select_custom_column` | `update_single_select_custom_column` |
-| `create_link_custom_column` | `update_link_custom_column` |
-| `create_email_custom_column` | `update_email_custom_column` |
-| `create_phone_custom_column` | `update_phone_custom_column` |
-
-Plus:
-
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `list_custom_columns` | ✓ | | Alle Custom Columns, optional nach Entity-Typ. |
+| `list_custom_columns` | ✓ | | Alle Custom Columns, optional nach Entity-Typ. Liefert `{id, label, type, entityType, options}`. |
+| `upsert_custom_column` | | | Anlegen (`id` weglassen) oder aktualisieren (bestehende `id` übergeben). Ein Tool deckt alle zehn Typen über den `type`-Diskriminator und per-Type-`options` ab. `type` und `entityType` sind beim Update unveränderlich. Idempotent. |
 | `delete_custom_column` | | ✓ | IRREVERSIBLE. Löscht Spalte und alle gespeicherten Werte. Widgets darauf können brechen. |
+
+Die zehn Spaltentypen (`plain`, `date`, `dateTime`, `dateRange`, `dateTimeRange`, `currency`, `singleSelect`, `link`, `email`, `phone`) werden alle von `upsert_custom_column` abgedeckt. Um den Typ einer bestehenden Spalte zu ändern, lösche sie und lege eine neue an.
 
 ## Admin
 
@@ -97,15 +85,31 @@ Plus:
 |---|---|---|
 | `get_current_user` | ✓ | Eigenes Profil. |
 | `update_my_profile` | | Eigenes firstName / lastName / country / avatarUrl. |
-| `list_users` | ✓ | Team. |
+| `list_users` | ✓ | Team. Filter nach status/Datum, Suche nach Name, Sortierung. |
 | `get_company` | ✓ | Company-Profil. |
 | `update_company` | | Company-Name, Adresse, Standardwährung. |
-| `list_roles` | ✓ | Rollen und Rechte. |
+| `list_roles` | ✓ | Rollen und Rechte. Sortierbar nach type. |
+
+## Messaging (Preview)
+
+Die Messaging-Oberfläche ist Preview: Diese 7 Tools sind heute live über MCP, aber das Feature entwickelt sich noch, also als Early Access behandeln.
+
+| Tool | Read | Sendet | Zweck |
+|---|---|---|---|
+| `list_connected_accounts` | ✓ | | Verbundene Messaging-Konten (E-Mail, LinkedIn, WhatsApp, …). Die `id` als `connectedAccountId` für Sends nutzen. |
+| `get_messaging_threads` | ✓ | | Inbox-Threads über Konten: id, Betreff/Preview, Status, lastMessageAt, Teilnehmerzahl. Keine Nachrichtentexte. Filter nach state/provider/Teilnehmer-Kontakt, Sortierung nach Aktualität. |
+| `get_messaging_thread` | ✓ | | Ein Thread mit voller Nachrichtenliste (Richtung, Absender, Betreff, Textkörper, Attachment-Metadaten). |
+| `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, Kalenderereignisse) für den Workspace oder einen Record. Filter nach kind/thread/provider, Sortierung nach Zeit. |
+| `send_email` | | ✓ | Echte E-Mail oder Antwort von einem verbundenen Konto senden. Braucht `threadId` (Antwort) oder `connectedAccountId` (neu). |
+| `send_chat_message` | | ✓ | Echte Nachricht in einen bestehenden Chat-Thread senden (LinkedIn/WhatsApp/etc.). Braucht `threadId`, `text`. |
+| `start_chat` | | ✓ | Neuen Chat mit einem oder mehreren Teilnehmern starten. Braucht `connectedAccountId`, `attendeeIdentifiers`, `text`. |
+
+Die Tools `send_email`, `send_chat_message` und `start_chat` stellen echte Nachrichten zu; es gibt keinen Entwurfsschritt.
 
 ## Eingebaute Sicherheitsregeln
 
 - **Null auf Relationship-Array** serverseitig abgelehnt mit Hinweis auf `link_entities` / `unlink_entities`.
-- **Falsches per-Type-Custom-Column-Update** abgelehnt mit "this column is type X, use `update_X_custom_column`".
+- **`type` und `entityType` einer Custom Column sind beim Update unveränderlich.** `upsert_custom_column` übernimmt sie aus der bestehenden Spalte; für einen Typwechsel löschen und neu anlegen.
 - **Jedes `delete_*`** hat `destructiveHint: true` und Beschreibung beginnt mit `IRREVERSIBLE`.
 - **Jedes Enum-Feld** listet gültige Werte inline, damit schwächere Modelle keine externen Typen auflösen müssen.
 - **Jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
