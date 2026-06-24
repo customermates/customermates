@@ -1,4 +1,4 @@
-import type { ConnectedAccount } from "@/generated/prisma";
+import type { ConnectedAccount, ConnectedAccountStatus } from "@/generated/prisma";
 import type { BackfillCheckpoint } from "./backfill-checkpoint.schema";
 
 export abstract class BackfillConnectedAccountRepo {
@@ -9,8 +9,10 @@ export abstract class BackfillConnectedAccountRepo {
     unipileMessageId?: string | null;
   }): Promise<void>;
   abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
+  abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
+    status?: ConnectedAccountStatus;
     lastSyncedAt?: Date;
     syncing?: boolean;
     hasMessaging?: boolean;

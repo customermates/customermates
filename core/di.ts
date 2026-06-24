@@ -171,6 +171,7 @@ import { CreateHostedAuthLinkInteractor } from "@/ee/messaging/connect/create-ho
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
+import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 import { ProcessAccountCallbackInteractor } from "@/ee/messaging/webhooks/process-account-callback.interactor";
@@ -950,6 +951,8 @@ export const getResyncConnectedAccountInteractor = () =>
 
 export const getReconnectConnectedAccountInteractor = () =>
   new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
+
+export const getResyncThreadInteractor = () => new ResyncThreadInteractor(getMessagingRepo(), getMessagingService());
 
 export const getSetConnectedAccountVisibilityInteractor = () =>
   new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService());

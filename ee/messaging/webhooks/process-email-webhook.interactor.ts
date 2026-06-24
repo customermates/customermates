@@ -52,7 +52,11 @@ export class ProcessEmailWebhookInteractor {
     payload: UnipileEmailReceivedEvent | UnipileEmailSentEvent,
     account: ConnectedAccount,
   ): Promise<void> {
-    const normalized = buildEmailMessage(payload, payload.role === "sent" || payload.event === "mail_sent");
+    const normalized = buildEmailMessage(
+      payload,
+      payload.role === "sent" || payload.event === "mail_sent",
+      account.emailAddress,
+    );
     if (!normalized) throw new Error(`${payload.event} webhook for account ${payload.account_id} has no email id`);
 
     await this.ingest.ingestMessage({

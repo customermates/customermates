@@ -17,6 +17,7 @@ import {
   getGetContactByIdInteractor,
   getUpdateContactInteractor,
   getUpdateThreadInteractor,
+  getResyncThreadInteractor,
   getSendChatMessageInteractor,
   getSendEmailInteractor,
   getStartChatInteractor,
@@ -83,6 +84,10 @@ export async function unlinkContactFromThreadAction(data: {
 
 export async function updateThreadAction(data: UpdateThreadData) {
   return serializeResult(getUpdateThreadInteractor().invoke(data));
+}
+
+export async function resyncThreadAction(threadId: string) {
+  return serializeResult(getResyncThreadInteractor().invoke({ threadId }));
 }
 
 export async function sendChatMessageAction(data: SendChatMessageData) {

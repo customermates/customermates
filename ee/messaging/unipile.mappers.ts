@@ -128,25 +128,48 @@ function mailRecipients(list: UnipileEmail["to_attendees"]): MessagingAttendee[]
   return (list ?? []).map(mailAttendee).filter((a) => a.identifier);
 }
 
-export function buildEmailMessage(fields: UnipileEmail, isOutbound: boolean): IngestMessage | null {
+export function isSelfSender(args: {
+  explicitOutbound?: boolean | null;
+  senderKey?: string | null;
+  selfKey?: string | null;
+}): boolean {
+  return args.explicitOutbound === true || (Boolean(args.selfKey) && args.senderKey === args.selfKey);
+}
+
+export function buildEmailMessage(
+  fields: UnipileEmail,
+  isOutbound: boolean,
+  selfEmail?: string | null,
+): IngestMessage | null {
   const unipileMessageId = fields.email_id ?? fields.id;
   if (!unipileMessageId) return null;
+
+  const self = selfEmail?.trim().toLowerCase() || null;
+  const sender = mailAttendee(fields.from_attendee);
+  const senderIsSelf = isSelfSender({ explicitOutbound: isOutbound, senderKey: sender.identifier, selfKey: self });
+  const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
+    self !== null && attendee.identifier === self ? { ...attendee, isSelf: true } : attendee;
+  const to = mailRecipients(fields.to_attendees).map(markSelf);
+  const cc = mailRecipients(fields.cc_attendees).map(markSelf);
+  const bcc = mailRecipients(fields.bcc_attendees).map(markSelf);
+
+  const counterparts = new Set<string>();
+  if (!senderIsSelf && sender.identifier) counterparts.add(sender.identifier);
+  for (const recipient of [...to, ...cc])
+    if (!recipient.isSelf && recipient.identifier) counterparts.add(recipient.identifier);
 
   return {
     unipileMessageId,
     unipileThreadId: fields.thread_id?.trim() || unipileMessageId,
     provider: mapUnipileProvider(fields.type),
-    direction: isOutbound ? MessagingMessageDirection.outbound : MessagingMessageDirection.inbound,
+    direction: senderIsSelf ? MessagingMessageDirection.outbound : MessagingMessageDirection.inbound,
     origin: fields.origin === "unipile" ? MessagingMessageOrigin.unipile : MessagingMessageOrigin.external,
     subject: fields.subject ?? null,
     bodyHtml: fields.body ?? null,
     bodyText: fields.body_plain ?? null,
-    sender: { ...mailAttendee(fields.from_attendee), isSelf: isOutbound },
-    recipients: {
-      to: mailRecipients(fields.to_attendees),
-      cc: mailRecipients(fields.cc_attendees),
-      bcc: mailRecipients(fields.bcc_attendees),
-    },
+    sender: { ...sender, isSelf: senderIsSelf },
+    recipients: { to, cc, bcc },
+    threadType: counterparts.size > 1 ? "group" : undefined,
     attachmentsMeta: (fields.attachments ?? []).flatMap((a) =>
       a.id && a.name
         ? [

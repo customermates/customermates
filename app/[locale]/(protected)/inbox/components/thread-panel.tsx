@@ -1,14 +1,17 @@
 "use client";
 
-import { Inbox } from "lucide-react";
+import { Inbox, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ThreadDetail } from "./messaging-thread-detail.store";
 
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -37,7 +40,8 @@ function collectReplyRecipients(thread: MessagingThread, messages: MessagingMess
 
 export const ThreadPanel = observer(({ threadDetail }: Props) => {
   const t = useTranslations();
-  const { messagingThreadDetailStore: store } = useRootStore();
+  const { messagingThreadDetailStore: store, userStore } = useRootStore();
+  const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
 
   useEffect(() => {
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
@@ -78,6 +82,23 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
         provider={thread.provider}
         rightSlot={
           <>
+            {canUpdate && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="size-[26px]"
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => void store.resyncThread()}
+                  >
+                    <RefreshCw className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent>{t("Inbox.resyncThread")}</TooltipContent>
+              </Tooltip>
+            )}
+
             <ThreadSettings
               accountShared={thread.accountShared}
               isOwner={thread.isOwner}

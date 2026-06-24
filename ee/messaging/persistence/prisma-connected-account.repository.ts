@@ -139,7 +139,7 @@ export class PrismaConnectedAccountRepo
   async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string) {
     await this.prisma.connectedAccount.updateMany({
       where: { unipileAccountId, backfillClaimToken: token },
-      data: { backfillClaimedAt: null, backfillClaimToken: null },
+      data: { backfillClaimedAt: null, backfillClaimToken: null, syncing: false },
     });
   }
 
@@ -281,6 +281,10 @@ export class PrismaConnectedAccountRepo
     });
 
     return row;
+  }
+
+  async findAccountByIdUnscoped(id: string) {
+    return this.prisma.connectedAccount.findUnique({ where: { id } });
   }
 
   async listAccountOwnersByIds(accountIds: string[]) {

@@ -1301,6 +1301,9 @@
       "openContact": "Open contact",
       "unlink": "Unlink contact"
     },
+    "resyncThread": "Resync thread",
+    "resyncThreadDone": "Conversation refreshed",
+    "resyncThreadFailed": "Could not refresh the conversation",
     "selectThread": "Select a conversation from the inbox",
     "senderUnknown": "Unknown",
     "senderUnknownSender": "Unknown sender",

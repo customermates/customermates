@@ -169,9 +169,9 @@ export class MessagingService {
     });
   }
 
-  async listAccountAttendees(input: { accountId: string; limit?: number; cursor?: string }) {
-    return this.unipile.messaging.getAllAttendees({
-      account_id: input.accountId,
+  async listChatMessages(input: { chatId: string; limit?: number; cursor?: string }) {
+    return this.unipile.messaging.getAllMessagesFromChat({
+      chat_id: input.chatId,
       limit: input.limit,
       cursor: input.cursor,
     });

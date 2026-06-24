@@ -8,6 +8,8 @@ import type { BackfillCalendarsInteractor } from "./backfill/backfill-calendars.
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
+import { ConnectedAccountStatus } from "@/generated/prisma";
+
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
@@ -17,12 +19,17 @@ import { deriveAccountFeatures, deriveAccountIdentity } from "../unipile.mappers
 import type { BackfillConnectedAccountRepo } from "./backfill/backfill.repo";
 import type { UnipileAccount } from "../unipile.schema";
 
+function isSnapshotReady(snapshot: UnipileAccount): boolean {
+  return (snapshot.sources ?? []).some((s) => s.status?.toUpperCase() === "OK");
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 const BACKFILL_SINCE_DAYS = 365;
 
 const ACCOUNT_OK_POLL_INTERVAL_MS = 2000;
 const ACCOUNT_OK_POLL_MAX_ATTEMPTS = 30;
 const MAX_PROGRESSIVE_ATTEMPTS = 100;
+const MIN_PROGRESSIVE_ATTEMPTS = 9;
 
 const Schema = z.object({
   connectedAccountId: z.uuid(),
@@ -44,7 +51,9 @@ export class BackfillConnectedAccountInteractor {
 
   @Enforce(Schema)
   async invoke(payload: BackfillConnectedAccountPayload): Promise<boolean> {
-    const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
+    const account = await this.repo.findAccountByIdUnscoped(payload.connectedAccountId);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return false;
+
     const { checkpoint, epoch } = await this.repo.loadBackfillCheckpointUnscoped(account.unipileAccountId);
 
     const ownsClaim = await this.repo.refreshBackfillClaimUnscoped(account.unipileAccountId, payload.token);
@@ -87,10 +96,10 @@ export class BackfillConnectedAccountInteractor {
     const calendarIncomplete = calendarRan && reloaded.calendar?.done !== true;
     const epochChanged = currentEpoch !== epoch;
 
-    if (
-      (ingestedSomethingNew || awaitingInitialSync || messagingTruncated || calendarIncomplete || epochChanged) &&
-      attempt < MAX_PROGRESSIVE_ATTEMPTS
-    ) {
+    const hasWork =
+      ingestedSomethingNew || awaitingInitialSync || messagingTruncated || calendarIncomplete || epochChanged;
+
+    if ((hasWork || attempt < MIN_PROGRESSIVE_ATTEMPTS) && attempt < MAX_PROGRESSIVE_ATTEMPTS) {
       await this.repo.updateAccountUnscoped({
         unipileAccountId: account.unipileAccountId,
         lastSyncedAt: new Date(),
@@ -151,6 +160,9 @@ export class BackfillConnectedAccountInteractor {
     if (hasCalendar !== account.hasCalendar) update.hasCalendar = hasCalendar;
     if (!account.displayName && identity.displayName) update.displayName = identity.displayName;
     if (!account.emailAddress && identity.emailAddress) update.emailAddress = identity.emailAddress;
+    if (account.status === ConnectedAccountStatus.connecting && isSnapshotReady(snapshot))
+      update.status = ConnectedAccountStatus.ok;
+
     if (Object.keys(update).length > 1) await this.repo.updateAccountUnscoped(update);
 
     return { hasMessaging, hasCalendar };
@@ -160,8 +172,7 @@ export class BackfillConnectedAccountInteractor {
     let snapshot = await this.messagingService.getAccountSnapshot(unipileAccountId);
 
     for (let attempt = 0; attempt < ACCOUNT_OK_POLL_MAX_ATTEMPTS; attempt++) {
-      const isReady = (snapshot.sources ?? []).some((s) => s.status?.toUpperCase() === "OK");
-      if (isReady) return snapshot;
+      if (isSnapshotReady(snapshot)) return snapshot;
 
       await new Promise((resolve) => setTimeout(resolve, ACCOUNT_OK_POLL_INTERVAL_MS));
       snapshot = await this.messagingService.getAccountSnapshot(unipileAccountId);

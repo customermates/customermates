@@ -68,7 +68,7 @@ export class BackfillEmailsInteractor {
       return 1;
     }
 
-    const normalized = buildEmailMessage(parsed.data, parsed.data.role === "sent");
+    const normalized = buildEmailMessage(parsed.data, parsed.data.role === "sent", account.emailAddress);
 
     if (!normalized) {
       await this.repo.recordUnusableItemUnscoped({

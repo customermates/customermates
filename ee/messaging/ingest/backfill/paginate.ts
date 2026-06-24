@@ -2,6 +2,15 @@ export const UNIPILE_MAX_LIMIT = 250;
 export const PAGE_SAFETY = 50;
 export const BACKFILL_MAX_MESSAGES = 5000;
 
+const MIN_UNIPILE_REQUEST_INTERVAL_MS = 250;
+let lastUnipileRequestAt = 0;
+
+async function paceUnipileRequest(): Promise<void> {
+  const waitMs = lastUnipileRequestAt + MIN_UNIPILE_REQUEST_INTERVAL_MS - Date.now();
+  if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+  lastUnipileRequestAt = Date.now();
+}
+
 export async function paginate(opts: {
   fetchPage: (cursor: string | undefined) => Promise<{ items?: unknown[]; cursor?: string | null }>;
   handleItem: (item: unknown) => Promise<number>;
@@ -16,6 +25,7 @@ export async function paginate(opts: {
   for (let page = 0; page < PAGE_SAFETY; page++) {
     if (processed >= budget) break;
 
+    await paceUnipileRequest();
     const result = await opts.fetchPage(cursor);
 
     for (const item of result.items ?? []) {
@@ -53,6 +63,7 @@ export async function paginateNested<TContext>(opts: {
   for (let page = 0; page < PAGE_SAFETY; page++) {
     if (processed >= budget) break;
 
+    await paceUnipileRequest();
     const result = await opts.fetchOuterPage(cursor);
 
     for (const outerItem of result.items ?? []) {

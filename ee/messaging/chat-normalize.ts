@@ -1,9 +1,20 @@
-import type { IngestMessage, MessagingAttendee } from "./messaging.schema";
+import type { IngestMessage, MessageReactionEntry, MessagingAttendee } from "./messaging.schema";
 import type { UnipileChatAttendee, UnipileWebhookAttendee } from "./unipile.schema";
 
-import { MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
+import type { z } from "zod";
 
-import { attendeePhone, buildChatAttendee, EMPTY_ATTENDEE } from "./unipile.mappers";
+import { MessagingMessageDirection, MessagingMessageOrigin, type MessagingProvider } from "@/generated/prisma";
+
+import type { UnipileChatMessageSchema } from "./unipile.schema";
+import { attendeePhone, buildChatAttendee, EMPTY_ATTENDEE, isSelfSender, mapChatAttachments } from "./unipile.mappers";
+
+type UnipileChatMessage = z.infer<typeof UnipileChatMessageSchema>;
+
+export type ChatSenderLookup = {
+  byKey: Map<string, UnipileChatAttendee>;
+  selfAttendeeId: string | null;
+  selfSender: MessagingAttendee | undefined;
+};
 
 export type ChatMessageParts = {
   unipileMessageId: string;
@@ -48,11 +59,11 @@ export function isOutboundChat(args: {
   senderAttendeeId: string | null | undefined;
   selfAttendeeId: string | null | undefined;
 }): boolean {
-  return (
-    args.isSender === true ||
-    args.senderIsSelf === true ||
-    (Boolean(args.selfAttendeeId) && args.senderAttendeeId === args.selfAttendeeId)
-  );
+  return isSelfSender({
+    explicitOutbound: args.isSender === true || args.senderIsSelf === true,
+    senderKey: args.senderAttendeeId,
+    selfKey: args.selfAttendeeId,
+  });
 }
 
 export function mapWebhookAttendee(input: UnipileWebhookAttendee | null | undefined): MessagingAttendee {
@@ -84,5 +95,74 @@ export function mapUnipileChatAttendee(input: UnipileChatAttendee | null | undef
     profileUrl: input.profile_url,
     headline: input.specifics?.headline,
     occupation: input.specifics?.occupation,
+  });
+}
+
+export function indexAttendee(lookup: ChatSenderLookup, attendee: UnipileChatAttendee): void {
+  if (attendee.provider_id) lookup.byKey.set(attendee.provider_id, attendee);
+  if (attendee.id) lookup.byKey.set(attendee.id, attendee);
+
+  if (attendee.is_self === true) {
+    lookup.selfAttendeeId ??= attendee.id ?? null;
+    lookup.selfSender ??= mapUnipileChatAttendee(attendee);
+  }
+}
+
+export function resolveChatSender(raw: UnipileChatMessage, lookup: ChatSenderLookup): UnipileChatAttendee | undefined {
+  return (
+    (raw.sender_attendee_id ? lookup.byKey.get(raw.sender_attendee_id) : undefined) ??
+    (raw.sender_id ? lookup.byKey.get(raw.sender_id) : undefined)
+  );
+}
+
+function mapChatReactions(
+  reactions: UnipileChatMessage["reactions"],
+  byKey: Map<string, UnipileChatAttendee>,
+): MessageReactionEntry[] {
+  return (reactions ?? []).flatMap((reaction) => {
+    if (!reaction.value) return [];
+
+    const attendee = reaction.sender_id ? byKey.get(reaction.sender_id) : undefined;
+
+    return [
+      {
+        value: reaction.value,
+        attendeeId: attendee?.id ?? reaction.sender_id ?? "",
+        attendeeDisplayName: attendee?.name ?? null,
+        isSelf: reaction.is_sender === true || attendee?.is_self === true,
+      },
+    ];
+  });
+}
+
+export function normalizeChatMessage(
+  raw: UnipileChatMessage,
+  lookup: ChatSenderLookup,
+  provider: MessagingProvider,
+): IngestMessage | null {
+  if (raw.hidden) return null;
+  if (!raw.id || !raw.chat_id) return null;
+
+  const senderAttendee = resolveChatSender(raw, lookup);
+  const isOutbound = isOutboundChat({
+    isSender: raw.is_sender,
+    senderIsSelf: senderAttendee?.is_self,
+    senderAttendeeId: raw.sender_attendee_id,
+    selfAttendeeId: lookup.selfAttendeeId,
+  });
+  const sender = senderAttendee ? mapUnipileChatAttendee(senderAttendee) : isOutbound ? lookup.selfSender : undefined;
+
+  return buildChatMessage({
+    unipileMessageId: raw.id,
+    unipileThreadId: raw.chat_id,
+    provider,
+    isOutbound,
+    bodyText: raw.text ?? null,
+    sender: sender ?? EMPTY_ATTENDEE,
+    attachmentsMeta: mapChatAttachments(raw.attachments),
+    reactions: mapChatReactions(raw.reactions, lookup.byKey),
+    isEvent: raw.is_event ?? false,
+    deletedAt: raw.deleted ? raw.timestamp : null,
+    sentAt: raw.timestamp,
   });
 }

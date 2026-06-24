@@ -6,6 +6,7 @@ import { MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/p
 import type { MessageReactionEntry, MessagingAttendee, MessagingMessage, IngestMessage } from "../messaging.schema";
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
+import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
 import type { ProcessMessagingWebhookRepo } from "../webhooks/process-messaging-webhook.interactor";
@@ -40,6 +41,7 @@ export class PrismaMessagingRepo
   extends BaseRepository
   implements
     GetMessagingThreadRepo,
+    ResyncThreadRepo,
     GetMessagingThreadsRepo,
     GetUnreadThreadCountRepo,
     UpdateThreadRepo,
@@ -460,6 +462,17 @@ export class PrismaMessagingRepo
 
     const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
     return hydrated;
+  }
+
+  async findThreadForResyncOrThrow(threadId: string) {
+    return this.prisma.messagingThread.findFirstOrThrow({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
+      select: { id: true, unipileThreadId: true, connectedAccountId: true, provider: true, companyId: true },
+    });
+  }
+
+  async syncThreadParticipants(args: RepoArgs<ResyncThreadRepo, "syncThreadParticipants">) {
+    await this.upsertThreadParticipants(args.messagingThreadId, args.companyId, args.provider, args.participants);
   }
 
   async findThreadIds(ids: Set<string>) {

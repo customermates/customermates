@@ -6,7 +6,7 @@ import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { action, makeObservable, observable, runInAction } from "mobx";
 
-import { getMessagingThreadAction, updateThreadAction } from "../actions";
+import { getMessagingThreadAction, updateThreadAction, resyncThreadAction } from "../actions";
 
 export type ThreadDetail = {
   thread: MessagingThread;
@@ -30,6 +30,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       setState: action,
       markRead: action,
       toggleSharing: action,
+      resyncThread: action,
       applyParticipantContact: action,
     });
   }
@@ -93,6 +94,22 @@ export class MessagingThreadDetailStore extends BaseStore {
         return;
       }
       this.toastSuccess(shared ? "Inbox.shareToCrmSharedToast" : "Inbox.shareToCrmPrivateToast");
+    });
+  };
+
+  resyncThread = async (): Promise<void> => {
+    const thread = this.thread;
+    if (!thread) return;
+
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const result = await resyncThreadAction(thread.id);
+      if (!result.ok || !result.data.fetched) {
+        this.toastError("Inbox.resyncThreadFailed");
+        return;
+      }
+
+      await this.refresh();
+      this.toastSuccess("Inbox.resyncThreadDone");
     });
   };
 

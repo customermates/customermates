@@ -143,20 +143,21 @@ export function deriveThreadDisplay(
 } {
   const isGroup = isGroupThread(thread);
   const counterpart = threadCounterpart(thread.participants);
-  const isSelfChat = !isGroup && !counterpart;
+  const isSelfChat = !isGroup && thread.participants.length > 0 && thread.participants.every((p) => p.isSelf);
   const fallback = isSelfChat
     ? t("Inbox.senderYou")
     : thread.provider === "linkedin"
       ? t("Inbox.linkedinContact")
       : t("Inbox.senderUnknown");
-  const displayName = isGroup
-    ? groupThreadName(thread, t)
-    : counterpart
-      ? participantLabel(counterpart, thread.provider, fallback)
-      : fallback;
+  const counterpartLabel = counterpart ? participantLabel(counterpart, thread.provider, fallback) : fallback;
+  const emailSubject = !isGroup && isEmailProvider(thread.provider) ? thread.subject?.trim() || null : null;
+  const displayName = isGroup ? groupThreadName(thread, t) : (emailSubject ?? counterpartLabel);
   const hasName = Boolean(contactFullName(counterpart?.contact) || counterpart?.displayName?.trim());
-  const displayNameSecondary =
-    isGroup || !counterpart
+  const displayNameSecondary = emailSubject
+    ? counterpart
+      ? counterpartLabel
+      : null
+    : isGroup || !counterpart
       ? null
       : hasName
         ? displayableIdentifier(thread.provider, counterpart.identifier)

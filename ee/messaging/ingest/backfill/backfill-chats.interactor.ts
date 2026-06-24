@@ -1,6 +1,6 @@
 import type { MessagingService } from "../../messaging.service";
 import type { MessagingIngestRepo } from "../messaging-ingest.repo";
-import type { MessageReactionEntry, MessagingAttendee } from "../../messaging.schema";
+import type { MessagingAttendee } from "../../messaging.schema";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
@@ -11,42 +11,19 @@ import * as Sentry from "@sentry/node";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import { EMPTY_ATTENDEE, mapChatAttachments } from "../../unipile.mappers";
-import { buildChatMessage, isOutboundChat, mapUnipileChatAttendee } from "../../chat-normalize";
 import {
-  UnipileChatAttendeeSchema,
-  UnipileChatMessageSchema,
-  UnipileChatSchema,
-  type UnipileChatAttendee,
-} from "../../unipile.schema";
+  indexAttendee,
+  mapUnipileChatAttendee,
+  normalizeChatMessage,
+  resolveChatSender,
+  type ChatSenderLookup,
+} from "../../chat-normalize";
+import { UnipileChatAttendeeSchema, UnipileChatMessageSchema, UnipileChatSchema } from "../../unipile.schema";
 import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
 
 import { paginate, UNIPILE_MAX_LIMIT } from "./paginate";
 
-type ChatMessageItem = z.infer<typeof UnipileChatMessageSchema>;
-
-function mapBackfillReactions(reactions: ChatMessageItem["reactions"], index: AttendeeIndex): MessageReactionEntry[] {
-  return (reactions ?? []).flatMap((reaction) => {
-    if (!reaction.value) return [];
-
-    const attendee = reaction.sender_id ? index.byKey.get(reaction.sender_id) : undefined;
-
-    return [
-      {
-        value: reaction.value,
-        attendeeId: attendee?.id ?? reaction.sender_id ?? "",
-        attendeeDisplayName: attendee?.name ?? null,
-        isSelf: reaction.is_sender === true || attendee?.is_self === true,
-      },
-    ];
-  });
-}
-
-type AttendeeIndex = {
-  byKey: Map<string, UnipileChatAttendee>;
-  selfAttendeeId: string | null;
-  selfSender: MessagingAttendee | undefined;
-};
+type AttendeeIndex = ChatSenderLookup & { rosteredChats: Set<string> };
 
 const Schema = z.object({
   account: z.custom<ConnectedAccount>(),
@@ -68,7 +45,14 @@ export class BackfillChatsInteractor {
   async invoke({ account, afterDate, checkpoint, epoch }: BackfillChatsPayload): Promise<void> {
     if (checkpoint.chat?.done) return;
 
-    const index = await this.loadAccountAttendees(account);
+    const index: AttendeeIndex = {
+      byKey: new Map(),
+      selfAttendeeId: null,
+      selfSender: undefined,
+      rosteredChats: new Set(),
+    };
+
+    await this.refreshChatMetadata(account, index, !checkpoint.chat?.cursor);
 
     if (index.selfAttendeeId) {
       await this.repo.setAccountOwnAttendeeIdUnscoped({
@@ -76,8 +60,6 @@ export class BackfillChatsInteractor {
         ownUnipileAttendeeId: index.selfAttendeeId,
       });
     }
-
-    await this.refreshChatMetadata(account, index, !checkpoint.chat?.cursor);
 
     await paginate({
       startCursor: checkpoint.chat?.cursor ?? undefined,
@@ -102,7 +84,7 @@ export class BackfillChatsInteractor {
   private async refreshChatMetadata(
     account: ConnectedAccount,
     index: AttendeeIndex,
-    loadGroupRosters: boolean,
+    loadRosters: boolean,
   ): Promise<void> {
     await paginate({
       fetchPage: (cursor) =>
@@ -111,7 +93,7 @@ export class BackfillChatsInteractor {
           limit: UNIPILE_MAX_LIMIT,
           cursor,
         }),
-      handleItem: (item) => this.processChat(account, item, index, loadGroupRosters),
+      handleItem: (item) => this.processChat(account, item, index, loadRosters),
     });
   }
 
@@ -119,7 +101,7 @@ export class BackfillChatsInteractor {
     account: ConnectedAccount,
     rawItem: unknown,
     index: AttendeeIndex,
-    loadGroupRosters: boolean,
+    loadRosters: boolean,
   ): Promise<number> {
     const parsed = UnipileChatSchema.safeParse(rawItem);
 
@@ -136,13 +118,7 @@ export class BackfillChatsInteractor {
     const chat = parsed.data;
     const chatId = parsed.data.id;
 
-    let participants: MessagingAttendee[];
-    if (chat.type === "group") participants = loadGroupRosters ? await this.loadGroupParticipants(account, chatId) : [];
-    else {
-      const counterpart =
-        chat.type === "single" && chat.attendee_provider_id ? index.byKey.get(chat.attendee_provider_id) : undefined;
-      participants = counterpart && counterpart.is_self !== true ? [mapUnipileChatAttendee(counterpart)] : [];
-    }
+    const participants = loadRosters ? await this.loadChatParticipants(account, chatId, index) : [];
 
     try {
       await this.ingest.upsertChatThread({
@@ -195,30 +171,11 @@ export class BackfillChatsInteractor {
       return 1;
     }
 
-    const senderAttendee =
-      (raw.sender_attendee_id ? index.byKey.get(raw.sender_attendee_id) : undefined) ??
-      (raw.sender_id ? index.byKey.get(raw.sender_id) : undefined);
-    const isOutbound = isOutboundChat({
-      isSender: raw.is_sender,
-      senderIsSelf: senderAttendee?.is_self,
-      senderAttendeeId: raw.sender_attendee_id,
-      selfAttendeeId: index.selfAttendeeId,
-    });
-    const sender = senderAttendee ? mapUnipileChatAttendee(senderAttendee) : isOutbound ? index.selfSender : undefined;
+    if (!resolveChatSender(raw, index) && !index.rosteredChats.has(raw.chat_id))
+      await this.loadChatParticipants(account, raw.chat_id, index);
 
-    const normalized = buildChatMessage({
-      unipileMessageId: raw.id,
-      unipileThreadId: raw.chat_id,
-      provider: account.provider,
-      isOutbound,
-      bodyText: raw.text ?? null,
-      sender: sender ?? EMPTY_ATTENDEE,
-      attachmentsMeta: mapChatAttachments(raw.attachments),
-      reactions: mapBackfillReactions(raw.reactions, index),
-      isEvent: raw.is_event ?? false,
-      deletedAt: raw.deleted ? raw.timestamp : null,
-      sentAt: raw.timestamp,
-    });
+    const normalized = normalizeChatMessage(raw, index, account.provider);
+    if (!normalized) return 1;
 
     try {
       await this.ingest.ingestMessage({
@@ -241,80 +198,39 @@ export class BackfillChatsInteractor {
     }
   }
 
-  private async loadGroupParticipants(account: ConnectedAccount, chatId: string): Promise<MessagingAttendee[]> {
+  private async loadChatParticipants(
+    account: ConnectedAccount,
+    chatId: string,
+    index: AttendeeIndex,
+  ): Promise<MessagingAttendee[]> {
+    index.rosteredChats.add(chatId);
     const participants: MessagingAttendee[] = [];
 
-    await paginate({
-      budget: Number.POSITIVE_INFINITY,
-      fetchPage: (cursor) => this.messagingService.listChatAttendees({ chatId, limit: UNIPILE_MAX_LIMIT, cursor }),
-      handleItem: async (raw) => {
-        const parsed = UnipileChatAttendeeSchema.safeParse(raw);
+    try {
+      await paginate({
+        budget: Number.POSITIVE_INFINITY,
+        fetchPage: (cursor) => this.messagingService.listChatAttendees({ chatId, limit: UNIPILE_MAX_LIMIT, cursor }),
+        handleItem: async (raw) => {
+          const parsed = UnipileChatAttendeeSchema.safeParse(raw);
 
-        if (!parsed.success) {
-          await this.repo.recordUnusableItemUnscoped({
-            companyId: account.companyId,
-            connectedAccountId: account.id,
-            payload: raw,
-          });
+          if (!parsed.success) {
+            await this.repo.recordUnusableItemUnscoped({
+              companyId: account.companyId,
+              connectedAccountId: account.id,
+              payload: raw,
+            });
+            return 1;
+          }
+
+          indexAttendee(index, parsed.data);
+          if (parsed.data.is_self !== true) participants.push(mapUnipileChatAttendee(parsed.data));
           return 1;
-        }
-
-        if (parsed.data.is_self !== true) participants.push(mapUnipileChatAttendee(parsed.data));
-        return 1;
-      },
-    });
-
-    return participants;
-  }
-
-  private async loadAccountAttendees(account: ConnectedAccount): Promise<AttendeeIndex> {
-    const byKey = new Map<string, UnipileChatAttendee>();
-    let self: UnipileChatAttendee | undefined;
-    let lastCursor: string | null = null;
-
-    await paginate({
-      budget: Number.POSITIVE_INFINITY,
-      fetchPage: (cursor) =>
-        this.messagingService.listAccountAttendees({
-          accountId: account.unipileAccountId,
-          limit: UNIPILE_MAX_LIMIT,
-          cursor,
-        }),
-      handleItem: async (raw) => {
-        const parsed = UnipileChatAttendeeSchema.safeParse(raw);
-
-        if (!parsed.success) {
-          await this.repo.recordUnusableItemUnscoped({
-            companyId: account.companyId,
-            connectedAccountId: account.id,
-            payload: raw,
-          });
-          return 1;
-        }
-
-        if (parsed.data.provider_id) byKey.set(parsed.data.provider_id, parsed.data);
-        if (parsed.data.id) byKey.set(parsed.data.id, parsed.data);
-        if (parsed.data.is_self === true) self = parsed.data;
-        return 1;
-      },
-      onPageEnd: (cursor) => {
-        lastCursor = cursor;
-        return Promise.resolve();
-      },
-    });
-
-    if (lastCursor) {
-      await this.repo.recordUnusableItemUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        payload: { cursor: lastCursor },
+        },
       });
+    } catch (err) {
+      Sentry.captureException(err);
     }
 
-    return {
-      byKey,
-      selfAttendeeId: self?.id ?? null,
-      selfSender: self ? mapUnipileChatAttendee(self) : undefined,
-    };
+    return participants;
   }
 }

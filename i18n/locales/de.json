@@ -1301,6 +1301,9 @@
       "openContact": "Kontakt öffnen",
       "unlink": "Verknüpfung entfernen"
     },
+    "resyncThread": "Konversation synchronisieren",
+    "resyncThreadDone": "Konversation aktualisiert",
+    "resyncThreadFailed": "Konversation konnte nicht aktualisiert werden",
     "selectThread": "Wähle eine Konversation aus dem Posteingang",
     "senderUnknown": "Unbekannt",
     "senderUnknownSender": "Unbekannter Absender",
