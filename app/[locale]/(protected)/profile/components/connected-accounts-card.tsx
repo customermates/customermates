@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Loader2, Plus } from "lucide-react";
-import { Fragment, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { Alert } from "@/components/shared/alert";
@@ -68,83 +68,74 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   }
 
   const items = connectedAccountsStore.items;
-  const firstSharedIndex = items.findIndex((account) => !account.isOwner);
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-4">
       <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
 
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
-        {items.map((account, index) => {
+        {items.map((account) => {
           const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
           const ProviderIcon = getProviderIcon(account.provider);
           const providerLabel = getProviderDisplayLabel(account, t);
-          const showDivider = firstSharedIndex > 0 && index === firstSharedIndex;
 
           return (
-            <Fragment key={account.id}>
-              {showDivider && (
-                <p className="text-subdued col-span-full pt-2 text-xs font-medium">
-                  {t("ConnectedAccountsCard.sharedWithYou")}
-                </p>
-              )}
+            <Card
+              key={account.id}
+              className="cursor-pointer gap-3 py-4 interactive-surface"
+              onClick={() => connectedAccountModalStore.openWith(account)}
+            >
+              <CardContent className="flex flex-col gap-2 px-4">
+                <div className="flex items-center gap-2">
+                  <ProviderIcon className="size-4 shrink-0" />
 
-              <Card
-                className="cursor-pointer gap-3 py-4 interactive-surface"
-                onClick={() => connectedAccountModalStore.openWith(account)}
-              >
-                <CardContent className="flex flex-col gap-2 px-4">
-                  <div className="flex items-center gap-2">
-                    <ProviderIcon className="size-4 shrink-0" />
+                  <p className="truncate text-sm font-medium">{account.displayName ?? providerLabel}</p>
+                </div>
 
-                    <p className="truncate text-sm font-medium">{account.displayName ?? providerLabel}</p>
-                  </div>
+                <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
-                  <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
-
-                  <InfoRow label={t("ConnectedAccountsCard.status")}>
-                    {account.syncing ? (
-                      <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
-                        {t("ConnectedAccountsCard.syncing")}
-                      </AppChip>
-                    ) : (
-                      <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
-                    )}
-                  </InfoRow>
-
-                  <InfoRow label={t("ConnectedAccountsCard.visibility")}>
-                    <AppChip variant={account.shared ? "info" : "secondary"}>
-                      {account.shared
-                        ? t("ConnectedAccountsCard.visibilityShared")
-                        : t("ConnectedAccountsCard.visibilityPrivate")}
+                <InfoRow label={t("ConnectedAccountsCard.status")}>
+                  {account.syncing ? (
+                    <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
+                      {t("ConnectedAccountsCard.syncing")}
                     </AppChip>
-                  </InfoRow>
-
-                  <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
-                    <AvatarStack
-                      items={[
-                        {
-                          id: account.owner.userId,
-                          firstName: account.owner.firstName,
-                          lastName: account.owner.lastName,
-                          avatarUrl: account.owner.avatarUrl,
-                        },
-                      ]}
-                    />
-                  </InfoRow>
-
-                  <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
-                    {intlStore.formatNumericalShortDateTime(account.createdAt)}
-                  </InfoRow>
-
-                  {account.lastSyncedAt && (
-                    <InfoRow label={t("ConnectedAccountsCard.lastSynced")}>
-                      {intlStore.formatNumericalShortDateTime(account.lastSyncedAt)}
-                    </InfoRow>
+                  ) : (
+                    <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
                   )}
-                </CardContent>
-              </Card>
-            </Fragment>
+                </InfoRow>
+
+                <InfoRow label={t("ConnectedAccountsCard.visibility")}>
+                  <AppChip variant={account.shared ? "info" : "secondary"}>
+                    {account.shared
+                      ? t("ConnectedAccountsCard.visibilityShared")
+                      : t("ConnectedAccountsCard.visibilityPrivate")}
+                  </AppChip>
+                </InfoRow>
+
+                <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
+                  <AvatarStack
+                    items={[
+                      {
+                        id: account.owner.userId,
+                        firstName: account.owner.firstName,
+                        lastName: account.owner.lastName,
+                        avatarUrl: account.owner.avatarUrl,
+                      },
+                    ]}
+                  />
+                </InfoRow>
+
+                <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
+                  {intlStore.formatNumericalShortDateTime(account.createdAt)}
+                </InfoRow>
+
+                {account.lastSyncedAt && (
+                  <InfoRow label={t("ConnectedAccountsCard.lastSynced")}>
+                    {intlStore.formatNumericalShortDateTime(account.lastSyncedAt)}
+                  </InfoRow>
+                )}
+              </CardContent>
+            </Card>
           );
         })}
       </div>
