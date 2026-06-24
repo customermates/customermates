@@ -4,9 +4,11 @@ import {
   AuthError,
   ForbiddenError,
   DemoModeError,
+  DEMO_MODE_MESSAGE,
   WebhookExternalFailure,
   WebhookNonRetryableFailure,
   isExpectedError,
+  appErrorResponse,
 } from "../app-errors";
 
 describe("AuthError", () => {
@@ -79,6 +81,19 @@ describe("isExpectedError", () => {
     expect(isExpectedError({ name: "FatalError", message: "Webhook target responded 503 down" })).toBe(true);
   });
 
+  it("recognizes a DemoModeError that lost its class identity across a serialization boundary, by message", () => {
+    expect(isExpectedError({ name: "Error", message: DEMO_MODE_MESSAGE })).toBe(true);
+    expect(isExpectedError(new Error(DEMO_MODE_MESSAGE))).toBe(true);
+  });
+
+  it("recognizes an AppError from a DIFFERENT bundle copy via the isAppError marker (instanceof fails across duplicated chunks)", () => {
+    const foreignDemo = { isAppError: true, name: "DemoModeError", statusCode: 403, message: DEMO_MODE_MESSAGE };
+    const foreignAuth = { isAppError: true, name: "AuthError", statusCode: 401, message: "Not authenticated" };
+    expect(foreignDemo instanceof DemoModeError).toBe(false);
+    expect(isExpectedError(foreignDemo)).toBe(true);
+    expect(isExpectedError(foreignAuth)).toBe(true);
+  });
+
   it("does NOT suppress a genuine bug flattened to FatalError on workflow replay", () => {
     expect(isExpectedError({ name: "FatalError", message: "Test workflow error from background job" })).toBe(false);
     expect(isExpectedError({ name: "FatalError", message: "Cannot read properties of undefined" })).toBe(false);
@@ -89,5 +104,22 @@ describe("isExpectedError", () => {
     expect(isExpectedError({ name: "TypeError", message: "x is not a function" })).toBe(false);
     expect(isExpectedError(null)).toBe(false);
     expect(isExpectedError("just a string")).toBe(false);
+  });
+});
+
+describe("appErrorResponse", () => {
+  it("maps a real AppError to its message + status", () => {
+    expect(appErrorResponse(new DemoModeError())).toEqual({ message: DEMO_MODE_MESSAGE, statusCode: 403 });
+    expect(appErrorResponse(new AuthError())).toEqual({ message: "Not authenticated", statusCode: 401 });
+  });
+
+  it("maps an AppError from a different bundle copy via the marker (instanceof would fail)", () => {
+    const foreign = { isAppError: true, name: "ForbiddenError", statusCode: 403, message: "Not authorized" };
+    expect(appErrorResponse(foreign)).toEqual({ message: "Not authorized", statusCode: 403 });
+  });
+
+  it("returns null for non-AppError values", () => {
+    expect(appErrorResponse(new Error("boom"))).toBeNull();
+    expect(appErrorResponse(null)).toBeNull();
   });
 });

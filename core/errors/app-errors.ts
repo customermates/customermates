@@ -1,4 +1,6 @@
 class AppError extends Error {
+  readonly isAppError = true;
+
   constructor(
     message: string,
     public readonly statusCode: number,
@@ -20,9 +22,11 @@ export class ForbiddenError extends AppError {
   }
 }
 
+export const DEMO_MODE_MESSAGE = "This action is not available in demo mode. Please sign in to access all features.";
+
 export class DemoModeError extends AppError {
   constructor() {
-    super("This action is not available in demo mode. Please sign in to access all features.", 403);
+    super(DEMO_MODE_MESSAGE, 403);
   }
 }
 
@@ -51,13 +55,24 @@ export class WebhookNonRetryableFailure extends Error {
   }
 }
 
+function isAppErrorLike(err: unknown): boolean {
+  return err instanceof AppError || (err as { isAppError?: unknown } | null | undefined)?.isAppError === true;
+}
+
 export function isExpectedError(err: unknown): boolean {
+  if (isAppErrorLike(err)) return true;
+
   const message = (err as { message?: unknown } | null | undefined)?.message;
-  return err instanceof AppError || (typeof message === "string" && message.startsWith(WEBHOOK_FAILURE_MESSAGE_PREFIX));
+  if (typeof message !== "string") return false;
+
+  return message.startsWith(WEBHOOK_FAILURE_MESSAGE_PREFIX) || message.startsWith(DEMO_MODE_MESSAGE);
 }
 
 export function appErrorResponse(err: unknown): { message: string; statusCode: number } | null {
-  if (err instanceof AppError) return { message: err.message, statusCode: err.statusCode };
+  if (!isAppErrorLike(err)) return null;
 
-  return null;
+  const { message, statusCode } = err as { message?: unknown; statusCode?: unknown };
+  if (typeof message !== "string" || typeof statusCode !== "number") return null;
+
+  return { message, statusCode };
 }
