@@ -12,6 +12,7 @@ export type ChatMessageParts = {
   isOutbound: boolean;
   bodyText: IngestMessage["bodyText"];
   sender: MessagingAttendee;
+  recipients?: IngestMessage["recipients"];
   attachmentsMeta: IngestMessage["attachmentsMeta"];
   reactions: IngestMessage["reactions"];
   isEvent: IngestMessage["isEvent"];
@@ -31,7 +32,7 @@ export function buildChatMessage(parts: ChatMessageParts): IngestMessage {
     bodyHtml: null,
     bodyText: parts.bodyText,
     sender: { ...parts.sender, isSelf: parts.isOutbound },
-    recipients: { to: [], cc: [], bcc: [] },
+    recipients: parts.recipients ?? { to: [], cc: [], bcc: [] },
     attachmentsMeta: parts.attachmentsMeta,
     reactions: parts.reactions,
     isEvent: parts.isEvent,

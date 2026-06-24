@@ -27,7 +27,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.organizationIds]: relationOperators,
   [FilterFieldKey.contactIds]: relationOperators,
   [FilterFieldKey.participantContactId]: scalarSelectOperators,
-  [FilterFieldKey.participants]: [FilterOperatorKey.hasUnset],
+  [FilterFieldKey.participants]: [FilterOperatorKey.hasUnset, FilterOperatorKey.allSet],
   [FilterFieldKey.timelineKind]: scalarSelectOperators,
   [FilterFieldKey.timelineThreadId]: scalarSelectOperators,
   [FilterFieldKey.taskIds]: relationOperators,

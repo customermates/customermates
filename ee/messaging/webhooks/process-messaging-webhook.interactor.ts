@@ -105,6 +105,14 @@ export class ProcessMessagingWebhookInteractor {
       selfAttendeeId: payload.account_info?.user_id,
     });
 
+    const groupAttendees =
+      payload.is_group === true && payload.attendees
+        ? payload.attendees.map((attendee) => ({
+            ...mapWebhookAttendee(attendee),
+            isSelf: Boolean(account.ownUnipileAttendeeId) && attendee.attendee_id === account.ownUnipileAttendeeId,
+          }))
+        : [];
+
     await this.ingest.ingestMessage({
       companyId: account.companyId,
       connectedAccountId: account.id,
@@ -115,6 +123,7 @@ export class ProcessMessagingWebhookInteractor {
         isOutbound,
         bodyText: payload.message ?? null,
         sender: mapWebhookAttendee(payload.sender),
+        recipients: { to: groupAttendees, cc: [], bcc: [] },
         attachmentsMeta: mapChatAttachments(payload.attachments),
         reactions: [],
         isEvent: payload.is_event ?? false,

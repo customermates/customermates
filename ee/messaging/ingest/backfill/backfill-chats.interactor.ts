@@ -77,7 +77,7 @@ export class BackfillChatsInteractor {
       });
     }
 
-    await this.refreshChatMetadata(account, index);
+    await this.refreshChatMetadata(account, index, !checkpoint.chat?.cursor);
 
     await paginate({
       startCursor: checkpoint.chat?.cursor ?? undefined,
@@ -99,7 +99,11 @@ export class BackfillChatsInteractor {
     });
   }
 
-  private async refreshChatMetadata(account: ConnectedAccount, index: AttendeeIndex): Promise<void> {
+  private async refreshChatMetadata(
+    account: ConnectedAccount,
+    index: AttendeeIndex,
+    loadGroupRosters: boolean,
+  ): Promise<void> {
     await paginate({
       fetchPage: (cursor) =>
         this.messagingService.listChats({
@@ -107,11 +111,16 @@ export class BackfillChatsInteractor {
           limit: UNIPILE_MAX_LIMIT,
           cursor,
         }),
-      handleItem: (item) => this.processChat(account, item, index),
+      handleItem: (item) => this.processChat(account, item, index, loadGroupRosters),
     });
   }
 
-  private async processChat(account: ConnectedAccount, rawItem: unknown, index: AttendeeIndex): Promise<number> {
+  private async processChat(
+    account: ConnectedAccount,
+    rawItem: unknown,
+    index: AttendeeIndex,
+    loadGroupRosters: boolean,
+  ): Promise<number> {
     const parsed = UnipileChatSchema.safeParse(rawItem);
 
     if (!parsed.success || !parsed.data.id) {
@@ -126,9 +135,14 @@ export class BackfillChatsInteractor {
 
     const chat = parsed.data;
     const chatId = parsed.data.id;
-    const counterpart =
-      chat.type === "single" && chat.attendee_provider_id ? index.byKey.get(chat.attendee_provider_id) : undefined;
-    const participants = counterpart && counterpart.is_self !== true ? [mapUnipileChatAttendee(counterpart)] : [];
+
+    let participants: MessagingAttendee[];
+    if (chat.type === "group") participants = loadGroupRosters ? await this.loadGroupParticipants(account, chatId) : [];
+    else {
+      const counterpart =
+        chat.type === "single" && chat.attendee_provider_id ? index.byKey.get(chat.attendee_provider_id) : undefined;
+      participants = counterpart && counterpart.is_self !== true ? [mapUnipileChatAttendee(counterpart)] : [];
+    }
 
     try {
       await this.ingest.upsertChatThread({
@@ -225,6 +239,32 @@ export class BackfillChatsInteractor {
 
       return 1;
     }
+  }
+
+  private async loadGroupParticipants(account: ConnectedAccount, chatId: string): Promise<MessagingAttendee[]> {
+    const participants: MessagingAttendee[] = [];
+
+    await paginate({
+      budget: Number.POSITIVE_INFINITY,
+      fetchPage: (cursor) => this.messagingService.listChatAttendees({ chatId, limit: UNIPILE_MAX_LIMIT, cursor }),
+      handleItem: async (raw) => {
+        const parsed = UnipileChatAttendeeSchema.safeParse(raw);
+
+        if (!parsed.success) {
+          await this.repo.recordUnusableItemUnscoped({
+            companyId: account.companyId,
+            connectedAccountId: account.id,
+            payload: raw,
+          });
+          return 1;
+        }
+
+        if (parsed.data.is_self !== true) participants.push(mapUnipileChatAttendee(parsed.data));
+        return 1;
+      },
+    });
+
+    return participants;
   }
 
   private async loadAccountAttendees(account: ConnectedAccount): Promise<AttendeeIndex> {

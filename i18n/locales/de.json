@@ -380,6 +380,7 @@
       "noFilters": "Keine Filter angewendet",
       "openFilters": "Filter öffnen",
       "operators": {
+        "allSet": "vollständig verknüpft",
         "between": "zwischen",
         "contains": "enthält",
         "equals": "=",

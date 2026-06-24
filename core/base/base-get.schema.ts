@@ -52,6 +52,7 @@ export const FilterSchema = z.discriminatedUnion("operator", [
         z.literal(FilterOperatorKey.isNull).meta({ title: "isNull" }),
         z.literal(FilterOperatorKey.isNotNull).meta({ title: "isNotNull" }),
         z.literal(FilterOperatorKey.hasUnset).meta({ title: "hasUnset" }),
+        z.literal(FilterOperatorKey.allSet).meta({ title: "allSet" }),
       ]),
     })
     .meta({ title: "Standalone filter" }),

@@ -177,6 +177,15 @@ export class MessagingService {
     });
   }
 
+  async listChatAttendees(input: { chatId: string; limit?: number; cursor?: string }) {
+    return this.unipile.messaging.getAllAttendeesFromChat(input.chatId, {
+      extra_params: {
+        ...(input.limit ? { limit: String(input.limit) } : {}),
+        ...(input.cursor ? { cursor: input.cursor } : {}),
+      },
+    });
+  }
+
   async resyncLinkedinAccount(accountId: string, product: "classic" | "sales_navigator" | "recruiter"): Promise<void> {
     await this.unipile.account.resyncLinkedinAccount({
       account_id: accountId,

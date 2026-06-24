@@ -42,6 +42,7 @@ export enum FilterOperatorKey {
   hasNone = "hasNone",
   hasSome = "hasSome",
   hasUnset = "hasUnset",
+  allSet = "allSet",
   inLastDays = "inLastDays",
 }
 
@@ -401,6 +402,8 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
         throw new Error("hasSome should only be used for relation fields, not direct fields");
       case FilterOperatorKey.hasUnset:
         throw new Error("hasUnset should only be used for relation fields, not direct fields");
+      case FilterOperatorKey.allSet:
+        throw new Error("allSet should only be used for relation fields, not direct fields");
     }
   }
 
@@ -466,6 +469,14 @@ export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknow
               },
             }
           : { some: { [relationField]: null } };
+      case FilterOperatorKey.allSet:
+        return isCustom
+          ? {
+              none: {
+                AND: [{ columnId: filter.field }, { [relationField]: null }],
+              },
+            }
+          : { none: { [relationField]: null } };
       default: {
         const fieldCondition = this.buildScalarFilterCondition(filter);
 
@@ -564,7 +575,12 @@ export function defaultValidateFilters(args: {
 export function isStandaloneOperator(operator?: FilterOperatorKey) {
   if (!operator) return false;
 
-  return [FilterOperatorKey.isNull, FilterOperatorKey.isNotNull, FilterOperatorKey.hasUnset].includes(operator);
+  return [
+    FilterOperatorKey.isNull,
+    FilterOperatorKey.isNotNull,
+    FilterOperatorKey.hasUnset,
+    FilterOperatorKey.allSet,
+  ].includes(operator);
 }
 
 function isFilterValueWellFormed(filter: Filter, fieldOperators: FilterOperatorKey[]): boolean {

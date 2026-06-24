@@ -122,7 +122,7 @@ export const FILTER_FIELD_DESCRIPTION =
 
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
-  "Operators: equals, contains, gt, gte, lt, lte, in, notIn, between, isNull, isNotNull, hasNone, hasSome. " +
+  "Use only the operators listed in each field's hint; value-less operators take no value. " +
   `Filterable fields: ${filterableFields}.`;
 
 export const sortDescription = (sortableFields: string) =>
@@ -139,7 +139,7 @@ export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T
     for (const field of fields) {
       if (record[field] === null) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           path: [field],
           message:
             `Refusing to set '${field}' to null — that would wipe the relationship. ` +

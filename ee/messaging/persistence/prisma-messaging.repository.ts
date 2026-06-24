@@ -177,15 +177,20 @@ export class PrismaMessagingRepo
     const clauses: Prisma.MessagingThreadWhereInput[] = [];
 
     for (const filter of filters) {
-      if (filter.operator === FilterOperatorKey.hasUnset) {
+      if (filter.operator === FilterOperatorKey.hasUnset || filter.operator === FilterOperatorKey.allSet) {
         const linked = await this.listLinkedIdentifierGroups();
         const linkedClause: Prisma.MessagingThreadParticipantWhereInput =
           linked.length > 0 ? { NOT: { OR: linked } } : {};
-        clauses.push({
-          participants: {
-            some: { isSelf: false, identifier: { not: null }, ...linkedClause },
-          },
-        });
+        const unlinkedParticipant: Prisma.MessagingThreadParticipantWhereInput = {
+          isSelf: false,
+          identifier: { not: null },
+          ...linkedClause,
+        };
+        if (filter.operator === FilterOperatorKey.hasUnset)
+          clauses.push({ participants: { some: unlinkedParticipant } });
+        else if (linked.length === 0) clauses.push({ id: { in: [] } });
+        else clauses.push({ participants: { some: { isSelf: false, OR: linked }, none: unlinkedParticipant } });
+
         continue;
       }
 

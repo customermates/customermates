@@ -1256,6 +1256,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -2151,6 +2156,11 @@
                                     "title": "hasUnset",
                                     "type": "string",
                                     "const": "hasUnset"
+                                  },
+                                  {
+                                    "title": "allSet",
+                                    "type": "string",
+                                    "const": "allSet"
                                   }
                                 ]
                               }
@@ -2286,6 +2296,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -2444,6 +2455,11 @@
                                           "title": "hasUnset",
                                           "type": "string",
                                           "const": "hasUnset"
+                                        },
+                                        {
+                                          "title": "allSet",
+                                          "type": "string",
+                                          "const": "allSet"
                                         }
                                       ]
                                     }
@@ -3487,6 +3503,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -6189,6 +6206,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -7084,6 +7106,11 @@
                                     "title": "hasUnset",
                                     "type": "string",
                                     "const": "hasUnset"
+                                  },
+                                  {
+                                    "title": "allSet",
+                                    "type": "string",
+                                    "const": "allSet"
                                   }
                                 ]
                               }
@@ -7219,6 +7246,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -7377,6 +7405,11 @@
                                           "title": "hasUnset",
                                           "type": "string",
                                           "const": "hasUnset"
+                                        },
+                                        {
+                                          "title": "allSet",
+                                          "type": "string",
+                                          "const": "allSet"
                                         }
                                       ]
                                     }
@@ -8352,6 +8385,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -10977,6 +11011,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -11872,6 +11911,11 @@
                                     "title": "hasUnset",
                                     "type": "string",
                                     "const": "hasUnset"
+                                  },
+                                  {
+                                    "title": "allSet",
+                                    "type": "string",
+                                    "const": "allSet"
                                   }
                                 ]
                               }
@@ -12007,6 +12051,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -12165,6 +12210,11 @@
                                           "title": "hasUnset",
                                           "type": "string",
                                           "const": "hasUnset"
+                                        },
+                                        {
+                                          "title": "allSet",
+                                          "type": "string",
+                                          "const": "allSet"
                                         }
                                       ]
                                     }
@@ -13178,6 +13228,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -15694,6 +15745,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -16589,6 +16645,11 @@
                                     "title": "hasUnset",
                                     "type": "string",
                                     "const": "hasUnset"
+                                  },
+                                  {
+                                    "title": "allSet",
+                                    "type": "string",
+                                    "const": "allSet"
                                   }
                                 ]
                               }
@@ -16724,6 +16785,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -16882,6 +16944,11 @@
                                           "title": "hasUnset",
                                           "type": "string",
                                           "const": "hasUnset"
+                                        },
+                                        {
+                                          "title": "allSet",
+                                          "type": "string",
+                                          "const": "allSet"
                                         }
                                       ]
                                     }
@@ -17824,6 +17891,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -20336,6 +20404,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -21231,6 +21304,11 @@
                                     "title": "hasUnset",
                                     "type": "string",
                                     "const": "hasUnset"
+                                  },
+                                  {
+                                    "title": "allSet",
+                                    "type": "string",
+                                    "const": "allSet"
                                   }
                                 ]
                               }
@@ -21366,6 +21444,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -21524,6 +21603,11 @@
                                           "title": "hasUnset",
                                           "type": "string",
                                           "const": "hasUnset"
+                                        },
+                                        {
+                                          "title": "allSet",
+                                          "type": "string",
+                                          "const": "allSet"
                                         }
                                       ]
                                     }
@@ -22525,6 +22609,7 @@
                                 "hasNone",
                                 "hasSome",
                                 "hasUnset",
+                                "allSet",
                                 "inLastDays"
                               ]
                             }
@@ -24211,6 +24296,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -25012,6 +25102,11 @@
                                   "title": "hasUnset",
                                   "type": "string",
                                   "const": "hasUnset"
+                                },
+                                {
+                                  "title": "allSet",
+                                  "type": "string",
+                                  "const": "allSet"
                                 }
                               ]
                             }
@@ -34211,6 +34306,11 @@
                           "title": "hasUnset",
                           "type": "string",
                           "const": "hasUnset"
+                        },
+                        {
+                          "title": "allSet",
+                          "type": "string",
+                          "const": "allSet"
                         }
                       ]
                     }
