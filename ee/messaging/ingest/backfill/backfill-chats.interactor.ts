@@ -52,14 +52,7 @@ export class BackfillChatsInteractor {
       rosteredChats: new Set(),
     };
 
-    await this.refreshChatMetadata(account, index, !checkpoint.chat?.cursor);
-
-    if (index.selfAttendeeId) {
-      await this.repo.setAccountOwnAttendeeIdUnscoped({
-        unipileAccountId: account.unipileAccountId,
-        ownUnipileAttendeeId: index.selfAttendeeId,
-      });
-    }
+    await this.refreshChatMetadata(account);
 
     await paginate({
       startCursor: checkpoint.chat?.cursor ?? undefined,
@@ -79,13 +72,16 @@ export class BackfillChatsInteractor {
           epoch,
         }),
     });
+
+    if (index.selfAttendeeId) {
+      await this.repo.setAccountOwnAttendeeIdUnscoped({
+        unipileAccountId: account.unipileAccountId,
+        ownUnipileAttendeeId: index.selfAttendeeId,
+      });
+    }
   }
 
-  private async refreshChatMetadata(
-    account: ConnectedAccount,
-    index: AttendeeIndex,
-    loadRosters: boolean,
-  ): Promise<void> {
+  private async refreshChatMetadata(account: ConnectedAccount): Promise<void> {
     await paginate({
       fetchPage: (cursor) =>
         this.messagingService.listChats({
@@ -93,16 +89,11 @@ export class BackfillChatsInteractor {
           limit: UNIPILE_MAX_LIMIT,
           cursor,
         }),
-      handleItem: (item) => this.processChat(account, item, index, loadRosters),
+      handleItem: (item) => this.processChat(account, item),
     });
   }
 
-  private async processChat(
-    account: ConnectedAccount,
-    rawItem: unknown,
-    index: AttendeeIndex,
-    loadRosters: boolean,
-  ): Promise<number> {
+  private async processChat(account: ConnectedAccount, rawItem: unknown): Promise<number> {
     const parsed = UnipileChatSchema.safeParse(rawItem);
 
     if (!parsed.success || !parsed.data.id) {
@@ -118,8 +109,6 @@ export class BackfillChatsInteractor {
     const chat = parsed.data;
     const chatId = parsed.data.id;
 
-    const participants = loadRosters ? await this.loadChatParticipants(account, chatId, index) : [];
-
     try {
       await this.ingest.upsertChatThread({
         companyId: account.companyId,
@@ -129,7 +118,7 @@ export class BackfillChatsInteractor {
         type: chat.type ?? undefined,
         name: chat.name ?? null,
         subject: chat.subject ?? null,
-        participants,
+        participants: [],
       });
       return 1;
     } catch (err) {
@@ -171,8 +160,20 @@ export class BackfillChatsInteractor {
       return 1;
     }
 
-    if (!resolveChatSender(raw, index) && !index.rosteredChats.has(raw.chat_id))
-      await this.loadChatParticipants(account, raw.chat_id, index);
+    if (!resolveChatSender(raw, index) && !index.rosteredChats.has(raw.chat_id)) {
+      const participants = await this.loadChatParticipants(account, raw.chat_id, index);
+
+      if (participants.length) {
+        await this.ingest.upsertChatThread({
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          unipileThreadId: raw.chat_id,
+          provider: account.provider,
+          subject: null,
+          participants,
+        });
+      }
+    }
 
     const normalized = normalizeChatMessage(raw, index, account.provider);
     if (!normalized) return 1;
