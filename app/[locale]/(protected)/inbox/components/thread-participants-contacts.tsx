@@ -13,20 +13,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { contactFullName, displayableIdentifier, isAttendeeUnlinked } from "@/ee/messaging/thread-display";
-
-export function participantLabel(
-  participant: MessagingAttendee,
-  provider: MessagingProvider,
-  fallback: string,
-): string {
-  return (
-    contactFullName(participant.contact) ||
-    participant.displayName?.trim() ||
-    displayableIdentifier(provider, participant.identifier) ||
-    fallback
-  );
-}
+import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
 
 type ManagerProps = {
   participants: MessagingAttendee[];

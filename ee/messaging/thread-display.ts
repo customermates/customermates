@@ -1,4 +1,5 @@
 import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import type { MessagingAttendee } from "./messaging.schema";
 
 import { getProviderProfileUrl, isEmailProvider, isPhoneProvider } from "./provider";
 
@@ -103,4 +104,91 @@ export function displayableIdentifier(
   }
 
   return null;
+}
+
+export function participantLabel(
+  participant: MessagingAttendee,
+  provider: MessagingProvider,
+  fallback: string,
+): string {
+  return (
+    contactFullName(participant.contact) ||
+    participant.displayName?.trim() ||
+    displayableIdentifier(provider, participant.identifier) ||
+    fallback
+  );
+}
+
+export function threadCounterpart<T extends { isSelf?: boolean | null }>(participants: T[]): T | null {
+  return participants.find((p) => !p.isSelf) ?? participants[0] ?? null;
+}
+
+export function deriveThreadDisplay(
+  thread: {
+    type: MessagingThreadType;
+    name: string | null;
+    subject: string | null;
+    provider: MessagingProvider;
+    participants: MessagingAttendee[];
+  },
+  t: (key: string, values?: Record<string, string | number>) => string,
+): {
+  isGroup: boolean;
+  isSelfChat: boolean;
+  counterpart: MessagingAttendee | null;
+  displayName: string;
+  displayNameSecondary: string | null;
+  avatarUrl: string | undefined;
+  isUnlinked: boolean;
+} {
+  const isGroup = isGroupThread(thread);
+  const counterpart = threadCounterpart(thread.participants);
+  const isSelfChat = !isGroup && !counterpart;
+  const fallback = isSelfChat
+    ? t("Inbox.senderYou")
+    : thread.provider === "linkedin"
+      ? t("Inbox.linkedinContact")
+      : t("Inbox.senderUnknown");
+  const displayName = isGroup
+    ? groupThreadName(thread, t)
+    : counterpart
+      ? participantLabel(counterpart, thread.provider, fallback)
+      : fallback;
+  const hasName = Boolean(contactFullName(counterpart?.contact) || counterpart?.displayName?.trim());
+  const displayNameSecondary =
+    isGroup || !counterpart
+      ? null
+      : hasName
+        ? displayableIdentifier(thread.provider, counterpart.identifier)
+        : counterpart.occupation?.trim() || counterpart.headline?.trim() || null;
+  const avatarUrl = isGroup ? undefined : (counterpart?.contact?.avatarUrl ?? counterpart?.pictureUrl ?? undefined);
+  const isUnlinked = !isSelfChat && threadHasUnlinkedAttendee(thread.participants);
+
+  return { isGroup, isSelfChat, counterpart, displayName, displayNameSecondary, avatarUrl, isUnlinked };
+}
+
+export function deriveMessageSender(
+  message: { sender: MessagingAttendee; provider: MessagingProvider; direction: string },
+  accountOwner: { displayName: string; avatarUrl: string | null } | null,
+  senderAvatarUrl: string | null | undefined,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): {
+  resolvedName: string;
+  avatarUrl: string | undefined;
+  isUnlinked: boolean;
+  isOutbound: boolean;
+} {
+  const isOutbound = message.direction === "outbound";
+  const resolvedName =
+    messageSenderName(message) ||
+    (isOutbound ? accountOwner?.displayName : null) ||
+    (isOutbound ? t("Inbox.senderYou") : t("Inbox.senderUnknown"));
+  const avatarUrl =
+    message.sender.contact?.avatarUrl ??
+    senderAvatarUrl ??
+    message.sender.pictureUrl ??
+    (isOutbound ? (accountOwner?.avatarUrl ?? undefined) : undefined);
+  const isUnlinked = !isOutbound && isAttendeeUnlinked(message.sender);
+
+  return { resolvedName, avatarUrl: avatarUrl ?? undefined, isUnlinked, isOutbound };
 }

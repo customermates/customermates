@@ -16,7 +16,7 @@ import { env } from "@/env";
 
 import { signHostedAuthName } from "../webhook-signature";
 
-const MAX_OWNED_CHANNELS = 2;
+const MAX_OWNED_CHANNELS = 5;
 
 export abstract class CreateHostedAuthLinkRepo {
   abstract getSubscriptionStatus(): Promise<SubscriptionStatus>;

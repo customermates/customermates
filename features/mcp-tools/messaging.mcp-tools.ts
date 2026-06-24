@@ -47,42 +47,13 @@ const ListPaginationSchema = z.object({
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
 
-const ThreadIdSchema = z.object({ threadId: z.uuid().describe("Thread id (from get_messaging_threads)") });
+const ThreadIdSchema = z.object({
+  threadId: z.uuid().describe("Thread id (from get_messaging_threads)"),
+  page: mcpPage(),
+  pageSize: mcpPageSize(25, "Messages per page: 5, 10, 25, or 100 (default 25). Page 1 is the most recent messages."),
+});
 
-function projectThread(thread: any) {
-  return {
-    id: thread.id,
-    connectedAccountId: thread.connectedAccountId,
-    provider: thread.provider,
-    type: thread.type,
-    name: thread.name,
-    subject: thread.subject,
-    preview: thread.preview,
-    state: thread.state,
-    lastMessageAt: thread.lastMessageAt,
-    participants: thread.participants?.length ?? 0,
-    sharedToCrm: thread.sharedToCrm,
-    isOwner: thread.isOwner,
-  };
-}
-
-function projectMessage(message: any) {
-  return {
-    id: message.id,
-    direction: message.direction,
-    origin: message.origin,
-    sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
-    subject: message.subject,
-    bodyText: message.bodyText,
-    attachments: (message.attachmentsMeta ?? []).map((attachment: any) => ({
-      name: attachment.fileName ?? attachment.name,
-      type: attachment.type,
-      mime: attachment.mime,
-    })),
-    sentAt: message.sentAt,
-    editedAt: message.editedAt,
-  };
-}
+const LIST_PARTICIPANT_LIMIT = 50;
 
 export const listConnectedAccountsTool = {
   name: "list_connected_accounts",
@@ -103,8 +74,10 @@ export const getMessagingThreadsTool = {
   description:
     "List inbox message threads across connected accounts. " +
     "Optional: page, pageSize (max 100, default 25), searchTerm, filters, sortDescriptor. " +
-    "Returns id + name/subject/preview + state + lastMessageAt + participant count per thread (not message bodies). " +
-    "Use get_messaging_thread for the full conversation.",
+    "Returns per thread: id, name/subject/preview, state, lastMessageAt, participantCount, and a participants list " +
+    "(displayName, identifier, channel provider, isSelf, isLinked, and the linked CRM contact {id,name} when linked) — capped at 50 per thread. " +
+    "A participant with isLinked=false is someone in the conversation who is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people. " +
+    "Message bodies are omitted here — use get_messaging_thread for the conversation.",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ListPaginationSchema,
   execute: ({ page, pageSize, searchTerm, filters, sortDescriptor }: z.infer<typeof ListPaginationSchema>) =>
@@ -115,7 +88,30 @@ export const getMessagingThreadsTool = {
       (data) =>
         encodeToToon(
           formatDatesInResponse({
-            items: data.items.map(projectThread),
+            items: data.items.map((thread) => ({
+              id: thread.id,
+              connectedAccountId: thread.connectedAccountId,
+              provider: thread.provider,
+              type: thread.type,
+              name: thread.name,
+              subject: thread.subject,
+              preview: thread.preview,
+              state: thread.state,
+              lastMessageAt: thread.lastMessageAt,
+              participantCount: thread.participants.length,
+              participants: thread.participants.slice(0, LIST_PARTICIPANT_LIMIT).map((p) => ({
+                displayName: p.displayName,
+                identifier: p.identifier,
+                provider: thread.provider,
+                isSelf: p.isSelf ?? false,
+                isLinked: p.contact != null,
+                contact: p.contact
+                  ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
+                  : null,
+              })),
+              sharedToCrm: thread.sharedToCrm,
+              isOwner: thread.isOwner,
+            })),
             total: data.pagination?.total ?? data.items.length,
             page,
           }),
@@ -126,17 +122,56 @@ export const getMessagingThreadsTool = {
 export const getMessagingThreadTool = {
   name: "get_messaging_thread",
   description:
-    "Fetch one message thread with its full message list. " +
-    "Required: threadId (from get_messaging_threads). " +
-    "Returns the thread plus each message's direction, sender, subject, text body, and attachment metadata (HTML bodies and raw attachment urls are omitted).",
+    "Fetch one message thread: its full participant list plus a page of messages. " +
+    "Required: threadId (from get_messaging_threads). Optional: page, pageSize (5/10/25/100, default 25). " +
+    "Page 1 returns the most recent messages (chronological within the page); higher pages fetch older messages. " +
+    "Returns the thread (with the full participants array — displayName, identifier, channel, isSelf, isLinked, linked CRM contact), the messages (direction, sender, subject, text body, attachment metadata; HTML bodies and raw attachment urls omitted), and total (message count in the thread).",
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ThreadIdSchema,
   execute: (params: z.infer<typeof ThreadIdSchema>) =>
     runInteractor(getGetMessagingThreadInteractor().invoke(params), (data) =>
       encodeToToon(
         formatDatesInResponse({
-          thread: projectThread(data.thread),
-          messages: data.messages.map(projectMessage),
+          thread: {
+            id: data.thread.id,
+            connectedAccountId: data.thread.connectedAccountId,
+            provider: data.thread.provider,
+            type: data.thread.type,
+            name: data.thread.name,
+            subject: data.thread.subject,
+            preview: data.thread.preview,
+            state: data.thread.state,
+            lastMessageAt: data.thread.lastMessageAt,
+            participantCount: data.thread.participants.length,
+            participants: data.thread.participants.map((p) => ({
+              displayName: p.displayName,
+              identifier: p.identifier,
+              provider: data.thread.provider,
+              isSelf: p.isSelf ?? false,
+              isLinked: p.contact != null,
+              contact: p.contact
+                ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
+                : null,
+            })),
+            sharedToCrm: data.thread.sharedToCrm,
+            isOwner: data.thread.isOwner,
+          },
+          messages: data.messages.map((message) => ({
+            id: message.id,
+            direction: message.direction,
+            sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
+            subject: message.subject,
+            bodyText: message.bodyText,
+            attachments: message.attachmentsMeta.map((attachment) => ({
+              name: attachment.fileName ?? attachment.name,
+              type: attachment.type,
+              mime: attachment.mime,
+            })),
+            sentAt: message.sentAt,
+            editedAt: message.editedAt,
+          })),
+          total: data.total,
+          page: params.page,
         }),
       ),
     ),

@@ -20,19 +20,27 @@ const AccountOwnerDtoSchema = z.object({
 });
 export type AccountOwnerDto = z.infer<typeof AccountOwnerDtoSchema>;
 
-const Schema = z.object({ threadId: z.uuid() });
+const Schema = z.object({
+  threadId: z.uuid(),
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(100).optional(),
+});
 type GetMessagingThreadData = Data<typeof Schema>;
 
 export const GetMessagingThreadResultSchema = z.object({
   thread: MessagingThreadSchema,
   messages: z.array(MessagingMessageDtoSchema),
+  total: z.number().int(),
   accountOwners: z.record(z.string(), AccountOwnerDtoSchema),
 });
 type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
 
 export abstract class GetMessagingThreadRepo {
   abstract findThreadByIdOrThrow(id: string): Promise<MessagingThread>;
-  abstract listMessagesForThread(threadId: string): Promise<MessagingMessage[]>;
+  abstract listMessagesForThread(
+    threadId: string,
+    opts?: { page?: number; pageSize?: number },
+  ): Promise<{ messages: MessagingMessage[]; total: number }>;
 }
 
 export abstract class ThreadAccountOwnersRepo {
@@ -63,7 +71,10 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
   async invoke(data: GetMessagingThreadData): Validated<GetMessagingThreadResult> {
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 
-    const rawMessages = await this.repo.listMessagesForThread(thread.id);
+    const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
+      page: data.page,
+      pageSize: data.pageSize,
+    });
     const messages = rawMessages.map((message) => ({
       ...message,
       attachmentsMeta: message.attachmentsMeta.map((attachment) => ({
@@ -73,6 +84,6 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     }));
     const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
 
-    return { ok: true as const, data: { thread, messages, accountOwners } };
+    return { ok: true as const, data: { thread, messages, total, accountOwners } };
   }
 }

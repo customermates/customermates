@@ -9,12 +9,7 @@ import { useState } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { isEmailProvider } from "@/ee/messaging/provider";
-import {
-  displayableIdentifier,
-  isAttendeeUnlinked,
-  isUnipileUnsupportedBody,
-  messageSenderName,
-} from "@/ee/messaging/thread-display";
+import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -55,16 +50,9 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
     );
   }
 
-  const senderName = messageSenderName(message);
-  const resolvedName =
-    senderName ||
-    (isOutbound ? accountOwner?.displayName : null) ||
-    (isOutbound ? t("Inbox.senderYou") : t("Inbox.senderUnknown"));
-  const pictureUrl =
-    message.sender.contact?.avatarUrl ??
-    senderAvatarUrl ??
-    message.sender.pictureUrl ??
-    (isOutbound ? (accountOwner?.avatarUrl ?? undefined) : undefined);
+  const sender = deriveMessageSender(message, accountOwner, senderAvatarUrl, t);
+  const resolvedName = sender.resolvedName;
+  const pictureUrl = sender.avatarUrl;
 
   const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
   const inlineHtml = !isEmail && !isDeleted ? message.bodyHtml : null;
@@ -92,12 +80,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
 
   return (
     <div className={cn("flex gap-2 px-4 py-2", isOutbound ? "flex-row-reverse" : "flex-row")}>
-      <Avatar
-        name={resolvedName}
-        src={pictureUrl}
-        title={avatarTooltip}
-        unlinked={!isOutbound && isAttendeeUnlinked(message.sender)}
-      />
+      <Avatar name={resolvedName} src={pictureUrl} title={avatarTooltip} unlinked={sender.isUnlinked} />
 
       <div
         className={cn(

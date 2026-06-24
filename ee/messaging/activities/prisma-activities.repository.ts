@@ -12,7 +12,7 @@ import { extractAuditChanges } from "@/ee/audit-log/audit-log-changes";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { contactFullName, formatChannelIdentifier } from "../thread-display";
+import { contactFullName, formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import { EMAIL_PROVIDERS } from "../provider";
 import { threadAccessWhere, calendarEventAccessWhere, accountActivityAccessWhere } from "../messaging-access";
 
@@ -472,7 +472,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   }
 
   private threadLabel(thread: ThreadLabelInput): string {
-    const counterpart = thread.participants.find((p) => !p.isSelf) ?? thread.participants[0];
+    const counterpart = threadCounterpart(thread.participants);
     const counterpartName =
       contactFullName(counterpart?.contact) ||
       counterpart?.displayName?.trim() ||

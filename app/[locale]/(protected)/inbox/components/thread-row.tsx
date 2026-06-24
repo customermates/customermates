@@ -8,13 +8,7 @@ import { useTranslations } from "next-intl";
 import { EyeOff } from "lucide-react";
 
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import {
-  groupThreadName,
-  isGroupThread,
-  isUnipileUnsupportedBody,
-  threadHasUnlinkedAttendee,
-} from "@/ee/messaging/thread-display";
-import { participantLabel } from "./thread-participants-contacts";
+import { deriveThreadDisplay, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { THREAD_STATE_DOT } from "./thread-state-visuals";
 import { Avatar } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -33,26 +27,18 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
   const t = useTranslations();
   const { intlStore } = useRootStore();
   const isUnread = thread.state === "unread";
-  const isGroup = isGroupThread(thread);
   const showStateBadge = ROW_BADGE_STATES.includes(thread.state);
 
-  const counterpart = thread.participants.find((p) => !p.isSelf) ?? thread.participants[0];
+  const view = deriveThreadDisplay(thread, t);
+  const isGroup = view.isGroup;
+  const displaySender = view.displayName;
+  const isUnlinked = view.isUnlinked;
+  const pictureUrl = view.avatarUrl;
 
   const rawPreview = thread.subject?.trim() || thread.preview?.trim() || null;
   const isUnsupported = isUnipileUnsupportedBody(rawPreview);
   const previewText = rawPreview && !isUnsupported ? rawPreview : null;
   const placeholder = isUnsupported ? t("Inbox.attachmentUnsupported") : t("Inbox.noPreview");
-  const groupName = isGroup ? groupThreadName(thread, t) : null;
-  const isSelfChat = !isGroup && !counterpart;
-  const isUnlinked = !isSelfChat && threadHasUnlinkedAttendee(thread.participants);
-  const fallbackName = isSelfChat
-    ? t("Inbox.senderYou")
-    : thread.provider === "linkedin"
-      ? t("Inbox.linkedinContact")
-      : t("Inbox.senderUnknown");
-  const displaySender =
-    groupName || (counterpart ? participantLabel(counterpart, thread.provider, fallbackName) : fallbackName);
-  const pictureUrl = isGroup ? undefined : (counterpart?.contact?.avatarUrl ?? counterpart?.pictureUrl ?? undefined);
 
   const relativeTime = thread.lastMessageAt ? intlStore.formatRelativeTime(thread.lastMessageAt) : null;
   const ProviderIcon = getProviderIcon(thread.provider);

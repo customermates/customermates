@@ -553,7 +553,7 @@ export class PrismaMessagingRepo
     };
   }
 
-  async listMessagesForThread(threadId: string) {
+  async listMessagesForThread(threadId: string, opts?: { page?: number; pageSize?: number }) {
     const accessibleThread = await this.prisma.messagingThread.findFirst({
       where: {
         id: threadId,
@@ -562,17 +562,32 @@ export class PrismaMessagingRepo
       select: { id: true, provider: true },
     });
 
-    if (!accessibleThread) return [];
+    if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
+    const where = { messagingThreadId: threadId, companyId: this.companyId };
+    const pageSize = opts?.pageSize;
+
+    if (pageSize === undefined) {
+      const rows = await this.prisma.messagingMessage.findMany({ where, orderBy: { sentAt: "asc" } });
+      const messages = this.redactBcc(rows) as unknown as MessagingMessage[];
+      await this.hydrateMessageSenderContacts(messages, accessibleThread.provider);
+
+      return { messages, total: messages.length };
+    }
+
+    const page = opts?.page ?? 1;
+    const total = await this.prisma.messagingMessage.count({ where });
     const rows = await this.prisma.messagingMessage.findMany({
-      where: { messagingThreadId: threadId, companyId: this.companyId },
-      orderBy: { sentAt: "asc" },
+      where,
+      orderBy: [{ sentAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
 
-    const messages = this.redactBcc(rows) as unknown as MessagingMessage[];
+    const messages = (this.redactBcc(rows) as unknown as MessagingMessage[]).reverse();
     await this.hydrateMessageSenderContacts(messages, accessibleThread.provider);
 
-    return messages;
+    return { messages, total };
   }
 
   private async hydrateMessageSenderContacts(messages: MessagingMessage[], provider: MessagingProvider) {

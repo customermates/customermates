@@ -22,7 +22,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/lib/utils";
 
-import { ThreadPeopleManager, participantLabel } from "./thread-participants-contacts";
+import { ThreadPeopleManager } from "./thread-participants-contacts";
+import { participantLabel } from "@/ee/messaging/thread-display";
 
 type Props = {
   threadId: string;

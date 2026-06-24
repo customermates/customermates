@@ -35462,6 +35462,11 @@
               "additionalProperties": false
             }
           },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
           "accountOwners": {
             "type": "object",
             "propertyNames": {
@@ -35495,6 +35500,7 @@
         "required": [
           "thread",
           "messages",
+          "total",
           "accountOwners"
         ],
         "additionalProperties": false
