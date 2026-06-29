@@ -25,6 +25,8 @@ import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
+import { AgentChatLauncher } from "@/features/agent-chat/components/agent-chat-launcher";
+import { AgentChatDrawer } from "@/features/agent-chat/components/agent-chat-drawer";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -90,6 +92,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <WebhookDeliveryModal />
 
       <WebhookModal />
+
+      <AgentChatLauncher />
+
+      <AgentChatDrawer />
     </>
   );
 }

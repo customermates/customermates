@@ -39,6 +39,16 @@ import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
+import { PrismaAgentChatRepo } from "@/features/agent-chat/prisma-agent-chat.repository";
+import { PrismaAgentSkillRepo } from "@/features/agent-chat/prisma-agent-skill.repository";
+// Agent chat interactors
+import { ListEnabledAgentSkillsInteractor } from "@/features/agent-chat/list-enabled-agent-skills.interactor";
+import { GetAgentSkillByNameInteractor } from "@/features/agent-chat/get-agent-skill-by-name.interactor";
+import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
+import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
+import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
+import { RenameAgentConversationInteractor } from "@/features/agent-chat/rename-agent-conversation.interactor";
+import { SetPreAuthorizedToolsInteractor } from "@/features/agent-chat/set-pre-authorized-tools.interactor";
 // Services
 import { EmailService } from "@/features/email/email.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -1147,3 +1157,17 @@ export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
 // --- Webhook delivery (workflow task) ---
 
 export const getDeliverWebhookInteractor = () => new DeliverWebhookInteractor(getWebhookDeliveryRepo());
+
+// --- Agent chat ---
+
+export const getAgentChatRepo = () => new PrismaAgentChatRepo();
+export const getAgentSkillRepo = () => new PrismaAgentSkillRepo();
+
+export const getListEnabledAgentSkillsInteractor = () => new ListEnabledAgentSkillsInteractor(getAgentSkillRepo());
+export const getGetAgentSkillByNameInteractor = () => new GetAgentSkillByNameInteractor(getAgentSkillRepo());
+
+export const getListAgentConversationsInteractor = () => new ListAgentConversationsInteractor(getAgentChatRepo());
+export const getGetAgentConversationInteractor = () => new GetAgentConversationInteractor(getAgentChatRepo());
+export const getDeleteAgentConversationInteractor = () => new DeleteAgentConversationInteractor(getAgentChatRepo());
+export const getRenameAgentConversationInteractor = () => new RenameAgentConversationInteractor(getAgentChatRepo());
+export const getSetPreAuthorizedToolsInteractor = () => new SetPreAuthorizedToolsInteractor(getAgentChatRepo());

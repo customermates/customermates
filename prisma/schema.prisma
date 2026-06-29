@@ -121,6 +121,7 @@ model User {
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
+  preAuthorizedAgentTools         Json?
   createdAt                       DateTime           @default(now())
   updatedAt                       DateTime           @updatedAt
   company                         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -134,6 +135,7 @@ model User {
   widgets                         Widget[]
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
+  agentConversations              AgentConversation[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -193,6 +195,9 @@ model Company {
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
   subscription                Subscription?
+  agentConversations          AgentConversation[]
+  agentMessages               AgentMessage[]
+  agentSkills                 AgentSkill[]
 }
 
 model P13n {
@@ -1355,4 +1360,58 @@ enum UnipileWebhookSource {
   mail
   calendar
   users
+}
+
+enum AgentConversationVisibility {
+  private
+  shared
+}
+
+model AgentConversation {
+  id         String                      @id @default(uuid())
+  companyId  String
+  userId     String
+  title      String
+  visibility AgentConversationVisibility @default(private)
+  createdAt  DateTime                    @default(now())
+  updatedAt  DateTime                    @updatedAt
+  company    Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user       User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages   AgentMessage[]
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([companyId, userId, updatedAt(sort: Desc)])
+}
+
+model AgentMessage {
+  id             String            @id
+  companyId      String
+  conversationId String
+  role           String
+  parts          Json
+  createdAt      DateTime          @default(now())
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([conversationId, createdAt])
+}
+
+model AgentSkill {
+  id           String   @id @default(uuid())
+  companyId    String
+  name         String
+  title        String
+  summary      String
+  instructions String
+  enabled      Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@index([companyId, enabled])
 }

@@ -1,0 +1,18 @@
+import type { ExtendedUser } from "@/features/user/user.types";
+
+/**
+ * The per-user "skip the confirmation card for these tools" setting is stored as
+ * a `{ toolNames: string[] }` JSON blob on the User row. Parse defensively — the
+ * column is untyped JSON and may be null or legacy-shaped.
+ */
+export function parsePreAuthorizedToolNames(value: unknown): string[] {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const list = (value as { toolNames?: unknown }).toolNames;
+    if (Array.isArray(list)) return list.filter((name): name is string => typeof name === "string");
+  }
+  return [];
+}
+
+export function getPreAuthorizedToolNames(user: Pick<ExtendedUser, "preAuthorizedAgentTools">): string[] {
+  return parsePreAuthorizedToolNames(user.preAuthorizedAgentTools);
+}

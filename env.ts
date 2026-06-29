@@ -39,4 +39,12 @@ export const env = {
   UNIPILE_DSN: process.env.UNIPILE_DSN,
   UNIPILE_API_KEY: process.env.UNIPILE_API_KEY,
   UNIPILE_WEBHOOK_SECRET: process.env.UNIPILE_WEBHOOK_SECRET,
+
+  // Agent chat — the model provider is selected from whichever key is set
+  // (Anthropic is preferred when both are present). Model ids are overridable.
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL,
+  ANTHROPIC_BASE_URL: process.env.ANTHROPIC_BASE_URL,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  OPENAI_MODEL: process.env.OPENAI_MODEL,
 };

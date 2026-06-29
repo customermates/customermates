@@ -1,4 +1,29 @@
 {
+  "AgentChat": {
+    "approval": {
+      "alwaysAllow": "Always allow",
+      "approve": "Approve",
+      "reject": "Reject",
+      "title": "Allow the assistant to run “{tool}”?"
+    },
+    "delete": "Delete",
+    "empty": "Ask me about your contacts, deals, tasks, or inbox — I can search, summarize, and make changes for you.",
+    "error": "Something went wrong with the assistant. Please try again.",
+    "history": "Conversations",
+    "inputPlaceholder": "Message the assistant…",
+    "launcher": "Open assistant",
+    "newChat": "New chat",
+    "noConversations": "No conversations yet",
+    "send": "Send",
+    "thinking": "Thinking…",
+    "title": "Assistant",
+    "tool": {
+      "denied": "Skipped {tool}",
+      "failed": "{tool} failed",
+      "ran": "Ran {tool}",
+      "running": "Running {tool}…"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open source"
   },

@@ -3,6 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Streamdown ships its element styles as Tailwind utility classes — scan its whole dist so they're all generated (used by the agent chat markdown renderer). */
+@source "../node_modules/streamdown/dist/*.js";
+
 @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-openapi/css/preset.css';

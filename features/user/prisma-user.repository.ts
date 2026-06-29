@@ -109,6 +109,7 @@ export class PrismaUserRepo
       agreeToTerms: true,
       lastActiveAt: true,
       onboardingWizardCompletedAt: true,
+      preAuthorizedAgentTools: true,
       createdAt: true,
       updatedAt: true,
       role: {

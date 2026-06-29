@@ -1,4 +1,29 @@
 {
+  "AgentChat": {
+    "approval": {
+      "alwaysAllow": "Immer erlauben",
+      "approve": "Erlauben",
+      "reject": "Ablehnen",
+      "title": "Darf der Assistent „{tool}“ ausführen?"
+    },
+    "delete": "Löschen",
+    "empty": "Frag mich zu deinen Kontakten, Deals, Aufgaben oder deinem Postfach – ich kann suchen, zusammenfassen und Änderungen für dich vornehmen.",
+    "error": "Mit dem Assistenten ist etwas schiefgelaufen. Bitte versuche es erneut.",
+    "history": "Unterhaltungen",
+    "inputPlaceholder": "Nachricht an den Assistenten…",
+    "launcher": "Assistent öffnen",
+    "newChat": "Neuer Chat",
+    "noConversations": "Noch keine Unterhaltungen",
+    "send": "Senden",
+    "thinking": "Denkt nach…",
+    "title": "Assistent",
+    "tool": {
+      "denied": "{tool} übersprungen",
+      "failed": "{tool} fehlgeschlagen",
+      "ran": "{tool} ausgeführt",
+      "running": "Führe {tool} aus…"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open Source"
   },
