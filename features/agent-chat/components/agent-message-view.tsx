@@ -2,8 +2,9 @@
 
 import type { UIMessage } from "ai";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Loader2, Wrench, X } from "lucide-react";
+import { Check, FileText, Loader2, Wrench, X } from "lucide-react";
 import { Streamdown } from "streamdown";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ type RunCodeReportLike = {
   files?: Array<{ name: string; url: string }>;
   durationMs?: number;
   truncated?: boolean;
+  runId?: string;
 };
 
 function RunCodeOutput({ raw, t }: { raw: unknown; t: ReturnType<typeof useTranslations> }) {
@@ -58,6 +60,17 @@ function RunCodeOutput({ raw, t }: { raw: unknown; t: ReturnType<typeof useTrans
         <Check className="size-3" />
 
         <span>{t("AgentChat.tool.ran", { tool: "run_code" })}</span>
+      </div>
+    );
+  }
+
+  // A background run_code returns { status: "running", runId } immediately.
+  if (report.status === "running") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Loader2 className="size-3 animate-spin" />
+
+        <span>{t("AgentChat.tool.runningBackground")}</span>
       </div>
     );
   }
@@ -167,7 +180,9 @@ function ToolPart({
     );
   }
 
-  if (toolName === "run_code" && part.state === "output-available") return <RunCodeOutput raw={part.output} t={t} />;
+  // check_run returns the same report shape as run_code (and "running" while pending).
+  if ((toolName === "run_code" || toolName === "check_run") && part.state === "output-available")
+    return <RunCodeOutput raw={part.output} t={t} />;
 
   const { icon, text } = (() => {
     switch (part.state) {
@@ -195,6 +210,51 @@ function ToolPart({
 
       <span>{text}</span>
     </div>
+  );
+}
+
+// Renders an attached file part: an inline preview for images, a download chip
+// otherwise. Uploads are ephemeral (24h TTL / in-memory), so a once-valid image can
+// 404 on a reloaded transcript — onError degrades to the chip instead of a broken icon.
+function FilePart({ url, mediaType, filename }: { url: string; mediaType?: string; filename?: string }) {
+  const [broken, setBroken] = useState(false);
+  const name = filename ?? "file";
+
+  if (mediaType?.startsWith("image/") && !broken) {
+    return (
+      <a className="max-w-[85%]" href={url} rel="noopener noreferrer" target="_blank">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt={name}
+          className="max-h-48 rounded-lg border border-border object-contain"
+          src={url}
+          onError={() => setBroken(true)}
+        />
+      </a>
+    );
+  }
+
+  if (broken) {
+    return (
+      <span className="flex max-w-[85%] items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+        <FileText className="size-4 shrink-0" />
+
+        <span className="truncate">{name}</span>
+      </span>
+    );
+  }
+
+  return (
+    <a
+      className="flex max-w-[85%] items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm"
+      href={url}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <FileText className="size-4 shrink-0" />
+
+      <span className="truncate">{name}</span>
+    </a>
   );
 }
 
@@ -235,6 +295,12 @@ export function AgentMessageView({ message, handlers }: { message: UIMessage; ha
 
         if (isToolPart(part.type))
           return <ToolPart key={index} handlers={handlers} part={part as unknown as ToolUIPartLike} t={t} />;
+
+        if (part.type === "file") {
+          const file = part as { url?: string; mediaType?: string; filename?: string };
+          if (!file.url) return null;
+          return <FilePart key={index} filename={file.filename} mediaType={file.mediaType} url={file.url} />;
+        }
 
         return null;
       })}

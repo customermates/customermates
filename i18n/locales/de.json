@@ -16,19 +16,29 @@
     "newChat": "Neuer Chat",
     "noConversations": "Noch keine Unterhaltungen",
     "send": "Senden",
+    "stop": "Stoppen",
     "thinking": "Denkt nach…",
     "title": "Assistent",
     "tool": {
       "denied": "{tool} übersprungen",
       "failed": "{tool} fehlgeschlagen",
       "ran": "{tool} ausgeführt",
-      "running": "Führe {tool} aus…"
+      "running": "Führe {tool} aus…",
+      "runningBackground": "Läuft im Hintergrund…"
     },
     "tour": {
       "done": "Fertig",
       "gotIt": "Verstanden",
       "next": "Weiter",
       "prev": "Zurück"
+    },
+    "upload": {
+      "attach": "Dateien anhängen",
+      "dropHint": "Dateien zum Anhängen ablegen",
+      "failed": "Upload fehlgeschlagen",
+      "remove": "Entfernen",
+      "tooLarge": "{name} ist zu groß (max. 25 MB)",
+      "tooMany": "Du kannst bis zu {max} Dateien anhängen"
     }
   },
   "AgplGithubBadge": {

@@ -30,6 +30,18 @@ export type RunCodeRequest = {
   timeoutMs?: number;
 };
 
+/**
+ * A file the USER uploaded, pushed INTO the run's workspace before the code runs.
+ * The runner decodes the bytes and writes `<workspace>/<name>` so user code can
+ * open it by name. Mirror of SandboxFile's transport, but inbound.
+ */
+export type SandboxInputFile = {
+  /** Basename written into the workspace (sanitized; no path separators). */
+  name: string;
+  /** File bytes, base64. Resolved server-side from the upload store, never the model. */
+  dataBase64: string;
+};
+
 /** A file/artifact the code produced (e.g. a chart), stored out-of-band as a URL. */
 export type SandboxFile = {
   name: string;
@@ -72,4 +84,10 @@ export type ExecutorRunInput = {
   brokerUrl: string;
   /** Short-lived, tenant-bound token the sandbox presents to the broker. Empty in NET mode. */
   runToken: string;
+  /**
+   * User-uploaded files to seed into the workspace before the code runs (decoded +
+   * written as `<workspace>/<name>`). Independent of egress mode — they are pushed
+   * in, not fetched, so they need no run token and work in both DATA and NET runs.
+   */
+  inputFiles?: SandboxInputFile[];
 };

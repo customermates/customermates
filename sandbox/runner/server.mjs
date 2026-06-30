@@ -37,9 +37,15 @@ function killGroup(child) {
   }
 }
 
+const MAX_BODY_BYTES = 40_000_000; // defense-in-depth cap (input files inflate the body)
 async function readBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let total = 0;
+  for await (const chunk of req) {
+    total += chunk.length;
+    if (total > MAX_BODY_BYTES) throw new Error("request body too large");
+    chunks.push(chunk);
+  }
   return Buffer.concat(chunks).toString("utf8");
 }
 
@@ -58,9 +64,50 @@ function mimeFor(name) {
   return MIME[name.split(".").pop()?.toLowerCase() ?? ""] ?? "application/octet-stream";
 }
 
+// Strip any path components and reject traversal so a caller-supplied input name
+// can't escape the workspace. Returns a safe basename or null.
+function safeInputName(name) {
+  const base = String(name ?? "").split(/[\\/]/).pop() ?? "";
+  if (!base || base === "." || base === "..") return null;
+  // Reject control chars (incl. NUL) — a NUL makes writeFile throw and aborts the run.
+  for (let i = 0; i < base.length; i++) if (base.charCodeAt(i) < 0x20) return null;
+  return base;
+}
+
+// Write user-uploaded input files into the workspace BEFORE the code runs, so the
+// program can open() them by name. Returns the set of names actually written (to
+// exclude from output-artifact collection). Bounded the same way as outputs.
+async function writeInputFiles(dir, inputFiles, userFile) {
+  const written = new Set();
+  let total = 0;
+  for (const f of inputFiles ?? []) {
+    if (written.size >= ART_MAX_FILES) break;
+    const name = safeInputName(f?.name);
+    if (!name || name === userFile || written.has(name)) continue;
+    let buf;
+    try {
+      buf = Buffer.from(String(f?.dataBase64 ?? ""), "base64");
+    } catch {
+      continue;
+    }
+    total += buf.length;
+    if (buf.length === 0 || total > 30_000_000) continue; // ~30MB total guard
+    // Guard the write: one bad input (e.g. an un-writable name) must not abort an
+    // otherwise-valid run.
+    try {
+      await writeFile(path.join(dir, name), buf);
+      written.add(name);
+    } catch {
+      continue;
+    }
+  }
+  return written;
+}
+
 // Collect files the program wrote to its workspace (everything except the source
-// file) and return them base64 so the app can store + serve them to chat.
-async function collectArtifacts(dir, userFile) {
+// file and any seeded input files) and return them base64 so the app can store +
+// serve them to chat.
+async function collectArtifacts(dir, userFile, inputNames = new Set()) {
   let entries;
   try {
     entries = await readdir(dir);
@@ -69,7 +116,7 @@ async function collectArtifacts(dir, userFile) {
   }
   const files = [];
   for (const name of entries) {
-    if (name === userFile || files.length >= ART_MAX_FILES) continue;
+    if (name === userFile || inputNames.has(name) || files.length >= ART_MAX_FILES) continue;
     try {
       const s = await stat(path.join(dir, name));
       if (!s.isFile() || s.size === 0 || s.size > ART_MAX_BYTES) continue;
@@ -89,6 +136,8 @@ async function runOnce(input) {
   const work = await mkdtemp(path.join(tmpdir(), "run-"));
   try {
     await writeFile(path.join(work, rt.userFile), String(input.code ?? ""), "utf8");
+    // Seed user-uploaded inputs into the workspace before the program runs.
+    const inputNames = await writeInputFiles(work, input.inputFiles, rt.userFile);
 
     const memKb = Math.max(64, Math.floor(Number(input.memoryMb ?? 256))) * 1024;
     const wallMs = Math.min(Math.max(Number(input.timeoutMs ?? 20_000), 1_000), 60_000);
@@ -142,7 +191,7 @@ async function runOnce(input) {
     const exitCode = await new Promise((resolve) => child.on("close", resolve));
     clearTimeout(timer);
     const durationMs = Date.now() - started;
-    const files = await collectArtifacts(work, rt.userFile);
+    const files = await collectArtifacts(work, rt.userFile, inputNames);
 
     // The harness prints a sentinel line carrying {status, result, error}; text
     // before it is the program's stdout.

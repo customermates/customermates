@@ -50,7 +50,7 @@ import {
   sendChatMessageTool,
   startChatTool,
 } from "@/features/mcp-tools/messaging.mcp-tools";
-import { runCodeTool } from "@/features/mcp-tools/code-exec.mcp-tools";
+import { runCodeTool, checkRunTool } from "@/features/mcp-tools/code-exec.mcp-tools";
 
 /**
  * The single source of truth for the MCP tool surface. Consumed both by the
@@ -120,4 +120,5 @@ export const ALL_MCP_TOOLS: McpTool[] = [
   deleteCustomColumnTool,
 
   runCodeTool,
+  checkRunTool,
 ];

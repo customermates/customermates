@@ -14,11 +14,12 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Loader2, MessageSquare, Plus, Send, Trash2 } from "lucide-react";
+import { FileText, Loader2, MessageSquare, Paperclip, Plus, Send, Square, Trash2, X } from "lucide-react";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { AgentMessageView } from "./agent-message-view";
@@ -26,6 +27,22 @@ import { runUiToolClient } from "./run-ui-tool";
 import { isUiTool } from "../ui-tools";
 
 type ConversationSummary = { id: string; title: string; updatedAt: string };
+
+// A file the user attached, tracked from selection through upload to send. A file
+// is only sendable once its upload resolves to a url (status "ready").
+type StagedFile = {
+  localId: string;
+  name: string;
+  mime: string;
+  sizeBytes: number;
+  status: "uploading" | "ready" | "error";
+  url?: string;
+  id?: string;
+  controller?: AbortController;
+};
+
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // keep in sync with upload-store.MAX_UPLOAD_BYTES
+const MAX_ATTACHMENTS = 5;
 
 export const AgentChatDrawer = observer(() => {
   const t = useTranslations();
@@ -45,7 +62,7 @@ export const AgentChatDrawer = observer(() => {
   );
 
   const [transport] = useState(() => new DefaultChatTransport<UIMessage>({ api: "/api/agent" }));
-  const { messages, sendMessage, status, setMessages, addToolApprovalResponse, addToolResult, error } = useChat({
+  const { messages, sendMessage, status, stop, setMessages, addToolApprovalResponse, addToolResult, error } = useChat({
     transport,
     // Resubmit when a client tool's result is ready OR when the user has
     // approved/rejected a gated tool — the latter is what lets an approved
@@ -77,6 +94,22 @@ export const AgentChatDrawer = observer(() => {
   }) => void;
 
   const [input, setInput] = useState("");
+  const [files, setFiles] = useState<StagedFile[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Mirror of `files` for imperative cleanup (abort in-flight + reclaim orphaned
+  // uploads) without threading `files` into effect/callback dependency arrays.
+  const filesRef = useRef<StagedFile[]>([]);
+  filesRef.current = files;
+
+  // Abort in-flight uploads and reclaim already-landed (but unsent) bytes server-side
+  // so abandoned attachments don't consume the company quota until their 24h TTL.
+  const discardStaged = useCallback((items: StagedFile[]) => {
+    for (const f of items) {
+      f.controller?.abort();
+      if (f.id) void fetch(`/api/v1/sandbox/uploads/${f.id}`, { method: "DELETE" }).catch(() => {});
+    }
+  }, []);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const loadedConversationRef = useRef<string | null>(null);
@@ -84,6 +117,7 @@ export const AgentChatDrawer = observer(() => {
   const prevStatusRef = useRef(status);
 
   const isBusy = status === "submitted" || status === "streaming";
+  const isUploading = files.some((f) => f.status === "uploading");
 
   // A destructive/gated tool is waiting on the user's decision. Typing past it
   // would leave a dangling tool call that wedges the conversation, so we force
@@ -112,6 +146,11 @@ export const AgentChatDrawer = observer(() => {
     const id = store.activeConversationId;
     if (id === loadedConversationRef.current) return;
     loadedConversationRef.current = id;
+    // Switching conversations: drop composer state staged for the previous one so
+    // attachments/text don't leak onto the newly-opened conversation.
+    discardStaged(filesRef.current);
+    setFiles([]);
+    setInput("");
 
     if (!id) {
       setMessages([]);
@@ -135,7 +174,7 @@ export const AgentChatDrawer = observer(() => {
         setMessages([]);
       }
     })();
-  }, [store.isOpen, store.activeConversationId, setMessages]);
+  }, [store.isOpen, store.activeConversationId, setMessages, discardStaged]);
 
   // Autoscroll to the newest message.
   useEffect(() => {
@@ -153,9 +192,87 @@ export const AgentChatDrawer = observer(() => {
     prevStatusRef.current = status;
   }, [status, refreshConversations]);
 
+  // Transitions an existing staged chip in place — it is NOT a setFiles updater that
+  // also performs I/O, so it's safe under StrictMode's double-invoked updaters.
+  const uploadFile = useCallback(
+    async (localId: string, file: File, signal: AbortSignal) => {
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/v1/sandbox/uploads", { method: "POST", body: form, signal });
+        if (!res.ok) throw new Error(String(res.status));
+        const data: { id: string; url: string; mime: string } = await res.json();
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.localId === localId ? { ...f, status: "ready", url: data.url, id: data.id, mime: data.mime } : f,
+          ),
+        );
+      } catch (error) {
+        if ((error as { name?: string })?.name === "AbortError") return; // removed mid-flight
+        setFiles((prev) => prev.map((f) => (f.localId === localId ? { ...f, status: "error" } : f)));
+        toast.error(t("AgentChat.upload.failed"));
+      }
+    },
+    [t],
+  );
+
+  const addFiles = useCallback(
+    (list: FileList | File[]) => {
+      const incoming = Array.from(list);
+      if (incoming.length === 0) return;
+      const room = MAX_ATTACHMENTS - filesRef.current.length;
+      if (room <= 0) {
+        toast.error(t("AgentChat.upload.tooMany", { max: MAX_ATTACHMENTS }));
+        return;
+      }
+      const accepted: File[] = [];
+      for (const file of incoming) {
+        if (accepted.length >= room) {
+          toast.error(t("AgentChat.upload.tooMany", { max: MAX_ATTACHMENTS }));
+          break;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+          toast.error(t("AgentChat.upload.tooLarge", { name: file.name }));
+          continue;
+        }
+        accepted.push(file);
+      }
+      if (accepted.length === 0) return;
+
+      const staged: StagedFile[] = [];
+      const jobs: Array<{ localId: string; file: File; signal: AbortSignal }> = [];
+      for (const file of accepted) {
+        const localId = crypto.randomUUID();
+        const controller = new AbortController();
+        staged.push({
+          localId,
+          name: file.name,
+          mime: file.type || "application/octet-stream",
+          sizeBytes: file.size,
+          status: "uploading",
+          controller,
+        });
+        jobs.push({ localId, file, signal: controller.signal });
+      }
+      setFiles((prev) => [...prev, ...staged]);
+      jobs.forEach((j) => void uploadFile(j.localId, j.file, j.signal));
+    },
+    [t, uploadFile],
+  );
+
+  const removeFile = useCallback(
+    (localId: string) => {
+      const target = filesRef.current.find((f) => f.localId === localId);
+      if (target) discardStaged([target]);
+      setFiles((prev) => prev.filter((f) => f.localId !== localId));
+    },
+    [discardStaged],
+  );
+
   const submit = useCallback(() => {
     const text = input.trim();
-    if (!text || isBusy || pendingApproval) return;
+    const ready = files.filter((f) => f.status === "ready" && f.url);
+    if ((!text && ready.length === 0) || isBusy || pendingApproval || isUploading) return;
 
     const conversationId = store.activeConversationId ?? crypto.randomUUID();
     if (!store.activeConversationId) {
@@ -164,9 +281,19 @@ export const AgentChatDrawer = observer(() => {
       loadedConversationRef.current = conversationId;
     }
 
+    // Send url-referenced file parts (never base64) plus the text. The server hydrates
+    // image/PDF bytes for the model and seeds files into run_code; the persisted
+    // message keeps only these lightweight url parts.
+    const parts = [
+      ...ready.map((f) => ({ type: "file" as const, url: f.url as string, mediaType: f.mime, filename: f.name })),
+      ...(text ? [{ type: "text" as const, text }] : []),
+    ];
+
     setInput("");
+    setFiles([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     void sendMessage(
-      { text },
+      { role: "user", parts },
       {
         body: {
           conversationId,
@@ -174,14 +301,17 @@ export const AgentChatDrawer = observer(() => {
         },
       },
     );
-  }, [input, isBusy, pendingApproval, sendMessage, store, pathname]);
+  }, [input, files, isBusy, pendingApproval, isUploading, sendMessage, store, pathname]);
 
   const startNew = useCallback(() => {
+    discardStaged(filesRef.current);
     store.startNewConversation();
     loadedConversationRef.current = null;
     setMessages([]);
+    setFiles([]);
+    setInput("");
     setShowHistory(false);
-  }, [store, setMessages]);
+  }, [store, setMessages, discardStaged]);
 
   const deleteConversation = async (id: string) => {
     try {
@@ -221,8 +351,30 @@ export const AgentChatDrawer = observer(() => {
         className="w-full gap-0 p-0 shadow-xl sm:max-w-md"
         showOverlay={false}
         side="right"
+        onDragLeave={(event) => {
+          // Only clear when the pointer actually leaves the drawer, not a child.
+          if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+          setDragActive(false);
+        }}
+        onDragOver={(event) => {
+          if (isBusy || pendingApproval) return;
+          event.preventDefault();
+          setDragActive(true);
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragActive(false);
+          if (isBusy || pendingApproval) return;
+          if (event.dataTransfer.files?.length) addFiles(event.dataTransfer.files);
+        }}
         onInteractOutside={(event) => event.preventDefault()}
       >
+        {dragActive ? (
+          <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center rounded-lg border-2 border-dashed border-primary bg-background/80 text-sm font-medium text-primary">
+            {t("AgentChat.upload.dropHint")}
+          </div>
+        ) : null}
+
         <SheetHeader className="flex-row items-center justify-between border-b border-border">
           <SheetTitle>{t("AgentChat.title")}</SheetTitle>
 
@@ -298,7 +450,61 @@ export const AgentChatDrawer = observer(() => {
             </p>
           ) : null}
 
+          {files.length > 0 ? (
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {files.map((file) => (
+                <span
+                  key={file.localId}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs",
+                    file.status === "error"
+                      ? "border-destructive/40 bg-destructive/10 text-destructive"
+                      : "border-border bg-muted",
+                  )}
+                >
+                  {file.status === "uploading" ? (
+                    <Loader2 className="size-3 shrink-0 animate-spin" />
+                  ) : (
+                    <FileText className="size-3 shrink-0" />
+                  )}
+
+                  <span className="max-w-32 truncate">{file.name}</span>
+
+                  <button
+                    className="text-muted-foreground hover:text-foreground"
+                    title={t("AgentChat.upload.remove")}
+                    type="button"
+                    onClick={() => removeFile(file.localId)}
+                  >
+                    <X className="size-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+
           <div className="flex items-end gap-2">
+            <input
+              ref={fileInputRef}
+              multiple
+              className="hidden"
+              type="file"
+              onChange={(event) => {
+                if (event.target.files?.length) addFiles(event.target.files);
+                event.target.value = "";
+              }}
+            />
+
+            <Button
+              disabled={isBusy || pendingApproval}
+              size="icon"
+              title={t("AgentChat.upload.attach")}
+              variant="ghost"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="size-4" />
+            </Button>
+
             <Textarea
               className="max-h-32 min-h-9 resize-none"
               disabled={isBusy || pendingApproval}
@@ -314,14 +520,23 @@ export const AgentChatDrawer = observer(() => {
               }}
             />
 
-            <Button
-              disabled={isBusy || !input.trim() || pendingApproval}
-              size="icon"
-              title={t("AgentChat.send")}
-              onClick={submit}
-            >
-              {isBusy ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-            </Button>
+            {isBusy ? (
+              // While the agent is streaming, the send button becomes a stop button:
+              // stop() aborts the in-flight generation (any partial assistant message is
+              // repaired by repairDanglingToolCalls on the next turn).
+              <Button size="icon" title={t("AgentChat.stop")} variant="destructive" onClick={() => void stop()}>
+                <Square className="size-4" />
+              </Button>
+            ) : (
+              <Button
+                disabled={pendingApproval || isUploading || (!input.trim() && !files.some((f) => f.status === "ready"))}
+                size="icon"
+                title={t("AgentChat.send")}
+                onClick={submit}
+              >
+                <Send className="size-4" />
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>
