@@ -4,7 +4,7 @@ import type { ExtendedUser } from "@/features/user/user.types";
 import { getUserService } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { verifyRunToken } from "@/features/code-exec/run-token";
-import { runSandboxRead } from "@/features/code-exec/sandbox-data.service";
+import { runSandboxRead, runSandboxTool } from "@/features/code-exec/sandbox-data.service";
 
 export const maxDuration = 60;
 
@@ -41,7 +41,13 @@ export async function POST(req: NextRequest) {
   const operation = typeof body?.operation === "string" ? body.operation : "";
   const params = body?.params ?? {};
 
-  const result = await runWithTenant(user, () => runSandboxRead(operation, params));
+  // "tool" invokes a backend tool server-side in the tenant context (gated by the
+  // token's "tool" capability + a per-run cap); everything else is a read op.
+  const result = await runWithTenant(user, () =>
+    operation === "tool"
+      ? runSandboxTool(params, { jti: claims.jti, caps: claims.caps, companyId: claims.companyId })
+      : runSandboxRead(operation, params, { jti: claims.jti }),
+  );
 
   const payload = JSON.stringify(result);
   if (payload.length > MAX_RESPONSE_BYTES) {

@@ -42,6 +42,14 @@ class _Crm:
     def configuration(self, entity):
         return self._call("configuration", {"entity": entity})
 
+    def run_tool(self, name, args=None):
+        """Invoke a backend tool by name (e.g. "filter_entity", "create_entities",
+        "update_entities", "delete_entities") with args, executed server-side with the
+        user's permissions. Returns the tool's text output. READ-ONLY by default;
+        mutating tools require the run_code call to set allowWrite=true (else the broker
+        refuses them). Mutations are real — use deliberately."""
+        return self._call("tool", {"name": name, "args": args or {}})
+
 
 crm = _Crm()
 result = None

@@ -157,6 +157,16 @@ function ToolPart({
       <div className="w-full max-w-[85%] rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
         <div className="font-medium">{t("AgentChat.approval.title", { tool: toolName })}</div>
 
+        {toolName === "run_code" ? (
+          (part.input as { allowWrite?: boolean } | undefined)?.allowWrite ? (
+            <div className="mt-1 text-xs font-medium text-destructive">
+              {t("AgentChat.approval.runCodeWriteWarning")}
+            </div>
+          ) : (
+            <div className="mt-1 text-xs text-muted-foreground">{t("AgentChat.approval.runCodeReadOnly")}</div>
+          )
+        ) : null}
+
         {part.input ? (
           <pre className="mt-1 max-h-40 overflow-auto rounded bg-background/60 p-2 text-xs whitespace-pre-wrap break-words text-muted-foreground">
             {JSON.stringify(part.input, null, 2)}

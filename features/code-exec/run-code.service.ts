@@ -22,6 +22,12 @@ type RunRequest = {
    * conversation — it can't reach another company's upload.
    */
   inputFiles?: Array<{ uploadId: string; name: string }>;
+  /**
+   * Opt-in for mutations. Default (false) = read-only: code may read CRM data and
+   * call read-only tools, but mutating tools (create/update/delete/send/…) are
+   * refused by the broker. true grants the "write" capability for this run.
+   */
+  allowWrite?: boolean;
 };
 
 const DEFAULT_TIMEOUT_MS = 20_000;
@@ -84,7 +90,17 @@ async function executeRun(request: RunRequest, user: { companyId: string; id: st
   // construction; the VM is placed on the allowlist-proxy network instead.
   const token =
     mode === "DATA"
-      ? issueRunToken({ companyId: user.companyId, userId: user.id, ttlMs: timeoutMs + 15_000 }).token
+      ? issueRunToken({
+          companyId: user.companyId,
+          userId: user.id,
+          ttlMs: timeoutMs + 10_000,
+          // DATA runs may read CRM data and call read-only tools by default; the
+          // "write" capability (mutating tools) is granted ONLY when the agent opted
+          // in via allowWrite. The run_code approval card (showing the exact code +
+          // a write warning) is the human gate; the broker enforces RBAC + a per-run
+          // call cap + this capability split.
+          caps: request.allowWrite ? ["read", "tool", "write"] : ["read", "tool"],
+        }).token
       : "";
   const brokerUrl =
     mode === "DATA" ? `${(env.SANDBOX_BROKER_URL ?? env.BASE_URL).replace(/\/$/, "")}/api/v1/sandbox/data` : "";
@@ -115,14 +131,22 @@ async function executeRun(request: RunRequest, user: { companyId: string; id: st
     return { name: f.name, mime: f.mime, sizeBytes: bytes.length, url: `/api/v1/sandbox/artifacts/${id}` };
   });
 
+  // Scrub generic secret shapes AND the run token specifically: its 2-segment
+  // base64url form isn't matched by scrubSecrets, so code that printed
+  // process.env.SANDBOX_RUN_TOKEN would otherwise echo a live token to the model/chat.
+  const redact = (s: string): string => {
+    const scrubbed = scrubSecrets(s ?? "");
+    return token ? scrubbed.split(token).join("[redacted]") : scrubbed;
+  };
+
   return {
     ...report,
     files,
-    stdout: scrubSecrets(report.stdout ?? ""),
+    stdout: redact(report.stdout ?? ""),
     error: report.error
       ? {
-          message: scrubSecrets(report.error.message),
-          traceback: report.error.traceback ? scrubSecrets(report.error.traceback) : undefined,
+          message: redact(report.error.message),
+          traceback: report.error.traceback ? redact(report.error.traceback) : undefined,
         }
       : undefined,
   };

@@ -16,6 +16,11 @@ export type RunTokenClaims = {
   // all, so the data wall holds by construction; this claim is belt-and-suspenders
   // (and the seam for a future DATA_NET mode).
   mode: "DATA";
+  // Capabilities this run is authorized for at the broker: "read" (the read-only
+  // data ops) and/or "tool" (invoke backend tools server-side, incl. mutations).
+  // The broker checks this before dispatching, so the authority is bound to the
+  // signed token, not to anything the sandboxed code can send.
+  caps: string[];
   jti: string;
   exp: number; // epoch ms
 };
@@ -30,7 +35,7 @@ function sign(payload: string): string {
   return crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-export function issueRunToken(input: { companyId: string; userId: string; ttlMs: number }): {
+export function issueRunToken(input: { companyId: string; userId: string; ttlMs: number; caps?: string[] }): {
   token: string;
   claims: RunTokenClaims;
 } {
@@ -38,6 +43,7 @@ export function issueRunToken(input: { companyId: string; userId: string; ttlMs:
     companyId: input.companyId,
     userId: input.userId,
     mode: "DATA",
+    caps: input.caps ?? ["read"],
     jti: crypto.randomUUID(),
     exp: Date.now() + input.ttlMs,
   };
@@ -69,7 +75,9 @@ export function verifyRunToken(token: string): RunTokenClaims | null {
     typeof claims.userId !== "string" ||
     typeof claims.jti !== "string" ||
     typeof claims.exp !== "number" ||
-    claims.mode !== "DATA"
+    claims.mode !== "DATA" ||
+    !Array.isArray(claims.caps) ||
+    !claims.caps.every((c) => typeof c === "string")
   )
     return null;
 

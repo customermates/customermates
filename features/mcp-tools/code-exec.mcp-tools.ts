@@ -23,10 +23,13 @@ const RunCodeSchema = z.object({
     .max(50_000)
     .describe(
       "The program to run in an isolated sandbox with a writable working directory. In DATA mode a `crm` client " +
-        "fetches the user's data (read-only): crm.list(entity, {filters,searchTerm,page,pageSize}), crm.count(entity,{filters}), " +
+        "reads the user's data: crm.list(entity, {filters,searchTerm,page,pageSize}), crm.count(entity,{filters}), " +
         "crm.search(searchTerm,{entities,limitPerEntity}), crm.get(entity,id), crm.configuration(entity); " +
-        "entity is one of contact|organization|deal|service|task. Print results or assign to `result`. " +
-        "Files written are ephemeral (cleared after the run); cannot modify CRM records.",
+        "entity is one of contact|organization|deal|service|task. crm.run_tool(name, args) invokes a backend tool " +
+        "server-side with the user's permissions. The run is READ-ONLY by default (read tools only); to " +
+        "create_entities/update_entities/delete_entities/send_email you MUST pass allowWrite:true — those REALLY mutate " +
+        "data, so confirm intent and call get_entity_configuration first. Print results or assign to `result`. " +
+        "Files written are ephemeral (cleared after the run).",
     ),
   timeoutMs: z.number().int().min(1_000).max(30_000).optional().describe("Optional wall-clock limit (max 30s)."),
   background: z
@@ -47,12 +50,23 @@ const RunCodeSchema = z.object({
         "(read them with open()/fs by the same name). Only names listed in the system prompt's uploaded-files " +
         "section can be selected; omit when you don't need any uploaded file.",
     ),
+  allowWrite: z
+    .boolean()
+    .optional()
+    .describe(
+      "Default false = READ-ONLY: code may read data and call read-only tools, but crm.run_tool to mutating tools " +
+        "(create_entities/update_entities/delete_entities/send_email/…) is refused. Set true ONLY when the user " +
+        "asked to change data — it lets this run create/update/DELETE via crm.run_tool. Prefer the typed tools for " +
+        "one-off changes; use allowWrite for bulk/computed mutations.",
+    ),
 });
 
 const RUN_CODE_DESCRIPTION =
   "Run sandboxed Python, JavaScript, or bash to analyze the user's CRM data (aggregations, pivots, stats, ad-hoc reports) " +
   "or do scripting in an isolated VM. Two mutually-exclusive egress modes: DATA (default — read-only `crm` client, no internet) " +
-  "and NET (allowlisted internet for installs/approved APIs, no CRM data). Cannot modify records (use the typed create/update/delete tools). " +
+  "and NET (allowlisted internet for installs/approved APIs, no CRM data). In DATA mode crm.run_tool(name, args) invokes " +
+  "backend tools server-side with the user's permissions — read-only by default; pass allowWrite:true to permit " +
+  "create/update/delete (real mutations). " +
   "Files the user uploaded can be made available in the working directory via inputFiles. " +
   "Set background:true for slower jobs to get a runId immediately, then poll check_run(runId). " +
   "Returns JSON { status, stdout, result, error, files, durationMs }. Requires the user's approval on every run.";
@@ -95,8 +109,8 @@ export const runCodeTool = {
   inputSchema: RunCodeSchema,
   // The static (registry) tool has no per-conversation upload context, so it never
   // seeds input files; the agent route overrides run_code with buildRunCodeTool().
-  execute: async ({ language, code, mode, timeoutMs, background }: z.infer<typeof RunCodeSchema>) => {
-    return dispatch({ language, code, mode, timeoutMs }, background);
+  execute: async ({ language, code, mode, timeoutMs, background, allowWrite }: z.infer<typeof RunCodeSchema>) => {
+    return dispatch({ language, code, mode, timeoutMs, allowWrite }, background);
   },
 };
 
@@ -118,7 +132,15 @@ export function buildRunCodeTool(availableUploads: AvailableUpload[]) {
     description: RUN_CODE_DESCRIPTION,
     inputSchema: RunCodeSchema,
     needsApproval: true,
-    execute: async ({ language, code, mode, timeoutMs, inputFiles, background }: z.infer<typeof RunCodeSchema>) => {
+    execute: async ({
+      language,
+      code,
+      mode,
+      timeoutMs,
+      inputFiles,
+      background,
+      allowWrite,
+    }: z.infer<typeof RunCodeSchema>) => {
       const seen = new Set<string>();
       const resolved: Array<{ uploadId: string; name: string }> = [];
       for (const name of inputFiles ?? []) {
@@ -128,7 +150,7 @@ export function buildRunCodeTool(availableUploads: AvailableUpload[]) {
         resolved.push({ uploadId, name });
       }
       return dispatch(
-        { language, code, mode, timeoutMs, inputFiles: resolved.length ? resolved : undefined },
+        { language, code, mode, timeoutMs, allowWrite, inputFiles: resolved.length ? resolved : undefined },
         background,
       );
     },

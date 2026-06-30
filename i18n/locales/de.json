@@ -4,6 +4,8 @@
       "alwaysAllow": "Immer erlauben",
       "approve": "Erlauben",
       "reject": "Ablehnen",
+      "runCodeReadOnly": "Schreibgeschützt: Dieser Lauf kann deine Daten lesen, aber nicht ändern.",
+      "runCodeWriteWarning": "Schreibmodus: Dieser Code läuft mit deinen vollen Berechtigungen — er kann CRM-Daten anlegen, ändern und löschen sowie E-Mails oder Nachrichten in deinem Namen senden.",
       "title": "Darf der Assistent „{tool}“ ausführen?"
     },
     "approvalPending": "Bestätige oder lehne die ausstehende Aktion oben ab, um fortzufahren.",

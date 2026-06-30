@@ -4,6 +4,8 @@
       "alwaysAllow": "Always allow",
       "approve": "Approve",
       "reject": "Reject",
+      "runCodeReadOnly": "Read-only: this run can read your data but not change it.",
+      "runCodeWriteWarning": "Write mode: this code runs with your full permissions — it can create, modify, and delete your CRM data and send emails or messages on your behalf.",
       "title": "Allow the assistant to run “{tool}”?"
     },
     "approvalPending": "Approve or reject the pending action above to continue.",

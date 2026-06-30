@@ -23,6 +23,11 @@ const crm = {
   search: (searchTerm, opts = {}) => call("search", { searchTerm, ...opts }),
   get: (entity, id) => call("get", { entity, id }),
   configuration: (entity) => call("configuration", { entity }),
+  // Invoke a backend tool by name (filter_entity/create_entities/update_entities/
+  // delete_entities/…) server-side with the user's permissions. Returns the tool's
+  // text output. READ-ONLY by default; mutating tools require the run_code call to set
+  // allowWrite:true (else the broker refuses them). Mutations are real — use deliberately.
+  run_tool: (name, args = {}) => call("tool", { name, args }),
 };
 
 function jsonable(value) {
