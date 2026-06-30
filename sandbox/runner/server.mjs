@@ -16,6 +16,8 @@ const DIR = path.dirname(fileURLToPath(import.meta.url));
 const RUNTIMES = {
   python: { harness: path.join(DIR, "harness.py"), cmd: "python3", userFile: "user.py" },
   javascript: { harness: path.join(DIR, "harness.mjs"), cmd: "node", userFile: "user.mjs" },
+  // bash has no harness/sentinel — user.sh IS the program; stdout is the only result.
+  bash: { cmd: "bash", userFile: "user.sh", noHarness: true },
 };
 
 const SENTINEL = "__SANDBOX_RESULT__";
@@ -23,6 +25,16 @@ const SENTINEL = "__SANDBOX_RESULT__";
 function send(res, status, obj) {
   res.writeHead(status, { "content-type": "application/json" });
   res.end(JSON.stringify(obj));
+}
+
+// SIGKILL the whole process group (the child is a group leader via detached:true),
+// so a backgrounded `curl &` / fork-bomb can't outlive the run.
+function killGroup(child) {
+  try {
+    process.kill(-child.pid, "SIGKILL");
+  } catch {
+    child.kill("SIGKILL");
+  }
 }
 
 async function readBody(req) {
@@ -47,9 +59,12 @@ async function runOnce(input) {
     const wallMs = Math.min(Math.max(Number(input.timeoutMs ?? 20_000), 1_000), 60_000);
     const maxOut = Math.max(1_024, Number(input.maxOutputBytes ?? 64_000));
 
-    // ulimit caps the address space (anti-OOM / fork-bomb); the harness gets only
-    // the broker url + run token — never EXECUTOR_API_KEY or any host secret.
-    const shellCmd = `ulimit -v ${memKb}; exec ${rt.cmd} ${JSON.stringify(rt.harness)}`;
+    // bash runs its user.sh directly; python/js run through their harness.
+    const target = rt.noHarness ? path.join(work, rt.userFile) : rt.harness;
+    // ulimit caps address space (anti-OOM), process count (anti-fork-bomb), and
+    // file size; the child gets only the broker url + run token — never
+    // EXECUTOR_API_KEY or any host secret.
+    const shellCmd = `ulimit -v ${memKb}; ulimit -u 256; ulimit -f 1048576; exec ${rt.cmd} ${JSON.stringify(target)}`;
     const child = spawn("/bin/sh", ["-c", shellCmd], {
       cwd: work,
       env: {
@@ -60,6 +75,7 @@ async function runOnce(input) {
         SANDBOX_RUN_TOKEN: input.runToken ?? "",
       },
       stdio: ["ignore", "pipe", "pipe"],
+      detached: true, // own process group, so killGroup() reaps backgrounded children
     });
 
     const started = Date.now();
@@ -76,7 +92,7 @@ async function runOnce(input) {
         out = out.slice(0, maxOut);
         truncated = true;
         killedForOutput = true;
-        child.kill("SIGKILL");
+        killGroup(child);
       }
     });
     child.stderr.on("data", (buf) => {
@@ -85,7 +101,7 @@ async function runOnce(input) {
 
     const timer = setTimeout(() => {
       killedForTimeout = true;
-      child.kill("SIGKILL");
+      killGroup(child);
     }, wallMs);
 
     const exitCode = await new Promise((resolve) => child.on("close", resolve));

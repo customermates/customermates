@@ -12,6 +12,10 @@ import { env } from "@/env";
 export type RunTokenClaims = {
   companyId: string;
   userId: string;
+  // A token is minted only for data-enabled runs. NET-mode runs get no token at
+  // all, so the data wall holds by construction; this claim is belt-and-suspenders
+  // (and the seam for a future DATA_NET mode).
+  mode: "DATA";
   jti: string;
   exp: number; // epoch ms
 };
@@ -33,6 +37,7 @@ export function issueRunToken(input: { companyId: string; userId: string; ttlMs:
   const claims: RunTokenClaims = {
     companyId: input.companyId,
     userId: input.userId,
+    mode: "DATA",
     jti: crypto.randomUUID(),
     exp: Date.now() + input.ttlMs,
   };
@@ -63,7 +68,8 @@ export function verifyRunToken(token: string): RunTokenClaims | null {
     typeof claims.companyId !== "string" ||
     typeof claims.userId !== "string" ||
     typeof claims.jti !== "string" ||
-    typeof claims.exp !== "number"
+    typeof claims.exp !== "number" ||
+    claims.mode !== "DATA"
   )
     return null;
 

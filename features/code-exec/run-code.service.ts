@@ -1,4 +1,4 @@
-import type { RunCodeReport, SandboxLanguage } from "./sandbox.types";
+import type { RunCodeReport, SandboxLanguage, SandboxMode } from "./sandbox.types";
 
 import { getUserService } from "@/core/di";
 import { env } from "@/env";
@@ -25,20 +25,31 @@ function errorReport(message: string): RunCodeReport {
 export async function runUserCode(request: {
   language: SandboxLanguage;
   code: string;
+  mode?: SandboxMode;
   timeoutMs?: number;
 }): Promise<RunCodeReport> {
   if (!isCodeExecConfigured()) return errorReport("Code execution is not enabled on this deployment.");
 
   const user = await getUserService().getActiveUserOrThrow();
+  const mode: SandboxMode = request.mode === "NET" ? "NET" : "DATA";
   const timeoutMs = Math.min(Math.max(request.timeoutMs ?? DEFAULT_TIMEOUT_MS, 1_000), MAX_TIMEOUT_MS);
-  const { token } = issueRunToken({ companyId: user.companyId, userId: user.id, ttlMs: timeoutMs + 15_000 });
-  const brokerUrl = `${(env.SANDBOX_BROKER_URL ?? env.BASE_URL).replace(/\/$/, "")}/api/v1/sandbox/data`;
+
+  // DATA: mint a broker token + broker URL (CRM data reachable, no internet).
+  // NET: mint NO token and pass no broker URL — the data wall holds by
+  // construction; the VM is placed on the allowlist-proxy network instead.
+  const token =
+    mode === "DATA"
+      ? issueRunToken({ companyId: user.companyId, userId: user.id, ttlMs: timeoutMs + 15_000 }).token
+      : "";
+  const brokerUrl =
+    mode === "DATA" ? `${(env.SANDBOX_BROKER_URL ?? env.BASE_URL).replace(/\/$/, "")}/api/v1/sandbox/data` : "";
 
   let report: RunCodeReport;
   try {
     report = await getExecutorClient().run({
       language: request.language,
       code: request.code,
+      mode,
       timeoutMs,
       memoryMb: MEMORY_MB,
       maxOutputBytes: MAX_OUTPUT_BYTES,

@@ -16,7 +16,10 @@ import { env } from "@/env";
  */
 export type AgentProvider = "anthropic" | "openai";
 
-const DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-6";
+// Default to Haiku for the in-app agent — it's the cheapest capable model for the
+// tool-calling/data-analysis loop, which re-sends the large tool set every step.
+// Override per-deployment with ANTHROPIC_MODEL (e.g. claude-sonnet-4-6) if needed.
+const DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
 const DEFAULT_OPENAI_MODEL = "gpt-4o";
 
 /**
