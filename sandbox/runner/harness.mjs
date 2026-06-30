@@ -1,0 +1,55 @@
+// JavaScript harness: exposes an async read-only `crm` client to the user
+// program, runs it, and prints a sentinel line with {status, result, error}.
+// The only reachable network destination is the broker (enforced by the network).
+import { readFileSync } from "node:fs";
+
+const BROKER = process.env.SANDBOX_BROKER_URL || "";
+const TOKEN = process.env.SANDBOX_RUN_TOKEN || "";
+
+async function call(operation, params) {
+  const res = await fetch(BROKER, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-sandbox-token": TOKEN },
+    body: JSON.stringify({ operation, params }),
+  });
+  const payload = await res.json();
+  if (!payload.ok) throw new Error("broker error: " + (payload.error || "unknown"));
+  return payload.data;
+}
+
+const crm = {
+  list: (entity, opts = {}) => call("list", { entity, ...opts }),
+  count: (entity, opts = {}) => call("count", { entity, ...opts }),
+  search: (searchTerm, opts = {}) => call("search", { searchTerm, ...opts }),
+  get: (entity, id) => call("get", { entity, id }),
+  configuration: (entity) => call("configuration", { entity }),
+};
+
+function jsonable(value) {
+  try {
+    JSON.stringify(value);
+    return value ?? null;
+  } catch {
+    return String(value);
+  }
+}
+
+const src = readFileSync(process.env.USER_FILE, "utf8");
+
+let result = null;
+let status = "ok";
+let error = null;
+
+try {
+  // `crm` is in scope; the program may use top-level await and assign `result`.
+  const run = new Function(
+    "crm",
+    `return (async () => { let result;\n${src}\n; return typeof result !== "undefined" ? result : undefined; })();`,
+  );
+  result = await run(crm);
+} catch (e) {
+  status = "error";
+  error = { message: String((e && e.message) || e), traceback: String((e && e.stack) || "") };
+}
+
+process.stdout.write("\n__SANDBOX_RESULT__" + JSON.stringify({ status, result: jsonable(result), error }));

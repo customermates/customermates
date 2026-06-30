@@ -28,6 +28,6 @@
     "target": "ES2023",
     "useDefineForClassFields": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "infra", "sandbox"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"]
 }

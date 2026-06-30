@@ -51,6 +51,14 @@ export function toolNeedsApproval(mcpTool: Pick<McpTool, "annotations">): boolea
   return Boolean(mcpTool.annotations?.destructiveHint || mcpTool.annotations?.openWorldHint);
 }
 
+/**
+ * Tools that ALWAYS require a fresh approval and can never be silently
+ * pre-authorized away. Code execution is the highest-blast-radius capability —
+ * the approval card shows the exact code, which is the human check against
+ * prompt-injection — so it must never be downgraded by the "always allow" path.
+ */
+export const ALWAYS_APPROVE_TOOL_NAMES = new Set<string>(["run_code"]);
+
 async function runMcpTool(mcpTool: McpTool, input: unknown): Promise<string> {
   try {
     return await (mcpTool.execute as (arg: unknown) => Promise<string> | string)(input);
@@ -72,11 +80,13 @@ export function buildAgentToolsFrom(mcpTools: McpTool[], options: { preAuthorize
 
   for (const mcpTool of mcpTools) {
     const gated = toolNeedsApproval(mcpTool);
+    const alwaysApprove = ALWAYS_APPROVE_TOOL_NAMES.has(mcpTool.name);
 
     tools[mcpTool.name] = tool({
       description: mcpTool.description,
       inputSchema: resolveInputSchema(mcpTool.inputSchema),
-      needsApproval: gated && !preAuthorized.has(mcpTool.name),
+      // Always-approve tools ignore the per-user pre-authorization downgrade.
+      needsApproval: alwaysApprove || (gated && !preAuthorized.has(mcpTool.name)),
       execute: (input: unknown) => runMcpTool(mcpTool, input),
     });
   }

@@ -1,5 +1,7 @@
 import type { ExtendedUser } from "@/features/user/user.types";
 
+import { ALWAYS_APPROVE_TOOL_NAMES } from "./tool-gating";
+
 /**
  * The per-user "skip the confirmation card for these tools" setting is stored as
  * a `{ toolNames: string[] }` JSON blob on the User row. Parse defensively — the
@@ -14,5 +16,9 @@ export function parsePreAuthorizedToolNames(value: unknown): string[] {
 }
 
 export function getPreAuthorizedToolNames(user: Pick<ExtendedUser, "preAuthorizedAgentTools">): string[] {
-  return parsePreAuthorizedToolNames(user.preAuthorizedAgentTools);
+  // Some tools (e.g. run_code) can never be pre-authorized away — filter them out
+  // here so a stale/forced stored value can't downgrade their approval gate.
+  return parsePreAuthorizedToolNames(user.preAuthorizedAgentTools).filter(
+    (name) => !ALWAYS_APPROVE_TOOL_NAMES.has(name),
+  );
 }

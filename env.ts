@@ -47,4 +47,18 @@ export const env = {
   ANTHROPIC_BASE_URL: process.env.ANTHROPIC_BASE_URL,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL,
+
+  // Sandboxed code execution (run_code tool). Disabled unless explicitly enabled
+  // AND an executor endpoint is configured. The executor is a separate, isolated
+  // service (e.g. an AWS Lambda MicroVM) that runs the agent's Python/JS in a
+  // tenant-walled sandbox and reaches CRM data only via the read-only broker.
+  SANDBOX_CODE_EXEC_ENABLED: process.env.SANDBOX_CODE_EXEC_ENABLED === "true",
+  SANDBOX_EXECUTOR_URL: process.env.SANDBOX_EXECUTOR_URL,
+  SANDBOX_EXECUTOR_API_KEY: process.env.SANDBOX_EXECUTOR_API_KEY,
+  // Public URL the sandbox uses to call the read-only data broker back. Defaults
+  // to BASE_URL; override when the broker is reached over a private path.
+  SANDBOX_BROKER_URL: process.env.SANDBOX_BROKER_URL,
+  // HMAC secret for short-lived run-scoped data tokens. Must be set in prod;
+  // falls back to BETTER_AUTH_SECRET in dev so the feature works out of the box.
+  SANDBOX_TOKEN_SECRET: process.env.SANDBOX_TOKEN_SECRET ?? process.env.BETTER_AUTH_SECRET,
 };
