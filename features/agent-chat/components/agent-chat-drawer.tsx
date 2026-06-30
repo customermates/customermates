@@ -4,7 +4,11 @@ import type { UIMessage } from "ai";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from "ai";
 import { useChat } from "@ai-sdk/react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -43,7 +47,12 @@ export const AgentChatDrawer = observer(() => {
   const [transport] = useState(() => new DefaultChatTransport<UIMessage>({ api: "/api/agent" }));
   const { messages, sendMessage, status, setMessages, addToolApprovalResponse, addToolResult, error } = useChat({
     transport,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    // Resubmit when a client tool's result is ready OR when the user has
+    // approved/rejected a gated tool — the latter is what lets an approved
+    // server tool (e.g. run_code) actually execute. Without the approval
+    // predicate the turn stalls after approval (no second request fires).
+    sendAutomaticallyWhen: (opts) =>
+      lastAssistantMessageIsCompleteWithToolCalls(opts) || lastAssistantMessageIsCompleteWithApprovalResponses(opts),
     onToolCall: ({ toolCall }) => {
       if (!isUiTool(toolCall.toolName)) return; // server tools run server-side
       let output: string;
