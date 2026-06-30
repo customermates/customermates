@@ -35,7 +35,13 @@ export type SandboxFile = {
   name: string;
   mime: string;
   sizeBytes: number;
+  /** Tenant-guarded URL the chat fetches. Empty until the service stores the bytes. */
   url: string;
+  /**
+   * Base64 bytes as returned by the executor. The service moves these into the
+   * artifact store and replaces them with `url`; they never reach the model/UI.
+   */
+  dataBase64?: string;
 };
 
 /** The structured result of one run, surfaced to the model + rendered in chat. */

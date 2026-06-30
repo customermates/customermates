@@ -4,7 +4,7 @@
 // broker URL + the per-run token in its environment — no other secrets.
 import http from "node:http";
 import { spawn } from "node:child_process";
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, rm, readdir, readFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,6 +45,41 @@ async function readBody(req) {
 
 function errorReport(message, extra = {}) {
   return { status: "error", stdout: "", files: [], durationMs: 0, exitCode: null, error: { message }, ...extra };
+}
+
+const ART_MAX_FILES = 8;
+const ART_MAX_BYTES = 5_000_000; // per file
+const MIME = {
+  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", svg: "image/svg+xml",
+  webp: "image/webp", csv: "text/csv", json: "application/json", txt: "text/plain", html: "text/html",
+  pdf: "application/pdf", xml: "application/xml", md: "text/markdown",
+};
+function mimeFor(name) {
+  return MIME[name.split(".").pop()?.toLowerCase() ?? ""] ?? "application/octet-stream";
+}
+
+// Collect files the program wrote to its workspace (everything except the source
+// file) and return them base64 so the app can store + serve them to chat.
+async function collectArtifacts(dir, userFile) {
+  let entries;
+  try {
+    entries = await readdir(dir);
+  } catch {
+    return [];
+  }
+  const files = [];
+  for (const name of entries) {
+    if (name === userFile || files.length >= ART_MAX_FILES) continue;
+    try {
+      const s = await stat(path.join(dir, name));
+      if (!s.isFile() || s.size === 0 || s.size > ART_MAX_BYTES) continue;
+      const buf = await readFile(path.join(dir, name));
+      files.push({ name, mime: mimeFor(name), sizeBytes: buf.length, dataBase64: buf.toString("base64") });
+    } catch {
+      /* skip unreadable entries */
+    }
+  }
+  return files;
 }
 
 async function runOnce(input) {
@@ -107,6 +142,7 @@ async function runOnce(input) {
     const exitCode = await new Promise((resolve) => child.on("close", resolve));
     clearTimeout(timer);
     const durationMs = Date.now() - started;
+    const files = await collectArtifacts(work, rt.userFile);
 
     // The harness prints a sentinel line carrying {status, result, error}; text
     // before it is the program's stdout.
@@ -124,9 +160,9 @@ async function runOnce(input) {
 
     if (killedForTimeout) return { ...errorReport(`Timed out after ${wallMs}ms`), status: "timeout", stdout, durationMs, truncated };
     if (killedForOutput) return { ...errorReport("Output limit exceeded"), stdout, durationMs, truncated: true };
-    if (meta?.status === "error") return { status: "error", stdout, files: [], durationMs, exitCode, error: meta.error ?? { message: "error" }, truncated };
+    if (meta?.status === "error") return { status: "error", stdout, files, durationMs, exitCode, error: meta.error ?? { message: "error" }, truncated };
     if (!meta && exitCode !== 0) return { ...errorReport(stderr.slice(0, 2_000) || `exited with code ${exitCode}`), stdout, durationMs, exitCode, truncated };
-    return { status: "ok", stdout, result: meta ? meta.result : null, files: [], durationMs, exitCode, truncated };
+    return { status: "ok", stdout, result: meta ? meta.result : null, files, durationMs, exitCode, truncated };
   } finally {
     await rm(work, { recursive: true, force: true });
   }

@@ -20,5 +20,5 @@ build
 !tsup.config.ts
 prisma/dev.db
 generated
-infra
-sandbox
+/infra
+/sandbox

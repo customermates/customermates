@@ -6,6 +6,7 @@ import { env } from "@/env";
 import { issueRunToken } from "./run-token";
 import { getExecutorClient, isCodeExecConfigured } from "./executor-client";
 import { scrubSecrets } from "./scrub";
+import { putArtifact } from "./artifact-store";
 
 const DEFAULT_TIMEOUT_MS = 20_000;
 const MAX_TIMEOUT_MS = 30_000;
@@ -60,8 +61,18 @@ export async function runUserCode(request: {
     return errorReport(`Sandbox failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 
+  // Move any returned file bytes into the transient store; the model/UI see only a
+  // tenant-guarded URL (relative to the app origin), never the bytes.
+  const files = (report.files ?? []).map((f) => {
+    if (!f.dataBase64) return { name: f.name, mime: f.mime, sizeBytes: f.sizeBytes, url: f.url };
+    const bytes = Buffer.from(f.dataBase64, "base64");
+    const id = putArtifact({ bytes, mime: f.mime, name: f.name, companyId: user.companyId, userId: user.id });
+    return { name: f.name, mime: f.mime, sizeBytes: bytes.length, url: `/api/v1/sandbox/artifacts/${id}` };
+  });
+
   return {
     ...report,
+    files,
     stdout: scrubSecrets(report.stdout ?? ""),
     error: report.error
       ? {
