@@ -81,8 +81,19 @@ export async function POST(req: NextRequest) {
 
   const result = streamText({
     model: getAgentModel(),
-    system: buildAgentSystemPrompt({ user, pageContext, skills, today: new Date().toISOString().slice(0, 10) }),
-    messages: modelMessages,
+    // Prompt caching: the tools + system block is identical across the multi-step
+    // loop AND across turns, yet it's the bulk of the input (~50 tool schemas).
+    // Anthropic orders tools -> system -> messages, so a single cache breakpoint on
+    // the system message caches that whole prefix — repeat steps/turns then read it
+    // at ~1/10th the input price. Non-Anthropic providers ignore providerOptions.anthropic.
+    messages: [
+      {
+        role: "system",
+        content: buildAgentSystemPrompt({ user, pageContext, skills, today: new Date().toISOString().slice(0, 10) }),
+        providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } },
+      },
+      ...modelMessages,
+    ],
     tools: { ...buildAgentTools({ preAuthorizedToolNames }), [SKILL_TOOL_NAME]: skillTool, ...uiTools },
     stopWhen: stepCountIs(12),
   });
