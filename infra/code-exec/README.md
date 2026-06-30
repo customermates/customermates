@@ -24,6 +24,33 @@ agent route ──(x-executor-key)──▶  Lambda MicroVM (sandbox image)
 - IAM role has **zero DB / zero app-data** access.
 - Reserved concurrency caps blast radius on cost/availability.
 
+## Run modes — data XOR internet (the exfiltration wall)
+
+A run is provisioned in exactly one mode (the app picks the SG by the run token's
+`mode`); the two are mutually exclusive so the read-tenant-data + reach-internet
+trifecta can't assemble:
+
+| Mode | SG | Reaches | Token |
+| --- | --- | --- | --- |
+| **DATA** (default) | `ExecutorDataSg` | broker only (CRM data) | minted |
+| **NET** | `ExecutorNetSg` | egress proxy only (allowlisted internet) | **none** |
+
+```
+NET run ──▶ ExecutorNetSg (no NAT) ──▶ Squid CONNECT-allowlist proxy ──(443)──▶ allowlisted hosts
+            broker unreachable + no token  =  no CRM data in a NET run
+```
+
+- The **Squid proxy** ([`./proxy`](./proxy)) is CONNECT-only against an allowlist
+  built from `egressAllowlist` (default: pypi/npm registries; add named APIs
+  explicitly). It runs in NAT subnets; the sandbox subnets have **no NAT**, so the
+  proxy is the only way out. Access is logged (target host) to CloudWatch.
+- NET-mode launches set `HTTPS_PROXY/HTTP_PROXY=http://egress-proxy.<ns>:3128` and
+  mint **no broker token** — so `crm` is unavailable and CRM data cannot leave.
+- **Harden (Phase 2):** IMDSv2 + hop-limit 1, `nftables` drop to `169.254.0.0/16`
+  + RFC1918, post-DNS-resolution IP re-check in the proxy, private package mirror,
+  egress-volume anomaly alerting. A combined **DATA+NET** mode is deliberately NOT
+  built — it re-opens the trifecta and needs separate, louder approval.
+
 ## Deploy
 
 1. Build & push the image from [`../../sandbox`](../../sandbox):
