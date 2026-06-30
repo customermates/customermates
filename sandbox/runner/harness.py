@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import traceback
+import urllib.error
 import urllib.request
 
 _BROKER = os.environ.get("SANDBOX_BROKER_URL", "")
@@ -21,8 +22,15 @@ class _Crm:
             method="POST",
             headers={"content-type": "application/json", "x-sandbox-token": _TOKEN},
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            payload = json.loads(resp.read().decode("utf-8"))
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                body = resp.read().decode("utf-8")
+        except urllib.error.HTTPError as http_err:
+            # The broker returns a JSON {ok:false, error} even on 4xx (e.g. read-only
+            # refusal, per-run cap, validation). Read it so the real reason surfaces
+            # instead of a bare "HTTP Error 400" (lets the agent self-correct).
+            body = http_err.read().decode("utf-8")
+        payload = json.loads(body)
         if not payload.get("ok"):
             raise RuntimeError("broker error: " + str(payload.get("error", "unknown")))
         return payload["data"]
