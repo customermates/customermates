@@ -63,6 +63,7 @@ import { TimelineDetailModalStore } from "@/features/messaging/activities/activi
 import { ContactStore } from "@/app/[locale]/(public)/contact/contact.store";
 import { ErrorTestStore } from "@/app/[locale]/(protected)/test/error/error-test.store";
 import { AgentChatStore } from "@/features/agent-chat/components/agent-chat.store";
+import { AgentUiControlStore } from "@/features/agent-chat/components/ui-control.store";
 
 import { NavigationGuardController } from "./navigation-guard.controller";
 
@@ -136,6 +137,7 @@ export class RootStore {
   private _editFiltersModalStore?: EditFiltersModalStore;
 
   private _agentChatStore?: AgentChatStore;
+  private _agentUiControlStore?: AgentUiControlStore;
 
   isDemoMode: boolean;
   isCloudHosted: boolean;
@@ -147,6 +149,10 @@ export class RootStore {
 
   get agentChatStore() {
     return (this._agentChatStore ??= new AgentChatStore());
+  }
+
+  get agentUiControlStore() {
+    return (this._agentUiControlStore ??= new AgentUiControlStore());
   }
 
   get layoutStore() {

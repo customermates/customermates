@@ -21,6 +21,7 @@ import {
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Icon } from "@/components/shared/icon";
+import { useAgentTargets } from "@/features/agent-chat/ui-targets";
 
 type NavItem = {
   key: string;
@@ -58,7 +59,7 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
   return (
     <Collapsible asChild className="group/collapsible" open={open} onOpenChange={onOpenChange}>
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip={item.title} onClick={() => onOpenChange(!open)}>
+        <SidebarMenuButton data-agent-id={`nav.${item.key}`} tooltip={item.title} onClick={() => onOpenChange(!open)}>
           <Icon icon={item.icon} />
 
           <span className="min-w-0 truncate">{item.title}</span>
@@ -77,7 +78,7 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                   )}
 
                   <SidebarMenuSubButton asChild isActive={subActive}>
-                    <NextLink href={sub.href} onClick={() => onNavigate(sub.key)}>
+                    <NextLink data-agent-id={`nav.${sub.key}`} href={sub.href} onClick={() => onNavigate(sub.key)}>
                       <span>{sub.title}</span>
                     </NextLink>
                   </SidebarMenuSubButton>
@@ -107,6 +108,16 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
     if (activeParentKey) setOpenKey(activeParentKey);
   }, [activeParentKey]);
 
+  // Expose nav items as agent tour targets (data-agent-id is set on each link/button).
+  useAgentTargets(
+    groups.flatMap((group) =>
+      group.items.flatMap((item) => [
+        { id: `nav.${item.key}`, description: item.title, route: item.href },
+        ...(item.items ?? []).map((sub) => ({ id: `nav.${sub.key}`, description: sub.title, route: sub.href })),
+      ]),
+    ),
+  );
+
   function renderItem(item: NavItem) {
     const isActive = selectedKey === item.key;
 
@@ -126,7 +137,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
     return (
       <SidebarMenuItem key={item.key}>
         <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-          <NextLink href={item.href} onClick={() => onNavigate(item.key)}>
+          <NextLink data-agent-id={`nav.${item.key}`} href={item.href} onClick={() => onNavigate(item.key)}>
             <Icon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>

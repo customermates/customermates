@@ -7,6 +7,7 @@ import { Plus, Search } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useAgentTarget } from "@/features/agent-chat/ui-targets";
 
 type Props = {
   homeHref: string;
@@ -29,6 +30,9 @@ export function NavHeader({
   onSearch,
   onAdd,
 }: Props) {
+  const searchTarget = useAgentTarget("sidebar.search", "Global search across the workspace (⌘K)");
+  const addTarget = useAgentTarget("sidebar.add", "Quick-add a new record (contact, deal, organization, etc.)");
+
   return (
     <SidebarHeader>
       <SidebarMenu>
@@ -58,7 +62,7 @@ export function NavHeader({
 
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton tooltip={searchLabel} onClick={onSearch}>
+          <SidebarMenuButton tooltip={searchLabel} {...searchTarget} onClick={onSearch}>
             <Search />
 
             <span>{searchLabel}</span>
@@ -70,7 +74,7 @@ export function NavHeader({
         </SidebarMenuItem>
 
         <SidebarMenuItem>
-          <SidebarMenuButton tooltip={addLabel} onClick={onAdd}>
+          <SidebarMenuButton tooltip={addLabel} {...addTarget} onClick={onAdd}>
             <Plus />
 
             <span>{addLabel}</span>

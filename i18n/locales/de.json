@@ -6,6 +6,7 @@
       "reject": "Ablehnen",
       "title": "Darf der Assistent „{tool}“ ausführen?"
     },
+    "approvalPending": "Bestätige oder lehne die ausstehende Aktion oben ab, um fortzufahren.",
     "delete": "Löschen",
     "empty": "Frag mich zu deinen Kontakten, Deals, Aufgaben oder deinem Postfach – ich kann suchen, zusammenfassen und Änderungen für dich vornehmen.",
     "error": "Mit dem Assistenten ist etwas schiefgelaufen. Bitte versuche es erneut.",
@@ -22,6 +23,12 @@
       "failed": "{tool} fehlgeschlagen",
       "ran": "{tool} ausgeführt",
       "running": "Führe {tool} aus…"
+    },
+    "tour": {
+      "done": "Fertig",
+      "gotIt": "Verstanden",
+      "next": "Weiter",
+      "prev": "Zurück"
     }
   },
   "AgplGithubBadge": {

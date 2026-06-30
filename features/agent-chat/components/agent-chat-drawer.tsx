@@ -4,10 +4,11 @@ import type { UIMessage } from "ai";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Loader2, MessageSquare, Plus, Send, Trash2 } from "lucide-react";
 
@@ -17,16 +18,54 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { AgentMessageView } from "./agent-message-view";
+import { runUiToolClient } from "./run-ui-tool";
+import { isUiTool } from "../ui-tools";
 
 type ConversationSummary = { id: string; title: string; updatedAt: string };
 
 export const AgentChatDrawer = observer(() => {
   const t = useTranslations();
   const pathname = usePathname();
-  const { agentChatStore: store } = useRootStore();
+  const router = useRouter();
+  const { agentChatStore: store, agentUiControlStore } = useRootStore();
+
+  const addToolResultRef = useRef<((opts: { tool: string; toolCallId: string; output: string }) => void) | null>(null);
+
+  // next-intl's router adds the active locale, so pass an unlocalized path.
+  const navigate = useCallback(
+    (route: string) => {
+      const path = route.startsWith("/") ? route : `/${route}`;
+      router.push(path.replace(/^\/(en|de)(?=\/|$)/, "") || "/");
+    },
+    [router],
+  );
 
   const [transport] = useState(() => new DefaultChatTransport<UIMessage>({ api: "/api/agent" }));
-  const { messages, sendMessage, status, setMessages, addToolApprovalResponse, error } = useChat({ transport });
+  const { messages, sendMessage, status, setMessages, addToolApprovalResponse, addToolResult, error } = useChat({
+    transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    onToolCall: ({ toolCall }) => {
+      if (!isUiTool(toolCall.toolName)) return; // server tools run server-side
+      let output: string;
+      try {
+        output = runUiToolClient(toolCall.toolName, toolCall.input, {
+          ui: agentUiControlStore,
+          navigate,
+        });
+      } catch (error) {
+        // A throw here (e.g. a client-side schema parse failure) must NOT leave the
+        // part at "input-available" — that becomes a dangling tool_use that 400s the
+        // next turn. Always send a result, even a failure one.
+        output = `UI tool ${toolCall.toolName} failed: ${error instanceof Error ? error.message : String(error)}`;
+      }
+      addToolResultRef.current?.({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output });
+    },
+  });
+  addToolResultRef.current = addToolResult as unknown as (opts: {
+    tool: string;
+    toolCallId: string;
+    output: string;
+  }) => void;
 
   const [input, setInput] = useState("");
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -36,6 +75,13 @@ export const AgentChatDrawer = observer(() => {
   const prevStatusRef = useRef(status);
 
   const isBusy = status === "submitted" || status === "streaming";
+
+  // A destructive/gated tool is waiting on the user's decision. Typing past it
+  // would leave a dangling tool call that wedges the conversation, so we force
+  // the choice through the approval card instead.
+  const pendingApproval = messages.some((message) =>
+    message.parts.some((part) => (part as { state?: string }).state === "approval-requested"),
+  );
 
   const refreshConversations = useCallback(async () => {
     try {
@@ -100,7 +146,7 @@ export const AgentChatDrawer = observer(() => {
 
   const submit = useCallback(() => {
     const text = input.trim();
-    if (!text || isBusy) return;
+    if (!text || isBusy || pendingApproval) return;
 
     const conversationId = store.activeConversationId ?? crypto.randomUUID();
     if (!store.activeConversationId) {
@@ -119,7 +165,7 @@ export const AgentChatDrawer = observer(() => {
         },
       },
     );
-  }, [input, isBusy, sendMessage, store, pathname]);
+  }, [input, isBusy, pendingApproval, sendMessage, store, pathname]);
 
   const startNew = useCallback(() => {
     store.startNewConversation();
@@ -161,8 +207,13 @@ export const AgentChatDrawer = observer(() => {
   };
 
   return (
-    <Sheet open={store.isOpen} onOpenChange={(open) => (open ? store.open() : store.close())}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md" side="right">
+    <Sheet modal={false} open={store.isOpen} onOpenChange={(open) => (open ? store.open() : store.close())}>
+      <SheetContent
+        className="w-full gap-0 p-0 shadow-xl sm:max-w-md"
+        showOverlay={false}
+        side="right"
+        onInteractOutside={(event) => event.preventDefault()}
+      >
         <SheetHeader className="flex-row items-center justify-between border-b border-border">
           <SheetTitle>{t("AgentChat.title")}</SheetTitle>
 
@@ -232,10 +283,16 @@ export const AgentChatDrawer = observer(() => {
         )}
 
         <div className="border-t border-border p-3">
+          {pendingApproval ? (
+            <p className="mb-2 text-center text-xs text-amber-700 dark:text-amber-400">
+              {t("AgentChat.approvalPending")}
+            </p>
+          ) : null}
+
           <div className="flex items-end gap-2">
             <Textarea
               className="max-h-32 min-h-9 resize-none"
-              disabled={isBusy}
+              disabled={isBusy || pendingApproval}
               placeholder={t("AgentChat.inputPlaceholder")}
               rows={1}
               value={input}
@@ -248,7 +305,12 @@ export const AgentChatDrawer = observer(() => {
               }}
             />
 
-            <Button disabled={isBusy || !input.trim()} size="icon" title={t("AgentChat.send")} onClick={submit}>
+            <Button
+              disabled={isBusy || !input.trim() || pendingApproval}
+              size="icon"
+              title={t("AgentChat.send")}
+              onClick={submit}
+            >
               {isBusy ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </Button>
           </div>

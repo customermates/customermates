@@ -6,6 +6,7 @@
       "reject": "Reject",
       "title": "Allow the assistant to run “{tool}”?"
     },
+    "approvalPending": "Approve or reject the pending action above to continue.",
     "delete": "Delete",
     "empty": "Ask me about your contacts, deals, tasks, or inbox — I can search, summarize, and make changes for you.",
     "error": "Something went wrong with the assistant. Please try again.",
@@ -22,6 +23,12 @@
       "failed": "{tool} failed",
       "ran": "Ran {tool}",
       "running": "Running {tool}…"
+    },
+    "tour": {
+      "done": "Done",
+      "gotIt": "Got it",
+      "next": "Next",
+      "prev": "Back"
     }
   },
   "AgplGithubBadge": {

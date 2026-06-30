@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useAgentTarget } from "@/features/agent-chat/ui-targets";
 
 type Props = {
   user: ExtendedUser | null;
@@ -32,6 +33,7 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
   const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.email ?? "";
   const avatarSrc = user?.avatarUrl ?? undefined;
+  const accountTarget = useAgentTarget("sidebar.account", "Your account menu — theme toggle and sign out");
 
   return (
     <SidebarMenu>
@@ -42,6 +44,7 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               size="lg"
               tooltip={name || email}
+              {...accountTarget}
             >
               <Avatar className="rounded-lg" name={name} size="lg" src={avatarSrc} />
 

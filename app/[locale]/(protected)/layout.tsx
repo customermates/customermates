@@ -27,6 +27,7 @@ import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
 import { AgentChatLauncher } from "@/features/agent-chat/components/agent-chat-launcher";
 import { AgentChatDrawer } from "@/features/agent-chat/components/agent-chat-drawer";
+import { AgentTourOverlay } from "@/features/agent-chat/components/agent-tour-overlay";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -96,6 +97,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <AgentChatLauncher />
 
       <AgentChatDrawer />
+
+      <AgentTourOverlay />
     </>
   );
 }

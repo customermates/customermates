@@ -9,8 +9,10 @@ import { getAgentModel, isAgentConfigured } from "@/core/ai/provider";
 import { buildAgentTools } from "@/features/agent-chat/agent-tools";
 import { buildAgentSystemPrompt } from "@/features/agent-chat/agent-prompt";
 import { parseAgentPageContext } from "@/features/agent-chat/agent-chat.types";
+import { repairDanglingToolCalls } from "@/features/agent-chat/sanitize-messages";
 import { getPreAuthorizedToolNames } from "@/features/agent-chat/pre-authorized-tools";
 import { SKILL_TOOL_NAME, skillTool } from "@/features/agent-chat/skill-tool";
+import { uiTools } from "@/features/agent-chat/ui-tools";
 
 // The agent loop can chain several tool calls plus model latency, so it needs
 // more headroom than a plain request. The stream starts emitting immediately, so
@@ -75,27 +77,41 @@ export async function POST(req: NextRequest) {
   const skillsResult = await getListEnabledAgentSkillsInteractor().invoke();
   const skills = skillsResult.ok ? skillsResult.data : [];
 
-  const modelMessages = await convertToModelMessages(messages);
+  const modelMessages = await convertToModelMessages(repairDanglingToolCalls(messages));
 
   const result = streamText({
     model: getAgentModel(),
     system: buildAgentSystemPrompt({ user, pageContext, skills, today: new Date().toISOString().slice(0, 10) }),
     messages: modelMessages,
-    tools: { ...buildAgentTools({ preAuthorizedToolNames }), [SKILL_TOOL_NAME]: skillTool },
+    tools: { ...buildAgentTools({ preAuthorizedToolNames }), [SKILL_TOOL_NAME]: skillTool, ...uiTools },
     stopWhen: stepCountIs(12),
   });
 
   return result.toUIMessageStreamResponse({
     originalMessages: messages,
+    onError: (error) => {
+      // Surface stream failures (e.g. tool errors, provider rejections) to the
+      // server log; without this the route returns 200 with a silent error part.
+      console.error("[agent] stream error", error);
+      return error instanceof Error ? error.message : "Agent stream failed";
+    },
     onFinish: async ({ responseMessage }) => {
-      await runWithTenant(user, () =>
-        repo.saveMessage({
-          conversationId,
-          id: responseMessage.id,
-          role: responseMessage.role,
-          parts: responseMessage.parts,
-        }),
-      );
+      try {
+        // A client that omits message ids would otherwise leave responseMessage.id
+        // empty, collapsing every assistant turn onto one upserted row. Fall back to
+        // a fresh id so each turn persists distinctly; real ids (from useChat) are
+        // kept so multi-step resubmits still upsert the same message.
+        await runWithTenant(user, () =>
+          repo.saveMessage({
+            conversationId,
+            id: responseMessage.id || crypto.randomUUID(),
+            role: responseMessage.role,
+            parts: responseMessage.parts,
+          }),
+        );
+      } catch (error) {
+        console.error("[agent] failed to persist assistant message", error);
+      }
     },
   });
 }
