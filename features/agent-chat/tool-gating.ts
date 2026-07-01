@@ -51,13 +51,20 @@ export function toolNeedsApproval(mcpTool: Pick<McpTool, "annotations">): boolea
   return Boolean(mcpTool.annotations?.destructiveHint || mcpTool.annotations?.openWorldHint);
 }
 
+import { ALWAYS_APPROVE_ANNOTATION, ALWAYS_APPROVE_TOOL_NAMES } from "./always-approve";
+
+export { ALWAYS_APPROVE_TOOL_NAMES };
+
 /**
- * Tools that ALWAYS require a fresh approval and can never be silently
- * pre-authorized away. Code execution is the highest-blast-radius capability —
- * the approval card shows the exact code, which is the human check against
- * prompt-injection — so it must never be downgraded by the "always allow" path.
+ * A tool that can never be silently pre-authorized away — its approval card must
+ * always be shown. Read straight off the tool contract's `alwaysApprove` annotation
+ * so the gate follows the tool (surviving a rename) instead of a hand-maintained name
+ * list. Code execution is the canonical case: the card showing the exact code is the
+ * human check against prompt-injection.
  */
-export const ALWAYS_APPROVE_TOOL_NAMES = new Set<string>(["run_code"]);
+export function toolAlwaysRequiresApproval(mcpTool: Pick<McpTool, "annotations">): boolean {
+  return Boolean(mcpTool.annotations?.[ALWAYS_APPROVE_ANNOTATION]);
+}
 
 async function runMcpTool(mcpTool: McpTool, input: unknown): Promise<string> {
   try {
@@ -80,7 +87,7 @@ export function buildAgentToolsFrom(mcpTools: McpTool[], options: { preAuthorize
 
   for (const mcpTool of mcpTools) {
     const gated = toolNeedsApproval(mcpTool);
-    const alwaysApprove = ALWAYS_APPROVE_TOOL_NAMES.has(mcpTool.name);
+    const alwaysApprove = toolAlwaysRequiresApproval(mcpTool);
 
     tools[mcpTool.name] = tool({
       description: mcpTool.description,

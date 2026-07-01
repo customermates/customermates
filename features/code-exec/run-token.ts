@@ -27,7 +27,7 @@ export type RunTokenClaims = {
 
 function secret(): string {
   const s = env.SANDBOX_TOKEN_SECRET;
-  if (!s) throw new Error("SANDBOX_TOKEN_SECRET (or BETTER_AUTH_SECRET) must be set to run sandboxed code");
+  if (!s) throw new Error("SANDBOX_TOKEN_SECRET must be set in production to run sandboxed code");
   return s;
 }
 

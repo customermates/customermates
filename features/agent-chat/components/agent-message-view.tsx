@@ -2,13 +2,15 @@
 
 import type { UIMessage } from "ai";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, FileText, Loader2, Wrench, X } from "lucide-react";
 import { Streamdown } from "streamdown";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+import { ALWAYS_APPROVE_TOOL_NAMES } from "../always-approve";
 
 export type ApprovalHandlers = {
   onApprove: (approvalId: string) => void;
@@ -24,6 +26,10 @@ type ToolUIPartLike = {
   output?: unknown;
   approval?: { id: string; approved?: boolean; reason?: string };
 };
+
+// Hoisted so it isn't a fresh array literal per render (which would defeat the memo
+// below and force Streamdown to re-highlight on every streamed token).
+const SHIKI_THEME = ["github-light", "github-dark"] as ["github-light", "github-dark"];
 
 function isToolPart(type: string): boolean {
   return type.startsWith("tool-") || type === "dynamic-tool";
@@ -182,9 +188,14 @@ function ToolPart({
             {t("AgentChat.approval.reject")}
           </Button>
 
-          <Button size="sm" variant="ghost" onClick={() => handlers.onAlwaysAllow(toolName, approvalId)}>
-            {t("AgentChat.approval.alwaysAllow")}
-          </Button>
+          {/* Some tools (e.g. run_code) can never be pre-authorized away — the stored
+              preference is filtered out on read, so offering "Always allow" here would be
+              a silent no-op. Hide it for those. */}
+          {ALWAYS_APPROVE_TOOL_NAMES.has(toolName) ? null : (
+            <Button size="sm" variant="ghost" onClick={() => handlers.onAlwaysAllow(toolName, approvalId)}>
+              {t("AgentChat.approval.alwaysAllow")}
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -268,7 +279,12 @@ function FilePart({ url, mediaType, filename }: { url: string; mediaType?: strin
   );
 }
 
-export function AgentMessageView({ message, handlers }: { message: UIMessage; handlers: ApprovalHandlers }) {
+// Memoized: useChat replaces the whole messages array on every streamed token, but the
+// objects for already-finished messages keep their identity, so memo skips re-rendering
+// (and re-highlighting) the entire transcript on each chunk — only the streaming message
+// and any message whose parts actually changed re-render. Relies on `handlers` being a
+// stable reference (the drawer memoizes it).
+function AgentMessageViewImpl({ message, handlers }: { message: UIMessage; handlers: ApprovalHandlers }) {
   const t = useTranslations();
   const isUser = message.role === "user";
 
@@ -295,7 +311,7 @@ export function AgentMessageView({ message, handlers }: { message: UIMessage; ha
             <div key={index} className="max-w-[92%] rounded-lg bg-muted px-3 py-2 text-foreground">
               <Streamdown
                 className="space-y-2 text-sm break-words [&_pre]:overflow-x-auto [&_pre]:rounded-md"
-                shikiTheme={["github-light", "github-dark"]}
+                shikiTheme={SHIKI_THEME}
               >
                 {part.text}
               </Streamdown>
@@ -317,3 +333,5 @@ export function AgentMessageView({ message, handlers }: { message: UIMessage; ha
     </div>
   );
 }
+
+export const AgentMessageView = memo(AgentMessageViewImpl);

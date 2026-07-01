@@ -2,7 +2,7 @@
 
 import type { UIMessage } from "ai";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import {
   DefaultChatTransport,
@@ -25,6 +25,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { AgentMessageView } from "./agent-message-view";
 import { runUiToolClient } from "./run-ui-tool";
 import { isUiTool } from "../ui-tools";
+import type { AgentPageContext } from "../agent-chat.types";
 
 type ConversationSummary = { id: string; title: string; updatedAt: string };
 
@@ -61,7 +62,22 @@ export const AgentChatDrawer = observer(() => {
     [router],
   );
 
-  const [transport] = useState(() => new DefaultChatTransport<UIMessage>({ api: "/api/agent" }));
+  // conversationId + pageContext must ride on EVERY request of a turn, including the
+  // SDK's automatic resubmits after a tool result or approval — those go through the
+  // transport directly and do NOT carry the per-call sendMessage `body`. Stash the
+  // current turn's context in a ref and merge it into every request body below, so an
+  // approved run_code turn persists into the active conversation instead of a phantom
+  // one keyed by useChat's internal chat id.
+  const requestBodyRef = useRef<{ conversationId?: string; pageContext?: AgentPageContext }>({});
+  const [transport] = useState(
+    () =>
+      new DefaultChatTransport<UIMessage>({
+        api: "/api/agent",
+        prepareSendMessagesRequest: ({ id, messages, trigger, messageId, body }) => ({
+          body: { id, messages, trigger, messageId, ...body, ...requestBodyRef.current },
+        }),
+      }),
+  );
   const { messages, sendMessage, status, stop, setMessages, addToolApprovalResponse, addToolResult, error } = useChat({
     transport,
     // Resubmit when a client tool's result is ready OR when the user has
@@ -148,6 +164,10 @@ export const AgentChatDrawer = observer(() => {
     const id = store.activeConversationId;
     if (id === loadedConversationRef.current) return;
     loadedConversationRef.current = id;
+    // Abort any in-flight stream for the previous conversation before we swap the
+    // message list — otherwise it keeps appending its assistant reply into the newly
+    // selected conversation's transcript (and that leaked history is sent on the next turn).
+    void stop();
     // Switching conversations: drop composer state staged for the previous one so
     // attachments/text don't leak onto the newly-opened conversation.
     discardStaged(filesRef.current);
@@ -176,7 +196,7 @@ export const AgentChatDrawer = observer(() => {
         setMessages([]);
       }
     })();
-  }, [store.isOpen, store.activeConversationId, setMessages, discardStaged]);
+  }, [store.isOpen, store.activeConversationId, setMessages, discardStaged, stop]);
 
   // Autoscroll to the newest message.
   useEffect(() => {
@@ -294,18 +314,18 @@ export const AgentChatDrawer = observer(() => {
     setInput("");
     setFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    void sendMessage(
-      { role: "user", parts },
-      {
-        body: {
-          conversationId,
-          pageContext: { route: pathname, entity: store.focusedEntity ?? undefined },
-        },
-      },
-    );
+    // Bind this turn's context so it rides on the initial send AND every auto-resubmit.
+    requestBodyRef.current = {
+      conversationId,
+      pageContext: { route: pathname, entity: store.focusedEntity ?? undefined },
+    };
+    void sendMessage({ role: "user", parts });
   }, [input, files, isBusy, pendingApproval, isUploading, sendMessage, store, pathname]);
 
   const startNew = useCallback(() => {
+    // Abort any in-flight stream so it can't write the previous conversation's reply
+    // into the fresh, empty transcript.
+    void stop();
     discardStaged(filesRef.current);
     store.startNewConversation();
     loadedConversationRef.current = null;
@@ -313,7 +333,7 @@ export const AgentChatDrawer = observer(() => {
     setFiles([]);
     setInput("");
     setShowHistory(false);
-  }, [store, setMessages, discardStaged]);
+  }, [store, setMessages, discardStaged, stop]);
 
   const copySessionId = async (id: string) => {
     try {
@@ -336,27 +356,35 @@ export const AgentChatDrawer = observer(() => {
     }
   };
 
-  const alwaysAllow = async (toolName: string, approvalId: string) => {
-    try {
-      const res = await fetch("/api/agent/pre-authorized-tools");
-      const current = res.ok ? await res.json() : { preAuthorizedToolNames: [] };
-      const next = Array.from(new Set([...(current.preAuthorizedToolNames ?? []), toolName]));
-      await fetch("/api/agent/pre-authorized-tools", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ toolNames: next }),
-      });
-    } catch {
-      /* non-fatal: approving once still proceeds */
-    }
-    addToolApprovalResponse({ id: approvalId, approved: true });
-  };
+  const alwaysAllow = useCallback(
+    async (toolName: string, approvalId: string) => {
+      try {
+        const res = await fetch("/api/agent/pre-authorized-tools");
+        const current = res.ok ? await res.json() : { preAuthorizedToolNames: [] };
+        const next = Array.from(new Set([...(current.preAuthorizedToolNames ?? []), toolName]));
+        await fetch("/api/agent/pre-authorized-tools", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ toolNames: next }),
+        });
+      } catch {
+        /* non-fatal: approving once still proceeds */
+      }
+      addToolApprovalResponse({ id: approvalId, approved: true });
+    },
+    [addToolApprovalResponse],
+  );
 
-  const handlers = {
-    onApprove: (id: string) => addToolApprovalResponse({ id, approved: true }),
-    onReject: (id: string) => addToolApprovalResponse({ id, approved: false }),
-    onAlwaysAllow: alwaysAllow,
-  };
+  // Stable reference so the memoized AgentMessageView doesn't re-render every message on
+  // each streamed token.
+  const handlers = useMemo(
+    () => ({
+      onApprove: (id: string) => addToolApprovalResponse({ id, approved: true }),
+      onReject: (id: string) => addToolApprovalResponse({ id, approved: false }),
+      onAlwaysAllow: alwaysAllow,
+    }),
+    [addToolApprovalResponse, alwaysAllow],
+  );
 
   return (
     <Sheet modal={false} open={store.isOpen} onOpenChange={(open) => (open ? store.open() : store.close())}>

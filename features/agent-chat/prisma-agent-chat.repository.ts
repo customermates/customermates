@@ -72,10 +72,18 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentChatRepo
     parts: unknown;
   }): Promise<void> {
     const json = parts as Prisma.InputJsonValue;
-    await this.prisma.agentMessage.upsert({
-      where: { id },
-      create: { id, companyId: this.companyId, conversationId, role, parts: json },
-      update: { companyId: this.companyId, role, parts: json },
+    // Scope the update to this tenant's OWN conversation. A plain upsert keyed on the
+    // client-supplied `where: { id }` bypasses the tenant guard (its upsert branch only
+    // validates the create/update payloads, not the where), so a caller passing another
+    // tenant's message id would silently overwrite and re-stamp that row. updateMany is
+    // fully scoped, and a create only runs when no owned row matched — a genuinely new id.
+    const updated = await this.prisma.agentMessage.updateMany({
+      where: { id, companyId: this.companyId, conversation: { userId: this.userId } },
+      data: { role, parts: json },
+    });
+    if (updated.count > 0) return;
+    await this.prisma.agentMessage.create({
+      data: { id, companyId: this.companyId, conversationId, role, parts: json },
     });
   }
 

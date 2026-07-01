@@ -119,7 +119,17 @@ async function dispatch(request: Parameters<typeof runUserCode>[0], background?:
 export const runCodeTool = {
   name: "run_code",
   description: RUN_CODE_DESCRIPTION,
-  annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true, idempotentHint: false },
+  // `alwaysApprove` marks this as never-pre-authorizable: the approval card showing the
+  // exact code is the human check against prompt-injection and must never be downgraded
+  // by the "always allow" path. The gate reads this off the annotation (not a name list),
+  // so it survives a rename of the tool. See features/agent-chat/tool-gating.ts.
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    openWorldHint: true,
+    idempotentHint: false,
+    alwaysApprove: true,
+  },
   inputSchema: RunCodeSchema,
   // The static (registry) tool has no per-conversation upload context, so it never
   // seeds input files; the agent route overrides run_code with buildRunCodeTool().

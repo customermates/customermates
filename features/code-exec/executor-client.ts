@@ -143,11 +143,30 @@ export class MicrovmExecutorClient implements ExecutorClient {
         return (await res.json()) as RunCodeReport;
       } catch (error) {
         lastError = error;
+        // Only retry when the connection was never established (the VM endpoint isn't
+        // accepting connections yet — the "not ready" signal the docs describe). A
+        // timeout/abort or a mid-request drop means the run was already dispatched and
+        // may be executing, so re-POSTing it could run a non-idempotent program (e.g. an
+        // allowWrite run that mutates CRM data) a SECOND time — fail instead.
+        if (!isConnectPhaseError(error)) throw error instanceof Error ? error : new Error(String(error));
         await sleep(200);
       }
     }
     throw lastError instanceof Error ? lastError : new Error("Sandbox executor did not become ready in time");
   }
+}
+
+// Node/undici error codes that mean the request never reached a handler (connection
+// refused/reset at connect, DNS not resolving yet, connect-phase timeout) — safe to
+// retry because nothing was executed. Notably EXCLUDES AbortSignal.timeout (post-dispatch).
+const CONNECT_PHASE_CODES = new Set(["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT"]);
+
+function isConnectPhaseError(error: unknown): boolean {
+  // AbortSignal.timeout rejects with a Timeout/Abort error — the request was already in
+  // flight, so the run may have started; these must never be retried.
+  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) return false;
+  const code = (error as { cause?: { code?: string } })?.cause?.code ?? (error as { code?: string })?.code;
+  return typeof code === "string" && CONNECT_PHASE_CODES.has(code);
 }
 
 function sleep(ms: number): Promise<void> {

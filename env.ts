@@ -71,7 +71,12 @@ export const env = {
   // Public URL the sandbox uses to call the read-only data broker back. Defaults
   // to BASE_URL; override when the broker is reached over a private path.
   SANDBOX_BROKER_URL: process.env.SANDBOX_BROKER_URL,
-  // HMAC secret for short-lived run-scoped data tokens. Must be set in prod;
-  // falls back to BETTER_AUTH_SECRET in dev so the feature works out of the box.
-  SANDBOX_TOKEN_SECRET: process.env.SANDBOX_TOKEN_SECRET ?? process.env.BETTER_AUTH_SECRET,
+  // HMAC secret for short-lived run-scoped data tokens. Must be set in prod (and
+  // distinct from BETTER_AUTH_SECRET so a leak of one key can't forge the other's
+  // tokens); falls back to BETTER_AUTH_SECRET only outside production so the feature
+  // works out of the box in dev. In prod the fallback is withheld, so a missing
+  // secret leaves this undefined and run-token.ts fails closed.
+  SANDBOX_TOKEN_SECRET:
+    process.env.SANDBOX_TOKEN_SECRET ??
+    (process.env.NODE_ENV === "production" ? undefined : process.env.BETTER_AUTH_SECRET),
 };

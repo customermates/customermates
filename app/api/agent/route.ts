@@ -3,6 +3,8 @@ import type { UIMessage } from "ai";
 
 import { convertToModelMessages, stepCountIs, streamText } from "ai";
 
+import { Prisma } from "@/generated/prisma";
+
 import { getAgentChatRepo, getListEnabledAgentSkillsInteractor, getUserService } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getAgentModel, isAgentConfigured } from "@/core/ai/provider";
@@ -128,10 +130,24 @@ export async function POST(req: NextRequest) {
 
   // Ensure the conversation row exists (tenant-scoped to this user) and persist
   // the inbound user message before we start streaming.
+  let conversationConflict = false;
   await runWithTenant(user, async () => {
     const existing = requestedConversationId ? await repo.getConversation(requestedConversationId) : null;
     if (existing) await repo.touchConversation(conversationId);
-    else await repo.createConversation({ id: conversationId, title: deriveTitle(messages) });
+    else {
+      try {
+        await repo.createConversation({ id: conversationId, title: deriveTitle(messages) });
+      } catch (error) {
+        // The scoped lookup missed but the id already exists — it belongs to another
+        // user/tenant (or a UUID collision). Never adopt or overwrite it, and never
+        // 500 (which would also leak which conversation ids exist).
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          conversationConflict = true;
+          return;
+        }
+        throw error;
+      }
+    }
 
     if (lastMessage?.role === "user") {
       await repo.saveMessage({
@@ -142,6 +158,7 @@ export async function POST(req: NextRequest) {
       });
     }
   });
+  if (conversationConflict) return Response.json({ error: "conversation_conflict" }, { status: 409 });
 
   const skillsResult = await getListEnabledAgentSkillsInteractor().invoke();
   const skills = skillsResult.ok ? skillsResult.data : [];

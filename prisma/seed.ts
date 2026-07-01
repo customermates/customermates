@@ -285,7 +285,7 @@ async function main() {
     const companyExists = await prisma.company.findUnique({ where: { id: DEMO_COMPANY_ID }, select: { id: true } });
     if (companyExists) {
       await prisma.agentSkill.upsert({
-        where: { companyId_name: { companyId: DEMO_COMPANY_ID, name: "import-data" } },
+        where: { companyId_name: { companyId: DEMO_COMPANY_ID, name: "import_data" } },
         update: {
           title: "Import records from an uploaded file",
           summary: "Import records from an uploaded file",
@@ -293,14 +293,14 @@ async function main() {
         },
         create: {
           companyId: DEMO_COMPANY_ID,
-          name: "import-data",
+          name: "import_data",
           title: "Import records from an uploaded file",
           summary: "Import records from an uploaded file",
           instructions: IMPORT_DATA_INSTRUCTIONS,
           sortOrder: 0,
         },
       });
-      console.log("✅ Upserted built-in agent skill (import-data)");
+      console.log("✅ Upserted built-in agent skill (import_data)");
     }
 
     console.log("🎉 Database seeding completed successfully!");
