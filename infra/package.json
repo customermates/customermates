@@ -1,0 +1,21 @@
+{
+  "name": "customermates-infra",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Portable CDK infra for the code-exec sandbox. Move this directory into your infra/CDK repo — it is authored here for convenience and is NOT part of the Next.js app's build (excluded from the app's tsconfig/eslint).",
+  "scripts": {
+    "build": "tsc",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1128.1",
+    "ts-node": "^10.9.2",
+    "typescript": "5.6.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.260.0",
+    "constructs": "^10.4.2"
+  }
+}

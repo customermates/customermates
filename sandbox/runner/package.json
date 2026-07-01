@@ -1,0 +1,10 @@
+{
+  "name": "code-exec-runner",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Sandbox executor HTTP host (see server.mjs). Baked into the MicroVM image at build time — not part of the Next.js app.",
+  "type": "module",
+  "dependencies": {
+    "undici": "^8.5.0"
+  }
+}

@@ -232,6 +232,13 @@ export const AppSidebar = observer(
                     visible: rootStore.isCloudHosted && userStore.canAccess(Resource.auditLog),
                   },
                   {
+                    key: "company-agent-skills",
+                    title: t("AgentSkills.title"),
+                    href: "/company/agent-skills",
+                    icon: Building,
+                    visible: userStore.canAccess(Resource.company),
+                  },
+                  {
                     key: "company-webhooks",
                     title: t("WebhooksCard.title"),
                     href: "/company/webhooks",

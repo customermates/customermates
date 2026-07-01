@@ -1,0 +1,19 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/code-exec.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "**/*.d.ts",
+      "**/*.js",
+      "tsconfig.json",
+      "package*.json",
+      "node_modules",
+      "cdk.out"
+    ]
+  },
+  "context": {
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"]
+  }
+}

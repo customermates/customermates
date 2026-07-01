@@ -44,6 +44,11 @@ import { PrismaAgentSkillRepo } from "@/features/agent-chat/prisma-agent-skill.r
 // Agent chat interactors
 import { ListEnabledAgentSkillsInteractor } from "@/features/agent-chat/list-enabled-agent-skills.interactor";
 import { GetAgentSkillByNameInteractor } from "@/features/agent-chat/get-agent-skill-by-name.interactor";
+import { ListAgentSkillsInteractor } from "@/features/agent-chat/list-agent-skills.interactor";
+import { GetAgentSkillByIdInteractor } from "@/features/agent-chat/get-agent-skill-by-id.interactor";
+import { CreateAgentSkillInteractor } from "@/features/agent-chat/create-agent-skill.interactor";
+import { UpdateAgentSkillInteractor } from "@/features/agent-chat/update-agent-skill.interactor";
+import { DeleteAgentSkillInteractor } from "@/features/agent-chat/delete-agent-skill.interactor";
 import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
 import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
 import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
@@ -1165,6 +1170,11 @@ export const getAgentSkillRepo = () => new PrismaAgentSkillRepo();
 
 export const getListEnabledAgentSkillsInteractor = () => new ListEnabledAgentSkillsInteractor(getAgentSkillRepo());
 export const getGetAgentSkillByNameInteractor = () => new GetAgentSkillByNameInteractor(getAgentSkillRepo());
+export const getListAgentSkillsInteractor = () => new ListAgentSkillsInteractor(getAgentSkillRepo());
+export const getGetAgentSkillByIdInteractor = () => new GetAgentSkillByIdInteractor(getAgentSkillRepo());
+export const getCreateAgentSkillInteractor = () => new CreateAgentSkillInteractor(getAgentSkillRepo());
+export const getUpdateAgentSkillInteractor = () => new UpdateAgentSkillInteractor(getAgentSkillRepo());
+export const getDeleteAgentSkillInteractor = () => new DeleteAgentSkillInteractor(getAgentSkillRepo());
 
 export const getListAgentConversationsInteractor = () => new ListAgentConversationsInteractor(getAgentChatRepo());
 export const getGetAgentConversationInteractor = () => new GetAgentConversationInteractor(getAgentChatRepo());

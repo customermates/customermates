@@ -48,13 +48,26 @@ export const env = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL,
 
-  // Sandboxed code execution (run_code tool). Disabled unless explicitly enabled
-  // AND an executor endpoint is configured. The executor is a separate, isolated
-  // service (e.g. an AWS Lambda MicroVM) that runs the agent's Python/JS in a
-  // tenant-walled sandbox and reaches CRM data only via the read-only broker.
+  // Sandboxed code execution (run_code tool). Disabled unless explicitly enabled AND
+  // an executor is configured. Production substrate is AWS Lambda MicroVMs (see
+  // infra/code-exec) — a fresh, tenant-isolated MicroVM per run, terminated right
+  // after, reaching CRM data only via the read-only broker in DATA mode.
   SANDBOX_CODE_EXEC_ENABLED: process.env.SANDBOX_CODE_EXEC_ENABLED === "true",
+  // MicroVMs substrate (production). All four required together — see the
+  // `MicrovmImageArnOutput`/`DataNetworkConnectorArnOutput`/
+  // `NetNetworkConnectorArnOutput` stack outputs from infra/code-exec. AWS
+  // credentials come from the standard SDK provider chain (env vars / IAM role),
+  // not from an app-config var.
+  SANDBOX_MICROVM_REGION: process.env.SANDBOX_MICROVM_REGION,
+  SANDBOX_MICROVM_IMAGE_ARN: process.env.SANDBOX_MICROVM_IMAGE_ARN,
+  SANDBOX_MICROVM_DATA_CONNECTOR_ARN: process.env.SANDBOX_MICROVM_DATA_CONNECTOR_ARN,
+  SANDBOX_MICROVM_NET_CONNECTOR_ARN: process.env.SANDBOX_MICROVM_NET_CONNECTOR_ARN,
+  // Local/dev substrate: a plain HTTP process (see sandbox/README.md), used only
+  // when the MicroVM vars above aren't set. A single local/dev executor can serve
+  // NET-mode requests itself (it reads `mode` from the request body); the optional
+  // _NET var lets you point NET-mode runs at a separate local process instead.
   SANDBOX_EXECUTOR_URL: process.env.SANDBOX_EXECUTOR_URL,
-  SANDBOX_EXECUTOR_API_KEY: process.env.SANDBOX_EXECUTOR_API_KEY,
+  SANDBOX_EXECUTOR_URL_NET: process.env.SANDBOX_EXECUTOR_URL_NET,
   // Public URL the sandbox uses to call the read-only data broker back. Defaults
   // to BASE_URL; override when the broker is reached over a private path.
   SANDBOX_BROKER_URL: process.env.SANDBOX_BROKER_URL,

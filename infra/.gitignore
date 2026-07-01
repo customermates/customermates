@@ -1,0 +1,8 @@
+node_modules/
+cdk.out/
+# Caches VPC-lookup results (account/subnet IDs) from whichever account last ran
+# `cdk synth`/`diff`/`deploy` — environment-specific, never commit.
+cdk.context.json
+*.js
+*.d.ts
+!jest.config.js

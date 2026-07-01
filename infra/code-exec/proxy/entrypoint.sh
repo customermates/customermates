@@ -15,5 +15,19 @@ IFS=$OLD_IFS
 
 echo "egress-proxy allowlist:" && cat /etc/squid/allowlist.txt
 
+# Squid's access_log writes to a real file (see squid.conf) because writing to
+# stdout directly, as the dropped-privilege `proxy` user, doesn't work in this
+# container (confirmed: both the stdio and daemon log modules targeting
+# /dev/stdout fail). Tail that file to OUR stdout instead, backgrounded so the
+# `exec` below can still hand off signal/PID-1 duties to squid itself — the
+# tail keeps running as an independent process, unaffected by its parent shell
+# image being replaced.
+: > /var/log/squid/access.log
+# Created by root (entrypoint.sh hasn't dropped privileges); squid itself later
+# writes to it as the unprivileged `proxy` user (cache_effective_user), so it
+# needs to actually own the file, not just have its directory be proxy-owned.
+chown proxy:proxy /var/log/squid/access.log
+tail -F /var/log/squid/access.log &
+
 # Foreground; no daemon.
 exec squid -N -f /etc/squid/squid.conf

@@ -28,7 +28,15 @@ const RunCodeSchema = z.object({
         "entity is one of contact|organization|deal|service|task. crm.run_tool(name, args) invokes a backend tool " +
         "server-side with the user's permissions. The run is READ-ONLY by default (read tools only); to " +
         "create_entities/update_entities/delete_entities/send_email you MUST pass allowWrite:true — those REALLY mutate " +
-        "data, so confirm intent and call get_entity_configuration first. Print results or assign to `result`. " +
+        "data, so confirm intent and call get_entity_configuration first. " +
+        "Write ONE self-contained script that does the WHOLE task in this single call: each call is a fresh sandbox " +
+        "(no variables, files, or state carry over), so never split preparation into one call and execution into " +
+        "another — read the input, build the data, and act on it in the same script. When a " +
+        "backend tool caps items per call (e.g. create/update/delete at 100), LOOP and call crm.run_tool once per batch " +
+        "of 100 INSIDE this one script (a run may make up to 200 tool calls / 1000 mutated records); do NOT make a " +
+        "separate run_code call per batch. Pass any uploaded files you read in inputFiles. " +
+        "Print results or assign to `result`, but keep output small — stdout is capped (~64 KB) and overflow fails the " +
+        "run, so summarize (counts/totals/errors) instead of printing every row or dumping large payloads. " +
         "Files written are ephemeral (cleared after the run).",
     ),
   timeoutMs: z.number().int().min(1_000).max(30_000).optional().describe("Optional wall-clock limit (max 30s)."),
@@ -47,8 +55,10 @@ const RunCodeSchema = z.object({
     .optional()
     .describe(
       "Names of files the user uploaded to this conversation to make available in the working directory " +
-        "(read them with open()/fs by the same name). Only names listed in the system prompt's uploaded-files " +
-        "section can be selected; omit when you don't need any uploaded file.",
+        "(read them with open()/fs by the same name). REQUIRED whenever your code reads an uploaded file: a file is " +
+        "present ONLY if its name is listed here — otherwise open() raises FileNotFound. If the code opens an uploaded " +
+        "file, that exact name must appear in this array in the SAME call. Only names listed in the system prompt's " +
+        "uploaded-files section can be selected; omit when you don't need any uploaded file.",
     ),
   allowWrite: z
     .boolean()
@@ -67,9 +77,13 @@ const RUN_CODE_DESCRIPTION =
   "and NET (allowlisted internet for installs/approved APIs, no CRM data). In DATA mode crm.run_tool(name, args) invokes " +
   "backend tools server-side with the user's permissions — read-only by default; pass allowWrite:true to permit " +
   "create/update/delete (real mutations). " +
-  "Files the user uploaded can be made available in the working directory via inputFiles. " +
+  "Every run is a fresh, throwaway sandbox and needs the user's approval, so do the ENTIRE task in ONE call: write one " +
+  "self-contained script that reads its inputs, builds the data, and loops crm.run_tool over batches of 100 — never spread " +
+  "a job across several run_code calls. Keep stdout small (it is capped); return a short summary. " +
+  "Files the user uploaded can be made available in the working directory via inputFiles (a file is readable ONLY if its " +
+  "name is in inputFiles). " +
   "Set background:true for slower jobs to get a runId immediately, then poll check_run(runId). " +
-  "Returns JSON { status, stdout, result, error, files, durationMs }. Requires the user's approval on every run.";
+  "Returns JSON { status, stdout, result, error, files, durationMs }.";
 
 function serializeReport(report: Awaited<ReturnType<typeof runUserCode>>): string {
   return JSON.stringify({

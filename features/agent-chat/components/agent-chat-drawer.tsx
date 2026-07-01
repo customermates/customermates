@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { FileText, Loader2, MessageSquare, Paperclip, Plus, Send, Square, Trash2, X } from "lucide-react";
+import { Check, Copy, FileText, Loader2, MessageSquare, Paperclip, Plus, Send, Square, Trash2, X } from "lucide-react";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -112,12 +112,14 @@ export const AgentChatDrawer = observer(() => {
   }, []);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [sessionIdCopied, setSessionIdCopied] = useState(false);
   const loadedConversationRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevStatusRef = useRef(status);
 
   const isBusy = status === "submitted" || status === "streaming";
   const isUploading = files.some((f) => f.status === "uploading");
+  const activeConversationId = store.activeConversationId;
 
   // A destructive/gated tool is waiting on the user's decision. Typing past it
   // would leave a dangling tool call that wedges the conversation, so we force
@@ -313,6 +315,17 @@ export const AgentChatDrawer = observer(() => {
     setShowHistory(false);
   }, [store, setMessages, discardStaged]);
 
+  const copySessionId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setSessionIdCopied(true);
+      toast.success(t("AgentChat.sessionIdCopied"));
+      window.setTimeout(() => setSessionIdCopied(false), 2000);
+    } catch {
+      toast.error(t("AgentChat.error"));
+    }
+  };
+
   const deleteConversation = async (id: string) => {
     try {
       await fetch(`/api/agent/conversations/${id}`, { method: "DELETE" });
@@ -393,6 +406,24 @@ export const AgentChatDrawer = observer(() => {
             </Button>
           </div>
         </SheetHeader>
+
+        {activeConversationId ? (
+          <div className="flex items-center gap-1.5 border-b border-border px-4 py-1.5 text-xs text-muted-foreground">
+            <span className="truncate font-mono">
+              {t("AgentChat.sessionId", { id: activeConversationId.slice(0, 8) })}
+            </span>
+
+            <Button
+              className="size-5 shrink-0"
+              size="icon-xs"
+              title={t("AgentChat.copySessionId")}
+              variant="ghost"
+              onClick={() => void copySessionId(activeConversationId)}
+            >
+              {sessionIdCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
+            </Button>
+          </div>
+        ) : null}
 
         {showHistory ? (
           <div className="flex-1 overflow-y-auto p-2">

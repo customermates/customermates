@@ -5,6 +5,7 @@
     "@ai-sdk/mcp": "^1.0.18",
     "@ai-sdk/openai": "^3.0.25",
     "@ai-sdk/react": "^3.0.70",
+    "@aws-sdk/client-lambda-microvms": "^3.1077.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

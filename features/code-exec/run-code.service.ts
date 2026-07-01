@@ -35,9 +35,14 @@ const MAX_TIMEOUT_MS = 30_000;
 const MEMORY_MB = 256;
 const MAX_OUTPUT_BYTES = 64_000;
 // Total bytes of uploaded inputs we'll inline into one executor request. Bounds the
-// request body (base64 inflates ~33%). NOTE: the production Lambda MicroVM caps a
-// sync invoke at ~6 MB — for larger inputs there, switch to broker-fetch-by-id; the
-// in-process HTTP runner has no such cap.
+// request body (base64 inflates ~33%). NOTE: the production executor (an AWS Lambda
+// MicroVM — see infra/code-exec) has no fixed request-size ceiling like a classic
+// Lambda function's synchronous-invoke payload cap, but its endpoint bandwidth scales
+// with the MicroVM's size (e.g. 4 MB/s at the 2 GB/1 vCPU default — see
+// https://docs.aws.amazon.com/lambda/latest/dg/microvms-networking.html), so a large
+// inline body still costs real latency; for bigger inputs, switch to
+// broker-fetch-by-id instead of raising this cap. The in-process local/dev executor
+// has no such concern either way.
 const MAX_INPUT_TOTAL_BYTES = 25 * 1024 * 1024;
 
 function errorReport(message: string): RunCodeReport {

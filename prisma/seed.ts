@@ -264,6 +264,45 @@ async function main() {
       console.log("✅ Inserted api keys");
     }
 
+    // Built-in agent skill (idempotent upsert on the unique companyId+name).
+    // The full step-by-step instructions live here so the agent's system prompt
+    // stays lean; it loads them on demand via the get_skill tool.
+    const DEMO_COMPANY_ID = "b7de4dd8-5848-4347-84bc-f613a56f1f8f";
+    const IMPORT_DATA_INSTRUCTIONS = [
+      "Use this when the user uploads a file (CSV/spreadsheet) and asks to add or import its rows as CRM records.",
+      "",
+      'Do the ENTIRE import in ONE run_code call. Do NOT inspect the file in a separate call first: each run_code call is a fresh sandbox, so a preceding "let me examine the file" step is thrown away and is the #1 mistake here.',
+      "",
+      "The single script must:",
+      "1. Pass the uploaded file's EXACT name in inputFiles — a file exists in the sandbox only if listed there, otherwise open() raises FileNotFound.",
+      "2. Read it (pandas or csv), mapping column-name variants AT RUNTIME with .get()/fallbacks — never assume you have already seen the headers (firstName/first_name/name; lastName/last_name; email/e-mail/mail; phone).",
+      '3. Build the records, then LOOP crm.run_tool("create_contacts", {"contacts": batch}) over batches of 100 (the per-call cap), with allowWrite:true on the run. One run may make up to 200 tool calls / 1000 mutated records.',
+      "4. Print ONLY a final summary AFTER the loop (rows read, created, skipped, errors). stdout is capped (~64 KB) — never print every row.",
+      "",
+      "For other entity types use the matching tool (create_organizations, create_deals, ...) with the same batch-of-100 loop. If the file has more than 1000 rows, split across multiple run_code calls of <=1000 records each and report the running total.",
+    ].join("\n");
+
+    const companyExists = await prisma.company.findUnique({ where: { id: DEMO_COMPANY_ID }, select: { id: true } });
+    if (companyExists) {
+      await prisma.agentSkill.upsert({
+        where: { companyId_name: { companyId: DEMO_COMPANY_ID, name: "import-data" } },
+        update: {
+          title: "Import records from an uploaded file",
+          summary: "Import records from an uploaded file",
+          instructions: IMPORT_DATA_INSTRUCTIONS,
+        },
+        create: {
+          companyId: DEMO_COMPANY_ID,
+          name: "import-data",
+          title: "Import records from an uploaded file",
+          summary: "Import records from an uploaded file",
+          instructions: IMPORT_DATA_INSTRUCTIONS,
+          sortOrder: 0,
+        },
+      });
+      console.log("✅ Upserted built-in agent skill (import-data)");
+    }
+
     console.log("🎉 Database seeding completed successfully!");
   } catch (error) {
     console.error("❌ Error during seeding:", error);

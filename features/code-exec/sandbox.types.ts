@@ -1,8 +1,9 @@
 /**
  * Shared contracts for the sandboxed code-execution feature (the `run_code` tool).
  *
- * The agent's code runs OUT OF PROCESS in an isolated executor (an AWS Lambda
- * MicroVM in production; a stub in tests) with no DB connection and no secrets.
+ * The agent's code runs OUT OF PROCESS in an isolated executor — in production, a
+ * FRESH AWS Lambda MicroVM per run, terminated right after (see infra/code-exec; a
+ * stub in tests) — with no DB connection and no secrets.
  * It reaches CRM data only through the read-only data broker, authenticated by a
  * short-lived, tenant-bound run token. These types are the seam between the app,
  * the executor, and the chat UI — and stay identical regardless of substrate.

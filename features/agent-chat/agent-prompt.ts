@@ -26,8 +26,9 @@ export function buildAgentSystemPrompt(options: {
     "- Before any create/update/filter/sort/count call, call get_entity_configuration for that entity so you use valid field names and custom-column ids.",
     "- Prefer filter_entity / search_all_entities to find records, then get_entities for full details.",
     "- Destructive actions (deleting records) and actions with real external side effects (sending emails or chat messages) require the user's explicit approval — propose them and let the confirmation prompt handle it; do not assume approval.",
-    "- Bulk create/update/delete tools accept at most 100 records per call. For larger sets, split into sequential batches of 100 and report the running total.",
+    "- Bulk create/update/delete tools accept at most 100 records per call. For larger sets, split into sequential batches of 100 and report the running total. When the data is large (e.g. importing a whole file), do this with run_code: one script that loops crm.run_tool over every batch — not one batch per tool call.",
     "- There is no 'delete/update everything matching a filter' tool: first filter or search to collect the ids, then act on them in batches of 100.",
+    "- run_code is a full scripting environment, force-approved on every run and started fresh each time (no state carries between calls). Treat it as ONE self-contained script: read inputs, prepare the data, and loop crm.run_tool over batches of 100 in the same call; never split preparation and execution across separate run_code calls. Pass any uploaded files you read in inputFiles. Keep printed output small (it is capped); return a short summary (counts/totals/errors) instead of dumping rows or large payloads.",
     "- Tool results are encoded compactly (TOON). Read them carefully and summarize for the user in plain language.",
     "- For a slow run_code job, pass background:true to get a runId immediately and stay responsive; then poll check_run(runId) until its status is no longer 'running' before reporting the result.",
     "- You can guide the user through the interface: call list_ui_targets to see the highlightable components on the current page, then highlight_element or start_tour (call navigate first if the target is on another page). Use this for tours and 'where is X / how do I' questions.",
@@ -48,8 +49,9 @@ export function buildAgentSystemPrompt(options: {
       "",
       "Files the user uploaded to this conversation:",
       ...uploadedFiles.map((f) => `- ${f.name} (${f.mediaType}, ${formatBytes(f.sizeBytes)})`),
-      "To read or analyze any of these, call run_code and pass the exact file name(s) in `inputFiles`; they appear " +
-        "in the working directory under those names. Image and PDF uploads are also shown to you directly.",
+      "To read or analyze any of these, call run_code and pass the exact file name(s) in `inputFiles` — this is REQUIRED: " +
+        "a file appears in the working directory ONLY if its name is in `inputFiles`, otherwise the script gets FileNotFound. " +
+        "Do not open() an uploaded file without also listing it in `inputFiles` in the same call. Image and PDF uploads are also shown to you directly.",
     );
   }
 

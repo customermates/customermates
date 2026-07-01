@@ -1,10 +1,20 @@
 // JavaScript harness: exposes an async read-only `crm` client to the user
 // program, runs it, and prints a sentinel line with {status, result, error}.
-// The only reachable network destination is the broker (enforced by the network).
+// The only reachable network destination is enforced by the network (the DATA/NET
+// egress connector + proxy, not this file).
 import { readFileSync } from "node:fs";
+import { fetch, ProxyAgent, setGlobalDispatcher } from "undici";
 
 const BROKER = process.env.SANDBOX_BROKER_URL || "";
 const TOKEN = process.env.SANDBOX_RUN_TOKEN || "";
+
+// Node's global fetch doesn't automatically honor HTTPS_PROXY/HTTP_PROXY (unlike
+// Python's urllib, used by harness.py). server.mjs sets one or the other based on
+// this run's mode (see runOnce() in server.mjs) — apply it explicitly via undici's
+// own dispatcher so this fetch (imported from the SAME undici instance, not the
+// global one) actually routes through it.
+const proxyUrl = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy;
+if (proxyUrl) setGlobalDispatcher(new ProxyAgent(proxyUrl));
 
 async function call(operation, params) {
   const res = await fetch(BROKER, {

@@ -55,6 +55,7 @@ const SUB_LABEL_MAP: Record<string, Record<string, string>> = {
     members: "NavigationBar.members",
     roles: "RolesCard.title",
     "audit-logs": "AuditLogsCard.title",
+    "agent-skills": "AgentSkills.title",
     webhooks: "WebhooksCard.title",
     "webhook-deliveries": "WebhookDeliveriesCard.title",
   },

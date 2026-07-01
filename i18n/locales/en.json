@@ -9,6 +9,7 @@
       "title": "Allow the assistant to run “{tool}”?"
     },
     "approvalPending": "Approve or reject the pending action above to continue.",
+    "copySessionId": "Copy session ID",
     "delete": "Delete",
     "empty": "Ask me about your contacts, deals, tasks, or inbox — I can search, summarize, and make changes for you.",
     "error": "Something went wrong with the assistant. Please try again.",
@@ -18,6 +19,8 @@
     "newChat": "New chat",
     "noConversations": "No conversations yet",
     "send": "Send",
+    "sessionId": "Session {id}",
+    "sessionIdCopied": "Session ID copied",
     "stop": "Stop",
     "thinking": "Thinking…",
     "title": "Assistant",
@@ -41,6 +44,65 @@
       "remove": "Remove",
       "tooLarge": "{name} is too large (max 25 MB)",
       "tooMany": "You can attach up to {max} files"
+    }
+  },
+  "AgentSkills": {
+    "actions": {
+      "add": "Add skill",
+      "addFirst": "Add your first skill",
+      "delete": "Delete",
+      "edit": "Edit",
+      "retry": "Try again",
+      "toggle": "Toggle enabled"
+    },
+    "description": "Author reusable playbooks the assistant can follow. Enabled skills appear in the assistant's catalog and it pulls the full instructions when relevant.",
+    "empty": "No skills yet. Create one to give the assistant a reusable playbook.",
+    "error": "Couldn't load skills. Please try again.",
+    "form": {
+      "cancel": "Cancel",
+      "create": "Create skill",
+      "createTitle": "New skill",
+      "description": "Skills are company-wide. The name is a stable key; the title and summary help the assistant decide when to use it.",
+      "editTitle": "Edit skill",
+      "errors": {
+        "namePattern": "Use lowercase letters, numbers, and underscores only.",
+        "required": "Please fill in the name, title, summary, and instructions."
+      },
+      "fields": {
+        "enabled": "Enabled",
+        "instructions": "Instructions",
+        "name": "Name",
+        "sortOrder": "Sort order",
+        "summary": "Summary",
+        "title": "Title"
+      },
+      "hints": {
+        "instructions": "The full playbook the assistant follows when it uses this skill.",
+        "name": "Unique key, e.g. import_data. Lowercase letters, numbers, and underscores. Can't be changed later.",
+        "sortOrder": "Lower numbers appear first in the catalog.",
+        "summary": "A short description that helps the assistant pick this skill."
+      },
+      "placeholders": {
+        "instructions": "Step-by-step instructions the assistant should follow…",
+        "name": "import_data",
+        "summary": "Import contacts or deals from a spreadsheet.",
+        "title": "Import data"
+      },
+      "save": "Save changes"
+    },
+    "status": {
+      "disabled": "Disabled"
+    },
+    "title": "Agent skills",
+    "toast": {
+      "created": "Skill created",
+      "createError": "Couldn't create the skill. Please try again.",
+      "deleted": "Skill deleted",
+      "deleteError": "Couldn't delete the skill. Please try again.",
+      "disabled": "Skill disabled",
+      "enabled": "Skill enabled",
+      "updated": "Skill updated",
+      "updateError": "Couldn't save the skill. Please try again."
     }
   },
   "AgplGithubBadge": {

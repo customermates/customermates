@@ -9,6 +9,7 @@
       "title": "Darf der Assistent „{tool}“ ausführen?"
     },
     "approvalPending": "Bestätige oder lehne die ausstehende Aktion oben ab, um fortzufahren.",
+    "copySessionId": "Sitzungs-ID kopieren",
     "delete": "Löschen",
     "empty": "Frag mich zu deinen Kontakten, Deals, Aufgaben oder deinem Postfach – ich kann suchen, zusammenfassen und Änderungen für dich vornehmen.",
     "error": "Mit dem Assistenten ist etwas schiefgelaufen. Bitte versuche es erneut.",
@@ -18,6 +19,8 @@
     "newChat": "Neuer Chat",
     "noConversations": "Noch keine Unterhaltungen",
     "send": "Senden",
+    "sessionId": "Sitzung {id}",
+    "sessionIdCopied": "Sitzungs-ID kopiert",
     "stop": "Stoppen",
     "thinking": "Denkt nach…",
     "title": "Assistent",
@@ -41,6 +44,65 @@
       "remove": "Entfernen",
       "tooLarge": "{name} ist zu groß (max. 25 MB)",
       "tooMany": "Du kannst bis zu {max} Dateien anhängen"
+    }
+  },
+  "AgentSkills": {
+    "actions": {
+      "add": "Skill hinzufügen",
+      "addFirst": "Ersten Skill hinzufügen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "retry": "Erneut versuchen",
+      "toggle": "Aktivierung umschalten"
+    },
+    "description": "Erstelle wiederverwendbare Playbooks, denen der Assistent folgen kann. Aktivierte Skills erscheinen im Katalog des Assistenten, und er ruft die vollständigen Anweisungen bei Bedarf ab.",
+    "empty": "Noch keine Skills. Lege einen an, um dem Assistenten ein wiederverwendbares Playbook zu geben.",
+    "error": "Skills konnten nicht geladen werden. Bitte versuche es erneut.",
+    "form": {
+      "cancel": "Abbrechen",
+      "create": "Skill erstellen",
+      "createTitle": "Neuer Skill",
+      "description": "Skills gelten unternehmensweit. Der Name ist ein fester Schlüssel; Titel und Zusammenfassung helfen dem Assistenten zu entscheiden, wann er ihn nutzt.",
+      "editTitle": "Skill bearbeiten",
+      "errors": {
+        "namePattern": "Nur Kleinbuchstaben, Zahlen und Unterstriche verwenden.",
+        "required": "Bitte fülle Name, Titel, Zusammenfassung und Anweisungen aus."
+      },
+      "fields": {
+        "enabled": "Aktiviert",
+        "instructions": "Anweisungen",
+        "name": "Name",
+        "sortOrder": "Sortierung",
+        "summary": "Zusammenfassung",
+        "title": "Titel"
+      },
+      "hints": {
+        "instructions": "Das vollständige Playbook, dem der Assistent folgt, wenn er diesen Skill nutzt.",
+        "name": "Eindeutiger Schlüssel, z. B. import_data. Kleinbuchstaben, Zahlen und Unterstriche. Kann später nicht geändert werden.",
+        "sortOrder": "Niedrigere Zahlen erscheinen im Katalog zuerst.",
+        "summary": "Eine kurze Beschreibung, die dem Assistenten hilft, diesen Skill auszuwählen."
+      },
+      "placeholders": {
+        "instructions": "Schritt-für-Schritt-Anweisungen, denen der Assistent folgen soll…",
+        "name": "import_data",
+        "summary": "Kontakte oder Deals aus einer Tabelle importieren.",
+        "title": "Daten importieren"
+      },
+      "save": "Änderungen speichern"
+    },
+    "status": {
+      "disabled": "Deaktiviert"
+    },
+    "title": "Agent-Skills",
+    "toast": {
+      "created": "Skill erstellt",
+      "createError": "Der Skill konnte nicht erstellt werden. Bitte versuche es erneut.",
+      "deleted": "Skill gelöscht",
+      "deleteError": "Der Skill konnte nicht gelöscht werden. Bitte versuche es erneut.",
+      "disabled": "Skill deaktiviert",
+      "enabled": "Skill aktiviert",
+      "updated": "Skill aktualisiert",
+      "updateError": "Der Skill konnte nicht gespeichert werden. Bitte versuche es erneut."
     }
   },
   "AgplGithubBadge": {

@@ -1,7 +1,9 @@
 // Sandbox runner: a tiny HTTP host that executes one user program per request in
-// a resource-limited subprocess and returns a RunCodeReport. The app calls this
-// over HTTPS (authenticated with EXECUTOR_API_KEY). The subprocess gets ONLY the
-// broker URL + the per-run token in its environment — no other secrets.
+// a resource-limited subprocess and returns a RunCodeReport. Ingress auth is handled
+// entirely by AWS (a per-run JWE token validated before the request ever reaches this
+// process — see infra/code-exec/code-exec-stack.ts); there is no app-level API key to
+// check here. The subprocess gets ONLY the broker URL + the per-run token (+ a
+// mode-scoped proxy URL, when set) in its environment — no other secrets.
 import http from "node:http";
 import { spawn } from "node:child_process";
 import { mkdtemp, writeFile, rm, readdir, readFile, stat } from "node:fs/promises";
@@ -10,7 +12,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = Number(process.env.PORT ?? 8080);
-const EXECUTOR_API_KEY = process.env.EXECUTOR_API_KEY ?? "";
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 
 const RUNTIMES = {
@@ -146,9 +147,16 @@ async function runOnce(input) {
     // bash runs its user.sh directly; python/js run through their harness.
     const target = rt.noHarness ? path.join(work, rt.userFile) : rt.harness;
     // ulimit caps address space (anti-OOM), process count (anti-fork-bomb), and
-    // file size; the child gets only the broker url + run token — never
-    // EXECUTOR_API_KEY or any host secret.
+    // file size; the child gets only the broker url + run token (+ a mode-scoped
+    // proxy URL, when set below) — never any host secret.
     const shellCmd = `ulimit -v ${memKb}; ulimit -u 256; ulimit -f 1048576; exec ${rt.cmd} ${JSON.stringify(target)}`;
+    // The proxy address is per-MODE, not per-run — both SANDBOX_DATA_PROXY_URL and
+    // SANDBOX_NET_PROXY_URL are always present (baked into the MicroVM image; see
+    // code-exec-stack.ts), but only the one matching THIS run's mode is forwarded
+    // into the child as HTTPS_PROXY/HTTP_PROXY. Defense in depth either way: the
+    // egress connector for DATA-mode runs has no network path to the NET proxy (or
+    // vice versa), so even a wrongly-forwarded proxy URL would just fail to connect.
+    const proxyUrl = input.mode === "NET" ? process.env.SANDBOX_NET_PROXY_URL : process.env.SANDBOX_DATA_PROXY_URL;
     const child = spawn("/bin/sh", ["-c", shellCmd], {
       cwd: work,
       env: {
@@ -157,6 +165,7 @@ async function runOnce(input) {
         USER_FILE: path.join(work, rt.userFile),
         SANDBOX_BROKER_URL: input.brokerUrl ?? "",
         SANDBOX_RUN_TOKEN: input.runToken ?? "",
+        ...(proxyUrl ? { HTTPS_PROXY: proxyUrl, HTTP_PROXY: proxyUrl } : {}),
       },
       stdio: ["ignore", "pipe", "pipe"],
       detached: true, // own process group, so killGroup() reaps backgrounded children
@@ -221,9 +230,6 @@ http
   .createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/health") return send(res, 200, { ok: true });
     if (req.method !== "POST" || req.url !== "/run") return send(res, 404, { error: "not found" });
-    if (!EXECUTOR_API_KEY || req.headers["x-executor-key"] !== EXECUTOR_API_KEY) {
-      return send(res, 401, { error: "unauthorized" });
-    }
 
     let input;
     try {
