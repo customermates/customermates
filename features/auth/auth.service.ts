@@ -183,9 +183,10 @@ export class AuthService {
   }
 
   async listApiKeys() {
-    return await auth.api.listApiKeys({
+    const result = await auth.api.listApiKeys({
       headers: await headers(),
     });
+    return result.apiKeys;
   }
 
   private handleError(source: unknown): AuthResult {

@@ -19,7 +19,6 @@ model AuthUser {
   updatedAt     DateTime      @default(now()) @updatedAt
   authsessions  AuthSession[]
   authaccounts  AuthAccount[]
-  apikeys       Apikey[]
 
   @@unique([email])
   @@index([email])
@@ -77,8 +76,8 @@ model Apikey {
   start               String?
   prefix              String?
   key                 String
-  userId              String
-  authuser            AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId         String
+  configId            String    @default("default")
   refillInterval      Int?
   refillAmount        Int?
   lastRefillAt        DateTime?
@@ -96,7 +95,7 @@ model Apikey {
   metadata            String?
 
   @@index([key])
-  @@index([userId])
+  @@index([referenceId])
 }
 
 model User {

@@ -1,7 +1,9 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { oAuthProxy, apiKey } from "better-auth/plugins";
+import { oAuthProxy } from "better-auth/plugins";
+import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import * as Sentry from "@sentry/nextjs";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -66,14 +68,18 @@ export const auth = betterAuth({
     session: {
       create: {
         after: async (session) => {
-          const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
-          if (authUser) {
-            await runWithoutTenant(() =>
-              prisma.user.updateMany({
-                where: { email: authUser.email },
-                data: { lastActiveAt: new Date() },
-              }),
-            );
+          try {
+            const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
+            if (authUser) {
+              await runWithoutTenant(() =>
+                prisma.user.updateMany({
+                  where: { email: authUser.email },
+                  data: { lastActiveAt: new Date() },
+                }),
+              );
+            }
+          } catch (error) {
+            Sentry.captureException(error);
           }
         },
       },
