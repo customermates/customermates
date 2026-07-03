@@ -23,7 +23,7 @@ export const MassActionsBar = observer(function MassActionsBar<E extends HasId>(
   if (!store.hasSelection || !entityType) return null;
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-muted/40 border-b border-border">
+    <div className="flex items-center gap-2 px-4 py-2 bg-card border-b border-border">
       <span className="text-sm font-medium whitespace-nowrap">
         {t("MassActions.selectedCount", { count: store.selectedCount })}
       </span>

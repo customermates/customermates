@@ -62,7 +62,7 @@ const Schema = z.object({
 export type UpsertRoleData = Data<typeof Schema>;
 
 export abstract class UpsertRoleRepo {
-  abstract isSystemRole(id: string): Promise<boolean>;
+  abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
   abstract upsertRoleOrThrow(data: UpsertRoleData): Promise<UserRoleDto>;
   abstract getRoleByIdOrThrow(id: string): Promise<UserRoleDto>;
 }
@@ -89,7 +89,7 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
   async invoke(data: UpsertRoleData): Validated<UserRoleDto> {
-    if (data.id && (await this.repo.isSystemRole(data.id))) throw new Error("Cannot update system roles");
+    if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) throw new Error("Cannot update system roles");
 
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;
     const role = await this.repo.upsertRoleOrThrow(data);

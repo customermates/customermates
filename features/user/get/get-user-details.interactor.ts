@@ -29,7 +29,6 @@ export type UserDetails = z.infer<typeof UserDetailsDtoSchema>;
 })
 export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, UserDetails> {
   @ValidateOutput(UserDetailsDtoSchema)
-  // The invoke method is not async, but the decorator requires it
   // eslint-disable-next-line @typescript-eslint/require-await
   async invoke(): Promise<{ ok: true; data: UserDetails }> {
     const { id, firstName, lastName, country, avatarUrl, roleId, role } = getTenantUser();

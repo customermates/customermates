@@ -40,13 +40,10 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
         header: t("Common.table.columns.events"),
         cell: ({ row }) => (
           <AppChipStack
-            items={row.original.events.map((event) => {
-              const [entity, action] = event.split(".");
-              return {
-                id: event,
-                label: t(`Common.events.${entity}.${action}`),
-              };
-            })}
+            items={row.original.events.map((event) => ({
+              id: event,
+              label: t(`Common.events.${event}`),
+            }))}
             size="sm"
           />
         ),

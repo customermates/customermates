@@ -19,8 +19,6 @@ function getTaskName(task: { name: string; type: TaskType }, translate?: (key: s
     const translationKey = getSystemTaskNameTranslationKey(task.type);
     if (translationKey) return translate(translationKey);
   }
-  // System tasks store an empty `name`; fall back to the type so audit log /
-  // webhook entityName has a stable identifier when no translator is available.
   return task.name || (task.type !== TaskType.custom ? task.type : "");
 }
 
@@ -60,6 +58,17 @@ const entityNameExtractors: {
   [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: (eventData) => connectedAccountName(eventData.payload.connectedAccount),
   [DomainEvent.CONNECTED_ACCOUNT_RECONNECTED]: (eventData) => connectedAccountName(eventData.payload),
   [DomainEvent.CONNECTED_ACCOUNT_RESYNCED]: (eventData) => connectedAccountName(eventData.payload),
+  [DomainEvent.MESSAGING_MESSAGE_RECEIVED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_MESSAGE_UPDATED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_MESSAGE_DELETED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_MESSAGE_REACTION]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_EMAIL_RECEIVED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_EMAIL_DELETED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_CHAT_UPDATED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_CHAT_DELETED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_CALENDAR_CHANGED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED]: (eventData) => eventData.payload.connectedAccountId,
+  [DomainEvent.MESSAGING_RELATION_CREATED]: (eventData) => eventData.payload.connectedAccountId,
 };
 
 export function getEntityName<E extends DomainEvent>(

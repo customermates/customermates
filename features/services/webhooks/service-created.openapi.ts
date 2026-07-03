@@ -12,7 +12,7 @@ export const WebhookServiceCreatedSchema = z.object({
     entityId: z.uuid(),
     payload: ServiceDtoSchema,
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookServiceCreatedOperation: ZodOpenApiOperationObject = {

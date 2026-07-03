@@ -156,7 +156,6 @@ export const NO_NULL_WIPE_WARNING =
   "Omit the field to keep existing, pass [] to explicitly clear all, " +
   "or use unlink_entities to remove specific ids.";
 
-// Runs an interactor, returning its prettified validation error or the formatted success payload.
 export async function runInteractor<T>(
   result: Promise<{ ok: true; data: T } | { ok: false; error: Parameters<typeof validationError>[0] }>,
   format: (data: T) => string,
@@ -165,7 +164,6 @@ export async function runInteractor<T>(
   return outcome.ok ? format(outcome.data) : validationError(outcome.error);
 }
 
-// Shared description fragments reused across the entity create/update tools.
 export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_entity_configuration for custom-column ids.";
 
 export const CUSTOM_FIELDS_MERGE_NOTE =

@@ -12,7 +12,7 @@ type Props = Omit<ComponentProps<typeof AppChip>, "onClick"> & {
 
 export function ClickableChip({ children, className, onClick, ...props }: Props) {
   return (
-    <AppChip {...props} className={cn("interactive-surface select-none", className)} onClick={onClick}>
+    <AppChip {...props} interactive className={cn("select-none", className)} onClick={onClick}>
       {children}
     </AppChip>
   );

@@ -100,24 +100,22 @@ export class PrismaCalendarRepo extends BaseRepository implements CalendarWriteR
   }
 
   @BypassTenantGuard
-  async softDeleteCalendarEventUnscoped(args: RepoArgs<CalendarWriteRepo, "softDeleteCalendarEventUnscoped">) {
-    const { connectedAccountId, unipileEventId } = args;
-
-    const existing = await this.prisma.calendarEvent.findUnique({
+  async deleteCalendarEventUnscoped(args: RepoArgs<CalendarWriteRepo, "deleteCalendarEventUnscoped">) {
+    await this.prisma.calendarEvent.deleteMany({
       where: {
-        connectedAccountId_unipileEventId: {
-          connectedAccountId,
-          unipileEventId,
-        },
+        connectedAccountId: args.connectedAccountId,
+        unipileEventId: args.unipileEventId,
       },
-      select: { id: true, companyId: true },
     });
+  }
 
-    if (!existing) return;
-
-    await this.prisma.calendarEvent.update({
-      where: { id: existing.id },
-      data: { status: "cancelled" },
+  @BypassTenantGuard
+  async deleteCalendarUnscoped(args: RepoArgs<CalendarWriteRepo, "deleteCalendarUnscoped">) {
+    await this.prisma.calendar.deleteMany({
+      where: {
+        connectedAccountId: args.connectedAccountId,
+        unipileCalendarId: args.unipileCalendarId,
+      },
     });
   }
 }

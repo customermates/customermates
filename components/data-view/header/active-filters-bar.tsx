@@ -15,11 +15,13 @@ import { cn } from "@/lib/utils";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   noBorder?: boolean;
+  onEditFilters?: () => void;
 };
 
 export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersBar<E extends HasId>({
   store,
   noBorder,
+  onEditFilters,
 }: Props<E>) {
   const t = useTranslations();
   const { editFiltersModalStore } = useRootStore();
@@ -60,7 +62,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
             endContent={
               <button
                 aria-label={t("Common.actions.delete")}
-                className="ml-0.5 opacity-50 hover:opacity-100 transition-opacity"
+                className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
                 tabIndex={-1}
                 type="button"
                 onClick={(e) => {
@@ -72,7 +74,10 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
               </button>
             }
             variant="default"
-            onClick={() => editFiltersModalStore.openFor(store, filter.field)}
+            onClick={() => {
+              onEditFilters?.();
+              editFiltersModalStore.openFor(store, filter.field);
+            }}
           >
             <span className="truncate text-[11px]">
               <FilterChipValue customColumns={store.customColumns} filter={filter} label={label} operator={operator} />

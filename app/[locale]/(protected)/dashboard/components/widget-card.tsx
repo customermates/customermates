@@ -239,7 +239,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
                 </span>
 
                 <span
-                  className="cursor-pointer hover:text-foreground transition-colors"
+                  className="cursor-pointer transition-[color,background-color,transform] hover:bg-muted/50 hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
                   role="button"
                   tabIndex={0}
                   title={f.label}

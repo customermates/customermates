@@ -1,5 +1,3 @@
-import { createHmac } from "crypto";
-
 import {
   createCheckout,
   getSubscription,
@@ -10,6 +8,8 @@ import {
 import { SubscriptionStatus } from "@/generated/prisma";
 
 import type { CountryCode } from "@/generated/prisma";
+
+import { z } from "zod";
 
 import { env } from "@/env";
 
@@ -35,7 +35,7 @@ export class SubscriptionService {
     }
   }
 
-  async createCheckout(options: {
+  async createCheckoutOrThrow(options: {
     email?: string;
     name?: string;
     country?: CountryCode;
@@ -77,7 +77,9 @@ export class SubscriptionService {
 
     if (result.error) throw new Error(result.error.message || "Failed to create checkout");
 
-    return result.data;
+    return z
+      .looseObject({ data: z.looseObject({ attributes: z.looseObject({ url: z.string().min(1) }) }) })
+      .parse(result.data);
   }
 
   async getSubscriptionOrThrowUnscoped(subscriptionId: string) {
@@ -87,19 +89,22 @@ export class SubscriptionService {
 
     if (result.error) throw new Error(result.error.message || "Failed to get subscription");
 
-    return result.data;
-  }
-
-  verifyWebhookSignatureOrThrow(body: string, signature: string): boolean {
-    const secret = env.LEMONSQUEEZY_WEBHOOK_SECRET;
-
-    if (!secret) throw new Error("LEMONSQUEEZY_WEBHOOK_SECRET is not configured");
-
-    const hmac = createHmac("sha256", secret);
-    hmac.update(body);
-    const calculatedSignature = hmac.digest("hex");
-
-    return calculatedSignature === signature;
+    return z
+      .looseObject({
+        data: z.looseObject({
+          id: z.string().min(1),
+          attributes: z.looseObject({
+            status: z.enum(["on_trial", "active", "paused", "past_due", "unpaid", "cancelled", "expired"]),
+            renews_at: z.string().nullish(),
+            ends_at: z.string().nullish(),
+            trial_ends_at: z.string().nullish(),
+            variant_id: z.number().nullish(),
+            first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
+            urls: z.looseObject({ customer_portal: z.string().nullish() }).nullish(),
+          }),
+        }),
+      })
+      .parse(result.data);
   }
 
   async updateSubscriptionOrThrow(subscriptionId: string, companyId: string): Promise<void> {
@@ -112,7 +117,7 @@ export class SubscriptionService {
     const renewsAt = attributes.renews_at ? new Date(attributes.renews_at) : undefined;
     const endsAt = attributes.ends_at ? new Date(attributes.ends_at) : undefined;
     const trialEndsAt = attributes.trial_ends_at ? new Date(attributes.trial_ends_at) : undefined;
-    const quantity = attributes.first_subscription_item?.quantity;
+    const quantity = attributes.first_subscription_item?.quantity ?? undefined;
     const variantId = attributes.variant_id?.toString();
 
     await this.subscriptionRepo.upsertSubscriptionUnscoped({
@@ -136,9 +141,11 @@ export class SubscriptionService {
     if (subscriptionItemsResult.error)
       throw new Error(subscriptionItemsResult.error.message || "Failed to list subscription items");
 
-    const items = subscriptionItemsResult.data?.data;
+    const items = z
+      .looseObject({ data: z.array(z.looseObject({ id: z.union([z.number(), z.string()]) })) })
+      .parse(subscriptionItemsResult.data).data;
 
-    if (!items || items.length === 0) throw new Error("No subscription items found");
+    if (items.length === 0) throw new Error("No subscription items found");
 
     const subscriptionItem = items[0];
 

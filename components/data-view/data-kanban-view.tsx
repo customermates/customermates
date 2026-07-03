@@ -158,7 +158,7 @@ function KanbanColumn({
       <div className="sticky top-0 z-10 -mx-2 mb-1 flex items-center gap-2 rounded-t-lg bg-background/80 px-3 py-2 backdrop-blur-md">
         {onHeaderClick ? (
           <button
-            className="inline-flex items-center rounded-md cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center rounded-md cursor-pointer transition-[background-color,transform] hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             type="button"
             onClick={onHeaderClick}
           >

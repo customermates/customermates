@@ -20,7 +20,7 @@ const Schema = z.object({
 type DeleteCustomColumnData = Data<typeof Schema>;
 
 export abstract class DeleteCustomColumnRepo {
-  abstract find(id: string): Promise<CustomColumnDto>;
+  abstract findByIdOrThrow(id: string): Promise<CustomColumnDto>;
   abstract delete(id: string): Promise<{ id: string }>;
 }
 
@@ -42,7 +42,7 @@ export class DeleteCustomColumnInteractor extends AuthenticatedInteractor<Delete
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
   async invoke(data: DeleteCustomColumnData): Validated<string> {
-    const customColumn = await this.repo.find(data.id);
+    const customColumn = await this.repo.findByIdOrThrow(data.id);
 
     const entityTypePermissionMap: Record<EntityType, { resource: Resource; action: Action }> = {
       [EntityType.contact]: { resource: Resource.contacts, action: Action.delete },

@@ -120,3 +120,68 @@ describe("EventService no-op update skip", () => {
     expect(auditLogRepo.log).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("EventService audit log routing", () => {
+  let auditLogRepo: any;
+  let webhookRepo: any;
+  let webhookDeliveryRepo: any;
+  let backgroundTaskService: { dispatch: ReturnType<typeof vi.fn> };
+  let service: EventService;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    auditLogRepo = { log: vi.fn().mockResolvedValue(undefined), logUnscoped: vi.fn().mockResolvedValue(undefined) };
+    webhookRepo = {
+      getWebhooksForEvent: vi.fn().mockResolvedValue([]),
+      getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
+    };
+    webhookDeliveryRepo = { create: vi.fn().mockResolvedValue([]), createUnscoped: vi.fn().mockResolvedValue([]) };
+    backgroundTaskService = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    service = new EventService([], webhookRepo, webhookDeliveryRepo, auditLogRepo, backgroundTaskService as never);
+  });
+
+  it("excludes messaging events from the audit log but still checks webhook subscriptions", async () => {
+    await service.publish(
+      DomainEvent.MESSAGING_MESSAGE_RECEIVED,
+      { entityId: CONTACT_ID, payload: { connectedAccountId: CONTACT_ID } as any },
+      { systemCompanyId: mockUser.companyId },
+    );
+
+    expect(auditLogRepo.log).not.toHaveBeenCalled();
+    expect(auditLogRepo.logUnscoped).not.toHaveBeenCalled();
+    expect(webhookRepo.getWebhooksForEventUnscoped).toHaveBeenCalledWith(
+      DomainEvent.MESSAGING_MESSAGE_RECEIVED,
+      mockUser.companyId,
+    );
+  });
+
+  it("skips the audit log for a system event without an actor", async () => {
+    await service.publish(
+      DomainEvent.CONNECTED_ACCOUNT_CREATED,
+      { entityId: CONTACT_ID, payload: { provider: "mail", displayName: null, emailAddress: null } as any },
+      { systemCompanyId: mockUser.companyId },
+    );
+
+    expect(auditLogRepo.log).not.toHaveBeenCalled();
+    expect(auditLogRepo.logUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("audit-logs a system event with an actor through the unscoped repo path", async () => {
+    await service.publish(
+      DomainEvent.CONNECTED_ACCOUNT_CREATED,
+      { entityId: CONTACT_ID, payload: { provider: "mail", displayName: null, emailAddress: null } as any },
+      { systemCompanyId: mockUser.companyId, systemUserId: mockUser.id },
+    );
+
+    expect(auditLogRepo.log).not.toHaveBeenCalled();
+    expect(auditLogRepo.logUnscoped).toHaveBeenCalledTimes(1);
+    expect(auditLogRepo.logUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: DomainEvent.CONNECTED_ACCOUNT_CREATED,
+        entityId: CONTACT_ID,
+        userId: mockUser.id,
+        companyId: mockUser.companyId,
+      }),
+    );
+  });
+});

@@ -64,13 +64,7 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
       : t("Common.actions.continueSetup");
   const showCta = pathname !== ctaTarget;
   const ctaButton = showCta ? (
-    <Button
-      asChild
-      className="bg-primary/15 text-primary hover:bg-primary/25 dark:bg-primary/20 dark:hover:bg-primary/30"
-      size="sm"
-      variant="secondary"
-      onClick={closeMenu}
-    >
+    <Button asChild size="sm" variant="softPrimary" onClick={closeMenu}>
       <NextLink href={ctaTarget}>{ctaLabel}</NextLink>
     </Button>
   ) : null;

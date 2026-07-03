@@ -11,6 +11,26 @@ export function threadAccessWhere(companyId: string, userId: string): Prisma.Mes
   };
 }
 
+export function folderMessageWhere(visibleSet: string[]): Prisma.MessagingMessageWhereInput {
+  return { OR: [{ folderIds: { isEmpty: true } }, { folderIds: { hasSome: visibleSet } }] };
+}
+
+export function threadFolderMembershipWhere(
+  states: { id: string; visibleSet: string[] }[],
+): Prisma.MessagingThreadWhereInput | null {
+  if (states.length === 0) return null;
+
+  return {
+    OR: [
+      { connectedAccountId: { notIn: states.map((state) => state.id) } },
+      ...states.map((state) => ({
+        connectedAccountId: state.id,
+        messages: { some: folderMessageWhere(state.visibleSet) },
+      })),
+    ],
+  };
+}
+
 export function calendarEventAccessWhere(companyId: string, userId: string): Prisma.CalendarEventWhereInput {
   return { companyId, connectedAccount: { is: accessibleAccountWhere(userId) } };
 }

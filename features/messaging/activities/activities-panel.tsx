@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
 
+import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
@@ -184,6 +185,9 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                   const rawPreview = messagePreview(message);
                   const isUnsupported = isUnipileUnsupportedBody(rawPreview);
                   const preview = rawPreview && !isUnsupported ? rawPreview : null;
+                  const firstAttachment = message.attachmentsMeta[0];
+                  const kindLabel =
+                    !preview && firstAttachment ? t(PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]) : null;
 
                   let subtitle: ReactNode;
                   if (preview && isGroup) {
@@ -195,13 +199,8 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                       </>
                     );
                   } else if (preview) subtitle = preview;
-                  else {
-                    subtitle = (
-                      <span className="italic opacity-80">
-                        {isUnsupported ? t("Inbox.attachmentUnsupported") : t("Inbox.noPreview")}
-                      </span>
-                    );
-                  }
+                  else if (kindLabel) subtitle = kindLabel;
+                  else subtitle = <span className="italic opacity-80">{t("Inbox.attachmentUnsupported")}</span>;
 
                   const MessageProviderIcon = getProviderIcon(message.provider);
 

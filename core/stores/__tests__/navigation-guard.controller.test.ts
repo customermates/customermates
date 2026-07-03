@@ -80,7 +80,6 @@ describe("NavigationGuardController", () => {
     let recursionResult: boolean | null = null;
     const innerNavigate = vi.fn();
     const outerNavigate = vi.fn(() => {
-      // Simulate a wrapped useRouter calling tryNavigate from inside the navigate fn.
       recursionResult = controller.tryNavigate(innerNavigate);
     });
 

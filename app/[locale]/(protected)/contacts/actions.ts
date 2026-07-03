@@ -2,6 +2,7 @@
 
 import type { GetContactByIdData } from "@/features/contacts/get/get-contact-by-id.interactor";
 import type { CreateContactData } from "@/features/contacts/upsert/create-contact.interactor";
+import type { IdentifierInput } from "@/features/contacts/contact.schema";
 import type { CheckChannelConflictData } from "@/features/contacts/upsert/check-channel-conflict.interactor";
 import type { UpdateContactData } from "@/features/contacts/upsert/update-contact.interactor";
 import type { SearchChannelCandidatesData } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
@@ -52,7 +53,11 @@ export async function getContactByIdAction(data: GetContactByIdData) {
     : { entity: null, customColumns: [] };
 }
 
-export async function createContactByNameAction(name: string, userId: string | null | undefined) {
+export async function createContactByNameAction(
+  name: string,
+  userId: string | null | undefined,
+  identifier?: IdentifierInput,
+) {
   const parts = name.split(/\s+/);
   const firstName = parts[0] || "";
   const lastName = parts.slice(1).join(" ");
@@ -66,7 +71,7 @@ export async function createContactByNameAction(name: string, userId: string | n
     dealIds: [],
     taskIds: [],
     customFieldValues: [],
-    identifiers: [],
+    identifiers: identifier ? [identifier] : [],
   });
 
   return result.ok ? result.data : null;

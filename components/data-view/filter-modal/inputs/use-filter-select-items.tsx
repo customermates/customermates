@@ -60,7 +60,6 @@ function renderProviderIcon(provider: string, label: string) {
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
 }
 
-// TODO check for refactoring
 export function useFilterSelectItems(
   filter: Filter,
   customColumns?: CustomColumnDto[],

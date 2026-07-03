@@ -59,7 +59,9 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
         aria-label="Drag to reorder"
         className={cn(
           "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
-          isPinned ? "opacity-20 cursor-not-allowed" : "cursor-grab active:cursor-grabbing hover:text-foreground",
+          isPinned
+            ? "opacity-20 cursor-not-allowed"
+            : "cursor-grab transition-[color,background-color,transform] hover:bg-muted/50 hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
         )}
         disabled={isPinned}
         type="button"

@@ -12,7 +12,7 @@ export const WebhookContactDeletedSchema = z.object({
     entityId: z.uuid(),
     payload: ContactDtoSchema,
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookContactDeletedOperation: ZodOpenApiOperationObject = {

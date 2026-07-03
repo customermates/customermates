@@ -1,9 +1,11 @@
+import type { Validated } from "@/core/validation/validation.utils";
+
 import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type GetQueryParams, GetQueryParamsSchema } from "@/core/base/base-get.schema";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
@@ -18,9 +20,9 @@ export class CountUserTasksInteractor extends AuthenticatedInteractor<GetQueryPa
     super();
   }
 
-  @Enforce(GetQueryParamsSchema)
+  @Validate(GetQueryParamsSchema)
   @ValidateOutput(z.number())
-  async invoke(params: GetQueryParams = {}): Promise<{ ok: true; data: number }> {
+  async invoke(params: GetQueryParams = {}): Validated<number> {
     return { ok: true as const, data: await this.repo.getCount(params) };
   }
 }

@@ -21,6 +21,8 @@ type MessageAttachment = {
 
 export abstract class GetMessageAttachmentMetaRepo {
   abstract findAttachmentForMessageOrThrow(args: { messageId: string; attachmentId: string }): Promise<{
+    unipileAccountId: string;
+    unipileThreadId: string;
     unipileMessageId: string;
     provider: MessagingProvider;
     mime: string | null;
@@ -51,9 +53,11 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
   async invoke(data: GetMessageAttachmentData): Promise<{ ok: true; data: MessageAttachment }> {
     const meta = await this.repo.findAttachmentForMessageOrThrow(data);
 
-    const { body, contentType } = await this.messagingService.fetchMessageAttachment({
+    const { body, contentType } = await this.messagingService.downloadAttachment({
+      accountId: meta.unipileAccountId,
       provider: meta.provider,
-      unipileMessageId: meta.unipileMessageId,
+      chatId: meta.unipileThreadId,
+      messageId: meta.unipileMessageId,
       attachmentId: data.attachmentId,
     });
 

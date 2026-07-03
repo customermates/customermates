@@ -11,6 +11,7 @@ import {
   BookOpen,
   Bot,
   Code2,
+  Gauge,
   GitCompare,
   Key,
   LibraryBig,
@@ -175,6 +176,12 @@ export function useDocGroups(): DocSidebarGroup[] {
           icon: ListFilter,
         },
         { key: "api-keys", url: "/docs/api-keys", title: t("DocsSidebar.apiKeys"), icon: Key },
+        {
+          key: "messaging-rate-limits",
+          url: "/docs/messaging-rate-limits",
+          title: t("DocsSidebar.messagingRateLimits"),
+          icon: Gauge,
+        },
       ],
     },
     {

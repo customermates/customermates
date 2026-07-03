@@ -5,7 +5,7 @@ import { Slot } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-inset dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-inset dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 active:scale-[0.97] motion-reduce:transition-none",
   {
     variants: {
       variant: {
@@ -17,6 +17,10 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        softPrimary: "bg-primary/20 text-primary hover:bg-primary/35",
+        softDestructive: "bg-destructive/20 text-destructive hover:bg-destructive/35",
+        destructiveOutline:
+          "border border-destructive/40 bg-input-background text-destructive shadow-xs hover:bg-destructive/10 hover:border-destructive",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -49,10 +53,6 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button";
 
-  // Default to type="button" so unmarked buttons inside a form never accidentally
-  // submit. Legitimate submit buttons opt in with `type="submit"` explicitly.
-  // `asChild` callers render their own element (often a Link) where `type` isn't
-  // valid, so we skip the default there.
   const resolvedType = asChild ? type : (type ?? "button");
 
   return (

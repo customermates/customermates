@@ -2,7 +2,11 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
+import { z } from "zod";
+
 import { getSubscriptionService } from "@/core/di";
+import { verifyHmacSha256Hex } from "@/core/utils/hmac";
+import { env } from "@/env";
 
 export async function POST(request: NextRequest) {
   const signature = request.headers.get("x-signature");
@@ -10,11 +14,19 @@ export async function POST(request: NextRequest) {
 
   const body = await request.text();
 
-  if (!getSubscriptionService().verifyWebhookSignatureOrThrow(body, signature))
+  const secret = env.LEMONSQUEEZY_WEBHOOK_SECRET;
+  if (!secret) throw new Error("LEMONSQUEEZY_WEBHOOK_SECRET is not configured");
+
+  if (!verifyHmacSha256Hex(secret, body, signature))
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
 
-  const payload = JSON.parse(body);
-  await getSubscriptionService().updateSubscriptionOrThrow(payload.data.id, payload.meta.custom_data?.company_id);
+  const payload = z
+    .looseObject({
+      data: z.looseObject({ id: z.string().min(1) }),
+      meta: z.looseObject({ custom_data: z.looseObject({ company_id: z.string().min(1) }) }),
+    })
+    .parse(JSON.parse(body));
+  await getSubscriptionService().updateSubscriptionOrThrow(payload.data.id, payload.meta.custom_data.company_id);
 
   return NextResponse.json({ success: true });
 }

@@ -1100,13 +1100,15 @@ model ConnectedAccount {
   hasCalendar          Boolean                 @default(false)
   emailAddress         String?
   displayName          String?
-  ownUnipileAttendeeId String?
+  sentFolderIds        String[]                @default([])
+  folders              Json                    @default("[]")
+  selectedFolderIds    String[]                @default([])
+  foldersSyncedAt      DateTime?
   shared               Boolean                 @default(false)
   syncing              Boolean                 @default(false)
+  providerSyncing      Boolean                 @default(false)
   ownerAvatarUrl       String?
   lastSyncedAt         DateTime?
-  backfillCheckpoint   Json?
-  backfillEpoch        Int                     @default(0)
   backfillClaimedAt    DateTime?
   backfillClaimToken   String?
   createdAt            DateTime                @default(now())
@@ -1133,9 +1135,12 @@ model MessagingThread {
   type               MessagingThreadType          @default(single)
   name               String?
   unipileThreadId    String
+  unipileThreadAltId String?
   provider           MessagingProvider
   subject            String?
   lastMessageAt      DateTime?
+  lastMessagePreview String?
+  lastMessageIsSender Boolean?
   sharedToCrm        Boolean                      @default(false)
   createdAt          DateTime                     @default(now())
   updatedAt          DateTime                     @updatedAt
@@ -1147,6 +1152,7 @@ model MessagingThread {
   @@index([companyId, state])
   @@index([companyId, lastMessageAt(sort: Desc)])
   @@index([companyId, sharedToCrm])
+  @@index([connectedAccountId, unipileThreadAltId])
 }
 
 model MessagingThreadParticipant {
@@ -1156,7 +1162,7 @@ model MessagingThreadParticipant {
   messagingThreadId String
   thread            MessagingThread   @relation(fields: [messagingThreadId], references: [id], onDelete: Cascade)
   provider          MessagingProvider
-  unipileAttendeeId String
+  providerUserId    String
   identifier        String?
   displayName       String?
   pictureUrl        String?
@@ -1167,7 +1173,7 @@ model MessagingThreadParticipant {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
-  @@unique([messagingThreadId, unipileAttendeeId])
+  @@unique([messagingThreadId, providerUserId])
   @@unique([messagingThreadId, identifier])
   @@index([companyId])
   @@index([messagingThreadId])
@@ -1183,6 +1189,7 @@ model MessagingMessage {
   connectedAccountId String
   connectedAccount   ConnectedAccount          @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   unipileMessageId   String
+  providerMessageId  String?
   provider           MessagingProvider
   direction          MessagingMessageDirection
   origin             MessagingMessageOrigin
@@ -1194,10 +1201,13 @@ model MessagingMessage {
   bodyText           String?
   bodyHtml           String?
   attachmentsMeta    Json                      @default("[]")
+  folderIds          String[]                  @default([])
   isEvent            Boolean                   @default(false)
+  isDeleted          Boolean                   @default(false)
+  isHidden           Boolean                   @default(false)
+  isDraft            Boolean                   @default(false)
   sentAt             DateTime
   editedAt           DateTime?
-  deletedAt          DateTime?
   createdAt          DateTime                  @default(now())
   updatedAt          DateTime                  @updatedAt
 
@@ -1205,6 +1215,7 @@ model MessagingMessage {
   @@index([companyId])
   @@index([messagingThreadId, sentAt])
   @@index([companyId, provider, senderIdentifier])
+  @@index([folderIds], type: Gin)
 }
 
 model AccountActivity {
@@ -1338,14 +1349,24 @@ model MessagingInboundEvent {
   companyId          String?
   connectedAccountId String?
   connectedAccount   ConnectedAccount? @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
-  source             String
+  source             MessagingInboundEventSource
   eventType          String?
   accountId          String?
   unipileMessageId   String?
   payload            Json
   processed          Boolean           @default(false)
+  error              String?
+  lastErrorAt        DateTime?
+  attemptCount       Int               @default(0)
   receivedAt         DateTime          @default(now())
   processedAt        DateTime?
+
+  @@index([accountId])
+}
+
+enum MessagingInboundEventSource {
+  webhook
+  backfill
 }
 
 enum UnipileWebhookSource {

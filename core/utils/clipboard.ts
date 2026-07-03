@@ -5,9 +5,7 @@ export async function copyToClipboard(value: string): Promise<boolean> {
     try {
       await navigator.clipboard.writeText(value);
       return true;
-    } catch {
-      // Fall through to the execCommand fallback.
-    }
+    } catch {}
   }
 
   try {

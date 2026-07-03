@@ -48,8 +48,6 @@ export class WidgetDataFetcher extends BaseRepository {
     }
   }
 
-  // Bounded deal where: deal access + dealFilters, AND-ed with an EXISTS-style relation filter on the
-  // entity-filtered relation. No fetch-all-entities prefetch and no IN(all-ids).
   private async boundedDealWhere(widget: ExtendedWidget): Promise<Prisma.DealWhereInput> {
     const { companyId } = this;
     const dealWhere = (await getDealRepo().buildQueryArgs({ filters: widget.dealFilters }, this.accessWhere("deal")))
@@ -121,8 +119,6 @@ export class WidgetDataFetcher extends BaseRepository {
     }));
   }
 
-  // Bounded: aggregate CustomFieldValue rows grouped by value (one row per option), plus a single count
-  // for entities that have no value for this column ("No Group"). No fetch-all-entities.
   async countByCustomColumn(
     entityType: EntityType,
     filters: Filter[] | undefined,

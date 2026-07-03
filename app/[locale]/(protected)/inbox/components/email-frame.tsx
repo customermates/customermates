@@ -4,13 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
-import { cn } from "@/lib/utils";
 
 type Props = {
   html: string;
-  /** Controlled remote-image toggle (inbox owns it via the bottom action row). Omit to let the frame manage its own button. */
   showRemoteImages?: boolean;
-  isOutbound?: boolean;
 };
 
 const FRAME_CSS = `
@@ -30,15 +27,11 @@ const FRAME_CSS = `
   a { color: #2563eb; }
 `;
 
-export function EmailFrame({ html, showRemoteImages: controlled, isOutbound = false }: Props) {
+export function EmailFrame({ html, showRemoteImages = false }: Props) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(0);
-  const [internalRemoteImages, setInternalRemoteImages] = useState(false);
   const [mounted, setMounted] = useState(false);
   const t = useTranslations();
-
-  const isControlled = controlled !== undefined;
-  const showRemoteImages = isControlled ? controlled : internalRemoteImages;
 
   useEffect(() => setMounted(true), []);
 
@@ -80,28 +73,13 @@ export function EmailFrame({ html, showRemoteImages: controlled, isOutbound = fa
   }, [srcDoc]);
 
   return (
-    <div className="w-full space-y-2">
-      {!isControlled && !showRemoteImages && (
-        <button
-          className="text-xs font-medium text-blue-600 hover:underline"
-          type="button"
-          onClick={() => setInternalRemoteImages(true)}
-        >
-          {t("Inbox.compose.loadRemoteImages")}
-        </button>
-      )}
-
-      <iframe
-        ref={ref}
-        className={cn(
-          "block w-full overflow-hidden rounded-xl bg-white shadow-xs",
-          isOutbound ? "rounded-tr-sm" : "rounded-tl-sm",
-        )}
-        sandbox="allow-same-origin"
-        srcDoc={srcDoc}
-        style={{ height: `${height}px` }}
-        title={t("Inbox.compose.emailContent")}
-      />
-    </div>
+    <iframe
+      ref={ref}
+      className="block w-full bg-white"
+      sandbox="allow-same-origin"
+      srcDoc={srcDoc}
+      style={{ height: `${height}px` }}
+      title={t("Inbox.compose.emailContent")}
+    />
   );
 }

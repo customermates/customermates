@@ -87,7 +87,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         {body}
       </div>
 
-      {!isKanban && <DataViewPagination className="border-t border-border" store={store} />}
+      {!isKanban && <DataViewPagination store={store} />}
     </div>
   );
 });

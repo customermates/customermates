@@ -14,8 +14,7 @@ import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-tria
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
-import type { AccountCallbackUserRepo } from "@/ee/messaging/webhooks/process-account-callback.interactor";
-import type { WebhookUserRepo } from "@/ee/messaging/webhooks/unipile-webhook-ingest.service";
+import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 
 import { randomUUID } from "crypto";
 
@@ -73,17 +72,8 @@ export class PrismaUserRepo
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
     SeedOnboardingDataRepo,
     CompleteOnboardingWizardRepo,
-    AccountCallbackUserRepo,
     WebhookUserRepo
 {
-  @BypassTenantGuard
-  async findUserCompanyByIdUnscoped(userId: string) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, companyId: true },
-    });
-  }
-
   @BypassTenantGuard
   async findExtendedUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
@@ -974,6 +964,7 @@ export class PrismaUserRepo
     return user;
   }
 
+  @BypassTenantGuard
   async findCompanyIdUnscoped(userId: string) {
     const authUser = await this.prisma.authUser.findUnique({
       where: { id: userId },

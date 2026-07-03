@@ -80,3 +80,44 @@ describe("deriveThreadDisplay title precedence", () => {
     expect(view.displayName).toBe("Jane Doe");
   });
 });
+
+describe("deriveThreadDisplay secondary line", () => {
+  function whatsappAttendee(displayName: string, identifier: string): MessagingAttendee {
+    return {
+      attendeeId: identifier,
+      displayName,
+      identifier,
+      pictureUrl: null,
+      profileUrl: null,
+      headline: null,
+      occupation: null,
+      isSelf: false,
+    };
+  }
+
+  it("keeps the phone as the secondary line when the counterpart has a real name", () => {
+    const view = thread({
+      type: "single",
+      subject: null,
+      name: null,
+      provider: "whatsapp",
+      participants: [whatsappAttendee("Finn", "491715308840")],
+    });
+
+    expect(view.displayName).toBe("Finn");
+    expect(view.displayNameSecondary).toBe("+491715308840");
+  });
+
+  it("suppresses the secondary line when the only name is the phone number itself", () => {
+    const view = thread({
+      type: "single",
+      subject: null,
+      name: null,
+      provider: "whatsapp",
+      participants: [whatsappAttendee("+49 151 23456789", "4915123456789")],
+    });
+
+    expect(view.displayName).toBe("+4915123456789");
+    expect(view.displayNameSecondary).toBeNull();
+  });
+});

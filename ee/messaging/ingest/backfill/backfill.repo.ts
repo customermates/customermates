@@ -1,5 +1,5 @@
 import type { ConnectedAccount, ConnectedAccountStatus } from "@/generated/prisma";
-import type { BackfillCheckpoint } from "./backfill-checkpoint.schema";
+import type { EmailFolder } from "../../email-folders";
 
 export abstract class BackfillConnectedAccountRepo {
   abstract recordUnusableItemUnscoped(args: {
@@ -8,33 +8,29 @@ export abstract class BackfillConnectedAccountRepo {
     payload: unknown;
     unipileMessageId?: string | null;
   }): Promise<void>;
-  abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
+  abstract recordRawBackfillItemUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    accountId: string;
+    itemType: "chat" | "email";
+    payload: unknown;
+    unipileMessageId?: string | null;
+  }): Promise<void>;
   abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
     lastSyncedAt?: Date;
     syncing?: boolean;
+    providerSyncing?: boolean;
     hasMessaging?: boolean;
     hasCalendar?: boolean;
     displayName?: string | null;
     emailAddress?: string | null;
+    sentFolderIds?: string[];
+    folders?: EmailFolder[];
+    foldersSyncedAt?: Date;
+    selectedFolderIds?: string[];
   }): Promise<ConnectedAccount | null>;
-  abstract loadBackfillCheckpointUnscoped(
-    unipileAccountId: string,
-  ): Promise<{ checkpoint: BackfillCheckpoint; epoch: number }>;
-  abstract saveBackfillStepCheckpointUnscoped(args: {
-    unipileAccountId: string;
-    step: keyof BackfillCheckpoint;
-    checkpoint: NonNullable<BackfillCheckpoint[keyof BackfillCheckpoint]>;
-    epoch: number;
-  }): Promise<void>;
-  abstract refreshBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<boolean>;
-  abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<void>;
-  abstract finalizeBackfillUnscoped(args: { unipileAccountId: string; epoch: number; token: string }): Promise<boolean>;
   abstract markAccountHasCalendarUnscoped(unipileAccountId: string): Promise<void>;
-  abstract setAccountOwnAttendeeIdUnscoped(args: {
-    unipileAccountId: string;
-    ownUnipileAttendeeId: string;
-  }): Promise<void>;
 }

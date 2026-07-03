@@ -34,7 +34,7 @@ function Avatar({
       className={cn(
         "group/avatar relative flex size-6 shrink-0 overflow-hidden rounded-md select-none data-[size=lg]:size-8 data-[size=lg]:rounded-lg data-[size=sm]:size-4 data-[size=sm]:rounded",
         unlinked &&
-          "outline-dashed outline-muted-foreground/50 outline-[1.5px] -outline-offset-[1.5px] data-[size=sm]:outline-[1px] data-[size=sm]:-outline-offset-[1px] data-[size=lg]:outline-[2px] data-[size=lg]:-outline-offset-[2px]",
+          "outline-dashed outline-primary outline-[1.5px] -outline-offset-[1.5px] data-[size=sm]:outline-[1px] data-[size=sm]:-outline-offset-[1px] data-[size=lg]:outline-[2px] data-[size=lg]:-outline-offset-[2px]",
         className,
       )}
       data-size={size}

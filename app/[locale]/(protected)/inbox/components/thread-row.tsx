@@ -7,6 +7,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { EyeOff } from "lucide-react";
 
+import { PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
+import { isEmailProvider } from "@/ee/messaging/provider";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { deriveThreadDisplay, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { THREAD_STATE_DOT } from "./thread-state-visuals";
@@ -35,10 +37,12 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
   const isUnlinked = view.isUnlinked;
   const pictureUrl = view.avatarUrl;
 
-  const rawPreview = thread.subject?.trim() || thread.preview?.trim() || null;
-  const isUnsupported = isUnipileUnsupportedBody(rawPreview);
-  const previewText = rawPreview && !isUnsupported ? rawPreview : null;
-  const placeholder = isUnsupported ? t("Inbox.attachmentUnsupported") : t("Inbox.noPreview");
+  const subjectFallback = isEmailProvider(thread.provider) ? thread.subject?.trim() || null : null;
+  const rawPreview = thread.preview?.trim() || subjectFallback;
+  const isUnsupportedBody = isUnipileUnsupportedBody(rawPreview);
+  const previewText = rawPreview && !isUnsupportedBody ? rawPreview : null;
+  const kindLabel = !previewText && thread.previewKind ? t(PREVIEW_KIND_LABEL[thread.previewKind]) : null;
+  const placeholder = isUnsupportedBody ? t("Inbox.attachmentUnsupported") : null;
 
   const relativeTime = thread.lastMessageAt ? intlStore.formatRelativeTime(thread.lastMessageAt) : null;
   const ProviderIcon = getProviderIcon(thread.provider);
@@ -46,10 +50,11 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
   return (
     <button
       className={cn(
-        "flex w-full items-center gap-3 border-b border-border p-3 text-left transition",
-        "hover:bg-muted/50",
+        "flex w-full items-center gap-3 border-b border-border p-3 text-left transition last:border-b-0",
+        "hover:bg-muted/60 active:scale-[0.97] motion-reduce:transition-none",
         selected && "bg-muted",
       )}
+      data-thread-id={thread.id}
       type="button"
       onClick={onClick}
     >
@@ -101,18 +106,25 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
           </div>
 
           {relativeTime && (
-            <time className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">{relativeTime}</time>
+            <time suppressHydrationWarning className="text-muted-foreground shrink-0 text-xs whitespace-nowrap">
+              {relativeTime}
+            </time>
           )}
         </div>
 
-        <p className={cn("text-muted-foreground mt-0.5 line-clamp-2 text-xs", !previewText && "italic opacity-80")}>
+        <p
+          className={cn(
+            "text-muted-foreground mt-0.5 line-clamp-2 text-xs",
+            !previewText && !kindLabel && "italic opacity-80",
+          )}
+        >
           {isGroup && previewText && (thread.lastMessageFromSelf || thread.lastMessageSenderName) && (
             <span className="font-semibold">
               {thread.lastMessageFromSelf ? t("Inbox.youPrefix") : `${thread.lastMessageSenderName}:`}{" "}
             </span>
           )}
 
-          {previewText ?? placeholder}
+          {previewText ?? kindLabel ?? placeholder ?? ""}
         </p>
       </div>
     </button>

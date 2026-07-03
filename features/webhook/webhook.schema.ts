@@ -20,6 +20,17 @@ export const WebhookEventSchema = z.enum([
   "task.created",
   "task.updated",
   "task.deleted",
+  "messaging.message.received",
+  "messaging.message.updated",
+  "messaging.message.deleted",
+  "messaging.message.reaction",
+  "messaging.email.received",
+  "messaging.email.deleted",
+  "messaging.chat.updated",
+  "messaging.chat.deleted",
+  "messaging.calendar.changed",
+  "messaging.calendar_event.changed",
+  "messaging.relation.created",
 ]);
 
 export const WebhookDtoSchema = z.object({

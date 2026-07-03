@@ -1,27 +1,26 @@
 import type { MessagingService } from "../../messaging.service";
 import type { ConnectedAccount } from "@/generated/prisma";
+import type { CalendarWriteRepo } from "@/ee/calendar/calendar-write.repo";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 
 import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
+import { ConnectedAccountStatus } from "@/generated/prisma";
+
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { buildCalendarEvent, collectAttendeeEmails } from "@/ee/calendar/calendar-normalize";
-import type { CalendarWriteRepo } from "@/ee/calendar/calendar-write.repo";
 import { UnipileCalendarEventSchema, UnipileCalendarSchema } from "@/ee/messaging/unipile.schema";
-import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
 
-import { BACKFILL_MAX_MESSAGES, UNIPILE_MAX_LIMIT, paginateNested } from "./paginate";
+import { backfillSince, paginateStep, UNIPILE_MAX_LIMIT } from "./paginate";
+import { isUnipileRateLimit, isUnipileTimeout } from "../../messaging.service";
 
-const Schema = z.object({
-  account: z.custom<ConnectedAccount>(),
-  afterDate: z.date(),
-  checkpoint: BackfillCheckpointSchema,
-  epoch: z.number(),
-});
+type CalendarContext = { unipileCalendarId: string; calendarId: string };
+
+const Schema = z.object({ connectedAccountId: z.uuid() });
 type BackfillCalendarsPayload = z.infer<typeof Schema>;
 
 @SystemInteractor
@@ -33,57 +32,104 @@ export class BackfillCalendarsInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke({ account, afterDate, checkpoint, epoch }: BackfillCalendarsPayload): Promise<void> {
-    if (checkpoint.calendar?.done) return;
+  async invoke({ connectedAccountId }: BackfillCalendarsPayload): Promise<void> {
+    const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
-    const start = afterDate.toISOString();
+    const start = backfillSince().toISOString();
 
-    const { processed, sawOuter } = await paginateNested<{ unipileCalendarId: string; calendarId: string }>({
-      startCursor: checkpoint.calendar?.cursor ?? undefined,
-      fetchOuterPage: (cursor) =>
-        this.messagingService.listCalendars({
-          accountId: account.unipileAccountId,
-          cursor,
-          limit: UNIPILE_MAX_LIMIT,
-        }),
-      mapOuter: (rawCalendar) => this.upsertCalendarUnscoped(account, rawCalendar),
-      fetchInnerPage: (calendar, cursor) =>
-        this.messagingService.listCalendarEvents({
-          accountId: account.unipileAccountId,
-          calendarId: calendar.unipileCalendarId,
-          cursor,
-          limit: UNIPILE_MAX_LIMIT,
-          start,
-          expandRecurring: true,
-        }),
-      handleInner: (calendar, rawEvent) => this.processCalendarEvent(account, calendar.calendarId, rawEvent),
-      onOuterPageEnd: (cursor) =>
-        this.repo.saveBackfillStepCheckpointUnscoped({
+    try {
+      await this.listAndIngestCalendars(account, start);
+    } catch (err) {
+      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
+
+      Sentry.captureException(err, {
+        tags: {
           unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
           step: "calendar",
-          checkpoint: { cursor },
-          epoch,
-        }),
-    });
-
-    if (sawOuter) await this.repo.markAccountHasCalendarUnscoped(account.unipileAccountId);
-
-    const exhausted = processed < BACKFILL_MAX_MESSAGES;
-    const sawCalendarsButNoEventsYet = sawOuter && processed === 0;
-    if (exhausted && !sawCalendarsButNoEventsYet) {
-      await this.repo.saveBackfillStepCheckpointUnscoped({
-        unipileAccountId: account.unipileAccountId,
-        step: "calendar",
-        checkpoint: { done: true },
-        epoch,
+        },
       });
     }
   }
 
-  private async upsertCalendarUnscoped(
+  private async listAndIngestCalendars(account: ConnectedAccount, start: string): Promise<void> {
+    let sawCalendar = false;
+
+    await paginateStep({
+      startCursor: null,
+      limit: UNIPILE_MAX_LIMIT,
+      fetchPage: (query) =>
+        this.messagingService.listCalendars({
+          accountId: account.unipileAccountId,
+          cursor: query.cursor,
+          offset: query.offset,
+          limit: UNIPILE_MAX_LIMIT,
+        }),
+      handleItem: async (rawCalendar) => {
+        const calendar = await this.upsertCalendar(account, rawCalendar);
+        if (!calendar) return;
+
+        sawCalendar = true;
+        await this.backfillCalendarEvents(account, calendar, start);
+      },
+    });
+
+    if (sawCalendar) await this.repo.markAccountHasCalendarUnscoped(account.unipileAccountId);
+  }
+
+  private async backfillCalendarEvents(
     account: ConnectedAccount,
-    rawCalendar: unknown,
-  ): Promise<{ unipileCalendarId: string; calendarId: string } | null> {
+    calendar: CalendarContext,
+    start: string,
+  ): Promise<void> {
+    try {
+      await this.listAndIngestEvents(account, calendar, start, true);
+    } catch (err) {
+      if (isUnipileRateLimit(err) || isUnipileTimeout(err)) throw err;
+
+      try {
+        await this.listAndIngestEvents(account, calendar, start, false);
+      } catch (fallbackErr) {
+        if (isUnipileRateLimit(fallbackErr) || isUnipileTimeout(fallbackErr)) throw fallbackErr;
+
+        Sentry.captureException(fallbackErr, {
+          tags: {
+            unipileAccountId: account.unipileAccountId,
+            companyId: account.companyId,
+            connectedAccountId: account.id,
+            step: "calendar-events",
+          },
+        });
+      }
+    }
+  }
+
+  private async listAndIngestEvents(
+    account: ConnectedAccount,
+    calendar: CalendarContext,
+    start: string,
+    expandRecurring: boolean,
+  ): Promise<void> {
+    await paginateStep({
+      startCursor: null,
+      limit: UNIPILE_MAX_LIMIT,
+      fetchPage: (query) =>
+        this.messagingService.listCalendarEvents({
+          accountId: account.unipileAccountId,
+          calendarId: calendar.unipileCalendarId,
+          cursor: query.cursor,
+          offset: query.offset,
+          limit: UNIPILE_MAX_LIMIT,
+          start,
+          expandRecurring,
+        }),
+      handleItem: (rawEvent) => this.processCalendarEvent(account, calendar.calendarId, rawEvent),
+    });
+  }
+
+  private async upsertCalendar(account: ConnectedAccount, rawCalendar: unknown): Promise<CalendarContext | null> {
     const parsed = UnipileCalendarSchema.safeParse(rawCalendar);
 
     if (!parsed.success) {
@@ -92,6 +138,7 @@ export class BackfillCalendarsInteractor {
         connectedAccountId: account.id,
         payload: rawCalendar,
       });
+
       return null;
     }
 
@@ -108,11 +155,7 @@ export class BackfillCalendarsInteractor {
     return { unipileCalendarId: parsed.data.id, calendarId: stored.id };
   }
 
-  private async processCalendarEvent(
-    account: ConnectedAccount,
-    calendarId: string,
-    rawEvent: unknown,
-  ): Promise<number> {
+  private async processCalendarEvent(account: ConnectedAccount, calendarId: string, rawEvent: unknown): Promise<void> {
     const parsed = UnipileCalendarEventSchema.safeParse(rawEvent);
 
     if (!parsed.success) {
@@ -121,7 +164,8 @@ export class BackfillCalendarsInteractor {
         connectedAccountId: account.id,
         payload: rawEvent,
       });
-      return 1;
+
+      return;
     }
 
     const normalized = buildCalendarEvent(parsed.data);
@@ -133,7 +177,8 @@ export class BackfillCalendarsInteractor {
         payload: parsed.data,
         unipileMessageId: parsed.data.id ?? null,
       });
-      return 1;
+
+      return;
     }
 
     try {
@@ -145,7 +190,14 @@ export class BackfillCalendarsInteractor {
         attendeeEmails: collectAttendeeEmails(normalized),
       });
     } catch (err) {
-      Sentry.captureException(err);
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "calendar",
+        },
+      });
       await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
@@ -153,7 +205,5 @@ export class BackfillCalendarsInteractor {
         unipileMessageId: parsed.data.id ?? null,
       });
     }
-
-    return 1;
   }
 }

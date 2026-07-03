@@ -264,7 +264,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
     if (this.form.id) return;
 
     const result = await getCompanyWidgetsAction();
-    if (result.widgets) this.companyWideWidgets = result.widgets;
+    if (result.ok) this.companyWideWidgets = result.data.widgets;
   };
 
   delete = async () => {

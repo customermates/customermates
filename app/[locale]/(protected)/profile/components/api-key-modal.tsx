@@ -14,7 +14,6 @@ import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Trash2 } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -26,7 +25,7 @@ import { InfoRow } from "@/components/shared/info-row";
 
 const ExpiresInPicker = observer(() => {
   const t = useTranslations();
-  const { apiKeyModalStore } = useRootStore();
+  const { apiKeyModalStore, intlStore } = useRootStore();
   const { expiresAt } = apiKeyModalStore;
 
   const today = new Date();
@@ -48,7 +47,11 @@ const ExpiresInPicker = observer(() => {
           >
             <CalendarIcon className="mr-2 size-4" />
 
-            {expiresAt ? format(expiresAt, "PPP") : <span>{t("ApiKeyModal.expiresInPlaceholder")}</span>}
+            {expiresAt ? (
+              intlStore.formatDescriptiveLongDate(expiresAt)
+            ) : (
+              <span>{t("ApiKeyModal.expiresInPlaceholder")}</span>
+            )}
           </Button>
         </PopoverTrigger>
 

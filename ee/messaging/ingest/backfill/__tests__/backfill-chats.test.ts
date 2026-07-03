@@ -15,82 +15,124 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { BackfillChatsInteractor } from "../backfill-chats.interactor";
+import { ACCOUNT_WIDE_SOURCE } from "../prepare-backfill.interactor";
 
+const CONNECTED_ACCOUNT_ID = "11111111-1111-4111-8111-111111111111";
 const account = {
   id: "acc-1",
   companyId: "co-1",
-  unipileAccountId: "uni-1",
+  unipileAccountId: "acc_uni-1",
   provider: "whatsapp",
+  status: "ok",
+  displayName: null,
 } as any;
 
-function build(overrides: { chats?: unknown[]; messages?: unknown[]; attendees?: unknown[] }) {
+function build(overrides: { chats?: unknown[]; participants?: unknown[] }) {
   const messagingService = {
-    listChats: vi.fn().mockResolvedValue({ items: overrides.chats ?? [], cursor: null }),
-    listMessages: vi.fn().mockResolvedValue({ items: overrides.messages ?? [], cursor: null }),
-    listChatAttendees: vi.fn().mockResolvedValue({ items: overrides.attendees ?? [], cursor: null }),
+    listChats: vi.fn().mockResolvedValue({ data: overrides.chats ?? [], next_cursor: null }),
+    listInboxChats: vi.fn().mockResolvedValue({ data: overrides.chats ?? [], next_cursor: null }),
+    listChatParticipants: vi.fn().mockResolvedValue({ data: overrides.participants ?? [], next_cursor: null }),
+    listChatMessages: vi.fn().mockResolvedValue({ data: [], next_cursor: null }),
   };
   const ingest = {
-    upsertChatThread: vi.fn().mockResolvedValue(undefined),
-    ingestMessage: vi.fn().mockResolvedValue({ isEcho: true }),
-    countMessagesUnscoped: vi.fn().mockResolvedValue(0),
+    upsertChatThreadUnscoped: vi.fn().mockResolvedValue({ id: "thread-row-1" }),
+    ingestMessageUnscoped: vi.fn().mockResolvedValue(undefined),
+    findThreadBackfillStateUnscoped: vi.fn().mockResolvedValue(null),
   };
   const repo = {
-    saveBackfillStepCheckpointUnscoped: vi.fn().mockResolvedValue(undefined),
+    findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
-    setAccountOwnAttendeeIdUnscoped: vi.fn().mockResolvedValue(undefined),
+    recordRawBackfillItemUnscoped: vi.fn().mockResolvedValue(undefined),
   };
   const interactor = new BackfillChatsInteractor(repo as any, messagingService as any, ingest as any);
 
   return { interactor, messagingService, ingest, repo };
 }
 
-const invokeArgs = { account, afterDate: new Date("2025-01-01T00:00:00.000Z"), checkpoint: {}, epoch: 0 };
+const accountWide = { connectedAccountId: CONNECTED_ACCOUNT_ID, source: ACCOUNT_WIDE_SOURCE, cursor: null };
 
-describe("BackfillChatsInteractor lazy rosters", () => {
+const groupChat = {
+  object: "Chat",
+  id: "c1",
+  name: "Group",
+  description: "a group chat",
+  is_group: true,
+  participants_count: 1,
+  participants: [
+    { object: "GroupParticipant", is_self: true, user: { id: "self", display_name: "Me" } },
+    { object: "GroupParticipant", is_self: false, user: { id: "a1", display_name: "Bob" } },
+  ],
+  unread_count: 2,
+  last_message: { text: "hi there", is_sender: false },
+  last_message_timestamp: "2025-06-01T00:00:00.000Z",
+};
+
+describe("BackfillChatsInteractor (list-only page)", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("does not fetch any chat rosters during the metadata sweep", async () => {
-    const { interactor, messagingService, ingest } = build({
-      chats: [{ id: "c1", name: "Group", timestamp: 1700000000000 }],
-      messages: [],
-    });
+  it("lists the account-wide page, upserts one thread per chat, and reports exhaustion", async () => {
+    const { interactor, messagingService, ingest } = build({ chats: [groupChat] });
 
-    await interactor.invoke(invokeArgs as any);
+    const result = await interactor.invoke(accountWide as any);
 
-    expect(messagingService.listChatAttendees).not.toHaveBeenCalled();
-    expect(ingest.upsertChatThread).toHaveBeenCalledTimes(1);
-    expect(ingest.upsertChatThread.mock.calls[0][0].participants).toEqual([]);
+    expect(messagingService.listChats).toHaveBeenCalledTimes(1);
+    expect(messagingService.listInboxChats).not.toHaveBeenCalled();
+    expect(messagingService.listChatParticipants).not.toHaveBeenCalled();
+    expect(ingest.upsertChatThreadUnscoped).toHaveBeenCalledTimes(1);
+
+    const args = ingest.upsertChatThreadUnscoped.mock.calls[0][0];
+    expect(args.type).toBe("group");
+    expect(args.name).toBe("Group");
+    expect(args.subject).toBe("a group chat");
+    expect(args.participants).toHaveLength(1);
+    expect(args.participants[0].displayName).toBe("Bob");
+    expect(args.lastMessagePreview).toBe("hi there");
+    expect(args.lastMessageIsSender).toBe(false);
+    expect(args.lastMessageAt).toEqual(new Date("2025-06-01T00:00:00.000Z"));
+
+    expect(result).toEqual({ nextCursor: null, done: true });
   });
 
-  it("lazily loads and persists a chat roster while processing its messages, and saves the message cursor", async () => {
-    const { interactor, messagingService, ingest, repo } = build({
-      chats: [{ id: "c1", name: "Group", timestamp: 1700000000000 }],
-      messages: [
-        {
-          id: "m1",
-          chat_id: "c1",
-          sender_id: "a1",
-          sender_attendee_id: "a1",
-          is_sender: false,
-          timestamp: 1700000001000,
-          text: "hi",
-        },
-      ],
-      attendees: [
-        { id: "self", is_self: true },
-        { id: "a1", provider_id: "a1", name: "Bob" },
-      ],
+  it("withholds thread pointers when the chat's last_message has no text", async () => {
+    const { interactor, ingest } = build({
+      chats: [{ ...groupChat, id: "c3", last_message: { text: "  ", is_sender: true } }],
     });
 
-    await interactor.invoke(invokeArgs as any);
+    await interactor.invoke(accountWide as any);
 
-    expect(messagingService.listChatAttendees).toHaveBeenCalledTimes(1);
-    expect(messagingService.listChatAttendees.mock.calls[0][0].chatId).toBe("c1");
+    const args = ingest.upsertChatThreadUnscoped.mock.calls[0][0];
+    expect(args.lastMessageAt).toBeUndefined();
+    expect(args.lastMessagePreview).toBeUndefined();
+    expect(args.lastMessageIsSender).toBeUndefined();
+  });
 
-    const persistedRoster = ingest.upsertChatThread.mock.calls.some((call: any[]) => call[0].participants.length > 0);
-    expect(persistedRoster).toBe(true);
+  it("fetches participants when the group roster is empty but participants_count > 0", async () => {
+    const { interactor, messagingService, ingest } = build({
+      chats: [
+        { object: "Chat", id: "c2", name: "Empty Group", is_group: true, participants_count: 2, participants: [] },
+      ],
+      participants: [{ id: "p1", display_name: "Alice" }],
+    });
 
-    expect(ingest.ingestMessage).toHaveBeenCalledTimes(1);
-    expect(repo.saveBackfillStepCheckpointUnscoped).toHaveBeenCalled();
+    await interactor.invoke(accountWide as any);
+
+    expect(messagingService.listChatParticipants).toHaveBeenCalledTimes(1);
+    expect(messagingService.listChatParticipants.mock.calls[0][0].chatId).toBe("c2");
+
+    const args = ingest.upsertChatThreadUnscoped.mock.calls[0][0];
+    expect(args.participants).toHaveLength(1);
+    expect(args.participants[0].displayName).toBe("Alice");
+  });
+
+  it("lists a LinkedIn inbox source via listInboxChats, honoring the incoming cursor", async () => {
+    const { interactor, messagingService } = build({ chats: [groupChat] });
+
+    await interactor.invoke({ connectedAccountId: CONNECTED_ACCOUNT_ID, source: "inbox-7", cursor: "c:cur-42" } as any);
+
+    expect(messagingService.listChats).not.toHaveBeenCalled();
+    expect(messagingService.listInboxChats).toHaveBeenCalledTimes(1);
+    const call = messagingService.listInboxChats.mock.calls[0][0];
+    expect(call.inboxId).toBe("inbox-7");
+    expect(call.cursor).toBe("cur-42");
   });
 });

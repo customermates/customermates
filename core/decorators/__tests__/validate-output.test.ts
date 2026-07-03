@@ -108,7 +108,7 @@ describe("ValidateOutput", () => {
   it("throws ZodError if required fields are missing in the output", async () => {
     const interactor = makeInteractor({
       ok: true,
-      data: { id: "1" }, // missing required `name`
+      data: { id: "1" },
     });
 
     await expect(interactor.invoke()).rejects.toThrow(ZodError);

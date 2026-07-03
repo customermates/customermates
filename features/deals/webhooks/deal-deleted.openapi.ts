@@ -12,7 +12,7 @@ export const WebhookDealDeletedSchema = z.object({
     entityId: z.uuid(),
     payload: DealDtoSchema,
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookDealDeletedOperation: ZodOpenApiOperationObject = {

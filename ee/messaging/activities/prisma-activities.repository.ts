@@ -235,7 +235,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereCompanyWide(contactIds);
       if (identifierGroups.length === 0) return [];
       scoped.OR = [
         {
@@ -299,7 +299,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereCompanyWide(contactIds);
       if (identifierGroups.length === 0) return 0;
       scoped.OR = [
         {
@@ -408,7 +408,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const scoped: Prisma.MessagingThreadWhereInput = {};
 
     if (contactIds?.length) {
-      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
+      const identifierGroups = await getContactRepo().classGroupedIdentifierWhereCompanyWide(contactIds);
       if (identifierGroups.length === 0) return [];
       scoped.participants = {
         some: { OR: identifierGroups.map((group) => ({ ...group.providerWhere, identifier: group.identifier })) },
@@ -448,7 +448,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
   private get participantSelect() {
     return {
-      unipileAttendeeId: true,
+      providerUserId: true,
       identifier: true,
       displayName: true,
       pictureUrl: true,

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
-import { format, addMonths, addWeeks, addYears, startOfMonth } from "date-fns";
+import { addMonths, addWeeks, addYears, startOfMonth } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { useAppForm } from "@/components/forms/form-context";
@@ -81,7 +81,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
     commit(next);
   }
 
-  const dateFormat = dateOnly ? "PPP" : "PPp";
+  const formatter = dateOnly ? intlStore.dateFormatMap.descriptiveLong : intlStore.dateTimeFormatMap.descriptiveLong;
   const timeValue = parsed
     ? `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}:${String(parsed.getSeconds()).padStart(2, "0")}`
     : "";
@@ -102,7 +102,7 @@ export const FilterInputIsoDate = observer(({ id, isValidFilter, granularity = "
         >
           <CalendarIcon className="mr-2 size-4 shrink-0" />
 
-          <span className="truncate flex-1">{parsed ? format(parsed, dateFormat) : ""}</span>
+          <span className="truncate flex-1">{parsed ? formatter(parsed) : ""}</span>
 
           {parsed && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
         </Button>

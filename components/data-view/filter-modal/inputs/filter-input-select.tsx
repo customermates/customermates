@@ -105,7 +105,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                     endContent={
                       <span
                         aria-label="Remove"
-                        className="ml-0.5 opacity-50 hover:opacity-100 transition-opacity"
+                        className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
                         role="button"
                         tabIndex={-1}
                         onClick={(e) => {

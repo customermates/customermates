@@ -5,7 +5,7 @@ import type { DateRange } from "react-day-picker";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
-import { format, addDays, addMonths, addWeeks, endOfMonth, startOfMonth } from "date-fns";
+import { addDays, addMonths, addWeeks, endOfMonth, startOfMonth } from "date-fns";
 import { useTranslations } from "next-intl";
 
 import { useAppForm } from "@/components/forms/form-context";
@@ -133,7 +133,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
     commit(next);
   }
 
-  const dateFormat = dateOnly ? "PPP" : "PPp";
+  const formatter = dateOnly ? intlStore.dateFormatMap.descriptiveLong : intlStore.dateTimeFormatMap.descriptiveLong;
   const hasBoth = startDate && endDate;
   const fromTimeValue = startDate
     ? `${String(startDate.getHours()).padStart(2, "0")}:${String(startDate.getMinutes()).padStart(2, "0")}:${String(startDate.getSeconds()).padStart(2, "0")}`
@@ -158,9 +158,7 @@ export const FilterInputIsoDateRange = observer(({ id, isValidFilter, granularit
         >
           <CalendarIcon className="mr-2 size-4 shrink-0" />
 
-          <span className="truncate flex-1">
-            {hasBoth ? `${format(startDate, dateFormat)} – ${format(endDate, dateFormat)}` : ""}
-          </span>
+          <span className="truncate flex-1">{hasBoth ? `${formatter(startDate)} – ${formatter(endDate)}` : ""}</span>
 
           {hasBoth && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
         </Button>

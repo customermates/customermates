@@ -1,6 +1,7 @@
 import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountsCard } from "../components/connected-accounts-card";
+import { ConnectedAccountsStatusToast } from "../components/connected-accounts-status-toast";
 
 import { getGetMyConnectedAccountsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
@@ -14,6 +15,8 @@ export default async function ConnectedAccountsPage() {
 
   return (
     <PageContainer>
+      <ConnectedAccountsStatusToast />
+
       <ConnectedAccountsCard accounts={accounts} />
     </PageContainer>
   );

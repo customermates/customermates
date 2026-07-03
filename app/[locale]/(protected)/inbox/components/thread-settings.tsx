@@ -17,13 +17,14 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { AppModal } from "@/components/modal";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/lib/utils";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
-import { participantLabel } from "@/ee/messaging/thread-display";
+import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
 
 type Props = {
   threadId: string;
@@ -42,8 +43,12 @@ export const ThreadSettings = observer(
     useEffect(() => threadParticipantsStore.bind(threadId), [threadId, threadParticipantsStore]);
 
     const canManageContacts = userStore.can(Resource.contacts, Action.update);
+    const selfParticipant = participants.find((p) => p.isSelf) ?? null;
+    const accountOwner =
+      messagingThreadDetailStore.accountOwners[messagingThreadDetailStore.thread?.connectedAccountId ?? ""] ?? null;
     const linkable = participants.filter((p) => !p.isSelf && p.identifier.trim());
     const unlinkedCount = linkable.filter((p) => !p.contact).length;
+    const showBadge = canManageContacts && unlinkedCount > 0;
     const isShared = accountShared || sharedToCrm;
     const stateLabel = isShared ? t("Inbox.shareToCrmShared") : t("Inbox.shareToCrmPrivate");
 
@@ -51,21 +56,7 @@ export const ThreadSettings = observer(
       <>
         <ClickableChip
           aria-label={t("Inbox.settings.title")}
-          endContent={
-            canManageContacts && unlinkedCount > 0 ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="ml-0.5 inline-flex items-center gap-0.5 rounded-sm bg-warning/15 px-1 text-[10px] font-medium text-warning">
-                    <UserPlus className="size-2.5" />
-
-                    {unlinkedCount}
-                  </span>
-                </TooltipTrigger>
-
-                <TooltipContent>{t("Inbox.unlinkedParticipants")}</TooltipContent>
-              </Tooltip>
-            ) : undefined
-          }
+          className={cn("h-8", showBadge && "rounded-r-none")}
           size="md"
           startContent={
             linkable.length > 0 ? (
@@ -90,8 +81,28 @@ export const ThreadSettings = observer(
           variant="secondary"
           onClick={() => threadParticipantsStore.setOpen(true)}
         >
-          {stateLabel}
+          <span className="hidden sm:inline">{stateLabel}</span>
         </ClickableChip>
+
+        {showBadge && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={t("Inbox.unlinkedParticipants")}
+                className="-ml-1 h-8 gap-1 rounded-l-none px-2"
+                type="button"
+                variant="softPrimary"
+                onClick={() => threadParticipantsStore.setOpen(true)}
+              >
+                <UserPlus className="size-3.5" />
+
+                <span className="text-xs font-medium">{unlinkedCount}</span>
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("Inbox.unlinkedParticipants")}</TooltipContent>
+          </Tooltip>
+        )}
 
         <AppModal
           open={threadParticipantsStore.isOpen}
@@ -131,11 +142,35 @@ export const ThreadSettings = observer(
                 />
               </label>
 
-              {linkable.length > 0 && (
+              {(selfParticipant || accountOwner || linkable.length > 0) && (
                 <section className="flex flex-col gap-3">
                   <h3 className="text-sm font-medium">{t("Inbox.settings.people")}</h3>
 
-                  <ThreadPeopleManager canManage={canManageContacts} participants={linkable} provider={provider} />
+                  <div className="flex flex-col gap-1">
+                    {(selfParticipant || accountOwner) && (
+                      <div className="flex items-center gap-3 py-2">
+                        <Avatar
+                          name={t("Inbox.senderYou")}
+                          size="lg"
+                          src={selfParticipant?.pictureUrl ?? accountOwner?.avatarUrl ?? undefined}
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{t("Inbox.senderYou")}</div>
+
+                          {(selfParticipant?.identifier || accountOwner?.accountLabel) && (
+                            <div className="text-muted-foreground truncate text-xs">
+                              {selfParticipant?.identifier
+                                ? displayableIdentifier(provider, selfParticipant.identifier)
+                                : accountOwner?.accountLabel}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <ThreadPeopleManager canManage={canManageContacts} participants={linkable} provider={provider} />
+                  </div>
                 </section>
               )}
             </AppCardBody>

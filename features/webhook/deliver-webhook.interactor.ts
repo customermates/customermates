@@ -14,9 +14,19 @@ const Schema = z.object({
 export type DeliverWebhookPayload = z.infer<typeof Schema>;
 
 export abstract class DeliverWebhookRepo {
-  abstract getSecret(args: { companyId: string; url: string }): Promise<string | null>;
-  abstract markSuccess(args: { id: string; statusCode: number | null; responseMessage: string | null }): Promise<void>;
-  abstract markFailed(args: { id: string; statusCode: number | null; responseMessage: string | null }): Promise<void>;
+  abstract getSecretUnscoped(args: { companyId: string; url: string }): Promise<string | null>;
+  abstract markSuccessUnscoped(args: {
+    id: string;
+    companyId: string;
+    statusCode: number | null;
+    responseMessage: string | null;
+  }): Promise<void>;
+  abstract markFailedUnscoped(args: {
+    id: string;
+    companyId: string;
+    statusCode: number | null;
+    responseMessage: string | null;
+  }): Promise<void>;
 }
 
 type DeliveryOutcome = {
@@ -31,20 +41,22 @@ export class DeliverWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(payload: DeliverWebhookPayload): Promise<DeliveryOutcome> {
-    const secret = await this.repo.getSecret({ companyId: payload.companyId, url: payload.url });
+    const secret = await this.repo.getSecretUnscoped({ companyId: payload.companyId, url: payload.url });
     const result = await this.postWebhook({ url: payload.url, secret, requestBody: payload.requestBody });
 
     if (result.success) {
-      await this.repo.markSuccess({
+      await this.repo.markSuccessUnscoped({
         id: payload.deliveryId,
+        companyId: payload.companyId,
         statusCode: result.statusCode,
         responseMessage: result.responseMessage,
       });
       return { status: "success", statusCode: result.statusCode, responseMessage: result.responseMessage };
     }
 
-    await this.repo.markFailed({
+    await this.repo.markFailedUnscoped({
       id: payload.deliveryId,
+      companyId: payload.companyId,
       statusCode: result.statusCode,
       responseMessage: result.responseMessage,
     });

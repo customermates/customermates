@@ -159,7 +159,7 @@
   --warning-foreground: #451a03;
   --info: #60a5fa;
   --info-foreground: #082f49;
-  --border: #232328;
+  --border: #1c1c20;
   --input: #2a2a30;
   --input-background: #18181c;
   --ring: #7c6df2;
@@ -186,7 +186,7 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #1f1f24;
   --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #222228;
+  --sidebar-border: #1c1c20;
   --sidebar-ring: #7c6df2;
 }
 
@@ -324,11 +324,11 @@ path:focus {
   }
 
   .interactive-surface {
-    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:scale-[1.005] active:scale-[0.99] motion-reduce:transition-none;
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline active:scale-[0.97] motion-reduce:transition-none;
   }
 
   .interactive-surface-elevated {
-    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:scale-[1.01] hover:shadow-md active:scale-[0.99] motion-reduce:transition-none;
+    @apply cursor-pointer no-underline transition-[background-color,box-shadow,transform] hover:bg-muted/60 hover:no-underline hover:shadow-md active:scale-[0.97] motion-reduce:transition-none;
   }
 
   .prose
@@ -345,4 +345,9 @@ path:focus {
     padding-inline-end: 1em !important;
   }
 
+}
+
+[data-rich-colors="true"][data-sonner-toast][data-type="error"] [data-button] {
+  background: var(--error-text);
+  color: var(--error-bg);
 }

@@ -18,7 +18,6 @@ export async function reportFailure(workflowName: string, failure: WorkflowFailu
   if (failure.name) error.name = failure.name;
   if (failure.stack) error.stack = failure.stack;
 
-  // Locally (or without a DSN): log to the console instead of publishing to Sentry.
   if (env.NODE_ENV !== "production" || !env.NEXT_PUBLIC_SENTRY_DSN) {
     console.error(`[workflow:${workflowName}]`, error);
     return;
@@ -35,3 +34,23 @@ export async function reportFailure(workflowName: string, failure: WorkflowFailu
   }
 }
 reportFailure.maxRetries = 0;
+
+export async function reportWarning(workflowName: string, message: string): Promise<void> {
+  "use step";
+  if (env.NODE_ENV !== "production" || !env.NEXT_PUBLIC_SENTRY_DSN) {
+    console.warn(`[workflow:${workflowName}] ${message}`);
+    return;
+  }
+
+  try {
+    Sentry.withScope((scope) => {
+      scope.setContext("workflow", { workflowName });
+      scope.setLevel("warning");
+      Sentry.captureMessage(message);
+    });
+    await Sentry.flush(2000);
+  } catch (reportingError) {
+    console.error(`[workflow:${workflowName}] failed to report warning to Sentry`, reportingError);
+  }
+}
+reportWarning.maxRetries = 0;

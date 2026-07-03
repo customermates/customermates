@@ -1,5 +1,7 @@
 import { createMcpRoute } from "./mcp-route-utils";
 
+import { getAuthService } from "@/core/di";
+
 import { createContactsTool, updateContactsTool } from "@/features/mcp-tools/contact.mcp-tools";
 import { createOrganizationsTool, updateOrganizationsTool } from "@/features/mcp-tools/organization.mcp-tools";
 import { createDealsTool, updateDealsTool } from "@/features/mcp-tools/deal.mcp-tools";
@@ -116,6 +118,13 @@ const ALL_TOOLS = [
 
 export const maxDuration = 60;
 
-const handler = createMcpRoute(ALL_TOOLS, "/api/v1/mcp");
+const mcpHandler = createMcpRoute(ALL_TOOLS, "/api/v1/mcp");
+
+async function handler(request: Request) {
+  const session = await getAuthService().getSession();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  return mcpHandler(request);
+}
 
 export { handler as GET, handler as POST };

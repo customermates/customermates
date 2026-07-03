@@ -45,7 +45,7 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
       },
     });
 
-    await this.messagingService.deleteRemoteAccount(existing.unipileAccountId);
+    await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId });
 
     return { ok: true as const, data: null };
   }

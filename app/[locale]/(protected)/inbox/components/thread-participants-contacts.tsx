@@ -164,8 +164,8 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                   <TooltipTrigger asChild>
                     <Button
                       aria-label={t("Inbox.participants.openContact")}
-                      className="text-muted-foreground hover:text-foreground size-7 hover:bg-transparent"
-                      data-size="icon-sm"
+                      className="size-7 text-muted-foreground"
+                      size="icon-sm"
                       type="button"
                       variant="ghost"
                       onClick={() => navigateToHref(`/contacts/${matched.id}`)}
@@ -182,11 +182,11 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
                     <TooltipTrigger asChild>
                       <Button
                         aria-label={t("Inbox.participants.unlink")}
-                        className="bg-destructive/15 text-destructive hover:bg-destructive/25 size-7"
+                        className="size-7"
                         data-size="icon-sm"
                         disabled={store.pending}
                         type="button"
-                        variant="secondary"
+                        variant="softDestructive"
                         onClick={() => void store.unlink(p.identifier)}
                       >
                         <Unlink className="size-3.5" />
@@ -200,10 +200,10 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
             ) : (
               canManage && (
                 <Button
-                  className="bg-primary/15 text-primary hover:bg-primary/25 h-7 shrink-0 gap-1.5 px-2"
+                  className="h-7 shrink-0 gap-1.5 px-2"
                   disabled={store.pending}
                   type="button"
-                  variant="secondary"
+                  variant="softPrimary"
                   onClick={() => store.startLink(p.identifier)}
                 >
                   <UserPlus className="size-3.5" />

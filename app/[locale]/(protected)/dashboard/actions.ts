@@ -26,8 +26,7 @@ export async function deleteWidgetAction(data: DeleteWidgetData) {
 }
 
 export async function getCompanyWidgetsAction() {
-  const result = await getGetCompanyWidgetsInteractor().invoke();
-  return result.data;
+  return serializeResult(getGetCompanyWidgetsInteractor().invoke());
 }
 
 export async function getWidgetByIdAction(data: GetWidgetByIdData) {

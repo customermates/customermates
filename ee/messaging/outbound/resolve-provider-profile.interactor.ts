@@ -4,7 +4,7 @@ import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { MessagingProvider, Resource, Action } from "@/generated/prisma";
 
@@ -15,6 +15,7 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { getProviderProfileUrl, isHandleProvider } from "../provider";
+import { formatRetryAfter } from "../retry-after";
 
 const Schema = z.object({
   connectedAccountId: z.uuid(),
@@ -67,7 +68,9 @@ export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
     if (!res.ok) {
       return {
         ok: false,
-        error: createZodError<ResolvedProviderProfile>(t(`Common.errors.${res.error}`)),
+        error: createZodError<ResolvedProviderProfile>(
+          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
+        ),
       };
     }
 

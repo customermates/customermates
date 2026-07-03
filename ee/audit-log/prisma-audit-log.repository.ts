@@ -8,6 +8,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { BaseRepository } from "@/core/base/base-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -84,5 +85,12 @@ export class PrismaAuditLogRepo
     }
 
     await this.prisma.auditLog.create({ data });
+  }
+
+  @BypassTenantGuard
+  async logUnscoped(args: RepoArgs<CreateAuditLogRepo, "logUnscoped">) {
+    await this.prisma.auditLog.create({
+      data: { ...args, eventData: args.eventData as Prisma.InputJsonValue },
+    });
   }
 }

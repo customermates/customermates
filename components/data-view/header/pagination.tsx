@@ -52,16 +52,19 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
   }
 
   return (
-    <div className={cn("flex items-center justify-between gap-2 px-4 py-3", className)}>
-      <div className="text-sm text-muted-foreground truncate">{summary}</div>
+    <div className={cn("flex items-center justify-between gap-3 px-4 py-2.5", className)}>
+      <div className="text-muted-foreground truncate text-sm">{summary}</div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex shrink-0 items-center gap-0.5">
         <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
-          <SelectTrigger className="w-20" size="sm">
+          <SelectTrigger
+            className="text-muted-foreground hover:text-foreground hover:bg-accent w-auto gap-1 border-0 bg-transparent px-2 shadow-none focus-visible:ring-0"
+            size="sm"
+          >
             <SelectValue />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent align="end">
             {PAGE_SIZE_OPTIONS.map((size) => (
               <SelectItem key={size} value={String(size)}>
                 {size}
@@ -72,9 +75,10 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
 
         <Button
           aria-label={t("Common.table.previousPage")}
+          className="text-muted-foreground hover:text-foreground"
           disabled={page <= 1}
           size="icon-sm"
-          variant="secondary"
+          variant="ghost"
           onClick={() => setPage(page - 1)}
         >
           <ChevronLeft className="size-4" />
@@ -82,9 +86,10 @@ export const DataViewPagination = observer(function DataViewPagination<E extends
 
         <Button
           aria-label={t("Common.table.nextPage")}
+          className="text-muted-foreground hover:text-foreground"
           disabled={page >= totalPages}
           size="icon-sm"
-          variant="secondary"
+          variant="ghost"
           onClick={() => setPage(page + 1)}
         >
           <ChevronRight className="size-4" />

@@ -32,11 +32,11 @@ export type AdminUpdateUserDetailsData = Data<typeof Schema>;
 export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
   abstract findOrThrowCompanyWide(email: string): Promise<ExtendedUser>;
-  abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>; // TODO do we need the admin prefix?
+  abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
 }
 
 export abstract class UpdateUserRoleRepo {
-  abstract isSystemRole(id: string): Promise<boolean>;
+  abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
   abstract hasAnotherActiveSystemRoleUser(excludeUserId: string): Promise<boolean>;
 }
 
@@ -71,8 +71,9 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
     if (targetUserId === getTenantUser().id) throw new Error("Cannot update own details.");
 
-    const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRole(targetUser.roleId) : false;
-    const newRoleIsSystemAndActive = (await this.roleRepo.isSystemRole(data.roleId)) && data.status === Status.active;
+    const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;
+    const newRoleIsSystemAndActive =
+      (await this.roleRepo.isSystemRoleOrThrow(data.roleId)) && data.status === Status.active;
 
     if (targetIsSystem && !newRoleIsSystemAndActive) {
       const hasAnother = await this.roleRepo.hasAnotherActiveSystemRoleUser(targetUserId);

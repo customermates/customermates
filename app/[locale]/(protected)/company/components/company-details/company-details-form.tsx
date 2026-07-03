@@ -47,7 +47,7 @@ export const CompanyDetailsForm = observer(({ company, initialSubscription, show
 
   const topBarActions = useMemo(
     () => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {showSubscription && <SubscribeManageButton />}
 
         <FormActions formId={formId} store={store} variant="topbar" />

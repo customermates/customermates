@@ -29,7 +29,7 @@ export const ThreadStatePicker = observer(({ state }: Props) => {
   if (!userStore.can(Resource.inboxMessages, Action.update)) {
     return (
       <AppChip startContent={<ThreadStateDot state={state} />} variant={THREAD_STATE_CHIP_COLOR[state]}>
-        {t(`Inbox.threadStates.${state}`)}
+        <span className="hidden sm:inline">{t(`Inbox.threadStates.${state}`)}</span>
       </AppChip>
     );
   }
@@ -40,23 +40,24 @@ export const ThreadStatePicker = observer(({ state }: Props) => {
       onValueChange={(next) => void messagingThreadDetailStore.setState(next as MessagingThreadState)}
     >
       <SelectTrigger
+        aria-label={t(`Inbox.threadStates.${state}`)}
         className={cn(
-          badgeVariants({ variant: THREAD_STATE_CHIP_COLOR[state] }),
-          "interactive-surface h-[26px]! w-auto gap-1.5 rounded-md border-transparent px-2 text-xs shadow-none",
+          badgeVariants({ variant: THREAD_STATE_CHIP_COLOR[state], interactive: true }),
+          "h-8! w-auto gap-1.5 rounded-md border-transparent px-2 text-xs shadow-none",
         )}
       >
         <ThreadStateDot state={state} />
 
-        <span className="truncate">{t(`Inbox.threadStates.${state}`)}</span>
+        <span className="hidden truncate sm:inline">{t(`Inbox.threadStates.${state}`)}</span>
       </SelectTrigger>
 
       <SelectContent>
         {STATES.map((s) => (
           <SelectItem key={s} textValue={t(`Inbox.threadStates.${s}`)} value={s}>
-            <span className="flex items-center gap-2">
+            <span className={cn(badgeVariants({ variant: THREAD_STATE_CHIP_COLOR[s] }), "h-6 px-2 text-xs")}>
               <ThreadStateDot state={s} />
 
-              <span className="text-sm">{t(`Inbox.threadStates.${s}`)}</span>
+              {t(`Inbox.threadStates.${s}`)}
             </span>
           </SelectItem>
         ))}

@@ -3,70 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import z from "zod";
 
 import { ContactDtoSchema } from "@/features/contacts/contact.schema";
-import {
-  CustomFieldValueSchema,
-  DealReferenceSchema,
-  OrganizationReferenceSchema,
-  TaskReferenceSchema,
-  UserReferenceSchema,
-} from "@/core/base/base-entity.schema";
-
-const ContactChangesSchema = z.object({
-  firstName: z
-    .object({
-      previous: z.string(),
-      current: z.string(),
-    })
-    .optional(),
-  lastName: z
-    .object({
-      previous: z.string(),
-      current: z.string(),
-    })
-    .optional(),
-  createdAt: z
-    .object({
-      previous: z.date(),
-      current: z.date(),
-    })
-    .optional(),
-  updatedAt: z
-    .object({
-      previous: z.date(),
-      current: z.date(),
-    })
-    .optional(),
-  organizations: z
-    .object({
-      previous: z.array(OrganizationReferenceSchema),
-      current: z.array(OrganizationReferenceSchema),
-    })
-    .optional(),
-  users: z
-    .object({
-      previous: z.array(UserReferenceSchema),
-      current: z.array(UserReferenceSchema),
-    })
-    .optional(),
-  deals: z
-    .object({
-      previous: z.array(DealReferenceSchema),
-      current: z.array(DealReferenceSchema),
-    })
-    .optional(),
-  tasks: z
-    .object({
-      previous: z.array(TaskReferenceSchema),
-      current: z.array(TaskReferenceSchema),
-    })
-    .optional(),
-  customFieldValues: z
-    .object({
-      previous: z.array(CustomFieldValueSchema),
-      current: z.array(CustomFieldValueSchema),
-    })
-    .optional(),
-});
+import { changesSchema } from "@/core/openapi/changes-schema";
 
 export const WebhookContactUpdatedSchema = z.object({
   event: z.literal("contact.updated"),
@@ -76,10 +13,10 @@ export const WebhookContactUpdatedSchema = z.object({
     entityId: z.uuid(),
     payload: z.object({
       contact: ContactDtoSchema,
-      changes: ContactChangesSchema,
+      changes: changesSchema(ContactDtoSchema.shape),
     }),
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookContactUpdatedOperation: ZodOpenApiOperationObject = {

@@ -140,10 +140,6 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
 
     if (nodes.length === 0) return undefined;
 
-    // 'path' refers to the JSONPath of the target field in the form data, e.g., '$.customFieldValues[0].value'
-    // Removing the '$.' prefix and splitting, e.g., 'customFieldValues[0].value' becomes ['customFieldValues', '0', 'value']
-    // This sequence is then used to navigate the treeified Zod error structure, where arrays are represented as .items[N].properties
-    // For example: path '$.customFieldValues[0].value' maps to error path '$.properties.customFieldValues.items[0].properties.value.errors'
     const path = nodes[0].path as string;
     const pathParts = path
       .slice(2)
@@ -176,8 +172,6 @@ export abstract class BaseFormStore<T extends object = object> extends BaseStore
     });
   };
 
-  // Sets a value at a dotted/bracketed path on the form, e.g. "filters[2].value" or "name".
-  // Walks to the parent and assigns the leaf — creates the leaf if MobX dropped it (undefined keys disappear).
   onChange = (id: string, value: unknown): void => {
     const tokens = id.match(/[^.\[\]]+/g) ?? [];
     const leaf = tokens.pop();

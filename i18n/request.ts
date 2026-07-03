@@ -1,5 +1,3 @@
-// next-intl per-request config, registered via createNextIntlPlugin in next.config.ts.
-// For a specific locale outside the current request, use getTranslator (./get-translator.ts).
 import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 

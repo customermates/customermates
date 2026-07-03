@@ -20,10 +20,14 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         displayName: null,
         shared: false,
         syncing: false,
+        preparing: false,
         lastSyncedAt: null,
         createdAt: new Date(),
         owner: { userId: "", firstName: "", lastName: "", avatarUrl: null },
         isOwner: false,
+        folders: [],
+        selectedFolderIds: [],
+        foldersSyncedAt: null,
       },
       Resource.inboxMessages,
     );
@@ -31,6 +35,18 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
 
   toggleVisibility = async (shared: boolean): Promise<void> => {
     const updated = await this.rootStore.connectedAccountsStore.setVisibility(this.form.id, shared);
+    if (updated) this.onInitOrRefresh(updated);
+  };
+
+  toggleFolder = async (folderId: string, on: boolean): Promise<void> => {
+    const next = new Set(this.form.selectedFolderIds);
+    if (on) next.add(folderId);
+    else next.delete(folderId);
+
+    const selectedFolderIds = [...next];
+    this.onInitOrRefresh({ ...this.form, selectedFolderIds });
+
+    const updated = await this.rootStore.connectedAccountsStore.setSelectedFolders(this.form.id, selectedFolderIds);
     if (updated) this.onInitOrRefresh(updated);
   };
 }

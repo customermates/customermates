@@ -148,7 +148,11 @@ export const CustomFieldValue = observer(
           const formatFn = intlStore.dateFormatMap[displayFormat];
           const formattedDate = formatFn(parsedDate);
 
-          return <span className="block truncate">{formattedDate}</span>;
+          return (
+            <span suppressHydrationWarning className="block truncate">
+              {formattedDate}
+            </span>
+          );
         }
 
         case CustomColumnType.dateTime: {
@@ -162,7 +166,11 @@ export const CustomFieldValue = observer(
           const formatFn = intlStore.dateTimeFormatMap[displayFormat];
           const formattedDateTime = formatFn(parsedDate);
 
-          return <span className="block truncate">{formattedDateTime}</span>;
+          return (
+            <span suppressHydrationWarning className="block truncate">
+              {formattedDateTime}
+            </span>
+          );
         }
 
         case CustomColumnType.dateRange: {
@@ -176,7 +184,9 @@ export const CustomFieldValue = observer(
 
           const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
           const formatFn = intlStore.dateFormatMap[displayFormat];
-          return <span className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>;
+          return (
+            <span suppressHydrationWarning className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>
+          );
         }
 
         case CustomColumnType.dateTimeRange: {
@@ -190,7 +200,9 @@ export const CustomFieldValue = observer(
 
           const displayFormat = column.options?.displayFormat ?? "descriptiveLong";
           const formatFn = intlStore.dateTimeFormatMap[displayFormat];
-          return <span className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>;
+          return (
+            <span suppressHydrationWarning className="block truncate">{`${formatFn(start)} – ${formatFn(end)}`}</span>
+          );
         }
 
         case CustomColumnType.plain:

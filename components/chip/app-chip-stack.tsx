@@ -237,6 +237,7 @@ export function AppChipStack<T extends ChipStackItem>({
           const href = chipHref?.(item);
           const chip = (
             <AppChip
+              interactive
               className="max-w-full min-w-0 shrink cursor-pointer"
               size={size}
               startContent={item.startContent}
@@ -288,7 +289,7 @@ export function AppChipStack<T extends ChipStackItem>({
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button className="flex-none inline-flex" type="button">
-              <AppChip className="max-w-full cursor-pointer" size={size} variant={variant}>
+              <AppChip interactive className="max-w-full cursor-pointer" size={size} variant={variant}>
                 <span className="truncate whitespace-nowrap">{moreLabel(ensuredHiddenItems.length)}</span>
               </AppChip>
             </button>

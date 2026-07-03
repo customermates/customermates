@@ -4,7 +4,7 @@ import type { MessagingProvider, ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Resource, Action } from "@/generated/prisma";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -14,6 +14,7 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
 import { isHandleProvider } from "../provider";
+import { formatRetryAfter } from "../retry-after";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
@@ -39,7 +40,7 @@ export abstract class StartChatContactRepo {
   }): Promise<void>;
 }
 
-type ResolvedAttendees = { ok: true; ids: string[] } | { ok: false; error: string };
+type ResolvedAttendees = { ok: true; ids: string[] } | { ok: false; error: string; retryAfterSeconds?: number };
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, null> {
@@ -67,22 +68,28 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<null>(t(`Common.errors.${attendees.error}`)),
+        error: createZodError<null>(
+          t(`Common.errors.${attendees.error}`, {
+            retryAfter: formatRetryAfter(await getLocale(), attendees.retryAfterSeconds),
+          }),
+        ),
       };
     }
 
     const res = await this.messagingService.startChat({
       accountId: account.unipileAccountId,
-      attendeesIds: attendees.ids,
+      usersIds: attendees.ids,
       text: data.text,
-      subject: data.subject,
+      name: data.subject,
     });
 
     if (!res.ok) {
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<null>(t(`Common.errors.${res.error}`)),
+        error: createZodError<null>(
+          t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
+        ),
       };
     }
 
@@ -120,7 +127,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         accountId: account.unipileAccountId,
         identifier,
       });
-      if (!res.ok) return { ok: false, error: res.error };
+      if (!res.ok) return { ok: false, error: res.error, retryAfterSeconds: res.retryAfterSeconds };
 
       if (channel) {
         await this.contactRepo.saveResolvedContactChannel({

@@ -6,7 +6,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 export abstract class ReleaseBackfillClaimRepo {
-  abstract findAccountByIdOrThrowUnscoped(id: string): Promise<ConnectedAccount>;
+  abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
   abstract releaseBackfillClaimUnscoped(unipileAccountId: string, token: string): Promise<void>;
 }
 
@@ -22,7 +22,9 @@ export class ReleaseBackfillClaimInteractor {
 
   @Enforce(Schema)
   async invoke(payload: ReleaseBackfillClaimPayload): Promise<void> {
-    const account = await this.repo.findAccountByIdOrThrowUnscoped(payload.connectedAccountId);
+    const account = await this.repo.findAccountByIdUnscoped(payload.connectedAccountId);
+    if (!account) return;
+
     await this.repo.releaseBackfillClaimUnscoped(account.unipileAccountId, payload.token);
   }
 }

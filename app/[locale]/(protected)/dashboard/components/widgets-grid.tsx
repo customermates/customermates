@@ -83,7 +83,7 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
 
   const topBarActions = useMemo(
     () => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button size="sm" onClick={() => void widgetModalStore.add()}>
           <Icon icon={Plus} />
 

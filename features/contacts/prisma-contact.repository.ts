@@ -650,6 +650,7 @@ export class PrismaContactRepo
     await this.recomputeContactAvatarUnscoped({ contactId, companyId: this.companyId });
   }
 
+  @BypassTenantGuard
   async recomputeContactAvatarUnscoped(args: { contactId: string; companyId: string }) {
     const { contactId, companyId } = args;
 
@@ -730,7 +731,7 @@ export class PrismaContactRepo
     return out;
   }
 
-  async classGroupedIdentifierWhereUnscoped(contactIds: string[]) {
+  async classGroupedIdentifierWhereCompanyWide(contactIds: string[]) {
     if (contactIds.length === 0) return [];
 
     const identifiers = await this.findContactIdentifierValuesCompanyWide(contactIds);

@@ -133,13 +133,7 @@ export const DealServicesSelection = observer(() => {
               </span>
 
               {canManage ? (
-                <Button
-                  className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                  size="icon"
-                  type="button"
-                  variant="outline"
-                  onClick={() => deleteService(index)}
-                >
+                <Button size="icon" type="button" variant="destructiveOutline" onClick={() => deleteService(index)}>
                   <Icon icon={Trash2} />
                 </Button>
               ) : (

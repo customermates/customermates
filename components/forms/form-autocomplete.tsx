@@ -200,7 +200,7 @@ export const FormAutocomplete = observer(
                 endContent: (
                   <span
                     aria-label="Remove"
-                    className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                    className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground transition-[color,transform] hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.97] motion-reduce:transition-none"
                     role="button"
                     tabIndex={-1}
                     onClick={(e) => {
@@ -292,7 +292,7 @@ export const FormAutocomplete = observer(
           </div>
         )}
 
-        <Popover open={isReadOnly ? false : open} onOpenChange={isReadOnly ? undefined : setOpen}>
+        <Popover modal open={isReadOnly ? false : open} onOpenChange={isReadOnly ? undefined : setOpen}>
           <PopoverTrigger asChild>
             <Button
               aria-expanded={open}

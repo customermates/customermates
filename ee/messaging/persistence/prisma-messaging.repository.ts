@@ -1,21 +1,24 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import { type Prisma } from "@/generated/prisma";
 
-import { MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
+import { MessagingMessageDirection, MessagingMessageOrigin, MessagingThreadType } from "@/generated/prisma";
 
-import type { MessageReactionEntry, MessagingAttendee, MessagingMessage, IngestMessage } from "../messaging.schema";
+import { randomUUID } from "node:crypto";
+
+import * as Sentry from "@sentry/node";
+
+import type { AttachmentMeta, MessagingAttendee, MessagingMessage, IngestMessage } from "../messaging.schema";
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
 import type { ResyncThreadRepo } from "../inbox/resync-thread.interactor";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.interactor";
 import type { UpdateThreadRepo } from "../thread-state/update-thread.interactor";
-import type { ProcessMessagingWebhookRepo } from "../webhooks/process-messaging-webhook.interactor";
-import type { ProcessEmailWebhookRepo } from "../webhooks/process-email-webhook.interactor";
-import type { ProcessUsersWebhookRepo } from "../webhooks/process-users-webhook.interactor";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { SendChatMessageRepo } from "../outbound/send-chat-message.interactor";
 import type { SendEmailRepo } from "../outbound/send-email.interactor";
+import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
+import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
 import type { GetMessagingThreadsRepo } from "../inbox/get-messaging-threads.interactor";
 import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
@@ -30,9 +33,12 @@ import { getContactRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import type { AttachmentKind } from "../attachment-kind";
+
+import { classifyAttachment } from "../attachment-kind";
 import { contactFullName } from "../thread-display";
-import { threadAccessWhere } from "../messaging-access";
-import { channelClass, classWhere } from "../provider";
+import { folderMessageWhere, threadAccessWhere, threadFolderMembershipWhere } from "../messaging-access";
+import { channelClass, classWhere, isEmailProvider } from "../provider";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
@@ -45,12 +51,11 @@ export class PrismaMessagingRepo
     GetMessagingThreadsRepo,
     GetUnreadThreadCountRepo,
     UpdateThreadRepo,
-    ProcessMessagingWebhookRepo,
-    ProcessEmailWebhookRepo,
-    ProcessUsersWebhookRepo,
     MessagingIngestRepo,
     SendChatMessageRepo,
     SendEmailRepo,
+    SaveDraftRepo,
+    DiscardDraftRepo,
     SearchChannelCandidatesRepo,
     GetMessageAttachmentMetaRepo,
     FindThreadsByIdsRepo
@@ -93,7 +98,7 @@ export class PrismaMessagingRepo
 
   private get participantSelect() {
     return {
-      unipileAttendeeId: true,
+      providerUserId: true,
       identifier: true,
       displayName: true,
       pictureUrl: true,
@@ -114,6 +119,8 @@ export class PrismaMessagingRepo
       name: true,
       subject: true,
       lastMessageAt: true,
+      lastMessagePreview: true,
+      lastMessageIsSender: true,
       sharedToCrm: true,
       connectedAccount: { select: { shared: true, userId: true } },
       participants: {
@@ -124,11 +131,15 @@ export class PrismaMessagingRepo
       createdAt: true,
       updatedAt: true,
       messages: {
+        where: { isHidden: false },
         select: {
           direction: true,
           bodyText: true,
           bodyHtml: true,
           sender: true,
+          attachmentsMeta: true,
+          isEvent: true,
+          isDeleted: true,
         },
         orderBy: { sentAt: "desc" as const },
         take: 1,
@@ -138,6 +149,10 @@ export class PrismaMessagingRepo
 
   getSortableFields() {
     return [{ field: "lastMessageAt", resolvedFields: ["lastMessageAt"] }];
+  }
+
+  protected getDefaultOrderBy() {
+    return [{ lastMessageAt: { sort: "desc", nulls: "last" } }, { id: "desc" }];
   }
 
   getSearchableFields() {
@@ -257,15 +272,68 @@ export class PrismaMessagingRepo
       }
     }
 
+    await this.resolveParticipantNamesAcrossThreads(threads);
+
     return threads;
   }
 
+  private async resolveBestNamesByProviderUserId(providerUserIds: Set<string>): Promise<Map<string, string>> {
+    if (providerUserIds.size === 0) return new Map();
+
+    const rows = await this.prisma.messagingThreadParticipant.findMany({
+      where: { companyId: this.companyId, providerUserId: { in: [...providerUserIds] } },
+      select: { providerUserId: true, displayName: true },
+    });
+
+    const bestName = new Map<string, string>();
+    for (const row of rows) {
+      if (hasLetter(row.displayName) && !bestName.has(row.providerUserId))
+        bestName.set(row.providerUserId, row.displayName);
+    }
+
+    return bestName;
+  }
+
+  private async resolveParticipantNamesAcrossThreads<T extends MappedThreadRow>(threads: T[]): Promise<void> {
+    const unnamed = new Set<string>();
+    for (const thread of threads)
+      for (const p of thread.participants) if (p.attendeeId && !hasLetter(p.displayName)) unnamed.add(p.attendeeId);
+
+    const bestName = await this.resolveBestNamesByProviderUserId(unnamed);
+
+    for (const thread of threads) {
+      const single = thread.type === MessagingThreadType.single;
+      for (const p of thread.participants) {
+        if (hasLetter(p.displayName)) continue;
+        const better = bestName.get(p.attendeeId) || (single && !p.isSelf && hasLetter(thread.name) ? thread.name : "");
+        if (better) p.displayName = better;
+      }
+    }
+  }
+
+  private async loadAccessibleFolderStates() {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        companyId: this.companyId,
+        OR: [{ userId: this.userId }, { shared: true }],
+        foldersSyncedAt: { not: null },
+      },
+      select: { id: true, selectedFolderIds: true },
+    });
+
+    return rows.map((row) => ({
+      id: row.id,
+      visibleSet: row.selectedFolderIds,
+    }));
+  }
+
   async getItems(params: GetQueryParams) {
+    const folderMembership = threadFolderMembershipWhere(await this.loadAccessibleFolderStates());
     const threads = await this.list({
       model: "messagingThread",
       baseWhere: {
         ...threadAccessWhere(this.companyId, this.userId),
-        messages: { some: {} },
+        ...(folderMembership ? { AND: [folderMembership] } : {}),
       },
       select: this.threadSelect,
       params: {
@@ -283,20 +351,24 @@ export class PrismaMessagingRepo
   }
 
   async getCount(params: GetQueryParams) {
+    const folderMembership = threadFolderMembershipWhere(await this.loadAccessibleFolderStates());
     const { where } = await this.buildQueryArgs(params, {
       ...threadAccessWhere(this.companyId, this.userId),
-      messages: { some: {} },
+      ...(folderMembership ? { AND: [folderMembership] } : {}),
     });
 
     return this.prisma.messagingThread.count({ where });
   }
 
-  private async upsertThread(
-    args: RepoArgs<MessagingIngestRepo, "upsertChatThread"> & {
-      markUnread?: boolean;
-      lastMessageAt?: Date | null;
-    },
+  @BypassTenantGuard
+  async upsertChatThreadUnscoped(
+    args: RepoArgs<MessagingIngestRepo, "upsertChatThreadUnscoped"> & { markUnread?: boolean },
   ) {
+    const preview =
+      typeof args.lastMessagePreview === "string"
+        ? safeTruncate(args.lastMessagePreview.replace(/\s+/g, " "), 200)
+        : args.lastMessagePreview;
+
     const row = await this.prisma.messagingThread.upsert({
       where: {
         connectedAccountId_unipileThreadId: {
@@ -308,52 +380,114 @@ export class PrismaMessagingRepo
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
         unipileThreadId: args.unipileThreadId,
+        unipileThreadAltId: args.unipileThreadAltId ?? null,
         provider: args.provider,
         subject: args.subject,
         lastMessageAt: args.lastMessageAt ?? null,
+        lastMessagePreview: preview ?? null,
+        lastMessageIsSender: args.lastMessageIsSender ?? null,
         type: args.type,
         name: args.name,
-        state: args.markUnread === false ? "open" : "unread",
+        state: args.markUnread ? "unread" : "open",
       },
       update: {
+        companyId: args.companyId,
         subject: args.subject ?? undefined,
         type: args.type ?? undefined,
         name: args.name ?? undefined,
-        state: args.markUnread ? "unread" : undefined,
+        unipileThreadAltId: args.unipileThreadAltId ?? undefined,
       },
       select: { id: true },
     });
 
-    await this.upsertThreadParticipants(row.id, args.companyId, args.provider, args.participants);
+    if (args.markUnread) {
+      await this.prisma.messagingThread.updateMany({
+        where: { id: row.id },
+        data: { state: "unread" },
+      });
+    }
+
+    await this.upsertThreadParticipantsUnscoped({
+      messagingThreadId: row.id,
+      companyId: args.companyId,
+      provider: args.provider,
+      participants: args.participants,
+    });
 
     if (args.lastMessageAt) {
       await this.prisma.messagingThread.updateMany({
         where: {
           id: row.id,
-          OR: [{ lastMessageAt: null }, { lastMessageAt: { lt: args.lastMessageAt } }],
+          OR: [
+            { lastMessageAt: null },
+            { lastMessageAt: { lt: args.lastMessageAt } },
+            { lastMessageAt: args.lastMessageAt, lastMessagePreview: null },
+          ],
         },
-        data: { lastMessageAt: args.lastMessageAt },
+        data: {
+          lastMessageAt: args.lastMessageAt,
+          ...(preview !== undefined ? { lastMessagePreview: preview } : {}),
+          ...(args.lastMessageIsSender !== undefined ? { lastMessageIsSender: args.lastMessageIsSender } : {}),
+        },
       });
     }
+
+    if (args.unipileThreadAltId)
+      await this.absorbAliasThreadShell(row.id, args.connectedAccountId, args.unipileThreadAltId);
 
     return row;
   }
 
-  async upsertChatThread(args: RepoArgs<MessagingIngestRepo, "upsertChatThread">) {
-    await this.upsertThread({ ...args, markUnread: false });
+  @BypassTenantGuard
+  async findThreadBackfillStateUnscoped(args: { connectedAccountId: string; unipileThreadId: string }) {
+    const row = await this.prisma.messagingThread.findUnique({
+      where: {
+        connectedAccountId_unipileThreadId: {
+          connectedAccountId: args.connectedAccountId,
+          unipileThreadId: args.unipileThreadId,
+        },
+      },
+      select: { lastMessageAt: true, _count: { select: { messages: true } } },
+    });
+    if (!row) return null;
+
+    return { lastMessageAt: row.lastMessageAt, hasMessages: row._count.messages > 0 };
   }
 
-  private async upsertThreadParticipants(
-    messagingThreadId: string,
-    companyId: string,
-    provider: MessagingProvider,
-    incoming: MessagingAttendee[],
-  ) {
-    const participants = dedupeParticipants(incoming.filter((p) => !p.isSelf && p.attendeeId.trim()));
+  private async resolveThreadIdByAlt(connectedAccountId: string, unipileThreadId: string): Promise<string> {
+    if (!unipileThreadId.endsWith("@lid")) return unipileThreadId;
+
+    const match = await this.prisma.messagingThread.findFirst({
+      where: { connectedAccountId, unipileThreadAltId: unipileThreadId },
+      select: { unipileThreadId: true },
+    });
+
+    return match?.unipileThreadId ?? unipileThreadId;
+  }
+
+  private async absorbAliasThreadShell(canonicalThreadId: string, connectedAccountId: string, altThreadId: string) {
+    const shell = await this.prisma.messagingThread.findFirst({
+      where: { connectedAccountId, unipileThreadId: altThreadId },
+      select: { id: true },
+    });
+    if (!shell || shell.id === canonicalThreadId) return;
+
+    await this.prisma.messagingMessage.updateMany({
+      where: { messagingThreadId: shell.id },
+      data: { messagingThreadId: canonicalThreadId },
+    });
+    await this.prisma.messagingThread.delete({ where: { id: shell.id } });
+  }
+
+  @BypassTenantGuard
+  async upsertThreadParticipantsUnscoped(args: RepoArgs<ResyncThreadRepo, "upsertThreadParticipantsUnscoped">) {
+    const usable = args.participants.filter((p) => p.attendeeId.trim());
+    const nonSelf = usable.filter((p) => !p.isSelf);
+    const participants = dedupeParticipants(nonSelf.length > 0 ? nonSelf : usable);
     if (participants.length === 0) return;
 
     await retryOnUniqueConflict(() =>
-      this.writeThreadParticipants(messagingThreadId, companyId, provider, participants),
+      this.writeThreadParticipants(args.messagingThreadId, args.companyId, args.provider, participants),
     );
   }
 
@@ -363,67 +497,78 @@ export class PrismaMessagingRepo
     provider: MessagingProvider,
     participants: MessagingAttendee[],
   ) {
-    const values = participants.map((p) => p.identifier).filter(Boolean);
-
-    const existingRows = await this.prisma.messagingThreadParticipant.findMany({
-      where: { companyId, messagingThreadId, identifier: { in: values } },
-      select: { identifier: true, unipileAttendeeId: true },
-    });
-    const attendeeByIdentifier = new Map(existingRows.map((row) => [row.identifier, row.unipileAttendeeId]));
+    const identifiers = participants.map((p) => p.identifier).filter(Boolean);
+    const existing = identifiers.length
+      ? await this.prisma.messagingThreadParticipant.findMany({
+          where: { companyId, messagingThreadId, identifier: { in: identifiers } },
+          select: { identifier: true, displayName: true, providerUserId: true },
+        })
+      : [];
+    const priorByIdentifier = new Map(existing.map((row) => [row.identifier, row]));
     const handledIdentifiers = new Set<string>();
 
     for (const p of participants) {
       if (p.identifier) {
         if (handledIdentifiers.has(p.identifier)) continue;
         handledIdentifiers.add(p.identifier);
+      }
 
-        const existingAttendeeId = attendeeByIdentifier.get(p.identifier);
-        if (existingAttendeeId && existingAttendeeId !== p.attendeeId) {
-          await this.prisma.messagingThreadParticipant.update({
-            where: {
-              messagingThreadId_unipileAttendeeId: {
-                messagingThreadId,
-                unipileAttendeeId: existingAttendeeId,
-              },
+      const prior = p.identifier ? priorByIdentifier.get(p.identifier) : undefined;
+      const priorName = prior?.displayName;
+      const displayName = hasLetter(p.displayName)
+        ? p.displayName
+        : hasLetter(priorName)
+          ? priorName
+          : (p.displayName ?? null);
+
+      if (prior && prior.providerUserId !== p.attendeeId) {
+        await this.prisma.messagingThreadParticipant.update({
+          where: {
+            messagingThreadId_providerUserId: {
+              messagingThreadId,
+              providerUserId: prior.providerUserId,
             },
-            data: {
-              displayName: p.displayName ?? undefined,
-              pictureUrl: p.pictureUrl ?? undefined,
-              profileUrl: p.profileUrl ?? undefined,
-              headline: p.headline ?? undefined,
-              occupation: p.occupation ?? undefined,
-            },
-          });
-          continue;
-        }
+          },
+          data: {
+            displayName: displayName ?? undefined,
+            pictureUrl: p.pictureUrl ?? undefined,
+            profileUrl: p.profileUrl ?? undefined,
+            headline: p.headline ?? undefined,
+            occupation: p.occupation ?? undefined,
+          },
+        });
+        continue;
       }
 
       await this.prisma.messagingThreadParticipant.upsert({
         where: {
-          messagingThreadId_unipileAttendeeId: {
+          messagingThreadId_providerUserId: {
             messagingThreadId,
-            unipileAttendeeId: p.attendeeId,
+            providerUserId: p.attendeeId,
           },
         },
         create: {
           companyId,
           messagingThreadId,
           provider,
-          unipileAttendeeId: p.attendeeId,
+          providerUserId: p.attendeeId,
           identifier: p.identifier || null,
-          displayName: p.displayName ?? null,
+          displayName,
           pictureUrl: p.pictureUrl ?? null,
           profileUrl: p.profileUrl ?? null,
           headline: p.headline ?? null,
           occupation: p.occupation ?? null,
+          isSelf: p.isSelf ?? false,
         },
         update: {
+          companyId,
           identifier: p.identifier || undefined,
-          displayName: p.displayName ?? undefined,
+          displayName: displayName ?? undefined,
           pictureUrl: p.pictureUrl ?? undefined,
           profileUrl: p.profileUrl ?? undefined,
           headline: p.headline ?? undefined,
           occupation: p.occupation ?? undefined,
+          isSelf: p.isSelf ? true : undefined,
         },
       });
     }
@@ -464,15 +609,60 @@ export class PrismaMessagingRepo
     return hydrated;
   }
 
-  async findThreadForResyncOrThrow(threadId: string) {
-    return this.prisma.messagingThread.findFirstOrThrow({
-      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
-      select: { id: true, unipileThreadId: true, connectedAccountId: true, provider: true, companyId: true },
+  async findThreadById(id: string) {
+    const row = await this.prisma.messagingThread.findFirst({
+      where: { id, ...threadAccessWhere(this.companyId, this.userId) },
+      select: this.threadSelect,
     });
+    if (!row) return null;
+
+    const [hydrated] = await this.hydrateThreadContacts([this.mapThreadRow(row)]);
+    return hydrated;
   }
 
-  async syncThreadParticipants(args: RepoArgs<ResyncThreadRepo, "syncThreadParticipants">) {
-    await this.upsertThreadParticipants(args.messagingThreadId, args.companyId, args.provider, args.participants);
+  async findThreadForResyncOrThrow(threadId: string) {
+    const row = await this.prisma.messagingThread.findFirstOrThrow({
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
+      select: {
+        id: true,
+        unipileThreadId: true,
+        connectedAccountId: true,
+        provider: true,
+        type: true,
+        companyId: true,
+        connectedAccount: { select: { unipileAccountId: true, emailAddress: true, sentFolderIds: true } },
+      },
+    });
+
+    const { connectedAccount, ...rest } = row;
+
+    return {
+      ...rest,
+      unipileAccountId: connectedAccount.unipileAccountId,
+      emailAddress: connectedAccount.emailAddress,
+      sentFolderIds: connectedAccount.sentFolderIds,
+    };
+  }
+
+  @BypassTenantGuard
+  async recordUnprocessableMessageUnscoped(args: RepoArgs<ResyncThreadRepo, "recordUnprocessableMessageUnscoped">) {
+    try {
+      await this.prisma.messagingInboundEvent.create({
+        data: {
+          source: "backfill",
+          companyId: args.companyId,
+          connectedAccountId: args.connectedAccountId,
+          payload: args.payload as Prisma.InputJsonValue,
+          processed: false,
+        },
+      });
+    } catch (err) {
+      Sentry.captureException(err, { tags: { connectedAccountId: args.connectedAccountId } });
+    }
+
+    Sentry.captureException(new Error(`resync message unprocessable for account ${args.connectedAccountId}`), {
+      tags: { connectedAccountId: args.connectedAccountId },
+    });
   }
 
   async findThreadIds(ids: Set<string>) {
@@ -491,22 +681,34 @@ export class PrismaMessagingRepo
       select: PrismaMessagingRepo["threadSelect"];
     }>,
   ) {
-    const { messages, participants, connectedAccount, ...rest } = row;
+    const { messages, participants, connectedAccount, lastMessagePreview, lastMessageIsSender, ...rest } = row;
     const last = messages[0];
     const previewSource = last?.bodyText?.trim() || last?.bodyHtml?.replace(/<[^>]*>/g, "").trim();
+    const derivedPreview = previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null;
+    const preview = lastMessagePreview ?? derivedPreview;
+    const firstAttachment = (last?.attachmentsMeta as unknown as AttachmentMeta[] | null)?.[0];
+    const previewKind: AttachmentKind | null =
+      !preview && firstAttachment
+        ? classifyAttachment(firstAttachment)
+        : !preview && last && !last.isEvent && !last.isDeleted
+          ? "unsupported"
+          : null;
 
     return {
       ...rest,
       accountShared: connectedAccount.shared,
       isOwner: connectedAccount.userId === this.userId,
-      participants: participants.map(({ unipileAttendeeId, identifier, ...attendee }) => ({
+      participants: participants.map(({ providerUserId, identifier, ...attendee }) => ({
         ...attendee,
         identifier: identifier ?? "",
-        attendeeId: unipileAttendeeId,
+        attendeeId: providerUserId,
         contact: null as ContactReference | null,
       })),
-      preview: previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null,
-      lastMessageFromSelf: last?.direction === MessagingMessageDirection.outbound,
+      preview,
+      previewKind,
+      lastMessageFromSelf: last
+        ? last.direction === MessagingMessageDirection.outbound
+        : (lastMessageIsSender ?? false),
       lastMessageSenderName: (last?.sender as unknown as MessagingAttendee | null)?.displayName?.trim() || null,
       lastMessageSenderIdentifier: (last?.sender as unknown as MessagingAttendee | null)?.identifier ?? null,
     };
@@ -521,7 +723,7 @@ export class PrismaMessagingRepo
     });
   }
 
-  async findLatestUnipileMessageIdForThread(threadId: string) {
+  async findLatestEmailReplyReferenceForThread(threadId: string) {
     const row = await this.prisma.messagingMessage.findFirst({
       where: {
         messagingThreadId: threadId,
@@ -529,10 +731,210 @@ export class PrismaMessagingRepo
         thread: threadAccessWhere(this.companyId, this.userId),
       },
       orderBy: { sentAt: "desc" },
-      select: { unipileMessageId: true },
+      select: { providerMessageId: true },
     });
 
-    return row?.unipileMessageId ?? null;
+    return row?.providerMessageId ?? null;
+  }
+
+  async findSelfAttendeeForThread(threadId: string) {
+    const participant = await this.prisma.messagingThreadParticipant.findFirst({
+      where: {
+        messagingThreadId: threadId,
+        companyId: this.companyId,
+        isSelf: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: this.participantSelect,
+    });
+
+    if (!participant) return null;
+
+    const { providerUserId, identifier, ...rest } = participant;
+
+    return { ...rest, identifier: identifier ?? "", attendeeId: providerUserId ?? "", contact: null };
+  }
+
+  async upsertThreadDraft(args: {
+    threadId: string;
+    connectedAccountId: string;
+    provider: MessagingProvider;
+    sender: MessagingAttendee;
+    subject: string | null;
+    bodyText: string;
+    recipients: { to: MessagingAttendee[]; cc: MessagingAttendee[]; bcc: MessagingAttendee[] };
+  }) {
+    const existing = await this.prisma.messagingMessage.findFirst({
+      where: {
+        messagingThreadId: args.threadId,
+        companyId: this.companyId,
+        isDraft: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      const row = await this.prisma.messagingMessage.update({
+        where: { id: existing.id },
+        data: {
+          sender: args.sender,
+          senderIdentifier: args.sender.identifier || null,
+          recipients: args.recipients,
+          subject: args.subject,
+          bodyText: args.bodyText,
+          sentAt: new Date(),
+        },
+      });
+
+      return row as unknown as MessagingMessage;
+    }
+
+    const row = await this.prisma.messagingMessage.create({
+      data: {
+        companyId: this.companyId,
+        messagingThreadId: args.threadId,
+        connectedAccountId: args.connectedAccountId,
+        unipileMessageId: `draft_${randomUUID()}`,
+        provider: args.provider,
+        direction: MessagingMessageDirection.outbound,
+        origin: MessagingMessageOrigin.external,
+        sender: args.sender,
+        senderIdentifier: args.sender.identifier || null,
+        recipients: args.recipients,
+        subject: args.subject,
+        bodyText: args.bodyText,
+        bodyHtml: null,
+        isDraft: true,
+        sentAt: new Date(),
+      },
+    });
+
+    return row as unknown as MessagingMessage;
+  }
+
+  async convertDraftToSentOrThrow(args: {
+    messageId: string;
+    unipileMessageId: string;
+    providerMessageId: string | null;
+    sender: MessagingAttendee;
+    recipients: { to: MessagingAttendee[]; cc: MessagingAttendee[]; bcc: MessagingAttendee[] };
+    subject: string | null;
+    bodyText: string | null;
+    bodyHtml: string | null;
+    sentAt: Date;
+  }) {
+    const draft = await this.prisma.messagingMessage.findFirst({
+      where: {
+        id: args.messageId,
+        companyId: this.companyId,
+        isDraft: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true, messagingThreadId: true },
+    });
+
+    if (!draft) throw new Error(`Draft ${args.messageId} not found`);
+
+    const row = await this.prisma.messagingMessage.update({
+      where: { id: draft.id },
+      data: {
+        unipileMessageId: args.unipileMessageId,
+        providerMessageId: args.providerMessageId,
+        origin: MessagingMessageOrigin.unipile,
+        isDraft: false,
+        sender: args.sender,
+        senderIdentifier: args.sender.identifier || null,
+        recipients: args.recipients,
+        subject: args.subject,
+        bodyText: args.bodyText,
+        bodyHtml: args.bodyHtml,
+        sentAt: args.sentAt,
+      },
+    });
+
+    const preview = args.bodyText?.trim() || args.bodyHtml?.replace(/<[^>]*>/g, "").trim() || null;
+    await this.prisma.messagingThread.update({
+      where: { id: draft.messagingThreadId },
+      data: { lastMessageAt: args.sentAt, lastMessagePreview: preview, lastMessageIsSender: true },
+    });
+
+    return row as unknown as MessagingMessage;
+  }
+
+  async deleteDraft(args: { messageId: string }) {
+    const draft = await this.prisma.messagingMessage.findFirst({
+      where: {
+        id: args.messageId,
+        companyId: this.companyId,
+        isDraft: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { messagingThreadId: true },
+    });
+
+    if (!draft) return null;
+
+    await this.prisma.messagingMessage.deleteMany({
+      where: { id: args.messageId, companyId: this.companyId, isDraft: true },
+    });
+
+    return { messagingThreadId: draft.messagingThreadId };
+  }
+
+  async persistOutboundMessageOrThrow(args: { connectedAccountId: string; message: IngestMessage }) {
+    const result = await this.ingestMessageUnscoped({
+      companyId: this.companyId,
+      connectedAccountId: args.connectedAccountId,
+      message: args.message,
+      backfill: false,
+    });
+
+    if (!result.isEcho) return result.message;
+
+    const existing = await this.findMessageByUnipileIdUnscoped({
+      connectedAccountId: args.connectedAccountId,
+      unipileMessageId: args.message.unipileMessageId,
+    });
+
+    if (!existing) throw new Error("Outbound message echoed without a persisted row");
+
+    return existing;
+  }
+
+  private async reconcileOutboundChatEcho(args: {
+    messagingThreadId: string;
+    connectedAccountId: string;
+    unipileMessageId: string;
+    bodyText: string | null;
+    sentAt: Date;
+  }) {
+    if (!args.bodyText) return false;
+
+    const windowMs = 2 * 60 * 1000;
+    const candidate = await this.prisma.messagingMessage.findFirst({
+      where: {
+        messagingThreadId: args.messagingThreadId,
+        connectedAccountId: args.connectedAccountId,
+        direction: MessagingMessageDirection.outbound,
+        origin: MessagingMessageOrigin.unipile,
+        isDraft: false,
+        bodyText: args.bodyText,
+        sentAt: { gte: new Date(args.sentAt.getTime() - windowMs), lte: new Date(args.sentAt.getTime() + windowMs) },
+        NOT: { unipileMessageId: args.unipileMessageId },
+      },
+      orderBy: { sentAt: "desc" },
+      select: { id: true },
+    });
+
+    if (!candidate) return false;
+
+    await this.prisma.messagingMessage.update({
+      where: { id: candidate.id },
+      data: { unipileMessageId: args.unipileMessageId },
+    });
+
+    return true;
   }
 
   async findAttachmentForMessageOrThrow(
@@ -544,7 +946,13 @@ export class PrismaMessagingRepo
         companyId: this.companyId,
         thread: threadAccessWhere(this.companyId, this.userId),
       },
-      select: { unipileMessageId: true, provider: true, attachmentsMeta: true },
+      select: {
+        unipileMessageId: true,
+        provider: true,
+        attachmentsMeta: true,
+        connectedAccount: { select: { unipileAccountId: true } },
+        thread: { select: { unipileThreadId: true } },
+      },
     });
 
     const list = Array.isArray(row.attachmentsMeta)
@@ -559,6 +967,8 @@ export class PrismaMessagingRepo
     if (!att) throw new Error(`Attachment ${args.attachmentId} not found on message ${args.messageId}`);
 
     return {
+      unipileAccountId: row.connectedAccount.unipileAccountId,
+      unipileThreadId: row.thread.unipileThreadId,
       unipileMessageId: row.unipileMessageId,
       provider: row.provider,
       mime: att.mime ?? null,
@@ -572,18 +982,26 @@ export class PrismaMessagingRepo
         id: threadId,
         ...threadAccessWhere(this.companyId, this.userId),
       },
-      select: { id: true, provider: true },
+      select: {
+        id: true,
+        provider: true,
+        name: true,
+        type: true,
+        connectedAccount: { select: { selectedFolderIds: true, foldersSyncedAt: true } },
+      },
     });
 
     if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
-    const where = { messagingThreadId: threadId, companyId: this.companyId };
+    const account = accessibleThread.connectedAccount;
+    const folderWhere = account.foldersSyncedAt !== null ? folderMessageWhere(account.selectedFolderIds) : {};
+    const where = { messagingThreadId: threadId, companyId: this.companyId, isHidden: false, ...folderWhere };
     const pageSize = opts?.pageSize;
 
     if (pageSize === undefined) {
       const rows = await this.prisma.messagingMessage.findMany({ where, orderBy: { sentAt: "asc" } });
       const messages = this.redactBcc(rows) as unknown as MessagingMessage[];
-      await this.hydrateMessageSenderContacts(messages, accessibleThread.provider);
+      await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
       return { messages, total: messages.length };
     }
@@ -598,25 +1016,43 @@ export class PrismaMessagingRepo
     });
 
     const messages = (this.redactBcc(rows) as unknown as MessagingMessage[]).reverse();
-    await this.hydrateMessageSenderContacts(messages, accessibleThread.provider);
+    await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
     return { messages, total };
   }
 
-  private async hydrateMessageSenderContacts(messages: MessagingMessage[], provider: MessagingProvider) {
+  private async hydrateMessageSenderContacts(
+    messages: MessagingMessage[],
+    thread: { provider: MessagingProvider; name: string | null; type: MessagingThreadType },
+  ) {
+    const { provider } = thread;
     const senderIds = messages.map((message) => message.sender.identifier.trim());
     const pairs = senderIds.filter((value) => value.length > 0).map((value) => ({ provider, value }));
-    if (pairs.length === 0) return;
+    const contactByKey = pairs.length > 0 ? await this.resolveContactsByIdentifiers(pairs) : null;
 
-    const contactByKey = await this.resolveContactsByIdentifiers(pairs);
+    const unnamed = new Set<string>();
+    for (const message of messages) {
+      if (!message.sender.isSelf && message.sender.attendeeId && !hasLetter(message.sender.displayName))
+        unnamed.add(message.sender.attendeeId);
+    }
+    const bestName = await this.resolveBestNamesByProviderUserId(unnamed);
+    const single = thread.type === MessagingThreadType.single;
+
     messages.forEach((message, index) => {
       const value = senderIds[index];
-      message.sender.contact = value.length > 0 ? (contactByKey.get(identifierKey(provider, value)) ?? null) : null;
+      message.sender.contact =
+        value.length > 0 && contactByKey ? (contactByKey.get(identifierKey(provider, value)) ?? null) : null;
+
+      if (message.sender.isSelf || hasLetter(message.sender.displayName)) return;
+      const better = bestName.get(message.sender.attendeeId) || (single && hasLetter(thread.name) ? thread.name : "");
+      if (better) message.sender.displayName = better;
     });
   }
 
-  private redactBcc<T extends { recipients: unknown }>(rows: T[]): T[] {
+  private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(rows: T[]): T[] {
     return rows.map((row) => {
+      if (row.direction === MessagingMessageDirection.outbound) return row;
+
       const recipients = row.recipients;
       if (recipients && typeof recipients === "object" && "bcc" in recipients)
         return { ...row, recipients: { ...recipients, bcc: [] } };
@@ -625,6 +1061,7 @@ export class PrismaMessagingRepo
     });
   }
 
+  @BypassTenantGuard
   async findParticipantPictureUrlUnscoped(args: { companyId: string; contactId: string }) {
     const identifiers = await this.prisma.contactIdentifier.findMany({
       where: { companyId: args.companyId, contactId: args.contactId },
@@ -726,16 +1163,17 @@ export class PrismaMessagingRepo
   private async identifierWhereForContacts(
     contactIds: string[],
   ): Promise<Prisma.MessagingThreadParticipantWhereInput[]> {
-    const groups = await getContactRepo().classGroupedIdentifierWhereUnscoped(contactIds);
+    const groups = await getContactRepo().classGroupedIdentifierWhereCompanyWide(contactIds);
     return groups.map((group) => ({ ...group.providerWhere, identifier: group.identifier }));
   }
 
-  async ingestMessage({
+  @BypassTenantGuard
+  async ingestMessageUnscoped({
     companyId,
     connectedAccountId,
     message,
     backfill,
-  }: RepoArgs<MessagingIngestRepo, "ingestMessage">) {
+  }: RepoArgs<MessagingIngestRepo, "ingestMessageUnscoped">) {
     const existing = await this.findMessageByUnipileIdUnscoped({
       connectedAccountId,
       unipileMessageId: message.unipileMessageId,
@@ -747,18 +1185,42 @@ export class PrismaMessagingRepo
 
     const safeMessage = sanitizeMessage(message);
     const { unipileThreadId, threadType, ...messageFields } = safeMessage;
+    const resolvedThreadId = await this.resolveThreadIdByAlt(connectedAccountId, unipileThreadId);
 
-    const thread = await this.upsertThread({
+    const previewSource = safeMessage.bodyText?.trim() || safeMessage.bodyHtml?.replace(/<[^>]*>/g, "").trim();
+    const hidden = safeMessage.isHidden === true;
+    const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
+
+    const thread = await this.upsertChatThreadUnscoped({
       companyId,
       connectedAccountId,
-      unipileThreadId,
+      unipileThreadId: resolvedThreadId,
       provider: safeMessage.provider,
       type: threadType,
       subject: safeMessage.subject,
-      lastMessageAt: safeMessage.sentAt,
+      lastMessageAt: hidden ? undefined : canonicalSentAt,
+      lastMessagePreview: hidden ? undefined : (previewSource ?? null),
+      lastMessageIsSender: hidden ? undefined : safeMessage.direction === MessagingMessageDirection.outbound,
       participants: [safeMessage.sender, ...safeMessage.recipients.to, ...safeMessage.recipients.cc],
-      markUnread: !backfill && !existing && isInbound,
+      markUnread: !hidden && !backfill && !existing && isInbound,
     });
+
+    if (
+      !existing &&
+      !isInbound &&
+      message.origin === MessagingMessageOrigin.unipile &&
+      !isEmailProvider(message.provider)
+    ) {
+      const reconciled = await this.reconcileOutboundChatEcho({
+        messagingThreadId: thread.id,
+        connectedAccountId,
+        unipileMessageId: message.unipileMessageId,
+        bodyText: messageFields.bodyText ?? null,
+        sentAt: messageFields.sentAt,
+      });
+
+      if (reconciled) return { isEcho: true as const };
+    }
 
     const upserted = await this.upsertMessageUnscoped({
       ...messageFields,
@@ -802,13 +1264,6 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async countMessagesUnscoped(connectedAccountId: string) {
-    return this.prisma.messagingMessage.count({
-      where: { connectedAccountId },
-    });
-  }
-
-  @BypassTenantGuard
   async findMessageByUnipileIdUnscoped(args: { connectedAccountId: string; unipileMessageId: string }) {
     const { connectedAccountId, unipileMessageId } = args;
 
@@ -822,24 +1277,6 @@ export class PrismaMessagingRepo
     });
 
     return row as unknown as MessagingMessage | null;
-  }
-
-  @BypassTenantGuard
-  async findMessageByUnipileIdOrThrowUnscoped(
-    args: RepoArgs<ProcessMessagingWebhookRepo, "findMessageByUnipileIdOrThrowUnscoped">,
-  ) {
-    const { connectedAccountId, unipileMessageId } = args;
-
-    const row = await this.prisma.messagingMessage.findUniqueOrThrow({
-      where: {
-        connectedAccountId_unipileMessageId: {
-          connectedAccountId,
-          unipileMessageId,
-        },
-      },
-    });
-
-    return row as unknown as MessagingMessage;
   }
 
   @BypassTenantGuard
@@ -862,6 +1299,7 @@ export class PrismaMessagingRepo
         messagingThreadId: args.messagingThreadId,
         connectedAccountId: args.connectedAccountId,
         unipileMessageId: args.unipileMessageId,
+        providerMessageId: args.providerMessageId ?? null,
         provider: args.provider,
         direction: args.direction,
         origin: args.origin,
@@ -873,18 +1311,36 @@ export class PrismaMessagingRepo
         bodyText: args.bodyText,
         bodyHtml: args.bodyHtml,
         attachmentsMeta: args.attachmentsMeta,
+        folderIds: args.folderIds ?? [],
         isEvent: args.isEvent,
-        deletedAt: args.deletedAt,
+        isDeleted: args.isDeleted,
+        isHidden: args.isHidden,
         sentAt: args.sentAt,
+        editedAt: args.editedAt ?? null,
       },
       update: {
-        deletedAt: args.deletedAt ?? undefined,
         ...(args.sender.attendeeId.trim()
           ? {
               sender: args.sender,
               senderIdentifier: args.sender.identifier || null,
             }
           : {}),
+        ...(args.attachmentsMeta.length > 0
+          ? {
+              attachmentsMeta: args.attachmentsMeta,
+              bodyText: args.bodyText,
+              bodyHtml: args.bodyHtml,
+              isHidden: args.isHidden,
+            }
+          : {}),
+        ...(args.editedAt
+          ? {
+              bodyText: args.bodyText,
+              bodyHtml: args.bodyHtml,
+              editedAt: args.editedAt,
+            }
+          : {}),
+        ...(args.folderIds && args.folderIds.length > 0 ? { folderIds: args.folderIds } : {}),
       },
     });
 
@@ -892,94 +1348,82 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async applyMessageReactionUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "applyMessageReactionUnscoped">) {
-    await this.withCompanyTransaction(args.companyId, async () => {
-      const row = await this.prisma.messagingMessage.findUnique({
-        where: { id: args.messagingMessageId },
-        select: { reactions: true },
-      });
-      if (!row) {
-        throw new Error(
-          `applyMessageReactionUnscoped: message ${args.messagingMessageId} not found (value=${args.value}, attendeeId=${args.attendeeId})`,
-        );
-      }
-
-      const entries = ((row.reactions as unknown as MessageReactionEntry[] | null) ?? []).filter(
-        (entry) => entry.attendeeId !== args.attendeeId,
-      );
-      if (args.value) {
-        entries.push({
-          value: args.value,
-          attendeeId: args.attendeeId,
-          attendeeDisplayName: args.attendeeDisplayName,
-          isSelf: args.isSelf,
-        });
-      }
-
-      await this.prisma.messagingMessage.update({
-        where: { id: args.messagingMessageId },
-        data: { reactions: entries },
-      });
+  async updateMessageReactionsUnscoped(args: RepoArgs<MessagingIngestRepo, "updateMessageReactionsUnscoped">) {
+    const message = await this.prisma.messagingMessage.findFirst({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileMessageId: args.unipileMessageId,
+      },
+      select: { id: true, messagingThreadId: true },
     });
+    if (!message) return null;
+
+    await this.prisma.messagingMessage.update({ where: { id: message.id }, data: { reactions: args.reactions } });
+
+    return { messagingThreadId: message.messagingThreadId };
   }
 
   @BypassTenantGuard
-  async updateMessageEditedUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageEditedUnscoped">) {
-    await this.prisma.messagingMessage.update({
-      where: { id: args.messagingMessageId },
-      data: {
-        bodyText: args.bodyText,
-        editedAt: args.editedAt,
+  async deleteMessageUnscoped(args: RepoArgs<MessagingIngestRepo, "deleteMessageUnscoped">) {
+    await this.prisma.messagingMessage.deleteMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileMessageId: args.unipileMessageId,
       },
     });
   }
 
   @BypassTenantGuard
-  async updateMessageDeletedUnscoped(args: RepoArgs<ProcessMessagingWebhookRepo, "updateMessageDeletedUnscoped">) {
-    await this.prisma.messagingMessage.update({
-      where: { id: args.messagingMessageId },
-      data: { deletedAt: args.deletedAt },
+  async markMessageDeletedUnscoped(args: RepoArgs<MessagingIngestRepo, "markMessageDeletedUnscoped">) {
+    const message = await this.prisma.messagingMessage.findFirst({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileMessageId: args.unipileMessageId,
+      },
+      select: { id: true, messagingThreadId: true },
+    });
+    if (!message) return null;
+
+    await this.prisma.messagingMessage.update({ where: { id: message.id }, data: { isDeleted: true } });
+
+    return { messagingThreadId: message.messagingThreadId };
+  }
+
+  @BypassTenantGuard
+  async updateChatThreadMetadataUnscoped(args: RepoArgs<MessagingIngestRepo, "updateChatThreadMetadataUnscoped">) {
+    const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
+
+    await this.prisma.messagingThread.updateMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileThreadId,
+      },
+      data: {
+        name: args.name ?? undefined,
+        subject: args.subject ?? undefined,
+        type: args.type ?? undefined,
+      },
     });
   }
 
   @BypassTenantGuard
-  async applyThreadStateUnscoped(args: RepoArgs<ProcessEmailWebhookRepo, "applyThreadStateUnscoped">) {
-    await this.prisma.messagingThread.update({
-      where: { id: args.messagingThreadId },
-      data: { state: args.state },
-    });
-  }
+  async deleteChatThreadUnscoped(args: RepoArgs<MessagingIngestRepo, "deleteChatThreadUnscoped">) {
+    const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
 
-  @BypassTenantGuard
-  async insertAccountActivityUnscoped(args: RepoArgs<ProcessUsersWebhookRepo, "insertAccountActivityUnscoped">) {
-    await this.prisma.accountActivity.createMany({
-      data: [
-        {
-          companyId: args.companyId,
-          connectedAccountId: args.connectedAccountId,
-          identifier: args.identifier,
-          kind: args.kind,
-          payload: args.payload as Prisma.InputJsonValue,
-          occurredAt: args.occurredAt,
-        },
-      ],
-      skipDuplicates: true,
+    await this.prisma.messagingThread.deleteMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileThreadId,
+      },
     });
   }
 }
 
-// Ingest deliberately runs as plain autocommit: wrapping the message firehose in an interactive
-// transaction pins one pooled connection across the whole body and exhausts the pool (P2028) under
-// concurrent backfill + webhook load, so there is normally no transaction or retry around ingest.
-// The participant write is the one exception. MessagingThreadParticipant carries TWO unique
-// constraints, (threadId, attendeeId) and (threadId, identifier), but a Postgres upsert can only
-// arbitrate ONE (we target attendeeId), so a concurrent same-thread ingest can still hit P2002 on the
-// identifier key. Those concurrent ingests come from live traffic, not a single backfill (which is
-// sequential): e.g. two webhook deliveries for the same chat landing within milliseconds, or a live
-// message webhook arriving while that same thread is still being backfilled. We keep the DB guarantee
-// (no constraint drop, no swallow) and avoid a transaction
-// (which would reintroduce the pool exhaustion above); instead we retry — the re-run re-reads the
-// now-committed row and routes it to the reconcile/update branch, converging within a few attempts.
 async function retryOnUniqueConflict(write: () => Promise<void>): Promise<void> {
   for (let attempt = 1; ; attempt++) {
     try {
@@ -989,6 +1433,10 @@ async function retryOnUniqueConflict(write: () => Promise<void>): Promise<void> 
       if (attempt >= 3 || (error as { code?: unknown }).code !== "P2002") throw error;
     }
   }
+}
+
+function hasLetter(value: string | null | undefined): value is string {
+  return value != null && /\p{L}/u.test(value);
 }
 
 function dedupeParticipants<T extends { attendeeId: string }>(participants: T[]): T[] {

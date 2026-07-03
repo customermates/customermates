@@ -24,7 +24,6 @@ describe("BaseFormStore.onChange", () => {
   });
 
   it("creates the leaf property when it doesn't exist (the original typing bug)", () => {
-    // Mirrors the original repro: filter is initialized as { field, operator } only — no `value` key.
     const store = new TestStore<{ filters: Array<Record<string, string>> }>(stubRootStore, {
       filters: [{ field: "emails", operator: "contains" }],
     });
@@ -53,7 +52,6 @@ describe("BaseFormStore.onChange", () => {
   it("does nothing when the parent path doesn't exist", () => {
     const store = new TestStore<{ a: { b?: string } }>(stubRootStore, { a: {} });
     store.onChange("zzz.does.not.exist", "x");
-    // No throw, and original form is untouched.
     expect(store.form).toEqual({ a: {} });
   });
 });

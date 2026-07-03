@@ -12,7 +12,7 @@ export const WebhookContactCreatedSchema = z.object({
     entityId: z.uuid(),
     payload: ContactDtoSchema,
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookContactCreatedOperation: ZodOpenApiOperationObject = {

@@ -45,7 +45,7 @@ export function formatChannelIdentifier(provider: MessagingProvider, identifier:
   const phoneJid = PHONE_JID_REGEX.exec(id);
   if (phoneJid) return `+${phoneJid[1]}`;
 
-  if (isPhoneProvider(provider) && PHONE_REGEX.test(id)) return id.startsWith("+") ? id : `+${id.replace(/\D/g, "")}`;
+  if (isPhoneProvider(provider) && PHONE_REGEX.test(id)) return `+${id.replace(/\D/g, "")}`;
 
   if (isPhoneProvider(provider) && id.includes("@")) return "";
 
@@ -106,17 +106,24 @@ export function displayableIdentifier(
   return null;
 }
 
+function isPhoneLikeLabel(label: string, identifier: string | null | undefined): boolean {
+  const labelDigits = label.replace(/\D/g, "");
+
+  return labelDigits.length > 0 && labelDigits === (identifier ?? "").replace(/\D/g, "");
+}
+
 export function participantLabel(
   participant: MessagingAttendee,
   provider: MessagingProvider,
   fallback: string,
 ): string {
-  return (
-    contactFullName(participant.contact) ||
-    participant.displayName?.trim() ||
-    displayableIdentifier(provider, participant.identifier) ||
-    fallback
-  );
+  const contactName = contactFullName(participant.contact);
+  if (contactName) return contactName;
+
+  const displayName = participant.displayName?.trim();
+  if (displayName && !isPhoneLikeLabel(displayName, participant.identifier)) return displayName;
+
+  return displayableIdentifier(provider, participant.identifier) || displayName || fallback;
 }
 
 export function threadCounterpart<T extends { isSelf?: boolean | null }>(participants: T[]): T | null {
@@ -149,10 +156,16 @@ export function deriveThreadDisplay(
     : thread.provider === "linkedin"
       ? t("Inbox.linkedinContact")
       : t("Inbox.senderUnknown");
-  const counterpartLabel = counterpart ? participantLabel(counterpart, thread.provider, fallback) : fallback;
+  const counterpartLabel = counterpart
+    ? participantLabel(counterpart, thread.provider, fallback)
+    : formatChannelIdentifier(thread.provider, thread.name) || fallback;
   const emailSubject = !isGroup && isEmailProvider(thread.provider) ? thread.subject?.trim() || null : null;
   const displayName = isGroup ? groupThreadName(thread, t) : (emailSubject ?? counterpartLabel);
-  const hasName = Boolean(contactFullName(counterpart?.contact) || counterpart?.displayName?.trim());
+  const counterpartDisplayName = counterpart?.displayName?.trim();
+  const hasName = Boolean(
+    contactFullName(counterpart?.contact) ||
+      (counterpartDisplayName && !isPhoneLikeLabel(counterpartDisplayName, counterpart?.identifier)),
+  );
   const displayNameSecondary = emailSubject
     ? counterpart
       ? counterpartLabel
@@ -180,10 +193,7 @@ export function deriveMessageSender(
   isOutbound: boolean;
 } {
   const isOutbound = message.direction === "outbound";
-  const resolvedName =
-    messageSenderName(message) ||
-    (isOutbound ? accountOwner?.displayName : null) ||
-    (isOutbound ? t("Inbox.senderYou") : t("Inbox.senderUnknown"));
+  const resolvedName = isOutbound ? t("Inbox.senderYou") : messageSenderName(message) || t("Inbox.senderUnknown");
   const avatarUrl =
     message.sender.contact?.avatarUrl ??
     senderAvatarUrl ??

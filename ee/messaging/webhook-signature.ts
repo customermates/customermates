@@ -1,31 +1,21 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-
 import { env } from "@/env";
 
-export const UNIPILE_AUTH_HEADER = "x-unipile-auth";
+import { hmacSha256Hex, verifyHmacSha256Hex } from "@/core/utils/hmac";
 
-function constantTimeEquals(a: string, b: string): boolean {
-  const aBuf = new Uint8Array(createHash("sha256").update(a).digest());
-  const bBuf = new Uint8Array(createHash("sha256").update(b).digest());
-  return timingSafeEqual(aBuf, bBuf);
+export function signHostedAuthState(userId: string): string {
+  return `${userId}.${hmacSha256Hex(env.UNIPILE_WEBHOOK_SECRET ?? "", userId)}`;
 }
 
-export function verifyUnipileWebhookSignature(headerValue: string | null): boolean {
-  if (!env.UNIPILE_WEBHOOK_SECRET) return false;
-  if (!headerValue) return false;
+export function verifyHostedAuthState(state: string | null | undefined): string | null {
+  if (!state || !env.UNIPILE_WEBHOOK_SECRET) return null;
 
-  return constantTimeEquals(headerValue, env.UNIPILE_WEBHOOK_SECRET);
-}
+  const separator = state.lastIndexOf(".");
+  if (separator <= 0) return null;
 
-export function signHostedAuthName(name: string): string {
-  return createHmac("sha256", env.UNIPILE_WEBHOOK_SECRET ?? "")
-    .update(name)
-    .digest("hex");
-}
+  const userId = state.slice(0, separator);
+  const token = state.slice(separator + 1);
 
-export function verifyHostedAuthToken(name: string | null | undefined, token: string | null | undefined): boolean {
-  if (!env.UNIPILE_WEBHOOK_SECRET) return false;
-  if (!name || !token) return false;
+  if (!verifyHmacSha256Hex(env.UNIPILE_WEBHOOK_SECRET, userId, token)) return null;
 
-  return constantTimeEquals(token, signHostedAuthName(name));
+  return userId;
 }

@@ -95,7 +95,7 @@ export const MassUpdatePopover = observer(function MassUpdatePopover<E extends H
                       type="button"
                       onClick={() => void applyOption(column, option)}
                     >
-                      <AppChip className="hover:opacity-80 transition-opacity" variant={option.color}>
+                      <AppChip interactive variant={option.color}>
                         <span className="truncate">{option.label}</span>
                       </AppChip>
                     </button>

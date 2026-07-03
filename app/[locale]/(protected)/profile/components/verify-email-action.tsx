@@ -20,7 +20,7 @@ export function VerifyEmailAction() {
     >
       <MailWarning className="size-3.5" />
 
-      <span>{t("EmailVerification.resend")}</span>
+      <span className="hidden sm:inline">{t("EmailVerification.resend")}</span>
     </Button>
   );
 }

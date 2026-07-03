@@ -6,6 +6,8 @@ import { ThreadPanel } from "./components/thread-panel";
 import { getGetMessagingThreadInteractor, getGetMessagingThreadsInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { cn } from "@/lib/utils";
 
@@ -20,13 +22,14 @@ export default async function InboxPage({ searchParams }: Props) {
   const threadId = typeof threadIdRaw === "string" ? threadIdRaw : null;
   const threadParams = decodeGetParams(listParams);
 
-  const [listResult, threadResult] = await Promise.all([
-    getGetMessagingThreadsInteractor().invoke({
-      ...threadParams,
-      p13nId: "messaging-threads-card-store",
-    }),
-    threadId ? getGetMessagingThreadInteractor().invoke({ threadId }) : Promise.resolve(null),
-  ]);
+  const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
+
+  if (threadResult && !threadResult.ok) redirect({ href: "/inbox", locale: await getLocale() });
+
+  const listResult = await getGetMessagingThreadsInteractor().invoke({
+    ...threadParams,
+    p13nId: "messaging-threads-card-store",
+  });
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 

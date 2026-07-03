@@ -6,16 +6,18 @@ import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { ImageOff, Pencil, Send, Trash2 } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { classifyAttachment, isMediaKind } from "./attachment-classify";
+import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";
+import { AttachmentRow } from "./attachment-row";
 import { EmailFrame } from "./email-frame";
-import { MessageActions } from "./message-actions";
 import { MessageAttachment } from "./message-attachment";
 import { MessageText } from "./message-text";
 import { SanitizedHtml } from "./sanitized-html";
@@ -26,15 +28,43 @@ type Props = {
   senderAvatarUrl?: string | null;
 };
 
+function hasLoadableRemoteImages(html: string): boolean {
+  if (!html) return false;
+  if (/url\(\s*["']?https?:/i.test(html)) return true;
+
+  return (html.match(/<img\b[^>]*>/gi) ?? []).some((tag) => {
+    if (!/\bsrc\s*=\s*["']https?:/i.test(tag)) return false;
+
+    const width = tag.match(/\bwidth\s*=\s*["']?(\d+)/i);
+    const height = tag.match(/\bheight\s*=\s*["']?(\d+)/i);
+    const tiny =
+      (width ? Number(width[1]) <= 2 : false) ||
+      (height ? Number(height[1]) <= 2 : false) ||
+      /(?:width|height)\s*:\s*[012](?:px)?\b/i.test(tag);
+    const hidden = /display\s*:\s*none|visibility\s*:\s*hidden/i.test(tag);
+
+    return !tiny && !hidden;
+  });
+}
+
 export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }: Props) => {
   const t = useTranslations();
-  const { intlStore } = useRootStore();
-  const [mediaLoaded, setMediaLoaded] = useState(false);
+  const {
+    intlStore,
+    messagingThreadDetailStore: detail,
+    threadComposeStore: compose,
+    threadParticipantsStore,
+  } = useRootStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
 
   const isOutbound = message.direction === "outbound";
-  const isDeleted = Boolean(message.deletedAt);
+  const isDeleted = message.isDeleted;
   const isEdited = Boolean(message.editedAt) && !isDeleted;
+  const isDraft = message.isDraft;
+  const status = detail.messageStatus[message.id];
+  const isSending = status === "sending";
+  const isFailed = status === "failed";
+  const pendingFiles = isDraft ? compose.draftAttachments : (compose.pendingAttachments[message.id] ?? []);
 
   if (message.isEvent) {
     return (
@@ -64,9 +94,21 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
 
   const hasAttachments = message.attachmentsMeta.length > 0;
   const hasReactions = reactionTotals.size > 0;
-  const showUnsupported = !hasAttachments && !hasReactions && !inlineHtml && !displayText;
-  const hasUnloadedMedia =
-    !mediaLoaded && message.attachmentsMeta.some((a) => !a.unavailable && isMediaKind(classifyAttachment(a)));
+  const showUnsupported =
+    !hasAttachments && !hasReactions && !inlineHtml && !displayText && !isEmail && pendingFiles.length === 0;
+  const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
+  const recipientRows = (
+    [
+      ["Inbox.compose.ccLabel", message.recipients.cc],
+      ["Inbox.compose.bccLabel", message.recipients.bcc],
+    ] as const
+  ).filter(([, list]) => list.length > 0);
+  const fullBleedMedia =
+    hasAttachments &&
+    message.attachmentsMeta.every((a) => {
+      const kind = classifyAttachment(a);
+      return kind === "image" || kind === "gif" || kind === "video";
+    });
 
   const tooltipDetail = message.sender.occupation?.trim() || message.sender.headline?.trim() || null;
   const tooltipIdentifier = displayableIdentifier(message.provider, message.sender.identifier);
@@ -80,107 +122,181 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
 
   return (
     <div className={cn("flex gap-2 px-4 py-2", isOutbound ? "flex-row-reverse" : "flex-row")}>
-      <Avatar name={resolvedName} src={pictureUrl} title={avatarTooltip} unlinked={sender.isUnlinked} />
+      <button
+        aria-label={t("Inbox.settings.title")}
+        className="focus-visible:ring-ring/50 shrink-0 self-end rounded-lg outline-none focus-visible:ring-[3px]"
+        type="button"
+        onClick={() => threadParticipantsStore.setOpen(true)}
+      >
+        <Avatar name={resolvedName} size="lg" src={pictureUrl} title={avatarTooltip} />
+      </button>
 
       <div
         className={cn(
-          "flex min-w-0 flex-col gap-1",
-          isEmail ? "w-full max-w-[92%]" : "max-w-[78%]",
+          "flex min-w-0 max-w-[80%] flex-col gap-1",
+          isEmail && "w-full",
           isOutbound ? "items-end" : "items-start",
         )}
       >
-        <span className="text-muted-foreground text-[11px] whitespace-nowrap">
-          {intlStore.formatNumericalShortDateTime(message.sentAt)}
-        </span>
+        <div
+          className={cn(
+            "bg-card flex flex-col overflow-hidden rounded-xl text-sm shadow-xs",
+            isOutbound ? "rounded-br-md" : "rounded-bl-md",
+            isEmail ? "w-full" : "w-fit max-w-full",
+            isDraft && "border-primary/30 border border-dashed",
+            isSending && "opacity-60",
+            isFailed && "ring-destructive/50 ring-1",
+          )}
+        >
+          {isDeleted ? (
+            <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.messageDeleted")}</div>
+          ) : isEmail ? (
+            <>
+              {recipientRows.length > 0 && (
+                <div className="border-border/60 text-muted-foreground flex flex-col gap-0.5 border-b px-3.5 py-2 text-xs">
+                  {recipientRows.map(([labelKey, list]) => (
+                    <span key={labelKey} className="wrap-anywhere">
+                      <span className="font-medium">{t(labelKey)}: </span>
 
-        {isDeleted ? (
-          <div
-            className={cn(
-              "rounded-xl px-3.5 py-2 text-sm italic shadow-xs",
-              isOutbound
-                ? "bg-primary text-primary-foreground/70 rounded-tr-sm"
-                : "bg-muted text-muted-foreground rounded-tl-sm",
-            )}
-          >
-            {t("Inbox.messageDeleted")}
-          </div>
-        ) : isEmail ? (
-          <EmailFrame html={message.bodyHtml ?? ""} isOutbound={isOutbound} showRemoteImages={showRemoteImages} />
-        ) : showUnsupported ? (
-          <MessageAttachment
-            att={{ id: `${message.id}:unsupported`, name: null, type: "unsupported" }}
-            isOutbound={isOutbound}
-            loaded={false}
-            messageId={message.id}
-            t={t}
-          />
-        ) : inlineHtml || displayText ? (
-          <div
-            className={cn(
-              "rounded-xl px-3.5 py-2 text-sm leading-relaxed shadow-xs wrap-anywhere",
-              isOutbound
-                ? "bg-primary text-primary-foreground rounded-tr-sm"
-                : "bg-muted text-foreground rounded-tl-sm",
-            )}
-          >
-            {inlineHtml ? (
-              <SanitizedHtml className="prose-sm max-w-none wrap-anywhere [&_a]:underline" html={inlineHtml} />
-            ) : (
-              <MessageText text={displayText ?? ""} />
-            )}
-          </div>
-        ) : null}
+                      {list
+                        .map((r) => r.identifier?.trim() || r.displayName)
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-        {reactionTotals.size > 0 && !isDeleted && (
-          <div
-            className={cn(
-              "relative z-10 -mt-3 flex flex-wrap gap-0.5 px-2",
-              isOutbound ? "justify-end" : "justify-start",
-            )}
-          >
-            {Array.from(reactionTotals.entries()).map(([reaction, count]) => (
-              <span
-                key={reaction}
-                className="bg-background flex h-5 min-w-5 items-center justify-center gap-0.5 rounded-full px-1 text-xs leading-none"
-              >
-                {reaction}
+              <EmailFrame html={message.bodyHtml ?? ""} showRemoteImages={showRemoteImages} />
+            </>
+          ) : showUnsupported ? (
+            <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.attachmentUnsupported")}</div>
+          ) : inlineHtml || displayText ? (
+            <div className={cn("px-3.5 pt-2 pb-1 leading-relaxed wrap-anywhere", fullBleedMedia && "w-min min-w-full")}>
+              {inlineHtml ? (
+                <SanitizedHtml className="prose-sm max-w-none wrap-anywhere [&_a]:underline" html={inlineHtml} />
+              ) : (
+                <MessageText text={displayText ?? ""} />
+              )}
+            </div>
+          ) : null}
 
-                {count > 1 && <span className="text-muted-foreground text-[10px]">{count}</span>}
+          {!isDeleted && hasAttachments && (
+            <div className={cn("flex flex-col gap-1.5", !fullBleedMedia && "p-1.5")}>
+              {message.attachmentsMeta.map((att) => (
+                <MessageAttachment key={att.id} att={att} messageId={message.id} t={t} />
+              ))}
+            </div>
+          )}
+
+          {pendingFiles.length > 0 && (
+            <div className="flex flex-col gap-1.5 p-1.5">
+              {pendingFiles.map((file, fileIndex) => {
+                const { Icon: FileTypeIcon, accent } = describeFile({ mime: file.type, fileName: file.name });
+                return (
+                  <AttachmentRow
+                    key={`${file.name}-${fileIndex}`}
+                    accent={accent}
+                    fileIcon={FileTypeIcon}
+                    name={file.name}
+                    subtitle={attachmentSubtitle(t, { mime: file.type, fileName: file.name, size: file.size })}
+                    onOpen={() => downloadLocalFile(file)}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {(isDraft || isFailed || canLoadRemoteImages) && (
+            <div className="flex flex-wrap items-center gap-2 px-3 py-1.5">
+              {isDraft ? (
+                <span className="flex items-center gap-1">
+                  <Button
+                    aria-label={t("Inbox.compose.draftEdit")}
+                    size="icon-xs"
+                    title={t("Inbox.compose.draftEdit")}
+                    type="button"
+                    variant="secondary"
+                    onClick={() => compose.loadDraft(message)}
+                  >
+                    <Pencil />
+                  </Button>
+
+                  <Button
+                    aria-label={t("Inbox.compose.draftDiscard")}
+                    size="icon-xs"
+                    title={t("Inbox.compose.draftDiscard")}
+                    type="button"
+                    variant="softDestructive"
+                    onClick={() => void compose.discardDraft(message.id)}
+                  >
+                    <Trash2 />
+                  </Button>
+
+                  <Button
+                    size="xs"
+                    type="button"
+                    onClick={() => {
+                      compose.loadDraft(message);
+                      void compose.send();
+                    }}
+                  >
+                    <Send />
+
+                    {t("Inbox.compose.draftSendNow")}
+                  </Button>
+                </span>
+              ) : isFailed ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="text-destructive text-[11px]">{t("Inbox.compose.sendFailed")}</span>
+
+                  <Button
+                    size="xs"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void compose.retrySend(message.id)}
+                  >
+                    {t("Inbox.compose.retry")}
+                  </Button>
+                </span>
+              ) : canLoadRemoteImages ? (
+                <Button size="xs" type="button" variant="secondary" onClick={() => setShowRemoteImages(true)}>
+                  <ImageOff className="size-3" />
+
+                  {t("Inbox.compose.loadRemoteImages")}
+                </Button>
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        {!isDraft && (
+          <div className="flex items-center gap-1.5 px-1">
+            {!isOutbound && (
+              <span className="text-foreground/80 max-w-48 truncate text-xs font-medium">{resolvedName}</span>
+            )}
+
+            <span className="text-muted-foreground text-[11px] whitespace-nowrap">
+              {intlStore.formatTime(message.sentAt)}
+            </span>
+
+            {isEdited && <span className="text-muted-foreground/70 text-[10px] italic">{t("Inbox.edited")}</span>}
+
+            {hasReactions && !isDeleted && (
+              <span className="flex items-center gap-1">
+                {Array.from(reactionTotals.entries()).map(([reaction, count]) => (
+                  <span
+                    key={reaction}
+                    className="bg-muted text-foreground/80 flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs leading-none"
+                  >
+                    {reaction}
+
+                    {count > 1 && <span className="text-muted-foreground text-[10px] font-medium">{count}</span>}
+                  </span>
+                ))}
               </span>
-            ))}
+            )}
           </div>
-        )}
-
-        {isEdited && (
-          <span className={cn("text-muted-foreground text-[10px] italic", isOutbound ? "text-right" : "text-left")}>
-            {t("Inbox.edited")}
-          </span>
-        )}
-
-        {!isDeleted && hasAttachments && (
-          <div className={cn("flex max-w-full flex-col gap-1.5", isOutbound ? "items-end" : "items-start")}>
-            {message.attachmentsMeta.map((att) => (
-              <MessageAttachment
-                key={att.id}
-                att={att}
-                isOutbound={isOutbound}
-                loaded={mediaLoaded}
-                messageId={message.id}
-                t={t}
-              />
-            ))}
-          </div>
-        )}
-
-        {!isDeleted && (
-          <MessageActions
-            isOutbound={isOutbound}
-            showLoadImages={isEmail && !showRemoteImages}
-            showLoadMedia={hasUnloadedMedia}
-            t={t}
-            onLoadImages={() => setShowRemoteImages(true)}
-            onLoadMedia={() => setMediaLoaded(true)}
-          />
         )}
       </div>
     </div>

@@ -1,5 +1,7 @@
-import type { DomainEvent, DomainEventMap } from "./domain-events";
+import type { DomainEventMap, DomainEvent } from "./domain-events";
 import type { DomainEventListener } from "./domain-event.listener";
+
+import { AUDIT_LOG_EXCLUDED_EVENTS } from "./domain-events";
 import type { CreateWebhookDeliveryRepo } from "@/features/webhook/create-webhook-delivery.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
@@ -10,10 +12,18 @@ import { env } from "@/env";
 
 export abstract class GetWebhooksForEventRepo {
   abstract getWebhooksForEvent(event: string): Promise<{ url: string; events: string[] }[]>;
+  abstract getWebhooksForEventUnscoped(event: string, companyId: string): Promise<{ url: string; events: string[] }[]>;
 }
 
 export abstract class CreateAuditLogRepo {
   abstract log(data: { event: string; eventData: Record<string, unknown>; entityId: string }): Promise<void>;
+  abstract logUnscoped(data: {
+    event: string;
+    eventData: Record<string, unknown>;
+    entityId: string;
+    userId: string;
+    companyId: string;
+  }): Promise<void>;
 }
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
@@ -43,20 +53,24 @@ export class EventService extends UserAccessor {
     super();
   }
 
-  async publish<E extends DomainEvent>(event: E, data: ScopedEventData<E>): Promise<PublishResult> {
+  async publish<E extends DomainEvent>(
+    event: E,
+    data: ScopedEventData<E>,
+    opts?: { systemCompanyId?: string; systemUserId?: string },
+  ): Promise<PublishResult> {
     if (isNoOpUpdate(data))
       return this.logAndReturn({ event, skipped: "no-op-update", listenerHandlers: 0, webhookDeliveries: 0 });
 
-    const { id: userId, companyId } = this.user;
-
+    const system = opts?.systemCompanyId !== undefined;
+    const companyId = opts?.systemCompanyId ?? this.user.companyId;
+    const userId = system ? (opts?.systemUserId ?? null) : this.user.id;
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
-
-    const matchingListeners = this.eventListeners.filter((l) => l.handles(event));
+    const matchingListeners = system ? [] : this.eventListeners.filter((l) => l.handles(event));
 
     const [, , webhookDeliveries] = await Promise.all([
       Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
-      this.createAuditLog(event, eventData),
-      this.createWebhookDeliveries(event, eventData),
+      this.createAuditLog(event, eventData, system),
+      this.createWebhookDeliveries(event, eventData, companyId, system),
     ]);
 
     return this.logAndReturn({
@@ -77,7 +91,20 @@ export class EventService extends UserAccessor {
     return result;
   }
 
-  private async createAuditLog(event: DomainEvent, payload: DomainEventMap[DomainEvent]) {
+  private async createAuditLog(event: DomainEvent, payload: DomainEventMap[DomainEvent], system: boolean) {
+    if (AUDIT_LOG_EXCLUDED_EVENTS.has(event) || payload.userId === null) return;
+
+    if (system) {
+      await this.auditLogRepo.logUnscoped({
+        event,
+        eventData: payload as Record<string, unknown>,
+        entityId: payload.entityId,
+        userId: payload.userId,
+        companyId: payload.companyId,
+      });
+      return;
+    }
+
     await this.auditLogRepo.log({
       event,
       eventData: payload as Record<string, unknown>,
@@ -85,14 +112,20 @@ export class EventService extends UserAccessor {
     });
   }
 
-  private async createWebhookDeliveries(event: DomainEvent, payload: DomainEventMap[DomainEvent]): Promise<number> {
+  private async createWebhookDeliveries(
+    event: DomainEvent,
+    payload: DomainEventMap[DomainEvent],
+    companyId: string,
+    system: boolean,
+  ): Promise<number> {
     if (!WebhookEventSchema.options.some((option) => option === event)) return 0;
 
-    const webhooks = await this.webhookRepo.getWebhooksForEvent(event);
+    const webhooks = system
+      ? await this.webhookRepo.getWebhooksForEventUnscoped(event, companyId)
+      : await this.webhookRepo.getWebhooksForEvent(event);
 
     if (webhooks.length === 0) return 0;
 
-    const { companyId } = this.user;
     const body = {
       event,
       data: payload,
@@ -105,7 +138,9 @@ export class EventService extends UserAccessor {
       requestBody: body as Record<string, unknown>,
     }));
 
-    const ids = await this.webhookDeliveryRepo.create(data);
+    const ids = system
+      ? await this.webhookDeliveryRepo.createUnscoped(companyId, data)
+      : await this.webhookDeliveryRepo.create(data);
 
     await Promise.all(
       ids.map((deliveryId, idx) =>

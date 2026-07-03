@@ -2,6 +2,8 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
+import { EmailFolderSchema } from "./email-folders";
+
 import {
   ConnectedAccountStatus,
   MessagingProvider,
@@ -11,6 +13,7 @@ import {
   MessagingThreadType,
 } from "@/generated/prisma";
 
+import { AttachmentKindSchema } from "./attachment-kind";
 import { ContactReferenceSchema } from "@/core/base/base-entity.schema";
 
 export const MessagingProviderSchema = z.enum(MessagingProvider);
@@ -32,10 +35,14 @@ export const ConnectedAccountDtoSchema = z.object({
   displayName: z.string().nullable(),
   shared: z.boolean(),
   syncing: z.boolean(),
+  preparing: z.boolean(),
   lastSyncedAt: z.date().nullable(),
   createdAt: z.date(),
   owner: ConnectedAccountOwnerSchema,
   isOwner: z.boolean(),
+  folders: z.array(EmailFolderSchema).default([]),
+  selectedFolderIds: z.array(z.string()).default([]),
+  foldersSyncedAt: z.date().nullable(),
 });
 export type ConnectedAccountDto = Data<typeof ConnectedAccountDtoSchema>;
 
@@ -80,6 +87,7 @@ export const MessagingThreadSchema = z.object({
   name: z.string().nullable().default(null),
   subject: z.string().nullable(),
   preview: z.string().nullable(),
+  previewKind: AttachmentKindSchema.nullable(),
   lastMessageAt: z.date().nullable(),
   participants: z.array(MessagingAttendeeSchema),
   state: MessagingThreadStateSchema.default("unread"),
@@ -106,6 +114,7 @@ export const MessagingMessageSchema = z.object({
   messagingThreadId: z.uuid(),
   connectedAccountId: z.uuid(),
   unipileMessageId: z.string(),
+  providerMessageId: z.string().nullish(),
   provider: MessagingProviderSchema,
   direction: z.enum(MessagingMessageDirection),
   origin: z.enum(MessagingMessageOrigin),
@@ -119,10 +128,13 @@ export const MessagingMessageSchema = z.object({
   bodyText: z.string().nullable(),
   bodyHtml: z.string().nullable(),
   attachmentsMeta: z.array(AttachmentMetaSchema),
+  folderIds: z.array(z.string()).default([]),
   isEvent: z.boolean().default(false),
+  isDeleted: z.boolean().default(false),
+  isHidden: z.boolean().default(false),
+  isDraft: z.boolean().default(false),
   sentAt: z.date(),
   editedAt: z.date().nullable(),
-  deletedAt: z.date().nullable(),
   reactions: z.array(MessageReactionEntrySchema).default([]),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -132,6 +144,7 @@ export type MessagingMessage = Data<typeof MessagingMessageSchema>;
 export type IngestMessage = Pick<
   MessagingMessage,
   | "unipileMessageId"
+  | "providerMessageId"
   | "provider"
   | "direction"
   | "origin"
@@ -142,10 +155,13 @@ export type IngestMessage = Pick<
   | "bodyHtml"
   | "attachmentsMeta"
   | "isEvent"
+  | "isDeleted"
+  | "isHidden"
   | "sentAt"
-  | "deletedAt"
   | "reactions"
 > & {
   unipileThreadId: string;
   threadType?: MessagingThreadType;
+  folderIds?: string[];
+  editedAt?: Date | null;
 };

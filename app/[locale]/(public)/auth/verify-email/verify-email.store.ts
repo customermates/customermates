@@ -3,7 +3,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 import { BaseStore } from "@/core/base/base.store";
-import { resendVerificationEmailAction } from "@/app/[locale]/(public)/auth/actions";
+import { resendVerificationEmailFromAuthAction } from "@/app/[locale]/(public)/auth/actions";
 
 export class VerifyEmailStore extends BaseStore {
   isSent = false;
@@ -17,9 +17,11 @@ export class VerifyEmailStore extends BaseStore {
     });
   }
 
-  resend = async (email: string): Promise<void> => {
+  resend = async (): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      await resendVerificationEmailAction(email);
+      const result = await resendVerificationEmailFromAuthAction();
+      if (!result.ok) return;
+
       runInAction(() => {
         this.isSent = true;
       });

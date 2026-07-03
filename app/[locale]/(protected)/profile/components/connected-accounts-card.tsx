@@ -4,7 +4,6 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { Loader2, Plus } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
@@ -29,13 +28,6 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   const t = useTranslations();
   const { connectedAccountsStore, connectedAccountModalStore, intlStore, userStore } = useRootStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
-  const status = useSearchParams().get("status");
-
-  useEffect(() => {
-    if (status !== "connected" && status !== "failed") return;
-
-    return connectedAccountsStore.announceConnectResult(status);
-  }, [status, connectedAccountsStore]);
 
   useEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 
@@ -78,6 +70,7 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
           const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
           const ProviderIcon = getProviderIcon(account.provider);
           const providerLabel = getProviderDisplayLabel(account, t);
+          const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
 
           return (
             <Card
@@ -95,7 +88,11 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
                 <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
                 <InfoRow label={t("ConnectedAccountsCard.status")}>
-                  {account.syncing ? (
+                  {account.preparing ? (
+                    <AppChip startContent={<Loader2 className="animate-spin" />} variant="secondary">
+                      {t("ConnectedAccountsCard.preparing")}
+                    </AppChip>
+                  ) : account.syncing ? (
                     <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
                       {t("ConnectedAccountsCard.syncing")}
                     </AppChip>
@@ -124,6 +121,12 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
                     ]}
                   />
                 </InfoRow>
+
+                {account.folders.length > 0 && (
+                  <InfoRow label={t("ConnectedAccountsCard.folders")}>
+                    {t("ConnectedAccountsCard.foldersShown", { shown: shownFolders, total: account.folders.length })}
+                  </InfoRow>
+                )}
 
                 <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
                   {intlStore.formatNumericalShortDateTime(account.createdAt)}

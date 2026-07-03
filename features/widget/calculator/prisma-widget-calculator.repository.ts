@@ -33,7 +33,7 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
       return [{ label: "Total", value: await getWidgetDataFetcher().getEntityCount(entityType, entityFilters) }];
 
     if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId) {
-      const customColumn = await getCustomColumnRepo().find(groupByCustomColumnId);
+      const customColumn = await getCustomColumnRepo().findById(groupByCustomColumnId);
       if (!customColumn || customColumn.type !== "singleSelect") return [];
 
       const counts = await getWidgetDataFetcher().countByCustomColumn(entityType, entityFilters, groupByCustomColumnId);
@@ -49,8 +49,6 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
 
     if (groupByType === WidgetGroupByType.none) {
       if (entityType === EntityType.service) {
-        // Services sum from the filtered services only (deal.services contains only the filtered services),
-        // not deal.totalValue which includes every service in the deal.
         const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
         const totalValue = deals.reduce(
           (sum, deal) => sum + (deal.services ?? []).reduce((s, sd) => s + sd.service.amount * sd.quantity, 0),

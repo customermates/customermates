@@ -1,6 +1,6 @@
 import { action, makeObservable, observable } from "mobx";
 
-type RuntimeAvatarKind = "contact" | "organization";
+type RuntimeAvatarKind = "contact" | "organization" | "messaging";
 
 export class LayoutStore {
   isMenuOpen = false;

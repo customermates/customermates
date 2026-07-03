@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import { handleError } from "@/core/api/interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
+import { getRetryAfterSeconds, isUnipileRateLimit } from "@/ee/messaging/messaging.service";
 
 export async function GET(
   _req: NextRequest,
@@ -21,6 +22,14 @@ export async function GET(
 
     return new NextResponse(data.body, { status: 200, headers });
   } catch (err) {
+    if (isUnipileRateLimit(err)) {
+      const retryAfter = getRetryAfterSeconds(err);
+      return new NextResponse(null, {
+        status: 429,
+        headers: retryAfter ? { "retry-after": String(retryAfter) } : undefined,
+      });
+    }
+
     return handleError(err);
   }
 }

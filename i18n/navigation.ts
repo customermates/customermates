@@ -18,16 +18,6 @@ function stripLocale(pathname: string): string {
   return pathname;
 }
 
-/**
- * Drop-in replacement for next-intl's `useRouter` that funnels every navigation through the
- * NavigationGuardController. When any registered form has unsaved changes, push/replace/back
- * surface the unsaved-changes modal instead of navigating immediately. `prefetch` and
- * `refresh` are unaffected.
- *
- * Also flips the global loading overlay on for any programmatic navigation, so users get the
- * same visual feedback they'd get from an anchor click. NavigationLoadingOverlay clears the
- * flag when usePathname() updates after the new route renders.
- */
 function isSamePathnameNav(href: unknown): boolean {
   if (typeof window === "undefined" || typeof href !== "string") return false;
   try {

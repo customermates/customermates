@@ -13,7 +13,7 @@ import {
   getRequestPasswordResetInteractor,
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
-  getAuthService,
+  getResendVerificationEmailInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -44,10 +44,6 @@ export async function resetPasswordAction(data: ResetPasswordData) {
   return serializeResult(getResetPasswordInteractor().invoke(data));
 }
 
-export async function resendVerificationEmailAction(email: string) {
-  const session = await getAuthService().getSession();
-
-  if (!session) redirect("/auth/signin");
-
-  await getAuthService().resendVerificationEmail(email);
+export async function resendVerificationEmailFromAuthAction(): Promise<{ ok: boolean }> {
+  return await getResendVerificationEmailInteractor().invoke();
 }

@@ -2,7 +2,7 @@ import deepEqual from "fast-deep-equal/es6";
 
 export type ChangeRecord = Record<string, { previous: unknown; current: unknown }>;
 
-const IGNORED_CHANGE_KEYS = new Set(["updatedAt", "createdAt"]);
+export const IGNORED_CHANGE_KEYS = new Set(["updatedAt", "createdAt"]);
 
 export function hasRelationChanged(
   changes: ChangeRecord,

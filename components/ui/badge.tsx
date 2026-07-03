@@ -20,7 +20,22 @@ const badgeVariants = cva(
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
       },
+      interactive: {
+        true: "cursor-pointer transition-[color,box-shadow,transform] active:scale-[0.97] motion-reduce:transition-none",
+        false: "",
+      },
     },
+    compoundVariants: [
+      { variant: "default", interactive: true, class: "hover:bg-primary/35" },
+      { variant: "secondary", interactive: true, class: "hover:bg-foreground/10 dark:hover:bg-foreground/15" },
+      { variant: "destructive", interactive: true, class: "hover:bg-destructive/35" },
+      { variant: "success", interactive: true, class: "hover:bg-success/35" },
+      { variant: "warning", interactive: true, class: "hover:bg-warning/35" },
+      { variant: "info", interactive: true, class: "hover:bg-info/35" },
+      { variant: "outline", interactive: true, class: "hover:bg-accent hover:text-accent-foreground" },
+      { variant: "ghost", interactive: true, class: "hover:bg-accent hover:text-accent-foreground" },
+      { variant: "link", interactive: true, class: "hover:underline" },
+    ],
     defaultVariants: {
       variant: "default",
     },
@@ -30,13 +45,19 @@ const badgeVariants = cva(
 function Badge({
   className,
   variant = "default",
+  interactive,
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "span";
 
   return (
-    <Comp className={cn(badgeVariants({ variant }), className)} data-slot="badge" data-variant={variant} {...props} />
+    <Comp
+      className={cn(badgeVariants({ variant, interactive }), className)}
+      data-slot="badge"
+      data-variant={variant}
+      {...props}
+    />
   );
 }
 

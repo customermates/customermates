@@ -84,6 +84,7 @@ export class PrismaCompanyRepo
     });
   }
 
+  @BypassTenantGuard
   async findTokenUnscoped(token: string) {
     const res = await this.prisma.inviteToken.findUnique({
       where: { token },

@@ -42,7 +42,7 @@ import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
 // Services
 import { EmailService } from "@/features/email/email.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
-import { UnipileWebhookIngestService } from "@/ee/messaging/webhooks/unipile-webhook-ingest.service";
+import { IngestUnipileWebhookInteractor } from "@/ee/messaging/webhooks/ingest-unipile-webhook.interactor";
 import { AuthService } from "@/features/auth/auth.service";
 import { UserService } from "@/features/user/user.service";
 import { RouteGuardService } from "@/features/auth/route-guard.service";
@@ -167,30 +167,49 @@ import { GetCompanyWidgetsInteractor } from "@/features/widget/get-company-widge
 import { GetWidgetByIdInteractor } from "@/features/widget/get-widget-by-id.interactor";
 import { GetWidgetFilterableFieldsInteractor } from "@/features/widget/get-widget-filterable-fields.interactor";
 // Messaging interactors
-import { CreateHostedAuthLinkInteractor } from "@/ee/messaging/connect/create-hosted-auth-link.interactor";
+import { CreateAuthLinkInteractor } from "@/ee/messaging/connect/create-auth-link.interactor";
 import { GetMyConnectedAccountsInteractor } from "@/ee/messaging/connect/get-my-connected-accounts.interactor";
+import { RefreshInboxInteractor } from "@/ee/messaging/inbox/refresh-inbox.interactor";
 import { DeleteConnectedAccountInteractor } from "@/ee/messaging/connect/delete-connected-account.interactor";
 import { ResyncConnectedAccountInteractor } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.interactor";
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
-import { ProcessAccountCallbackInteractor } from "@/ee/messaging/webhooks/process-account-callback.interactor";
-import { ProcessAccountStatusWebhookInteractor } from "@/ee/messaging/webhooks/process-account-status-webhook.interactor";
-import { ProcessMessagingWebhookInteractor } from "@/ee/messaging/webhooks/process-messaging-webhook.interactor";
-import { ProcessEmailWebhookInteractor } from "@/ee/messaging/webhooks/process-email-webhook.interactor";
-import { BackfillConnectedAccountInteractor } from "@/ee/messaging/ingest/backfill-connected-account.interactor";
+import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
+import { ProcessUnipileWebhookInteractor } from "@/ee/messaging/webhooks/process-unipile-webhook.interactor";
+import type { UnipileWebhookHandlerMap } from "@/ee/messaging/webhooks/webhook-interactor";
+import { ProcessMessageNewWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-new-webhook.interactor";
+import { ProcessMessageDeleteWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-delete-webhook.interactor";
+import { ProcessMessageReactionWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-reaction-webhook.interactor";
+import { ProcessEmailNewWebhookInteractor } from "@/ee/messaging/webhooks/email/process-email-new-webhook.interactor";
+import { ProcessEmailDeleteWebhookInteractor } from "@/ee/messaging/webhooks/email/process-email-delete-webhook.interactor";
+import { ProcessChatUpdateWebhookInteractor } from "@/ee/messaging/webhooks/chat/process-chat-update-webhook.interactor";
+import { ProcessChatDeleteWebhookInteractor } from "@/ee/messaging/webhooks/chat/process-chat-delete-webhook.interactor";
+import { ProcessRelationWebhookInteractor } from "@/ee/messaging/webhooks/relation/process-relation-webhook.interactor";
+import { ProcessCalendarUpsertWebhookInteractor } from "@/ee/messaging/webhooks/calendar/process-calendar-upsert-webhook.interactor";
+import { ProcessCalendarDeleteWebhookInteractor } from "@/ee/messaging/webhooks/calendar/process-calendar-delete-webhook.interactor";
+import { ProcessCalendarEventUpsertWebhookInteractor } from "@/ee/messaging/webhooks/calendar/process-calendar-event-upsert-webhook.interactor";
+import { ProcessCalendarEventDeleteWebhookInteractor } from "@/ee/messaging/webhooks/calendar/process-calendar-event-delete-webhook.interactor";
+import { ProcessAccountAddWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-add-webhook.interactor";
+import { ProcessAccountReadyWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-ready-webhook.interactor";
+import { ProcessProviderSyncWebhookInteractor } from "@/ee/messaging/webhooks/account/process-provider-sync-webhook.interactor";
+import { ProcessAccountReconnectWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-reconnect-webhook.interactor";
+import { ProcessAccountRemoveWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-remove-webhook.interactor";
+import { ProcessAccountStatusWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-status-webhook.interactor";
+import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
+import { PrepareBackfillInteractor } from "@/ee/messaging/ingest/backfill/prepare-backfill.interactor";
+import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.interactor";
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { BackfillEmailsInteractor } from "@/ee/messaging/ingest/backfill/backfill-emails.interactor";
 import { BackfillChatsInteractor } from "@/ee/messaging/ingest/backfill/backfill-chats.interactor";
 import { BackfillCalendarsInteractor } from "@/ee/messaging/ingest/backfill/backfill-calendars.interactor";
-import { ProcessUsersWebhookInteractor } from "@/ee/messaging/webhooks/process-users-webhook.interactor";
 import { SendChatMessageInteractor } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { SendEmailInteractor } from "@/ee/messaging/outbound/send-email.interactor";
+import { SaveDraftInteractor } from "@/ee/messaging/outbound/save-draft.interactor";
+import { DiscardDraftInteractor } from "@/ee/messaging/outbound/discard-draft.interactor";
 import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interactor";
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
-import { ProcessUnipileWebhookEventInteractor } from "@/ee/messaging/ingest/process-unipile-webhook-event.interactor";
-import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
 import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
 import { GetMessagingThreadInteractor } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message-attachment.interactor";
@@ -199,8 +218,6 @@ import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activitie
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
-// Calendar interactors
-import { ProcessCalendarWebhookInteractor } from "@/ee/messaging/webhooks/process-calendar-webhook.interactor";
 // Webhook interactors
 import { GetWebhooksInteractor } from "@/features/webhook/get-webhooks.interactor";
 import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.interactor";
@@ -307,12 +324,11 @@ export const getWidgetDataFetcher = () => new WidgetDataFetcher();
 export const getWidgetGroupingService = () => new WidgetGroupingService();
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
-export const getUnipileWebhookIngestService = () =>
-  new UnipileWebhookIngestService(
+export const getIngestUnipileWebhookInteractor = () =>
+  new IngestUnipileWebhookInteractor(
     getUnipileWebhookRepo(),
     getConnectedAccountRepo(),
-    getUserRepo(),
-    getBackgroundTaskService(),
+    getProcessUnipileWebhookInteractor(),
   );
 
 // ─── Section 4: Interactors ─────────────────────────────────────────────────
@@ -932,8 +948,8 @@ export const getResendWebhookDeliveryInteractor = () =>
 
 // --- Messaging ---
 
-export const getCreateHostedAuthLinkInteractor = () =>
-  new CreateHostedAuthLinkInteractor(getMessagingService(), getConnectedAccountRepo());
+export const getCreateAuthLinkInteractor = () =>
+  new CreateAuthLinkInteractor(getMessagingService(), getConnectedAccountRepo());
 
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
@@ -942,12 +958,7 @@ export const getDeleteConnectedAccountInteractor = () =>
   new DeleteConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
 
 export const getResyncConnectedAccountInteractor = () =>
-  new ResyncConnectedAccountInteractor(
-    getConnectedAccountRepo(),
-    getMessagingService(),
-    getBackgroundTaskService(),
-    getEventService(),
-  );
+  new ResyncConnectedAccountInteractor(getConnectedAccountRepo(), getBackgroundTaskService(), getEventService());
 
 export const getReconnectConnectedAccountInteractor = () =>
   new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
@@ -957,14 +968,8 @@ export const getResyncThreadInteractor = () => new ResyncThreadInteractor(getMes
 export const getSetConnectedAccountVisibilityInteractor = () =>
   new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService());
 
-export const getProcessAccountCallbackInteractor = () =>
-  new ProcessAccountCallbackInteractor(
-    getConnectedAccountRepo(),
-    getUserRepo(),
-    getMessagingService(),
-    getBackgroundTaskService(),
-    getEventService(),
-  );
+export const getSetSelectedFoldersInteractor = () =>
+  new SetSelectedFoldersInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
 
 export const getBackfillEmailsInteractor = () =>
   new BackfillEmailsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
@@ -975,29 +980,111 @@ export const getBackfillChatsInteractor = () =>
 export const getBackfillCalendarsInteractor = () =>
   new BackfillCalendarsInteractor(getConnectedAccountRepo(), getMessagingService(), getCalendarRepo());
 
-export const getBackfillConnectedAccountInteractor = () =>
-  new BackfillConnectedAccountInteractor(
-    getConnectedAccountRepo(),
-    getMessagingService(),
-    getMessagingRepo(),
-    getBackfillEmailsInteractor(),
-    getBackfillChatsInteractor(),
-    getBackfillCalendarsInteractor(),
-  );
+export const getPrepareBackfillInteractor = () =>
+  new PrepareBackfillInteractor(getConnectedAccountRepo(), getMessagingService());
 
+export const getClaimBackfillInteractor = () => new ClaimBackfillInteractor(getConnectedAccountRepo());
 export const getReleaseBackfillClaimInteractor = () => new ReleaseBackfillClaimInteractor(getConnectedAccountRepo());
 
+export const getRefreshInboxInteractor = () =>
+  new RefreshInboxInteractor(
+    getConnectedAccountRepo(),
+    getPrepareBackfillInteractor(),
+    getBackfillChatsInteractor(),
+    getBackfillEmailsInteractor(),
+  );
+
+export const getProcessMessageNewWebhookInteractor = () =>
+  new ProcessMessageNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessMessageDeleteWebhookInteractor = () =>
+  new ProcessMessageDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessMessageReactionWebhookInteractor = () =>
+  new ProcessMessageReactionWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessEmailNewWebhookInteractor = () =>
+  new ProcessEmailNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessEmailDeleteWebhookInteractor = () =>
+  new ProcessEmailDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessChatUpdateWebhookInteractor = () =>
+  new ProcessChatUpdateWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessChatDeleteWebhookInteractor = () =>
+  new ProcessChatDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessRelationWebhookInteractor = () =>
+  new ProcessRelationWebhookInteractor(getConnectedAccountRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessCalendarUpsertWebhookInteractor = () =>
+  new ProcessCalendarUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessCalendarDeleteWebhookInteractor = () =>
+  new ProcessCalendarDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessCalendarEventUpsertWebhookInteractor = () =>
+  new ProcessCalendarEventUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessCalendarEventDeleteWebhookInteractor = () =>
+  new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessAccountAddWebhookInteractor = () =>
+  new ProcessAccountAddWebhookInteractor(
+    getMessagingService(),
+    getConnectedAccountRepo(),
+    getUserRepo(),
+    getBackgroundTaskService(),
+    getEventService(),
+  );
+export const getProcessAccountReadyWebhookInteractor = () =>
+  new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo());
+export const getProcessProviderSyncWebhookInteractor = () =>
+  new ProcessProviderSyncWebhookInteractor(getConnectedAccountRepo());
+export const getProcessAccountReconnectWebhookInteractor = () =>
+  new ProcessAccountReconnectWebhookInteractor(
+    getMessagingService(),
+    getConnectedAccountRepo(),
+    getBackgroundTaskService(),
+  );
+export const getProcessAccountRemoveWebhookInteractor = () =>
+  new ProcessAccountRemoveWebhookInteractor(getConnectedAccountRepo());
 export const getProcessAccountStatusWebhookInteractor = () =>
-  new ProcessAccountStatusWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
+  new ProcessAccountStatusWebhookInteractor(getConnectedAccountRepo());
 
-export const getProcessMessagingWebhookInteractor = () =>
-  new ProcessMessagingWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingRepo());
+export const getProcessUnipileWebhookInteractor = () => {
+  const messageNew = getProcessMessageNewWebhookInteractor();
+  const emailNew = getProcessEmailNewWebhookInteractor();
+  const providerSync = getProcessProviderSyncWebhookInteractor();
+  const accountStatus = getProcessAccountStatusWebhookInteractor();
+  const calendarUpsert = getProcessCalendarUpsertWebhookInteractor();
+  const calendarEventUpsert = getProcessCalendarEventUpsertWebhookInteractor();
+  const relation = getProcessRelationWebhookInteractor();
 
-export const getProcessEmailWebhookInteractor = () =>
-  new ProcessEmailWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingRepo());
+  const handlers: UnipileWebhookHandlerMap = {
+    "message.new": messageNew,
+    "message.update": messageNew,
+    "message.delete": getProcessMessageDeleteWebhookInteractor(),
+    "message.reaction.new": getProcessMessageReactionWebhookInteractor(),
+    "email.new": emailNew,
+    "email.new.bounce": emailNew,
+    "email.delete": getProcessEmailDeleteWebhookInteractor(),
+    "account.add": getProcessAccountAddWebhookInteractor(),
+    "account.initial_sync.running": providerSync,
+    "account.initial_sync.failed": providerSync,
+    "account.initial_sync.completed": getProcessAccountReadyWebhookInteractor(),
+    "account.reconnect": getProcessAccountReconnectWebhookInteractor(),
+    "account.remove": getProcessAccountRemoveWebhookInteractor(),
+    "account.status.disconnected": accountStatus,
+    "account.status.errored": accountStatus,
+    "account.status.paused": accountStatus,
+    "account.status.running": accountStatus,
+    "chat.update": getProcessChatUpdateWebhookInteractor(),
+    "chat.delete": getProcessChatDeleteWebhookInteractor(),
+    "calendar.create": calendarUpsert,
+    "calendar.update": calendarUpsert,
+    "calendar.delete": getProcessCalendarDeleteWebhookInteractor(),
+    "calendar.event.new": calendarEventUpsert,
+    "calendar.event.update": calendarEventUpsert,
+    "calendar.event.delete": getProcessCalendarEventDeleteWebhookInteractor(),
+    "relation.new": relation,
+    "relation.request.accept": relation,
+  };
 
-export const getProcessUsersWebhookInteractor = () =>
-  new ProcessUsersWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo());
+  return new ProcessUnipileWebhookInteractor(getUnipileWebhookRepo(), handlers);
+};
+
+export const getReprocessStuckWebhookEventsInteractor = () =>
+  new ReprocessStuckWebhookEventsInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
 export const getSendChatMessageInteractor = () =>
   new SendChatMessageInteractor(
@@ -1009,6 +1096,10 @@ export const getSendChatMessageInteractor = () =>
 
 export const getSendEmailInteractor = () =>
   new SendEmailInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingService());
+
+export const getSaveDraftInteractor = () => new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo());
+
+export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo());
 
 export const getStartChatInteractor = () =>
   new StartChatInteractor(getConnectedAccountRepo(), getContactRepo(), getMessagingService());
@@ -1040,27 +1131,6 @@ export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());
 
 export const getUpdateThreadInteractor = () => new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator());
-
-// --- Calendar ---
-
-export const getProcessCalendarWebhookInteractor = () =>
-  new ProcessCalendarWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo());
-
-// --- Unipile Webhook Dispatch ---
-
-export const getProcessUnipileWebhookEventInteractor = () =>
-  new ProcessUnipileWebhookEventInteractor(
-    getUnipileWebhookRepo(),
-    getProcessAccountStatusWebhookInteractor(),
-    getProcessAccountCallbackInteractor(),
-    getProcessMessagingWebhookInteractor(),
-    getProcessEmailWebhookInteractor(),
-    getProcessCalendarWebhookInteractor(),
-    getProcessUsersWebhookInteractor(),
-  );
-
-export const getReprocessStuckWebhookEventsInteractor = () =>
-  new ReprocessStuckWebhookEventsInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookEventInteractor());
 
 // --- Custom Column ---
 

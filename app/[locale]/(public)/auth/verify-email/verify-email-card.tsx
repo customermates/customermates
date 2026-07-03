@@ -26,7 +26,7 @@ export const VerifyEmailCard = observer(({ email }: { email?: string }) => {
         <Button
           className="w-full"
           disabled={verifyEmailStore.isSent || !email}
-          onClick={() => email && void verifyEmailStore.resend(email)}
+          onClick={() => void verifyEmailStore.resend()}
         >
           {t("VerifyEmailCard.ctaLabel")}
         </Button>

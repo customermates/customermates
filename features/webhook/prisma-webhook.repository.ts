@@ -11,6 +11,7 @@ import type { Prisma } from "@/generated/prisma";
 import { BaseRepository } from "@/core/base/base-repository";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -134,6 +135,11 @@ export class PrismaWebhookRepo
       return webhooks.filter((webhook) => webhook.events.includes(event));
     }
 
+    return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
+  }
+
+  @BypassTenantGuard
+  async getWebhooksForEventUnscoped(event: string, companyId: string) {
     return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
   }
 

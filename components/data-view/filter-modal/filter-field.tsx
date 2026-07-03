@@ -151,7 +151,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
         {operator && (
           <button
             aria-label={t("Common.actions.clear")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors opacity-50 hover:opacity-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-[color,opacity,transform] hover:text-foreground opacity-50 hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
             tabIndex={-1}
             type="button"
             onClick={(e) => {

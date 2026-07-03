@@ -1,12 +1,11 @@
 import type { Prisma } from "@/generated/prisma";
 
-import { UnipileWebhookSource } from "@/generated/prisma";
-
 import type { RepoArgs } from "@/core/utils/types";
 import type { WebhookEventRepo } from "../webhooks/webhook-event.repo";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { WEBHOOK_INBOUND_SOURCE } from "../webhooks/webhook-event.repo";
 
 export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookEventRepo {
   @BypassTenantGuard
@@ -40,6 +39,9 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
       data: {
         processed: args.processed,
         processedAt: args.processed ? new Date() : null,
+        ...(args.error !== undefined
+          ? { error: args.error, lastErrorAt: args.lastErrorAt ?? new Date(), attemptCount: { increment: 1 } }
+          : {}),
       },
     });
   }
@@ -49,7 +51,8 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
     const rows = await this.prisma.messagingInboundEvent.findMany({
       where: {
         processed: false,
-        source: { in: Object.values(UnipileWebhookSource) },
+        source: WEBHOOK_INBOUND_SOURCE,
+        attemptCount: { lt: args.maxAttempts },
         receivedAt: {
           lte: args.olderThan,
           gte: new Date(Date.now() - args.maxAgeDays * 86_400_000),

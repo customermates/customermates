@@ -37,13 +37,6 @@ import {
   Zap,
 } from "lucide-react";
 
-/**
- * Icon registry for content (MDX) that references icons by string name.
- *
- * Keys are canonical lucide PascalCase component names. Content authors pick
- * from this set; consumers resolve via `ICONS[name]`. Keep the set as small as
- * actually used — this ships to the client.
- */
 export const ICONS: Record<string, FC<SVGProps<SVGSVGElement>>> = {
   ArrowRight,
   BarChart3,

@@ -42,6 +42,17 @@ export enum DomainEvent {
   CONNECTED_ACCOUNT_UPDATED = "connected_account.updated",
   CONNECTED_ACCOUNT_RECONNECTED = "connected_account.reconnected",
   CONNECTED_ACCOUNT_RESYNCED = "connected_account.resynced",
+  MESSAGING_MESSAGE_RECEIVED = "messaging.message.received",
+  MESSAGING_MESSAGE_UPDATED = "messaging.message.updated",
+  MESSAGING_MESSAGE_DELETED = "messaging.message.deleted",
+  MESSAGING_MESSAGE_REACTION = "messaging.message.reaction",
+  MESSAGING_EMAIL_RECEIVED = "messaging.email.received",
+  MESSAGING_EMAIL_DELETED = "messaging.email.deleted",
+  MESSAGING_CHAT_UPDATED = "messaging.chat.updated",
+  MESSAGING_CHAT_DELETED = "messaging.chat.deleted",
+  MESSAGING_CALENDAR_CHANGED = "messaging.calendar.changed",
+  MESSAGING_CALENDAR_EVENT_CHANGED = "messaging.calendar_event.changed",
+  MESSAGING_RELATION_CREATED = "messaging.relation.created",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -293,4 +304,131 @@ export type DomainEventMap = {
     entityId: string;
     payload: ConnectedAccountAuditPayload;
   };
+  [DomainEvent.MESSAGING_MESSAGE_RECEIVED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+      threadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_MESSAGE_UPDATED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+      threadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_MESSAGE_DELETED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+      threadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_MESSAGE_REACTION]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+      threadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_EMAIL_RECEIVED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_EMAIL_DELETED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerMessageId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_CHAT_UPDATED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerThreadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_CHAT_DELETED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerThreadId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_CALENDAR_CHANGED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      providerCalendarId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      providerCalendarId: string;
+      providerEventId: string;
+    };
+  };
+  [DomainEvent.MESSAGING_RELATION_CREATED]: {
+    userId: null;
+    companyId: string;
+    entityId: string;
+    payload: {
+      connectedAccountId: string;
+      provider: MessagingProvider;
+      providerUserId: string;
+    };
+  };
 };
+
+export const AUDIT_LOG_EXCLUDED_EVENTS: ReadonlySet<DomainEvent> = new Set([
+  DomainEvent.MESSAGING_MESSAGE_RECEIVED,
+  DomainEvent.MESSAGING_MESSAGE_UPDATED,
+  DomainEvent.MESSAGING_MESSAGE_DELETED,
+  DomainEvent.MESSAGING_MESSAGE_REACTION,
+  DomainEvent.MESSAGING_EMAIL_RECEIVED,
+  DomainEvent.MESSAGING_EMAIL_DELETED,
+  DomainEvent.MESSAGING_CHAT_UPDATED,
+  DomainEvent.MESSAGING_CHAT_DELETED,
+  DomainEvent.MESSAGING_CALENDAR_CHANGED,
+  DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED,
+  DomainEvent.MESSAGING_RELATION_CREATED,
+]);

@@ -27,7 +27,7 @@ export class CreateCheckoutSessionInteractor {
 
     const redirectUrl = `${env.BASE_URL}/company/details`;
 
-    const checkout = await this.lemonSqueezyService.createCheckout({
+    const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
       email: company.email || undefined,
       name: company.name || undefined,
       country: company.country || undefined,

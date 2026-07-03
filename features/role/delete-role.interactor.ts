@@ -18,7 +18,7 @@ const Schema = z.object({
 export type DeleteRoleData = Data<typeof Schema>;
 
 export abstract class DeleteRoleRepo {
-  abstract isSystemRole(id: string): Promise<boolean>;
+  abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
   abstract hasUsersAssigned(data: string): Promise<boolean>;
   abstract deleteRoleOrThrow(id: string): Promise<UserRoleDto>;
 }
@@ -36,7 +36,7 @@ export class DeleteRoleInteractor extends AuthenticatedInteractor<DeleteRoleData
   @ValidateOutput(z.string())
   @Transaction
   async invoke(data: DeleteRoleData): Promise<{ ok: true; data: string }> {
-    if (await this.repo.isSystemRole(data.id)) throw new Error("Cannot delete system roles");
+    if (await this.repo.isSystemRoleOrThrow(data.id)) throw new Error("Cannot delete system roles");
     if (await this.repo.hasUsersAssigned(data.id)) throw new Error("Cannot delete role that is assigned to users");
 
     const role = await this.repo.deleteRoleOrThrow(data.id);

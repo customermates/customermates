@@ -57,7 +57,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return allRoutes.map((routeData) => {
     const { route, lastModified } = routeData;
     const isOpenApiRoute = /^\/[^/]+\/docs\/openapi(\/|$)/.test(route);
-    // Keep sitemap alternates aligned with page-level canonicalization for OpenAPI URLs.
     const languages = isOpenApiRoute
       ? { [ROUTING_DEFAULT_LOCALE]: `${env.BASE_URL}${route}` }
       : Object.fromEntries(

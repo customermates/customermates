@@ -140,7 +140,7 @@ export class PrismaRoleRepo
     return role;
   }
 
-  async isSystemRole(id: string) {
+  async isSystemRoleOrThrow(id: string) {
     const { companyId } = this.user;
 
     const role = await this.prisma.userRole.findFirstOrThrow({

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4000/api",
+      "url": "https://customermates.tailf11599.ts.net/api",
       "description": "API Server"
     }
   ],
@@ -25505,8 +25505,41 @@
                 "properties": {
                   "text": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 20000
+                  },
+                  "attachments": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "filename": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255
+                        },
+                        "content_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255
+                        },
+                        "content": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 34000000
+                        }
+                      },
+                      "required": [
+                        "filename",
+                        "content_type",
+                        "content"
+                      ]
+                    }
+                  },
+                  "draftMessageId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
@@ -26149,6 +26182,270 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/WebhookTaskDeletedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingMessageReceived": {
+      "post": {
+        "operationId": "webhookMessagingMessageReceived",
+        "summary": "Message Received",
+        "description": "Sent when a new chat message or email is ingested on a connected account.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingMessageReceivedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingMessageUpdated": {
+      "post": {
+        "operationId": "webhookMessagingMessageUpdated",
+        "summary": "Message Updated",
+        "description": "Sent when the provider reports an edit or status change for an ingested message.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingMessageUpdatedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingMessageDeleted": {
+      "post": {
+        "operationId": "webhookMessagingMessageDeleted",
+        "summary": "Message Deleted",
+        "description": "Sent when the provider reports a message deletion.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingMessageDeletedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingMessageReaction": {
+      "post": {
+        "operationId": "webhookMessagingMessageReaction",
+        "summary": "Message Reaction",
+        "description": "Sent when a reaction is added to or removed from a message.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingMessageReactionSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingEmailReceived": {
+      "post": {
+        "operationId": "webhookMessagingEmailReceived",
+        "summary": "Email Received",
+        "description": "Sent when a new email is ingested on a connected email account.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingEmailReceivedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingEmailDeleted": {
+      "post": {
+        "operationId": "webhookMessagingEmailDeleted",
+        "summary": "Email Deleted",
+        "description": "Sent when the provider reports an email deletion.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingEmailDeletedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingChatUpdated": {
+      "post": {
+        "operationId": "webhookMessagingChatUpdated",
+        "summary": "Chat Updated",
+        "description": "Sent when a chat thread's provider attributes change (name, mute state, read state).",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingChatUpdatedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingChatDeleted": {
+      "post": {
+        "operationId": "webhookMessagingChatDeleted",
+        "summary": "Chat Deleted",
+        "description": "Sent when the provider reports a chat thread deletion.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingChatDeletedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingCalendarChanged": {
+      "post": {
+        "operationId": "webhookMessagingCalendarChanged",
+        "summary": "Calendar Changed",
+        "description": "Sent when a calendar on a connected account is created, updated, or deleted.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingCalendarChangedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingCalendarEventChanged": {
+      "post": {
+        "operationId": "webhookMessagingCalendarEventChanged",
+        "summary": "Calendar Event Changed",
+        "description": "Sent when a calendar event on a connected account is created, updated, or deleted.",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingCalendarEventChangedSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received successfully"
+          }
+        }
+      }
+    },
+    "messagingRelationCreated": {
+      "post": {
+        "operationId": "webhookMessagingRelationCreated",
+        "summary": "Relation Created",
+        "description": "Sent when the provider reports a new connection (e.g. an accepted LinkedIn invitation).",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookMessagingRelationCreatedSchema"
               }
             }
           }
@@ -28357,7 +28654,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -28684,14 +28983,28 @@
                           "current"
                         ]
                       },
-                      "createdAt": {
+                      "avatarUrl": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
@@ -28699,14 +29012,163 @@
                           "current"
                         ]
                       },
-                      "updatedAt": {
+                      "notes": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "identifiers": {
+                        "type": "object",
+                        "properties": {
+                          "previous": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "provider": {
+                                  "type": "string",
+                                  "enum": [
+                                    "google",
+                                    "outlook",
+                                    "mail",
+                                    "linkedin",
+                                    "whatsapp",
+                                    "instagram",
+                                    "telegram"
+                                  ]
+                                },
+                                "value": {
+                                  "type": "string"
+                                },
+                                "messagingId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "profileUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "provider",
+                                "value",
+                                "messagingId",
+                                "displayName",
+                                "profileUrl"
+                              ]
+                            }
+                          },
+                          "current": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "provider": {
+                                  "type": "string",
+                                  "enum": [
+                                    "google",
+                                    "outlook",
+                                    "mail",
+                                    "linkedin",
+                                    "whatsapp",
+                                    "instagram",
+                                    "telegram"
+                                  ]
+                                },
+                                "value": {
+                                  "type": "string"
+                                },
+                                "messagingId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "profileUrl": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "provider",
+                                "value",
+                                "messagingId",
+                                "displayName",
+                                "profileUrl"
+                              ]
+                            }
                           }
                         },
                         "required": [
@@ -28972,6 +29434,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
+                            "description": "Custom field values for this contact. Query available custom field configurations via GET /v1/contacts/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -28998,6 +29461,7 @@
                             }
                           },
                           "current": {
+                            "description": "Custom field values for this contact. Query available custom field configurations via GET /v1/contacts/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -29046,7 +29510,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -29346,7 +29812,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -29579,7 +30047,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -29824,35 +30294,28 @@
                           "current"
                         ]
                       },
-                      "createdAt": {
+                      "notes": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
-                      },
-                      "updatedAt": {
-                        "type": "object",
-                        "properties": {
-                          "previous": {
-                            "type": "string"
-                          },
-                          "current": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
+                        }
                       },
                       "contacts": {
                         "type": "object",
@@ -30142,6 +30605,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
+                            "description": "Custom field values for this organization. Query available custom field configurations via GET /v1/organizations/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -30168,6 +30632,7 @@
                             }
                           },
                           "current": {
+                            "description": "Custom field values for this organization. Query available custom field configurations via GET /v1/organizations/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -30216,7 +30681,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -30449,7 +30916,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -30719,7 +31188,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -31031,35 +31502,28 @@
                           "current"
                         ]
                       },
-                      "createdAt": {
+                      "notes": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
-                      },
-                      "updatedAt": {
-                        "type": "object",
-                        "properties": {
-                          "previous": {
-                            "type": "string"
-                          },
-                          "current": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
+                        }
                       },
                       "organizations": {
                         "type": "object",
@@ -31414,6 +31878,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
+                            "description": "Custom field values for this deal. Query available custom field configurations via GET /v1/deals/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -31440,6 +31905,7 @@
                             }
                           },
                           "current": {
+                            "description": "Custom field values for this deal. Query available custom field configurations via GET /v1/deals/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -31488,7 +31954,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -31758,7 +32226,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -31959,7 +32429,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -32187,35 +32659,28 @@
                           "current"
                         ]
                       },
-                      "createdAt": {
+                      "notes": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
-                      },
-                      "updatedAt": {
-                        "type": "object",
-                        "properties": {
-                          "previous": {
-                            "type": "string"
-                          },
-                          "current": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
+                        }
                       },
                       "users": {
                         "type": "object",
@@ -32426,6 +32891,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
+                            "description": "Custom field values for this service. Query available custom field configurations via GET /v1/services/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -32452,6 +32918,7 @@
                             }
                           },
                           "current": {
+                            "description": "Custom field values for this service. Query available custom field configurations via GET /v1/services/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -32500,7 +32967,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -32701,7 +33170,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -32959,7 +33430,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -33229,14 +33702,22 @@
                           "current"
                         ]
                       },
-                      "createdAt": {
+                      "type": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                              "userPendingAuthorization",
+                              "custom"
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                              "userPendingAuthorization",
+                              "custom"
+                            ]
                           }
                         },
                         "required": [
@@ -33244,20 +33725,28 @@
                           "current"
                         ]
                       },
-                      "updatedAt": {
+                      "notes": {
                         "type": "object",
                         "properties": {
                           "previous": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "current": {
-                            "type": "string"
+                            "description": "Markdown content",
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        },
-                        "required": [
-                          "previous",
-                          "current"
-                        ]
+                        }
                       },
                       "users": {
                         "type": "object",
@@ -33588,6 +34077,7 @@
                         "type": "object",
                         "properties": {
                           "previous": {
+                            "description": "Custom field values for this task. Query available custom field configurations via GET /v1/tasks/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -33614,6 +34104,7 @@
                             }
                           },
                           "current": {
+                            "description": "Custom field values for this task. Query available custom field configurations via GET /v1/tasks/configuration, which returns customColumns with their definitions.",
                             "type": "array",
                             "items": {
                               "type": "object",
@@ -33662,7 +34153,9 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -33920,7 +34413,814 @@
             ]
           },
           "timestamp": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingMessageReceivedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.message.received"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId",
+                  "threadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingMessageUpdatedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.message.updated"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId",
+                  "threadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingMessageDeletedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.message.deleted"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId",
+                  "threadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingMessageReactionSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.message.reaction"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId",
+                  "threadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingEmailReceivedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.email.received"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingEmailDeletedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.email.deleted"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerMessageId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerMessageId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingChatUpdatedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.chat.updated"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerThreadId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerThreadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingChatDeletedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.chat.deleted"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerThreadId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerThreadId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingCalendarChangedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.calendar.changed"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "providerCalendarId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "providerCalendarId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingCalendarEventChangedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.calendar_event.changed"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "providerCalendarId": {
+                    "type": "string"
+                  },
+                  "providerEventId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "providerCalendarId",
+                  "providerEventId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "event",
+          "data",
+          "timestamp"
+        ]
+      },
+      "WebhookMessagingRelationCreatedSchema": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "const": "messaging.relation.created"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "null"
+              },
+              "companyId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "entityId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "mail",
+                      "linkedin",
+                      "whatsapp",
+                      "instagram",
+                      "telegram"
+                    ]
+                  },
+                  "providerUserId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "provider",
+                  "providerUserId"
+                ]
+              }
+            },
+            "required": [
+              "userId",
+              "companyId",
+              "entityId",
+              "payload"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
           }
         },
         "required": [
@@ -33991,6 +35291,27 @@
             "anyOf": [
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previewKind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "gif",
+                  "video",
+                  "audio",
+                  "voice",
+                  "sticker",
+                  "unsupported",
+                  "post",
+                  "file"
+                ]
               },
               {
                 "type": "null"
@@ -34169,6 +35490,7 @@
           "provider",
           "subject",
           "preview",
+          "previewKind",
           "lastMessageAt",
           "participants",
           "createdAt",
@@ -34515,8 +35837,41 @@
           },
           "body": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 100000
+          },
+          "attachments": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "content_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 34000000
+                }
+              },
+              "required": [
+                "filename",
+                "content_type",
+                "content"
+              ]
+            }
+          },
+          "draftMessageId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           }
         },
         "required": [
@@ -34893,6 +36248,9 @@
           "syncing": {
             "type": "boolean"
           },
+          "preparing": {
+            "type": "boolean"
+          },
           "lastSyncedAt": {
             "anyOf": [
               {
@@ -34941,6 +36299,83 @@
           },
           "isOwner": {
             "type": "boolean"
+          },
+          "folders": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "role": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "totalCount": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unreadCount": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "role",
+                "totalCount",
+                "unreadCount"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "selectedFolderIds": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "foldersSyncedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -34953,10 +36388,14 @@
           "displayName",
           "shared",
           "syncing",
+          "preparing",
           "lastSyncedAt",
           "createdAt",
           "owner",
-          "isOwner"
+          "isOwner",
+          "folders",
+          "selectedFolderIds",
+          "foldersSyncedAt"
         ],
         "additionalProperties": false
       },
@@ -34985,6 +36424,16 @@
                   "type": "string",
                   "format": "uuid",
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "providerMessageId": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "provider": {
                   "type": "string",
@@ -35231,10 +36680,240 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "cc": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "attendeeId": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "identifier": {
+                            "type": "string"
+                          },
+                          "pictureUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profileUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "occupation": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isSelf": {
+                            "type": "boolean"
+                          },
+                          "contact": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "firstName",
+                                  "lastName",
+                                  "avatarUrl"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "attendeeId",
+                          "displayName",
+                          "identifier"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "bcc": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "attendeeId": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "identifier": {
+                            "type": "string"
+                          },
+                          "pictureUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profileUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "occupation": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isSelf": {
+                            "type": "boolean"
+                          },
+                          "contact": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "avatarUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "firstName",
+                                  "lastName",
+                                  "avatarUrl"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "attendeeId",
+                          "displayName",
+                          "identifier"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
-                    "to"
+                    "to",
+                    "cc",
+                    "bcc"
                   ],
                   "additionalProperties": false
                 },
@@ -35401,20 +37080,22 @@
                   "default": false,
                   "type": "boolean"
                 },
+                "isDeleted": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "isHidden": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "isDraft": {
+                  "default": false,
+                  "type": "boolean"
+                },
                 "sentAt": {
                   "type": "string"
                 },
                 "editedAt": {
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "deletedAt": {
                   "anyOf": [
                     {
                       "type": "string"
@@ -35454,9 +37135,11 @@
                 "bodyHtml",
                 "attachmentsMeta",
                 "isEvent",
+                "isDeleted",
+                "isHidden",
+                "isDraft",
                 "sentAt",
                 "editedAt",
-                "deletedAt",
                 "reactions"
               ],
               "additionalProperties": false
@@ -35478,6 +37161,16 @@
                 "displayName": {
                   "type": "string"
                 },
+                "accountLabel": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "avatarUrl": {
                   "anyOf": [
                     {
@@ -35491,6 +37184,7 @@
               },
               "required": [
                 "displayName",
+                "accountLabel",
                 "avatarUrl"
               ],
               "additionalProperties": false
@@ -35625,6 +37319,16 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "providerMessageId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "provider": {
                           "type": "string",
@@ -35871,10 +37575,240 @@
                                 ],
                                 "additionalProperties": false
                               }
+                            },
+                            "cc": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "attendeeId": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "identifier": {
+                                    "type": "string"
+                                  },
+                                  "pictureUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "profileUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "headline": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "occupation": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "isSelf": {
+                                    "type": "boolean"
+                                  },
+                                  "contact": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "firstName": {
+                                            "type": "string"
+                                          },
+                                          "lastName": {
+                                            "type": "string"
+                                          },
+                                          "avatarUrl": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "firstName",
+                                          "lastName",
+                                          "avatarUrl"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "attendeeId",
+                                  "displayName",
+                                  "identifier"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "bcc": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "attendeeId": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "identifier": {
+                                    "type": "string"
+                                  },
+                                  "pictureUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "profileUrl": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "headline": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "occupation": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "isSelf": {
+                                    "type": "boolean"
+                                  },
+                                  "contact": {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "firstName": {
+                                            "type": "string"
+                                          },
+                                          "lastName": {
+                                            "type": "string"
+                                          },
+                                          "avatarUrl": {
+                                            "anyOf": [
+                                              {
+                                                "type": "string"
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "firstName",
+                                          "lastName",
+                                          "avatarUrl"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "attendeeId",
+                                  "displayName",
+                                  "identifier"
+                                ],
+                                "additionalProperties": false
+                              }
                             }
                           },
                           "required": [
-                            "to"
+                            "to",
+                            "cc",
+                            "bcc"
                           ],
                           "additionalProperties": false
                         },
@@ -36041,20 +37975,22 @@
                           "default": false,
                           "type": "boolean"
                         },
+                        "isDeleted": {
+                          "default": false,
+                          "type": "boolean"
+                        },
+                        "isHidden": {
+                          "default": false,
+                          "type": "boolean"
+                        },
+                        "isDraft": {
+                          "default": false,
+                          "type": "boolean"
+                        },
                         "sentAt": {
                           "type": "string"
                         },
                         "editedAt": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "deletedAt": {
                           "anyOf": [
                             {
                               "type": "string"
@@ -36094,9 +38030,11 @@
                         "bodyHtml",
                         "attachmentsMeta",
                         "isEvent",
+                        "isDeleted",
+                        "isHidden",
+                        "isDraft",
                         "sentAt",
                         "editedAt",
-                        "deletedAt",
                         "reactions"
                       ],
                       "additionalProperties": false
@@ -36500,6 +38438,27 @@
               }
             ]
           },
+          "previewKind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "gif",
+                  "video",
+                  "audio",
+                  "voice",
+                  "sticker",
+                  "unsupported",
+                  "post",
+                  "file"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "lastMessageAt": {
             "anyOf": [
               {
@@ -36676,6 +38635,7 @@
           "name",
           "subject",
           "preview",
+          "previewKind",
           "lastMessageAt",
           "participants",
           "state",
@@ -37536,8 +39496,42 @@
           },
           "text": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 20000
+          },
+          "attachments": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "content_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 34000000
+                }
+              },
+              "required": [
+                "filename",
+                "content_type",
+                "content"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "draftMessageId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           }
         },
         "required": [

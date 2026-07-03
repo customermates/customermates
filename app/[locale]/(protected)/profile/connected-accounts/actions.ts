@@ -3,18 +3,19 @@
 import { redirect } from "next/navigation";
 
 import {
-  getCreateHostedAuthLinkInteractor,
+  getCreateAuthLinkInteractor,
   getDeleteConnectedAccountInteractor,
   getGetMyConnectedAccountsInteractor,
   getReconnectConnectedAccountInteractor,
   getResyncConnectedAccountInteractor,
   getSetConnectedAccountVisibilityInteractor,
+  getSetSelectedFoldersInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
 export async function startConnectAccountAction() {
-  return serializeResult(getCreateHostedAuthLinkInteractor().invoke());
+  return serializeResult(getCreateAuthLinkInteractor().invoke());
 }
 
 export async function disconnectConnectedAccountAction(id: string) {
@@ -27,6 +28,10 @@ export async function setConnectedAccountVisibilityAction(id: string, shared: bo
 
 export async function resyncConnectedAccountAction(id: string) {
   return serializeResult(getResyncConnectedAccountInteractor().invoke({ id }));
+}
+
+export async function setSelectedFoldersAction(id: string, selectedFolderIds: string[]) {
+  return serializeResult(getSetSelectedFoldersInteractor().invoke({ id, selectedFolderIds }));
 }
 
 export async function startReconnectAccountAction(id: string) {

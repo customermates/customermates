@@ -1,9 +1,5 @@
 import type { MouseEvent as ReactMouseEvent } from "react";
 
-// Selector for interactive DOM elements that should suppress row/card click-through.
-// If a click originates inside (or on) any of these, the row's onClick is a no-op,
-// so opening a chip dropdown, picking a menu item, toggling a select, or hitting a
-// button/link nested in a row doesn't also trigger row-level navigation.
 const INTERACTIVE_SELECTOR = [
   "a",
   "button",

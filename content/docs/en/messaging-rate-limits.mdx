@@ -1,0 +1,62 @@
+---
+title: Messaging rate limits
+description: Why connected channels are rate-limited, the per-provider limits we apply, and what happens when one is reached.
+---
+
+When you connect a channel (LinkedIn, WhatsApp, email, and so on), Customermates talks to that provider through Unipile. Every provider enforces its own request limits, and exceeding them can get the underlying account throttled or even banned. To protect you, we apply a conservative request budget per channel and pause automatically before a provider would push back.
+
+A paused sync is a feature, not a failure: it means we kept your account safe.
+
+## How the limits work
+
+Limits apply **per connected account**, at three levels at the same time:
+
+- **Per endpoint:** a cap on each individual operation (listing chats, reading messages) over a rolling minute and day. These are the read limits below.
+- **Per sensitive method:** a stricter cap on the riskier operations (profile lookups, sending a message or a connection request). These are the sensitive limits below.
+- **Per account:** an overall cap across every call for the account.
+
+When a window is full, further calls are rejected until it rolls over.
+
+## Read limits
+
+Read operations sync your history. They are tuned higher than writes because reads rarely trigger a provider ban.
+
+| Provider | Reads / minute | Reads / day |
+| --- | --- | --- |
+| LinkedIn | 20 | 300 |
+| WhatsApp | 30 | 510 |
+| Instagram | 50 | 510 |
+| Telegram | 50 | none |
+| Gmail / Google | 100 | none |
+| Outlook | 100 | none |
+| IMAP | 100 | none |
+
+LinkedIn stays the most conservative because its automated-activity detection is the strictest. A few values are shaped by the provider's own ceilings: social channels cap the per-minute read limit at 50, email channels at 100, and the daily limit moves in steps of 30 (so a target of 500 is applied as 510). Telegram and the email providers do not expose a separate daily read limit.
+
+## Sensitive limits
+
+The riskier operations stay conservative no matter the read budget: profile lookups (which providers treat as scraping-sensitive) and any send action.
+
+| Provider | Action | Limit |
+| --- | --- | --- |
+| LinkedIn | Get company profile | 1 / second |
+| LinkedIn | Get user profile | 1 / second |
+| LinkedIn | Send connection request | 50 / day, 1 / 10 seconds |
+| WhatsApp | Start a chat | 3 / minute, 30 / day |
+| Telegram | Start a chat | 3 / minute, 30 / day |
+| Instagram | Start a chat | 3 / minute, 30 / day |
+| Gmail / Google | Send an email | 300 / day |
+| Outlook | Send an email | 300 / day |
+| IMAP | Send an email | 300 / day |
+
+## What you see when a limit is reached
+
+The action returns a clear message, for example:
+
+> This channel reached its limit for now. You can try again in 2 minutes.
+
+You can retry once the indicated window passes. Nothing is lost in the meantime.
+
+## History syncs itself
+
+Importing your full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up; you don't need to do anything. Opening a conversation also loads its messages on demand, and any new activity arrives in real time over webhooks.

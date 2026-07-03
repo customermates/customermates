@@ -3,10 +3,12 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
+import { createZodError } from "@/core/validation/validation.utils";
+
 import { Resource, Action } from "@/generated/prisma";
 
 import { MessagingThreadSchema } from "../messaging.schema";
-import { MessagingMessageDtoSchema } from "./inbox.schema";
+import { MessagingMessageDtoSchema, toMessagingMessageDto } from "./inbox.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -16,6 +18,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const AccountOwnerDtoSchema = z.object({
   displayName: z.string(),
+  accountLabel: z.string().nullable(),
   avatarUrl: z.string().nullable(),
 });
 export type AccountOwnerDto = z.infer<typeof AccountOwnerDtoSchema>;
@@ -36,7 +39,7 @@ export const GetMessagingThreadResultSchema = z.object({
 type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
 
 export abstract class GetMessagingThreadRepo {
-  abstract findThreadByIdOrThrow(id: string): Promise<MessagingThread>;
+  abstract findThreadById(id: string): Promise<MessagingThread | null>;
   abstract listMessagesForThread(
     threadId: string,
     opts?: { page?: number; pageSize?: number },
@@ -69,21 +72,20 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
   @Validate(Schema)
   @ValidateOutput(GetMessagingThreadResultSchema)
   async invoke(data: GetMessagingThreadData): Validated<GetMessagingThreadResult> {
-    const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
+    const thread = await this.repo.findThreadById(data.threadId);
+    if (!thread) return { ok: false as const, error: createZodError("Thread not found") };
 
     const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
       page: data.page,
       pageSize: data.pageSize,
     });
-    const messages = rawMessages.map((message) => ({
-      ...message,
-      attachmentsMeta: message.attachmentsMeta.map((attachment) => ({
-        ...attachment,
-        linkUrl: attachment.type === "linkedin_post" ? (attachment.url ?? null) : null,
-      })),
-    }));
+
+    const messages = rawMessages.map(toMessagingMessageDto);
     const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
 
-    return { ok: true as const, data: { thread, messages, total, accountOwners } };
+    return {
+      ok: true as const,
+      data: { thread, messages, total, accountOwners },
+    };
   }
 }

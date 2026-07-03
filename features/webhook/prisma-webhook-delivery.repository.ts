@@ -14,6 +14,7 @@ import { type WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { BaseRepository } from "@/core/base/base-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -131,7 +132,28 @@ export class PrismaWebhookDeliveryRepo
     return data.map((d) => d.id);
   }
 
-  async getSecret(args: RepoArgs<DeliverWebhookRepo, "getSecret">) {
+  @BypassTenantGuard
+  async createUnscoped(
+    companyId: string,
+    args: { url: string; event: string; requestBody: Record<string, unknown> }[],
+  ) {
+    if (args.length === 0) return [];
+
+    const data = args.map((it) => ({
+      id: crypto.randomUUID(),
+      ...it,
+      companyId,
+      requestBody: it.requestBody as Prisma.InputJsonValue,
+      status: WebhookDeliveryStatus.pending,
+      success: false,
+    }));
+
+    await this.prisma.webhookDelivery.createMany({ data });
+    return data.map((d) => d.id);
+  }
+
+  @BypassTenantGuard
+  async getSecretUnscoped(args: RepoArgs<DeliverWebhookRepo, "getSecretUnscoped">) {
     const { companyId, url } = args;
 
     const webhook = await this.prisma.webhook.findFirst({
@@ -142,11 +164,12 @@ export class PrismaWebhookDeliveryRepo
     return webhook?.secret ?? null;
   }
 
-  async markSuccess(args: RepoArgs<DeliverWebhookRepo, "markSuccess">) {
-    const { id, ...rest } = args;
+  @BypassTenantGuard
+  async markSuccessUnscoped(args: RepoArgs<DeliverWebhookRepo, "markSuccessUnscoped">) {
+    const { id, companyId, ...rest } = args;
 
     await this.prisma.webhookDelivery.update({
-      where: { id },
+      where: { id, companyId },
       data: {
         ...rest,
         status: WebhookDeliveryStatus.success,
@@ -156,11 +179,12 @@ export class PrismaWebhookDeliveryRepo
     });
   }
 
-  async markFailed(args: RepoArgs<DeliverWebhookRepo, "markFailed">) {
-    const { id, ...rest } = args;
+  @BypassTenantGuard
+  async markFailedUnscoped(args: RepoArgs<DeliverWebhookRepo, "markFailedUnscoped">) {
+    const { id, companyId, ...rest } = args;
 
     await this.prisma.webhookDelivery.update({
-      where: { id },
+      where: { id, companyId },
       data: {
         ...rest,
         status: WebhookDeliveryStatus.failed,

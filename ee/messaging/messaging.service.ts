@@ -1,392 +1,604 @@
-import { UnsuccessfulRequestError } from "unipile-node-sdk";
+import type { MessagingProvider } from "@/generated/prisma";
+import type { CreateAuthLinkData } from "@unipile/sdk";
+import type { UnipileAccount } from "./unipile.schema";
 
-import { MessagingProvider } from "@/generated/prisma";
+import {
+  UnipileAccounts,
+  UnipileCalendar,
+  UnipileEmails,
+  UnipileHostedAuth,
+  UnipileMessaging,
+  UnipileUsers,
+} from "@unipile/sdk";
+import { createClient, createConfig } from "@unipile/sdk/dist/client";
+
+import { z } from "zod";
+import * as Sentry from "@sentry/node";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { getUnipileClient } from "./unipile.client";
-import { isEmailProvider } from "./provider";
-import {
-  UnipileAccountSchema,
-  UnipileCursorPageSchema,
-  UnipileOwnerProfileSchema,
-  UnipileProviderProfileSchema,
-  type UnipileAccount,
-  type UnipileOwnerProfile,
-} from "./unipile.schema";
 import { env } from "@/env";
+import { isEmailProvider } from "./provider";
+import { UnipileAccountSchema, UnipileUserSchema } from "./unipile.schema";
 
-type MessagingSendResult<T> = { ok: true; data: T } | { ok: false; error: CustomErrorCode };
+const UNIPILE_BASE_URL = "https://api.unipile.com";
+const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
 
-const HOSTED_AUTH_EXPIRY_MINUTES = 30;
+type MessageFile = { filename: string; content_type: string; content: string };
 
-const RESYNC_PROVIDERS = new Set<MessagingProvider>([MessagingProvider.linkedin, MessagingProvider.telegram]);
+type EmailAttendee = { email: string; display_name?: string };
 
-type HostedAuthProviderCode = "GOOGLE" | "OUTLOOK" | "MAIL" | "LINKEDIN" | "WHATSAPP" | "INSTAGRAM" | "TELEGRAM";
+type MessagingSendResult<T> = { ok: true; data: T } | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
 
-const HOSTED_AUTH_PROVIDERS: HostedAuthProviderCode[] = [
-  "GOOGLE",
-  "OUTLOOK",
-  "MAIL",
-  "LINKEDIN",
-  "WHATSAPP",
-  "INSTAGRAM",
-  "TELEGRAM",
-];
+type ProviderProfile = {
+  providerId: string;
+  publicIdentifier: string | null;
+  displayName: string | null;
+  profileUrl: string | null;
+  pictureUrl: string | null;
+  headline: string | null;
+};
 
-interface HostedAuthLinkOptions {
-  userId: string;
-  successUrl: string;
-  failureUrl: string;
-  notifyUrl: string;
+class UnipileRequestError extends Error {
+  constructor(
+    readonly status: number,
+    readonly errorType: string | null,
+    readonly bodyText: string,
+    readonly retryAfterSeconds: number | null = null,
+  ) {
+    super(`Unipile v2 request failed: ${status} ${bodyText}`);
+    this.name = "UnipileRequestError";
+  }
+}
+
+export function isUnipileRateLimit(err: unknown): boolean {
+  if (typeof err !== "object" || err === null) return false;
+  if ((err as { status?: number }).status === 429) return true;
+
+  const message = (err as { message?: string }).message;
+  return typeof message === "string" && message.includes("request failed: 429");
+}
+
+function parseRetryAfter(headers: Headers): number | null {
+  const value = Number(headers.get("retry-after"));
+
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
+  "provider/invalid_authorization": CustomErrorCode.unipileDisconnectedAccount,
+  "provider/invalid_credentials": CustomErrorCode.unipileDisconnectedAccount,
+  "provider/unknown_authentication_context": CustomErrorCode.unipileDisconnectedAccount,
+  "api/account_restricted": CustomErrorCode.unipileDisconnectedAccount,
+  "api/internal_error": CustomErrorCode.unipileServiceUnavailable,
+  "api/proxy_error": CustomErrorCode.unipileServiceUnavailable,
+  "api/proxy_timeout": CustomErrorCode.unipileServiceUnavailable,
+  "api/proxy_auth_error": CustomErrorCode.unipileServiceUnavailable,
+  "api/inactive_subscription": CustomErrorCode.unipileServiceUnavailable,
+  "api/not_implemented": CustomErrorCode.unipileServiceUnavailable,
+};
+
+const UNIPILE_BAD_IMPL_TYPES = new Set([
+  "api/invalid_parameters",
+  "api/invalid_auth_format",
+  "api/missing_authorization",
+  "api/expired_authorization",
+  "api/insufficient_permissions",
+  "api/conflict",
+  "api/already_exists",
+]);
+
+function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
+  const type = err.errorType ?? "";
+
+  if (err.status === 429) return CustomErrorCode.unipileRateLimit;
+  if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
+  if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
+  if (type.startsWith("provider/")) return CustomErrorCode.unipileProviderError;
+
+  return err.status >= 500 ? CustomErrorCode.unipileServiceUnavailable : CustomErrorCode.unipileUnknown;
+}
+
+export function getRetryAfterSeconds(err: unknown): number | null {
+  return err instanceof UnipileRequestError ? err.retryAfterSeconds : null;
+}
+
+export function isUnipileTimeout(err: unknown): boolean {
+  return err instanceof UnipileRequestError && err.status === 0;
+}
+
+const fetchWithTimeout: typeof fetch = (input, init) =>
+  fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(UNIPILE_REQUEST_TIMEOUT_MS) });
+
+function isMessageFile(value: unknown): value is MessageFile {
+  return (
+    typeof value === "object" && value !== null && "content" in value && "content_type" in value && "filename" in value
+  );
+}
+
+function appendMultipartField(form: FormData, key: string, value: unknown): void {
+  if (value === undefined || value === null) return;
+
+  if (isMessageFile(value)) {
+    const bytes = new Uint8Array(Buffer.from(value.content, "base64"));
+    form.append(key, new Blob([bytes], { type: value.content_type }), value.filename);
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => appendMultipartField(form, `${key}[${index}]`, item));
+    return;
+  }
+
+  if (typeof value === "object") {
+    for (const [nestedKey, nestedValue] of Object.entries(value))
+      appendMultipartField(form, `${key}[${nestedKey}]`, nestedValue);
+    return;
+  }
+
+  form.append(key, String(value));
+}
+
+const multipartBodySerializer = (body: unknown): FormData => {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(body as Record<string, unknown>)) appendMultipartField(form, key, value);
+
+  return form;
+};
+
+function multipartOptions(attachments: MessageFile[] | undefined) {
+  return attachments?.length ? { bodySerializer: multipartBodySerializer, headers: { "Content-Type": null } } : {};
+}
+
+async function requestData<T>(
+  call: Promise<{ data?: T; error?: unknown; response: Response }>,
+): Promise<NonNullable<T>> {
+  const result = await call;
+
+  if (result.error !== undefined || !result.response?.ok) {
+    const errorType = (result.error as { type?: string } | null | undefined)?.type ?? null;
+    const bodyText = result.error === undefined ? "" : JSON.stringify(result.error);
+
+    throw new UnipileRequestError(
+      result.response?.status ?? 0,
+      errorType,
+      bodyText,
+      result.response ? parseRetryAfter(result.response.headers) : null,
+    );
+  }
+
+  return result.data as NonNullable<T>;
 }
 
 export class MessagingService {
-  private get unipile() {
-    return getUnipileClient();
-  }
+  private sdkInstance?: {
+    accounts: UnipileAccounts;
+    messaging: UnipileMessaging;
+    emails: UnipileEmails;
+    calendar: UnipileCalendar;
+    users: UnipileUsers;
+    hostedAuth: UnipileHostedAuth;
+  };
 
-  async createHostedAuthLink({ userId, successUrl, failureUrl, notifyUrl }: HostedAuthLinkOptions) {
-    if (!env.UNIPILE_DSN) throw new Error("UNIPILE_DSN env var is not set");
+  private get sdk() {
+    if (!this.sdkInstance) {
+      if (!env.UNIPILE_API_KEY) throw new Error("UNIPILE_API_KEY env var is not set");
 
-    const expiresOn = new Date(Date.now() + HOSTED_AUTH_EXPIRY_MINUTES * 60_000).toISOString();
-
-    return this.unipile.account.createHostedAuthLink({
-      type: "create",
-      api_url: env.UNIPILE_DSN,
-      expiresOn,
-      providers: HOSTED_AUTH_PROVIDERS,
-      // Unipile echoes `name` back verbatim in the account-callback webhook; we stash the
-      // user's id here so the callback can resolve who connected the account.
-      name: userId,
-      success_redirect_url: successUrl,
-      failure_redirect_url: failureUrl,
-      notify_url: notifyUrl,
-    });
-  }
-
-  async createReconnectHostedAuthLink(input: {
-    userId: string;
-    unipileAccountId: string;
-    successUrl: string;
-    failureUrl: string;
-    notifyUrl: string;
-  }) {
-    if (!env.UNIPILE_DSN) throw new Error("UNIPILE_DSN env var is not set");
-
-    const expiresOn = new Date(Date.now() + HOSTED_AUTH_EXPIRY_MINUTES * 60_000).toISOString();
-
-    return this.unipile.account.createHostedAuthLink({
-      type: "reconnect",
-      api_url: env.UNIPILE_DSN,
-      expiresOn,
-      reconnect_account: input.unipileAccountId,
-      name: input.userId,
-      success_redirect_url: input.successUrl,
-      failure_redirect_url: input.failureUrl,
-      notify_url: input.notifyUrl,
-    });
-  }
-
-  async getAccountSnapshot(unipileAccountId: string): Promise<UnipileAccount> {
-    return UnipileAccountSchema.parse(await this.unipile.account.getOne(unipileAccountId));
-  }
-
-  async getOwnerAvatarUrl(unipileAccountId: string): Promise<string | null> {
-    const profile = await this.getOwnerProfile(unipileAccountId);
-    return profile?.profile_picture_url ?? null;
-  }
-
-  private async getOwnerProfile(unipileAccountId: string): Promise<UnipileOwnerProfile | null> {
-    try {
-      return UnipileOwnerProfileSchema.parse(
-        await this.unipile.request.send({
-          method: "GET",
-          path: ["users", "me"],
-          parameters: { account_id: unipileAccountId },
+      const client = createClient(
+        createConfig({
+          baseUrl: UNIPILE_BASE_URL,
+          headers: { "X-API-KEY": env.UNIPILE_API_KEY },
+          fetch: fetchWithTimeout,
         }),
       );
-    } catch {
-      return null;
-    }
-  }
 
-  async deleteRemoteAccount(unipileAccountId: string) {
-    try {
-      await this.unipile.account.delete(unipileAccountId);
-    } catch (err) {
-      const e = err as { status?: number; body?: { status?: number } } | null;
-      const status = e?.status ?? e?.body?.status;
-
-      if (status === 404) return;
-
-      throw err;
-    }
-  }
-
-  async listEmails(input: { accountId: string; after?: string; limit?: number; cursor?: string }) {
-    return this.unipile.email.getAll({
-      account_id: input.accountId,
-      after: input.after,
-      limit: input.limit,
-      cursor: input.cursor,
-    });
-  }
-
-  async fetchMessageAttachment(input: {
-    provider: MessagingProvider;
-    unipileMessageId: string;
-    attachmentId: string;
-  }): Promise<{
-    body: ReadableStream<Uint8Array>;
-    contentType: string | null;
-  }> {
-    const resource = isEmailProvider(input.provider) ? "emails" : "messages";
-
-    const blob = await this.unipile.request.send<Blob>({
-      method: "GET",
-      path: [resource, input.unipileMessageId, "attachments", input.attachmentId],
-      parameters: {},
-    });
-
-    return { body: blob.stream(), contentType: blob.type || null };
-  }
-
-  async listChats(input: { accountId: string; limit?: number; cursor?: string }) {
-    return this.unipile.messaging.getAllChats({
-      account_id: input.accountId,
-      limit: input.limit,
-      cursor: input.cursor,
-    });
-  }
-
-  async listMessages(input: { accountId: string; limit?: number; cursor?: string; after?: string }) {
-    return this.unipile.messaging.getAllMessages({
-      account_id: input.accountId,
-      limit: input.limit,
-      cursor: input.cursor,
-      after: input.after,
-    });
-  }
-
-  async listChatMessages(input: { chatId: string; limit?: number; cursor?: string }) {
-    return this.unipile.messaging.getAllMessagesFromChat({
-      chat_id: input.chatId,
-      limit: input.limit,
-      cursor: input.cursor,
-    });
-  }
-
-  async listChatAttendees(input: { chatId: string; limit?: number; cursor?: string }) {
-    return this.unipile.messaging.getAllAttendeesFromChat(input.chatId, {
-      extra_params: {
-        ...(input.limit ? { limit: String(input.limit) } : {}),
-        ...(input.cursor ? { cursor: input.cursor } : {}),
-      },
-    });
-  }
-
-  async resyncLinkedinAccount(accountId: string, product: "classic" | "sales_navigator" | "recruiter"): Promise<void> {
-    await this.unipile.account.resyncLinkedinAccount({
-      account_id: accountId,
-      linkedin_product: product,
-    });
-  }
-
-  async resyncAccount(accountId: string): Promise<void> {
-    await this.unipile.request.send({
-      method: "GET",
-      path: ["accounts", accountId, "sync"],
-      parameters: {},
-    });
-  }
-
-  async triggerHistoryResync(input: { accountId: string; provider: MessagingProvider }): Promise<void> {
-    if (!RESYNC_PROVIDERS.has(input.provider)) return;
-
-    if (input.provider === MessagingProvider.linkedin) {
-      for (const product of await this.linkedinResyncProducts(input.accountId))
-        await this.resyncLinkedinAccount(input.accountId, product);
-
-      return;
+      this.sdkInstance = {
+        accounts: new UnipileAccounts({ client }),
+        messaging: new UnipileMessaging({ client }),
+        emails: new UnipileEmails({ client }),
+        calendar: new UnipileCalendar({ client }),
+        users: new UnipileUsers({ client }),
+        hostedAuth: new UnipileHostedAuth({ client }),
+      };
     }
 
-    await this.resyncAccount(input.accountId);
+    return this.sdkInstance;
   }
 
-  private async linkedinResyncProducts(accountId: string): Promise<Array<"classic" | "sales_navigator" | "recruiter">> {
-    const snapshot = await this.getAccountSnapshot(accountId);
+  private mapError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
+    if (!(source instanceof UnipileRequestError)) throw source;
 
-    const premium = new Set(snapshot.connection_params?.im?.premiumFeatures ?? []);
-    const products: Array<"classic" | "sales_navigator" | "recruiter"> = ["classic"];
-    if (premium.has("sales_navigator")) products.push("sales_navigator");
-    if (premium.has("recruiter")) products.push("recruiter");
+    const type = source.errorType ?? "";
+    if (source.status === 429 && type.startsWith("provider/")) {
+      Sentry.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
+        level: "warning",
+        tags: { unipileErrorType: type },
+      });
+    } else if (UNIPILE_BAD_IMPL_TYPES.has(type)) Sentry.captureException(source);
 
-    return products;
+    const error = unipileErrorCode(source);
+
+    return source.retryAfterSeconds !== null
+      ? { ok: false, error, retryAfterSeconds: source.retryAfterSeconds }
+      : { ok: false, error };
   }
 
-  async listCalendars(input: {
-    accountId: string;
-    cursor?: string;
-    limit?: number;
-  }): Promise<{ items: unknown[]; cursor: string | null }> {
-    const raw = UnipileCursorPageSchema.parse(
-      await this.unipile.request.send({
-        method: "GET",
-        path: ["calendars"],
-        parameters: {
-          account_id: input.accountId,
-          ...(input.cursor ? { cursor: input.cursor } : {}),
-          ...(input.limit ? { limit: String(input.limit) } : {}),
-        },
+  async getAccount(accountId: string): Promise<UnipileAccount> {
+    const raw = await requestData(this.sdk.accounts.getAccount({ path: { account_id: accountId } }));
+
+    return UnipileAccountSchema.parse(raw);
+  }
+
+  async listChats(input: { accountId: string; cursor?: string; offset?: number; limit?: number }) {
+    return requestData(
+      this.sdk.messaging.getChatsList({
+        path: { account_id: input.accountId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit },
       }),
     );
+  }
 
-    return { items: raw.data ?? [], cursor: raw.next_cursor ?? null };
+  async listInboxes(input: { accountId: string }) {
+    return requestData(this.sdk.messaging.getInboxesList({ path: { account_id: input.accountId } }));
+  }
+
+  async listInboxChats(input: {
+    accountId: string;
+    inboxId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }) {
+    return requestData(
+      this.sdk.messaging.getInboxChatsList({
+        path: { account_id: input.accountId, inbox_id: input.inboxId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit },
+      }),
+    );
+  }
+
+  async listChatMessages(input: {
+    accountId: string;
+    chatId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+    timeoutMs?: number;
+  }) {
+    return requestData(
+      this.sdk.messaging.getMessagesList({
+        path: { account_id: input.accountId, chat_id: input.chatId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit },
+        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+      }),
+    );
+  }
+
+  async listChatParticipants(input: {
+    accountId: string;
+    chatId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }) {
+    return requestData(
+      this.sdk.messaging.getParticipantsList({
+        path: { account_id: input.accountId, chat_id: input.chatId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit },
+      }),
+    );
+  }
+
+  async listEmails(input: {
+    accountId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+    after?: string;
+    metaOnly?: boolean;
+  }) {
+    return requestData(
+      this.sdk.emails.getEmailsList({
+        path: { account_id: input.accountId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+      }),
+    );
+  }
+
+  async listFolders(input: { accountId: string }) {
+    return requestData(this.sdk.emails.getFoldersList({ path: { account_id: input.accountId } }));
+  }
+
+  async listFolderEmails(input: {
+    accountId: string;
+    folderId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+    after?: string;
+    metaOnly?: boolean;
+  }) {
+    return requestData(
+      this.sdk.emails.getFolderEmailsList({
+        path: { account_id: input.accountId, folder_id: input.folderId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+      }),
+    );
+  }
+
+  async getThread(input: { accountId: string; threadId: string }): Promise<{ emails: unknown[] }> {
+    const raw = await requestData(
+      this.sdk.emails.getThread({ path: { account_id: input.accountId, thread_id: input.threadId } }),
+    );
+    const parsed = z.looseObject({ emails: z.array(z.unknown()).nullish() }).parse(raw);
+
+    return { emails: parsed.emails ?? [] };
+  }
+
+  async listCalendars(input: { accountId: string; cursor?: string; offset?: number; limit?: number }) {
+    return requestData(
+      this.sdk.calendar.getCalendarsList({
+        path: { account_id: input.accountId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit },
+      }),
+    );
   }
 
   async listCalendarEvents(input: {
     accountId: string;
     calendarId: string;
     cursor?: string;
+    offset?: number;
     limit?: number;
     start?: string;
     expandRecurring?: boolean;
-  }): Promise<{ items: unknown[]; cursor: string | null }> {
-    const raw = UnipileCursorPageSchema.parse(
-      await this.unipile.request.send({
-        method: "GET",
-        path: ["calendars", encodeURIComponent(input.calendarId), "events"],
-        parameters: {
-          account_id: input.accountId,
-          ...(input.cursor ? { cursor: input.cursor } : {}),
-          ...(input.limit ? { limit: String(input.limit) } : {}),
-          ...(input.start ? { start: input.start } : {}),
-          ...(input.expandRecurring ? { expand_recurring: "true" } : {}),
-        },
+  }) {
+    return requestData(
+      this.sdk.calendar.getCalendarEventList({
+        path: { account_id: input.accountId, calendar_id: input.calendarId },
+        query:
+          input.cursor != null
+            ? { cursor: input.cursor, limit: input.limit }
+            : { offset: input.offset, limit: input.limit, start: input.start, expand_recurring: input.expandRecurring },
       }),
     );
-
-    return { items: raw.data ?? [], cursor: raw.next_cursor ?? null };
   }
 
-  async sendChatMessage(input: { chatId: string; text: string }): Promise<MessagingSendResult<unknown>> {
+  async getProviderProfile(input: {
+    accountId: string;
+    identifier: string;
+  }): Promise<MessagingSendResult<ProviderProfile>> {
     try {
-      const data = await this.unipile.messaging.sendMessage({
-        chat_id: input.chatId,
-        text: input.text,
-      });
-      return { ok: true, data };
-    } catch (err) {
-      return this.handleError(err);
-    }
-  }
-
-  async getProviderProfile(input: { accountId: string; identifier: string }): Promise<
-    MessagingSendResult<{
-      providerId: string;
-      publicIdentifier: string | null;
-      displayName: string | null;
-      profileUrl: string | null;
-      pictureUrl: string | null;
-      headline: string | null;
-    }>
-  > {
-    try {
-      const profile = UnipileProviderProfileSchema.parse(
-        await this.unipile.users.getProfile({
-          account_id: input.accountId,
-          identifier: input.identifier,
-        }),
+      const profile = UnipileUserSchema.parse(
+        await requestData(
+          this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
+        ),
       );
-      const providerId = profile.provider_id ?? profile.provider_messaging_id ?? null;
-      if (!providerId) return { ok: false, error: CustomErrorCode.unipileResourceNotFound };
+
+      if (!profile.id) return { ok: false, error: CustomErrorCode.unipileResourceNotFound };
 
       const displayName =
-        profile.name?.trim() || [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim();
+        profile.display_name?.trim() || [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim();
 
       return {
         ok: true,
         data: {
-          providerId,
+          providerId: profile.id,
           publicIdentifier: profile.public_identifier ?? null,
           displayName: displayName || null,
-          profileUrl: profile.public_profile_url ?? null,
-          pictureUrl: profile.profile_picture_url ?? null,
-          headline: profile.headline ?? null,
+          profileUrl: profile.profile_url ?? null,
+          pictureUrl: profile.public_picture_url ?? null,
+          headline: profile.specifics?.headline ?? null,
         },
       };
     } catch (err) {
-      return this.handleError(err);
+      return this.mapError(err);
+    }
+  }
+
+  async downloadAttachment(input: {
+    accountId: string;
+    provider: MessagingProvider;
+    chatId: string | null;
+    messageId: string;
+    attachmentId: string;
+  }): Promise<{ body: ReadableStream<Uint8Array>; contentType: string | null }> {
+    const result = isEmailProvider(input.provider)
+      ? await this.sdk.emails.getAttachment1({
+          path: { account_id: input.accountId, email_id: input.messageId, attachment_id: input.attachmentId },
+          parseAs: "stream",
+        })
+      : await this.sdk.messaging.getAttachment({
+          path: {
+            account_id: input.accountId,
+            chat_id: input.chatId ?? "",
+            message_id: input.messageId,
+            attachment_id: input.attachmentId,
+          },
+          parseAs: "stream",
+        });
+
+    if (result.error !== undefined || !result.response?.ok) {
+      const errorType = (result.error as { type?: string } | null | undefined)?.type ?? null;
+      const bodyText = result.error === undefined ? "" : JSON.stringify(result.error);
+
+      throw new UnipileRequestError(
+        result.response?.status ?? 0,
+        errorType,
+        bodyText,
+        result.response ? parseRetryAfter(result.response.headers) : null,
+      );
+    }
+
+    const blob = await result.response.blob();
+
+    return { body: blob.stream(), contentType: blob.type || null };
+  }
+
+  async deleteAccount(input: { accountId: string }): Promise<void> {
+    try {
+      await requestData(this.sdk.accounts.removeAccount({ path: { account_id: input.accountId } }));
+    } catch (err) {
+      if (err instanceof UnipileRequestError && err.status === 404) return;
+
+      throw err;
+    }
+  }
+
+  async createAuthLink(input: {
+    providers: string | string[];
+    redirectUri: string;
+    expiresOn: string;
+    state: string;
+    config?: Record<string, unknown>;
+  }): Promise<string> {
+    return this.requestAuthLink({
+      providers: input.providers,
+      redirect_uri: input.redirectUri,
+      expires_on: input.expiresOn,
+      state: input.state,
+      ...(input.config ? { config: input.config } : {}),
+    } as CreateAuthLinkData["body"]);
+  }
+
+  async createReconnectAuthLink(input: {
+    accountId: string;
+    redirectUri: string;
+    expiresOn: string;
+    state: string;
+    config?: Record<string, unknown>;
+  }): Promise<string> {
+    return this.requestAuthLink({
+      account_id: input.accountId,
+      redirect_uri: input.redirectUri,
+      expires_on: input.expiresOn,
+      state: input.state,
+      ...(input.config ? { config: input.config } : {}),
+    } as CreateAuthLinkData["body"]);
+  }
+
+  private async requestAuthLink(body: CreateAuthLinkData["body"]): Promise<string> {
+    const domain = env.UNIPILE_HOSTED_AUTH_DOMAIN;
+    const result = await requestData(
+      this.sdk.hostedAuth.createAuthLink({ body: (domain ? { ...body, domain } : body) as CreateAuthLinkData["body"] }),
+    );
+
+    return z.looseObject({ link: z.string().min(1) }).parse(result).link;
+  }
+
+  async sendChatMessage(input: {
+    accountId: string;
+    chatId: string;
+    text: string;
+    attachments?: MessageFile[];
+  }): Promise<MessagingSendResult<{ messageId: string | null }>> {
+    try {
+      const raw = await requestData(
+        this.sdk.messaging.sendMessage({
+          path: { account_id: input.accountId, chat_id: input.chatId },
+          body: { text: input.text, ...(input.attachments ? { attachments: input.attachments } : {}) },
+          ...multipartOptions(input.attachments),
+        }),
+      );
+      const data = z.looseObject({ message_id: z.union([z.string(), z.array(z.string())]).nullish() }).parse(raw);
+
+      const messageId = Array.isArray(data.message_id) ? (data.message_id[0] ?? null) : (data.message_id ?? null);
+
+      return { ok: true, data: { messageId } };
+    } catch (err) {
+      return this.mapError(err);
     }
   }
 
   async startChat(input: {
     accountId: string;
-    attendeesIds: string[];
+    usersIds: string | string[];
     text: string;
-    subject?: string;
+    name?: string;
+    attachments?: MessageFile[];
   }): Promise<MessagingSendResult<{ chat_id: string | null }>> {
     try {
-      const data = await this.unipile.messaging.startNewChat({
-        account_id: input.accountId,
-        attendees_ids: input.attendeesIds,
-        text: input.text,
-        ...(input.subject ? { subject: input.subject } : {}),
-      });
-      return { ok: true, data };
+      const raw = await requestData(
+        this.sdk.messaging.startChat({
+          path: { account_id: input.accountId },
+          body: {
+            text: input.text,
+            users_ids: input.usersIds,
+            ...(input.name ? { name: input.name } : {}),
+            ...(input.attachments ? { attachments: input.attachments } : {}),
+          },
+          ...multipartOptions(input.attachments),
+        }),
+      );
+      const data = z.looseObject({ chat_id: z.string().nullish() }).parse(raw);
+
+      return { ok: true, data: { chat_id: data.chat_id ?? null } };
     } catch (err) {
-      return this.handleError(err);
+      return this.mapError(err);
     }
   }
 
   async sendEmail(input: {
     accountId: string;
-    to: Array<{ identifier: string; display_name?: string }>;
-    cc?: Array<{ identifier: string; display_name?: string }>;
-    bcc?: Array<{ identifier: string; display_name?: string }>;
+    from?: EmailAttendee;
+    to: EmailAttendee[];
+    cc?: EmailAttendee[];
+    bcc?: EmailAttendee[];
     subject: string;
     body: string;
-    replyTo?: string;
-  }): Promise<MessagingSendResult<unknown>> {
+    inReplyTo?: string;
+    attachments?: MessageFile[];
+  }): Promise<MessagingSendResult<{ id: string; messageId: string }>> {
     try {
-      const data = await this.unipile.email.send({
-        account_id: input.accountId,
-        to: input.to,
-        ...(input.cc ? { cc: input.cc } : {}),
-        ...(input.bcc ? { bcc: input.bcc } : {}),
-        subject: input.subject,
-        body: input.body,
-        ...(input.replyTo ? { reply_to: input.replyTo } : {}),
-      });
-      return { ok: true, data };
+      const raw = await requestData(
+        this.sdk.emails.sendEmail({
+          path: { account_id: input.accountId },
+          body: {
+            ...(input.from ? { from: input.from } : {}),
+            to: input.to,
+            ...(input.cc ? { cc: input.cc } : {}),
+            ...(input.bcc ? { bcc: input.bcc } : {}),
+            subject: input.subject,
+            html: input.body,
+            ...(input.inReplyTo
+              ? {
+                  custom_headers: [
+                    { name: "In-Reply-To", value: input.inReplyTo },
+                    { name: "References", value: input.inReplyTo },
+                  ],
+                }
+              : {}),
+            ...(input.attachments ? { attachments: input.attachments } : {}),
+          },
+          ...multipartOptions(input.attachments),
+        }),
+      );
+      const data = z.looseObject({ id: z.string().min(1), message_id: z.string().min(1) }).parse(raw);
+
+      return { ok: true, data: { id: data.id, messageId: data.message_id } };
     } catch (err) {
-      return this.handleError(err);
+      return this.mapError(err);
     }
-  }
-
-  private handleError(source: unknown): { ok: false; error: CustomErrorCode } {
-    const ERROR_MAP: Record<string, CustomErrorCode> = {
-      "errors/resource_not_found": CustomErrorCode.unipileResourceNotFound,
-      "errors/provider_error": CustomErrorCode.unipileProviderError,
-      "errors/disconnected_account": CustomErrorCode.unipileDisconnectedAccount,
-      "errors/disconnected_feature": CustomErrorCode.unipileDisconnectedAccount,
-      "errors/authentication_intent_error": CustomErrorCode.unipileProviderError,
-      "errors/no_client_session": CustomErrorCode.unipileServiceUnavailable,
-      "errors/no_channel": CustomErrorCode.unipileServiceUnavailable,
-      "errors/no_handler": CustomErrorCode.unipileServiceUnavailable,
-      "errors/network_down": CustomErrorCode.unipileServiceUnavailable,
-      "errors/service_unavailable": CustomErrorCode.unipileServiceUnavailable,
-      "errors/request_timeout": CustomErrorCode.unipileRequestTimeout,
-      "errors/unexpected_error": CustomErrorCode.unipileUnknown,
-    };
-
-    if (!(source instanceof UnsuccessfulRequestError)) throw source;
-
-    const type = (source.body as { type?: string } | undefined)?.type ?? "";
-    return {
-      ok: false,
-      error: ERROR_MAP[type] ?? CustomErrorCode.unipileUnknown,
-    };
   }
 }

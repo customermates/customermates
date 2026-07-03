@@ -72,7 +72,7 @@ export const FormActions = observer(
       </>
     );
 
-    if (isTopBar) return <div className="flex items-center gap-2">{buttons}</div>;
+    if (isTopBar) return <div className="flex items-center gap-1">{buttons}</div>;
 
     const shouldShow = Boolean(showInitially) || dirty || loading;
     return (

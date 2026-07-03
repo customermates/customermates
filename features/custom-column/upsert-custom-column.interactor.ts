@@ -129,8 +129,8 @@ export const UpsertCustomColumnSchema = z.discriminatedUnion("type", [
 export type UpsertCustomColumnData = Data<typeof UpsertCustomColumnSchema>;
 
 export abstract class UpsertCustomColumnRepo {
-  abstract find(id: string): Promise<CustomColumnDto>;
-  abstract upsertCustomColumn(args: UpsertCustomColumnData): Promise<CustomColumnDto>;
+  abstract findByIdOrThrow(id: string): Promise<CustomColumnDto>;
+  abstract upsertCustomColumnOrThrow(args: UpsertCustomColumnData): Promise<CustomColumnDto>;
 }
 
 @TenantInteractor()
@@ -163,8 +163,8 @@ export class UpsertCustomColumnInteractor extends AuthenticatedInteractor<Upsert
 
     await this.userService.hasPermissionOrThrow(resourceByEntityType[data.entityType], action);
 
-    const previousCustomColumn = data.id ? await this.repo.find(data.id) : undefined;
-    const customColumn = await this.repo.upsertCustomColumn(data);
+    const previousCustomColumn = data.id ? await this.repo.findByIdOrThrow(data.id) : undefined;
+    const customColumn = await this.repo.upsertCustomColumnOrThrow(data);
 
     if (previousCustomColumn) {
       const changes = calculateChanges(previousCustomColumn, customColumn);

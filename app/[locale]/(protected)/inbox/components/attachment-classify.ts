@@ -2,41 +2,14 @@ import { File as FileIcon, FileImage, FileSpreadsheet, FileText, type LucideIcon
 
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
+import { classifyAttachment, isMediaKind, type AttachmentKind } from "@/ee/messaging/attachment-kind";
 import { cn } from "@/lib/utils";
+
+export { classifyAttachment, isMediaKind };
+export type { AttachmentKind };
 
 export type AttachmentMeta = MessagingMessageDto["attachmentsMeta"][number];
 export type InboxT = (key: string, values?: Record<string, string | number>) => string;
-
-export type AttachmentKind =
-  | "image"
-  | "gif"
-  | "video"
-  | "audio"
-  | "voice"
-  | "sticker"
-  | "unsupported"
-  | "post"
-  | "file";
-
-export function classifyAttachment(att: AttachmentMeta): AttachmentKind {
-  if (att.sticker) return "sticker";
-  if (att.voiceNote) return "voice";
-  if (att.gif) return "gif";
-  const type = att.type?.toLowerCase() ?? "";
-  const mime = att.mime?.toLowerCase() ?? "";
-  if (type === "unsupported") return "unsupported";
-  if (type === "linkedin_post") return "post";
-  if (type === "img" || mime.startsWith("image/")) return "image";
-  if (type === "video" || mime.startsWith("video/")) return "video";
-  if (type === "audio" || mime.startsWith("audio/")) return "audio";
-  return "file";
-}
-
-export function isMediaKind(kind: AttachmentKind): boolean {
-  return (
-    kind === "image" || kind === "gif" || kind === "video" || kind === "voice" || kind === "audio" || kind === "sticker"
-  );
-}
 
 export function formatDuration(seconds: number | null | undefined): string | null {
   if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return null;
@@ -62,9 +35,9 @@ export function formatBytes(size: number | null | undefined): string | null {
 
 type FileDescriptor = { Icon: LucideIcon; typeLabelKey: string; accent: string };
 
-export function describeFile(att: AttachmentMeta): FileDescriptor {
-  const mime = att.mime?.toLowerCase() ?? "";
-  const ext = (att.fileName?.split(".").pop() ?? "").toLowerCase();
+export function describeFile(input: { mime?: string | null; fileName?: string | null }): FileDescriptor {
+  const mime = input.mime?.toLowerCase() ?? "";
+  const ext = (input.fileName?.split(".").pop() ?? "").toLowerCase();
   const has = (m: string, e: string[]) => mime.includes(m) || e.includes(ext);
 
   if (mime === "application/pdf" || ext === "pdf")
@@ -80,15 +53,35 @@ export function describeFile(att: AttachmentMeta): FileDescriptor {
   return { Icon: FileIcon, typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };
 }
 
-/** The shared message-bubble shell — single source of truth for color/radius/shadow/direction. */
-export function bubbleClass(isOutbound: boolean, extra?: string) {
+export function attachmentSubtitle(
+  t: InboxT,
+  input: { mime?: string | null; fileName?: string | null; size?: number | null },
+): string {
+  const { typeLabelKey } = describeFile(input);
+  const size = formatBytes(input.size);
+  return size ? `${t(typeLabelKey)} · ${size}` : t(typeLabelKey);
+}
+
+export function attachmentRowClass(interactive: boolean, extra?: string) {
   return cn(
-    "inline-flex max-w-full items-center gap-2 rounded-xl px-3.5 py-2 text-sm leading-relaxed shadow-xs",
-    isOutbound ? "bg-primary text-primary-foreground rounded-tr-sm" : "bg-muted text-foreground rounded-tl-sm",
+    "flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 text-sm leading-tight",
+    "border-primary/20 bg-primary/10 text-foreground",
+    interactive && "transition-colors hover:bg-primary/15 hover:border-primary/30 active:bg-primary/20",
     extra,
   );
 }
 
 export function attachmentProxyUrl(messageId: string, attachmentId: string): string {
   return `/api/messaging/attachments/${encodeURIComponent(messageId)}/${encodeURIComponent(attachmentId)}`;
+}
+
+export function downloadLocalFile(file: File): void {
+  const url = URL.createObjectURL(file);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = file.name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }

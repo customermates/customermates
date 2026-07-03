@@ -64,17 +64,11 @@ export const WebhookModal = observer(() => {
               id="events"
               items={WEBHOOK_EVENTS}
               renderValue={(items) =>
-                items.map((item) => {
-                  const [entity, action] = item.key.split(".");
-                  return <AppChip key={item.key}>{t(`Common.events.${entity}.${action}`)}</AppChip>;
-                })
+                items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
               }
               selectionMode="multiple"
             >
-              {(item) => {
-                const [entity, action] = item.key.split(".");
-                return <span>{t(`Common.events.${entity}.${action}`)}</span>;
-              }}
+              {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
             </FormAutocomplete>
 
             <div className="space-y-1.5">

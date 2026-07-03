@@ -1,6 +1,13 @@
-export const UNIPILE_MAX_LIMIT = 250;
-export const PAGE_SAFETY = 50;
-export const BACKFILL_MAX_MESSAGES = 5000;
+export const UNIPILE_MAX_LIMIT = 25;
+export const UNIPILE_EMAIL_MAX_LIMIT = 100;
+export const PAGE_SAFETY = 200;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const BACKFILL_SINCE_DAYS = 365;
+
+export function backfillSince(): Date {
+  return new Date(Date.now() - BACKFILL_SINCE_DAYS * DAY_MS);
+}
 
 const MIN_UNIPILE_REQUEST_INTERVAL_MS = 250;
 let lastUnipileRequestAt = 0;
@@ -11,80 +18,46 @@ async function paceUnipileRequest(): Promise<void> {
   lastUnipileRequestAt = Date.now();
 }
 
-export async function paginate(opts: {
-  fetchPage: (cursor: string | undefined) => Promise<{ items?: unknown[]; cursor?: string | null }>;
-  handleItem: (item: unknown) => Promise<number>;
-  onPageEnd?: (cursor: string | null) => Promise<void>;
-  startCursor?: string;
-  budget?: number;
-}): Promise<number> {
-  const budget = opts.budget ?? BACKFILL_MAX_MESSAGES;
-  let processed = 0;
-  let cursor = opts.startCursor;
+export type PageResult = { nextCursor: string | null; done: boolean };
+export type PageQuery = { cursor?: string; offset?: number };
+type FetchPage = (query: PageQuery) => Promise<{ data?: unknown[]; next_cursor?: string | null }>;
 
-  for (let page = 0; page < PAGE_SAFETY; page++) {
-    if (processed >= budget) break;
+type Position = { cursor?: string; offset: number; mode?: "cursor" | "offset" };
 
-    await paceUnipileRequest();
-    const result = await opts.fetchPage(cursor);
-
-    for (const item of result.items ?? []) {
-      if (processed >= budget) break;
-
-      processed += await opts.handleItem(item);
-    }
-
-    await opts.onPageEnd?.(result.cursor ?? null);
-
-    cursor = result.cursor ?? undefined;
-    if (!cursor) break;
-  }
-
-  return processed;
+function decodePosition(token: string | null): Position {
+  if (!token) return { offset: 0 };
+  if (token.startsWith("c:")) return { cursor: token.slice(2), offset: 0, mode: "cursor" };
+  return { offset: Number(token) || 0, mode: "offset" };
 }
 
-export async function paginateNested<TContext>(opts: {
-  fetchOuterPage: (cursor: string | undefined) => Promise<{ items?: unknown[]; cursor?: string | null }>;
-  mapOuter: (outerItem: unknown) => Promise<TContext | null>;
-  fetchInnerPage: (
-    context: TContext,
-    cursor: string | undefined,
-  ) => Promise<{ items?: unknown[]; cursor?: string | null }>;
-  handleInner: (context: TContext, innerItem: unknown) => Promise<number>;
-  onOuterPageEnd?: (cursor: string | null, processed: number, budget: number) => Promise<void>;
-  startCursor?: string;
-  budget?: number;
-}): Promise<{ processed: number; sawOuter: boolean }> {
-  const budget = opts.budget ?? BACKFILL_MAX_MESSAGES;
-  let processed = 0;
-  let sawOuter = false;
-  let cursor = opts.startCursor;
+export async function paginateStep(opts: {
+  startCursor: string | null;
+  limit: number;
+  fetchPage: FetchPage;
+  handleItem: (item: unknown) => Promise<void>;
+}): Promise<PageResult> {
+  const position = decodePosition(opts.startCursor);
+  let cursor = position.cursor;
+  let offset = position.offset;
+  let mode = position.mode;
 
   for (let page = 0; page < PAGE_SAFETY; page++) {
-    if (processed >= budget) break;
-
     await paceUnipileRequest();
-    const result = await opts.fetchOuterPage(cursor);
+    const result = await opts.fetchPage(mode === "offset" ? { offset } : { cursor });
+    const items = result.data ?? [];
 
-    for (const outerItem of result.items ?? []) {
-      if (processed >= budget) break;
+    for (const item of items) await opts.handleItem(item);
 
-      const context = await opts.mapOuter(outerItem);
-      if (context === null) continue;
+    if (!mode) mode = result.next_cursor ? "cursor" : "offset";
 
-      sawOuter = true;
-      processed += await paginate({
-        fetchPage: (innerCursor) => opts.fetchInnerPage(context, innerCursor),
-        handleItem: (item) => opts.handleInner(context, item),
-        budget: budget - processed,
-      });
+    if (mode === "cursor") {
+      if (!result.next_cursor) return { nextCursor: null, done: true };
+      cursor = result.next_cursor;
+    } else {
+      if (items.length < opts.limit) return { nextCursor: null, done: true };
+      offset += items.length;
     }
-
-    await opts.onOuterPageEnd?.(result.cursor ?? null, processed, budget);
-
-    cursor = result.cursor ?? undefined;
-    if (!cursor) break;
   }
 
-  return { processed, sawOuter };
+  return { nextCursor: mode === "cursor" ? `c:${cursor}` : String(offset), done: false };
 }

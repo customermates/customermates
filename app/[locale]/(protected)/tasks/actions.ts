@@ -37,7 +37,7 @@ export async function createTaskByNameAction(name: string, userId: string | null
 
 export async function refreshTaskCountAction() {
   const result = await getCountUserTasksInteractor().invoke();
-  return result.data;
+  return result.ok ? result.data : 0;
 }
 
 export async function createTaskAction(data: CreateTaskData) {

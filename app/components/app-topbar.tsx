@@ -33,6 +33,7 @@ type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: 
 
 const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; label: string }> = {
   dashboard: { group: "overview", label: "dashboard" },
+  inbox: { group: "overview", label: "inbox" },
   tasks: { group: "overview", label: "tasks" },
   contacts: { group: "crm", label: "contacts" },
   organizations: { group: "crm", label: "organizations" },
@@ -74,7 +75,7 @@ export const AppTopBar = observer(() => {
   const t = useTranslations();
   const pathname = usePathname();
   const { layoutStore } = useRootStore();
-  const { actions } = useTopBarActions();
+  const { actions, override } = useTopBarActions();
 
   const { crumbs, section } = useMemo(
     () =>
@@ -88,10 +89,10 @@ export const AppTopBar = observer(() => {
     [pathname, t, layoutStore.runtimeTitle, layoutStore.runtimePictureUrl, layoutStore.runtimeAvatarKind],
   );
 
-  if (crumbs.length === 0) return <ShellHeader actions={actions} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
 
   return (
-    <ShellHeader actions={actions}>
+    <ShellHeader actions={override ?? actions}>
       <Breadcrumb className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {
@@ -180,6 +181,9 @@ function buildCrumbs(
       });
     }
   }
+
+  if (first === "inbox" && runtimeTitle)
+    crumbs.push({ label: runtimeTitle, pictureUrl: runtimePictureUrl, isEntity: showLeafAvatar });
 
   return { crumbs, section: subMap ? first : null };
 }

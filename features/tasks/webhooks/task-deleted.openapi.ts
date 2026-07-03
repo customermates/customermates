@@ -12,7 +12,7 @@ export const WebhookTaskDeletedSchema = z.object({
     entityId: z.uuid(),
     payload: TaskDtoSchema,
   }),
-  timestamp: z.date(),
+  timestamp: z.iso.datetime(),
 });
 
 export const webhookTaskDeletedOperation: ZodOpenApiOperationObject = {

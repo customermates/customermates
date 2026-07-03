@@ -77,6 +77,17 @@ import { CreateContactSchema } from "@/features/contacts/upsert/create-contact.i
 import { CreateManyContactsSchema } from "@/features/contacts/upsert/create-many-contacts.interactor";
 import { UpdateContactSchema } from "@/features/contacts/upsert/update-contact.interactor";
 import { UpdateManyContactsSchema } from "@/features/contacts/upsert/update-many-contacts.interactor";
+import { webhookMessagingMessageReceivedOperation } from "@/features/messaging/webhooks/message-received.openapi";
+import { webhookMessagingMessageUpdatedOperation } from "@/features/messaging/webhooks/message-updated.openapi";
+import { webhookMessagingMessageDeletedOperation } from "@/features/messaging/webhooks/message-deleted.openapi";
+import { webhookMessagingMessageReactionOperation } from "@/features/messaging/webhooks/message-reaction.openapi";
+import { webhookMessagingEmailReceivedOperation } from "@/features/messaging/webhooks/email-received.openapi";
+import { webhookMessagingEmailDeletedOperation } from "@/features/messaging/webhooks/email-deleted.openapi";
+import { webhookMessagingChatUpdatedOperation } from "@/features/messaging/webhooks/chat-updated.openapi";
+import { webhookMessagingChatDeletedOperation } from "@/features/messaging/webhooks/chat-deleted.openapi";
+import { webhookMessagingCalendarChangedOperation } from "@/features/messaging/webhooks/calendar-changed.openapi";
+import { webhookMessagingCalendarEventChangedOperation } from "@/features/messaging/webhooks/calendar-event-changed.openapi";
+import { webhookMessagingRelationCreatedOperation } from "@/features/messaging/webhooks/relation-created.openapi";
 import { WebhookContactCreatedSchema } from "@/features/contacts/webhooks/contact-created.openapi";
 import { WebhookContactUpdatedSchema } from "@/features/contacts/webhooks/contact-updated.openapi";
 import { WebhookContactDeletedSchema } from "@/features/contacts/webhooks/contact-deleted.openapi";
@@ -121,6 +132,17 @@ import { WebhookServiceDeletedSchema } from "@/features/services/webhooks/servic
 import { WebhookTaskCreatedSchema } from "@/features/tasks/webhooks/task-created.openapi";
 import { WebhookTaskUpdatedSchema } from "@/features/tasks/webhooks/task-updated.openapi";
 import { WebhookTaskDeletedSchema } from "@/features/tasks/webhooks/task-deleted.openapi";
+import { WebhookMessagingMessageReceivedSchema } from "@/features/messaging/webhooks/message-received.openapi";
+import { WebhookMessagingMessageUpdatedSchema } from "@/features/messaging/webhooks/message-updated.openapi";
+import { WebhookMessagingMessageDeletedSchema } from "@/features/messaging/webhooks/message-deleted.openapi";
+import { WebhookMessagingMessageReactionSchema } from "@/features/messaging/webhooks/message-reaction.openapi";
+import { WebhookMessagingEmailReceivedSchema } from "@/features/messaging/webhooks/email-received.openapi";
+import { WebhookMessagingEmailDeletedSchema } from "@/features/messaging/webhooks/email-deleted.openapi";
+import { WebhookMessagingChatUpdatedSchema } from "@/features/messaging/webhooks/chat-updated.openapi";
+import { WebhookMessagingChatDeletedSchema } from "@/features/messaging/webhooks/chat-deleted.openapi";
+import { WebhookMessagingCalendarChangedSchema } from "@/features/messaging/webhooks/calendar-changed.openapi";
+import { WebhookMessagingCalendarEventChangedSchema } from "@/features/messaging/webhooks/calendar-event-changed.openapi";
+import { WebhookMessagingRelationCreatedSchema } from "@/features/messaging/webhooks/relation-created.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
 import { ConnectedAccountDtoSchema, MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
@@ -313,6 +335,39 @@ export function generateOpenApiSpec() {
       taskDeleted: {
         post: webhookTaskDeletedOperation,
       },
+      messagingMessageReceived: {
+        post: webhookMessagingMessageReceivedOperation,
+      },
+      messagingMessageUpdated: {
+        post: webhookMessagingMessageUpdatedOperation,
+      },
+      messagingMessageDeleted: {
+        post: webhookMessagingMessageDeletedOperation,
+      },
+      messagingMessageReaction: {
+        post: webhookMessagingMessageReactionOperation,
+      },
+      messagingEmailReceived: {
+        post: webhookMessagingEmailReceivedOperation,
+      },
+      messagingEmailDeleted: {
+        post: webhookMessagingEmailDeletedOperation,
+      },
+      messagingChatUpdated: {
+        post: webhookMessagingChatUpdatedOperation,
+      },
+      messagingChatDeleted: {
+        post: webhookMessagingChatDeletedOperation,
+      },
+      messagingCalendarChanged: {
+        post: webhookMessagingCalendarChangedOperation,
+      },
+      messagingCalendarEventChanged: {
+        post: webhookMessagingCalendarEventChangedOperation,
+      },
+      messagingRelationCreated: {
+        post: webhookMessagingRelationCreatedOperation,
+      },
     },
     components: {
       schemas: {
@@ -367,6 +422,17 @@ export function generateOpenApiSpec() {
         WebhookTaskCreatedSchema,
         WebhookTaskUpdatedSchema,
         WebhookTaskDeletedSchema,
+        WebhookMessagingMessageReceivedSchema,
+        WebhookMessagingMessageUpdatedSchema,
+        WebhookMessagingMessageDeletedSchema,
+        WebhookMessagingMessageReactionSchema,
+        WebhookMessagingEmailReceivedSchema,
+        WebhookMessagingEmailDeletedSchema,
+        WebhookMessagingChatUpdatedSchema,
+        WebhookMessagingChatDeletedSchema,
+        WebhookMessagingCalendarChangedSchema,
+        WebhookMessagingCalendarEventChangedSchema,
+        WebhookMessagingRelationCreatedSchema,
         UserDtoSchema,
         ConnectedAccountDtoSchema,
         MessagingThreadSchema,

@@ -1,35 +1,48 @@
 import type { MessagingService } from "../../messaging.service";
 import type { MessagingIngestRepo } from "../messaging-ingest.repo";
-import type { MessagingAttendee } from "../../messaging.schema";
-import type { ConnectedAccount } from "@/generated/prisma";
+import type { MessagingAttendee, IngestMessage } from "../../messaging.schema";
+import type { ConnectedAccount, MessagingThreadType } from "@/generated/prisma";
+import type { UnipileChat } from "../../unipile.schema";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
+import type { PageResult } from "./paginate";
 
 import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
+import { ConnectedAccountStatus } from "@/generated/prisma";
+
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import {
-  indexAttendee,
-  mapUnipileChatAttendee,
-  normalizeChatMessage,
-  resolveChatSender,
-  type ChatSenderLookup,
-} from "../../chat-normalize";
-import { UnipileChatAttendeeSchema, UnipileChatMessageSchema, UnipileChatSchema } from "../../unipile.schema";
-import { BackfillCheckpointSchema } from "./backfill-checkpoint.schema";
+import { isExcludedChatId, mapParticipantRecord, mapUnipileUser, normalizeChatMessage } from "../../chat-normalize";
+import { buildChatAttendee } from "../../unipile.mappers";
+import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
+import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
-import { paginate, UNIPILE_MAX_LIMIT } from "./paginate";
+import { UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
+import { isUnipileRateLimit } from "../../messaging.service";
 
-type AttendeeIndex = ChatSenderLookup & { rosteredChats: Set<string> };
+const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
+
+function isSelfAccount(account: ConnectedAccount, identifier: string | null | undefined): boolean {
+  const ownDigits = (account.displayName ?? "").replace(/\D/g, "");
+
+  return ownDigits.length > 0 && (identifier ?? "").replace(/\D/g, "") === ownDigits;
+}
+
+function altThreadIdFromChat(chat: UnipileChat): string | null {
+  if (chat.is_group || chat.is_channel) return null;
+  const alt = chat.user_id;
+  if (!alt || alt === "undefined" || alt === chat.id) return null;
+
+  return alt;
+}
 
 const Schema = z.object({
-  account: z.custom<ConnectedAccount>(),
-  afterDate: z.date(),
-  checkpoint: BackfillCheckpointSchema,
-  epoch: z.number(),
+  connectedAccountId: z.uuid(),
+  source: z.string(),
+  cursor: z.string().nullable(),
 });
 type BackfillChatsPayload = z.infer<typeof Schema>;
 
@@ -42,194 +55,241 @@ export class BackfillChatsInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke({ account, afterDate, checkpoint, epoch }: BackfillChatsPayload): Promise<void> {
-    if (checkpoint.chat?.done) return;
+  async invoke({ connectedAccountId, source, cursor }: BackfillChatsPayload): Promise<PageResult> {
+    const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
+    if (!account || account.status === ConnectedAccountStatus.deleted) return { nextCursor: null, done: true };
 
-    const index: AttendeeIndex = {
-      byKey: new Map(),
-      selfAttendeeId: null,
-      selfSender: undefined,
-      rosteredChats: new Set(),
-    };
+    const limit = UNIPILE_MAX_LIMIT;
 
-    await this.refreshChatMetadata(account);
-
-    await paginate({
-      startCursor: checkpoint.chat?.cursor ?? undefined,
-      fetchPage: (cursor) =>
-        this.messagingService.listMessages({
-          accountId: account.unipileAccountId,
-          limit: UNIPILE_MAX_LIMIT,
-          cursor,
-          after: afterDate.toISOString(),
-        }),
-      handleItem: (item) => this.processMessage(account, item, index),
-      onPageEnd: (cursor) =>
-        this.repo.saveBackfillStepCheckpointUnscoped({
-          unipileAccountId: account.unipileAccountId,
-          step: "chat",
-          checkpoint: { cursor },
-          epoch,
-        }),
-    });
-
-    if (index.selfAttendeeId) {
-      await this.repo.setAccountOwnAttendeeIdUnscoped({
-        unipileAccountId: account.unipileAccountId,
-        ownUnipileAttendeeId: index.selfAttendeeId,
-      });
-    }
-  }
-
-  private async refreshChatMetadata(account: ConnectedAccount): Promise<void> {
-    await paginate({
-      fetchPage: (cursor) =>
-        this.messagingService.listChats({
-          accountId: account.unipileAccountId,
-          limit: UNIPILE_MAX_LIMIT,
-          cursor,
-        }),
-      handleItem: (item) => this.processChat(account, item),
+    return paginateStep({
+      startCursor: cursor,
+      limit,
+      fetchPage: (query) =>
+        source === ACCOUNT_WIDE_SOURCE
+          ? this.messagingService.listChats({
+              accountId: account.unipileAccountId,
+              cursor: query.cursor,
+              offset: query.offset,
+              limit,
+            })
+          : this.messagingService.listInboxChats({
+              accountId: account.unipileAccountId,
+              inboxId: source,
+              cursor: query.cursor,
+              offset: query.offset,
+              limit,
+            }),
+      handleItem: (rawChat) => this.upsertChatThread(account, rawChat),
     });
   }
 
-  private async processChat(account: ConnectedAccount, rawItem: unknown): Promise<number> {
-    const parsed = UnipileChatSchema.safeParse(rawItem);
+  private async upsertChatThread(account: ConnectedAccount, rawChat: unknown): Promise<void> {
+    const parsed = UnipileChatSchema.safeParse(rawChat);
 
-    if (!parsed.success || !parsed.data.id) {
+    if (!parsed.success) {
       await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
-        payload: rawItem,
+        payload: rawChat,
       });
 
-      return 1;
+      return;
     }
 
     const chat = parsed.data;
-    const chatId = parsed.data.id;
+    if (isExcludedChatId(chat.id)) return;
+
+    if (await this.isThreadCurrent(account.id, chat)) return;
+
+    await this.repo.recordRawBackfillItemUnscoped({
+      companyId: account.companyId,
+      connectedAccountId: account.id,
+      accountId: account.unipileAccountId,
+      itemType: "chat",
+      payload: rawChat,
+      unipileMessageId: chat.id,
+    });
+
+    const type: MessagingThreadType = chat.is_group ? "group" : chat.is_channel ? "channel" : "single";
+    const participants = await this.resolveParticipants(account, chat);
+    const lastActivity = chat.last_message_timestamp ?? chat.updated_at ?? null;
+    const lastMessageText = chat.last_message?.text?.trim() || null;
 
     try {
-      await this.ingest.upsertChatThread({
+      await this.ingest.upsertChatThreadUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
-        unipileThreadId: chatId,
+        unipileThreadId: chat.id,
+        unipileThreadAltId: altThreadIdFromChat(chat),
         provider: account.provider,
-        type: chat.type ?? undefined,
+        type,
         name: chat.name ?? null,
-        subject: chat.subject ?? null,
-        participants: [],
+        subject: chat.description ?? null,
+        participants,
+        lastMessageAt: lastMessageText && lastActivity ? new Date(lastActivity) : undefined,
+        lastMessagePreview: lastMessageText ?? undefined,
+        lastMessageIsSender: lastMessageText ? (chat.last_message?.is_sender ?? null) : undefined,
       });
-      return 1;
     } catch (err) {
-      Sentry.captureException(err);
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "chat",
+        },
+      });
       await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: chat,
       });
 
-      return 1;
+      return;
     }
+
+    await this.pullAndIngestMessages(account, chat.id);
   }
 
-  private async processMessage(account: ConnectedAccount, rawItem: unknown, index: AttendeeIndex): Promise<number> {
-    const parsed = UnipileChatMessageSchema.safeParse(rawItem);
+  private async isThreadCurrent(connectedAccountId: string, chat: UnipileChat): Promise<boolean> {
+    if (!chat.last_message_timestamp) return false;
 
-    if (!parsed.success) {
-      await this.repo.recordUnusableItemUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        payload: rawItem,
-      });
-      return 1;
-    }
+    const state = await this.ingest.findThreadBackfillStateUnscoped({ connectedAccountId, unipileThreadId: chat.id });
+    if (!state || !state.hasMessages || state.lastMessageAt === null) return false;
 
-    const raw = parsed.data;
+    return state.lastMessageAt >= new Date(chat.last_message_timestamp);
+  }
 
-    if (raw.hidden) return 1;
+  private async pullAndIngestMessages(account: ConnectedAccount, chatId: string): Promise<void> {
+    let messages: IngestMessage[];
+    try {
+      messages = await this.pullLatestMessages(account, chatId);
+    } catch (err) {
+      if (isUnipileRateLimit(err)) throw err;
 
-    if (!raw.id || !raw.chat_id) {
-      await this.repo.recordUnusableItemUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        payload: raw,
-        unipileMessageId: raw.id ?? null,
-      });
-
-      return 1;
-    }
-
-    if (!resolveChatSender(raw, index) && !index.rosteredChats.has(raw.chat_id)) {
-      const participants = await this.loadChatParticipants(account, raw.chat_id, index);
-
-      if (participants.length) {
-        await this.ingest.upsertChatThread({
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
           connectedAccountId: account.id,
-          unipileThreadId: raw.chat_id,
-          provider: account.provider,
-          subject: null,
-          participants,
-        });
-      }
+          step: "chat-messages",
+        },
+      });
+
+      return;
     }
 
-    const normalized = normalizeChatMessage(raw, index, account.provider);
-    if (!normalized) return 1;
+    for (const message of messages) await this.ingestMessageSafely(account, message);
+  }
 
+  private async pullLatestMessages(account: ConnectedAccount, chatId: string): Promise<IngestMessage[]> {
+    const page = await this.messagingService.listChatMessages({
+      accountId: account.unipileAccountId,
+      chatId,
+      limit: UNIPILE_MAX_LIMIT,
+      timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
+    });
+
+    const messages: IngestMessage[] = [];
+    for (const raw of page.data ?? []) {
+      const parsed = UnipileMessageSchema.safeParse(raw);
+      const normalized = parsed.success ? normalizeChatMessage(parsed.data, account.provider) : null;
+
+      if (!normalized) {
+        await this.repo.recordUnusableItemUnscoped({
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          payload: raw,
+        });
+
+        continue;
+      }
+
+      messages.push(normalized);
+    }
+
+    return messages;
+  }
+
+  private async ingestMessageSafely(account: ConnectedAccount, message: IngestMessage): Promise<void> {
     try {
-      await this.ingest.ingestMessage({
+      await this.ingest.ingestMessageUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
-        message: normalized,
+        message,
         backfill: true,
       });
-      return 1;
     } catch (err) {
-      Sentry.captureException(err);
-      await this.repo.recordUnusableItemUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        payload: normalized,
-        unipileMessageId: normalized.unipileMessageId,
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "message",
+        },
       });
-
-      return 1;
     }
   }
 
-  private async loadChatParticipants(
-    account: ConnectedAccount,
-    chatId: string,
-    index: AttendeeIndex,
-  ): Promise<MessagingAttendee[]> {
-    index.rosteredChats.add(chatId);
+  private async resolveParticipants(account: ConnectedAccount, chat: UnipileChat): Promise<MessagingAttendee[]> {
+    if (chat.is_group) {
+      const inline = (chat.participants ?? [])
+        .filter((p) => p.is_self !== true)
+        .map((p) => mapUnipileUser(p.user, { isSelf: false }));
+
+      if (inline.length) return inline;
+
+      if ((chat.participants_count ?? 0) > 0) return this.fetchParticipants(account, chat.id);
+
+      return [];
+    }
+
+    const attendee = chat.user ? mapUnipileUser(chat.user) : this.oneToOneAttendeeFromChat(chat);
+    if (!attendee) return [];
+
+    return [{ ...attendee, isSelf: isSelfAccount(account, attendee.identifier) }];
+  }
+
+  private oneToOneAttendeeFromChat(chat: UnipileChat): MessagingAttendee | null {
+    const providerId = chat.user_id && chat.user_id !== "undefined" ? chat.user_id : chat.id;
+    if (!providerId) return null;
+
+    return buildChatAttendee({
+      id: providerId,
+      name: chat.name ?? null,
+      phone: null,
+      publicIdentifier: chat.id,
+      providerId,
+      pictureUrl: chat.image_url ?? null,
+      profileUrl: null,
+      headline: null,
+      occupation: null,
+    });
+  }
+
+  private async fetchParticipants(account: ConnectedAccount, chatId: string): Promise<MessagingAttendee[]> {
     const participants: MessagingAttendee[] = [];
 
     try {
-      await paginate({
-        budget: Number.POSITIVE_INFINITY,
-        fetchPage: (cursor) => this.messagingService.listChatAttendees({ chatId, limit: UNIPILE_MAX_LIMIT, cursor }),
-        handleItem: async (raw) => {
-          const parsed = UnipileChatAttendeeSchema.safeParse(raw);
+      const page = await this.messagingService.listChatParticipants({
+        accountId: account.unipileAccountId,
+        chatId,
+        limit: UNIPILE_MAX_LIMIT,
+      });
 
-          if (!parsed.success) {
-            await this.repo.recordUnusableItemUnscoped({
-              companyId: account.companyId,
-              connectedAccountId: account.id,
-              payload: raw,
-            });
-            return 1;
-          }
-
-          indexAttendee(index, parsed.data);
-          if (parsed.data.is_self !== true) participants.push(mapUnipileChatAttendee(parsed.data));
-          return 1;
+      for (const raw of page.data ?? []) {
+        const attendee = mapParticipantRecord(raw);
+        if (attendee) participants.push(attendee);
+      }
+    } catch (err) {
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "chat",
         },
       });
-    } catch (err) {
-      Sentry.captureException(err);
     }
 
     return participants;

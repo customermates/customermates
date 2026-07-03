@@ -1,27 +1,22 @@
 "use client";
 
-import { Inbox, RefreshCw } from "lucide-react";
+import { Inbox, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
-import { Action, Resource } from "@/generated/prisma";
+import { Fragment, useEffect } from "react";
 
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ThreadDetail } from "./messaging-thread-detail.store";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { MessageItem } from "./message-item";
+import { MessageDateSeparator, isSameDay } from "./message-date-separator";
 import { MessagesScrollContainer } from "./messages-scroll-container";
 import { ThreadAutoMarkRead } from "./thread-auto-mark-read";
-import { ThreadSettings } from "./thread-settings";
-import { ThreadHeader } from "./thread-header";
+import { ThreadTopBar } from "./thread-topbar";
 import { ThreadReplyComposer } from "./thread-reply-composer";
-import { ThreadStatePicker } from "./thread-state-picker";
 
 type Props = {
   threadDetail: ThreadDetail | null;
@@ -40,8 +35,7 @@ function collectReplyRecipients(thread: MessagingThread, messages: MessagingMess
 
 export const ThreadPanel = observer(({ threadDetail }: Props) => {
   const t = useTranslations();
-  const { messagingThreadDetailStore: store, userStore } = useRootStore();
-  const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
+  const { messagingThreadDetailStore: store } = useRootStore();
 
   useEffect(() => {
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
@@ -61,12 +55,6 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
 
   const { messages, accountOwners } = store;
 
-  const view = deriveThreadDisplay(thread, t);
-  const headerTitle = view.displayName;
-  const headerSubtitle = view.isSelfChat ? null : view.displayNameSecondary;
-  const headerPictureUrl = view.avatarUrl ?? null;
-  const headerUnlinked = view.isUnlinked;
-
   const avatarByIdentifier = new Map<string, string>();
   for (const p of thread.participants) {
     const url = p.contact?.avatarUrl ?? p.pictureUrl;
@@ -77,57 +65,34 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
     <div className="flex h-full flex-col">
       <ThreadAutoMarkRead state={thread.state} threadId={thread.id} />
 
-      <ThreadHeader
-        pictureUrl={headerPictureUrl}
-        provider={thread.provider}
-        rightSlot={
-          <>
-            {canUpdate && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="size-[26px]"
-                    size="icon-sm"
-                    variant="ghost"
-                    onClick={() => void store.resyncThread()}
-                  >
-                    <RefreshCw className="size-3.5" />
-                  </Button>
-                </TooltipTrigger>
+      <ThreadTopBar thread={thread} />
 
-                <TooltipContent>{t("Inbox.resyncThread")}</TooltipContent>
-              </Tooltip>
-            )}
-
-            <ThreadSettings
-              accountShared={thread.accountShared}
-              isOwner={thread.isOwner}
-              participants={thread.participants}
-              provider={thread.provider}
-              sharedToCrm={thread.sharedToCrm}
-              threadId={thread.id}
-            />
-
-            <ThreadStatePicker state={thread.state} />
-          </>
-        }
-        subtitle={headerSubtitle}
-        title={headerTitle}
-        unlinked={headerUnlinked}
-      />
-
-      <MessagesScrollContainer scrollKey={`thread:${thread.id}:${messages.length}`}>
+      <MessagesScrollContainer scrollKey={`thread:${thread.id}`} onTopReach={store.loadOlderMessages}>
         <div className="flex flex-col gap-1">
-          {messages.map((message) => (
-            <MessageItem
-              key={message.id}
-              accountOwner={accountOwners[message.connectedAccountId] ?? null}
-              message={message}
-              senderAvatarUrl={
-                message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined
-              }
-            />
-          ))}
+          {store.loadingOlder && (
+            <div className="flex justify-center py-2">
+              <Loader2 className="text-muted-foreground size-4 animate-spin" />
+            </div>
+          )}
+
+          {messages.map((message, index) => {
+            const previous = messages[index - 1];
+            const showDate = !previous || !isSameDay(new Date(previous.sentAt), new Date(message.sentAt));
+
+            return (
+              <Fragment key={message.id}>
+                {showDate && <MessageDateSeparator date={new Date(message.sentAt)} />}
+
+                <MessageItem
+                  accountOwner={accountOwners[message.connectedAccountId] ?? null}
+                  message={message}
+                  senderAvatarUrl={
+                    message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined
+                  }
+                />
+              </Fragment>
+            );
+          })}
         </div>
       </MessagesScrollContainer>
 

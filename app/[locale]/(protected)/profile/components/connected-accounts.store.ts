@@ -14,18 +14,21 @@ import {
   refreshConnectedAccountsAction,
   resyncConnectedAccountAction,
   setConnectedAccountVisibilityAction,
+  setSelectedFoldersAction,
   startConnectAccountAction,
   startReconnectAccountAction,
 } from "../connected-accounts/actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
-const SYNC_POLL_INTERVAL_MS = 8_000;
+const SYNC_POLL_INTERVAL_MS = 2_000;
 const SYNC_POLL_MAX_MS = 10 * 60 * 1_000;
+const SYNC_POLL_GRACE_MS = 90_000;
 
 export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDto> {
   private syncPollTimer: ReturnType<typeof setTimeout> | null = null;
   private syncPollDeadline = 0;
+  private syncPollGraceDeadline = 0;
   private loadPromise: Promise<void> | null = null;
 
   constructor(rootStore: RootStore) {
@@ -56,7 +59,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
   startSyncPolling = (): void => {
     this.stopSyncPolling();
-    this.syncPollDeadline = Date.now() + SYNC_POLL_MAX_MS;
+    const now = Date.now();
+    this.syncPollDeadline = now + SYNC_POLL_MAX_MS;
+    this.syncPollGraceDeadline = now + SYNC_POLL_GRACE_MS;
     this.scheduleNextSyncPoll();
   };
 
@@ -67,7 +72,10 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   };
 
   private scheduleNextSyncPoll = (): void => {
-    if (!this.hasSyncingAccount || Date.now() > this.syncPollDeadline) {
+    const now = Date.now();
+    const keepPolling = (this.hasSyncingAccount || now < this.syncPollGraceDeadline) && now < this.syncPollDeadline;
+
+    if (!keepPolling) {
       this.stopSyncPolling();
       return;
     }
@@ -83,19 +91,6 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   get columnsDefinition(): TableColumn[] {
     return [];
   }
-
-  announceConnectResult = (status: "connected" | "failed"): (() => void) =>
-    this.mountToast(() => {
-      if (status === "connected") {
-        this.toastSuccess("ConnectedAccountsCard.connectedToastTitle", {
-          descriptionKey: "ConnectedAccountsCard.connectedToastDescription",
-        });
-      } else {
-        this.toastError("ConnectedAccountsCard.failedToastTitle", {
-          descriptionKey: "ConnectedAccountsCard.failedToastDescription",
-        });
-      }
-    });
 
   disconnect = async (id: string): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
@@ -147,6 +142,27 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     this.upsertItemLocal(merged);
 
     this.toastSuccess(shared ? "ConnectedAccountsCard.sharedOnToast" : "ConnectedAccountsCard.sharedOffToast");
+
+    return merged;
+  };
+
+  setSelectedFolders = async (id: string, selectedFolderIds: string[]): Promise<ConnectedAccountDto | null> => {
+    const existing = this.items.find((account) => account.id === id);
+    if (existing) this.upsertItemLocal({ ...existing, selectedFolderIds });
+
+    const res = await setSelectedFoldersAction(id, selectedFolderIds);
+
+    if (!res.ok) {
+      if (existing) this.upsertItemLocal(existing);
+      this.toastError("ConnectedAccountsCard.foldersUpdateFailed");
+      return null;
+    }
+
+    const merged = { ...existing, ...res.data };
+    this.upsertItemLocal(merged);
+
+    void this.rootStore.messagingThreadsStore.refresh().catch(() => undefined);
+    this.startSyncPolling();
 
     return merged;
   };

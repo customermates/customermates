@@ -1,5 +1,4 @@
 import type { ConnectedAccount } from "@/generated/prisma";
-import type { MessagingService } from "../messaging.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -18,16 +17,12 @@ type ResyncConnectedAccountData = Data<typeof Schema>;
 
 export abstract class ResyncConnectedAccountRepo {
   abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-  abstract resetBackfillCheckpointUnscoped(unipileAccountId: string): Promise<void>;
-  abstract markAccountSyncingUnscoped(args: { unipileAccountId: string; syncing: boolean }): Promise<void>;
-  abstract claimBackfillUnscoped(unipileAccountId: string): Promise<string | null>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
 export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<ResyncConnectedAccountData, null> {
   constructor(
     private repo: ResyncConnectedAccountRepo,
-    private messagingService: MessagingService,
     private backgroundTaskService: BackgroundTaskService,
     private eventService: EventService,
   ) {
@@ -38,22 +33,7 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
   async invoke(data: ResyncConnectedAccountData): Promise<{ ok: true; data: null }> {
     const account = await this.repo.findAccountByIdOrThrow(data.id);
 
-    await this.messagingService.triggerHistoryResync({
-      accountId: account.unipileAccountId,
-      provider: account.provider,
-    });
-
-    await this.repo.resetBackfillCheckpointUnscoped(account.unipileAccountId);
-
-    await this.repo.markAccountSyncingUnscoped({ unipileAccountId: account.unipileAccountId, syncing: true });
-
-    const backfillToken = await this.repo.claimBackfillUnscoped(account.unipileAccountId);
-    if (backfillToken) {
-      await this.backgroundTaskService.dispatch("backfill-connected-account", {
-        connectedAccountId: account.id,
-        token: backfillToken,
-      });
-    }
+    await this.backgroundTaskService.dispatch("backfill-connected-account", { connectedAccountId: account.id });
 
     await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_RESYNCED, {
       entityId: account.id,

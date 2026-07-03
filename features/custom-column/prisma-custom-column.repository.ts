@@ -134,7 +134,7 @@ export class PrismaCustomColumnRepo
     ],
   };
 
-  async find(id: string) {
+  async findByIdOrThrow(id: string) {
     const { companyId } = this.user;
 
     const column = await this.prisma.customColumn.findFirstOrThrow({
@@ -143,6 +143,17 @@ export class PrismaCustomColumnRepo
     });
 
     return column as CustomColumnDto;
+  }
+
+  async findById(id: string) {
+    const { companyId } = this.user;
+
+    const column = await this.prisma.customColumn.findFirst({
+      where: { id, companyId },
+      select: this.baseSelect,
+    });
+
+    return column as CustomColumnDto | null;
   }
 
   async findIds(ids: Set<string>) {
@@ -200,7 +211,7 @@ export class PrismaCustomColumnRepo
   }
 
   @Transaction
-  async upsertCustomColumn(args: RepoArgs<UpsertCustomColumnRepo, "upsertCustomColumn">) {
+  async upsertCustomColumnOrThrow(args: RepoArgs<UpsertCustomColumnRepo, "upsertCustomColumnOrThrow">) {
     const { companyId } = this.user;
 
     if (args.id) await this.prisma.customColumn.findFirstOrThrow({ where: { id: args.id, companyId } });

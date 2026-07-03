@@ -29,9 +29,7 @@ import { EntityNotesPanel } from "./entity-notes-panel";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
 
 type IdentityProps = {
-  /** Used to drive the topbar breadcrumb via `layoutStore.runtimeTitle`. */
   name: string;
-  /** Avatar / logo URL rendered next to the breadcrumb leaf. */
   pictureUrl?: string | null;
 };
 
@@ -57,8 +55,6 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const [hasMounted, setHasMounted] = useState(false);
   const formId = useId();
 
-  // Always fetch the entity fresh when the page opens or the id changes — no server-passed snapshot
-  // and no client-side caching, so the form (relations, custom fields) can never go stale.
   useEffect(() => {
     void store.loadById(entityId);
   }, [entityId, store]);

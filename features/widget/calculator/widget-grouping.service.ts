@@ -104,7 +104,7 @@ export class WidgetGroupingService extends BaseRepository {
 
     if (!groupByCustomColumnId) return [];
 
-    const customColumn = await getCustomColumnRepo().find(groupByCustomColumnId);
+    const customColumn = await getCustomColumnRepo().findById(groupByCustomColumnId);
     if (!customColumn || customColumn.type !== "singleSelect") return [];
 
     const optionsMap = this.buildOptionsMap(customColumn);

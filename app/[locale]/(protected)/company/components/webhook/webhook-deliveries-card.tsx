@@ -33,14 +33,11 @@ export const WebhookDeliveriesCard = observer(({ initialDeliveries }: Props) => 
       {
         id: "event",
         header: t("Common.table.columns.event"),
-        cell: ({ row }) => {
-          const [entity, action] = row.original.event.split(".");
-          return (
-            <AppChip size="sm" variant="secondary">
-              {t(`Common.events.${entity}.${action}`)}
-            </AppChip>
-          );
-        },
+        cell: ({ row }) => (
+          <AppChip size="sm" variant="secondary">
+            {t(`Common.events.${row.original.event}`)}
+          </AppChip>
+        ),
       },
       {
         id: "entity",

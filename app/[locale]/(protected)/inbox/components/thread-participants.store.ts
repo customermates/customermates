@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
 import type { MessagingAttendee } from "@/ee/messaging/messaging.schema";
+import type { IdentifierInput } from "@/features/contacts/contact.schema";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
@@ -8,6 +9,7 @@ import { createContactByNameAction, getContactsAction } from "../../contacts/act
 
 import { linkContactToThreadAction, unlinkContactFromThreadAction } from "../actions";
 
+import { isHandleProvider } from "@/ee/messaging/provider";
 import { Debouncer } from "@/core/utils/debounce";
 
 type ActionOutcome = { ok: boolean };
@@ -99,7 +101,8 @@ export class ThreadParticipantsStore extends BaseStore {
         return args ? linkContactToThreadAction(args) : Promise.resolve({ ok: true as const });
       },
       () =>
-        this.applyContact(
+        this.rootStore.messagingThreadDetailStore.applyParticipantContact(
+          this.threadId,
           identifier,
           picked
             ? {
@@ -119,17 +122,19 @@ export class ThreadParticipantsStore extends BaseStore {
         const args = this.unlinkArgsFor(identifier);
         return args ? unlinkContactFromThreadAction(args) : Promise.resolve({ ok: true as const });
       },
-      () => this.applyContact(identifier, null),
+      () => this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, null),
     );
   };
 
   createAndAssign = async (identifier: string, name: string): Promise<void> => {
     const trimmed = name.trim();
     if (!trimmed) return;
+    const linked = this.identifierInputFor(identifier);
+    if (!linked) return;
     let createdContact: MessagingAttendee["contact"] = null;
     await this.mutate(
       async () => {
-        const created = await createContactByNameAction(trimmed, this.rootStore.userStore.user?.id);
+        const created = await createContactByNameAction(trimmed, this.rootStore.userStore.user?.id, linked);
         if (!created) return { ok: false as const };
         createdContact = {
           id: created.id,
@@ -137,14 +142,28 @@ export class ThreadParticipantsStore extends BaseStore {
           lastName: created.lastName,
           avatarUrl: created.avatarUrl ?? null,
         };
-        const args = this.linkArgsFor(identifier, created.id);
-        return args ? linkContactToThreadAction(args) : { ok: false as const };
+        return { ok: true as const };
       },
       () => {
-        if (createdContact) this.applyContact(identifier, createdContact);
+        if (createdContact)
+          this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, createdContact);
       },
     );
   };
+
+  private identifierInputFor(identifier: string): IdentifierInput | null {
+    const thread = this.rootStore.messagingThreadDetailStore.thread;
+    if (!thread) return null;
+
+    const participant = thread.participants.find((p) => p.identifier === identifier) ?? null;
+    return {
+      provider: thread.provider,
+      value: identifier,
+      messagingId: isHandleProvider(thread.provider) ? identifier : undefined,
+      displayName: participant?.displayName ?? undefined,
+      profileUrl: participant?.profileUrl ?? undefined,
+    };
+  }
 
   private linkArgsFor(identifier: string, contactId: string) {
     const thread = this.rootStore.messagingThreadDetailStore.thread;
@@ -164,10 +183,6 @@ export class ThreadParticipantsStore extends BaseStore {
     const participant = thread?.participants.find((p) => p.identifier === identifier) ?? null;
     const ownerId = participant?.contact?.id;
     return thread && ownerId ? { contactId: ownerId, provider: thread.provider, identifier } : null;
-  }
-
-  private applyContact(identifier: string, contact: MessagingAttendee["contact"]) {
-    this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, contact);
   }
 
   private mutate = async (run: () => Promise<ActionOutcome>, applyOptimistic: () => void): Promise<void> => {

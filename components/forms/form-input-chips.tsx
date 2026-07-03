@@ -147,7 +147,7 @@ export const FormInputChips = observer(
             const removeButton = isReadOnly ? undefined : (
               <button
                 aria-label="Remove"
-                className="opacity-50 hover:opacity-100 transition-opacity"
+                className="text-muted-foreground transition-[color,background-color,transform] hover:bg-muted hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
                 tabIndex={-1}
                 type="button"
                 onClick={() => handleRemove(item)}
@@ -158,7 +158,11 @@ export const FormInputChips = observer(
             const chip = renderChip ? (
               renderChip(item, removeButton)
             ) : (
-              <AppChip endContent={removeButton} variant={chipHasError ? "destructive" : (chipColor ?? "secondary")}>
+              <AppChip
+                endContent={removeButton}
+                interactive={Boolean(onChipClick)}
+                variant={chipHasError ? "destructive" : (chipColor ?? "secondary")}
+              >
                 {item}
               </AppChip>
             );

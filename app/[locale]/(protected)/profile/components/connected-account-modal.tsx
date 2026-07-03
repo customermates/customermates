@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { Loader2, Plug, RefreshCw, Trash2 } from "lucide-react";
 import { Action, Resource } from "@/generated/prisma";
 
-import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
+import { AccountFolders } from "./account-folders";
 
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
@@ -36,15 +36,16 @@ export const ConnectedAccountModal = observer(() => {
   const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
   const ProviderIcon = getProviderIcon(account.provider);
   const providerLabel = getProviderDisplayLabel(account, t);
+  const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
 
   return (
     <AppModal store={connectedAccountModalStore} title={title}>
       <AppCard>
         <AppCardHeader>
-          <div className="mr-auto flex items-center gap-2">
+          <div className="mr-auto flex min-w-0 items-center gap-2">
             <ProviderIcon className="size-4 shrink-0" />
 
-            <h2 className="text-x-lg">{title}</h2>
+            <h2 className="text-x-lg truncate">{title}</h2>
           </div>
 
           {account.isOwner && (
@@ -113,6 +114,41 @@ export const ConnectedAccountModal = observer(() => {
           <div className="flex flex-col gap-2">
             <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
+            <InfoRow label={t("ConnectedAccountsCard.status")}>
+              {account.syncing ? (
+                <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
+                  {t("ConnectedAccountsCard.syncing")}
+                </AppChip>
+              ) : (
+                <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
+              )}
+            </InfoRow>
+
+            <InfoRow label={t("ConnectedAccountsCard.visibility")}>
+              {account.isOwner ? (
+                <div className="flex items-center gap-2">
+                  <Label className="text-subdued text-xs" htmlFor="connected-account-visibility">
+                    {account.shared
+                      ? t("ConnectedAccountsCard.visibilityShared")
+                      : t("ConnectedAccountsCard.visibilityPrivate")}
+                  </Label>
+
+                  <Switch
+                    checked={account.shared}
+                    disabled={!canUpdate}
+                    id="connected-account-visibility"
+                    onCheckedChange={(next) => void connectedAccountModalStore.toggleVisibility(next)}
+                  />
+                </div>
+              ) : (
+                <AppChip variant={account.shared ? "info" : "secondary"}>
+                  {account.shared
+                    ? t("ConnectedAccountsCard.visibilityShared")
+                    : t("ConnectedAccountsCard.visibilityPrivate")}
+                </AppChip>
+              )}
+            </InfoRow>
+
             <InfoRow label={t("ConnectedAccountsCard.ownerLabel")}>
               <AvatarStack
                 items={[
@@ -127,40 +163,11 @@ export const ConnectedAccountModal = observer(() => {
               />
             </InfoRow>
 
-            <InfoRow label={t("ConnectedAccountsCard.status")}>
-              {account.syncing ? (
-                <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
-                  {t("ConnectedAccountsCard.syncing")}
-                </AppChip>
-              ) : (
-                <AppChip variant={accountStatusChipColor(account.status)}>{statusLabel}</AppChip>
-              )}
-            </InfoRow>
-
-            <InfoRow label={t("ConnectedAccountsCard.visibility")}>
-              {account.isOwner ? (
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={account.shared}
-                    disabled={!canUpdate}
-                    id="connected-account-visibility"
-                    onCheckedChange={(next) => void connectedAccountModalStore.toggleVisibility(next)}
-                  />
-
-                  <Label className="text-subdued text-xs" htmlFor="connected-account-visibility">
-                    {account.shared
-                      ? t("ConnectedAccountsCard.visibilityShared")
-                      : t("ConnectedAccountsCard.visibilityPrivate")}
-                  </Label>
-                </div>
-              ) : (
-                <AppChip variant={account.shared ? "info" : "secondary"}>
-                  {account.shared
-                    ? t("ConnectedAccountsCard.visibilityShared")
-                    : t("ConnectedAccountsCard.visibilityPrivate")}
-                </AppChip>
-              )}
-            </InfoRow>
+            {account.folders.length > 0 && (
+              <InfoRow label={t("ConnectedAccountsCard.folders")}>
+                {t("ConnectedAccountsCard.foldersShown", { shown: shownFolders, total: account.folders.length })}
+              </InfoRow>
+            )}
 
             <InfoRow label={t("ConnectedAccountsCard.connectedAt")}>
               {intlStore.formatNumericalShortDateTime(account.createdAt)}
@@ -173,7 +180,13 @@ export const ConnectedAccountModal = observer(() => {
             )}
           </div>
 
-          <Alert color="primary" description={t("ConnectedAccountsCard.visibilityHint")} />
+          {account.folders.length > 0 && (
+            <AccountFolders
+              account={account}
+              editable={account.isOwner && canUpdate}
+              onToggle={(folderId, on) => void connectedAccountModalStore.toggleFolder(folderId, on)}
+            />
+          )}
         </AppCardBody>
       </AppCard>
     </AppModal>

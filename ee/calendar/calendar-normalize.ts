@@ -1,22 +1,10 @@
 import type { CalendarAttendee, CalendarEventCore } from "./calendar.schema";
-import type { UnipileCalendarAttendee, UnipileCalendarEvent } from "@/ee/messaging/unipile.schema";
+import type { UnipileCalendarEvent } from "@/ee/messaging/unipile.schema";
 
 import { CalendarEventStatus } from "@/generated/prisma";
 
 const CONFERENCE_URL_REGEX =
   /(https:\/\/[^\s<>"]*(?:meet\.google\.com|teams\.microsoft\.com|zoom\.us|whereby\.com)[^\s<>"]*)/i;
-
-function toCalendarAttendee(a: UnipileCalendarAttendee): CalendarAttendee | null {
-  const email = a.email?.trim();
-  if (!email) return null;
-
-  return {
-    email,
-    displayName: a.display_name ?? null,
-    responseStatus: a.response_status ?? null,
-    isOrganizer: Boolean(a.is_organizer),
-  };
-}
 
 type CalendarTime = {
   dateTime?: string | null;
@@ -25,9 +13,10 @@ type CalendarTime = {
 };
 
 function toCalendarDate(time: CalendarTime | null | undefined): Date | null {
-  const raw = time?.dateTime ?? (time?.date ? `${time.date}T00:00:00.000Z` : null);
-  if (!raw) return null;
+  const value = time?.dateTime ?? time?.date;
+  if (!value) return null;
 
+  const raw = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00.000Z` : value;
   const date = new Date(raw);
   return Number.isNaN(date.getTime()) ? null : date;
 }
@@ -35,23 +24,35 @@ function toCalendarDate(time: CalendarTime | null | undefined): Date | null {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 
-export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore | null {
-  const start: CalendarTime = {
-    dateTime: raw.start?.date_time,
-    date: raw.start?.date,
-    timeZone: raw.start?.time_zone,
+type UnipileCalendarAttendee = NonNullable<UnipileCalendarEvent["attendees"]>[number];
+type UnipileCalendarTime = NonNullable<UnipileCalendarEvent["start"]>;
+
+function toCalendarAttendee(a: UnipileCalendarAttendee, organizer: boolean): CalendarAttendee | null {
+  const email = a.email?.trim();
+  if (!email) return null;
+
+  return {
+    email,
+    displayName: a.display_name ?? null,
+    responseStatus: a.response_status ?? null,
+    isOrganizer: organizer || Boolean(a.is_organizer),
   };
+}
+
+function toCalendarTime(time: UnipileCalendarTime | null | undefined): CalendarTime {
+  if (!time) return {};
+  if (time.type === "date") return { date: time.date, timeZone: time.timezone ?? null };
+
+  return { dateTime: time.date_time, timeZone: time.timezone ?? null };
+}
+
+export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore | null {
+  const start = toCalendarTime(raw.start);
   const startsAt = toCalendarDate(start);
   if (!startsAt) return null;
 
   const isAllDay = Boolean(raw.is_all_day) || (!start.dateTime && Boolean(start.date));
-  const end: CalendarTime | null = raw.end
-    ? {
-        dateTime: raw.end.date_time,
-        date: raw.end.date,
-        timeZone: raw.end.time_zone,
-      }
-    : null;
+  const end = toCalendarTime(raw.end);
 
   return {
     unipileEventId: raw.id,
@@ -63,15 +64,15 @@ export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore
     startsAt,
     endsAt: toCalendarDate(end) ?? new Date(startsAt.getTime() + (isAllDay ? DAY_MS : HOUR_MS)),
     allDay: isAllDay,
-    timezone: start.timeZone ?? null,
-    recurrenceRule: raw.recurrence ?? null,
+    timezone: start.timeZone ?? raw.timezone ?? null,
+    recurrenceRule: raw.recurrence?.length ? raw.recurrence.join("\n") : null,
     status: raw.is_cancelled ? CalendarEventStatus.cancelled : CalendarEventStatus.confirmed,
     visibility: raw.visibility ?? null,
     attendees: (raw.attendees ?? []).flatMap((a) => {
-      const mapped = toCalendarAttendee(a);
+      const mapped = toCalendarAttendee(a, false);
       return mapped ? [mapped] : [];
     }),
-    organizer: raw.organizer?.email ? toCalendarAttendee({ ...raw.organizer, is_organizer: true }) : null,
+    organizer: raw.organizer?.email ? toCalendarAttendee(raw.organizer, true) : null,
   };
 }
 

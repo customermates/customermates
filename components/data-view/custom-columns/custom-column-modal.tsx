@@ -158,7 +158,7 @@ const SortableOptionItem = observer(
 
         <Button
           className={cn(
-            option.isDefault && "bg-primary/15 border-primary text-primary hover:text-primary hover:bg-primary/25",
+            option.isDefault && "bg-primary/20 border-primary text-primary hover:text-primary hover:bg-primary/35",
           )}
           disabled={isDisabled}
           size="sm"
@@ -170,11 +170,10 @@ const SortableOptionItem = observer(
         </Button>
 
         <Button
-          className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
           disabled={isDisabled}
           size="icon"
           type="button"
-          variant="outline"
+          variant="destructiveOutline"
           onClick={() => deleteOption(option)}
         >
           <Icon icon={Trash2} />
