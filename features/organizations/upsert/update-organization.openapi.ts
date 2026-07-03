@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { OrganizationDtoSchema } from "../organization.schema";
 
-import { UpdateOrganizationSchema } from "./update-organization.interactor";
+import { BaseUpdateOrganizationSchema } from "./update-organization-base.schema";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -18,7 +18,7 @@ export const updateOrganizationOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: UpdateOrganizationSchema.omit({ id: true }),
+        schema: BaseUpdateOrganizationSchema.omit({ id: true }),
       },
     },
   },

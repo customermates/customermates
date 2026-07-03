@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { DealDtoSchema } from "../deal.schema";
 
-import { UpdateDealSchema } from "./update-deal.interactor";
+import { BaseUpdateDealSchema } from "./update-deal-base.schema";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -18,7 +18,7 @@ export const updateDealOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: UpdateDealSchema.omit({ id: true }),
+        schema: BaseUpdateDealSchema.omit({ id: true }),
       },
     },
   },

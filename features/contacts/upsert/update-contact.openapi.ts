@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ContactKeySchema } from "../contact-key";
 import { ContactDtoSchema } from "../contact.schema";
 
-import { UpdateContactSchema } from "./update-contact.interactor";
+import { BaseUpdateContactSchema } from "./update-contact-base.schema";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -19,7 +19,7 @@ export const updateContactOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: UpdateContactSchema.omit({ id: true }),
+        schema: BaseUpdateContactSchema.omit({ id: true }),
       },
     },
   },

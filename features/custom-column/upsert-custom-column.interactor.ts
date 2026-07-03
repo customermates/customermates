@@ -18,7 +18,7 @@ import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const OptionSchema = z.object({
+export const OptionSchema = z.object({
   value: z
     .uuid()
     .describe(

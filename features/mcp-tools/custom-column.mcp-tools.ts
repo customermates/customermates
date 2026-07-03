@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EntityType } from "@/generated/prisma";
+import { EntityType, CustomColumnType, Currency } from "@/generated/prisma";
 
 import { encodeToToon, validationError, customErrorMessage, enumHint } from "./utils";
 
@@ -10,9 +10,42 @@ import {
   getDeleteCustomColumnInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { UpsertCustomColumnSchema } from "@/features/custom-column/upsert-custom-column.interactor";
+import { OptionSchema, type UpsertCustomColumnData } from "@/features/custom-column/upsert-custom-column.interactor";
+import { CHIP_COLORS } from "@/constants/chip-colors";
+import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 
 const entityTypeValues = Object.values(EntityType);
+const customColumnTypeValues = Object.values(CustomColumnType);
+
+const UpsertCustomColumnToolSchema = z.object({
+  id: z
+    .uuid()
+    .optional()
+    .describe("Existing column id to UPDATE; omit to CREATE. On update, type and entityType are immutable."),
+  type: z.enum(CustomColumnType).describe(`Column type ${enumHint(customColumnTypeValues)}`),
+  entityType: z.enum(EntityType).describe(`Entity type ${enumHint(entityTypeValues)}`),
+  label: z.string().min(1).max(255).describe("Column label"),
+  options: z
+    .object({
+      displayFormat: z
+        .enum(DATE_DISPLAY_FORMATS)
+        .optional()
+        .describe("date / dateTime / dateRange / dateTimeRange only"),
+      currency: z.enum(Currency).optional().describe("currency only (ISO code)"),
+      color: z.enum(CHIP_COLORS).optional().describe("link / email / phone only"),
+      allowMultiple: z.boolean().optional().describe("link / email / phone only"),
+      options: z
+        .array(OptionSchema)
+        .optional()
+        .describe(
+          "singleSelect only. REPLACES the full option list; keep an existing option's value to preserve its records.",
+        ),
+    })
+    .optional()
+    .describe(
+      "Type-specific config. plain: omit. date*: {displayFormat?}. currency: {currency}. link/email/phone: {color, allowMultiple}. singleSelect: {options:[{value,label,color,isDefault,index}]}.",
+    ),
+});
 
 const ListCustomColumnsSchema = z.object({
   entityType: z
@@ -86,15 +119,15 @@ export const upsertCustomColumnTool = {
     "For singleSelect, options[] REPLACES the full option list: each option needs a stable `value` id - use a fresh uuid for a brand-new option, keep an existing option's `value` to preserve its stored records, and dropping an option deletes any records using it - call list_custom_columns first to read current option values. " +
     "To change a column's type, delete_custom_column then create a new one. Idempotent.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema: UpsertCustomColumnSchema,
-  execute: async (params: z.infer<typeof UpsertCustomColumnSchema>) => {
+  inputSchema: UpsertCustomColumnToolSchema,
+  execute: async (params: z.infer<typeof UpsertCustomColumnToolSchema>) => {
     let data = params;
     if (params.id) {
       const loaded = await loadColumnOrError(params.id, params.type);
       if (!loaded.ok) return loaded.error;
-      data = { ...params, entityType: loaded.column.entityType as EntityType } as typeof params;
+      data = { ...params, entityType: loaded.column.entityType as EntityType };
     }
-    const result = await getUpsertCustomColumnInteractor().invoke(data);
+    const result = await getUpsertCustomColumnInteractor().invoke(data as UpsertCustomColumnData);
     if (!result.ok) return validationError(result.error);
     return encodeToToon({
       id: result.data.id,

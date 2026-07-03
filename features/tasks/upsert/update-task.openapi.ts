@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { TaskDtoSchema } from "../task.schema";
 
-import { UpdateTaskSchema } from "./update-task.interactor";
+import { BaseUpdateTaskSchema } from "./update-task-base.schema";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -18,7 +18,7 @@ export const updateTaskOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: UpdateTaskSchema.omit({ id: true }),
+        schema: BaseUpdateTaskSchema.omit({ id: true }),
       },
     },
   },

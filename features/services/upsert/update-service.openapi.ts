@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { ServiceDtoSchema } from "../service.schema";
 
-import { UpdateServiceSchema } from "./update-service.interactor";
+import { BaseUpdateServiceSchema } from "./update-service-base.schema";
 
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -18,7 +18,7 @@ export const updateServiceOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: UpdateServiceSchema.omit({ id: true }),
+        schema: BaseUpdateServiceSchema.omit({ id: true }),
       },
     },
   },

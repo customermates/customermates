@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
+import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
 export const sendChatMessageOperation: ZodOpenApiOperationObject = {
@@ -16,7 +16,7 @@ export const sendChatMessageOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: SendChatMessageSchema.omit({ threadId: true }),
+        schema: BaseSendChatMessageSchema.omit({ threadId: true }),
       },
     },
   },

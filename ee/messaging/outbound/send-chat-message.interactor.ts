@@ -22,22 +22,22 @@ import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
 
-export const SendChatMessageSchema = z
-  .object({
-    threadId: z.uuid(),
-    text: z.string().max(20_000),
-    attachments: z.array(SendAttachmentSchema).max(20).optional(),
-    draftMessageId: z.uuid().optional(),
-  })
-  .superRefine((d, ctx) => {
-    if (!d.text.trim() && !d.attachments?.length) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.messageContentRequired },
-        path: ["text"],
-      });
-    }
-  });
+export const BaseSendChatMessageSchema = z.object({
+  threadId: z.uuid(),
+  text: z.string().max(20_000),
+  attachments: z.array(SendAttachmentSchema).max(20).optional(),
+  draftMessageId: z.uuid().optional(),
+});
+
+export const SendChatMessageSchema = BaseSendChatMessageSchema.superRefine((d, ctx) => {
+  if (!d.text.trim() && !d.attachments?.length) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.messageContentRequired },
+      path: ["text"],
+    });
+  }
+});
 export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
 
 export abstract class SendChatMessageRepo {
