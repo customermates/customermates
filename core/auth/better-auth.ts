@@ -144,7 +144,7 @@ export const auth = betterAuth({
   socialProviders,
 
   plugins: [
-    oAuthProxy(),
+    oAuthProxy({ currentURL: env.BASE_URL }),
     apiKey({
       rateLimit: {
         enabled: false,

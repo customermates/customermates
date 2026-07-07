@@ -11,6 +11,8 @@ import { continueWithGoogleAction, continueWithMicrosoftAction } from "../action
 
 import SignInProviderButton from "./sign-in-provider-button";
 
+import { SocialErrorToast } from "../social-error-toast";
+
 import { AppLink } from "@/components/shared/app-link";
 import { FormInput } from "@/components/forms/form-input";
 import { PasswordInput } from "@/components/forms/password-input";
@@ -57,6 +59,8 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
         />
 
         <AppCardBody>
+          <SocialErrorToast />
+
           {showSocialProviders && (
             <>
               <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -64,14 +68,14 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
                   className="w-full sm:flex-1"
                   label={t("SignInForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
-                  onClick={() => void continueWithGoogleAction(callbackURL)}
+                  onClick={() => void continueWithGoogleAction(callbackURL, "/auth/signin")}
                 />
 
                 <SignInProviderButton
                   className="w-full sm:flex-1"
                   label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
                   providerId="microsoft"
-                  onClick={() => void continueWithMicrosoftAction(callbackURL)}
+                  onClick={() => void continueWithMicrosoftAction(callbackURL, "/auth/signin")}
                 />
               </div>
 

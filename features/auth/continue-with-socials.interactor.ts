@@ -15,6 +15,7 @@ import { mustVerifyEmail } from "./email-verification-grace";
 const Schema = z.object({
   provider: z.enum(["google", "microsoft"]),
   callbackURL: callbackUrlSchema.optional(),
+  errorCallbackURL: callbackUrlSchema.optional(),
 });
 type ContinueWithSocialsData = Data<typeof Schema>;
 

@@ -23,13 +23,17 @@ export async function signInWithEmailAction(data: EmailSignInData) {
   return serializeResult(getSignInWithEmailInteractor().invoke(data));
 }
 
-export async function continueWithGoogleAction(callbackURL?: string) {
-  const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL });
+export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
+  const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL, errorCallbackURL });
   if (isRedirect(result)) redirect(result.redirect);
 }
 
-export async function continueWithMicrosoftAction(callbackURL?: string) {
-  const result = await getContinueWithSocialsInteractor().invoke({ provider: "microsoft", callbackURL });
+export async function continueWithMicrosoftAction(callbackURL?: string, errorCallbackURL?: string) {
+  const result = await getContinueWithSocialsInteractor().invoke({
+    provider: "microsoft",
+    callbackURL,
+    errorCallbackURL,
+  });
   if (isRedirect(result)) redirect(result.redirect);
 }
 

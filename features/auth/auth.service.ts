@@ -166,10 +166,18 @@ export class AuthService {
     });
   }
 
-  async continueWithSocials(args: { provider: "google" | "microsoft"; callbackURL?: string }) {
+  async continueWithSocials(args: {
+    provider: "google" | "microsoft";
+    callbackURL?: string;
+    errorCallbackURL?: string;
+  }) {
     const res = await auth.api.signInSocial({
       headers: await headers(),
-      body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
+      body: {
+        ...args,
+        callbackURL: args.callbackURL ?? env.BASE_URL,
+        errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
+      },
     });
 
     return res;

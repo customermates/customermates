@@ -8,6 +8,7 @@ import { useEffect } from "react";
 
 import SignInProviderButton from "../signin/sign-in-provider-button";
 import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
+import { SocialErrorToast } from "../social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";
 import { AppForm } from "@/components/forms/form-context";
@@ -51,6 +52,8 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
         />
 
         <AppCardBody>
+          <SocialErrorToast />
+
           {companyName ? (
             <Alert className="mb-4" color="success">
               <p className="text-x-sm">
@@ -73,7 +76,7 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
                   className="w-full sm:flex-1"
                   label={t("SignUpForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
-                  onClick={() => void continueWithGoogleAction()}
+                  onClick={() => void continueWithGoogleAction(undefined, "/auth/signup")}
                 />
 
                 <SignInProviderButton
@@ -82,7 +85,7 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
                     provider: "Microsoft",
                   })}
                   providerId="microsoft"
-                  onClick={() => void continueWithMicrosoftAction()}
+                  onClick={() => void continueWithMicrosoftAction(undefined, "/auth/signup")}
                 />
               </div>
 

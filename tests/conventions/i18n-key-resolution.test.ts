@@ -44,6 +44,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/profile/components/user-settings-form.tsx :: t :: Common.locales.",
   "app/[locale]/(protected)/profile/components/user-settings-form.tsx :: t :: Common.themes.",
   "app/[locale]/(public)/auth/error/page.tsx :: t :: ErrorCard.",
+  "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.compare.",
   "app/components/app-sidebar.tsx :: t :: Subscription.status.",
