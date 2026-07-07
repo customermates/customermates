@@ -5,7 +5,7 @@ import type { Redirect } from "./auth-outcome";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
-import { redirectTo } from "./auth-outcome";
+import { redirectTo, isRedirect } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -31,6 +31,8 @@ export class SignInWithEmailInteractor {
       password: data.password,
       rememberMe: data.rememberMe,
     });
+
+    if (isRedirect(res)) return res;
 
     if (!res.ok) {
       if (res.error === CustomErrorCode.emailNotVerified) return redirectTo("/auth/verify-email");

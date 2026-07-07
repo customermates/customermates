@@ -3,15 +3,18 @@ title: Model Context Protocol (MCP)
 description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-MCP-Client auf `https://customermates.com/api/v1/mcp` zeigen, API-Key im Header `x-api-key`, und der Client entdeckt automatisch alle 49 CRM-Tools.
+Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 39 CRM-Tools. Es gibt zwei Wege zu verbinden:
 
-Wenn du das volle End-to-End-Setup für einen bestimmten Client willst (API-Key, JSON-Config, Setup-Prompt, erster Befehl, alles auf einer Seite), spring direkt zu [Claude](/docs/mcp-connect-claude-desktop), [ChatGPT](/docs/mcp-connect-chatgpt) oder [Cursor](/docs/mcp-connect-cursor). Diese Seite ist die Protokoll-Referenz.
+- **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starte auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+- **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
+
+Für das End-to-End-Setup auf einer Seite spring zu deinem Client: [Claude Desktop](/docs/connect-custom-connector#claude), [ChatGPT](/docs/connect-custom-connector#chatgpt), [Claude Code](/docs/connect-cli#claude-code), [Codex](/docs/connect-cli#codex), [Cursor](/docs/connect-cli#cursor) oder [Gemini](/docs/connect-cli#gemini-cli). Diese Seite ist die Protokoll-Referenz.
 
 ## Wann MCP passt
 
-- Deine KI soll das **CRM lesen und schreiben**, ohne dass du IDs kopierst.
-- Die KI soll **Fähigkeiten entdecken**, statt dass du API-Calls von Hand schreibst.
-- **Ein Endpoint** für Claude, ChatGPT, Cursor, Codex und jeden zukünftigen Client.
+- Deine KI soll das CRM lesen und schreiben, ohne dass du IDs kopierst.
+- Die KI soll Fähigkeiten entdecken, statt dass du API-Calls von Hand schreibst.
+- Ein Endpoint für Claude, ChatGPT, Cursor, Codex und weitere Clients.
 
 Nimm stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations-Service genau weiß, welchen Endpoint er braucht. OpenAPI ist die kanonische HTTP-Referenz. MCP ist die Agent-native Oberfläche darüber.
 
@@ -28,50 +31,170 @@ Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/l
 
 Da es die Streamable-HTTP-Variante ist, muss jede Request `Accept: application/json, text/event-stream` senden. Ohne diesen Header liefert der Endpoint `406 Not Acceptable`. Alle unterstützten MCP-Clients setzen ihn automatisch; nur rohe HTTP-Aufrufe (curl, Skripte) müssen ihn explizit ergänzen.
 
+Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, base62 (a-z, A-Z, 0-9), und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für dich holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+
 ## Client verbinden
 
-| Client | Guide |
-|---|---|
-| Claude Code | [Claude Code verbinden](/docs/mcp-connect-claude-code) |
-| Claude Desktop | [Claude Desktop verbinden](/docs/mcp-connect-claude-desktop) |
-| Codex | [Codex verbinden](/docs/mcp-connect-codex) |
-| Cursor | [Cursor verbinden](/docs/mcp-connect-cursor) |
-| Gemini CLI | [Gemini verbinden](/docs/mcp-connect-gemini) |
-| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
-| Beliebiger MCP-Client | Endpoint und Header oben nutzen |
+| Client | Methode | Guide |
+|---|---|---|
+| Claude Web & Mobile | Custom Connector (OAuth) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
+| Claude Desktop | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude) |
+| ChatGPT | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt) |
+| Claude Code | API-Key | [Claude Code verbinden](/docs/connect-cli#claude-code) |
+| Codex | API-Key | [Codex verbinden](/docs/connect-cli#codex) |
+| Cursor | API-Key | [Cursor verbinden](/docs/connect-cli#cursor) |
+| Gemini CLI | API-Key | [Gemini verbinden](/docs/connect-cli#gemini-cli) |
+| Beliebiger MCP-Client | Key-Header | Endpoint und Header oben nutzen |
 
-Jede Connect-Seite enthält den vollen Setup-Prompt, den du als erste Nachricht einfügen solltest, damit das Modell sicher mit deinem CRM umgeht.
+Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clients, die MCP-Prompts unterstützen, können zusätzlich den eingebauten `get-started`-Prompt für einen personalisierten Start ausführen.
 
-## Wie die Tool-Oberfläche für schwächere Modelle gebaut ist
+## Server-Instructions, Prompts und Toolsets
 
-Nicht jedes Modell plant so gut wie Claude Opus. Die MCP-Oberfläche ist auf den Weak-Model-Case zugeschnitten:
+Du musst dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt dich kurz und fasst deinen Workspace zusammen, um den Start zu personalisieren.
 
-- **Verb-first-imperative Namen**: `create_contacts`, `update_deals`, `delete_custom_column`. Kein Batch-Präfix. Verb passt zur Absicht.
-- **Custom Columns über ein Tool**: `upsert_custom_column` legt eine Spalte eines der zehn Typen an oder aktualisiert sie, mit den per-Type-`options` inline in der Beschreibung, sodass das Modell `type` ausfüllt statt zwischen vielen fast identischen Tools zu wählen.
-- **Inline-Enum-Hinweise**: jedes Enum-Feld listet gültige Werte inline, kein Auflösen externer Typen.
-- **Filter-Beispiele inline**: jeder `filters`-Parameter mit JSON-Beispiel in der Beschreibung.
-- **Relationship-Sicherheit**: `link_entities` und `unlink_entities` mergen; `null` auf Relationship-Array wird mit Remediation-Hint abgelehnt.
-- **Unveränderlicher Spaltentyp**: `upsert_custom_column` hält `type` und `entityType` beim Update fest (aus der bestehenden Spalte übernommen); ein Typwechsel bedeutet löschen und neu anlegen.
-- **Destructive Flags**: jedes `delete_*` hat `destructiveHint: true` und beginnt mit `IRREVERSIBLE`.
+Die volle 39-Tool-Oberfläche ist der Standard. Hänge `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
-Die volle Tool-Liste: [MCP-Tool-Katalog](/docs/mcp-tool-catalog).
+## Wie die Tool-Oberfläche gebaut ist
+
+Die MCP-Oberfläche ist so gebaut, dass auch Modelle mit schwächerer Planung sie zuverlässig nutzen können:
+
+- **Verb-first-imperative Namen**: `create_contacts`, `update_deals`, `delete_records`. Kein Batch-Präfix. Das Verb passt zur Absicht.
+- **Zusammengeführte Peripherie**: Custom Columns, Widgets und Webhooks liegen jeweils hinter einem Tool (`manage_custom_columns`, `manage_widgets`, `manage_webhooks`) mit `action`-Schalter, sodass das Modell eine Action wählt statt zwischen vielen fast identischen Tools.
+- **Inline-Enum-Hinweise**: jedes Enum-Feld listet gültige Werte inline in der Beschreibung, sodass das Modell keine externen Typen auflösen muss.
+- **Filter-Beispiele inline**: jeder `filters`-Parameter hat ein konkretes JSON-Beispiel in der Beschreibung.
+- **Relationship-Sicherheit**: Beziehungen ändern sich nur über `manage_record_links` (add oder remove); `null` auf einem Relationship-Array wird mit Remediation-Hint abgelehnt.
+- **Unveränderlicher Spaltentyp**: `manage_custom_columns` hält `type` und `entityType` beim Update fest (aus der bestehenden Spalte übernommen); ein Typwechsel bedeutet löschen und neu anlegen.
+- **Destructive-Flags**: jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und beginnt mit `IRREVERSIBLE`.
 
 ## CLI-Nutzung
 
 Wenn du einen lokalen Client willst statt GUI, verbinden Tools wie `mcporter` denselben Endpoint. API-Key einmal in der Client-Config speichern und Tools aus der Shell aufrufen.
 
-## Agent als erste Nachricht briefen
-
-Sobald der Client verbunden ist, das hier als erste Nachricht einfügen, bevor du sonst etwas tust. Es erklärt dem Agenten, wie er Fähigkeiten entdeckt, wie er Schreib-Operationen sicher handhabt und welche Guardrails gelten.
-
-<McpSetupPrompt locale="de" />
-
 ## OpenAPI neben MCP
 
-Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; OpenAPI-Spec auf `/api/v1/openapi`. OpenAPI-Operationen mappen 1:1 auf REST-Endpoints; MCP-Tools wrappen diese plus Safety-Guardrails, die die Raw-API nicht hat.
+Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf `/api/v1/openapi`. Die OpenAPI-Operationen mappen 1:1 auf REST-Endpoints; MCP-Tools wrappen diese und ergänzen Safety-Guardrails, die die Raw-API nicht hat.
+
+## Tool-Katalog
+
+Customermates exponiert 39 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging (Preview), Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+
+Zwei Flags pro Tool:
+
+- **Read**: keine Mutation.
+- **Destructive**: löscht Daten oder ist nicht rückgängig zu machen. Bei zusammengeführten Tools gilt das Flag für die löschenden Actions.
+
+Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
+
+### Records
+
+Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, deal, service, task). Records tragen pro Workspace definierte Custom Columns, deshalb ist `get_record_schema` der Anker: Es liefert die Custom-Column-IDs und Optionswerte, die Schreibzugriffe brauchen. Felder wie ein Deal- oder Task-Status sind konfigurierbare singleSelect Custom Columns, keine festen nativen Felder; `get_record_schema` liefert genau die Spalten, die der Workspace tatsächlich hat.
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `get_record_schema` | ✓ | | Schema und Custom-Column-Metadaten, nie Record-Daten. Ein Entity-Typ, oder alle fünf, wenn `entity` fehlt. Vor jedem Create oder Update aufrufen. |
+| `list_records` | ✓ | | Suchen, filtern, sortieren, paginieren für einen Entity-Typ. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount. |
+| `search_records` | ✓ | | Freitextsuche über einen oder mehrere Entity-Typen in einem Call. |
+| `get_records` | ✓ | | Volle Record-Daten per ID, bis 100, Typen mischbar, optional mit Stammdaten oder Notes. |
+| `create_contacts` | | | Bis 100 Contacts anlegen, Custom-Column-Werte und Relations-IDs inline. |
+| `create_organizations` | | | Bis 100 Organizations anlegen. |
+| `create_deals` | | | Bis 100 Deals anlegen, Services als Inline-Array. |
+| `create_services` | | | Bis 100 Services anlegen. |
+| `create_tasks` | | | Bis 100 Tasks anlegen. |
+| `update_contacts` | | | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value). Fasst Beziehungen nie an. |
+| `update_organizations` | | | Partial-Update per ID. Fasst Beziehungen nie an. |
+| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
+| `update_services` | | | Partial-Update per ID. |
+| `update_tasks` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
+| `update_record_notes` | | | Markdown-Notes auf 1 bis 100 Records ersetzen oder anhängen, gewählt über `mode`. |
+| `manage_record_links` | | | IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern. |
+| `delete_records` | | ✓ | IRREVERSIBLE Löschen von 1 bis 100 Records per ID. |
+
+Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; ruf zuerst `get_record_schema` für die Column-IDs auf.
+
+### Workspace
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `get_workspace_context` | ✓ | | Dein User, das Company-Profil, alle Rollen inklusive Rechte und jedes verbundene Messaging-Konto in einem Call. Der natürliche erste Call einer Session. |
+| `list_users` | ✓ | | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
+
+### Messaging (Preview)
+
+Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachrichten werden ausgeblendet, außer sie enthalten einen Draft), mit threadId liefert es einen Thread mit voller Nachrichtenliste inklusive Drafts. |
+| `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, Kalenderereignisse) für den Workspace oder einen Record. |
+| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat, mit connectedAccountId plus attendeeIdentifiers startet es einen neuen. |
+| `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
+| `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und du sendest ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
+| `discard_message_draft` | | ✓ | Draft per Draft-Message-ID löschen. |
+| `update_messaging_thread` | | | Thread-State setzen: unread, open, closed oder spam. |
+
+### Social Posts
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `get_social_posts` | ✓ | | Posts eines verbundenen LinkedIn- oder Instagram-Kontos. Mit postId holt es einen einzelnen Post; authorIdentifier ist standardmäßig der Kontoinhaber. |
+| `get_social_post_engagement` | ✓ | | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
+| `get_social_profile` | ✓ | | Ein LinkedIn- oder Instagram-Profil per identifier (Public Identifier, Provider-Member-ID oder `me`); liefert Name, Headline, Ort, Zähler und Netzwerkdistanz, soweit verfügbar. |
+| `manage_social_relations` | | | Kontaktanfragen: erhaltene Einladungen listen, invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
+
+### Dokumentation und Deep Research
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `search_docs` | ✓ | | Volltextsuche über die Produkt-Guides und die REST-Referenz. Liefert Slug, Titel, URL, Snippet. |
+| `get_docs_page` | ✓ | | Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs. |
+| `search` | ✓ | | Von ChatGPT-Deep-Research-Connectors verlangt; föderiert CRM-Records und Docs. Interaktive Agents nehmen besser `search_records` oder `search_docs`. |
+| `fetch` | ✓ | | Deep-Research-Gegenstück zu `search`: holt ein Ergebnis per ID. |
+
+### Custom Columns
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `manage_custom_columns` | | ✓ | Ein Tool mit `action`-Schalter: list, upsert (anlegen oder aktualisieren), delete. Deckt alle zehn Spaltentypen ab; type und entityType sind beim Update unveränderlich. Delete ist IRREVERSIBLE und löscht alle gespeicherten Werte. |
+
+### Widgets
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `manage_widgets` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete. Die get-Action liefert die berechneten Datenpunkte zur Konfiguration dazu, aggregierte Summen kommen also direkt aus einem Widget. |
+
+### Webhooks
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `manage_webhooks` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn du dessen `id` übergibst) und die erneute Zustellung (Action resend_delivery). |
+
+### Admin und Team
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `update_workspace_settings` | | | `target` profile aktualisiert deinen Namen, dein Land und deinen Avatar; `target` company aktualisiert Company-Name, Adresse und Währung (nur Admins). |
+| `manage_team` | | | Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). |
+
+### Eingrenzen mit ?toolsets=
+
+Alle 39 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hänge `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+
+```
+https://customermates.com/api/v1/mcp?toolsets=records,messaging
+```
+
+Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+
+### Eingebaute Sicherheitsregeln
+
+- **Bestätigen vor destruktiven Aktionen.** Die Server-Instructions weisen das Modell an, sich vor `delete_records` und vor jedem Send-Tool beim User rückzuversichern.
+- **Beziehungen nur über `manage_record_links`.** Die Update-Tools fassen Beziehungen nie an, und `null` auf einem Relationship-Array wird serverseitig mit Remediation-Hint abgelehnt.
+- **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und du sendest sie aus der Inbox. Drafts hängen am Thread; eine komplett neue ausgehende Nachricht lässt sich nicht als Draft anlegen.
+- **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und den Präfix `IRREVERSIBLE` in der Beschreibung.
+- **Jedes Enum-Feld** listet gültige Werte inline in der Beschreibung, und **jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
 
 ## Weiter
 
-- [MCP-Tool-Katalog](/docs/mcp-tool-catalog): jedes Tool, gruppiert und geflaggt.
-- [Claude verbinden](/docs/mcp-connect-claude-desktop): End-to-End-Setup auf einer Seite.
-- [Webhooks](/docs/webhooks): die andere Hälfte der agentischen Schleife.
+- [Custom Connector](/docs/connect-custom-connector): End-to-End-Setup auf einer Seite.
+- [Filter-Syntax](/docs/filter-syntax): jeder Operator mit Beispielen.
+- [Webhooks](/docs/webhooks): die andere Hälfte des agentischen Loops.

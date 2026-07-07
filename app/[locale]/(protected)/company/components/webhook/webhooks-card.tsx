@@ -83,6 +83,7 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="company-webhooks"
       columns={columns}
       store={webhooksStore}
       onAdd={() =>

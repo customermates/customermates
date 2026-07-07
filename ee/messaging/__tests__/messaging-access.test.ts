@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 
-import { accountActivityAccessWhere, calendarEventAccessWhere, threadAccessWhere } from "../messaging-access";
+import {
+  accountActivityAccessWhere,
+  calendarEventAccessWhere,
+  threadAccessWhere,
+  threadHasActivityWhere,
+} from "../messaging-access";
 
 const COMPANY = "company-1";
 const USER = "user-1";
@@ -26,6 +31,12 @@ describe("messaging-access", () => {
     expect(threadAccessWhere(COMPANY, USER)).toEqual({
       companyId: COMPANY,
       OR: [{ connectedAccount: { is: ownedOrSharedAccount } }, { sharedToCrm: true }],
+    });
+  });
+
+  it("hides threads without a last message unless they hold a draft", () => {
+    expect(threadHasActivityWhere()).toEqual({
+      OR: [{ lastMessageAt: { not: null } }, { messages: { some: { isDraft: true } } }],
     });
   });
 

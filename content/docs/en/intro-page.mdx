@@ -1,62 +1,60 @@
 ---
 title: Customermates documentation
-description: Open-source CRM that updates itself through the AI you already use. Start here.
+description: Open-source CRM with a native MCP endpoint, so AI clients can read and write your CRM directly. Start here.
 demo:
   src: https://demo.customermates.com/en
   title: Customermates Demo
 ---
 
-Customermates is an open-source CRM designed to be driven by your AI. Native MCP support means Claude, ChatGPT, Cursor, and anything else that speaks the Model Context Protocol can read and write your CRM without copy-paste.
+Customermates is an open-source CRM with a native MCP endpoint. Claude, ChatGPT, Cursor, and any other client that speaks the Model Context Protocol can read and write your CRM directly, without copy-paste.
 
 ## Pick your client and start
 
 | Your AI | Full setup on one page |
 |---|---|
-| Claude Desktop | [Connect Claude](/docs/mcp-connect-claude-desktop) |
-| ChatGPT | [Connect ChatGPT](/docs/mcp-connect-chatgpt) |
-| Cursor | [Connect Cursor](/docs/mcp-connect-cursor) |
+| Claude & ChatGPT (custom connector) | [Connect with a custom connector](/docs/connect-custom-connector) |
+| Claude Code | [Connect Claude Code](/docs/connect-cli#claude-code) |
+| Cursor | [Connect Cursor](/docs/connect-cli#cursor) |
 | Any MCP client | [MCP overview](/docs/mcp) |
 
-Each of those pages is self-contained: API key steps, JSON config, the full setup prompt, and your first commands. You do not need to bounce between pages.
+Each page is self-contained: the connect steps and your first commands. The server briefs your client automatically on connect, so you do not need to move between pages.
 
-Prefer a walkthrough with a webhook and a quick AI interaction at the end? Go to [Quickstart](/docs/quickstart).
+For a walkthrough that includes a webhook and a first AI interaction, see [Quickstart](/docs/quickstart).
 
 ## What Customermates is
 
-A modern CRM with the usual parts (contacts, organizations, deals, services, tasks, custom fields, pipelines, dashboards) plus:
+A CRM with five record types (contacts, organizations, deals, services, tasks), custom columns, board and table views, and dashboards, plus:
 
-- **Native MCP endpoint** so your AI client can discover and call CRM operations without a plugin.
-- **Open source** under AGPLv3 (Enterprise components under a separate commercial license). Self-host or use our cloud.
-- **EU-hosted and GDPR-compliant** for the managed version.
-- **Real webhooks** with signed payloads, retries, and a delivery log.
-- **OpenAPI 3.1** for the full REST surface.
+- **Native MCP endpoint** at `/api/v1/mcp`, so an MCP client can discover and call CRM operations without a plugin.
+- **Open source** under AGPLv3. Enterprise components are under a separate commercial license. Self-host or use the managed cloud.
+- **EU-hosted and GDPR-compliant** managed version.
+- **Webhooks** with signed payloads, retries, and a delivery log.
+- **OpenAPI 3.1** specification for the full REST surface at `/api/v1/openapi`.
 
-## Four ways Customermates talks to your stack
+## Four ways Customermates connects to your stack
 
-| I want to… | Use |
+| I want to | Use |
 |---|---|
-| Have Claude, ChatGPT, or Cursor update the CRM in conversation | [MCP](/docs/mcp) |
+| Have an MCP client update the CRM in conversation | [MCP](/docs/mcp) |
 | Build a custom integration in code | [OpenAPI](/docs/openapi) |
-| React to CRM changes in Slack, a sequencer, BI, your warehouse | [Webhooks](/docs/webhooks) |
+| React to CRM changes in Slack, a sequencer, BI, or your warehouse | [Webhooks](/docs/webhooks) |
 | Compose workflows visually without code | [n8n](/docs/n8n) |
 
-All four use the same API key. See [API keys](/docs/api-keys).
+All four authenticate with an API key. MCP clients such as Claude and ChatGPT can also connect over OAuth without a key. See [API keys](/docs/api-keys).
 
-## Our take
+## Design approach
 
-Most CRMs were designed for a world where humans typed into forms. That world is ending. Customermates treats the AI as a first-class user: tools are named imperatively, errors are actionable, relationships are safe to modify incrementally, and the surface is small enough for a weak model to navigate reliably.
-
-The CRM that updates itself in the AI you already use. Not a new tab, not another app.
+Customermates treats the AI client as a first-class user. Tools are named imperatively, errors are actionable, relationships can be modified incrementally, and the MCP surface is kept small (39 tools, all on by default) so that smaller models can navigate it reliably.
 
 ## How the docs are organized
 
-- **Getting started**: [Quickstart](/docs/quickstart), [Concepts](/docs/concepts), [From Pipedrive](/docs/from-pipedrive).
-- **Connect your AI**: [Claude](/docs/mcp-connect-claude-desktop), [ChatGPT](/docs/mcp-connect-chatgpt), [Cursor](/docs/mcp-connect-cursor).
+- **Getting started**: [Quickstart](/docs/quickstart), [Concepts](/docs/concepts).
+- **Connect your AI**: [Custom connector](/docs/connect-custom-connector), [CLI & editors](/docs/connect-cli).
+- **App guide**: [Dashboard](/docs/app-dashboard), [Records](/docs/app-records), [Inbox](/docs/app-inbox), and the other app screens, with stable anchor ids for AI agents.
 - **Integrations**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
 - **Self-hosting**: [Get started and manage](/docs/self-hosting), [Architecture and security](/docs/architecture-security).
-- **Reference**: [MCP tool catalog](/docs/mcp-tool-catalog), [Filter syntax](/docs/filter-syntax), [API keys](/docs/api-keys).
-- **Comparison**: [Customermates vs alternatives](/docs/comparison).
+- **Reference**: [MCP tool catalog](/docs/mcp#tool-catalog), [Filter syntax](/docs/filter-syntax), [API keys](/docs/api-keys).
 
 ## Try it
 
-The embedded demo on this page is a real live instance. Click around, create contacts, delete them. Nothing persists across sessions.
+The embedded demo on this page is a live instance. You can create and delete records. Nothing persists across sessions.

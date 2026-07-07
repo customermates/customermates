@@ -1,61 +1,63 @@
 ---
 title: n8n
-description: Visuelle Workflows über Customermates mit Webhook-Triggern, HTTP-Actions und fertigen Templates.
+description: Visuelle Workflows über Customermates mit Webhook-Triggern und HTTP-Action-Nodes gegen die REST-API.
 ---
 
-n8n-Webhook-Node auf Customermates-Events abonnieren, HTTP-Request-Node mit API-Key für Writes zurück. Kein Custom-Node nötig. Die REST- und MCP-Oberflächen funktionieren direkt.
+Verbinde n8n mit Customermates, indem du einen Webhook-Node auf CRM-Events abonnierst und die REST-API aus HTTP-Request-Nodes aufrufst. Ein Custom-Node ist nicht nötig. Die REST- und MCP-Oberflächen funktionieren direkt.
 
 ## Wann n8n passt
 
 - Dein Team bevorzugt visuelle Flows gegenüber Code.
-- Du willst Events branchen und transformieren, bevor sie weiterlaufen (Slack, HubSpot, Google Sheets, Warehouse).
+- Du willst Events verzweigen und transformieren, bevor du sie an ein anderes System weiterleitest, etwa Slack, HubSpot, Google Sheets oder ein Data Warehouse.
 - Du betreibst n8n ohnehin für andere Automationen.
 
-Wenn eine KI das CRM im Gespräch fahren soll: [MCP](/docs/mcp) stattdessen oder parallel.
+Wenn eine KI das CRM im Gespräch steuern soll, nutze [MCP](/docs/mcp) stattdessen oder parallel.
 
 ## Pattern 1: n8n aus CRM-Änderungen triggern
 
-1. In n8n: **Webhook**-Node hinzufügen. Die generierte URL kopieren.
-2. In Customermates: **Unternehmen → Webhooks → Neu** und URL einfügen. Events wählen.
-3. Nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten.
+1. Füge in n8n einen **Webhook**-Node hinzu und kopiere die generierte URL.
+2. Gehe in Customermates zu **Unternehmen → Webhooks → Neu**, füge die URL ein und wähle die gewünschten Events.
+3. Ergänze nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten des Payloads.
 
-Payload-Shape dokumentiert unter [Webhooks](/docs/webhooks). Typische nächste Schritte:
+Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Typische nächste Schritte:
 
-- **Slack**: "neuer Deal: $[Betrag]" in einen Channel.
-- **Google Sheets**: Zeile anhängen bei jedem neuen Contact.
-- **HubSpot**: Contact mirrored.
+- **Slack**: eine Nachricht in einen Channel posten, wenn ein Deal erstellt wird.
+- **Google Sheets**: bei jedem neuen Contact eine Zeile anhängen.
+- **HubSpot**: den Contact spiegeln.
 
 ## Pattern 2: aus n8n nach Customermates pushen
 
-**HTTP Request**-Node:
+Nutze den **HTTP-Request**-Node:
 
-- Method: `POST` (oder `PATCH` für Updates)
-- URL: `https://customermates.com/api/v1/<endpoint>`
-- Headers: `x-api-key` als n8n-Credential gesetzt
-- Body: JSON gemäß [OpenAPI-Spec](/docs/openapi)
+- Method: `POST` für Creates, `PATCH` für Updates.
+- URL: `https://customermates.com/api/v1/<endpoint>`, wobei `<endpoint>` gleich `contacts`, `organizations`, `deals`, `services` oder `tasks` ist.
+- Headers: `x-api-key` auf deinen API-Key gesetzt, als n8n-Credential gespeichert.
+- Body: JSON gemäß [OpenAPI-Spec](/docs/openapi).
 
-Für MCP-Style-Tool-Calls aus n8n auf `/api/v1/mcp` mit `method: "tools/call"`. Nützlich, wenn n8n dieselben Guardrails will (Null-Wipe-Rejection, Type-Mismatch-Routing).
+Um MCP-Tool-Calls aus n8n abzusetzen, sende eine Anfrage an `/api/v1/mcp` mit `method: "tools/call"`. Damit laufen Writes durch dieselben Guardrails, die die MCP-Ebene ergänzt, etwa das Ablehnen von `null` auf einem Relationship-Array.
 
-## Pattern 3: Scheduled Cleanup
+## Pattern 3: geplante Jobs
 
-n8n Cron-Trigger plus Customermates-REST:
+Der Cron-Trigger von n8n plus die Customermates-REST-API deckt wiederkehrende Aufgaben ab:
 
-- Täglich: Contacts ohne Organization finden, Reminder posten.
-- Wöchentlich: Won-Deals der letzten Woche in Google Sheet.
-- Monatlich: Lost-Deals älter als 90 Tage archivieren.
+- Täglich: Contacts ohne Organization finden und einen Reminder posten.
+- Wöchentlich: Records, die auf einen Filter passen, in ein Google Sheet exportieren.
+- Monatlich: Records archivieren, deren Custom-Status-Spalte einen bestimmten Wert hält.
+
+Lifecycle-Werte von Deals und Tasks wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. Rufe `get_record_schema` auf oder lies die OpenAPI-Spec, um zu sehen, welche Spalten und Optionen in deinem Workspace existieren, bevor du danach filterst.
 
 ## Authentifizierung
 
-API-Key als n8n-**Header-Auth**-Credential mit Name `x-api-key` speichern. Über Nodes wiederverwenden. An einer Stelle rotieren.
+Speichere den API-Key als n8n-**Header-Auth**-Credential mit dem Header-Namen `x-api-key`. Verwende ihn über Nodes hinweg wieder, damit du ihn an einer Stelle rotierst. Keys sind 64 Zeichen lange Base62-Strings und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht.
 
 ## Typische Fallstricke
 
-- **Null-Wipe-Guard**: `null` auf Relationship-Array wird abgelehnt. `[]` oder `link_entities` / `unlink_entities` nutzen.
-- **Rate-Limits**: High-Frequency-Loops laufen in Limits. Wenn möglich batchen.
-- **Webhook-Ordering**: Deliveries nicht strikt geordnet. Als idempotente Messages per `entityId` behandeln.
+- **Relationship-Arrays**: `null` auf einem Relationship-Array wird abgelehnt. Sende `[]` zum Leeren oder nutze das Tool `manage_record_links`, um Links hinzuzufügen oder zu entfernen.
+- **Rate-Limits**: High-Frequency-Loops können in API-Limits laufen. Wenn möglich batchen.
+- **Webhook-Ordering**: Deliveries sind nicht strikt geordnet. Behandle sie als idempotente Messages mit Schlüssel `entityId`.
 
 ## Weiter
 
 - [Webhooks](/docs/webhooks): die Trigger-Seite im Detail.
 - [OpenAPI](/docs/openapi): volle REST-Referenz für die Action-Seite.
-- [MCP](/docs/mcp): wenn KI im Loop sein soll.
+- [MCP](/docs/mcp): wenn eine KI im Loop sein soll.

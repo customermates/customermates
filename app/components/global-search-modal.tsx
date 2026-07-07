@@ -152,7 +152,7 @@ export const GlobalSearchModal = observer(() => {
             ref={inputRef}
             autoFocus
             className="border-0 bg-transparent shadow-none px-0 focus-visible:ring-0 focus-visible:border-transparent"
-            id="searchTerm"
+            id="global-search-input"
             placeholder={t("GlobalSearch.placeholder")}
             value={searchTerm}
             onChange={(e) => globalSearchModalStore.onChange("searchTerm", e.target.value)}

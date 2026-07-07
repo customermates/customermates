@@ -1,13 +1,13 @@
 ---
 title: Core concepts
-description: Entities, relationships, custom columns, widgets, and webhooks, in one page.
+description: Records, relationships, custom columns, widgets, and webhooks, in one page.
 ---
 
-Customermates tracks five entity types, lets each one carry user-defined fields, links them to each other through typed relationships, and fires webhooks whenever any of that changes.
+Customermates tracks five record types, lets each one carry user-defined fields, links them to each other through typed relationships, and emits webhooks whenever any of that changes.
 
-## The five entities
+## The five record types
 
-| Entity | What it represents | Typical fields |
+| Record type | What it represents | Typical fields |
 |---|---|---|
 | **Contact** | A person | firstName, lastName, notes |
 | **Organization** | A company | name, notes |
@@ -15,46 +15,50 @@ Customermates tracks five entity types, lets each one carry user-defined fields,
 | **Service** | A product or offering attached to a deal | name, amount |
 | **Task** | A todo item | name, assignees |
 
-Each entity has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. Everything else is either a relationship to another entity or a custom column value.
+Each record has `id`, `createdAt`, `updatedAt`, and supports markdown `notes`. Everything else is either a relationship to another record or a custom column value. There are no fixed status or stage fields on any record type; use custom columns for those. Call `get_record_schema` to read the columns that exist in a given workspace.
 
 ## Relationships
 
-Relationships are typed and many-to-many. A contact belongs to zero or more organizations and zero or more deals. A deal belongs to zero or more contacts, organizations, and services (with quantities) plus assignees.
+Relationships are typed and many-to-many. A contact belongs to zero or more organizations and zero or more deals. A deal belongs to zero or more contacts, organizations, and services (with quantities), plus assignees.
 
-| From ↔ To | Example |
+| From to | Example |
 |---|---|
-| Contact ↔ Organization | "Max works at Initech" |
-| Contact ↔ Deal | "Max is a stakeholder on the Q2 contract" |
-| Organization ↔ Deal | "The Q2 contract is with Initech" |
-| Deal ↔ Service (with quantity) | "5 hours consulting + 1 setup fee" |
-| Deal / Service / Task ↔ User | "Assigned to Julia" |
+| Contact to Organization | "Max works at Initech" |
+| Contact to Deal | "Max is a stakeholder on the Q2 contract" |
+| Organization to Deal | "The Q2 contract is with Initech" |
+| Deal to Service (with quantity) | "5 hours consulting plus 1 setup fee" |
+| Deal / Service / Task to User | "Assigned to Julia" |
 
-Tasks only link to users. That is intentional: tasks are lightweight.
+Tasks link only to users.
 
 ## Custom columns
 
-Default schema covers the basics. For anything else, add a custom column.
+The default schema covers the basics. For anything else, add a custom column.
 
-Eight types:
+Ten types:
 
 | Type | Use for |
 |---|---|
 | **Plain** | Free-text values |
 | **Date** | Calendar dates (renewal, next touch) |
+| **DateRange** | A start and end date |
 | **DateTime** | Timestamps |
+| **DateTimeRange** | A start and end timestamp |
 | **Currency** | Money amounts, stored with an ISO currency code |
-| **Single-select** | Dropdown from a fixed list (stage, priority) |
+| **Single-select** | A value from a fixed option list |
 | **Link** | One or more URLs |
 | **Email** | One or more email addresses |
 | **Phone** | One or more phone numbers |
+
+Single-select columns are how you model your own workflows. A deal "Status" or a task "Priority" is a single-select column you define, with the options you choose, per workspace. A board view can then group records by any single-select column.
 
 Custom columns are first-class in filters, widgets, and the MCP surface.
 
 ## Widgets
 
-Widgets are dashboard charts driven by live data. You pick an entity, a group-by axis (plain field or custom column), an aggregation (count, deal value, deal quantity), and a display type (bar / doughnut / radar). Filters narrow the data set.
+Widgets are dashboard charts driven by live data. You pick a record type, a group-by axis (plain field or custom column), an aggregation (count, deal value, deal quantity), and a display type (bar, doughnut, or radar). Filters narrow the data set.
 
-A widget re-renders whenever underlying records change. No refresh button.
+A widget re-renders whenever underlying records change.
 
 ## Webhooks
 
@@ -64,14 +68,14 @@ See [Webhooks](/docs/webhooks) for the full event catalog and payload shape.
 
 ## Notes
 
-Notes are per-record markdown. They render through a Tiptap editor in the UI but are plain markdown everywhere else. You can replace them (`update_entity_notes`) or append to them without losing existing content (`append_entity_notes`).
+Notes are per-record markdown. They render through a Tiptap editor in the UI and are plain markdown everywhere else. You can replace them or append to them via `update_record_notes` with the matching `mode`.
 
 ## Users, roles, and the company
 
-Users are your teammates. Roles control what they can read and write. The company is the tenant. Every record you see lives inside one company, and cross-tenant access is not possible.
+Users are your teammates. Roles are defined per workspace and control what each user can read and write. The company is the tenant. Every record lives inside one company, and cross-tenant access is not possible.
 
 ## Next
 
-- **[Custom columns](/docs/mcp-tool-catalog#custom-columns)**: recipes and gotchas.
+- **[Custom columns](/docs/mcp#tool-catalog)**: recipes and gotchas.
 - **[Filter syntax](/docs/filter-syntax)**: operators and examples.
-- **[MCP tool catalog](/docs/mcp-tool-catalog)**: every tool that operates on these concepts.
+- **[MCP tool catalog](/docs/mcp#tool-catalog)**: every tool that operates on these concepts.

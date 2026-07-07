@@ -18,7 +18,6 @@ import { EntityDrawer } from "@/components/entity-detail/entity-drawer";
 import { LoadingOverlay } from "@/components/shared/loading-overlay";
 import { NavigationLoadingOverlay } from "@/components/shared/navigation-loading-overlay";
 import { DeleteConfirmationModal } from "@/components/modal/delete-confirmation-modal";
-import { StartChatModal } from "@/components/modal/start-chat-modal";
 import { NavigationGuardModal } from "@/components/modal/navigation-guard-modal";
 import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toaster";
 import { TranslationSync } from "@/components/shared/translation-sync";
@@ -54,8 +53,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <Toaster />
 
       <DeleteConfirmationModal />
-
-      <StartChatModal />
 
       <NavigationGuardModal />
 

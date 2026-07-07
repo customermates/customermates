@@ -107,6 +107,7 @@ export const TasksCard = observer(({ tasks }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="tasks"
       columns={columns}
       rowHref={(item) => entityHref(EntityType.task, item.id)}
       store={tasksStore}

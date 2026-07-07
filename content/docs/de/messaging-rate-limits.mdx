@@ -1,15 +1,15 @@
 ---
 title: Nachrichten-Ratenlimits
-description: Warum verbundene Kanäle Ratenlimits haben, welche Limits wir pro Anbieter anwenden und was passiert, wenn ein Limit erreicht wird.
+description: Warum verbundene Kanäle Ratenlimits haben, welche Limits pro Anbieter gelten und was passiert, wenn ein Limit erreicht wird.
 ---
 
-Wenn du einen Kanal verbindest (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sogar sperren. Zum Schutz wenden wir pro Kanal ein konservatives Anfragebudget an und pausieren automatisch, bevor ein Anbieter eingreifen würde.
+Wenn du einen Kanal verbindest (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sperren. Um innerhalb sicherer Grenzen zu bleiben, wendet Customermates pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde.
 
-Eine pausierte Synchronisierung ist eine Funktion, kein Fehler: Sie bedeutet, dass dein Konto geschützt wurde.
+Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das verbundene Konto innerhalb der Anbieterlimits und setzt von selbst fort.
 
 ## So funktionieren die Limits
 
-Limits gelten **pro verbundenem Konto** und gleichzeitig auf drei Ebenen:
+Die Limits werden im Unipile-Dashboard konfiguriert und von Unipile erzwungen. Sie gelten **pro verbundenem Konto** und gleichzeitig auf drei Ebenen:
 
 - **Pro Endpunkt:** eine Obergrenze für jede einzelne Operation (Chats auflisten, Nachrichten lesen) über ein gleitendes Minuten- und Tagesfenster. Das sind die Leselimits unten.
 - **Pro sensibler Methode:** eine strengere Grenze für riskantere Operationen (Profilabrufe, Nachricht oder Kontaktanfrage senden). Das sind die sensiblen Limits unten.
@@ -19,7 +19,7 @@ Ist ein Fenster voll, werden weitere Aufrufe abgelehnt, bis es sich erneuert.
 
 ## Leselimits
 
-Lesevorgänge synchronisieren deinen Verlauf. Sie sind höher angesetzt als Schreibvorgänge, da Lesen selten eine Anbieter-Sperre auslöst.
+Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreibvorgänge, da Lesen selten eine Anbieter-Sperre auslöst.
 
 | Anbieter | Lesen / Minute | Lesen / Tag |
 | --- | --- | --- |
@@ -51,9 +51,9 @@ Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Prof
 
 ## Was du siehst, wenn ein Limit erreicht wird
 
-Die Aktion gibt eine klare Meldung zurück, zum Beispiel:
+Die Aktion gibt eine Meldung mit der Wartezeit zurück, zum Beispiel:
 
-> Dieser Kanal hat sein Limit vorerst erreicht. Bitte in 2 Minuten erneut versuchen.
+> Das Rate-Limit dieses Kanals wurde erreicht. Erneut versuchen ist in 2 Minuten möglich.
 
 Sobald das angegebene Fenster vorbei ist, kannst du es erneut versuchen. Es geht nichts verloren.
 

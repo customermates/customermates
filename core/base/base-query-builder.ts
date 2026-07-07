@@ -71,6 +71,7 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.updatedAt]: "updatedAt",
   [FilterFieldKey.createdAt]: "createdAt",
   [FilterFieldKey.event]: "event",
+  [FilterFieldKey.url]: "url",
   [FilterFieldKey.status]: "status",
   [FilterFieldKey.provider]: "provider",
   [FilterFieldKey.state]: "state",

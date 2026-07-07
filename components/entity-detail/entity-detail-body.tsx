@@ -84,7 +84,11 @@ export const EntityDetailBody = observer(
 
             {canManage && (
               <AppCardFooter className="border-t">
-                <Button disabled={isLoading || !store.hasUnsavedChanges || store.isDisabled} type="submit">
+                <Button
+                  disabled={isLoading || !store.hasUnsavedChanges || store.isDisabled}
+                  id="drawer-save"
+                  type="submit"
+                >
                   {t("Common.actions.save")}
                 </Button>
               </AppCardFooter>

@@ -74,7 +74,8 @@
       "files": [
         "components/shared/language-selector.tsx",
         "**/user-settings-form.tsx",
-        "**/subscription-expired-view.tsx"
+        "**/subscription-expired-view.tsx",
+        "**/mcp-consent-card.tsx"
       ],
       "rules": {
         "no-restricted-syntax": "off"

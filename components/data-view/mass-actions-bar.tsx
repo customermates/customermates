@@ -35,6 +35,7 @@ export const MassActionsBar = observer(function MassActionsBar<E extends HasId>(
       <Button
         className="h-8"
         disabled={store.isBulkMutating}
+        id="mass-delete"
         size="sm"
         type="button"
         variant="secondary"

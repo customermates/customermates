@@ -16,7 +16,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { buildEmailMessage } from "../../unipile.mappers";
 import { UnipileEmailSchema } from "../../unipile.schema";
 
-import { backfillSince, paginateStep, UNIPILE_EMAIL_MAX_LIMIT } from "./paginate";
+import { BACKFILL_EMAIL_TIMEOUT_MS, backfillSince, paginateStep, UNIPILE_EMAIL_MAX_LIMIT } from "./paginate";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
 const Schema = z.object({
@@ -39,9 +39,11 @@ export class BackfillEmailsInteractor {
     const account = await this.repo.findAccountByIdUnscoped(connectedAccountId);
     if (!account || account.status === ConnectedAccountStatus.deleted) return { nextCursor: null, done: true };
 
-    const after = backfillSince().toISOString();
+    const since = backfillSince();
+    const after = since.toISOString();
+    const seenIds = new Set<string>();
 
-    return paginateStep({
+    const result = await paginateStep({
       startCursor: cursor,
       limit: UNIPILE_EMAIL_MAX_LIMIT,
       fetchPage: (query) =>
@@ -52,6 +54,7 @@ export class BackfillEmailsInteractor {
               limit: UNIPILE_EMAIL_MAX_LIMIT,
               cursor: query.cursor,
               offset: query.offset,
+              timeoutMs: BACKFILL_EMAIL_TIMEOUT_MS,
             })
           : this.messagingService.listFolderEmails({
               accountId: account.unipileAccountId,
@@ -60,12 +63,28 @@ export class BackfillEmailsInteractor {
               limit: UNIPILE_EMAIL_MAX_LIMIT,
               cursor: query.cursor,
               offset: query.offset,
+              timeoutMs: BACKFILL_EMAIL_TIMEOUT_MS,
             }),
-      handleItem: (item) => this.upsertEmailThread(account, item),
+      handleItem: async (item) => {
+        const unipileMessageId = await this.upsertEmailThread(account, item);
+        if (unipileMessageId) seenIds.add(unipileMessageId);
+      },
     });
+
+    if (result.done && cursor === null && source !== ACCOUNT_WIDE_SOURCE) {
+      await this.ingest.reconcileFolderMembershipUnscoped({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        folderId: source,
+        since,
+        seenUnipileMessageIds: [...seenIds],
+      });
+    }
+
+    return result;
   }
 
-  private async upsertEmailThread(account: ConnectedAccount, item: unknown): Promise<void> {
+  private async upsertEmailThread(account: ConnectedAccount, item: unknown): Promise<string | null> {
     const parsed = UnipileEmailSchema.safeParse(item);
 
     if (!parsed.success) {
@@ -74,7 +93,7 @@ export class BackfillEmailsInteractor {
         connectedAccountId: account.id,
         payload: item,
       });
-      return;
+      return null;
     }
 
     await this.repo.recordRawBackfillItemUnscoped({
@@ -99,7 +118,7 @@ export class BackfillEmailsInteractor {
         payload: parsed.data,
         unipileMessageId: parsed.data.id ?? null,
       });
-      return;
+      return parsed.data.id ?? null;
     }
 
     try {
@@ -139,5 +158,7 @@ export class BackfillEmailsInteractor {
         unipileMessageId: parsed.data.id ?? null,
       });
     }
+
+    return parsed.data.id ?? null;
   }
 }

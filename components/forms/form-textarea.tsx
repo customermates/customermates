@@ -13,6 +13,7 @@ import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 
 type Props = Omit<ComponentProps<"textarea">, "value" | "onChange" | "id" | "disabled" | "readOnly"> & {
   id: string;
+  inputId?: string;
   label?: string | null;
   required?: boolean;
   className?: string;
@@ -22,18 +23,19 @@ type Props = Omit<ComponentProps<"textarea">, "value" | "onChange" | "id" | "dis
 };
 
 export const FormTextarea = observer(
-  ({ id, label, required, className, containerClassName, disabled, readOnly, ...props }: Props) => {
+  ({ id, inputId, label, required, className, containerClassName, disabled, readOnly, ...props }: Props) => {
     const store = useAppForm();
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const value = (store?.getValue(id) as string | undefined) ?? "";
     const { hasError } = useFormFieldErrors(id);
     const isDisabled = disabled ?? store?.isLoading;
     const isReadOnly = readOnly ?? store?.isReadOnly;
+    const domId = inputId ?? id;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -44,7 +46,7 @@ export const FormTextarea = observer(
           aria-invalid={hasError}
           className={className}
           disabled={isDisabled}
-          id={id}
+          id={domId}
           readOnly={isReadOnly}
           required={required}
           value={value}

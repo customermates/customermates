@@ -4,7 +4,12 @@ import { NextResponse } from "next/server";
 
 import { handleError } from "@/core/api/interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
-import { getRetryAfterSeconds, isUnipileRateLimit } from "@/ee/messaging/messaging.service";
+import {
+  getRetryAfterSeconds,
+  getUnipileStatus,
+  isUnipileRateLimit,
+  isUnipileResourceNotFound,
+} from "@/ee/messaging/messaging.service";
 
 export async function GET(
   _req: NextRequest,
@@ -29,6 +34,10 @@ export async function GET(
         headers: retryAfter ? { "retry-after": String(retryAfter) } : undefined,
       });
     }
+
+    if (isUnipileResourceNotFound(err)) return NextResponse.json("Attachment not found", { status: 404 });
+
+    if (getUnipileStatus(err) !== null) return NextResponse.json("Attachment provider unavailable", { status: 502 });
 
     return handleError(err);
   }

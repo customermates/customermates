@@ -5,7 +5,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import * as TocClerk from "fumadocs-ui/components/toc/clerk";
 import * as FumaToc from "fumadocs-ui/components/toc/index";
 
-export function Toc({ items, children }: { items: TOCItemType[]; children: ReactNode }) {
+export function Toc({ items, children, actions }: { items: TOCItemType[]; children: ReactNode; actions?: ReactNode }) {
   const tocScrollRef = useRef<HTMLDivElement>(null);
   const contentScrollRef = useRef<HTMLElement>(null);
 
@@ -52,6 +52,8 @@ export function Toc({ items, children }: { items: TOCItemType[]; children: React
           ref={tocScrollRef}
           className="hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky top-0 max-h-screen min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]"
         >
+          {actions ? <div className="mb-4">{actions}</div> : null}
+
           <TocClerk.TOCItems />
         </aside>
       </div>

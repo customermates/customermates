@@ -15,14 +15,14 @@ import { BaseCreateContactSchema } from "@/features/contacts/upsert/create-conta
 import { BaseUpdateContactSchema } from "@/features/contacts/upsert/update-contact-base.schema";
 
 const CreateContactsSchema = z.object({
-  contacts: z.array(BaseCreateContactSchema).min(1).max(100),
+  contacts: z.array(BaseCreateContactSchema.strict()).min(1).max(100),
 });
 
 const UpdateContactsSchema = z.object({
   contacts: z
     .array(
       forbidNullFields(
-        BaseUpdateContactSchema.omit({ organizationIds: true, userIds: true, dealIds: true, taskIds: true }),
+        BaseUpdateContactSchema.omit({ organizationIds: true, userIds: true, dealIds: true, taskIds: true }).strict(),
         ["customFieldValues"],
       ),
     )
@@ -32,6 +32,7 @@ const UpdateContactsSchema = z.object({
 
 export const createContactsTool = {
   name: "create_contacts",
+  title: "Create contacts",
   description:
     "Create up to 100 contacts in one call. " +
     "Required per item: firstName, lastName. " +
@@ -43,6 +44,7 @@ export const createContactsTool = {
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
+    idempotentHint: false,
     openWorldHint: false,
   },
   inputSchema: CreateContactsSchema,
@@ -59,9 +61,10 @@ export const createContactsTool = {
 
 export const updateContactsTool = {
   name: "update_contacts",
+  title: "Update contacts",
   description:
     "Partial update for up to 100 contacts in one call. " +
-    "Address each contact by `id`: either the contact UUID, or a channel the contact already owns - an email or phone number (matched across providers), or 'provider:value' for a handle (e.g. 'linkedin:john-doe', 'telegram:jdoe'). The contact must already exist; this is an update, not an upsert, so unknown keys are rejected. " +
+    "Address each contact by `id`: either the contact UUID, or a channel the contact already owns - an email or phone number (matched across providers), or 'provider:value' for a handle (e.g. 'linkedin:john-doe', 'telegram:jdoe'). The contact must already exist; this is an update, not an upsert, so an id that resolves to no contact is rejected. " +
     "Optional per item: firstName, lastName, identifiers, notes, customFieldValues. " +
     relationsViaLinkNote("organizations, deals, users, tasks") +
     " `identifiers` REPLACES the contact's channel set: when provided, channels not listed are unlinked and their message history detached, so omit the field to leave channels untouched, or first read the current identifiers then write the full list plus the new channel. This is also how you assign an inbox conversation to a contact: adding a participant's channel here links that thread to the contact (and dropping it unlinks). Each item is { provider, value, messagingId?, displayName?, profileUrl? } with provider one of mail, google, outlook, whatsapp, linkedin, telegram, instagram (for the latter three, value is the handle and messagingId is the provider-internal id required for outbound messaging; without it the channel is view-only). A channel can belong to only one contact: if a value is already linked to a different contact the call is rejected. " +

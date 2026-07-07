@@ -140,7 +140,7 @@ export const ApiKeyModal = observer(() => {
                 {t("Common.actions.cancel")}
               </Button>
 
-              <Button disabled={isLoading || !hasUnsavedChanges} type="submit">
+              <Button disabled={isLoading || !hasUnsavedChanges} id="api-key-save" type="submit">
                 {t("Common.actions.save")}
               </Button>
             </AppCardFooter>

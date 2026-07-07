@@ -30,6 +30,30 @@ export default async function proxy(req: NextRequest) {
 
   const isApiRoute = pathname.startsWith("/api");
 
+  if (pathname === "/api/auth/mcp/authorize") {
+    const authorizeWithConsent = req.nextUrl.clone();
+    authorizeWithConsent.searchParams.set("prompt", "consent");
+
+    let hasValidSession = false;
+
+    if (hasSessionCookie(req)) {
+      try {
+        const session = await auth.api.getSession({ headers: req.headers });
+        hasValidSession = Boolean(session?.session && session.session.expiresAt.getTime() > Date.now());
+      } catch {
+        hasValidSession = false;
+      }
+    }
+
+    if (!hasValidSession) {
+      const signInUrl = new URL("/auth/signin", base);
+      signInUrl.searchParams.set("callbackURL", authorizeWithConsent.pathname + authorizeWithConsent.search);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    if (req.nextUrl.searchParams.get("prompt") !== "consent") return NextResponse.redirect(authorizeWithConsent);
+  }
+
   if (isApiRoute) return NextResponse.next();
 
   const currentLocale = ROUTING_LOCALES.find(
@@ -98,8 +122,8 @@ export const config = {
       /*
        * Exclude paths:
        * - og (Open Graph image route)
-       * - monitoring (Sentry tunnel route — must bypass i18n so the SDK can POST to /monitoring directly)
-       * - .well-known/workflow (Vercel Workflow SDK internal routes — must bypass auth/i18n)
+       * - monitoring (Sentry tunnel route, must bypass i18n so the SDK can POST to /monitoring directly)
+       * - .well-known (Vercel Workflow SDK + OAuth discovery routes, must bypass auth/i18n)
        * - _next/static, _next/image (Next.js internal)
        * - _vercel (Vercel internal routes)
        * - Files with extensions (images, scripts, etc.)
@@ -112,7 +136,7 @@ export const config = {
        * Only requests that match the source pattern AND don't have prefetch headers will run middleware
        */
       source:
-        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known/workflow|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

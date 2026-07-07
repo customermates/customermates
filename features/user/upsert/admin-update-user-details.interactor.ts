@@ -18,7 +18,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const Schema = z.object({
+export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
@@ -27,7 +27,7 @@ const Schema = z.object({
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
   roleId: z.uuid(),
 });
-export type AdminUpdateUserDetailsData = Data<typeof Schema>;
+export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;
 
 export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
@@ -61,8 +61,8 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   }
 
   @Write({
-    input: Schema,
-    output: Schema,
+    input: AdminUpdateUserDetailsSchema,
+    output: AdminUpdateUserDetailsSchema,
     precheck: (self, data, ctx) => self.precheck(data, ctx),
   })
   async invoke(data: AdminUpdateUserDetailsData): Validated<AdminUpdateUserDetailsData> {

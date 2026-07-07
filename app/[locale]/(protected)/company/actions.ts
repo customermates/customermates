@@ -95,7 +95,7 @@ export async function getUsersAction(params?: GetQueryParams) {
 
 export async function getUserByIdAction(data: GetUserByIdData) {
   const result = await getGetUserByIdInteractor().invoke(data);
-  return result.data;
+  return result.ok ? result.data : { user: null };
 }
 
 export async function getAuditLogsAction(params?: GetQueryParams) {

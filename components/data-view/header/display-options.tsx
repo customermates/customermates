@@ -29,6 +29,7 @@ type DataViewMode = "table" | "grid" | "kanban";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
+  id?: string;
 };
 
 type FieldRowProps = {
@@ -85,7 +86,10 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
   );
 }
 
-export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E extends HasId>({ store }: Props<E>) {
+export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E extends HasId>({
+  store,
+  id,
+}: Props<E>) {
   const t = useTranslations();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -185,6 +189,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
         <Button
           aria-label={t("Common.ariaLabels.tooltipFields")}
           className="relative h-8"
+          id={id}
           size="sm"
           variant="secondary"
         >

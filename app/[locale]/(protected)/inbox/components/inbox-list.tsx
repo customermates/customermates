@@ -144,7 +144,7 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
     <div className="flex h-full flex-col">
       <DataViewActiveFiltersBar store={messagingThreadsStore} onEditFilters={clearSelectedThread} />
 
-      <div ref={listRef} className="flex-1 overflow-y-auto">
+      <div ref={listRef} className="flex-1 overflow-y-auto" id="inbox-thread-list">
         {items.length === 0 ? (
           <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
             <Inbox className="size-8 opacity-40" />

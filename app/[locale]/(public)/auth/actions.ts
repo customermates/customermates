@@ -14,6 +14,7 @@ import {
   getContinueWithSocialsInteractor,
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
+  getAuthService,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -46,4 +47,11 @@ export async function resetPasswordAction(data: ResetPasswordData) {
 
 export async function resendVerificationEmailFromAuthAction(): Promise<{ ok: boolean }> {
   return await getResendVerificationEmailInteractor().invoke();
+}
+
+export async function decideMcpConsentAction(data: {
+  consentCode: string;
+  accept: boolean;
+}): Promise<{ redirectURI: string } | null> {
+  return getAuthService().decideMcpConsent(data);
 }

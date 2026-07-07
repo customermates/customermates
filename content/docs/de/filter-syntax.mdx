@@ -3,11 +3,11 @@ title: Filter-Syntax
 description: Jeder Filter-Operator in Customermates, mit Beispielen.
 ---
 
-Filter sind Arrays von `{ field, operator, value? }`-Regeln, UND-verknüpft. Dreizehn Operatoren decken Equality, Vergleich, Set-Membership, Range, Null-Checks und Relationship-Membership ab.
+Customermates-Filter (genutzt von den Model-Context-Protocol-Tools (MCP), der REST-API und der App-UI) sind Arrays von Feld-Operator-Wert-Regeln. Sechzehn Operatoren decken Equality, Vergleich, Set-Membership, Range, Aktualität, Null-Checks und Relationship-Membership ab.
 
 ## Wo Filter greifen
 
-- `filter_entity` und `count_entity` MCP-Tools.
+- Das `list_records` MCP-Tool (und die Messaging-Filter auf `get_messaging_threads`).
 - `entityFilters` und `dealFilters` auf Widgets.
 - Gespeicherte Views in der UI (intern dieselbe Form).
 
@@ -35,20 +35,31 @@ Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-sei
 | `in` | Array | beliebig | `["id1", "id2"]` |
 | `notIn` | Array | beliebig | `["id1"]` |
 | `between` | Array aus 2 | Zahlen, Daten | `["2024-01-01", "2024-12-31"]` |
+| `inLastDays` | einen Wert (Ganzzahl) | Daten | `30` |
 | `isNull` | kein Value | beliebig | (keins) |
 | `isNotNull` | kein Value | beliebig | (keins) |
 | `hasNone` | kein Value | Relationship-Arrays | (keins) |
 | `hasSome` | kein Value | Relationship-Arrays | (keins) |
+| `hasUnset` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
+| `allSet` | kein Value | Messaging-Thread-Teilnehmer | (keins) |
+
+### Datums-Operatoren
+
+Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutze `inLastDays` mit einer ganzzahligen Anzahl von Tagen für ein rollierendes Aktualitätsfenster, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze der letzten Woche.
+
+### Relationship- und Teilnehmer-Operatoren
+
+Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) akzeptieren `in`, `notIn`, `hasNone` und `hasSome`. Das Teilnehmer-Verknüpfungsfeld auf `get_messaging_threads` nutzt `hasUnset` und `allSet`, um Threads danach zu filtern, ob ihre Teilnehmer mit Datensätzen verknüpft sind.
 
 ## Feldnamen
 
-`field` ist, was `get_entity_configuration` unter `filterableFields` für diese Entity zurückgibt. Enthält:
+`field` ist, was `get_record_schema` unter `filterableFields` für diese Entity zurückgibt. Enthält:
 
 - Standard-Skalare (z.B. `createdAt`, `updatedAt`).
-- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Paar sie mit `in`, `notIn`, `hasNone`, `hasSome`.
+- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombiniere sie mit `in`, `notIn`, `hasNone`, `hasSome`.
 - Custom-Column-IDs. Nutze die UUID der Spalte als Feldname.
 
-Immer `get_entity_configuration` zuerst, wenn du unsicher bist, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
+Immer `get_record_schema` zuerst, wenn du unsicher bist, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
 
 ## Beispiele
 
@@ -58,12 +69,12 @@ Contacts in einer von drei Organizations:
 { "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
 ```
 
-Deals aus 2024 mit Custom-"stage"-Spalte gleich "won":
+Deals aus 2024, deren Custom-singleSelect-Spalte (identifiziert über ihre UUID) einem gewählten Optionswert entspricht:
 
 ```json
 [
   { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
-  { "field": "col_stage", "operator": "equals",  "value": "won" }
+  { "field": "col_uuid",  "operator": "equals",  "value": "option_value" }
 ]
 ```
 
@@ -73,17 +84,17 @@ Contacts ohne Organization:
 { "field": "organizationIds", "operator": "hasNone" }
 ```
 
-Services mit Custom-"renewalDate"-Spalte in den nächsten 30 Tagen:
+Datensätze der letzten 30 Tage:
 
 ```json
-{ "field": "col_renewal", "operator": "between", "value": ["2026-04-22","2026-05-22"] }
+{ "field": "createdAt", "operator": "inLastDays", "value": 30 }
 ```
 
 ## Freitext vs Filter
 
-`filter_entity` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder (firstName+lastName für Contacts, name für den Rest). Für "Contacts, deren Name 'acme' enthält" ist das `searchTerm`, nicht eine Filter-Regel auf `firstName`. Filter-Regeln auf `firstName` werden nicht unterstützt.
+`list_records` akzeptiert auch `searchTerm`, eine Freitextsuche über die Namensfelder (firstName+lastName für Contacts, name für den Rest). Für "Contacts, deren Name 'acme' enthält" ist das `searchTerm`, nicht eine Filter-Regel auf `firstName`. Filter-Regeln auf `firstName` werden nicht unterstützt.
 
 ## Weiter
 
 - [Kernkonzepte](/docs/concepts): Feldtypen und Beziehungen.
-- [MCP-Tool-Katalog](/docs/mcp-tool-catalog): wo Filter auftauchen.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): wo Filter auftauchen.

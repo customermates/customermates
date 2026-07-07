@@ -11,6 +11,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { isEmailProvider } from "../../provider";
+import { BACKFILL_EMAIL_TIMEOUT_MS } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
 import { deriveAccountFeatures, mapUnipileProvider, mapUnipileStatus } from "../../unipile.mappers";
 import {
@@ -145,7 +146,7 @@ export class PrepareBackfillInteractor {
 
   private async resolveEmailFolders(account: ConnectedAccount, sourceFilter?: string[]): Promise<string[]> {
     const items = await this.messagingService
-      .listFolders({ accountId: account.unipileAccountId })
+      .listFolders({ accountId: account.unipileAccountId, timeoutMs: BACKFILL_EMAIL_TIMEOUT_MS })
       .then((page) => page.data ?? [])
       .catch(() => [] as unknown[]);
 
@@ -153,6 +154,7 @@ export class PrepareBackfillInteractor {
       const parsed = UnipileFolderSchema.safeParse(raw);
       return parsed.success ? [parsed.data] : [];
     });
+    if (folders.length === 0) return [];
 
     const sentFolderIds = folders.filter(isSentEmailFolder).map((folder) => folder.id);
     const selectedFolderIds =
@@ -173,6 +175,6 @@ export class PrepareBackfillInteractor {
     const drained = folders
       .filter((folder) => !isSkippedEmailFolder(folder) || selectedFolderIds.includes(folder.id))
       .map((folder) => folder.id);
-    return drained.length > 0 ? drained.sort() : [ACCOUNT_WIDE_SOURCE];
+    return drained.sort();
   }
 }

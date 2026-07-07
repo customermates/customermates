@@ -58,6 +58,7 @@ export const RolesCard = observer(({ initialRoles }: Props) => {
   return (
     <>
       <DataViewContainer
+        anchorScope="company-roles"
         columns={columns}
         isSearchable={false}
         store={rolesStore}

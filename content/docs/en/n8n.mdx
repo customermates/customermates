@@ -1,27 +1,27 @@
 ---
 title: n8n
-description: Build visual workflows over Customermates with webhook triggers, HTTP actions, and ready-made templates.
+description: Build visual workflows over Customermates with webhook triggers and HTTP action nodes against the REST API.
 ---
 
-Subscribe an n8n webhook node to Customermates events, use the HTTP Request node with your API key to push changes back. No custom node required. The Customermates REST and MCP surfaces work directly.
+Connect n8n to Customermates by subscribing a Webhook node to CRM events and calling the REST API from HTTP Request nodes. No custom node is required. The REST and MCP surfaces work directly.
 
 ## When n8n fits
 
 - Your team prefers visual flows over writing code.
-- You want to branch and transform events before routing them (to Slack, HubSpot, Google Sheets, your data warehouse).
+- You want to branch and transform events before routing them to another system, such as Slack, HubSpot, Google Sheets, or a data warehouse.
 - You already run n8n for other automations.
 
 If you want an AI to drive the CRM in conversation, use [MCP](/docs/mcp) instead or alongside.
 
 ## Pattern 1: trigger n8n from CRM changes
 
-1. In n8n, add a **Webhook** node. Copy the URL it generates.
-2. In Customermates, **Company → Webhooks → New** and paste the URL. Pick the events you care about.
+1. In n8n, add a **Webhook** node and copy the URL it generates.
+2. In Customermates, go to **Company → Webhooks → New**, paste the URL, and select the events you want.
 3. Add steps after the Webhook node to transform and forward the payload.
 
 The payload shape is documented at [Webhooks](/docs/webhooks). Common next steps:
 
-- **Slack**: post "new deal: $[amount]" to a channel.
+- **Slack**: post a message to a channel when a deal is created.
 - **Google Sheets**: append a row every time a contact is created.
 - **HubSpot**: mirror the contact.
 
@@ -29,29 +29,31 @@ The payload shape is documented at [Webhooks](/docs/webhooks). Common next steps
 
 Use the **HTTP Request** node:
 
-- Method: `POST` (or `PATCH` for updates)
-- URL: `https://customermates.com/api/v1/<endpoint>`
-- Headers: `x-api-key` set to your API key (use n8n credentials)
-- Body: JSON matching the [OpenAPI spec](/docs/openapi)
+- Method: `POST` for creates, `PATCH` for updates.
+- URL: `https://customermates.com/api/v1/<endpoint>`, where `<endpoint>` is `contacts`, `organizations`, `deals`, `services`, or `tasks`.
+- Headers: `x-api-key` set to your API key, stored as an n8n credential.
+- Body: JSON matching the [OpenAPI spec](/docs/openapi).
 
-For MCP-style tool calls from n8n, hit `/api/v1/mcp` with `method: "tools/call"`. Useful when you want n8n to get the same guardrails (null-wipe rejection, type-mismatch routing).
+To make MCP tool calls from n8n, send a request to `/api/v1/mcp` with `method: "tools/call"`. This routes writes through the same guardrails the MCP layer adds, such as rejecting a `null` on a relationship array.
 
-## Pattern 3: scheduled cleanup
+## Pattern 3: scheduled jobs
 
-n8n's Cron trigger plus Customermates REST makes scheduled jobs easy:
+n8n's Cron trigger plus the Customermates REST API covers recurring work:
 
-- Daily: find contacts without an organization, post a reminder.
-- Weekly: export last week's won deals to a Google Sheet.
-- Monthly: archive closed-lost deals older than 90 days.
+- Daily: find contacts without an organization and post a reminder.
+- Weekly: export records matching a filter to a Google Sheet.
+- Monthly: archive records whose custom status column holds a given value.
+
+Deal and task lifecycle values such as status or priority are workspace-configurable singleSelect custom columns, not fixed fields. Call `get_record_schema` or read the OpenAPI spec to see which columns and options exist in your workspace before filtering on them.
 
 ## Authentication
 
-Store the API key as an n8n **Header Auth** credential with name `x-api-key`. Reuse across nodes. Rotate in one place.
+Store the API key as an n8n **Header Auth** credential with header name `x-api-key`. Reuse it across nodes so you rotate it in one place. Keys are 64-character base62 strings and inherit the owning user's permissions; there is no per-key scoping.
 
 ## Common gotchas
 
-- **Null-wipe guard**: if you pass `null` on a relationship array, the server rejects. Use `[]` or `link_entities` / `unlink_entities`.
-- **Rate limits**: high-frequency loops hit API limits. Batch where possible.
+- **Relationship arrays**: passing `null` on a relationship array is rejected. Send `[]` to clear, or use the `manage_record_links` tool to add or remove links.
+- **Rate limits**: high-frequency loops can hit API limits. Batch where possible.
 - **Webhook ordering**: deliveries are not strictly ordered. Treat them as idempotent messages keyed by `entityId`.
 
 ## Next

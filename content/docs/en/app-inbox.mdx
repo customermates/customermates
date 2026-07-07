@@ -1,0 +1,36 @@
+---
+title: Inbox
+description: The Inbox screen of the Customermates web app. Email, LinkedIn, WhatsApp, Instagram, and Telegram threads in one list, with stable anchor ids for AI agents that drive the UI.
+---
+
+Customermates is an open-source, AI-native CRM. This page documents the **Inbox** screen of the web app for humans and for AI agents that drive the UI.
+
+## Purpose
+
+The Inbox is unified messaging (currently in preview). Email, LinkedIn, WhatsApp, Instagram, and Telegram threads from all connected accounts appear in one list. From here you reply on the thread's original channel, set the thread state, and link participants to CRM contacts. It requires at least one connected account. See [App guide, Profile](/docs/app-profile).
+
+## URL
+
+The route is `/inbox`. All app routes are locale-prefixed, for example `https://customermates.com/en/inbox`.
+
+## Key actions
+
+| Action | Where | Anchor id | What happens |
+| --- | --- | --- | --- |
+| Go to Inbox | App sidebar | `#nav-inbox` | Opens /inbox |
+| Open thread | Row (button) inside the thread list | `#inbox-thread-list` | The list container has the id; thread rows inside it are buttons |
+| Reply | Composer at the bottom of a thread | `#inbox-reply-input` / `#inbox-reply-send` | Type, then send on the thread channel |
+| Set thread state | Thread header state select | `#inbox-thread-state` | Choose unread, open, closed, or spam |
+| Link participant to contact | Thread settings panel | none | Open thread settings, then link per participant |
+
+## Tips for agents
+
+- Locate controls via the stable ids above, for example with the CSS selector `#inbox-reply-send`.
+- Rows never carry ids. Open records via their URL, or (on entity pages) via the drawer deep-link `?open=<entityType>:{id}`. In the Inbox, thread rows are buttons inside `#inbox-thread-list`.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists.
+- Starting a fresh conversation (new email, new chat) is available through the MCP tools `send_email` and `send_chat_message`. Prefer those over the UI. In the app, the send icon on a contact's channel opens a compose popover for a quick message.
+
+## Related
+
+- [App guide, Profile](/docs/app-profile): connect the email, LinkedIn, WhatsApp, Instagram, or Telegram accounts that feed the Inbox.
+- [Rate limits](/docs/messaging-rate-limits): the per-provider budgets that govern reads and sends.

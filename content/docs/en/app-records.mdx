@@ -1,0 +1,66 @@
+---
+title: Records
+description: Contacts, organizations, deals, services, and tasks share one layout in the Customermates web app (list, drawer, detail), with stable anchor ids for AI agents driving the UI.
+---
+
+Customermates has five record types: Contacts, Organizations, Deals, Services, and Tasks. They all use the same screen layout, so this page documents them together for people and for AI agents that drive the UI.
+
+## The shared layout
+
+Every record type has the same three surfaces:
+
+- **List** at `/{type}` (for example `/contacts`), locale-prefixed like `https://customermates.com/en/contacts`. Search, filter, sort, and bulk actions live here.
+- **Drawer**: append `?open={entityType}:{id}` to the list URL (for example `/contacts?open=contact:{id}`) to edit a record over the list.
+- **Detail page** at `/{type}/{id}` (for example `/contacts/42`) for the full record, custom fields, and delete.
+
+Rows never carry a DOM id. Open a record by its URL or the drawer deep-link, never by clicking a row you located by id.
+
+## Lists and toolbars
+
+Each record type has its own route and its own toolbar ids, prefixed with the type. The four toolbar controls behave the same everywhere: **Add** opens the create drawer, **Search** live-filters the list, **Filter** opens the filter popover ([filter syntax](/docs/filter-syntax)), and **Display options** controls columns, sorting, and view mode.
+
+| Record type | Route | entityType | Sidebar | Toolbar: add, search, filter, display options |
+|---|---|---|---|---|
+| Contacts | `/contacts` | `contact` | `#nav-contacts` | `#contacts-add`, `#contacts-search`, `#contacts-filter`, `#contacts-display-options` |
+| Organizations | `/organizations` | `organization` | `#nav-organizations` | `#organizations-add`, `#organizations-search`, `#organizations-filter`, `#organizations-display-options` |
+| Deals | `/deals` | `deal` | `#nav-deals` | `#deals-add`, `#deals-search`, `#deals-filter`, `#deals-display-options` |
+| Services | `/services` | `service` | `#nav-services` | `#services-add`, `#services-search`, `#services-filter`, `#services-display-options` |
+| Tasks | `/tasks` | `task` | `#nav-tasks` | `#tasks-add`, `#tasks-search`, `#tasks-filter`, `#tasks-display-options` |
+
+## Drawer and detail actions
+
+These ids are shared by every record type.
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Save (drawer) | Drawer footer | `#drawer-save` | Persists edits made in the drawer |
+| Save / Reset (detail) | Detail topbar | `#entity-save` / `#entity-reset` | Persists or discards edits |
+| Edit fields | Detail topbar | `#entity-edit-fields` | Toggles field editing |
+| Add custom field | Detail topbar | `#entity-add-custom-field` | Creates a custom column |
+| Delete | Detail topbar | `#entity-delete` | Opens the confirmation modal |
+| Confirm / cancel delete | Confirmation modal | `#confirm-delete` / `#confirm-delete-cancel` | Irreversible delete or abort |
+| Bulk delete | Selection bar after checkbox-select | `#mass-delete` | Deletes every selected row |
+
+Notes are a labeled field inside the form. Edit them there, then save.
+
+## Custom columns and the board view
+
+Any record type can carry user-defined custom columns. There are no fixed workflow fields baked into a type, so there is no product-level deal stage or task status. `get_record_schema` returns whatever columns a workspace has configured for each type.
+
+A `singleSelect` custom column can drive a board (kanban) view. `#{type}-display-options` switches the list between a table and a board grouped by a chosen `singleSelect` column. On the board, drag a record between columns to change that column's value; the equivalent in the drawer or detail form is to set the field and save. This applies to every record type that has at least one `singleSelect` column, not only to deals.
+
+The demo workspace ships example columns to illustrate the pattern, for instance a "Status" column on deals and "Status" and "Priority" columns on tasks. These are seeded examples, not fixed behavior. Rename them, change their options, add more, or remove them per workspace.
+
+Records link to other records through labeled relation fields inside the form. Pick the records, then save.
+
+## Tips for agents
+
+- Locate controls by the stable ids above, for example `document.querySelector('#deals-add')`. Ids are identical across locales and viewports; visible labels are not.
+- To open a record, build the URL yourself: `/{type}/{id}` for the full page, or `/{type}?open={entityType}:{id}` for the drawer. Do not try to click a row.
+- Prefer [MCP](/docs/mcp) tools over driving the UI when a tool exists. Creating or updating a record, or changing a `singleSelect` column value, is one tool call instead of a click sequence.
+
+## Related
+
+- [Core concepts](/docs/concepts): entities, relationships, custom columns.
+- [MCP tool catalog](/docs/mcp#tool-catalog): every tool your AI can call.
+- [App guide, Dashboard](/docs/app-dashboard)

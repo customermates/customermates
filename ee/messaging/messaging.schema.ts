@@ -13,7 +13,7 @@ import {
   MessagingThreadType,
 } from "@/generated/prisma";
 
-import { AttachmentKindSchema } from "./attachment-kind";
+import { PreviewKindSchema } from "./attachment-kind";
 import { ContactReferenceSchema } from "@/core/base/base-entity.schema";
 
 export const MessagingProviderSchema = z.enum(MessagingProvider);
@@ -87,7 +87,7 @@ export const MessagingThreadSchema = z.object({
   name: z.string().nullable().default(null),
   subject: z.string().nullable(),
   preview: z.string().nullable(),
-  previewKind: AttachmentKindSchema.nullable(),
+  previewKind: PreviewKindSchema.nullable(),
   lastMessageAt: z.date().nullable(),
   participants: z.array(MessagingAttendeeSchema),
   state: MessagingThreadStateSchema.default("unread"),

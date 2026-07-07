@@ -1,0 +1,48 @@
+---
+title: Company
+description: Der Company-Screen, workspace-weite Administration mit Firmendaten, Team-Mitgliedern, Rollen, Webhooks, Deliveries und Audit-Trail, für Menschen und UI-steuernde Agents.
+---
+
+Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den **Company**-Screen der Web-App, für Menschen und für KI-Agents, die die UI steuern.
+
+## Zweck
+
+Der Company-Screen ist die workspace-weite Administration. Hier liegen die Firmendaten selbst, das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Delivery-Historie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, findest du hier.
+
+## URL
+
+Die Route ist `/company/details`. Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/company/details). Jeder Tab hat seine eigene Route: `/company/details`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries` und `/company/audit-logs`.
+
+## Wichtige Aktionen
+
+| Aktion | Wo | Anchor id | Was passiert |
+|---|---|---|---|
+| Zu Company gehen | App-Sidebar | `#nav-company` | Öffnet /company/details |
+| Details-Tab | Sidebar-Unterpunkt | `#nav-company-details` | Firmenname, Logo, Billing |
+| Details speichern / zurücksetzen | Formular-Footer | `#company-details-save` / `#company-details-reset` | Speichert oder verwirft |
+| Members-Tab | Sidebar-Unterpunkt | `#nav-company-members` | Team-Verwaltung |
+| Mitglied einladen | Members-Toolbar | `#company-members-add` | Öffnet das Einladungs-Modal |
+| Einladung senden | Footer des Einladungs-Modals | `#member-modal-save` / `#member-modal-reset` | Verschickt die Einladung |
+| Mitglieder suchen / filtern | Members-Toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | Listen-Controls |
+| Roles-Tab | Sidebar-Unterpunkt | `#nav-company-roles` | Berechtigungssets |
+| Rolle hinzufügen | Roles-Toolbar | `#company-roles-add` | Öffnet den Rollen-Editor |
+| Roles-Listen-Controls | Roles-Toolbar | `#company-roles-search` / `#company-roles-filter` / `#company-roles-display-options` | Listen-Controls |
+| Webhooks-Tab | Sidebar-Unterpunkt | `#nav-company-webhooks` | Ausgehende Event-Subscriptions |
+| Webhook erstellen | Webhooks-Toolbar | `#company-webhooks-add` | Öffnet das Webhook-Modal |
+| Webhook speichern | Footer des Webhook-Modals | `#webhook-modal-save` / `#webhook-modal-reset` | Abonniert die URL auf Events |
+| Webhooks-Listen-Controls | Webhooks-Toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | Listen-Controls |
+| Deliveries-Tab | Sidebar-Unterpunkt | `#nav-company-webhook-deliveries` | Status + Payload pro Delivery; Resend direkt aus der Delivery-Zeile |
+| Deliveries-Listen-Controls | Deliveries-Toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | Listen-Controls |
+| Audit-Logs-Tab | Sidebar-Unterpunkt | `#nav-company-audit-logs` | Wer hat was wann geändert |
+| Audit-Listen-Controls | Audit-Toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | Listen-Controls |
+
+## Tipps für Agents
+
+- Finde Controls über die stabilen ids oben, nicht über sichtbaren Text: Text ändert sich mit der Locale, ids nicht. Beispiel-CSS-Selektor: `#company-webhooks-add`.
+- Zeilen tragen nie ids. Navigiere zu einem Tab über seine URL (zum Beispiel `/company/webhooks`) und öffne eine Zeile per Klick. Bearbeitet wird in Modals, nicht in einem Drawer.
+- Bevorzuge [MCP](/docs/mcp)-Tools statt Klicken, wenn ein Tool existiert: Datensätze per MCP zu verwalten ist schneller und zuverlässiger, als die UI zu bedienen.
+
+## Verwandt
+
+- [Webhooks](/docs/webhooks)
+- [App-Guide, Profile](/docs/app-profile)

@@ -115,7 +115,11 @@ export const ConnectedAccountModal = observer(() => {
             <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
             <InfoRow label={t("ConnectedAccountsCard.status")}>
-              {account.syncing ? (
+              {account.preparing ? (
+                <AppChip startContent={<Loader2 className="animate-spin" />} variant="secondary">
+                  {t("ConnectedAccountsCard.preparing")}
+                </AppChip>
+              ) : account.syncing ? (
                 <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
                   {t("ConnectedAccountsCard.syncing")}
                 </AppChip>

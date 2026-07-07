@@ -1,5 +1,5 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { oAuthProxy } from "better-auth/plugins";
+import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
@@ -34,6 +34,12 @@ export const auth = betterAuth({
 
   advanced: {
     cookiePrefix: "app",
+  },
+
+  rateLimit: {
+    customRules: {
+      "/mcp/register": { window: 3600, max: 10 },
+    },
   },
 
   database: prismaAdapter(prisma, {
@@ -139,12 +145,24 @@ export const auth = betterAuth({
 
   plugins: [
     oAuthProxy(),
-    nextCookies(),
     apiKey({
       rateLimit: {
         enabled: false,
       },
       enableSessionForAPIKeys: true,
     }),
+    mcp({
+      loginPage: "/auth/signin",
+      resource: `${env.BASE_URL}/api/v1/mcp`,
+      oidcConfig: {
+        loginPage: "/auth/signin",
+        consentPage: "/auth/mcp-consent",
+        requirePKCE: true,
+        allowPlainCodeChallengeMethod: false,
+        accessTokenExpiresIn: 3600,
+        refreshTokenExpiresIn: 60 * 60 * 24 * 30,
+      },
+    }),
+    nextCookies(),
   ],
 });

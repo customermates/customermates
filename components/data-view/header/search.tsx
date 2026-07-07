@@ -15,12 +15,14 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   placeholder?: string;
   className?: string;
+  id?: string;
 };
 
 export const DataViewSearch = observer(function DataViewSearch<E extends HasId>({
   store,
   placeholder = "Search",
   className,
+  id,
 }: Props<E>) {
   const [value, setValue] = useState(store.searchTerm ?? "");
   const [expandedMobile, setExpandedMobile] = useState(Boolean(store.searchTerm));
@@ -77,6 +79,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
             expandedMobile && "pr-7.5 md:pr-2",
             value && "border-primary",
           )}
+          id={id}
           placeholder={placeholder}
           type="search"
           value={value}

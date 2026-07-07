@@ -28,7 +28,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const topBarActions = useMemo(
     () =>
       canManage ? (
-        <Button className="h-8" size="sm" onClick={() => void apiKeyModalStore.add()}>
+        <Button className="h-8" id="profile-api-keys-generate" size="sm" onClick={() => void apiKeyModalStore.add()}>
           <Plus className="size-3.5" />
 
           <span className="hidden sm:inline">{t("Common.actions.add")}</span>

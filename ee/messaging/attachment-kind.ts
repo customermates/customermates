@@ -13,6 +13,9 @@ export const AttachmentKindSchema = z.enum([
 ]);
 export type AttachmentKind = z.infer<typeof AttachmentKindSchema>;
 
+export const PreviewKindSchema = z.enum([...AttachmentKindSchema.options, "deleted"]);
+export type PreviewKind = z.infer<typeof PreviewKindSchema>;
+
 type ClassifiableAttachment = {
   type?: string | null;
   mime?: string | null;
@@ -41,7 +44,7 @@ export function isMediaKind(kind: AttachmentKind): boolean {
   );
 }
 
-export const PREVIEW_KIND_LABEL: Record<AttachmentKind, string> = {
+export const PREVIEW_KIND_LABEL: Record<PreviewKind, string> = {
   image: "Inbox.previewPhoto",
   gif: "Inbox.previewGif",
   video: "Inbox.previewVideo",
@@ -51,4 +54,5 @@ export const PREVIEW_KIND_LABEL: Record<AttachmentKind, string> = {
   unsupported: "Inbox.previewUnsupported",
   post: "Inbox.previewPost",
   file: "Inbox.previewFile",
+  deleted: "Inbox.messageDeleted",
 };

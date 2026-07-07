@@ -15,7 +15,7 @@ import { BaseCreateTaskSchema } from "@/features/tasks/upsert/create-task-base.s
 import { BaseUpdateTaskSchema } from "@/features/tasks/upsert/update-task-base.schema";
 
 const CreateTasksSchema = z.object({
-  tasks: z.array(BaseCreateTaskSchema).min(1).max(100),
+  tasks: z.array(BaseCreateTaskSchema.strict()).min(1).max(100),
 });
 
 const UpdateTasksSchema = z.object({
@@ -28,7 +28,7 @@ const UpdateTasksSchema = z.object({
           organizationIds: true,
           dealIds: true,
           serviceIds: true,
-        }),
+        }).strict(),
         ["customFieldValues"],
       ),
     )
@@ -38,6 +38,7 @@ const UpdateTasksSchema = z.object({
 
 export const createTasksTool = {
   name: "create_tasks",
+  title: "Create tasks",
   description:
     "Create up to 100 tasks in one call. " +
     "Required per item: name. " +
@@ -45,7 +46,7 @@ export const createTasksTool = {
     "You can pass userIds/contactIds/organizationIds/dealIds/serviceIds directly in create to link the task to those entities in one call. " +
     CUSTOM_COLUMN_PREREQ +
     " Returns the list of created task ids and names.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateTasksSchema,
   execute: (params: z.infer<typeof CreateTasksSchema>) =>
     runInteractor(getCreateManyTasksInteractor().invoke(params), (data) =>
@@ -55,6 +56,7 @@ export const createTasksTool = {
 
 export const updateTasksTool = {
   name: "update_tasks",
+  title: "Update tasks",
   description:
     "Partial update for up to 100 tasks in one call. " +
     "Required per item: id. " +

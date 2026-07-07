@@ -99,6 +99,7 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="company-members"
       columns={columns}
       store={usersStore}
       onAdd={

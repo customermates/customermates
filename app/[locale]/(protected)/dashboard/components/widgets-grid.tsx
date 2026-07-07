@@ -84,7 +84,7 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   const topBarActions = useMemo(
     () => (
       <div className="flex items-center gap-1">
-        <Button size="sm" onClick={() => void widgetModalStore.add()}>
+        <Button id="dashboard-add-widget" size="sm" onClick={() => void widgetModalStore.add()}>
           <Icon icon={Plus} />
 
           <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>

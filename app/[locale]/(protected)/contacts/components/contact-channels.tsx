@@ -2,7 +2,7 @@
 
 import type { IdentifierInput } from "@/features/contacts/contact.schema";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Copy, ExternalLink, Send, X } from "lucide-react";
@@ -12,6 +12,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
@@ -20,6 +21,7 @@ import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { AddChannelPopover } from "./add-channel-popover";
+import { ContactComposePopover } from "./contact-compose-popover";
 
 type Props = {
   contactId: string;
@@ -28,8 +30,9 @@ type Props = {
 
 export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const t = useTranslations();
-  const { userStore, contactDetailStore, startChatModalStore, connectedAccountsStore } = useRootStore();
+  const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = useRootStore();
   const copy = useCopyToClipboard();
+  const [composeKey, setComposeKey] = useState<string | null>(null);
   const canEditChannels = userStore.can(Resource.contacts, Action.update);
   const canStartThread = userStore.can(Resource.inboxMessages, Action.create);
   const identifiers = contactDetailStore.channels;
@@ -38,12 +41,17 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
     if (canStartThread) void connectedAccountsStore.ensureLoaded();
   }, [canStartThread, connectedAccountsStore]);
 
-  function handleStartChat(identifier: IdentifierInput) {
-    void startChatModalStore.openFor({
+  async function openCompose(identifier: IdentifierInput, key: string) {
+    await connectedAccountsStore.ensureLoaded();
+    const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
+    threadComposeStore.initializeNewThread({
       provider: identifier.provider,
+      connectedAccountId: first?.id ?? "",
       recipientIdentifier: identifier.messagingId ?? identifier.value,
       recipientDisplayName: identifier.displayName ?? null,
+      onSent: () => setComposeKey(null),
     });
+    setComposeKey(key);
   }
 
   return (
@@ -76,12 +84,10 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
             providerLabel;
           const copyValue = channelUrl(identifier.provider, identifier.value, identifier.profileUrl) ?? primaryLabel;
           const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
+          const channelKey = `${identifier.provider}:${identifier.value}`;
 
           return (
-            <div
-              key={`${identifier.provider}:${identifier.value}`}
-              className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2"
-            >
+            <div key={channelKey} className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2">
               <ProviderIcon className="size-6 shrink-0" />
 
               <div className="min-w-0 flex-1">
@@ -116,24 +122,37 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
                 )}
 
                 {canStartThread && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("EntityChannels.ariaStartThread", {
-                          provider: providerLabel,
-                        })}
-                        className="text-muted-foreground hover:text-foreground"
-                        size="icon-sm"
-                        type="button"
-                        variant="ghost"
-                        onClick={() => handleStartChat(identifier)}
-                      >
-                        <Send className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
+                  <Popover
+                    open={composeKey === channelKey}
+                    onOpenChange={(open) => {
+                      if (open) void openCompose(identifier, channelKey);
+                      else if (composeKey === channelKey) setComposeKey(null);
+                    }}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <PopoverTrigger asChild>
+                          <Button
+                            aria-label={t("EntityChannels.ariaStartThread", {
+                              provider: providerLabel,
+                            })}
+                            className="text-muted-foreground hover:text-foreground"
+                            size="icon-sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            <Send className="size-4" />
+                          </Button>
+                        </PopoverTrigger>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("EntityChannels.tooltipStartNewThread")}</TooltipContent>
-                  </Tooltip>
+                      <TooltipContent>{t("EntityChannels.tooltipStartNewThread")}</TooltipContent>
+                    </Tooltip>
+
+                    <PopoverContent align="end" className="w-[min(26rem,90vw)] overflow-hidden p-0" sideOffset={8}>
+                      <ContactComposePopover provider={identifier.provider} />
+                    </PopoverContent>
+                  </Popover>
                 )}
 
                 {canEditChannels && (

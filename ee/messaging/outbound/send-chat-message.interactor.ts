@@ -22,6 +22,8 @@ import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
 
+export const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
+
 export const BaseSendChatMessageSchema = z.object({
   threadId: z.uuid(),
   text: z.string().max(20_000),
@@ -43,11 +45,17 @@ export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
 export abstract class SendChatMessageRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
   abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
+  abstract findDraftById(args: { messageId: string }): Promise<{ id: string } | null>;
+  abstract findRecentOutboundDuplicate(args: {
+    messagingThreadId: string;
+    bodyText: string;
+    windowMs: number;
+  }): Promise<string | null>;
   abstract persistOutboundMessageOrThrow(args: {
     connectedAccountId: string;
     message: IngestMessage;
   }): Promise<MessagingMessage>;
-  abstract convertDraftToSentOrThrow(args: {
+  abstract convertDraftToSent(args: {
     messageId: string;
     unipileMessageId: string;
     providerMessageId: string | null;
@@ -57,7 +65,7 @@ export abstract class SendChatMessageRepo {
     bodyText: string | null;
     bodyHtml: string | null;
     sentAt: Date;
-  }): Promise<MessagingMessage>;
+  }): Promise<MessagingMessage | null>;
 }
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
@@ -80,6 +88,23 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
+
+    if (data.draftMessageId && !(await this.repo.findDraftById({ messageId: data.draftMessageId }))) {
+      const t = await getTranslations();
+      return { ok: false, error: createZodError<MessagingMessageDto>(t("Common.errors.draftMessageNotFound")) };
+    }
+
+    if (
+      data.text.trim() &&
+      (await this.repo.findRecentOutboundDuplicate({
+        messagingThreadId: thread.id,
+        bodyText: data.text,
+        windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
+      }))
+    ) {
+      const t = await getTranslations();
+      return { ok: false, error: createZodError<MessagingMessageDto>(t("Common.errors.duplicateOutboundSuppressed")) };
+    }
 
     const res = await this.messagingService.sendChatMessage({
       accountId: account.unipileAccountId,
@@ -108,7 +133,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     const unipileMessageId = res.data.messageId ?? `sent_${randomUUID()}`;
 
     if (data.draftMessageId) {
-      const converted = await this.repo.convertDraftToSentOrThrow({
+      const converted = await this.repo.convertDraftToSent({
         messageId: data.draftMessageId,
         unipileMessageId,
         providerMessageId: null,
@@ -120,7 +145,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         sentAt,
       });
 
-      return { ok: true as const, data: toMessagingMessageDto(converted) };
+      if (converted) return { ok: true as const, data: toMessagingMessageDto(converted) };
     }
 
     const persisted = await this.repo.persistOutboundMessageOrThrow({

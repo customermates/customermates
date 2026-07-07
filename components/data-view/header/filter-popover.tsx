@@ -29,9 +29,10 @@ import { PopoverSection } from "./popover-section";
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   compact?: boolean;
+  id?: string;
 };
 
-export const FilterPopover = observer(function FilterPopover<E extends HasId>({ store, compact }: Props<E>) {
+export const FilterPopover = observer(function FilterPopover<E extends HasId>({ store, compact, id }: Props<E>) {
   const t = useTranslations();
   const { editFiltersModalStore: modalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
@@ -88,6 +89,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
             "relative",
             compact ? "text-muted-foreground hover:text-foreground size-4 hover:bg-transparent" : "h-8",
           )}
+          id={id}
           size={compact ? "icon-xs" : "sm"}
           type="button"
           variant={compact ? "ghost" : "secondary"}

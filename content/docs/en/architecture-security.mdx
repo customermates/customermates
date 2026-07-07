@@ -3,16 +3,16 @@ title: Architecture and security
 description: How Customermates is built, how data is isolated, and how external AI access is controlled.
 ---
 
-Single-tenant-per-company data model enforced at every layer. Postgres row-level isolation via a company scope. API keys carry user identity. Agents see only what the owning user can see.
+Customermates enforces a single-tenant-per-company data model at every layer. Every record is scoped to a company, API keys carry the owning user's identity, and agents see only what that user can see.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack): web app and API.
 - **PostgreSQL**: primary datastore. JSONB for custom column values and webhook payloads.
 - **Prisma**: ORM and migrations.
-- **better-auth**: sessions, social login, API keys.
+- **better-auth**: sessions, social login, API keys, MCP OAuth.
 - **mcp-handler**: Model Context Protocol endpoint.
-- **TypeScript** end-to-end, Zod-validated at every boundary.
+- **TypeScript** end to end, Zod-validated at every boundary.
 
 ## Tenancy
 
@@ -20,7 +20,7 @@ Every record belongs to a **Company**. The company id is enforced in three place
 
 1. **App layer**: every interactor resolves the current user's company and filters by it.
 2. **Prisma layer**: queries include `companyId` in every `where`.
-3. **Decorator layer**: `@TenantInteractor` ensures interactors that forget to scope throw at runtime.
+3. **Decorator layer**: `@TenantInteractor` makes interactors that fail to scope throw at runtime.
 
 Cross-tenant reads are not possible through the public surface. There is no admin panel that bypasses scope.
 
@@ -29,54 +29,56 @@ Cross-tenant reads are not possible through the public surface. There is no admi
 Three ways to authenticate:
 
 - **Session cookie** (UI): signed, http-only, `Secure` under HTTPS.
-- **API key in `x-api-key`**: 64-character token, SHA-256-hashed at rest, tied to a user.
-- **Social providers** via better-auth.
+- **API key**: 64-character base62 token (a-z, A-Z, 0-9), issued by the better-auth apiKey plugin, hashed at rest, tied to a user. Sent in the `x-api-key` header.
+- **OAuth 2.1** (MCP): remote MCP clients can authorize via better-auth and send a Bearer token instead of an API key.
 
-All three resolve to the same user and company context. API keys have a display prefix so you can identify them in audit logs.
+All methods resolve to the same user and company context.
 
 ## Authorization
 
-Per-user, role-driven. Roles carry permissions on resources (contacts, deals, etc.) and actions (read, create, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
+Per-user and role-driven. Roles carry permissions on resources (contacts, organizations, deals, services, tasks) and actions (read, create, update, delete). Every interactor calls `userService.hasPermissionOrThrow(resource, action)` before acting.
 
-API keys inherit the permissions of their owning user. No separate key-level ACLs today.
+API keys inherit the permissions of their owning user. There is no per-key scoping.
 
 ## External AI access
 
-MCP calls are gated by the same API key check. When an AI acts through MCP:
+MCP requests use the same authentication and authorization path. When an agent acts through MCP:
 
-- It calls `/api/v1/mcp` with the user's API key.
-- The server resolves user and company from the key.
+- It calls `/api/v1/mcp` with an API key or an OAuth Bearer token.
+- The server resolves user and company from the credential.
 - Every tool call runs inside a tenant-scoped context.
-- Validation errors return structured messages with remediation hints; they don't leak internal schema details.
+- Validation errors return structured messages with remediation hints and do not leak internal schema details.
 
-Safety guardrails specifically for weak models:
+The MCP surface adds input guardrails to keep tool calls safe:
 
-- Passing `null` on a relationship array is rejected before reaching the database.
-- Wrong per-type custom-column update tools are rejected with a pointer to the right tool.
-- Destructive tools require explicit id lists; there is no "delete everything matching filter" shortcut.
+- Passing `null` on a relation array is rejected before it reaches the database.
+- Update tools targeting the wrong record type are rejected with a pointer to the correct tool.
+- Destructive tools require an explicit list of record ids. There is no delete-by-filter shortcut.
+
+See [MCP](/docs/mcp#tool-catalog) for the full tool catalog.
 
 ## Data at rest
 
-- Postgres encryption depends on your provider. On our managed cloud, data lives in an EU region with disk-level encryption at rest.
+- Postgres encryption depends on your provider. On the managed cloud, data lives in an EU region with disk-level encryption at rest.
 - Secrets in `.env` are never logged. The logger redacts anything that looks like a key, token, or password.
-- Webhook secrets are stored in Postgres (they need to be retrievable to sign outgoing requests). If that's a concern, run your own secret manager.
+- Webhook secrets are stored in Postgres because they must be retrievable to sign outgoing requests. To keep them elsewhere, self-host with your own secret manager.
 
 ## Data in transit
 
-- HTTPS everywhere on managed cloud.
-- On self-host, you bring the TLS. See [self-hosting](/docs/self-hosting) for the Caddy example.
+- HTTPS everywhere on the managed cloud.
+- On self-host, you provide the TLS. See [self-hosting](/docs/self-hosting) for the Caddy example.
 - Webhook deliveries only go to HTTPS URLs. HTTP is rejected at the schema layer.
 
 ## Audit logging (Enterprise)
 
-Every write is logged: user, action, entity, before/after. Queryable from the UI. Exportable as JSON.
+Every write is logged with user, action, entity, and before and after values. It is queryable from the UI and exportable as JSON. Audit logging is an Enterprise feature, available on paid cloud plans or self-host with a license key.
 
 ## Reporting vulnerabilities
 
-Please disclose responsibly to `security@customermates.com`. PGP key in the repo. We aim to acknowledge within 24 hours.
+Please disclose responsibly to `security@customermates.com`. The PGP key is in the repository. We aim to acknowledge within 24 hours.
 
 ## Next
 
-- [Self-hosting](/docs/self-hosting): if you want to run this yourself.
-- [API keys](/docs/api-keys): hygiene rules.
+- [Self-hosting](/docs/self-hosting): run Customermates yourself.
+- [API keys](/docs/api-keys): key hygiene rules.
 - [MCP](/docs/mcp): how the AI surface is shaped.

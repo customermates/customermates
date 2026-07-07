@@ -91,7 +91,7 @@ export const WebhookModal = observer(() => {
             <FormCheckbox id="enabled" label={t("WebhookModal.enabled")} />
           </AppCardBody>
 
-          <FormActions store={webhookModalStore} />
+          <FormActions anchorScope="webhook-modal" store={webhookModalStore} />
         </AppCard>
       </AppForm>
     </AppModal>

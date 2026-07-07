@@ -50,7 +50,7 @@ export const CompanyDetailsForm = observer(({ company, initialSubscription, show
       <div className="flex items-center gap-1">
         {showSubscription && <SubscribeManageButton />}
 
-        <FormActions formId={formId} store={store} variant="topbar" />
+        <FormActions anchorScope="company-details" formId={formId} store={store} variant="topbar" />
       </div>
     ),
     [formId, store, showSubscription],

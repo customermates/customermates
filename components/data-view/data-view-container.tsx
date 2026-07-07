@@ -26,6 +26,7 @@ type Props<E extends HasId> = {
   onAdd?: () => void;
   isSearchable?: boolean;
   searchPlaceholder?: string;
+  anchorScope?: string;
 };
 
 export const DataViewContainer = observer(function DataViewContainer<E extends HasId>({
@@ -36,6 +37,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   onAdd,
   isSearchable = true,
   searchPlaceholder,
+  anchorScope,
 }: Props<E>) {
   const t = useTranslations();
 
@@ -54,9 +56,15 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
 
   const topBarNode = useMemo(
     () => (
-      <DataViewToolbar isSearchable={isSearchable} searchPlaceholder={searchPlaceholder} store={store} onAdd={onAdd} />
+      <DataViewToolbar
+        anchorScope={anchorScope}
+        isSearchable={isSearchable}
+        searchPlaceholder={searchPlaceholder}
+        store={store}
+        onAdd={onAdd}
+      />
     ),
-    [isSearchable, searchPlaceholder, store, onAdd],
+    [anchorScope, isSearchable, searchPlaceholder, store, onAdd],
   );
 
   useSetTopBarActions(topBarNode);

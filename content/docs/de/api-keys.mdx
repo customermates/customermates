@@ -3,7 +3,7 @@ title: API-Keys
 description: API-Keys für MCP- und REST-Zugriff anlegen, rotieren, widerrufen.
 ---
 
-Ein Key pro Client (Claude, ChatGPT, Zapier etc.), in einer Umgebungsvariable speichern, rotieren, wenn ein Gerät kompromittiert ist oder ein Teammitglied geht.
+API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die REST-API gegen dein Customermates-CRM. Ein Key pro Client (Claude, ChatGPT, Zapier etc.), in einer Umgebungsvariable speichern, rotieren, wenn ein Gerät kompromittiert ist oder ein Teammitglied geht.
 
 ## Key anlegen
 
@@ -25,9 +25,9 @@ Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable
 
 Für MCP-Clients gehört der Key in die MCP-Config:
 
-- [Claude Desktop](/docs/mcp-connect-claude-desktop)
-- [ChatGPT](/docs/mcp-connect-chatgpt)
-- [Cursor](/docs/mcp-connect-cursor)
+- [Claude Desktop](/docs/connect-cli#claude-desktop-config-file)
+- [ChatGPT](/docs/connect-custom-connector#chatgpt)
+- [Cursor](/docs/connect-cli#cursor)
 
 ## Hygiene
 
@@ -48,7 +48,7 @@ Gleicher Ort → **Revoke**. Key wird ungültig, kein neuer generiert. Nutze, we
 
 ## Key-Format
 
-Customermates-Keys sind 64 Zeichen, Base62 (`a-z A-Z 0-9`). Kürzere Strings in der DB aus älterem Seed-Data sind keine gültigen Keys; neu erzeugen, falls du sie siehst.
+Customermates-Keys sind 64 Zeichen, Base62 (`a-z A-Z 0-9`), erzeugt vom API-Key-Plugin. Der vollständige Key wird nur bei der Erstellung angezeigt und lässt sich danach nicht mehr abrufen.
 
 ## Rechte
 

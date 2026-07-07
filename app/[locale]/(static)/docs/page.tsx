@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 
 import { DocsPageHeader } from "./components/docs-page-header";
 
+import { env } from "@/env";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { docsSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
@@ -26,10 +27,16 @@ export default async function DocsOverviewPage() {
   const MDX = page.data.body;
   const components = getMDXComponents();
   const markdownUrl = `/${locale}/raw/docs/intro-page.md`;
+  const mcpUrl = `${env.BASE_URL}/api/v1/mcp`;
 
   return (
     <PageContainer>
-      <DocsPageHeader description={page.data.description} markdownUrl={markdownUrl} title={page.data.title} />
+      <DocsPageHeader
+        description={page.data.description}
+        markdownUrl={markdownUrl}
+        mcpUrl={mcpUrl}
+        title={page.data.title}
+      />
 
       {page.data.demo && <DocsDemo src={page.data.demo.src} title={page.data.demo.title} />}
 

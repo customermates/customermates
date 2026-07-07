@@ -4,6 +4,7 @@ import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
+import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
 import { CompanyDetailsStore } from "@/app/[locale]/(protected)/company/components/company-details/company-details.store";
 import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
@@ -47,7 +48,6 @@ import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/r
 import { CustomColumnModalStore } from "@/components/data-view/custom-columns/custom-column-modal.store";
 import { EditFiltersModalStore } from "@/components/data-view/filter-modal/edit-filters-modal.store";
 import { DeleteConfirmationModalStore } from "@/components/modal/delete-confirmation-modal.store";
-import { StartChatModalStore } from "@/components/modal/start-chat-modal.store";
 import { DealDetailStore } from "@/app/[locale]/(protected)/deals/components/deal-detail.store";
 import { DealsStore } from "@/app/[locale]/(protected)/deals/components/deals.store";
 import { ResetPasswordStore } from "@/app/[locale]/(public)/auth/reset-password/reset-password.store";
@@ -99,6 +99,7 @@ export class RootStore {
   private _companyDetailsStore?: CompanyDetailsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
+  private _mcpConsentStore?: McpConsentStore;
   private _inviteByEmailStore?: InviteByEmailStore;
   private _stepAiStore?: StepAiStore;
   private _stepProfileStore?: StepProfileStore;
@@ -118,7 +119,6 @@ export class RootStore {
   private _createApiKeyModalStore?: ApiKeyModalStore;
   private _dealDetailStore?: DealDetailStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
-  private _startChatModalStore?: StartChatModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
   private _organizationDetailStore?: OrganizationDetailStore;
   private _roleModalStore?: RoleModalStore;
@@ -270,6 +270,10 @@ export class RootStore {
     return (this._verifyEmailStore ??= new VerifyEmailStore(this));
   }
 
+  get mcpConsentStore() {
+    return (this._mcpConsentStore ??= new McpConsentStore(this));
+  }
+
   get onboardingWizardStore() {
     return (this._onboardingWizardStore ??= new OnboardingWizardStore(this));
   }
@@ -344,10 +348,6 @@ export class RootStore {
 
   get deleteConfirmationModalStore() {
     return (this._deleteConfirmationModalStore ??= new DeleteConfirmationModalStore(this));
-  }
-
-  get startChatModalStore() {
-    return (this._startChatModalStore ??= new StartChatModalStore(this));
   }
 
   get widgetModalStore() {

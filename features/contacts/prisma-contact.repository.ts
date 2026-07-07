@@ -755,7 +755,7 @@ export class PrismaContactRepo
         provider: args.provider,
         OR: [{ value: args.identifier }, { messagingId: args.identifier }],
       },
-      select: { id: true, messagingId: true },
+      select: { id: true, messagingId: true, displayName: true, profileUrl: true },
     });
   }
 

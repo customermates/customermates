@@ -15,13 +15,13 @@ import { BaseCreateServiceSchema } from "@/features/services/upsert/create-servi
 import { BaseUpdateServiceSchema } from "@/features/services/upsert/update-service-base.schema";
 
 const CreateServicesSchema = z.object({
-  services: z.array(BaseCreateServiceSchema).min(1).max(100),
+  services: z.array(BaseCreateServiceSchema.strict()).min(1).max(100),
 });
 
 const UpdateServicesSchema = z.object({
   services: z
     .array(
-      forbidNullFields(BaseUpdateServiceSchema.omit({ userIds: true, dealIds: true, taskIds: true }), [
+      forbidNullFields(BaseUpdateServiceSchema.omit({ userIds: true, dealIds: true, taskIds: true }).strict(), [
         "customFieldValues",
       ]),
     )
@@ -31,6 +31,7 @@ const UpdateServicesSchema = z.object({
 
 export const createServicesTool = {
   name: "create_services",
+  title: "Create services",
   description:
     "Create up to 100 services in one call. " +
     "Required per item: name, amount (must be > 0). " +
@@ -38,7 +39,7 @@ export const createServicesTool = {
     "You can pass userIds/dealIds/taskIds directly in create so linked services are created in one call. " +
     CUSTOM_COLUMN_PREREQ +
     " Returns the list of created service ids and names.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateServicesSchema,
   execute: (params: z.infer<typeof CreateServicesSchema>) =>
     runInteractor(getCreateManyServicesInteractor().invoke(params), (data) =>
@@ -48,6 +49,7 @@ export const createServicesTool = {
 
 export const updateServicesTool = {
   name: "update_services",
+  title: "Update services",
   description:
     "Partial update for up to 100 services in one call. " +
     "Required per item: id. " +

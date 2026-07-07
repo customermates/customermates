@@ -18,6 +18,7 @@ vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.f
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MessagingService } from "../messaging.service";
 import { ProcessAccountReconnectWebhookInteractor } from "../webhooks/account/process-account-reconnect-webhook.interactor";
 import { PrepareBackfillInteractor, ACCOUNT_WIDE_SOURCE } from "../ingest/backfill/prepare-backfill.interactor";
@@ -68,6 +69,134 @@ describe("MessagingService boundary validation", () => {
     });
 
     await expect(call).rejects.toBeInstanceOf(z.ZodError);
+  });
+});
+
+describe("downloadAttachment email fallback", () => {
+  const requestUrl = (input: RequestInfo | URL): string => (input instanceof Request ? input.url : String(input));
+
+  const notFound = () =>
+    new Response(JSON.stringify({ type: "provider/resource_not_found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    });
+
+  const json = (body: unknown) =>
+    new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+
+  it("re-resolves a stale email attachment id by fileName and size, then downloads", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = requestUrl(input);
+      if (url.includes("/attachments/part_2")) {
+        return Promise.resolve(
+          new Response("hello world!", { status: 200, headers: { "content-type": "text/plain" } }),
+        );
+      }
+      if (url.includes("/attachments/")) return Promise.resolve(notFound());
+      if (url.endsWith("/emails/email-1")) {
+        return Promise.resolve(
+          json({ id: "email-1", attachments: [{ id: "part_2", filename: "doc.txt", file_size: 12 }] }),
+        );
+      }
+
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await new MessagingService().downloadAttachment({
+      accountId: "acc_1",
+      provider: "mail" as any,
+      chatId: null,
+      messageId: "email-1",
+      attachmentId: "stale-cid@outlook.com",
+      fileName: "doc.txt",
+      size: 12,
+    });
+
+    const text = await new Response(result.body).text();
+    expect(text).toBe("hello world!");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("propagates the not-found when the fresh email has no matching attachment", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = requestUrl(input);
+      if (url.includes("/attachments/")) return Promise.resolve(notFound());
+      if (url.endsWith("/emails/email-1")) return Promise.resolve(json({ id: "email-1", attachments: [] }));
+
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const call = new MessagingService().downloadAttachment({
+      accountId: "acc_1",
+      provider: "mail" as any,
+      chatId: null,
+      messageId: "email-1",
+      attachmentId: "gone@outlook.com",
+      fileName: "doc.txt",
+      size: 12,
+    });
+
+    await expect(call).rejects.toThrow("request failed: 404");
+  });
+});
+
+describe("startChat routing and 5xx capture", () => {
+  const requestUrl = (input: RequestInfo | URL): string => (input instanceof Request ? input.url : String(input));
+
+  it("targets the inbox send endpoint when inboxId is set and parses the started chat", async () => {
+    stubFetch({ object: "ChatStarted", chat_id: "c1", message_id: "m1" });
+
+    const result = await new MessagingService().startChat({
+      accountId: "acc_1",
+      usersIds: ["u1"],
+      text: "hi",
+      inboxId: "CLASSIC_PRIMARY",
+    });
+
+    expect(result).toEqual({ ok: true, data: { chatId: "c1", messageId: "m1" } });
+    expect(requestUrl(vi.mocked(fetch).mock.calls[0][0])).toContain("/inboxes/CLASSIC_PRIMARY/chats/send");
+  });
+
+  it("targets the account-scoped send endpoint without inboxId", async () => {
+    stubFetch({ object: "ChatStarted", chat_id: "c1", message_id: "m1" });
+
+    const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
+
+    expect(result).toEqual({ ok: true, data: { chatId: "c1", messageId: "m1" } });
+    const url = requestUrl(vi.mocked(fetch).mock.calls[0][0]);
+    expect(url).toContain("/chats/send");
+    expect(url).not.toContain("/inboxes/");
+  });
+
+  it("takes the first message id when the response returns an array", async () => {
+    stubFetch({ object: "ChatStarted", chat_id: "c1", message_id: ["m1", "m2"] });
+
+    const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
+
+    expect(result).toEqual({ ok: true, data: { chatId: "c1", messageId: "m1" } });
+  });
+
+  it("captures a non-transient 5xx send failure with endpoint tags", async () => {
+    stubFetch({ type: "api/internal_error" }, 500);
+
+    const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileServiceUnavailable });
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { unipileStatus: "500", unipileErrorType: "api/internal_error", unipileEndpoint: "unknown" },
+    });
+  });
+
+  it("does not capture transient proxy 5xx failures", async () => {
+    stubFetch({ type: "api/proxy_error" }, 502);
+
+    const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileServiceUnavailable });
+    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
   });
 });
 

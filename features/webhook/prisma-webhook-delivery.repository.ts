@@ -54,6 +54,7 @@ export class PrismaWebhookDeliveryRepo
   getFilterableFields() {
     return Promise.resolve([
       { field: FilterFieldKey.event, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.event] },
+      { field: FilterFieldKey.url, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.url] },
       { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
     ]);
   }

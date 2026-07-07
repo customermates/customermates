@@ -15,14 +15,14 @@ import { BaseCreateOrganizationSchema } from "@/features/organizations/upsert/cr
 import { BaseUpdateOrganizationSchema } from "@/features/organizations/upsert/update-organization-base.schema";
 
 const CreateOrganizationsSchema = z.object({
-  organizations: z.array(BaseCreateOrganizationSchema).min(1).max(100),
+  organizations: z.array(BaseCreateOrganizationSchema.strict()).min(1).max(100),
 });
 
 const UpdateOrganizationsSchema = z.object({
   organizations: z
     .array(
       forbidNullFields(
-        BaseUpdateOrganizationSchema.omit({ contactIds: true, userIds: true, dealIds: true, taskIds: true }),
+        BaseUpdateOrganizationSchema.omit({ contactIds: true, userIds: true, dealIds: true, taskIds: true }).strict(),
         ["customFieldValues"],
       ),
     )
@@ -32,6 +32,7 @@ const UpdateOrganizationsSchema = z.object({
 
 export const createOrganizationsTool = {
   name: "create_organizations",
+  title: "Create organizations",
   description:
     "Create up to 100 organizations in one call. " +
     "Required per item: name. " +
@@ -39,7 +40,7 @@ export const createOrganizationsTool = {
     "You can pass contactIds/userIds/dealIds/taskIds directly in create so linked orgs are created in one call. " +
     CUSTOM_COLUMN_PREREQ +
     " Returns the list of created organization ids and names.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   inputSchema: CreateOrganizationsSchema,
   execute: (params: z.infer<typeof CreateOrganizationsSchema>) =>
     runInteractor(getCreateManyOrganizationsInteractor().invoke(params), (data) =>
@@ -49,6 +50,7 @@ export const createOrganizationsTool = {
 
 export const updateOrganizationsTool = {
   name: "update_organizations",
+  title: "Update organizations",
   description:
     "Partial update for up to 100 organizations in one call. " +
     "Required per item: id. " +

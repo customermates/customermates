@@ -54,4 +54,11 @@ export abstract class MessagingIngestRepo {
     connectedAccountId: string;
     unipileThreadId: string;
   }): Promise<void>;
+  abstract reconcileFolderMembershipUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    folderId: string;
+    since: Date;
+    seenUnipileMessageIds: string[];
+  }): Promise<number>;
 }

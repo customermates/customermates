@@ -11,12 +11,12 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import { MessagingThreadStateSchema } from "../messaging.schema";
 
-const Schema = z.object({
+export const UpdateThreadSchema = z.object({
   threadId: z.uuid(),
   state: MessagingThreadStateSchema.optional(),
   sharedToCrm: z.boolean().optional(),
 });
-export type UpdateThreadData = Data<typeof Schema>;
+export type UpdateThreadData = Data<typeof UpdateThreadSchema>;
 
 export abstract class UpdateThreadRepo {
   abstract setThreadState(args: { threadId: string; state: MessagingThreadState }): Promise<void>;
@@ -33,7 +33,7 @@ export class UpdateThreadInteractor extends AuthenticatedInteractor<UpdateThread
   }
 
   @Write({
-    input: Schema,
+    input: UpdateThreadSchema,
     tx: false,
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.threadId, path: ["threadId"] }], ctx),
   })

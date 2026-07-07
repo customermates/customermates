@@ -1,13 +1,13 @@
 ---
 title: Self-hosting
-description: Run Customermates on your own infrastructure. When to pick self-host, how to install it with Docker Compose in under 15 minutes, and how to operate it day to day.
+description: Run Customermates on your own infrastructure. When to pick self-host, how to install it with Docker Compose, and how to operate it day to day.
 ---
 
-Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. Both files live in the [Customermates repo](https://github.com/customermates/customermates) and you fetch them with `curl`. No `git clone`, no build step. The published image at `ghcr.io/customermates/customermates:latest` runs migrations on first boot and ships ready to use.
+Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker compose up -d`. Both files live in the [Customermates repo](https://github.com/customermates/customermates) and you fetch them with `curl`. No `git clone` and no build step are needed. The published image at `ghcr.io/customermates/customermates:latest` applies database migrations on first boot.
 
 ## Self-host vs cloud
 
-Both have the same feature set.
+Both run the same core application. Enterprise features require a license in either deployment.
 
 | If you… | Pick |
 |---|---|
@@ -31,9 +31,9 @@ Both have the same feature set.
 
 **Data custody:** Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
 
-**Cost shape:** Cloud is predictable per-seat and scales linearly. Self-host is free for the core plus whatever you pay for infra (a small VPS handles hundreds of users). For a 5-person team, cloud is usually cheaper once you factor in the time to run Postgres backups yourself. For a 50-person team, self-host pays off quickly.
+**Cost shape:** Cloud is priced per seat and scales linearly. Self-host is free for the core application plus whatever you pay for infrastructure (a small VPS handles hundreds of users). For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
 
-You can migrate between them. Export from one, import to the other. The data model is identical. No lock-in either direction.
+You can migrate between them: export from one, import to the other. The data model is identical.
 
 ## Install
 
@@ -154,4 +154,4 @@ Audit Logging, SSO, and White-labeling require an Enterprise license. Everything
 
 - [Architecture and security](/docs/architecture-security): what you're running.
 - [API keys](/docs/api-keys): key hygiene.
-- [Connect your AI](/docs/mcp-connect-claude-desktop): once installed, point an MCP client at your instance.
+- [Connect your AI](/docs/connect-custom-connector): once installed, point an MCP client at your instance.

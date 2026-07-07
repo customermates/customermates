@@ -3,11 +3,11 @@ title: Filter syntax
 description: Every filter operator Customermates supports, with examples.
 ---
 
-Filters are arrays of `{ field, operator, value? }` rules, AND-combined. Thirteen operators cover equality, comparison, set membership, range, null checks, and relationship membership.
+Customermates filters (used by the Model Context Protocol (MCP) tools, the REST API, and the app UI) are arrays of field-operator-value rules. Sixteen operators cover equality, comparison, set membership, range, recency, null checks, and relationship membership.
 
 ## Where filters apply
 
-- `filter_entity` and `count_entity` MCP tools.
+- The `list_records` MCP tool (and the messaging filters on `get_messaging_threads`).
 - `entityFilters` and `dealFilters` on widgets.
 - Saved views in the UI (converted to the same shape under the hood).
 
@@ -35,20 +35,31 @@ Rules are AND-combined. For OR logic, run two queries and merge client-side, or 
 | `in` | array | any | `["id1", "id2"]` |
 | `notIn` | array | any | `["id1"]` |
 | `between` | array of 2 | numbers, dates | `["2024-01-01", "2024-12-31"]` |
+| `inLastDays` | single (integer) | dates | `30` |
 | `isNull` | no value | any | (none) |
 | `isNotNull` | no value | any | (none) |
 | `hasNone` | no value | relationship arrays | (none) |
 | `hasSome` | no value | relationship arrays | (none) |
+| `hasUnset` | no value | messaging-thread participants | (none) |
+| `allSet` | no value | messaging-thread participants | (none) |
+
+### Date operators
+
+Date fields such as `createdAt` and `updatedAt` accept `gt`, `gte`, `lt`, `lte`, `between`, and `inLastDays`. Use `inLastDays` with an integer number of days for a rolling recency window, for example `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` for records created in the last week.
+
+### Relationship and participant operators
+
+Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `serviceIds`, `taskIds`) accept `in`, `notIn`, `hasNone`, and `hasSome`. The participants link-status field on `get_messaging_threads` uses `hasUnset` and `allSet` to filter threads by whether their participants are linked to records.
 
 ## Field names
 
-The `field` value is whatever `get_entity_configuration` returns under `filterableFields` for that entity. It includes:
+The `field` value is whatever `get_record_schema` returns under `filterableFields` for that entity. It includes:
 
 - Default scalar fields (e.g. `createdAt`, `updatedAt`).
 - Relationship arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Pair these with `in`, `notIn`, `hasNone`, `hasSome`.
 - Custom column ids. Use the column's UUID as the field.
 
-Always call `get_entity_configuration` first if you're not sure what's filterable. The error when a field isn't recognized lists every available field with its allowed operators.
+Always call `get_record_schema` first if you're not sure what's filterable. The error when a field isn't recognized lists every available field with its allowed operators.
 
 ## Examples
 
@@ -58,12 +69,12 @@ Contacts in any of three organizations:
 { "field": "organizationIds", "operator": "in", "value": ["org_1","org_2","org_3"] }
 ```
 
-Deals created in 2024 with a custom "stage" column equal to "won":
+Deals created in 2024 whose custom singleSelect column (identified by its UUID) equals a chosen option value:
 
 ```json
 [
   { "field": "createdAt", "operator": "between", "value": ["2024-01-01","2024-12-31"] },
-  { "field": "col_stage", "operator": "equals",  "value": "won" }
+  { "field": "col_uuid",  "operator": "equals",  "value": "option_value" }
 ]
 ```
 
@@ -73,17 +84,17 @@ Contacts without any organization linked:
 { "field": "organizationIds", "operator": "hasNone" }
 ```
 
-Services whose custom "renewalDate" column is in the next 30 days:
+Records created in the last 30 days:
 
 ```json
-{ "field": "col_renewal", "operator": "between", "value": ["2026-04-22","2026-05-22"] }
+{ "field": "createdAt", "operator": "inLastDays", "value": 30 }
 ```
 
 ## Free-text vs filters
 
-`filter_entity` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName + lastName for contacts, name for the rest). If you want "contacts whose name contains acme", that's `searchTerm`, not a filter rule on `firstName`. Filter rules on `firstName` specifically are not supported.
+`list_records` also accepts `searchTerm`, which runs a free-text search against the entity's name fields (firstName + lastName for contacts, name for the rest). If you want "contacts whose name contains acme", that's `searchTerm`, not a filter rule on `firstName`. Filter rules on `firstName` specifically are not supported.
 
 ## Next
 
 - [Core concepts](/docs/concepts): field types and relationships.
-- [MCP tool catalog](/docs/mcp-tool-catalog): where filters appear.
+- [MCP tool catalog](/docs/mcp#tool-catalog): where filters appear.

@@ -61,9 +61,9 @@ export class QueryParamsPrecheckInteractor {
     if (data.filters) {
       await Promise.all(
         data.filters.map(async (filter, i) => {
-          const found = filterableFields.find((f) => f.field === filter.field && f.operators.includes(filter.operator));
+          const field = filterableFields.find((f) => f.field === filter.field);
 
-          if (!found) {
+          if (!field) {
             ctx.addIssue({
               code: "custom",
               params: {
@@ -73,6 +73,20 @@ export class QueryParamsPrecheckInteractor {
                   .join(", "),
               },
               path: ["filters", i, "field"],
+            });
+            return;
+          }
+
+          if (!field.operators.includes(filter.operator)) {
+            ctx.addIssue({
+              code: "custom",
+              params: {
+                error: CustomErrorCode.invalidFilterOperator,
+                field: filter.field,
+                operator: filter.operator,
+                validValues: field.operators.join(", "),
+              },
+              path: ["filters", i, "operator"],
             });
             return;
           }

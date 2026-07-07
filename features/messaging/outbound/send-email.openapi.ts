@@ -3,6 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
+import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
 export const sendEmailOperation: ZodOpenApiOperationObject = {
@@ -21,10 +22,11 @@ export const sendEmailOperation: ZodOpenApiOperationObject = {
   },
   responses: {
     "200": {
-      description: "The email was sent successfully.",
+      description:
+        "The email was sent successfully. Returns the persisted message (including its thread id) when available, or null when the sent copy could not be resolved yet.",
       content: {
         "application/json": {
-          schema: z.null(),
+          schema: z.union([MessagingMessageDtoSchema, z.null()]),
         },
       },
     },

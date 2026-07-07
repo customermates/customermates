@@ -14,6 +14,7 @@ import {
 } from "./utils";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
@@ -86,165 +87,193 @@ const ListWebhookDeliveriesSchema = z.object({
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("createdAt")),
 });
 
-export const listWebhooksTool = {
-  name: "list_webhooks",
-  description:
-    "List configured webhooks. " +
-    "Optional: searchTerm (matches url and description), filters, sortDescriptor, page, pageSize. " +
-    "Returns items with { id, url, description, events, enabled, createdAt, updatedAt }.",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: ListWebhooksSchema,
-  execute: (params: z.infer<typeof ListWebhooksSchema>) =>
-    runInteractor(
-      getGetWebhooksApiInteractor().invoke({
-        searchTerm: params.searchTerm,
-        filters: params.filters,
-        sortDescriptor: params.sortDescriptor,
-        pagination: { page: params.page, pageSize: params.pageSize },
-      }),
-      (data) =>
-        encodeToToon(
-          formatDatesInResponse(
-            data.items.map((webhook) => ({
-              id: webhook.id,
-              url: webhook.url,
-              description: webhook.description,
-              events: webhook.events,
-              enabled: webhook.enabled,
-              createdAt: webhook.createdAt,
-              updatedAt: webhook.updatedAt,
-            })),
-          ),
-        ),
-    ),
-};
-
-export const createWebhookTool = {
-  name: "create_webhook",
-  description:
-    "Create a webhook subscription. " +
-    "Required: url (https recommended), events[]. " +
-    "Optional: description, secret, enabled (default true). " +
-    `Event values ${enumHint(WebhookEventSchema.options)}. ` +
-    "Returns the new webhook id, url, events.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  inputSchema: CreateWebhookSchema,
-  execute: (params: z.infer<typeof CreateWebhookSchema>) =>
-    runInteractor(getUpsertWebhookInteractor().invoke(params), (data) =>
-      encodeToToon({ id: data.id, url: data.url, description: data.description, events: data.events }),
-    ),
-};
-
-export const updateWebhookTool = {
-  name: "update_webhook",
-  description:
-    "Partial update for one webhook. " +
-    "Required: id. All other fields optional; only provided fields change. " +
-    "WARNING: events[] REPLACES the full event subscription list. " +
-    "Idempotent: same payload produces the same state.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  inputSchema: UpdateWebhookSchema,
-  execute: (params: z.infer<typeof UpdateWebhookSchema>) =>
-    runInteractor(
-      getUpsertWebhookInteractor().invoke({
-        id: params.id,
-        url: params.url,
-        description: params.description,
-        events: params.events,
-        secret: params.secret,
-        enabled: params.enabled,
-      }),
-      (data) =>
-        encodeToToon({
-          id: data.id,
-          url: data.url,
-          description: data.description,
-          events: data.events,
-          enabled: data.enabled,
-        }),
-    ),
-};
-
-export const getWebhookTool = {
-  name: "get_webhook",
-  description:
-    "Fetch one webhook by id. " +
-    "Required: id. " +
-    "Returns { id, url, description, events, enabled, createdAt, updatedAt, hasSecret }. " +
-    "The signing secret itself is never returned. Use list_webhooks to discover ids.",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: GetWebhookSchema,
-  execute: async ({ id }: z.infer<typeof GetWebhookSchema>) => {
-    const result = await getGetWebhookByIdInteractor().invoke({ id });
-    if (!result.ok) return validationError(result.error);
-    const webhook = result.data;
-    if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
-    return encodeToToon(
-      formatDatesInResponse({
-        id: webhook.id,
-        url: webhook.url,
-        description: webhook.description,
-        events: webhook.events,
-        enabled: webhook.enabled,
-        createdAt: webhook.createdAt,
-        updatedAt: webhook.updatedAt,
-        hasSecret: webhook.secret != null && webhook.secret !== "",
-      }),
-    );
-  },
-};
-
-export const listWebhookDeliveriesTool = {
-  name: "list_webhook_deliveries",
-  description:
-    "List recent webhook delivery attempts (success + failure). " +
-    "Optional: searchTerm (matches url and event name), page, pageSize (5, 10, 25, or 100), filters, sortDescriptor. " +
-    "Sorted newest first. Each item has { id, url, event, statusCode, responseMessage, success, status, deliveredAt, createdAt }. " +
-    "Use this to debug failing webhooks.",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: ListWebhookDeliveriesSchema,
-  execute: ({ searchTerm, page, pageSize, filters, sortDescriptor }: z.infer<typeof ListWebhookDeliveriesSchema>) =>
-    runInteractor(
-      getGetWebhookDeliveriesApiInteractor().invoke({
-        searchTerm,
-        filters,
-        sortDescriptor,
-        pagination: { page, pageSize },
-      }),
-      (data) =>
-        encodeToToon({
-          items: formatDatesInResponse(data.items),
-          total: data.pagination?.total ?? data.items.length,
-          page,
-        }),
-    ),
-};
-
 const ResendWebhookDeliverySchema = z.object({
-  id: z.uuid().describe("Delivery id from list_webhook_deliveries"),
+  id: z.uuid().describe("Delivery id from action list_deliveries"),
 });
 
-export const resendWebhookDeliveryTool = {
-  name: "resend_webhook_delivery",
-  description:
-    "Re-send a past webhook delivery to its original URL with the original payload. " +
-    "Required: id (from list_webhook_deliveries). " +
-    "Use this to retry a failed delivery or to test whether a webhook URL is reachable. " +
-    "Creates a NEW delivery record — does not modify the original.",
-  annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
-  inputSchema: ResendWebhookDeliverySchema,
-  execute: ({ id }: z.infer<typeof ResendWebhookDeliverySchema>) =>
-    runInteractor(
-      getResendWebhookDeliveryInteractor().invoke({ id }),
-      (data) => `Re-sent webhook delivery ${id} as new delivery ${data}`,
+const ManageWebhooksSchema = z.object({
+  action: z
+    .enum(["create", "update", "delete", "get", "list", "list_deliveries", "resend_delivery"])
+    .describe("Webhook operation to perform"),
+  id: z
+    .uuid()
+    .optional()
+    .describe(
+      "Required for update, delete, get (webhook id) and for resend_delivery (delivery id from list_deliveries). " +
+        "Optional for list_deliveries (webhook id): scopes deliveries to that webhook's CURRENT url; deliveries made while a different url was configured are not matched.",
     ),
-};
+  url: zx
+    .secureUrl()
+    .optional()
+    .describe("Endpoint that will receive event POST requests (https recommended). Required for create."),
+  description: z.string().optional().describe("create and update. Human-readable note about what this webhook does."),
+  events: z
+    .array(WebhookEventSchema)
+    .min(1)
+    .optional()
+    .describe(
+      `Required for create; on update REPLACES the subscribed events. Each value ${enumHint(WebhookEventSchema.options)}`,
+    ),
+  secret: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      "Shared secret used to sign outgoing requests. create: optional string. update: omit to keep the current secret, pass null to clear it, pass a string to set a new one.",
+    ),
+  enabled: z.boolean().optional().describe("create (default true) and update."),
+  searchTerm: z
+    .string()
+    .optional()
+    .describe("list matches url and description; list_deliveries matches url and event name."),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(
+      "list and list_deliveries only. " +
+        filtersDescription(
+          `list: ${filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt])}; list_deliveries: ${filterFieldsHint([FilterFieldKey.event, FilterFieldKey.url, FilterFieldKey.createdAt])}`,
+        ),
+    ),
+  sortDescriptor: SortDescriptorSchema.optional().describe(
+    "list and list_deliveries only. " + sortDescription("list: name, createdAt, updatedAt; list_deliveries: createdAt"),
+  ),
+  page: mcpPage(),
+  pageSize: z
+    .preprocess((v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : v), z.literal([5, 10, 25, 100]))
+    .optional()
+    .describe("Results per page: 5, 10, 25, or 100. Default 100 for list, 25 for list_deliveries."),
+});
 
-export const deleteWebhookTool = {
-  name: "delete_webhook",
-  description: "IRREVERSIBLE. Delete a webhook subscription by id. Required: id.",
-  annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
-  inputSchema: DeleteWebhookSchema,
-  execute: (params: z.infer<typeof DeleteWebhookSchema>) =>
-    runInteractor(getDeleteWebhookInteractor().invoke(params), (data) => `Deleted webhook ${data}`),
+export const manageWebhooksTool = {
+  name: "manage_webhooks",
+  title: "Manage webhooks",
+  description:
+    "Use this when you need to manage webhook subscriptions or inspect their deliveries. " +
+    "action create requires url and events. " +
+    "action update requires id; events REPLACES the full subscription list; secret: omit to keep, null to clear, string to set. " +
+    "action delete is IRREVERSIBLE. " +
+    "action get returns one webhook (the signing secret itself is never returned). " +
+    "action list supports searchTerm, filters, sort, paging. " +
+    "action list_deliveries returns delivery attempts newest first; without `id` it spans the whole workspace, with `id` it is scoped to that webhook's CURRENT url (deliveries made while a different url was configured are not matched); narrow further with searchTerm or filters. " +
+    "action resend_delivery re-sends a past delivery as a NEW delivery record; pass the delivery id from list_deliveries.",
+  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
+  inputSchema: ManageWebhooksSchema,
+  execute: async (params: z.infer<typeof ManageWebhooksSchema>) => {
+    if (params.action === "list") {
+      const parsed = ListWebhooksSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      return runInteractor(
+        getGetWebhooksApiInteractor().invoke({
+          searchTerm: parsed.data.searchTerm,
+          filters: parsed.data.filters,
+          sortDescriptor: parsed.data.sortDescriptor,
+          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
+        }),
+        (data) =>
+          encodeToToon(
+            formatDatesInResponse(
+              data.items.map((webhook) => ({
+                id: webhook.id,
+                url: webhook.url,
+                description: webhook.description,
+                events: webhook.events,
+                enabled: webhook.enabled,
+                createdAt: webhook.createdAt,
+                updatedAt: webhook.updatedAt,
+              })),
+            ),
+          ),
+      );
+    }
+    if (params.action === "create") {
+      const parsed = CreateWebhookSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      return runInteractor(getUpsertWebhookInteractor().invoke(parsed.data), (data) =>
+        encodeToToon({ id: data.id, url: data.url, description: data.description, events: data.events }),
+      );
+    }
+    if (params.action === "update") {
+      const parsed = UpdateWebhookSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      return runInteractor(
+        getUpsertWebhookInteractor().invoke({
+          id: parsed.data.id,
+          url: parsed.data.url,
+          description: parsed.data.description,
+          events: parsed.data.events,
+          secret: parsed.data.secret,
+          enabled: parsed.data.enabled,
+        }),
+        (data) =>
+          encodeToToon({
+            id: data.id,
+            url: data.url,
+            description: data.description,
+            events: data.events,
+            enabled: data.enabled,
+          }),
+      );
+    }
+    if (params.action === "get") {
+      const parsed = GetWebhookSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      const result = await getGetWebhookByIdInteractor().invoke({ id: parsed.data.id });
+      if (!result.ok) return validationError(result.error);
+      const webhook = result.data;
+      if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
+      return encodeToToon(
+        formatDatesInResponse({
+          id: webhook.id,
+          url: webhook.url,
+          description: webhook.description,
+          events: webhook.events,
+          enabled: webhook.enabled,
+          createdAt: webhook.createdAt,
+          updatedAt: webhook.updatedAt,
+          hasSecret: webhook.secret != null && webhook.secret !== "",
+        }),
+      );
+    }
+    if (params.action === "delete") {
+      const parsed = DeleteWebhookSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      return runInteractor(getDeleteWebhookInteractor().invoke(parsed.data), (data) => `Deleted webhook ${data}`);
+    }
+    if (params.action === "list_deliveries") {
+      const parsed = ListWebhookDeliveriesSchema.safeParse(params);
+      if (!parsed.success) return validationError(parsed.error);
+      let filters = parsed.data.filters;
+      if (params.id) {
+        const webhookResult = await getGetWebhookByIdInteractor().invoke({ id: params.id });
+        if (!webhookResult.ok) return validationError(webhookResult.error);
+        const webhook = webhookResult.data;
+        if (!webhook) return await customErrorMessage(CustomErrorCode.webhookNotFound);
+        filters = [
+          { field: FilterFieldKey.url, operator: FilterOperatorKey.equals, value: webhook.url },
+          ...(filters ?? []),
+        ];
+      }
+      return runInteractor(
+        getGetWebhookDeliveriesApiInteractor().invoke({
+          searchTerm: parsed.data.searchTerm,
+          filters,
+          sortDescriptor: parsed.data.sortDescriptor,
+          pagination: { page: parsed.data.page, pageSize: parsed.data.pageSize },
+        }),
+        (data) =>
+          encodeToToon({
+            items: formatDatesInResponse(data.items),
+            total: data.pagination?.total ?? data.items.length,
+            page: parsed.data.page,
+          }),
+      );
+    }
+    const parsed = ResendWebhookDeliverySchema.safeParse(params);
+    if (!parsed.success) return validationError(parsed.error);
+    return runInteractor(
+      getResendWebhookDeliveryInteractor().invoke({ id: parsed.data.id }),
+      (data) => `Re-sent webhook delivery ${parsed.data.id} as new delivery ${data}`,
+    );
+  },
 };

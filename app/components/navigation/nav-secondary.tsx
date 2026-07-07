@@ -32,14 +32,14 @@ export function NavSecondary({ items, ...props }: Props) {
             <SidebarMenuItem key={item.key}>
               {item.href ? (
                 <SidebarMenuButton asChild size="sm" tooltip={item.title}>
-                  <NextLink href={item.href}>
+                  <NextLink href={item.href} id={`nav-${item.key}`}>
                     <Icon icon={item.icon} />
 
                     <span>{item.title}</span>
                   </NextLink>
                 </SidebarMenuButton>
               ) : (
-                <SidebarMenuButton size="sm" tooltip={item.title} onClick={item.onSelect}>
+                <SidebarMenuButton id={`nav-${item.key}`} size="sm" tooltip={item.title} onClick={item.onSelect}>
                   <Icon icon={item.icon} />
 
                   <span>{item.title}</span>

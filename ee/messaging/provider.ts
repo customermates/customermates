@@ -48,6 +48,12 @@ export function isHandleProvider(provider: MessagingProvider): boolean {
   return HANDLE_PROVIDERS.includes(provider);
 }
 
+const SOCIAL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "instagram"];
+
+export function isSocialProvider(provider: MessagingProvider): boolean {
+  return SOCIAL_PROVIDERS.includes(provider);
+}
+
 export function isUsableSenderFor(
   account: { status: string; provider: MessagingProvider },
   provider: MessagingProvider,

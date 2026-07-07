@@ -1,0 +1,47 @@
+---
+title: Profile
+description: Der Profil-Screen der Customermates Web-App, Identität, Einstellungen, API-Keys und verbundene Messaging-Konten, mit stabilen Anchor-Ids für AI-Agents.
+---
+
+Customermates ist ein Open-Source-CRM, AI-native gebaut. Diese Seite dokumentiert den **Profil**-Screen der Web-App, für Menschen und für AI-Agents, die die UI steuern.
+
+## Zweck
+
+Das Profil bündelt deine persönlichen Workspace-Einstellungen: alles, was an dir als User hängt, nicht an der Company. Vier Tabs decken Identität (Name, Land, Avatar), Präferenzen (Theme, Sprache, Benachrichtigungen), API-Keys für MCP- und REST-Clients sowie die Messaging-Konten ab, aus denen die Inbox gespeist wird. Änderungen hier betreffen nur deinen eigenen Account.
+
+## URL
+
+`/profile/details`
+
+URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/details`. Jeder Tab hat eine eigene Route: `/profile/details`, `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
+
+## Wichtige Aktionen
+
+| Aktion | Wo | Anchor id | Was passiert |
+|---|---|---|---|
+| Zum Profil wechseln | App-Sidebar | `#nav-profile` | Öffnet /profile/details |
+| Tab Details | Sidebar-Unterpunkt | `#nav-profile-details` | Name, Land, Avatar |
+| Details speichern / zurücksetzen | Formular-Footer | `#profile-details-save` / `#profile-details-reset` | Speichert oder verwirft (Reset erscheint bei ungespeicherten Änderungen) |
+| Tab Einstellungen | Sidebar-Unterpunkt | `#nav-profile-settings` | Theme, Sprache, Benachrichtigungen |
+| Einstellungen speichern / zurücksetzen | Formular-Footer | `#profile-settings-save` / `#profile-settings-reset` | Speichert oder verwirft |
+| Tab API Keys | Sidebar-Unterpunkt | `#nav-profile-api-keys` | Keys für MCP-/REST-Clients verwalten |
+| API-Key generieren | API-Keys-Karte | `#profile-api-keys-generate` | Öffnet das Key-Modal |
+| Key anlegen | Key-Modal | `#api-key-save` | Key wird einmal angezeigt, sofort kopieren |
+| Key widerrufen | Key-Zeile | none | Zeilen-Button mit Label Revoke |
+| Tab Verbundene Konten | Sidebar-Unterpunkt | `#nav-profile-connected-accounts` | Messaging-Konten für die Inbox |
+| Konto verbinden | Karten-Header | `#profile-connected-accounts-connect` | Öffnet das Hosted-Auth-Fenster (LinkedIn, WhatsApp, E-Mail) |
+| Konto / Ordner verwalten | Klick auf Konto-Zeile | none | Öffnet das Konto-Modal (Ordnerauswahl, Resync) |
+
+## Tipps für Agents
+
+- Steuerelemente über die stabilen Ids aus der Tabelle finden, zum Beispiel trifft der CSS-Selektor `#profile-api-keys-generate` den Generieren-Button. Die Ids sind stabil; sichtbare Labels und Layout sind es nicht.
+- Zeilen tragen nie Ids. Datensätze über ihre URL öffnen oder auf Entity-Seiten über den Drawer-Deep-Link `?open=<entityType>:{id}`. Die Profil-Tabs sind einfache Routen, also per Tab-URL navigieren und in Zeilen die sichtbaren Buttons nutzen (z.B. **Revoke**) oder die Zeile anklicken.
+- Wenn ein MCP-Tool existiert, nutze es statt zu klicken, siehe [MCP](/docs/mcp). Die UI zu steuern lohnt nur für die wenigen Aktionen ohne Tool, etwa das Verbinden eines Messaging-Kontos.
+- Der generierte API-Key wird genau einmal angezeigt, im Modal nach `#api-key-save`. Kopiere ihn im selben Schritt; er lässt sich nicht erneut anzeigen.
+- Konto verbinden öffnet ein separates Hosted-Auth-Fenster. Rechne mit einem Popup, nicht mit In-Page-Navigation.
+
+## Verwandte Seiten
+
+- [API-Keys](/docs/api-keys): Keys anlegen, rotieren, widerrufen, plus Hygiene-Regeln.
+- [App-Guide, Inbox](/docs/app-inbox): der Screen, den deine verbundenen Konten befüllen.
+- [CLI & Editoren](/docs/connect-cli): wohin ein generierter Key für Claude Code, Codex und Cursor gehört.

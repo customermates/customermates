@@ -95,6 +95,7 @@ export const DealsCard = observer(({ deals }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="deals"
       columns={columns}
       rowHref={(item) => entityHref(EntityType.deal, item.id)}
       store={dealsStore}

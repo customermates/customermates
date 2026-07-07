@@ -69,6 +69,19 @@ import { sendChatMessageOperation } from "@/features/messaging/outbound/send-cha
 import { getActivitiesOperation } from "@/features/messaging/activities/get-activities.openapi";
 import { sendEmailOperation } from "@/features/messaging/outbound/send-email.openapi";
 import { startChatOperation } from "@/features/messaging/outbound/start-chat.openapi";
+import { saveDraftOperation } from "@/features/messaging/outbound/save-draft.openapi";
+import { discardDraftOperation } from "@/features/messaging/outbound/discard-draft.openapi";
+import {
+  getSocialPostsOperation,
+  getSocialPostEngagementOperation,
+} from "@/features/messaging/posts/social-posts.openapi";
+import { getSocialProfileOperation } from "@/features/messaging/posts/social-profiles.openapi";
+import {
+  listRelationRequestsOperation,
+  createRelationRequestOperation,
+  acceptRelationRequestOperation,
+  cancelRelationRequestOperation,
+} from "@/features/messaging/posts/social-relations.openapi";
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
 import { DeleteContactSchema } from "@/features/contacts/delete/delete-contact.interactor";
 import { DeleteManyContactsSchema } from "@/features/contacts/delete/delete-many-contacts.interactor";
@@ -287,6 +300,33 @@ export function generateOpenApiSpec() {
       },
       "/v1/messaging/start-chat": {
         post: startChatOperation,
+      },
+      "/v1/messaging/threads/{id}/drafts": {
+        post: saveDraftOperation,
+      },
+      "/v1/messaging/drafts/{id}": {
+        delete: discardDraftOperation,
+      },
+      "/v1/messaging/social-posts/search": {
+        post: getSocialPostsOperation,
+      },
+      "/v1/messaging/social-post-engagement/search": {
+        post: getSocialPostEngagementOperation,
+      },
+      "/v1/messaging/social-profiles/search": {
+        post: getSocialProfileOperation,
+      },
+      "/v1/messaging/social-relations/search": {
+        post: listRelationRequestsOperation,
+      },
+      "/v1/messaging/social-relations/invite": {
+        post: createRelationRequestOperation,
+      },
+      "/v1/messaging/social-relations/accept": {
+        post: acceptRelationRequestOperation,
+      },
+      "/v1/messaging/social-relations/cancel": {
+        post: cancelRelationRequestOperation,
       },
     },
     webhooks: {

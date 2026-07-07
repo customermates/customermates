@@ -17,6 +17,7 @@ import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { SendChatMessageRepo } from "../outbound/send-chat-message.interactor";
 import type { SendEmailRepo } from "../outbound/send-email.interactor";
+import type { StartChatThreadRepo } from "../outbound/start-chat.interactor";
 import type { SaveDraftRepo } from "../outbound/save-draft.interactor";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.interactor";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.interactor";
@@ -33,11 +34,16 @@ import { getContactRepo } from "@/core/di";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import type { AttachmentKind } from "../attachment-kind";
+import type { PreviewKind } from "../attachment-kind";
 
 import { classifyAttachment } from "../attachment-kind";
 import { contactFullName } from "../thread-display";
-import { folderMessageWhere, threadAccessWhere, threadFolderMembershipWhere } from "../messaging-access";
+import {
+  folderMessageWhere,
+  threadAccessWhere,
+  threadFolderMembershipWhere,
+  threadHasActivityWhere,
+} from "../messaging-access";
 import { channelClass, classWhere, isEmailProvider } from "../provider";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
@@ -54,6 +60,7 @@ export class PrismaMessagingRepo
     MessagingIngestRepo,
     SendChatMessageRepo,
     SendEmailRepo,
+    StartChatThreadRepo,
     SaveDraftRepo,
     DiscardDraftRepo,
     SearchChannelCandidatesRepo,
@@ -333,12 +340,12 @@ export class PrismaMessagingRepo
       model: "messagingThread",
       baseWhere: {
         ...threadAccessWhere(this.companyId, this.userId),
-        ...(folderMembership ? { AND: [folderMembership] } : {}),
+        AND: [threadHasActivityWhere(), ...(folderMembership ? [folderMembership] : [])],
       },
       select: this.threadSelect,
       params: {
         ...params,
-        sortDescriptor: { field: "lastMessageAt", direction: "desc" },
+        sortDescriptor: params.sortDescriptor ?? { field: "lastMessageAt", direction: "desc" },
       },
       map: (
         row: Prisma.MessagingThreadGetPayload<{
@@ -354,7 +361,7 @@ export class PrismaMessagingRepo
     const folderMembership = threadFolderMembershipWhere(await this.loadAccessibleFolderStates());
     const { where } = await this.buildQueryArgs(params, {
       ...threadAccessWhere(this.companyId, this.userId),
-      ...(folderMembership ? { AND: [folderMembership] } : {}),
+      AND: [threadHasActivityWhere(), ...(folderMembership ? [folderMembership] : [])],
     });
 
     return this.prisma.messagingThread.count({ where });
@@ -364,6 +371,7 @@ export class PrismaMessagingRepo
   async upsertChatThreadUnscoped(
     args: RepoArgs<MessagingIngestRepo, "upsertChatThreadUnscoped"> & { markUnread?: boolean },
   ) {
+    const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
     const preview =
       typeof args.lastMessagePreview === "string"
         ? safeTruncate(args.lastMessagePreview.replace(/\s+/g, " "), 200)
@@ -373,13 +381,13 @@ export class PrismaMessagingRepo
       where: {
         connectedAccountId_unipileThreadId: {
           connectedAccountId: args.connectedAccountId,
-          unipileThreadId: args.unipileThreadId,
+          unipileThreadId,
         },
       },
       create: {
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
-        unipileThreadId: args.unipileThreadId,
+        unipileThreadId,
         unipileThreadAltId: args.unipileThreadAltId ?? null,
         provider: args.provider,
         subject: args.subject,
@@ -685,12 +693,13 @@ export class PrismaMessagingRepo
     const last = messages[0];
     const previewSource = last?.bodyText?.trim() || last?.bodyHtml?.replace(/<[^>]*>/g, "").trim();
     const derivedPreview = previewSource ? safeTruncate(previewSource.replace(/\s+/g, " "), 200) : null;
-    const preview = lastMessagePreview ?? derivedPreview;
+    const preview = last?.isDeleted ? null : (lastMessagePreview ?? derivedPreview);
     const firstAttachment = (last?.attachmentsMeta as unknown as AttachmentMeta[] | null)?.[0];
-    const previewKind: AttachmentKind | null =
-      !preview && firstAttachment
+    const previewKind: PreviewKind | null = last?.isDeleted
+      ? "deleted"
+      : !preview && firstAttachment
         ? classifyAttachment(firstAttachment)
-        : !preview && last && !last.isEvent && !last.isDeleted
+        : !preview && last && !last.isEvent
           ? "unsupported"
           : null;
 
@@ -813,7 +822,40 @@ export class PrismaMessagingRepo
     return row as unknown as MessagingMessage;
   }
 
-  async convertDraftToSentOrThrow(args: {
+  async findDraftById(args: { messageId: string }) {
+    const draft = await this.prisma.messagingMessage.findFirst({
+      where: {
+        id: args.messageId,
+        companyId: this.companyId,
+        isDraft: true,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true },
+    });
+
+    return draft ? { id: draft.id } : null;
+  }
+
+  async findRecentOutboundDuplicate(args: { messagingThreadId: string; bodyText: string; windowMs: number }) {
+    const since = new Date(Date.now() - args.windowMs);
+    const candidate = await this.prisma.messagingMessage.findFirst({
+      where: {
+        messagingThreadId: args.messagingThreadId,
+        companyId: this.companyId,
+        direction: MessagingMessageDirection.outbound,
+        isDraft: false,
+        bodyText: args.bodyText,
+        sentAt: { gte: since },
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      orderBy: { sentAt: "desc" },
+      select: { id: true },
+    });
+
+    return candidate?.id ?? null;
+  }
+
+  async convertDraftToSent(args: {
     messageId: string;
     unipileMessageId: string;
     providerMessageId: string | null;
@@ -822,6 +864,7 @@ export class PrismaMessagingRepo
     subject: string | null;
     bodyText: string | null;
     bodyHtml: string | null;
+    attachmentsMeta: AttachmentMeta[];
     sentAt: Date;
   }) {
     const draft = await this.prisma.messagingMessage.findFirst({
@@ -834,7 +877,7 @@ export class PrismaMessagingRepo
       select: { id: true, messagingThreadId: true },
     });
 
-    if (!draft) throw new Error(`Draft ${args.messageId} not found`);
+    if (!draft) return null;
 
     const row = await this.prisma.messagingMessage.update({
       where: { id: draft.id },
@@ -849,6 +892,7 @@ export class PrismaMessagingRepo
         subject: args.subject,
         bodyText: args.bodyText,
         bodyHtml: args.bodyHtml,
+        ...(args.attachmentsMeta.length > 0 ? { attachmentsMeta: args.attachmentsMeta } : {}),
         sentAt: args.sentAt,
       },
     });
@@ -960,19 +1004,19 @@ export class PrismaMessagingRepo
           id: string;
           mime?: string | null;
           fileName?: string | null;
+          size?: number | null;
         }>)
       : [];
     const att = list.find((a) => a.id === args.attachmentId);
-
-    if (!att) throw new Error(`Attachment ${args.attachmentId} not found on message ${args.messageId}`);
 
     return {
       unipileAccountId: row.connectedAccount.unipileAccountId,
       unipileThreadId: row.thread.unipileThreadId,
       unipileMessageId: row.unipileMessageId,
       provider: row.provider,
-      mime: att.mime ?? null,
-      fileName: att.fileName ?? null,
+      mime: att?.mime ?? null,
+      fileName: att?.fileName ?? null,
+      size: att?.size ?? null,
     };
   }
 
@@ -1180,12 +1224,19 @@ export class PrismaMessagingRepo
     });
 
     const isInbound = message.direction === MessagingMessageDirection.inbound;
-
-    if (existing && !isInbound && message.origin === MessagingMessageOrigin.unipile) return { isEcho: true as const };
-
     const safeMessage = sanitizeMessage(message);
+
+    if (existing && !isInbound && message.origin === MessagingMessageOrigin.unipile) {
+      if (safeMessage.attachmentsMeta.length > 0 && existing.attachmentsMeta.length === 0) {
+        await this.prisma.messagingMessage.update({
+          where: { id: existing.id },
+          data: { attachmentsMeta: safeMessage.attachmentsMeta },
+        });
+      }
+      return { isEcho: true as const };
+    }
+
     const { unipileThreadId, threadType, ...messageFields } = safeMessage;
-    const resolvedThreadId = await this.resolveThreadIdByAlt(connectedAccountId, unipileThreadId);
 
     const previewSource = safeMessage.bodyText?.trim() || safeMessage.bodyHtml?.replace(/<[^>]*>/g, "").trim();
     const hidden = safeMessage.isHidden === true;
@@ -1194,7 +1245,7 @@ export class PrismaMessagingRepo
     const thread = await this.upsertChatThreadUnscoped({
       companyId,
       connectedAccountId,
-      unipileThreadId: resolvedThreadId,
+      unipileThreadId,
       provider: safeMessage.provider,
       type: threadType,
       subject: safeMessage.subject,
@@ -1340,7 +1391,7 @@ export class PrismaMessagingRepo
               editedAt: args.editedAt,
             }
           : {}),
-        ...(args.folderIds && args.folderIds.length > 0 ? { folderIds: args.folderIds } : {}),
+        ...(args.folderIds && args.folderIds.length > 0 ? { folderIds: args.folderIds, isHidden: args.isHidden } : {}),
       },
     });
 
@@ -1390,6 +1441,31 @@ export class PrismaMessagingRepo
     await this.prisma.messagingMessage.update({ where: { id: message.id }, data: { isDeleted: true } });
 
     return { messagingThreadId: message.messagingThreadId };
+  }
+
+  @BypassTenantGuard
+  async reconcileFolderMembershipUnscoped(args: RepoArgs<MessagingIngestRepo, "reconcileFolderMembershipUnscoped">) {
+    const stale = await this.prisma.messagingMessage.findMany({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        folderIds: { has: args.folderId },
+        sentAt: { gte: args.since },
+        isDraft: false,
+        ...(args.seenUnipileMessageIds.length > 0 ? { unipileMessageId: { notIn: args.seenUnipileMessageIds } } : {}),
+      },
+      select: { id: true, folderIds: true },
+    });
+
+    for (const row of stale) {
+      const folderIds = row.folderIds.filter((id) => id !== args.folderId);
+      await this.prisma.messagingMessage.update({
+        where: { id: row.id },
+        data: { folderIds, ...(folderIds.length === 0 ? { isHidden: true } : {}) },
+      });
+    }
+
+    return stale.length;
   }
 
   @BypassTenantGuard

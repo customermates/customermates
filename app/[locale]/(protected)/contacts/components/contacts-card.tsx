@@ -111,6 +111,7 @@ export const ContactsCard = observer(({ contacts }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="contacts"
       columns={columns}
       rowHref={(item) => entityHref(EntityType.contact, item.id)}
       store={contactsStore}

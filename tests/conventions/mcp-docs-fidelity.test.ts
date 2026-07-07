@@ -11,6 +11,7 @@ const TOOL_NAME_PATTERN = /^ {2}name: ["']([a-z0-9_]+)["'],?$/gm;
 const TOOL_EXPORT_PATTERN = /export const [A-Za-z0-9]+Tool = \{/g;
 const CATALOG_TOOL_PATTERN = /`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g;
 const CATALOG_LOCALES = ["en", "de"];
+const REQUIRED_ANNOTATIONS = ["readOnlyHint", "idempotentHint", "destructiveHint", "openWorldHint"];
 
 function toolFiles(): string[] {
   return walkFiles(join(REPO_ROOT, "features", "mcp-tools"), (path) => path.endsWith(".mcp-tools.ts"));
@@ -27,40 +28,50 @@ function registeredToolNames(): Map<string, string> {
   return names;
 }
 
-function catalogPath(locale: string): string {
-  return join("content", "docs", locale, "mcp-tool-catalog.mdx");
+function routeToolBindings(): number {
+  const routeText = readFileSync(join(REPO_ROOT, "app", "api", "v1", "mcp", "route.ts"), "utf8");
+  const registration = routeText.slice(routeText.indexOf("const TOOL_GROUPS"));
+  const bindings = [...registration.matchAll(/\b[A-Za-z0-9]+Tool\b/g)]
+    .map((match) => match[0])
+    .filter((name) => name !== "McpTool");
+  return new Set(bindings).size;
 }
 
-function catalogToolNames(locale: string): Set<string> {
-  const text = readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
-  return new Set([...text.matchAll(CATALOG_TOOL_PATTERN)].map((match) => match[1]));
+function catalogPath(locale: string): string {
+  return join("content", "docs", locale, "mcp.mdx");
+}
+
+function catalogText(locale: string): string {
+  return readFileSync(join(REPO_ROOT, catalogPath(locale)), "utf8");
 }
 
 describe("MCP tool catalog fidelity", () => {
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("extracts one name literal per exported tool", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("extracts one name and title per exported tool", () => {
     let total = 0;
     for (const file of toolFiles()) {
       const text = readFileSync(file, "utf8");
+      const label = file.slice(REPO_ROOT.length + 1);
       const exportCount = [...text.matchAll(TOOL_EXPORT_PATTERN)].length;
       const nameCount = [...text.matchAll(TOOL_NAME_PATTERN)].length;
-      expect(nameCount, `${file.slice(REPO_ROOT.length + 1)}: name literals must match exported *Tool consts`).toBe(
-        exportCount,
-      );
+      const titleCount = [...text.matchAll(/^ {2}title: ["']/gm)].length;
+      expect(nameCount, `${label}: name literals must match exported *Tool consts`).toBe(exportCount);
+      expect(titleCount, `${label}: every exported tool needs a title`).toBe(exportCount);
+      for (const annotation of REQUIRED_ANNOTATIONS) {
+        const annotationCount = [...text.matchAll(new RegExp(`\\b${annotation}:`, "g"))].length;
+        expect(annotationCount, `${label}: every tool must set ${annotation}`).toBe(exportCount);
+      }
       total += nameCount;
     }
-    const routeText = readFileSync(join(REPO_ROOT, "app", "api", "v1", "mcp", "route.ts"), "utf8");
-    const allToolsBlock = routeText.match(/const ALL_TOOLS = \[([\s\S]*?)\];/);
-    const registeredCount = [...(allToolsBlock?.[1] ?? "").matchAll(/[A-Za-z0-9]+Tool\b/g)].length;
-    expect(registeredCount, "ALL_TOOLS in app/api/v1/mcp/route.ts must register every exported tool").toBe(total);
+    expect(routeToolBindings(), "route.ts TOOL_GROUPS + ALWAYS_ON must register every exported tool").toBe(total);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every registered tool in both catalogs", () => {
     const registered = registeredToolNames();
     const missing: string[] = [];
     for (const locale of CATALOG_LOCALES) {
-      const documented = catalogToolNames(locale);
+      const text = catalogText(locale);
       for (const [name, file] of registered) {
-        if (!documented.has(name)) missing.push(`${name} (${file}) is missing from ${catalogPath(locale)}`);
+        if (!text.includes(`\`${name}\``)) missing.push(`${name} (${file}) is missing from ${catalogPath(locale)}`);
       }
     }
     expect(missing).toEqual([]);
@@ -70,8 +81,8 @@ describe("MCP tool catalog fidelity", () => {
     const registered = registeredToolNames();
     const stale: string[] = [];
     for (const locale of CATALOG_LOCALES) {
-      for (const name of catalogToolNames(locale)) {
-        if (!registered.has(name)) stale.push(`${name} in ${catalogPath(locale)} matches no registered tool`);
+      for (const match of catalogText(locale).matchAll(CATALOG_TOOL_PATTERN)) {
+        if (!registered.has(match[1])) stale.push(`${match[1]} in ${catalogPath(locale)} matches no registered tool`);
       }
     }
     expect(stale).toEqual([]);

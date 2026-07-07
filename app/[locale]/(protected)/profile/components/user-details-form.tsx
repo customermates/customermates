@@ -40,7 +40,7 @@ export const UserDetailsForm = observer(({ userDetails, emailVerified }: Props) 
       <div className="flex items-center gap-1">
         {!emailVerified && <VerifyEmailAction />}
 
-        <FormActions formId={formId} store={userDetailsStore} variant="topbar" />
+        <FormActions anchorScope="profile-details" formId={formId} store={userDetailsStore} variant="topbar" />
       </div>
     ),
     [formId, userDetailsStore, emailVerified],

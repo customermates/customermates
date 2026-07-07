@@ -83,7 +83,7 @@ export const CompanyUserModal = observer(() => {
             )}
           </AppCardBody>
 
-          <FormActions overrideDisabled={isDisabledOrOwnProfile} store={store} />
+          <FormActions anchorScope="member-modal" overrideDisabled={isDisabledOrOwnProfile} store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

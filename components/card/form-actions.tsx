@@ -19,6 +19,7 @@ type Props = {
   primaryButtonLabel?: string;
   overrideDisabled?: boolean;
   showInitially?: boolean;
+  anchorScope?: string;
 };
 
 export const FormActions = observer(
@@ -29,6 +30,7 @@ export const FormActions = observer(
     primaryButtonLabel = "Common.actions.save",
     overrideDisabled,
     showInitially,
+    anchorScope,
   }: Props) => {
     const t = useTranslations();
     const ctxStore = useAppForm();
@@ -50,6 +52,7 @@ export const FormActions = observer(
         {dirty && (
           <Button
             className={buttonClassName}
+            id={anchorScope ? `${anchorScope}-reset` : undefined}
             size={buttonSize}
             type="button"
             variant="outline"
@@ -63,6 +66,7 @@ export const FormActions = observer(
           className={buttonClassName}
           disabled={disabled}
           form={formId}
+          id={anchorScope ? `${anchorScope}-save` : undefined}
           size={buttonSize}
           type="submit"
           variant="default"

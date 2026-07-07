@@ -4,8 +4,16 @@ import path from "node:path";
 const SOURCES = ["docs", "api"] as const;
 const LOCALES = ["en", "de"] as const;
 
+type ManifestPage = { title: string; description: string; content: string };
+
 const root = path.join(process.cwd(), "content");
-const manifest: Record<string, Record<string, Record<string, string>>> = {};
+const manifest: Record<string, Record<string, Record<string, ManifestPage>>> = {};
+
+function parsePage(slug: string, raw: string): ManifestPage {
+  const frontmatter = raw.match(/^---\n([\s\S]*?)\n---\n?/);
+  const pick = (key: string) => frontmatter?.[1].match(new RegExp(`^${key}:\\s*["']?(.+?)["']?$`, "m"))?.[1] ?? "";
+  return { title: pick("title") || slug, description: pick("description"), content: raw };
+}
 
 for (const source of SOURCES) {
   manifest[source] = {};
@@ -21,7 +29,7 @@ for (const source of SOURCES) {
     for (const file of files) {
       if (!file.endsWith(".mdx")) continue;
       const slug = file.slice(0, -4);
-      manifest[source][locale][slug] = readFileSync(path.join(dir, file), "utf8");
+      manifest[source][locale][slug] = parsePage(slug, readFileSync(path.join(dir, file), "utf8"));
     }
   }
 }

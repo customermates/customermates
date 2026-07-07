@@ -18,6 +18,7 @@ type Props<E extends HasId> = {
   isSearchable?: boolean;
   searchPlaceholder?: string;
   showDisplayOptions?: boolean;
+  anchorScope?: string;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -26,6 +27,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   isSearchable = true,
   searchPlaceholder,
   showDisplayOptions = true,
+  anchorScope,
 }: Props<E>) {
   const t = useTranslations();
   if (!store.isReady) return null;
@@ -34,17 +36,23 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
     <div className="flex items-center gap-1">
       {isSearchable && (
         <div className="shrink-0">
-          <DataViewSearch placeholder={searchPlaceholder} store={store} />
+          <DataViewSearch
+            id={anchorScope ? `${anchorScope}-search` : undefined}
+            placeholder={searchPlaceholder}
+            store={store}
+          />
         </div>
       )}
 
       <div className="flex items-center gap-1">
-        <FilterPopover store={store} />
+        <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} store={store} />
 
-        {showDisplayOptions && <DataViewDisplayOptions store={store} />}
+        {showDisplayOptions && (
+          <DataViewDisplayOptions id={anchorScope ? `${anchorScope}-display-options` : undefined} store={store} />
+        )}
 
         {onAdd && !store.isDisabled && (
-          <Button className="h-8" size="sm" onClick={onAdd}>
+          <Button className="h-8" id={anchorScope ? `${anchorScope}-add` : undefined} size="sm" onClick={onAdd}>
             <Plus className="size-3.5" />
 
             <span className="hidden sm:inline">{t("Common.actions.add")}</span>

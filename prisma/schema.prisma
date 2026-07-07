@@ -17,8 +17,11 @@ model AuthUser {
   companyId     String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @default(now()) @updatedAt
-  authsessions  AuthSession[]
-  authaccounts  AuthAccount[]
+  authsessions      AuthSession[]
+  authaccounts      AuthAccount[]
+  oauthapplications OauthApplication[]
+  oauthaccesstokens OauthAccessToken[]
+  oauthconsents     OauthConsent[]
 
   @@unique([email])
   @@index([email])
@@ -96,6 +99,60 @@ model Apikey {
 
   @@index([key])
   @@index([referenceId])
+}
+
+model OauthApplication {
+  id                String             @id
+  name              String
+  icon              String?
+  metadata          String?
+  clientId          String             @unique
+  clientSecret      String?
+  redirectUrls      String
+  type              String
+  disabled          Boolean?           @default(false)
+  userId            String?
+  authuser          AuthUser?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  oauthaccesstokens OauthAccessToken[]
+  oauthconsents     OauthConsent[]
+
+  @@index([userId])
+}
+
+model OauthAccessToken {
+  id                    String           @id
+  accessToken           String           @unique
+  refreshToken          String           @unique
+  accessTokenExpiresAt  DateTime
+  refreshTokenExpiresAt DateTime
+  clientId              String
+  oauthapplication      OauthApplication @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  userId                String?
+  authuser              AuthUser?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopes                String
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@index([clientId])
+  @@index([userId])
+}
+
+model OauthConsent {
+  id               String           @id
+  clientId         String
+  oauthapplication OauthApplication @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  userId           String
+  authuser         AuthUser         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopes           String
+  consentGiven     Boolean
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([userId, clientId])
+  @@index([clientId])
+  @@index([userId])
 }
 
 model User {

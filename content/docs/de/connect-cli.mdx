@@ -1,0 +1,97 @@
+---
+title: CLI- und Editor-Clients verbinden (API-Key)
+description: Verbinde Claude Code, Codex, Cursor oder die Gemini CLI per API-Key mit Customermates, dem Open-Source-KI-CRM. Ein Abschnitt pro Client, plus Konfigurationsdatei-Fallback für Claude Desktop.
+---
+
+Customermates ist das Open-Source-KI-CRM. Einmal verbunden, liest und schreibt dein Coding-Agent Contacts, Deals und Notizen, ohne das Terminal zu verlassen. Alle Clients auf dieser Seite authentifizieren sich gleich: mit einem API-Key im `x-api-key`-Header gegen `https://customermates.com/api/v1/mcp`. Wenn du selbst hostest, ersetz die URL überall unten durch deine Instanz.
+
+> Nutzt du stattdessen die **App** von Claude oder ChatGPT? Die verbinden sich mit [dem Custom Connector](/docs/connect-custom-connector) (OAuth, kein Key).
+
+## API-Key anlegen
+
+In Customermates: **Profil → API Keys → Neuer Key**. Gib ihm einen Namen, der den Client beschreibt (z.B. `Claude Code`). Der 64-Zeichen-Key wird einmal angezeigt, also sofort kopieren. Ein Key erbt die Berechtigungen des Users, der ihn erstellt hat; ein Scope pro Key gibt es nicht. Leg pro Client einen eigenen Key an, wenn du Audit-Log-Granularität willst.
+
+## Claude Code
+
+Claude Code fügt MCP-Server über sein CLI hinzu. Ein Befehl erledigt das Setup. In einem beliebigen Terminal ausführen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="claudeCode" />
+
+Kein Neustart, keine Konfigurationsdatei. Claude Code verbindet sich automatisch. Mit `claude mcp list` prüfen, dass `customermates` aufgeführt ist.
+
+**Scope:** Der Befehl nutzt standardmäßig den lokalen Scope. Mit `--scope user` ist Customermates auf deiner Maschine überall verfügbar, mit `--scope project` landet die Konfiguration in der `.mcp.json` des Repos, sodass Teammitglieder sie übernehmen.
+
+## Codex
+
+Das Codex CLI von OpenAI nutzt eine TOML-Konfigurationsdatei. Der `codex mcp add`-Befehl unterstützt nur stdio-Server. Für einen HTTP-MCP-Server wie Customermates fügst du den Block manuell ein. `~/.codex/config.toml` öffnen (anlegen falls nötig) und anhängen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="codex" />
+
+Um den Key aus einer Umgebungsvariable zu lesen, statt ihn in der Datei zu speichern:
+
+```toml
+[mcp_servers.customermates]
+url = "https://customermates.com/api/v1/mcp"
+env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
+```
+
+Dann `CUSTOMERMATES_API_KEY` im Shell-Profil exportieren. Neue Sessions erkennen den Server, also die aktuelle beenden und eine neue starten.
+
+## Cursor
+
+**Settings → Tools & MCP → Add new MCP server** öffnen und Folgendes einfügen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="cursor" />
+
+Cursor lädt hot: kein Neustart nötig, die Tools erscheinen direkt im Composer. Um die Datei direkt zu bearbeiten, kommt derselbe Block in `~/.cursor/mcp.json` (global) oder `<project>/.cursor/mcp.json` (pro Projekt), eingebettet unter `mcpServers`.
+
+## Gemini CLI
+
+Die Gemini CLI lädt MCP-Server aus `~/.gemini/settings.json`. Folgendes mergen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="gemini" />
+
+Falls `mcpServers` bereits Einträge enthält, füg `customermates` daneben ein, statt das Objekt zu überschreiben.
+
+## Claude Desktop (config file)
+
+Der empfohlene Weg für Claude Desktop ist der [Connector-Weg](/docs/connect-custom-connector#claude): OAuth, kein Key, über deine Geräte synchronisiert. Im Free-Plan, oder wenn du lieber einen statischen Key nutzt, funktioniert die Konfigurationsdatei unten auch.
+
+**Claude → Settings → Developer → Edit Config** öffnen, oder die Datei direkt:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Diesen Block mergen, `YOUR_KEY` ersetzen:
+
+<McpInstallSnippet tool="claudeDesktop" />
+
+`mcp-remote` ist ein Shim, der Claude Desktop über stdio mit einem Remote-HTTP-MCP-Server sprechen lässt. Er wird beim ersten Aufruf via `npx` heruntergeladen, du brauchst also Node 18+ im `PATH`.
+
+Danach neu starten: vollständig beenden (⌘Q auf macOS, nicht nur das Fenster schließen) und neu öffnen. Customermates erscheint im Tools-Panel mit den CRM-Tools.
+
+## Probier deinen ersten Prompt
+
+Der Server brieft deinen Agent beim Verbinden; die Tool-Oberfläche und die Sicherheitsregeln kennt er also schon. In Clients, die MCP-Prompts unterstützen (etwa Claude Code), kannst du den eingebauten `get-started`-Prompt für einen geführten Start nutzen: Er befragt dich und fasst dann deinen Workspace zusammen.
+
+- *"Setz die Status-Spalte des Acme-Deals auf 'Won' und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
+- *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
+- *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Initech-Organisation und starte einen Deal über 12 Stunden Beratung."*
+
+Die verfügbaren Record-Typen sind Contact, Organization, Deal, Service und Task. Deals und Tasks haben kein festes Pipeline-Feld. Attribute wie der Status eines Deals oder die Priorität eines Tasks sind konfigurierbare Custom Columns, die Werte in einem Prompt hängen also davon ab, wie dein Workspace eingerichtet ist. Ruf `get_record_schema` auf, um die Spalten zu sehen, die ein Record-Typ aktuell hat.
+
+## Troubleshooting
+
+| Client | Symptom | Ursache | Lösung |
+|---|---|---|---|
+| Claude Desktop | `npx: command not found` | Kein Node im `PATH` | Node 18+ von [nodejs.org](https://nodejs.org) installieren |
+| Claude Desktop | Tools-Panel nach Config-Änderung leer | Claude Desktop lädt MCP-Configs nicht hot | Vollständig beenden (⌘Q) und neu öffnen |
+| Codex | TOML-Parse-Fehler | Inline-Tabellen nutzen `=`, nicht `:` | Die `env_http_headers = { ... }`-Zeile prüfen |
+| Alle | "Invalid API key" | Falscher oder abgeschnittener Key | In Profil → API Keys neu erstellen; der Key muss vollständige 64 Zeichen haben |
+| Alle | Relation-Update wird abgelehnt | `update_*`-Tools akzeptieren keine Relation-Arrays | Den Agent bitten, `manage_record_links` zum Hinzufügen oder Entfernen von Verknüpfungen zu nutzen |
+
+## Weiter
+
+- [Custom Connector](/docs/connect-custom-connector): der OAuth-Weg für die Apps von Claude und ChatGPT.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das der Agent aufrufen kann.
+- [Webhooks](/docs/webhooks): andere Systeme über CRM-Änderungen informieren.

@@ -39,7 +39,12 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   const topBarActions = useMemo(
     () =>
       canConnect ? (
-        <Button className="h-8" size="sm" onClick={() => void connectedAccountsStore.connectAccount()}>
+        <Button
+          className="h-8"
+          id="profile-connected-accounts-connect"
+          size="sm"
+          onClick={() => void connectedAccountsStore.connectAccount()}
+        >
           <Plus className="size-3.5" />
 
           <span className="hidden sm:inline">{t("ConnectedAccountsCard.connectAccount")}</span>

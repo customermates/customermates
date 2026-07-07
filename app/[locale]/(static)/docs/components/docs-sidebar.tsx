@@ -6,27 +6,10 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import {
-  ArrowLeft,
-  BookOpen,
-  Bot,
-  Code2,
-  Gauge,
-  GitCompare,
-  Key,
-  LibraryBig,
-  ListFilter,
-  Network,
-  PlayCircle,
-  PlugZap,
-  Rocket,
-  Server,
-  Shield,
-  Webhook,
-  Workflow,
-} from "lucide-react";
+import { ArrowLeft, Network } from "lucide-react";
 
 import { getDocMethodColor } from "../docs.utils";
+import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppImage } from "@/components/shared/app-image";
 import { Icon } from "@/components/shared/icon";
@@ -79,117 +62,16 @@ export function isDocItemActive(item: DocSidebarItem, normalizedPathname: string
 
 export function useDocGroups(): DocSidebarGroup[] {
   const t = useTranslations();
-  return [
-    {
-      key: "introduction",
-      label: t("DocsSidebar.introduction"),
-      items: [{ key: "introduction", url: "/docs", title: t("DocsSidebar.introduction"), icon: BookOpen }],
-    },
-    {
-      key: "getting-started",
-      label: t("DocsSidebar.gettingStarted"),
-      items: [
-        { key: "quickstart", url: "/docs/quickstart", title: t("DocsSidebar.quickstart"), icon: Rocket },
-        { key: "concepts", url: "/docs/concepts", title: t("DocsSidebar.concepts"), icon: LibraryBig },
-        { key: "from-pipedrive", url: "/docs/from-pipedrive", title: t("DocsSidebar.fromPipedrive"), icon: GitCompare },
-      ],
-    },
-    {
-      key: "connect-your-ai",
-      label: t("DocsSidebar.connectYourAi"),
-      items: [
-        {
-          key: "mcp-connect-claude-code",
-          url: "/docs/mcp-connect-claude-code",
-          title: t("DocsSidebar.connectClaudeCode"),
-          icon: Code2,
-        },
-        {
-          key: "mcp-connect-claude-desktop",
-          url: "/docs/mcp-connect-claude-desktop",
-          title: t("DocsSidebar.connectClaudeDesktop"),
-          icon: Bot,
-        },
-        {
-          key: "mcp-connect-codex",
-          url: "/docs/mcp-connect-codex",
-          title: t("DocsSidebar.connectCodex"),
-          icon: Code2,
-        },
-        {
-          key: "mcp-connect-cursor",
-          url: "/docs/mcp-connect-cursor",
-          title: t("DocsSidebar.connectCursor"),
-          icon: Code2,
-        },
-        {
-          key: "mcp-connect-gemini",
-          url: "/docs/mcp-connect-gemini",
-          title: t("DocsSidebar.connectGemini"),
-          icon: Code2,
-        },
-        {
-          key: "mcp-connect-chatgpt",
-          url: "/docs/mcp-connect-chatgpt",
-          title: t("DocsSidebar.connectChatgpt"),
-          icon: Bot,
-        },
-      ],
-    },
-    {
-      key: "integrations",
-      label: t("DocsSidebar.integrations"),
-      items: [
-        { key: "integrations-mcp", url: "/docs/mcp", title: t("DocsSidebar.mcp"), icon: PlugZap },
-        { key: "webhooks", url: "/docs/webhooks", title: t("DocsSidebar.webhooks"), icon: Webhook },
-        { key: "integrations-openapi", url: "/docs/openapi", title: t("DocsSidebar.openapi"), icon: Code2 },
-        { key: "integrations-n8n", url: "/docs/n8n", title: t("DocsSidebar.n8n"), icon: Workflow },
-      ],
-    },
-    {
-      key: "self-hosting",
-      label: t("DocsSidebar.selfHosting"),
-      items: [
-        { key: "self-hosting", url: "/docs/self-hosting", title: t("DocsSidebar.getStarted"), icon: Server },
-        {
-          key: "architecture-security",
-          url: "/docs/architecture-security",
-          title: t("DocsSidebar.architectureSecurity"),
-          icon: Shield,
-        },
-      ],
-    },
-    {
-      key: "reference",
-      label: t("DocsSidebar.reference"),
-      items: [
-        {
-          key: "mcp-tool-catalog",
-          url: "/docs/mcp-tool-catalog",
-          title: t("DocsSidebar.mcpToolCatalog"),
-          icon: PlayCircle,
-        },
-        {
-          key: "filter-syntax",
-          url: "/docs/filter-syntax",
-          title: t("DocsSidebar.filterSyntax"),
-          icon: ListFilter,
-        },
-        { key: "api-keys", url: "/docs/api-keys", title: t("DocsSidebar.apiKeys"), icon: Key },
-        {
-          key: "messaging-rate-limits",
-          url: "/docs/messaging-rate-limits",
-          title: t("DocsSidebar.messagingRateLimits"),
-          icon: Gauge,
-        },
-      ],
-    },
-    {
-      key: "comparison",
-      label: t("DocsSidebar.comparison"),
-      items: [{ key: "comparison", url: "/docs/comparison", title: t("DocsSidebar.comparison"), icon: GitCompare }],
-    },
-  ];
+  return DOC_NAV_GROUPS.map((group) => ({
+    key: group.key,
+    label: t(group.i18nKey),
+    items: group.items.map((item) => ({
+      key: item.slug || "introduction",
+      url: item.slug ? `/docs/${item.slug}` : "/docs",
+      title: t(item.i18nKey),
+      icon: item.icon,
+    })),
+  }));
 }
 
 function DocItemRow({ item, isActive }: { item: DocSidebarItem; isActive: boolean }): ReactNode {

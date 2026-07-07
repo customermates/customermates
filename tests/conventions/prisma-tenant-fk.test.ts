@@ -7,7 +7,16 @@ import { REPO_ROOT } from "./walk";
 
 const ENFORCED = true;
 
-const TENANT_FK_ALLOWLIST = new Set(["Company", "AuthSession", "AuthAccount", "AuthVerification", "Apikey"]);
+const TENANT_FK_ALLOWLIST = new Set([
+  "Company",
+  "AuthSession",
+  "AuthAccount",
+  "AuthVerification",
+  "Apikey",
+  "OauthApplication",
+  "OauthAccessToken",
+  "OauthConsent",
+]);
 
 type PrismaModel = {
   name: string;

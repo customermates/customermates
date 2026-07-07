@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   encodeToToon,
   runInteractor,
+  validationError,
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
@@ -15,22 +16,37 @@ import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { ActivitiesParamsSchema } from "@/ee/messaging/activities/activities.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
-import { SendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
-import { StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
+import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
+import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
+import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
+import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
-  getGetMyConnectedAccountsInteractor,
   getGetMessagingThreadsApiInteractor,
   getGetMessagingThreadInteractor,
   getGetActivitiesApiInteractor,
   getSendEmailInteractor,
   getSendChatMessageInteractor,
   getStartChatInteractor,
+  getSaveDraftInteractor,
+  getDiscardDraftInteractor,
+  getUpdateThreadInteractor,
 } from "@/core/di";
 
-const ListPaginationSchema = z.object({
+const GetMessagingThreadsSchema = z.object({
+  threadId: z
+    .uuid()
+    .optional()
+    .describe("Thread id from a previous list call. When set, returns that thread's detail instead of the list"),
   page: mcpPage(),
-  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
-  searchTerm: z.string().optional().describe("Free-text search against thread name, subject, and participants"),
+  pageSize: mcpPageSize(
+    25,
+    "Results per page: 5, 10, 25, or 100 (default 25). With threadId set this pages the thread's messages",
+  ),
+  searchTerm: z
+    .string()
+    .optional()
+    .describe("Free-text search against thread name, subject, and participants (list mode only)"),
   filters: z
     .array(FilterSchema)
     .optional()
@@ -47,41 +63,70 @@ const ListPaginationSchema = z.object({
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("lastMessageAt")),
 });
 
-const ThreadIdSchema = z.object({
-  threadId: z.uuid().describe("Thread id (from get_messaging_threads)"),
-  page: mcpPage(),
-  pageSize: mcpPageSize(25, "Messages per page: 5, 10, 25, or 100 (default 25). Page 1 is the most recent messages."),
-});
-
 const LIST_PARTICIPANT_LIMIT = 50;
-
-export const listConnectedAccountsTool = {
-  name: "list_connected_accounts",
-  description:
-    "List the messaging accounts (email, LinkedIn, WhatsApp, …) connected to the workspace and visible to you. " +
-    "Returns per account { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt }. " +
-    "Use the id as connectedAccountId/accountId for send_email, start_chat, etc.",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: z.object({}),
-  execute: () =>
-    runInteractor(getGetMyConnectedAccountsInteractor().invoke(), (data) =>
-      encodeToToon(formatDatesInResponse({ items: data })),
-    ),
-};
 
 export const getMessagingThreadsTool = {
   name: "get_messaging_threads",
+  title: "Get messaging threads",
   description:
-    "List inbox message threads across connected accounts. " +
-    "Optional: page, pageSize (max 100, default 25), searchTerm, filters, sortDescriptor. " +
-    "Returns per thread: id, name/subject/preview, state, lastMessageAt, participantCount, and a participants list " +
-    "(displayName, identifier, channel provider, isSelf, isLinked, and the linked CRM contact {id,name} when linked) — capped at 50 per thread. " +
-    "A participant with isLinked=false is someone in the conversation who is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people. " +
-    "Message bodies are omitted here — use get_messaging_thread for the conversation.",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: ListPaginationSchema,
-  execute: ({ page, pageSize, searchTerm, filters, sortDescriptor }: z.infer<typeof ListPaginationSchema>) =>
-    runInteractor(
+    "Use this when reading the inbox: without threadId lists message threads across connected accounts; with threadId returns that thread's detail (full participants plus a page of messages, drafts flagged isDraft, page 1 is the most recent). " +
+    "List rows carry id, name/subject/preview, state, lastMessageAt, and participants (displayName, identifier, provider, isSelf, isLinked, linked CRM contact) capped at 50; message bodies appear only in detail mode. " +
+    "List mode omits threads that have no messages yet (unless they hold a draft); detail by threadId returns any thread. " +
+    "A participant with isLinked=false is NOT yet a CRM contact; filter `participants` with the `hasUnset` operator to find threads that have such people.",
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  inputSchema: GetMessagingThreadsSchema,
+  execute: (params: z.infer<typeof GetMessagingThreadsSchema>) => {
+    const { threadId, page, pageSize, searchTerm, filters, sortDescriptor } = params;
+    if (threadId) {
+      return runInteractor(getGetMessagingThreadInteractor().invoke({ threadId, page, pageSize }), (data) =>
+        encodeToToon(
+          formatDatesInResponse({
+            thread: {
+              id: data.thread.id,
+              connectedAccountId: data.thread.connectedAccountId,
+              provider: data.thread.provider,
+              type: data.thread.type,
+              name: data.thread.name,
+              subject: data.thread.subject,
+              preview: data.thread.preview,
+              state: data.thread.state,
+              lastMessageAt: data.thread.lastMessageAt,
+              participantCount: data.thread.participants.length,
+              participants: data.thread.participants.map((p) => ({
+                displayName: p.displayName,
+                identifier: p.identifier,
+                provider: data.thread.provider,
+                isSelf: p.isSelf ?? false,
+                isLinked: p.contact != null,
+                contact: p.contact
+                  ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
+                  : null,
+              })),
+              sharedToCrm: data.thread.sharedToCrm,
+              isOwner: data.thread.isOwner,
+            },
+            messages: data.messages.map((message) => ({
+              id: message.id,
+              direction: message.direction,
+              sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
+              subject: message.subject,
+              bodyText: message.bodyText,
+              isDraft: message.isDraft,
+              attachments: message.attachmentsMeta.map((attachment) => ({
+                name: attachment.fileName ?? attachment.name,
+                type: attachment.type,
+                mime: attachment.mime,
+              })),
+              sentAt: message.sentAt,
+              editedAt: message.editedAt,
+            })),
+            total: data.total,
+            page,
+          }),
+        ),
+      );
+    }
+    return runInteractor(
       getGetMessagingThreadsApiInteractor().invoke(
         GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } }),
       ),
@@ -116,65 +161,8 @@ export const getMessagingThreadsTool = {
             page,
           }),
         ),
-    ),
-};
-
-export const getMessagingThreadTool = {
-  name: "get_messaging_thread",
-  description:
-    "Fetch one message thread: its full participant list plus a page of messages. " +
-    "Required: threadId (from get_messaging_threads). Optional: page, pageSize (5/10/25/100, default 25). " +
-    "Page 1 returns the most recent messages (chronological within the page); higher pages fetch older messages. " +
-    "Returns the thread (with the full participants array — displayName, identifier, channel, isSelf, isLinked, linked CRM contact), the messages (direction, sender, subject, text body, attachment metadata; HTML bodies and raw attachment urls omitted), and total (message count in the thread).",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  inputSchema: ThreadIdSchema,
-  execute: (params: z.infer<typeof ThreadIdSchema>) =>
-    runInteractor(getGetMessagingThreadInteractor().invoke(params), (data) =>
-      encodeToToon(
-        formatDatesInResponse({
-          thread: {
-            id: data.thread.id,
-            connectedAccountId: data.thread.connectedAccountId,
-            provider: data.thread.provider,
-            type: data.thread.type,
-            name: data.thread.name,
-            subject: data.thread.subject,
-            preview: data.thread.preview,
-            state: data.thread.state,
-            lastMessageAt: data.thread.lastMessageAt,
-            participantCount: data.thread.participants.length,
-            participants: data.thread.participants.map((p) => ({
-              displayName: p.displayName,
-              identifier: p.identifier,
-              provider: data.thread.provider,
-              isSelf: p.isSelf ?? false,
-              isLinked: p.contact != null,
-              contact: p.contact
-                ? { id: p.contact.id, name: `${p.contact.firstName} ${p.contact.lastName}`.trim() || null }
-                : null,
-            })),
-            sharedToCrm: data.thread.sharedToCrm,
-            isOwner: data.thread.isOwner,
-          },
-          messages: data.messages.map((message) => ({
-            id: message.id,
-            direction: message.direction,
-            sender: message.sender?.displayName ?? message.sender?.identifier ?? null,
-            subject: message.subject,
-            bodyText: message.bodyText,
-            attachments: message.attachmentsMeta.map((attachment) => ({
-              name: attachment.fileName ?? attachment.name,
-              type: attachment.type,
-              mime: attachment.mime,
-            })),
-            sentAt: message.sentAt,
-            editedAt: message.editedAt,
-          })),
-          total: data.total,
-          page: params.page,
-        }),
-      ),
-    ),
+    );
+  },
 };
 
 const GetActivitiesSchema = z.object({
@@ -198,11 +186,12 @@ const GetActivitiesSchema = z.object({
 
 export const getActivitiesTool = {
   name: "get_activities",
+  title: "Get activities",
   description:
     "List the activity timeline (messages, audit-log changes, calendar events) for the workspace or one record. " +
     "Optional: page, pageSize, entityType + entityId (scope to one record), filters, sortDescriptor. " +
     "Returns time-ordered entries by kind (message | audit | activity | calendar_event).",
-  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: GetActivitiesSchema,
   execute: ({ page, pageSize, entityType, entityId, filters, sortDescriptor }: z.infer<typeof GetActivitiesSchema>) =>
     runInteractor(
@@ -220,40 +209,104 @@ export const getActivitiesTool = {
     ),
 };
 
+const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({ attachments: true })
+  .partial({ threadId: true })
+  .extend(
+    BaseStartChatInputSchema.omit({ text: true, attachments: true }).partial({
+      connectedAccountId: true,
+      attendeeIdentifiers: true,
+    }).shape,
+  );
+
+export const sendChatMessageTool = {
+  name: "send_chat_message",
+  title: "Send chat message",
+  description:
+    "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
+    "Exactly one mode: pass threadId to send text into that existing thread (optional draftMessageId converts a saved draft on send), " +
+    "or omit threadId to start a new chat, which requires connectedAccountId (see get_workspace_context) and attendeeIdentifiers " +
+    "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional subject to name the group. " +
+    "An identical text sent into the same thread within about a minute is rejected as a duplicate. " +
+    "For email use send_email.",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  inputSchema: SendChatMessageToolSchema,
+  execute: async (params: z.infer<typeof SendChatMessageToolSchema>) => {
+    const { threadId } = params;
+    if (threadId) {
+      return runInteractor(
+        getSendChatMessageInteractor().invoke({ ...params, threadId }),
+        () => `Message sent in thread ${threadId}`,
+      );
+    }
+    const startChat = StartChatInputSchema.safeParse(params);
+    if (!startChat.success) return validationError(startChat.error);
+    return runInteractor(getStartChatInteractor().invoke(startChat.data), (data) =>
+      data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started",
+    );
+  },
+};
+
 export const sendEmailTool = {
   name: "send_email",
+  title: "Send email",
   description:
     "Send a real email (or reply) from a connected email account. SIDE EFFECT: delivers a real message. " +
     "Required: to, subject, body, and at least one of threadId (reply; takes precedence if both given) or connectedAccountId (new email). " +
     "Optional: cc, bcc. cc/bcc are plain email strings (not the {identifier} object form used by to). " +
-    "Get account/thread ids from list_connected_accounts / get_messaging_threads.",
+    "When replying into a thread, an identical body sent to that thread within about a minute is rejected as a duplicate. " +
+    "Get account ids from get_workspace_context and thread ids from get_messaging_threads.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   inputSchema: SendEmailSchema,
   execute: (params: z.infer<typeof SendEmailSchema>) =>
-    runInteractor(getSendEmailInteractor().invoke(params), () =>
-      params.threadId ? `Reply sent in thread ${params.threadId}` : "Email sent",
+    runInteractor(getSendEmailInteractor().invoke(params), (data) => {
+      if (params.threadId) return `Reply sent in thread ${params.threadId}`;
+      return data?.messagingThreadId ? `Email sent, thread ${data.messagingThreadId}` : "Email sent";
+    }),
+};
+
+export const saveMessageDraftTool = {
+  name: "save_message_draft",
+  title: "Save message draft",
+  description:
+    "Use this when the user wants a reply prepared for review: the draft appears in their inbox compose box and they send it themselves. " +
+    "Drafts require an existing thread; there is no draft for a brand-new outbound email. " +
+    "send_email and send_chat_message deliver immediately, never use them when asked to draft. " +
+    "A thread has at most one draft, saving again replaces it. subject, cc, and bcc apply to email threads only. " +
+    "Returns the draft message id and its thread id.",
+  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  inputSchema: SaveDraftSchema,
+  execute: (params: z.infer<typeof SaveDraftSchema>) =>
+    runInteractor(getSaveDraftInteractor().invoke(params), (data) =>
+      encodeToToon({ draftMessageId: data.id, threadId: data.messagingThreadId }),
     ),
 };
 
-export const sendChatMessageTool = {
-  name: "send_chat_message",
+export const discardMessageDraftTool = {
+  name: "discard_message_draft",
+  title: "Discard message draft",
   description:
-    "Send a real message into an existing chat thread (LinkedIn/WhatsApp/etc.). SIDE EFFECT: delivers a real message. " +
-    "Required: threadId, text.",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
-  inputSchema: SendChatMessageSchema,
-  execute: (params: z.infer<typeof SendChatMessageSchema>) =>
-    runInteractor(getSendChatMessageInteractor().invoke(params), () => `Message sent in thread ${params.threadId}`),
+    "Use this when a prepared draft is no longer wanted: permanently deletes it. " +
+    "messageId is a DRAFT message id, taken from save_message_draft's response or from the thread detail of " +
+    "get_messaging_threads (messages flagged isDraft). Only drafts can be discarded; sent and received messages are never affected. " +
+    "Discarding an id that is not a draft is a safe no-op that reports no draft found.",
+  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: true, openWorldHint: false },
+  inputSchema: DiscardDraftSchema,
+  execute: (params: z.infer<typeof DiscardDraftSchema>) =>
+    runInteractor(getDiscardDraftInteractor().invoke(params), (data) =>
+      data.threadId ? `Draft discarded from thread ${data.threadId}` : "No draft found for that message id",
+    ),
 };
 
-export const startChatTool = {
-  name: "start_chat",
+const UpdateMessagingThreadSchema = UpdateThreadSchema.pick({ threadId: true, state: true }).required({ state: true });
+
+export const updateMessagingThreadTool = {
+  name: "update_messaging_thread",
+  title: "Update messaging thread",
   description:
-    "Start a new chat/conversation with one or more attendees. SIDE EFFECT: delivers a real message. " +
-    "Required: connectedAccountId, attendeeIdentifiers, text. Optional: subject. " +
-    "attendeeIdentifiers are the recipients' provider handles/usernames (the value of a contact's messaging channel).",
-  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
-  inputSchema: StartChatInputSchema,
-  execute: (params: z.infer<typeof StartChatInputSchema>) =>
-    runInteractor(getStartChatInteractor().invoke(params), () => "Chat started"),
+    "Use this when triaging the inbox: sets a thread's state. state is one of unread, open, closed, or spam. " +
+    "threadId comes from get_messaging_threads. Setting the state a thread already has is a harmless no-op.",
+  annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  inputSchema: UpdateMessagingThreadSchema,
+  execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
+    runInteractor(getUpdateThreadInteractor().invoke(params), () => `Thread ${params.threadId} set to ${params.state}`),
 };

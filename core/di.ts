@@ -218,6 +218,16 @@ import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activitie
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
+import { ListSocialPostsInteractor } from "@/ee/messaging/posts/list-social-posts.interactor";
+import { GetSocialPostInteractor } from "@/ee/messaging/posts/get-social-post.interactor";
+import { ListSocialPostCommentsInteractor } from "@/ee/messaging/posts/list-social-post-comments.interactor";
+import { ListSocialCommentReactionsInteractor } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
+import { ListSocialPostReactionsInteractor } from "@/ee/messaging/posts/list-social-post-reactions.interactor";
+import { GetSocialProfileInteractor } from "@/ee/messaging/posts/get-social-profile.interactor";
+import { ListRelationRequestsInteractor } from "@/ee/messaging/posts/list-relation-requests.interactor";
+import { CreateRelationRequestInteractor } from "@/ee/messaging/posts/create-relation-request.interactor";
+import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-relation-request.interactor";
+import { CancelRelationRequestInteractor } from "@/ee/messaging/posts/cancel-relation-request.interactor";
 // Webhook interactors
 import { GetWebhooksInteractor } from "@/features/webhook/get-webhooks.interactor";
 import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.interactor";
@@ -1102,7 +1112,7 @@ export const getSaveDraftInteractor = () => new SaveDraftInteractor(getMessaging
 export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo());
 
 export const getStartChatInteractor = () =>
-  new StartChatInteractor(getConnectedAccountRepo(), getContactRepo(), getMessagingService());
+  new StartChatInteractor(getConnectedAccountRepo(), getContactRepo(), getMessagingService(), getMessagingRepo());
 
 export const getResolveProviderProfileInteractor = () =>
   new ResolveProviderProfileInteractor(getConnectedAccountRepo(), getMessagingService());
@@ -1131,6 +1141,36 @@ export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());
 
 export const getUpdateThreadInteractor = () => new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator());
+
+export const getListSocialPostsInteractor = () =>
+  new ListSocialPostsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getGetSocialPostInteractor = () =>
+  new GetSocialPostInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListSocialPostCommentsInteractor = () =>
+  new ListSocialPostCommentsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListSocialCommentReactionsInteractor = () =>
+  new ListSocialCommentReactionsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListSocialPostReactionsInteractor = () =>
+  new ListSocialPostReactionsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getGetSocialProfileInteractor = () =>
+  new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListRelationRequestsInteractor = () =>
+  new ListRelationRequestsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getCreateRelationRequestInteractor = () =>
+  new CreateRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getAcceptRelationRequestInteractor = () =>
+  new AcceptRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getCancelRelationRequestInteractor = () =>
+  new CancelRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
 
 // --- Custom Column ---
 

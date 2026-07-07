@@ -1,5 +1,5 @@
-import type { IngestMessage, MessagingAttendee } from "./messaging.schema";
-import type { UnipileAccount, UnipileEmail } from "./unipile.schema";
+import type { AttachmentMeta, IngestMessage, MessagingAttendee } from "./messaging.schema";
+import type { UnipileAccount, UnipileAttachment, UnipileEmail } from "./unipile.schema";
 
 import {
   ConnectedAccountStatus,
@@ -153,6 +153,22 @@ function emailRecipients(list: EmailAttendee[] | null | undefined): MessagingAtt
   return (list ?? []).map(emailAttendee).filter((a) => a.identifier);
 }
 
+export function toAttachmentsMeta(attachments: UnipileAttachment[] | null | undefined): AttachmentMeta[] {
+  return (attachments ?? []).flatMap((a) =>
+    a.id
+      ? [
+          {
+            id: a.id,
+            name: a.filename ?? null,
+            fileName: a.filename ?? null,
+            mime: a.mimetype ?? null,
+            size: a.file_size ?? null,
+          },
+        ]
+      : [],
+  );
+}
+
 export function buildEmailMessage(
   email: UnipileEmail,
   account: { provider: MessagingProvider; emailAddress: string | null; sentFolderIds?: string[] },
@@ -189,19 +205,7 @@ export function buildEmailMessage(
     sender: { ...sender, isSelf: senderIsSelf },
     recipients: { to, cc, bcc },
     threadType: counterparts.size > 1 ? "group" : undefined,
-    attachmentsMeta: (email.attachments ?? []).flatMap((a) =>
-      a.id
-        ? [
-            {
-              id: a.id,
-              name: a.filename ?? null,
-              fileName: a.filename ?? null,
-              mime: a.mimetype ?? null,
-              size: a.file_size ?? null,
-            },
-          ]
-        : [],
-    ),
+    attachmentsMeta: toAttachmentsMeta(email.attachments),
     folderIds: email.folders ?? [],
     reactions: [],
     isEvent: false,

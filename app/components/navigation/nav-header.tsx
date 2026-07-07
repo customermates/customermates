@@ -58,7 +58,7 @@ export function NavHeader({
 
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton tooltip={searchLabel} onClick={onSearch}>
+          <SidebarMenuButton id="nav-search" tooltip={searchLabel} onClick={onSearch}>
             <Search />
 
             <span>{searchLabel}</span>

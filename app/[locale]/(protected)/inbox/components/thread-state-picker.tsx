@@ -45,6 +45,7 @@ export const ThreadStatePicker = observer(({ state }: Props) => {
           badgeVariants({ variant: THREAD_STATE_CHIP_COLOR[state], interactive: true }),
           "h-8! w-auto gap-1.5 rounded-md border-transparent px-2 text-xs shadow-none",
         )}
+        id="inbox-thread-state"
       >
         <ThreadStateDot state={state} />
 

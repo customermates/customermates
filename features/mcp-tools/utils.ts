@@ -118,7 +118,7 @@ export const FILTER_FIELD_DESCRIPTION =
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Operators: equals, contains, gt, gte, lt, lte, in, notIn, between, isNull, isNotNull, hasNone, hasSome. " +
   'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"gte","value":"2024-01-01"}]. ' +
-  "Call get_entity_configuration to see all filterable fields.";
+  "Call get_record_schema to see all filterable fields.";
 
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
@@ -142,9 +142,9 @@ export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T
           code: "custom",
           path: [field],
           message:
-            `Refusing to set '${field}' to null — that would wipe the relationship. ` +
+            `Refusing to set '${field}' to null because that would wipe the relationship. ` +
             `Omit the field to keep existing links, pass [] to explicitly clear, ` +
-            `or use unlink_entities to remove specific ids.`,
+            `or use manage_record_links to remove specific ids.`,
         });
       }
     }
@@ -152,9 +152,9 @@ export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T
 }
 
 export const NO_NULL_WIPE_WARNING =
-  "NEVER pass null on relationship arrays — it would wipe existing links. " +
+  "NEVER pass null on relationship arrays; it would wipe existing links. " +
   "Omit the field to keep existing, pass [] to explicitly clear all, " +
-  "or use unlink_entities to remove specific ids.";
+  "or use manage_record_links to remove specific ids.";
 
 export async function runInteractor<T>(
   result: Promise<{ ok: true; data: T } | { ok: false; error: Parameters<typeof validationError>[0] }>,
@@ -164,7 +164,7 @@ export async function runInteractor<T>(
   return outcome.ok ? format(outcome.data) : validationError(outcome.error);
 }
 
-export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_entity_configuration for custom-column ids.";
+export const CUSTOM_COLUMN_PREREQ = "Prereq: call get_record_schema for custom-column ids.";
 
 export const CUSTOM_FIELDS_MERGE_NOTE =
   "customFieldValues is a per-column merge: only columns you include change; to clear one pass { columnId, value: null }.";
@@ -172,7 +172,7 @@ export const CUSTOM_FIELDS_MERGE_NOTE =
 export const IDEMPOTENT_NOTE = "Idempotent: same payload produces the same state.";
 
 export const relationsViaLinkNote = (relations: string) =>
-  `Relations (${relations}) are NOT changed here - add or remove them with link_entities / unlink_entities so existing links are preserved.`;
+  `Relations (${relations}) are NOT changed here - add or remove them with manage_record_links so existing links are preserved.`;
 
 export const CONTACT_KEY_FIELD_NOTE =
   "For contacts, this may instead be a channel the contact owns: an email (e.g. 'jane@example.com'), " +

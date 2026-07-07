@@ -1,58 +1,46 @@
 ---
 title: Quickstart
-description: From signup to your first agent-updated deal in five minutes.
+description: From signup to your first agent-updated record in a few minutes.
 ---
 
-Create an account, generate an API key, register Customermates with your AI tool, paste the setup prompt. Five minutes.
+Create a Customermates account, connect an AI client, and start issuing prompts. Customermates is an open-source, AI-native CRM. Claude and ChatGPT connect with a custom connector and need no API key. CLI clients and editors connect with an API key.
 
 ## 1. Create your account
 
-[customermates.com/auth/signup](https://customermates.com/auth/signup). No credit card. The first seven days are free; pick a plan after.
+Sign up at [customermates.com/auth/signup](https://customermates.com/auth/signup). No credit card is required. The first seven days are free, after which you pick a plan.
 
-## 2. Create an API key
+## 2. Connect your AI
 
-**Profile → API Keys → New key**. Copy the 64-character string **immediately** — it's shown once.
+**Using Claude (web, desktop, mobile) or ChatGPT?** Add a custom connector, no API key needed. In your AI client: **Settings → Connectors → Add custom connector**, paste `https://customermates.com/api/v1/mcp`, sign in, and approve. Full steps: [Connect with a custom connector](/docs/connect-custom-connector).
 
-## 3. Register Customermates with your AI tool
+**Using a CLI or editor?** First create an API key (**Profile → API Keys → New key**) and copy the 64-character string, which is shown once. Then follow your client's page:
 
-Pick the page for the tool you use:
+- [Claude Code](/docs/connect-cli#claude-code): one terminal command
+- [Cursor](/docs/connect-cli#cursor): Settings UI, two clicks
+- [Codex](/docs/connect-cli#codex): one TOML block in `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli): one settings block
 
-- [Claude Code](/docs/mcp-connect-claude-code) — one terminal command (simplest)
-- [Cursor](/docs/mcp-connect-cursor) — Settings UI, two clicks
-- [Codex](/docs/mcp-connect-codex) — one TOML block in `~/.codex/config.toml`
-- [Claude Desktop](/docs/mcp-connect-claude-desktop) — config file edit + restart
-- [ChatGPT](/docs/mcp-connect-chatgpt) — Custom Connector UI (paid plan)
+The server sends its instructions to the client on connect, so the AI knows the tool surface and workspace conventions from the start. In clients that support MCP prompts, such as Claude, you can also run the built-in `get-started` prompt for a personalized start: your name, your role, and a first summary of your workspace.
 
-Each page is a 3-step procedure ending with the same setup prompt.
+## 3. Try a real prompt
 
-## 4. Paste this setup prompt as your first message
-
-After you've registered the server, send this to your agent first:
-
-<McpSetupPrompt />
-
-It tells the agent how to work with your CRM safely — no relationship wipes, right tool per custom-column type, etc.
-
-## 5. Try a real prompt
-
-- *"Move the Acme deal to stage 'Won' and add a note that the contract was signed today."*
+- *"Set the status of the Acme deal to Won and add a note that the contract was signed today."*
 - *"Pull the last ten contacts I created. Any without an email address?"*
-- *"Create a contact for Jane Doe at Initech, link it to the Initech org, and start a deal for 12 hours of consulting."*
+- *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 
-The agent tells you which tools it used and what changed. No copy-paste, no app switching.
+The agent reports which tools it called and what changed. Field names such as a deal's status are workspace-configurable custom columns, not fixed product fields. Call `get_record_schema` to see the columns that exist in your workspace.
 
-## 6. Optional: subscribe to a webhook
+## 4. Optional: subscribe to a webhook
 
-Want other tools notified when the CRM changes?
+To notify other tools when the CRM changes:
 
-**Company → Webhooks → New**. URL: a throwaway [webhook.site](https://webhook.site). Events: pick `contact.created` and `deal.updated`. Save.
+Go to **Company → Webhooks → New**. Set the URL to a throwaway endpoint from [webhook.site](https://webhook.site). Under events, select `contact.created` and `deal.updated`, then save.
 
-Edit a contact. Within a few seconds the delivery shows up at webhook.site with the full payload. That's your CRM telling your stack what changed.
+Edit a contact. Within a few seconds the delivery appears at webhook.site with the full payload.
 
 Full webhook docs: [Webhooks](/docs/webhooks).
 
 ## Next
 
-- [Core concepts](/docs/concepts): entities, custom columns, relations at a glance.
-- [From Pipedrive](/docs/from-pipedrive): migration guide.
-- [MCP tool catalog](/docs/mcp-tool-catalog): every tool your AI can call.
+- [Core concepts](/docs/concepts): records, custom columns, and relations at a glance.
+- [MCP tool catalog](/docs/mcp#tool-catalog): every tool your AI can call over the Model Context Protocol (MCP).

@@ -25,7 +25,10 @@ const prisma = basePrisma.$extends({
           model === "AuthAccount" ||
           model === "AuthSession" ||
           model === "AuthVerification" ||
-          model === "Apikey";
+          model === "Apikey" ||
+          model === "OauthApplication" ||
+          model === "OauthAccessToken" ||
+          model === "OauthConsent";
 
         if (isAuthModel) return query(args);
 

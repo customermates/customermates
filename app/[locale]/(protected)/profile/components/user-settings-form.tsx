@@ -32,7 +32,10 @@ export const UserSettingsForm = observer(() => {
     label: t(`Common.locales.${key}`),
   }));
 
-  const topBarActions = useMemo(() => <FormActions formId={formId} store={store} variant="topbar" />, [formId, store]);
+  const topBarActions = useMemo(
+    () => <FormActions anchorScope="profile-settings" formId={formId} store={store} variant="topbar" />,
+    [formId, store],
+  );
   useSetTopBarActions(topBarActions);
 
   return (

@@ -247,18 +247,9 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
                   </Button>
                 </span>
               ) : isFailed ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="text-destructive text-[11px]">{t("Inbox.compose.sendFailed")}</span>
-
-                  <Button
-                    size="xs"
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void compose.retrySend(message.id)}
-                  >
-                    {t("Inbox.compose.retry")}
-                  </Button>
-                </span>
+                <Button size="xs" type="button" variant="secondary" onClick={() => void compose.retrySend(message.id)}>
+                  {t("Inbox.compose.retry")}
+                </Button>
               ) : canLoadRemoteImages ? (
                 <Button size="xs" type="button" variant="secondary" onClick={() => setShowRemoteImages(true)}>
                   <ImageOff className="size-3" />

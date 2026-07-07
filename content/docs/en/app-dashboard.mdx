@@ -1,0 +1,41 @@
+---
+title: Dashboard
+description: The landing screen after sign-in, configurable widgets over your CRM data, with stable anchor ids for AI agents driving the UI.
+---
+
+Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI.
+
+## Purpose
+
+The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, tasks, recent activity, whatever you set up. From here you jump off to every other screen in the app.
+
+## URL
+
+Route: `/dashboard`. All app routes are locale-prefixed, for example `https://customermates.com/en/dashboard`.
+
+## Key actions
+
+| Action | Where | Anchor id | What happens |
+|--------|-------|-----------|--------------|
+| Go to Dashboard | App sidebar | `#nav-dashboard` | Opens `/dashboard` |
+| Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
+| Save / reset widget | Widget modal footer | `#widget-modal-save` / `#widget-modal-reset` | Creates or updates the widget (reset appears with unsaved changes) |
+| Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K) |
+| Search anything | Search modal | `#global-search-input` | Jump to any contact, organization, deal, service, or task |
+| Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
+| Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
+
+## First run
+
+New accounts land in the onboarding wizard at `/onboarding/wizard` before they see the Dashboard. It walks through profile, company, entities, demo data, AI setup, and team invites. Navigate it with the anchor ids `#onboarding-next` and `#onboarding-back`.
+
+## Tips for agents
+
+- Locate controls via the stable ids above, not by visible text. CSS selector example: `#dashboard-add-widget`.
+- Rows never carry ids. Open records via their URL or the drawer deep-link `?open=<entityType>:<id>` (entity pages only). Stack multiple entries with commas, for example `?open=contact:abc,deal:xyz`.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
+
+## Related
+
+- [Quickstart](/docs/quickstart)
+- [App guide, Records](/docs/app-records)

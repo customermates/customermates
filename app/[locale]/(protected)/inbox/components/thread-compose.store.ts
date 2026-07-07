@@ -6,35 +6,28 @@ import type { $ZodErrorTree } from "zod/v4/core";
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import { z } from "zod";
 
-import { sendChatMessageAction, sendEmailAction, saveDraftAction, discardDraftAction } from "../actions";
+import {
+  sendChatMessageAction,
+  sendEmailAction,
+  saveDraftAction,
+  discardDraftAction,
+  startChatAction,
+} from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 import { isEmailProvider } from "@/ee/messaging/provider";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { formatBytes } from "./attachment-classify";
+import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
 
-type AttachmentInput = { filename: string; content_type: string; content: string };
+export type NewThreadTarget = {
+  connectedAccountId: string;
+  recipientIdentifier: string;
+  recipientDisplayName: string | null;
+};
 
-const MAX_ATTACHMENTS_BYTES = 15 * 1024 * 1024;
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
-    reader.onerror = () => reject(reader.error ?? new Error("file read failed"));
-    reader.readAsDataURL(file);
-  });
-}
-
-async function toAttachmentInput(file: File): Promise<AttachmentInput> {
-  return {
-    filename: file.name,
-    content_type: file.type || "application/octet-stream",
-    content: await fileToBase64(file),
-  };
-}
-
-export class ThreadComposeStore extends BaseFormStore<{
+type ThreadComposeForm = {
   provider: MessagingProvider | null;
   threadId: string;
   recipients: string[];
@@ -42,12 +35,17 @@ export class ThreadComposeStore extends BaseFormStore<{
   subject: string;
   cc: string[];
   bcc: string[];
-}> {
+};
+
+export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   showCcBcc = false;
   editingDraftId: string | null = null;
   attachments: File[] = [];
   draftAttachments: File[] = [];
   pendingAttachments: Record<string, File[]> = {};
+  newThreadTarget: NewThreadTarget | null = null;
+
+  private onNewThreadSent: (() => void) | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -66,17 +64,25 @@ export class ThreadComposeStore extends BaseFormStore<{
       attachments: observable,
       draftAttachments: observable,
       pendingAttachments: observable,
+      newThreadTarget: observable,
       isEmail: computed,
+      isNewThread: computed,
       toggleCcBcc: action,
       addAttachments: action,
       removeAttachment: action,
       initialize: action,
+      initializeNewThread: action,
+      setNewThreadAccount: action,
       send: action,
       saveDraft: action,
       loadDraft: action,
       discardDraft: action,
       retrySend: action,
     });
+  }
+
+  get isNewThread(): boolean {
+    return !this.form.threadId && this.newThreadTarget !== null;
   }
 
   addAttachments = (files: File[]) => {
@@ -132,12 +138,46 @@ export class ThreadComposeStore extends BaseFormStore<{
     this.editingDraftId = null;
     this.attachments = [];
     this.draftAttachments = [];
+    this.newThreadTarget = null;
+    this.onNewThreadSent = null;
     this.onInitOrRefresh({
       provider: init.provider,
       threadId: init.threadId,
       recipients: init.defaultRecipients ?? [],
       body: "",
       subject,
+      cc: [],
+      bcc: [],
+    });
+  };
+
+  setNewThreadAccount = (connectedAccountId: string) => {
+    if (this.newThreadTarget) this.newThreadTarget = { ...this.newThreadTarget, connectedAccountId };
+  };
+
+  initializeNewThread = (init: {
+    provider: MessagingProvider;
+    connectedAccountId: string;
+    recipientIdentifier: string;
+    recipientDisplayName: string | null;
+    onSent?: () => void;
+  }) => {
+    this.showCcBcc = false;
+    this.editingDraftId = null;
+    this.attachments = [];
+    this.draftAttachments = [];
+    this.onNewThreadSent = init.onSent ?? null;
+    this.newThreadTarget = {
+      connectedAccountId: init.connectedAccountId,
+      recipientIdentifier: init.recipientIdentifier,
+      recipientDisplayName: init.recipientDisplayName,
+    };
+    this.onInitOrRefresh({
+      provider: init.provider,
+      threadId: "",
+      recipients: [init.recipientIdentifier],
+      body: "",
+      subject: "",
       cc: [],
       bcc: [],
     });
@@ -180,6 +220,7 @@ export class ThreadComposeStore extends BaseFormStore<{
   };
 
   send = async (): Promise<void> => {
+    if (this.isNewThread) return this.sendNewThread();
     if (!this.form.threadId || (!this.form.body.trim() && this.attachments.length === 0)) return;
     if (!this.validateEmails()) return;
 
@@ -237,6 +278,7 @@ export class ThreadComposeStore extends BaseFormStore<{
 
       if (!result.ok) {
         runInAction(() => detail.setMessageStatus(tempId, "failed"));
+        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
         return;
       }
 
@@ -249,10 +291,75 @@ export class ThreadComposeStore extends BaseFormStore<{
       });
     } catch {
       runInAction(() => detail.setMessageStatus(tempId, "failed"));
+      this.toastError("Common.notifications.unexpectedError");
     } finally {
       runInAction(() => this.setIsLoading(false));
     }
   };
+
+  private sendNewThread = async (): Promise<void> => {
+    const target = this.newThreadTarget;
+    if (!target) return;
+    if (!this.validateEmails()) return;
+
+    this.setIsLoading(true);
+    try {
+      const attachments = this.attachments.length
+        ? await Promise.all(this.attachments.map(toAttachmentInput))
+        : undefined;
+      const result = this.isEmail
+        ? await sendEmailAction({
+            connectedAccountId: target.connectedAccountId,
+            to: [
+              {
+                identifier: target.recipientIdentifier,
+                display_name: target.recipientDisplayName ?? undefined,
+              },
+            ],
+            cc: this.form.cc.length ? this.form.cc : undefined,
+            bcc: this.form.bcc.length ? this.form.bcc : undefined,
+            subject: this.form.subject.trim(),
+            body: this.form.body,
+            attachments,
+          })
+        : await startChatAction({
+            connectedAccountId: target.connectedAccountId,
+            attendeeIdentifiers: [target.recipientIdentifier],
+            text: this.form.body,
+            attachments,
+          });
+
+      if (!result.ok) {
+        this.setError(this.toComposeError(result.error));
+        return;
+      }
+
+      runInAction(() => {
+        if (this.error) this.setError(undefined);
+        this.form.body = "";
+        this.form.subject = "";
+        this.form.cc = [];
+        this.form.bcc = [];
+        this.attachments = [];
+      });
+
+      this.toastSuccess("Inbox.compose.newThreadSent");
+      this.onNewThreadSent?.();
+    } catch {
+      this.toastError("Common.notifications.unexpectedError");
+    } finally {
+      runInAction(() => this.setIsLoading(false));
+    }
+  };
+
+  private toComposeError(error: unknown): $ZodErrorTree<ThreadComposeForm> {
+    const tree = error as { properties?: Record<string, unknown> };
+    if (!tree?.properties?.text) return error as $ZodErrorTree<ThreadComposeForm>;
+
+    const properties: Record<string, unknown> = { ...tree.properties, body: tree.properties.text };
+    delete properties.text;
+    return { ...tree, properties } as $ZodErrorTree<ThreadComposeForm>;
+  }
 
   saveDraft = async (): Promise<void> => {
     if (!this.form.threadId || !this.form.body.trim()) return;
@@ -359,6 +466,7 @@ export class ThreadComposeStore extends BaseFormStore<{
 
       if (!result.ok) {
         runInAction(() => detail.setMessageStatus(messageId, "failed"));
+        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
         return;
       }
 
@@ -371,6 +479,7 @@ export class ThreadComposeStore extends BaseFormStore<{
       });
     } catch {
       runInAction(() => detail.setMessageStatus(messageId, "failed"));
+      this.toastError("Common.notifications.unexpectedError");
     } finally {
       runInAction(() => this.setIsLoading(false));
     }

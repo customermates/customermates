@@ -102,10 +102,6 @@ export const AppSidebar = observer(
                 icon: Inbox,
                 visible: userStore.canAccess(Resource.inboxMessages),
                 badge: unreadThreadCount,
-                preview: {
-                  label: t("NavigationBar.previewBadge"),
-                  tooltip: t("NavigationBar.previewTooltip"),
-                },
               },
               {
                 key: "tasks",

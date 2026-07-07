@@ -1,0 +1,48 @@
+---
+title: Company
+description: The Company screen, workspace-wide administration covering company data, team members, roles, webhooks, deliveries, and the audit trail, for humans and UI-driving agents.
+---
+
+Customermates is an open-source CRM with a built-in MCP server. This page documents the **Company** screen of the web app for humans and for AI agents that drive the UI.
+
+## Purpose
+
+The Company screen is workspace-wide administration. It holds the company data itself, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
+
+## URL
+
+The route is `/company/details`. All app routes are locale-prefixed (example: https://customermates.com/en/company/details). Each tab has its own route: `/company/details`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries`, and `/company/audit-logs`.
+
+## Key actions
+
+| Action | Where | Anchor id | What happens |
+|---|---|---|---|
+| Go to Company | App sidebar | `#nav-company` | Opens /company/details |
+| Details tab | Sidebar sub-item | `#nav-company-details` | Company name, logo, billing |
+| Save / reset details | Form footer | `#company-details-save` / `#company-details-reset` | Persists or discards |
+| Members tab | Sidebar sub-item | `#nav-company-members` | Team management |
+| Invite member | Members toolbar | `#company-members-add` | Opens the invite modal |
+| Send invite | Invite modal footer | `#member-modal-save` / `#member-modal-reset` | Sends the invitation |
+| Search / filter members | Members toolbar | `#company-members-search` / `#company-members-filter` / `#company-members-display-options` | List controls |
+| Roles tab | Sidebar sub-item | `#nav-company-roles` | Permission sets |
+| Add role | Roles toolbar | `#company-roles-add` | Opens the role editor |
+| Roles list controls | Roles toolbar | `#company-roles-search` / `#company-roles-filter` / `#company-roles-display-options` | List controls |
+| Webhooks tab | Sidebar sub-item | `#nav-company-webhooks` | Outbound event subscriptions |
+| Create webhook | Webhooks toolbar | `#company-webhooks-add` | Opens the webhook modal |
+| Save webhook | Webhook modal footer | `#webhook-modal-save` / `#webhook-modal-reset` | Subscribes the URL to events |
+| Webhooks list controls | Webhooks toolbar | `#company-webhooks-search` / `#company-webhooks-filter` / `#company-webhooks-display-options` | List controls |
+| Deliveries tab | Sidebar sub-item | `#nav-company-webhook-deliveries` | Per-delivery status + payload; resend from a delivery row |
+| Deliveries list controls | Deliveries toolbar | `#company-webhook-deliveries-search` / `#company-webhook-deliveries-filter` / `#company-webhook-deliveries-display-options` | List controls |
+| Audit logs tab | Sidebar sub-item | `#nav-company-audit-logs` | Who changed what, when |
+| Audit list controls | Audit toolbar | `#company-audit-logs-search` / `#company-audit-logs-filter` / `#company-audit-logs-display-options` | List controls |
+
+## Tips for agents
+
+- Locate controls via the stable ids above, not by visible text. Text changes with the locale, ids do not. Example CSS selector: `#company-webhooks-add`.
+- Rows never carry ids. Navigate to a tab via its URL (for example `/company/webhooks`) and open a row by clicking it. Edits happen in modals, not in a drawer.
+- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists: managing records via MCP is faster and more reliable than driving the UI.
+
+## Related
+
+- [Webhooks](/docs/webhooks)
+- [App guide, Profile](/docs/app-profile)

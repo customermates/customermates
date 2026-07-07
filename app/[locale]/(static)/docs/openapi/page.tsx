@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import { DocsPageHeader } from "../components/docs-page-header";
 import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../docs.utils";
+import { env } from "@/env";
 import { apiDocsSource, apiOverviewSource } from "@/core/fumadocs/source";
 import { PageContainer } from "@/components/shared/page-container";
 import { Alert } from "@/components/shared/alert";
@@ -60,7 +61,11 @@ export default async function OpenApiOverviewPage() {
 
   return (
     <PageContainer>
-      <DocsPageHeader description={page.data.description} title={page.data.title} />
+      <DocsPageHeader
+        description={page.data.description}
+        mcpUrl={`${env.BASE_URL}/api/v1/mcp`}
+        title={page.data.title}
+      />
 
       <Alert color="warning">
         <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>

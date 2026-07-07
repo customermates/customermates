@@ -1,58 +1,46 @@
 ---
 title: Quickstart
-description: Von der Registrierung bis zum ersten KI-aktualisierten Deal in fünf Minuten.
+description: Von der Registrierung bis zum ersten KI-aktualisierten Datensatz in wenigen Minuten.
 ---
 
-Account anlegen, API-Key erzeugen, Customermates mit deinem KI-Tool verbinden, Setup-Prompt einfügen. Fünf Minuten.
+Lege einen Customermates-Account an, verbinde einen KI-Client und beginne, Prompts zu senden. Customermates ist ein KI-natives Open-Source-CRM. Claude und ChatGPT verbinden sich per Custom Connector und brauchen keinen API-Key. CLI-Clients und Editoren verbinden sich per API-Key.
 
 ## 1. Account anlegen
 
-[customermates.com/auth/signup](https://customermates.com/auth/signup). Keine Kreditkarte. Erste sieben Tage kostenlos; danach wählst du einen Plan.
+Registriere dich unter [customermates.com/auth/signup](https://customermates.com/auth/signup). Keine Kreditkarte nötig. Die ersten sieben Tage sind kostenlos, danach wählst du einen Plan.
 
-## 2. API-Key erzeugen
+## 2. Deine KI verbinden
 
-**Profil → API Keys → Neuer Key**. Die 64 Zeichen **sofort** kopieren — sie werden nur einmal angezeigt.
+**Nutzt du Claude (Web, Desktop, Mobile) oder ChatGPT?** Füge einen Custom Connector hinzu, kein API-Key nötig. In deinem KI-Client: **Settings → Connectors → Add custom connector**, `https://customermates.com/api/v1/mcp` einfügen, anmelden und freigeben. Volle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
-## 3. Customermates mit deinem KI-Tool verbinden
+**Nutzt du ein CLI oder einen Editor?** Lege zuerst einen API-Key an (**Profil → API Keys → Neuer Key**) und kopiere die 64 Zeichen, die nur einmal angezeigt werden. Dann folge der Seite deines Clients:
 
-Die Seite für dein Tool öffnen:
+- [Claude Code](/docs/connect-cli#claude-code): ein Terminal-Befehl
+- [Cursor](/docs/connect-cli#cursor): Settings-UI, zwei Klicks
+- [Codex](/docs/connect-cli#codex): ein TOML-Block in `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli): ein Settings-Block
 
-- [Claude Code](/docs/mcp-connect-claude-code) — ein Terminal-Befehl (am einfachsten)
-- [Cursor](/docs/mcp-connect-cursor) — Settings-UI, zwei Klicks
-- [Codex](/docs/mcp-connect-codex) — ein TOML-Block in `~/.codex/config.toml`
-- [Claude Desktop](/docs/mcp-connect-claude-desktop) — Konfigurationsdatei + Neustart
-- [ChatGPT](/docs/mcp-connect-chatgpt) — Custom Connector UI (bezahlter Plan)
+Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die KI die Tool-Oberfläche und die Workspace-Konventionen von Anfang an kennt. In Clients, die MCP-Prompts unterstützen, etwa Claude, kannst du zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: dein Name, deine Rolle und eine erste Zusammenfassung deines Workspace.
 
-Jede Seite ist ein 3-Schritt-Vorgang, der mit demselben Setup-Prompt endet.
+## 3. Einen echten Prompt probieren
 
-## 4. Diesen Setup-Prompt als erste Nachricht einfügen
-
-Nachdem du den Server registriert hast, das hier zuerst an deinen Agent senden:
-
-<McpSetupPrompt locale="de" />
-
-Er erklärt dem Agent, wie er sicher mit deinem CRM arbeitet — keine Relationship-Wipes, richtiges Tool pro Custom-Column-Typ, etc.
-
-## 5. Einen echten Prompt probieren
-
-- *"Verschieb den Acme-Deal in Stage 'Won' und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
+- *"Setze den Status des Acme-Deals auf Won und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
 - *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
-- *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Initech-Org und starte einen Deal über 12 Stunden Beratung."*
+- *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Organisation Initech und starte einen Deal über 12 Stunden Beratung."*
 
-Der Agent sagt dir, welche Tools er genutzt hat und was sich geändert hat. Kein Copy-Paste, kein App-Wechsel.
+Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Feldnamen wie der Status eines Deals sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Rufe `get_record_schema` auf, um die Columns zu sehen, die in deinem Workspace existieren.
 
-## 6. Optional: einen Webhook abonnieren
+## 4. Optional: einen Webhook abonnieren
 
-Sollen andere Tools Bescheid wissen, wenn sich im CRM etwas ändert?
+Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert:
 
-**Unternehmen → Webhooks → Neu**. URL: eine Einweg-[webhook.site](https://webhook.site). Events: `contact.created` und `deal.updated`. Speichern.
+Gehe zu **Unternehmen → Webhooks → Neu**. Setze die URL auf einen Einweg-Endpoint von [webhook.site](https://webhook.site). Wähle unter Events `contact.created` und `deal.updated` und speichere.
 
-Einen Contact bearbeiten. Innerhalb von Sekunden landet die Delivery auf webhook.site mit voller Payload. So erzählt dein CRM dem Rest deines Stacks, was sich geändert hat.
+Bearbeite einen Contact. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload.
 
 Volle Webhook-Docs: [Webhooks](/docs/webhooks).
 
 ## Weiter
 
-- [Kernkonzepte](/docs/concepts): Entitäten, Custom Columns, Beziehungen auf einen Blick.
-- [Von Pipedrive](/docs/from-pipedrive): Migrations-Guide.
-- [MCP-Tool-Katalog](/docs/mcp-tool-catalog): jedes Tool, das deine KI aufrufen kann.
+- [Kernkonzepte](/docs/concepts): Datensätze, Custom Columns und Beziehungen auf einen Blick.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das deine KI über das Model Context Protocol (MCP) aufrufen kann.

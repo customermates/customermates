@@ -10,15 +10,19 @@ import { CopyableCode } from "@/components/shared/copyable-code";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
-import { getMcpSetupPrompt } from "@/features/docs/mcp-setup-prompt";
 
 import type { StepAiChoice } from "./step-ai.store";
 
-const CHOICES: StepAiChoice[] = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini", "skip"];
+const CHOICES: StepAiChoice[] = ["connector", "claudeCode", "codex", "cursor", "gemini", "claudeDesktop", "skip"];
 
-function toDocsSlug(choice: Exclude<StepAiChoice, "skip">): string {
-  return `mcp-connect-${choice.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
-}
+const DOCS_LINKS: Record<Exclude<StepAiChoice, "skip">, string> = {
+  claudeCode: "/docs/connect-cli#claude-code",
+  claudeDesktop: "/docs/connect-cli#claude-desktop-config-file",
+  codex: "/docs/connect-cli#codex",
+  connector: "/docs/connect-custom-connector",
+  cursor: "/docs/connect-cli#cursor",
+  gemini: "/docs/connect-cli#gemini-cli",
+};
 
 export const StepAi = observer(() => {
   const t = useTranslations();
@@ -26,10 +30,13 @@ export const StepAi = observer(() => {
   const { onboardingWizardStore, stepAiStore } = useRootStore();
   const { choice, apiKey, isCreating, hasError, canContinue } = stepAiStore;
 
-  const setupPrompt = useMemo(() => getMcpSetupPrompt(locale === "de" ? "de" : "en"), [locale]);
+  const mcpUrl = useMemo(() => {
+    if (choice !== "connector") return "";
+    return `${window.location.origin}/api/v1/mcp`;
+  }, [choice]);
 
   const installSnippet = useMemo(() => {
-    if (!choice || choice === "skip" || !apiKey) return "";
+    if (!choice || choice === "connector" || choice === "skip" || !apiKey) return "";
     return getMcpInstallSnippet(choice, apiKey, window.location.origin);
   }, [choice, apiKey]);
 
@@ -51,7 +58,36 @@ export const StepAi = observer(() => {
         ))}
       </div>
 
-      {choice && choice !== "skip" && !apiKey && (
+      {choice === "connector" && (
+        <div className="flex flex-1 min-w-0 flex-col gap-1.5">
+          <p className="text-sm font-medium">{t("OnboardingWizard.ai.connector.urlLabel")}</p>
+
+          <CopyableCode value={mcpUrl} />
+
+          <Button asChild className="w-fit" size="sm">
+            <a
+              href={`https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=${encodeURIComponent(mcpUrl)}`}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              {t("OnboardingWizard.ai.connector.claudeButton")}
+            </a>
+          </Button>
+
+          <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.connector.chatgptHint")}</p>
+
+          <a
+            className="text-xs text-primary underline w-fit"
+            href={`/${locale}${DOCS_LINKS[choice]}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t("OnboardingWizard.ai.fullGuide")}
+          </a>
+        </div>
+      )}
+
+      {choice && choice !== "connector" && choice !== "skip" && !apiKey && (
         <div className="flex flex-col gap-2">
           <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.createKeyIntro")}</p>
 
@@ -65,49 +101,27 @@ export const StepAi = observer(() => {
         </div>
       )}
 
-      {choice && choice !== "skip" && apiKey && (
-        <ol className="flex flex-col gap-4">
-          <li className="flex gap-3">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold mt-0.5">
-              1
-            </div>
+      {choice && choice !== "connector" && choice !== "skip" && apiKey && (
+        <div className="flex flex-1 min-w-0 flex-col gap-1.5">
+          <p className="text-sm font-medium">
+            {t("OnboardingWizard.ai.install.label", {
+              tool: t(`OnboardingWizard.ai.choices.${choice}`),
+            })}
+          </p>
 
-            <div className="flex flex-1 min-w-0 flex-col gap-1.5">
-              <p className="text-sm font-medium">
-                {t("OnboardingWizard.ai.install.label", {
-                  tool: t(`OnboardingWizard.ai.choices.${choice}`),
-                })}
-              </p>
+          <p className="text-xs text-muted-foreground">{t(`OnboardingWizard.ai.install.instruction.${choice}`)}</p>
 
-              <p className="text-xs text-muted-foreground">{t(`OnboardingWizard.ai.install.instruction.${choice}`)}</p>
+          <CopyableCode value={installSnippet} />
 
-              <CopyableCode value={installSnippet} />
-
-              <a
-                className="text-xs text-primary underline w-fit"
-                href={`/${locale}/docs/${toDocsSlug(choice)}`}
-                rel="noreferrer"
-                target="_blank"
-              >
-                {t("OnboardingWizard.ai.fullGuide")}
-              </a>
-            </div>
-          </li>
-
-          <li className="flex gap-3">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold mt-0.5">
-              2
-            </div>
-
-            <div className="flex flex-1 min-w-0 flex-col gap-1.5">
-              <p className="text-sm font-medium">{t("OnboardingWizard.ai.promptLabel")}</p>
-
-              <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.promptHint")}</p>
-
-              <CopyableCode className="max-h-48 overflow-y-auto" value={setupPrompt} />
-            </div>
-          </li>
-        </ol>
+          <a
+            className="text-xs text-primary underline w-fit"
+            href={`/${locale}${DOCS_LINKS[choice]}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t("OnboardingWizard.ai.fullGuide")}
+          </a>
+        </div>
       )}
 
       {choice === "skip" && <p className="text-xs text-muted-foreground">{t("OnboardingWizard.ai.skipHint")}</p>}

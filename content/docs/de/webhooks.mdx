@@ -1,26 +1,24 @@
 ---
 title: Webhooks
-description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries debuggen, und der volle Event-Katalog auf einer Seite.
+description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries prüfen und den vollständigen Event-Katalog auf einer Seite lesen.
 ---
 
-Events wählen, HTTPS-URL geben, wir POST-en JSON dorthin bei jeder Änderung. Fehlgeschlagene Deliveries aus der UI oder per MCP erneut zustellen. Signaturen per HMAC-SHA256 über den Raw-Body prüfen. Jedes Event mit Payload-Shape steht unten auf dieser Seite.
+Customermates sendet einen JSON-POST an deinen HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Du wählst die Events und gibst die URL an. Fehlgeschlagene Deliveries kannst du aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
 
-## Warum Webhooks
+## Einsatzzwecke
 
-Webhooks machen dein CRM zur Source-of-Truth, auf die dein restlicher Stack lauscht. Kein Polling, keine stale Daten.
+Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
-Typische Einsätze:
-
-- Neue Contacts in deinen E-Mail-Sequencer.
-- Ticket im Support-Tool öffnen, wenn ein Deal verloren geht.
-- Finance-Workflow auslösen, wenn ein Deal gewonnen wird.
-- Near-realtime-Sync ins Data Warehouse.
+- Neue Contacts in einen E-Mail-Sequencer übergeben.
+- Ein Ticket im Support-Tool öffnen, wenn ein Deal seinen Zustand ändert.
+- Einen Finance-Workflow auslösen, wenn ein Deal als abgeschlossen markiert wird.
+- Records nahezu in Echtzeit in ein Data Warehouse synchronisieren.
 
 ## Webhook anlegen
 
-**UI:** Unternehmen → Webhooks → Neu.
+**UI:** Unternehmen, dann Webhooks, dann Neu.
 
-**MCP:** `create_webhook` mit `url`, `events[]`, optional `description`, `secret`, `enabled`.
+**MCP:** `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `enabled`.
 
 ```json
 {
@@ -35,14 +33,14 @@ Die URL muss HTTPS sein. HTTP wird abgelehnt.
 
 ## Was du bekommst
 
-Jede Delivery ist ein `POST` mit `Content-Type: application/json`. Jede Delivery folgt demselben Envelope:
+Jede Delivery ist ein `POST` mit `Content-Type: application/json` und demselben Envelope:
 
 ```json
 {
   "event": "<event-name>",
   "data": {
     "userId": "<verursacher>",
-    "companyId": "<tenant>",
+    "companyId": "<workspace>",
     "entityId": "<betroffener-record>",
     "payload": { /* event-spezifisch */ }
   },
@@ -50,9 +48,9 @@ Jede Delivery ist ein `POST` mit `Content-Type: application/json`. Jede Delivery
 }
 ```
 
-Die `userId` ist der User, der den Write verursacht hat, inkl. User, die über einen API-Key handeln.
+`userId` ist der User, der den Write verursacht hat, inklusive User, die über einen API-Key handeln. Bei Messaging-Events, die durch eingehende Provider-Aktivität statt durch eine User-Aktion ausgelöst werden, ist `userId` gleich `null`.
 
-Der `changes`-Record existiert nur bei `*.updated`-Events. Er listet jedes Feld, das sich wirklich geändert hat, mit vorherigem und aktuellem Wert.
+Bei `*.updated`-Events umschließt `payload` den vollständigen Record zusammen mit einem `changes`-Objekt. Bei `*.created`- und `*.deleted`-Events ist `payload` der Record selbst.
 
 Beispiel, `contact.updated`:
 
@@ -68,18 +66,18 @@ Beispiel, `contact.updated`:
         "id": "ct_xyz",
         "firstName": "Max",
         "lastName": "Mustermann",
-        "notes": { /* Tiptap JSON */ },
-        "organizationIds": ["org_1"],
-        "userIds": [],
-        "dealIds": ["deal_1", "deal_2"],
+        "notes": { /* Tiptap-JSON */ },
+        "organizations": [{ "id": "org_1", "name": "Example GmbH" }],
+        "users": [],
+        "deals": [{ "id": "deal_1" }, { "id": "deal_2" }],
         "customFieldValues": [
-          { "columnId": "col_stage", "value": "won" }
+          { "columnId": "col_abc", "value": "Won" }
         ]
       },
       "changes": {
-        "organizationIds": {
+        "organizations": {
           "previous": [],
-          "current": ["org_1"]
+          "current": [{ "id": "org_1", "name": "Example GmbH" }]
         }
       }
     }
@@ -88,25 +86,27 @@ Beispiel, `contact.updated`:
 }
 ```
 
-## Der `changes`-Record
+Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` siehst du die Columns, die für einen Entity-Typ in deinem Workspace konfiguriert sind.
 
-Jeder Key in `changes` ist ein Feldname, dessen Wert sich bewegt hat. `previous` ist der vorherige, `current` der aktuelle.
+## Das `changes`-Objekt
 
-Relationship-ID-Arrays vergleichen sich als Sets. Objekte als Deep-Equal. Skalare per Wert.
+`changes` existiert nur bei `*.updated`-Events. Jeder Key ist ein Record-Feld, dessen Wert sich geändert hat. `previous` ist der Wert vor dem Write, `current` der Wert danach.
 
-Wenn ein Write tatsächlich nichts ändert, wird das Event unterdrückt. Du bekommst keine No-op-`*.updated`-Events.
+Arrays verknüpfter Records werden per id verglichen. Objekte per Deep-Equal. Skalare Felder per Wert. `createdAt` und `updatedAt` werden nie als Änderung gemeldet.
+
+Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`-Events werden nicht zugestellt.
 
 ## Signatur-Verifikation
 
-Wenn du ein `secret` setzt, enthält jede ausgehende Request:
+Wenn du ein `secret` setzt, enthält jede Request:
 
 ```
 X-Webhook-Signature: <hex>
 ```
 
-Wo `<hex>` = `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, kein Präfix. Auf deiner Seite neu berechnen und constant-time vergleichen.
+`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechne den Wert auf deiner Seite neu und vergleiche in konstanter Zeit.
 
-Node.js:
+Node.js-Beispiel:
 
 ```ts
 import crypto from "crypto";
@@ -119,55 +119,75 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Retries und fehlgeschlagene Deliveries
 
-Jede Delivery wird geloggt. Sichtbar in der UI (Unternehmen → Webhook-Deliveries) oder via `list_webhook_deliveries`.
+Jede Delivery wird protokolliert. Deliveries siehst du in der UI (Unternehmen, dann Webhook-Deliveries) oder per `manage_webhooks` mit `action: "list_deliveries"`.
 
-Eine Delivery ist **failed**, wenn der HTTP-Status nicht im 2xx-Bereich liegt oder die Request timeoutet.
+Eine Delivery gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt oder die Request timeoutet. Der Request-Timeout beträgt 5 Sekunden.
 
-**Failed Delivery neu zustellen** via UI oder `resend_webhook_delivery` mit der Delivery-ID. Ein neuer Delivery-Record entsteht; das Original bleibt unverändert.
+Um eine fehlgeschlagene Delivery erneut zuzustellen, nutze die UI oder `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Dabei entsteht ein neuer Delivery-Record; das Original bleibt unverändert.
 
-Customermates retryt fehlgeschlagene Deliveries nicht automatisch. Wenn dein Receiver down war, Retries aus der UI anstoßen oder `list_webhook_deliveries` in ein Monitoring-Skript piepen.
+Customermates wiederholt fehlgeschlagene Deliveries nicht automatisch. Wenn dein Receiver ausgefallen war, stelle aus der UI erneut zu oder steuere Retries über das Delivery-Log.
 
 ## Ordering und Concurrency
 
-Deliveries sind **nicht** strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können out-of-order ankommen. Per Timestamp auflösen, oder Deliveries als idempotente Messages behandeln, geschlüsselt per `entityId`.
+Deliveries sind über Events hinweg nicht strikt geordnet. Zwei `contact.updated`-Events im Millisekundenabstand können in falscher Reihenfolge ankommen. Löse die Reihenfolge über den `timestamp` im Payload auf oder behandle Deliveries als idempotente Messages mit `entityId` als Schlüssel.
 
 ## Notes sind JSON, nicht Markdown
 
-Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Zum Rendern als Markdown auf deiner Seite einen Tiptap-Serializer einsetzen. In MCP-Tools liefert `get_entities` mit `include: "withNotes"` die Notes bereits als Markdown.
+Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf deiner Seite als Markdown zu rendern, nutze einen Tiptap-kompatiblen Serializer. In MCP liefert `get_records` mit `include: "withNotes"` die Notes bereits als Markdown serialisiert.
 
 ## Delete-Payloads
 
-Delete-Events enthalten nur die ID, nicht den Endzustand. Wenn du den Endzustand brauchst (fürs Archiv z.B.), auch `*.updated` abonnieren und einen lokalen Mirror halten.
+Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor dem Löschen war, nicht nur die id. Die id des betroffenen Records steht zusätzlich in `data.entityId`.
 
-## Debug-Tipps
+## Debugging
 
-- [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
-- `list_webhook_deliveries` unterstützt `searchTerm` auf URL und Event-Name.
-- Wenn dein Receiver 500 zurückgibt, wird der Response-Body geloggt, du siehst exakt, was kaputt war.
+- Nutze [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
+- Das Delivery-Log (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
+- Wenn dein Receiver einen Fehlerstatus zurückgibt, protokolliert Customermates die Antwort, sodass du nachvollziehen kannst, was passiert ist.
 
 ## Event-Katalog
 
-15 Events über die fünf Entity-Typen, alle mit dem Envelope oben.
+Sechsundzwanzig Events kannst du abonnieren: fünfzehn Record-Events über die fünf Entity-Typen und elf Messaging-Events. Alle nutzen den Envelope oben.
 
-| Event | Wann es feuert | Payload-Keys |
+### Record-Events
+
+| Event | Wann es feuert | `payload` |
 |---|---|---|
-| `contact.created` | Contact via UI/API/MCP/Import erstellt | `contact` |
-| `contact.updated` | Irgendein Contact-Feld ändert sich | `contact`, `changes` |
-| `contact.deleted` | Contact gelöscht | `contactId` |
-| `organization.created` | Organization erstellt | `organization` |
-| `organization.updated` | Irgendein Organization-Feld ändert sich | `organization`, `changes` |
-| `organization.deleted` | Organization gelöscht | `organizationId` |
-| `deal.created` | Deal erstellt | `deal` |
-| `deal.updated` | Irgendein Deal-Feld ändert sich | `deal`, `changes` |
-| `deal.deleted` | Deal gelöscht | `dealId` |
-| `service.created` | Service erstellt | `service` |
-| `service.updated` | Irgendein Service-Feld ändert sich | `service`, `changes` |
-| `service.deleted` | Service gelöscht | `serviceId` |
-| `task.created` | Task erstellt | `task` |
-| `task.updated` | Irgendein Task-Feld ändert sich | `task`, `changes` |
-| `task.deleted` | Task gelöscht | `taskId` |
+| `contact.created` | Ein Contact wird via UI, API, MCP oder Import erstellt | vollständiger Contact |
+| `contact.updated` | Ein Contact-Feld ändert sich | `contact`, `changes` |
+| `contact.deleted` | Ein Contact wird gelöscht | vollständiger Contact |
+| `organization.created` | Eine Organization wird erstellt | vollständige Organization |
+| `organization.updated` | Ein Organization-Feld ändert sich | `organization`, `changes` |
+| `organization.deleted` | Eine Organization wird gelöscht | vollständige Organization |
+| `deal.created` | Ein Deal wird erstellt | vollständiger Deal |
+| `deal.updated` | Ein Deal-Feld ändert sich | `deal`, `changes` |
+| `deal.deleted` | Ein Deal wird gelöscht | vollständiger Deal |
+| `service.created` | Ein Service wird erstellt | vollständiger Service |
+| `service.updated` | Ein Service-Feld ändert sich | `service`, `changes` |
+| `service.deleted` | Ein Service wird gelöscht | vollständiger Service |
+| `task.created` | Ein Task wird erstellt | vollständiger Task |
+| `task.updated` | Ein Task-Feld ändert sich | `task`, `changes` |
+| `task.deleted` | Ein Task wird gelöscht | vollständiger Task |
+
+### Messaging-Events
+
+Messaging-Events feuern bei eingehender Provider-Aktivität auf verbundenen Accounts. `userId` ist `null`. Payloads referenzieren Provider-Records per id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId` und ähnliche), statt CRM-Records einzubetten.
+
+| Event | Wann es feuert |
+|---|---|
+| `messaging.message.received` | Eine Chat-Nachricht oder E-Mail wird ingested |
+| `messaging.message.updated` | Eine ingestete Nachricht wird aktualisiert |
+| `messaging.message.deleted` | Eine ingestete Nachricht wird gelöscht |
+| `messaging.message.reaction` | Eine Reaktion wird zu einer Nachricht hinzugefügt |
+| `messaging.email.received` | Eine E-Mail wird ingested |
+| `messaging.email.deleted` | Eine ingestete E-Mail wird gelöscht |
+| `messaging.chat.updated` | Ein Chat-Thread wird aktualisiert |
+| `messaging.chat.deleted` | Ein Chat-Thread wird gelöscht |
+| `messaging.calendar.changed` | Ein verbundener Kalender ändert sich |
+| `messaging.calendar_event.changed` | Ein Kalender-Event ändert sich |
+| `messaging.relation.created` | Eine neue Provider-Relation wird erstellt |
 
 ## Weiter
 
-- [MCP-Tool-Katalog](/docs/mcp-tool-catalog#webhooks): Webhooks programmatisch verwalten.
-- [n8n](/docs/n8n): Webhooks in visuelle Workflows.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): Webhooks programmatisch verwalten.
+- [n8n-Integration](/docs/n8n): Webhooks in visuelle Workflows einbinden.

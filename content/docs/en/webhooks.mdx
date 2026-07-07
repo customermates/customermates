@@ -1,26 +1,24 @@
 ---
 title: Webhooks
-description: Subscribe to CRM events, verify signatures, debug failed deliveries, and the full event catalog in one place.
+description: Subscribe to CRM events, verify signatures, inspect failed deliveries, and read the full event catalog in one place.
 ---
 
-Pick events, give us an HTTPS URL, we POST JSON there every time something changes. Re-send failed deliveries from the UI or through MCP. Verify signatures with HMAC-SHA256 over the raw body. Every event with its payload shape is listed at the bottom of this page.
+Customermates sends a JSON POST to your HTTPS endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. Deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
 
-## Why webhooks
+## Uses
 
-Webhooks turn your CRM into the source of truth your other tools listen to. No polling, no stale data.
+Webhooks let other systems react to CRM changes without polling.
 
-Common uses:
-
-- Push new contacts into your email sequencer.
-- Open a ticket in your support tool when a deal is lost.
-- Trigger a finance workflow when a deal is marked won.
-- Sync to your data warehouse in near-real-time.
+- Push new contacts into an email sequencer.
+- Open a ticket in a support tool when a deal changes state.
+- Trigger a finance workflow when a deal is marked as closed.
+- Sync records into a data warehouse in near real time.
 
 ## Create a webhook
 
-**UI:** Company → Webhooks → New.
+**UI:** Company, then Webhooks, then New.
 
-**MCP:** `create_webhook` with `url`, `events[]`, optional `description`, `secret`, `enabled`.
+**MCP:** `manage_webhooks` with `action: "create"`, plus `url`, `events[]`, and optional `description`, `secret`, `enabled`.
 
 ```json
 {
@@ -35,14 +33,14 @@ The URL must be HTTPS. HTTP is rejected.
 
 ## What you receive
 
-Every delivery is a `POST` with `Content-Type: application/json`. Every delivery follows the same envelope:
+Every delivery is a `POST` with `Content-Type: application/json` and the same envelope:
 
 ```json
 {
   "event": "<event-name>",
   "data": {
     "userId": "<who-triggered-it>",
-    "companyId": "<tenant>",
+    "companyId": "<workspace>",
     "entityId": "<affected-record>",
     "payload": { /* event-specific */ }
   },
@@ -50,9 +48,9 @@ Every delivery is a `POST` with `Content-Type: application/json`. Every delivery
 }
 ```
 
-The `userId` is the user that caused the write, which includes a user acting through an API key.
+`userId` is the user who caused the write, including a user acting through an API key. For messaging events, which are triggered by inbound provider activity rather than a user action, `userId` is `null`.
 
-The `changes` record is only present on `*.updated` events. It names every field that actually moved, with previous and current values.
+For `*.updated` events, `payload` wraps the full record together with a `changes` object. For `*.created` and `*.deleted` events, `payload` is the record itself.
 
 Example, `contact.updated`:
 
@@ -69,17 +67,17 @@ Example, `contact.updated`:
         "firstName": "Max",
         "lastName": "Mustermann",
         "notes": { /* Tiptap JSON */ },
-        "organizationIds": ["org_1"],
-        "userIds": [],
-        "dealIds": ["deal_1", "deal_2"],
+        "organizations": [{ "id": "org_1", "name": "Example GmbH" }],
+        "users": [],
+        "deals": [{ "id": "deal_1" }, { "id": "deal_2" }],
         "customFieldValues": [
-          { "columnId": "col_stage", "value": "won" }
+          { "columnId": "col_abc", "value": "Won" }
         ]
       },
       "changes": {
-        "organizationIds": {
+        "organizations": {
           "previous": [],
-          "current": ["org_1"]
+          "current": [{ "id": "org_1", "name": "Example GmbH" }]
         }
       }
     }
@@ -88,23 +86,25 @@ Example, `contact.updated`:
 }
 ```
 
-## The `changes` record
+The record fields depend on the entity type. Custom columns appear under `customFieldValues` as `columnId` and `value` pairs. Use `get_record_schema` to see the columns configured for a given entity in your workspace.
 
-Each key in `changes` is a field name whose value moved. `previous` is what was there before, `current` is what is there now.
+## The `changes` object
 
-Arrays of relationship ids compare as sets. Objects compare by deep equality. Scalar fields compare by value.
+`changes` is present only on `*.updated` events. Each key is a record field whose value moved. `previous` is the value before the write, `current` is the value after.
 
-If a write does not actually change any field, the event is suppressed. You will not see no-op `*.updated` events.
+Arrays of related records compare by id. Objects compare by deep equality. Scalar fields compare by value. `createdAt` and `updatedAt` are never reported as changes.
+
+If a write does not change any field, the event is suppressed. No-op `*.updated` events are not delivered.
 
 ## Signature verification
 
-If you set a `secret`, every outgoing request includes:
+If you set a `secret`, every request includes:
 
 ```
 X-Webhook-Signature: <hex>
 ```
 
-Where `<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute on your side and compare in constant time.
+`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, lowercase hex, no prefix. Recompute it on your side and compare in constant time.
 
 Node.js example:
 
@@ -119,55 +119,75 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Retries and failed deliveries
 
-Every delivery is recorded. See them in the UI (Company → Webhook Deliveries) or through `list_webhook_deliveries`.
+Every delivery is recorded. Review deliveries in the UI (Company, then Webhook Deliveries) or through `manage_webhooks` with `action: "list_deliveries"`.
 
-A delivery is considered **failed** if the HTTP status is outside the 2xx range or the request times out.
+A delivery is marked failed if the HTTP status is outside the 2xx range or the request times out. The request timeout is 5 seconds.
 
-**Retry a failed delivery** through the UI or `resend_webhook_delivery` with the delivery id. A new delivery record is created; the original is unchanged.
+To re-send a failed delivery, use the UI or `manage_webhooks` with `action: "resend_delivery"` and the delivery id. This creates a new delivery record; the original is unchanged.
 
-Customermates does not automatically retry failed deliveries. If your receiver is down, trigger retries from the UI or pipe `list_webhook_deliveries` through a monitoring script.
+Customermates does not retry failed deliveries automatically. If your receiver is down, re-send from the UI or drive retries from the delivery log.
 
 ## Ordering and concurrency
 
-Deliveries are **not** strictly ordered across events. Two `contact.updated` events a millisecond apart can arrive out of order. Use the timestamp in the payload to resolve, or treat deliveries as idempotent messages keyed by `entityId`.
+Deliveries are not strictly ordered across events. Two `contact.updated` events milliseconds apart can arrive out of order. Use the `timestamp` in the payload to resolve order, or treat deliveries as idempotent messages keyed by `entityId`.
 
 ## Notes are JSON, not markdown
 
-The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render as markdown on your side, run it through a Tiptap-compatible serializer. In MCP tools, `get_entities` with `include: "withNotes"` returns notes pre-serialized to markdown.
+The `notes` field in payloads is Tiptap JSON, the same structure the editor stores. To render it as markdown on your side, run it through a Tiptap-compatible serializer. In MCP, `get_records` with `include: "withNotes"` returns notes already serialized to markdown.
 
-## Deleted payloads
+## Delete payloads
 
-Delete events carry only the id, not the final state of the record. If you need the final state for a delete hook (for archiving, say), subscribe to `*.updated` as well and keep a local mirror.
+Delete events carry the full record as it was before deletion, under `payload`, not just the id. The affected record id is also available as `data.entityId`.
 
-## Debugging tips
+## Debugging
 
-- Use [webhook.site](https://webhook.site) for a throwaway receiver during integration testing.
-- The `list_webhook_deliveries` tool supports `searchTerm` on url and event name.
-- If your receiver returns a 500, Customermates records the response body so you can see exactly what happened.
+- Use [webhook.site](https://webhook.site) as a throwaway receiver during integration testing.
+- The delivery log (`manage_webhooks`, `action: "list_deliveries"`) supports `searchTerm` on url and event name.
+- If your receiver returns an error status, Customermates records the response so you can inspect what happened.
 
 ## Event catalog
 
-15 events across the five entity types, all with the envelope above.
+Twenty-six events are available to subscribe to: fifteen record events across the five entity types, and eleven messaging events. All use the envelope above.
 
-| Event | When it fires | Payload keys |
+### Record events
+
+| Event | When it fires | `payload` |
 |---|---|---|
-| `contact.created` | A contact is created via UI, API, MCP, or import | `contact` |
+| `contact.created` | A contact is created via UI, API, MCP, or import | full contact |
 | `contact.updated` | Any contact field changes | `contact`, `changes` |
-| `contact.deleted` | A contact is deleted | `contactId` |
-| `organization.created` | An organization is created | `organization` |
+| `contact.deleted` | A contact is deleted | full contact |
+| `organization.created` | An organization is created | full organization |
 | `organization.updated` | Any organization field changes | `organization`, `changes` |
-| `organization.deleted` | An organization is deleted | `organizationId` |
-| `deal.created` | A deal is created | `deal` |
+| `organization.deleted` | An organization is deleted | full organization |
+| `deal.created` | A deal is created | full deal |
 | `deal.updated` | Any deal field changes | `deal`, `changes` |
-| `deal.deleted` | A deal is deleted | `dealId` |
-| `service.created` | A service is created | `service` |
+| `deal.deleted` | A deal is deleted | full deal |
+| `service.created` | A service is created | full service |
 | `service.updated` | Any service field changes | `service`, `changes` |
-| `service.deleted` | A service is deleted | `serviceId` |
-| `task.created` | A task is created | `task` |
+| `service.deleted` | A service is deleted | full service |
+| `task.created` | A task is created | full task |
 | `task.updated` | Any task field changes | `task`, `changes` |
-| `task.deleted` | A task is deleted | `taskId` |
+| `task.deleted` | A task is deleted | full task |
+
+### Messaging events
+
+Messaging events fire on inbound provider activity on connected accounts. `userId` is `null`. Payloads reference provider records by id (`connectedAccountId`, `provider`, `providerMessageId`, `threadId`, and similar) rather than embedding CRM records.
+
+| Event | When it fires |
+|---|---|
+| `messaging.message.received` | A chat message or email is ingested |
+| `messaging.message.updated` | An ingested message is updated |
+| `messaging.message.deleted` | An ingested message is deleted |
+| `messaging.message.reaction` | A reaction is added to a message |
+| `messaging.email.received` | An email is ingested |
+| `messaging.email.deleted` | An ingested email is deleted |
+| `messaging.chat.updated` | A chat thread is updated |
+| `messaging.chat.deleted` | A chat thread is deleted |
+| `messaging.calendar.changed` | A connected calendar changes |
+| `messaging.calendar_event.changed` | A calendar event changes |
+| `messaging.relation.created` | A new provider relation is created |
 
 ## Next
 
-- [MCP tool catalog](/docs/mcp-tool-catalog#webhooks): programmatic webhook management.
+- [MCP tool catalog](/docs/mcp#tool-catalog): programmatic webhook management.
 - [n8n integration](/docs/n8n): drop webhooks into visual workflows.

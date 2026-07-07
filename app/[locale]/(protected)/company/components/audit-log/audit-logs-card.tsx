@@ -76,6 +76,7 @@ export const AuditLogsCard = observer(({ initialAuditLogs }: Props) => {
 
   return (
     <DataViewContainer
+      anchorScope="company-audit-logs"
       columns={columns}
       searchPlaceholder={t("AuditLogsCard.searchTooltip")}
       store={auditLogsStore}

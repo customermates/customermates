@@ -13,7 +13,7 @@ type RawRouteParams = {
   source: string;
 };
 
-type Manifest = Record<string, Record<string, Record<string, string>>>;
+type Manifest = Record<string, Record<string, Record<string, { title: string; description: string; content: string }>>>;
 
 function normalizeSlug(slug: string) {
   return slug.replace(/(\.mdx?)+$/, "");
@@ -23,11 +23,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<R
   const { locale, slug, source } = await params;
   const normalizedSlug = normalizeSlug(slug);
   const sourceKey = SOURCE_KEY_MAP[source as keyof typeof SOURCE_KEY_MAP];
-  const content = sourceKey ? (manifest as Manifest)[sourceKey]?.[locale]?.[normalizedSlug] : undefined;
+  const page = sourceKey ? (manifest as Manifest)[sourceKey]?.[locale]?.[normalizedSlug] : undefined;
 
-  if (!content) return new Response("Not Found", { status: 404 });
+  if (!page) return new Response("Not Found", { status: 404 });
 
-  return new Response(content, {
+  return new Response(page.content, {
     headers: { "Content-Type": "text/markdown; charset=utf-8" },
     status: 200,
   });

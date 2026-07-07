@@ -357,7 +357,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
             </Accordion>
           </AppCardBody>
 
-          <FormActions store={widgetModalStore} />
+          <FormActions anchorScope="widget-modal" store={widgetModalStore} />
         </AppCard>
       </AppForm>
     </AppModal>

@@ -1,62 +1,60 @@
 ---
 title: Customermates Dokumentation
-description: Open-Source-CRM, das sich durch die KI aktualisiert, die du ohnehin nutzt. Hier starten.
+description: Open-Source-CRM mit nativem MCP-Endpoint, sodass KI-Clients dein CRM direkt lesen und schreiben. Hier starten.
 demo:
   src: https://demo.customermates.com/de
   title: Customermates Demo
 ---
 
-Customermates ist ein Open-Source-CRM, das von deiner KI gefahren werden soll. Native MCP-Unterstützung bedeutet: Claude, ChatGPT, Cursor und alles andere, das Model Context Protocol spricht, liest und schreibt dein CRM, ganz ohne Copy-Paste.
+Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt dein CRM direkt, ganz ohne Copy-Paste.
 
 ## Client wählen und loslegen
 
 | Deine KI | Volles Setup auf einer Seite |
 |---|---|
-| Claude Desktop | [Claude verbinden](/docs/mcp-connect-claude-desktop) |
-| ChatGPT | [ChatGPT verbinden](/docs/mcp-connect-chatgpt) |
-| Cursor | [Cursor verbinden](/docs/mcp-connect-cursor) |
+| Claude & ChatGPT (Custom Connector) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
+| Claude Code | [Claude Code verbinden](/docs/connect-cli#claude-code) |
+| Cursor | [Cursor verbinden](/docs/connect-cli#cursor) |
 | Beliebiger MCP-Client | [MCP-Übersicht](/docs/mcp) |
 
-Jede dieser Seiten ist selbständig: API-Key-Schritte, JSON-Config, der volle Setup-Prompt und deine ersten Kommandos. Du musst nicht zwischen Seiten hin und her springen.
+Jede Seite ist in sich abgeschlossen: die Verbindungsschritte und deine ersten Kommandos. Der Server brieft deinen Client automatisch beim Verbinden, du musst also nicht zwischen Seiten wechseln.
 
-Lieber ein Durchlauf mit Webhook und erster KI-Interaktion am Ende? Geh zum [Quickstart](/docs/quickstart).
+Für einen Durchlauf mit Webhook und erster KI-Interaktion siehe [Quickstart](/docs/quickstart).
 
 ## Was Customermates ist
 
-Ein modernes CRM mit allem Üblichen (Contacts, Organizations, Deals, Services, Tasks, Custom Fields, Pipelines, Dashboards) plus:
+Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks), Custom Columns, Board- und Tabellenansichten und Dashboards, plus:
 
-- **Native MCP-Endpoint**, damit dein KI-Client CRM-Operationen ohne Plugin entdeckt und aufruft.
-- **Open Source** unter AGPLv3 (Enterprise-Komponenten unter separater kommerzieller Lizenz). Self-Host oder unsere Cloud.
-- **EU-gehostet und DSGVO-konform** in der Managed-Version.
-- **Echte Webhooks** mit signierten Payloads, Retries und Delivery-Log.
-- **OpenAPI 3.1** für die volle REST-Oberfläche.
+- **Nativer MCP-Endpoint** unter `/api/v1/mcp`, damit ein MCP-Client CRM-Operationen ohne Plugin entdeckt und aufruft.
+- **Open Source** unter AGPLv3. Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
+- **EU-gehostete und DSGVO-konforme** Managed-Version.
+- **Webhooks** mit signierten Payloads, Retries und Delivery-Log.
+- **OpenAPI-3.1**-Spezifikation für die volle REST-Oberfläche unter `/api/v1/openapi`.
 
 ## Vier Wege, wie Customermates mit deinem Stack spricht
 
-| Ich will… | Nimm |
+| Ich will | Nimm |
 |---|---|
-| Claude, ChatGPT oder Cursor aktualisiert das CRM im Gespräch | [MCP](/docs/mcp) |
-| Custom-Integration in Code bauen | [OpenAPI](/docs/openapi) |
-| Auf CRM-Änderungen in Slack, Sequencer, BI oder Warehouse reagieren | [Webhooks](/docs/webhooks) |
+| Einen MCP-Client das CRM im Gespräch aktualisieren lassen | [MCP](/docs/mcp) |
+| Eine Custom-Integration in Code bauen | [OpenAPI](/docs/openapi) |
+| Auf CRM-Änderungen in Slack, einem Sequencer, BI oder deinem Warehouse reagieren | [Webhooks](/docs/webhooks) |
 | Workflows visuell ohne Code komponieren | [n8n](/docs/n8n) |
 
-Alle vier nutzen denselben API-Key. Siehe [API-Keys](/docs/api-keys).
+Alle vier authentifizieren sich mit einem API-Key. MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden. Siehe [API-Keys](/docs/api-keys).
 
-## Unsere Haltung
+## Design-Ansatz
 
-Die meisten CRMs sind für eine Welt gebaut, in der Menschen in Formulare tippen. Diese Welt endet. Customermates behandelt KI als First-Class-User: Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen sind inkrementell sicher editierbar, und die Oberfläche ist klein genug, damit auch schwächere Modelle sie zuverlässig bedienen.
-
-Das CRM, das sich in der KI aktualisiert, die du ohnehin nutzt. Kein neuer Tab, keine weitere App.
+Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen lassen sich inkrementell ändern, und die MCP-Oberfläche bleibt klein (39 Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen können.
 
 ## Wie die Docs organisiert sind
 
-- **Getting Started**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts), [Von Pipedrive](/docs/from-pipedrive).
-- **KI verbinden**: [Claude](/docs/mcp-connect-claude-desktop), [ChatGPT](/docs/mcp-connect-chatgpt), [Cursor](/docs/mcp-connect-cursor).
+- **Getting Started**: [Quickstart](/docs/quickstart), [Konzepte](/docs/concepts).
+- **KI verbinden**: [Custom Connector](/docs/connect-custom-connector), [CLI & Editoren](/docs/connect-cli).
+- **App-Guide**: [Dashboard](/docs/app-dashboard), [Datensätze](/docs/app-records), [Inbox](/docs/app-inbox) und die anderen App-Screens, mit stabilen Anchor ids für KI-Agents.
 - **Integrationen**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
 - **Self-Hosting**: [Start und Betrieb](/docs/self-hosting), [Architektur und Sicherheit](/docs/architecture-security).
-- **Reference**: [MCP-Tool-Katalog](/docs/mcp-tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
-- **Vergleich**: [Customermates vs Alternativen](/docs/comparison).
+- **Reference**: [MCP-Tool-Katalog](/docs/mcp#tool-catalog), [Filter-Syntax](/docs/filter-syntax), [API-Keys](/docs/api-keys).
 
 ## Ausprobieren
 
-Die eingebettete Demo auf dieser Seite ist eine echte Live-Instanz. Rumklicken, Contacts anlegen, löschen. Nichts wird zwischen Sessions gespeichert.
+Die eingebettete Demo auf dieser Seite ist eine Live-Instanz. Du kannst Records anlegen und löschen. Nichts wird zwischen Sessions gespeichert.

@@ -12,6 +12,7 @@ export enum FilterFieldKey {
   updatedAt = "updatedAt",
   createdAt = "createdAt",
   event = "event",
+  url = "url",
   status = "status",
   provider = "provider",
   state = "state",

@@ -3,80 +3,82 @@ title: Architektur und Sicherheit
 description: Wie Customermates gebaut ist, wie Daten isoliert sind, und wie externer KI-Zugriff kontrolliert wird.
 ---
 
-Single-Tenant-pro-Company-Datenmodell, auf jeder Ebene erzwungen. Postgres-Row-Isolation per Company-Scope. API-Keys tragen User-Identität. Agents sehen nur das, was der Owner-User sehen darf.
+Customermates erzwingt ein Single-Tenant-pro-Company-Datenmodell auf jeder Ebene. Jeder Datensatz ist auf eine Company begrenzt, API-Keys tragen die Identität des Owner-Users, und Agents sehen nur das, was dieser User sehen darf.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack): Web-App und API.
-- **PostgreSQL**: Primary Datastore. JSONB für Custom-Column-Werte und Webhook-Payloads.
+- **PostgreSQL**: primärer Datastore. JSONB für Custom-Column-Werte und Webhook-Payloads.
 - **Prisma**: ORM und Migrationen.
-- **better-auth**: Sessions, Social-Login, API-Keys.
+- **better-auth**: Sessions, Social-Login, API-Keys, MCP-OAuth.
 - **mcp-handler**: Model-Context-Protocol-Endpoint.
 - **TypeScript** durchgängig, Zod-validiert an jeder Grenze.
 
 ## Tenancy
 
-Jeder Record gehört zu einer **Company**. Die Company-ID wird an drei Stellen erzwungen:
+Jeder Datensatz gehört zu einer **Company**. Die Company-ID wird an drei Stellen erzwungen:
 
-1. **App-Layer**: jeder Interactor löst den aktuellen User auf Company auf und filtert danach.
+1. **App-Layer**: jeder Interactor löst die Company des aktuellen Users auf und filtert danach.
 2. **Prisma-Layer**: Queries enthalten `companyId` in jedem `where`.
-3. **Decorator-Layer**: `@TenantInteractor` stellt sicher, dass Interactors, die Scope vergessen, zur Laufzeit werfen.
+3. **Decorator-Layer**: `@TenantInteractor` sorgt dafür, dass Interactors, die den Scope vergessen, zur Laufzeit werfen.
 
-Cross-Tenant-Reads sind über die Public-Oberfläche nicht möglich. Es gibt keinen Admin-Panel, das Scope umgeht.
+Cross-Tenant-Reads sind über die öffentliche Oberfläche nicht möglich. Es gibt kein Admin-Panel, das den Scope umgeht.
 
 ## Authentifizierung
 
 Drei Wege:
 
-- **Session-Cookie** (UI): signed, http-only, `Secure` unter HTTPS.
-- **API-Key im `x-api-key`**: 64-Zeichen-Token, SHA-256-gehasht at-rest, an User gebunden.
-- **Social-Provider** via better-auth.
+- **Session-Cookie** (UI): signiert, http-only, `Secure` unter HTTPS.
+- **API-Key**: 64-Zeichen-Base62-Token (a-z, A-Z, 0-9), ausgestellt vom better-auth-apiKey-Plugin, at-rest gehasht, an einen User gebunden. Wird im Header `x-api-key` gesendet.
+- **OAuth 2.1** (MCP): Remote-MCP-Clients können sich über better-auth autorisieren und statt eines API-Keys ein Bearer-Token senden.
 
-Alle drei lösen auf denselben User- und Company-Kontext auf. API-Keys haben ein Display-Präfix für die Erkennung in Audit-Logs.
+Alle Methoden lösen auf denselben User- und Company-Kontext auf.
 
 ## Autorisierung
 
-Per User, Rollen-getrieben. Rollen tragen Permissions auf Resources (Contacts, Deals etc.) und Actions (Read, Create, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)` vor dem Handeln.
+Pro User und rollenbasiert. Rollen tragen Permissions auf Resources (Contacts, Organizations, Deals, Services, Tasks) und Actions (Read, Create, Update, Delete). Jeder Interactor ruft `userService.hasPermissionOrThrow(resource, action)`, bevor er handelt.
 
-API-Keys erben die Rechte ihres Users. Keine separaten Key-Level-ACLs heute.
+API-Keys erben die Rechte ihres Owner-Users. Es gibt kein Scoping pro Key.
 
 ## Externer KI-Zugriff
 
-MCP-Calls sind durch denselben API-Key-Check gegated. Wenn eine KI über MCP handelt:
+MCP-Requests nutzen denselben Authentifizierungs- und Autorisierungspfad. Wenn ein Agent über MCP handelt:
 
-- Sie ruft `/api/v1/mcp` mit dem API-Key des Users.
-- Der Server löst User und Company aus dem Key auf.
-- Jeder Tool-Call läuft in Tenant-Scope.
-- Validation-Errors liefern strukturierte Meldungen mit Remediation-Hints; interne Schema-Details leaken nicht.
+- Er ruft `/api/v1/mcp` mit einem API-Key oder einem OAuth-Bearer-Token.
+- Der Server löst User und Company aus dem Credential auf.
+- Jeder Tool-Call läuft in einem Tenant-Scope.
+- Validierungsfehler liefern strukturierte Meldungen mit Remediation-Hints und leaken keine internen Schema-Details.
 
-Sicherheits-Guardrails speziell für schwächere Modelle:
+Die MCP-Oberfläche fügt Input-Guardrails hinzu, die Tool-Calls absichern:
 
-- `null` auf Relationship-Array wird vor der DB abgelehnt.
-- Falsches Per-Type-Custom-Column-Update-Tool wird mit Pointer aufs richtige abgelehnt.
-- Destruktive Tools brauchen explizite ID-Listen; kein "delete everything matching filter"-Shortcut.
+- `null` auf einem Relation-Array wird abgelehnt, bevor es die Datenbank erreicht.
+- Update-Tools für den falschen Record-Typ werden mit einem Verweis auf das richtige Tool abgelehnt.
+- Destruktive Tools verlangen eine explizite Liste von Record-IDs. Es gibt keinen Delete-by-Filter-Shortcut.
+
+Den vollständigen Tool-Katalog findest du unter [MCP](/docs/mcp#tool-catalog).
 
 ## Daten at-rest
 
-- Postgres-Verschlüsselung hängt vom Provider ab. In unserer Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Encryption at-rest.
-- Secrets in `.env` werden nie geloggt. Der Logger redacts alles, was wie Key, Token oder Passwort aussieht.
-- Webhook-Secrets liegen in Postgres (müssen retrievable sein, um Requests zu signieren). Wenn dich das stört, eigenes Secret-Management nutzen.
+- Die Postgres-Verschlüsselung hängt vom Provider ab. In der Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Encryption at-rest.
+- Secrets in `.env` werden nie geloggt. Der Logger redaktiert alles, was wie ein Key, Token oder Passwort aussieht.
+- Webhook-Secrets liegen in Postgres, weil sie abrufbar sein müssen, um ausgehende Requests zu signieren. Wenn du sie woanders halten willst, self-hoste mit deinem eigenen Secret-Manager.
 
 ## Daten in-transit
 
-- HTTPS überall in Managed-Cloud.
-- Bei Self-Host bringst du TLS selbst. Caddy-Beispiel unter [Self-Hosting](/docs/self-hosting).
-- Webhook-Deliveries gehen nur an HTTPS-URLs. HTTP wird im Schema abgelehnt.
+- HTTPS überall in der Managed-Cloud.
+- Bei Self-Host stellst du das TLS selbst bereit. Das Caddy-Beispiel findest du unter [Self-Hosting](/docs/self-hosting).
+- Webhook-Deliveries gehen nur an HTTPS-URLs. HTTP wird auf Schema-Ebene abgelehnt.
 
 ## Audit-Logging (Enterprise)
 
-Jeder Write geloggt: User, Action, Entity, Before/After. Aus UI queryable. Als JSON exportierbar.
+Jeder Write wird mit User, Action, Entity sowie Vorher- und Nachher-Werten geloggt. Er ist aus der UI abfragbar und als JSON exportierbar. Audit-Logging ist ein Enterprise-Feature, verfügbar in kostenpflichtigen Cloud-Plänen oder beim Self-Host mit einem Lizenzschlüssel.
 
 ## Vulnerabilities melden
 
-Verantwortungsvoll an `security@customermates.com`. PGP-Key im Repo. Ack-Ziel: 24 Stunden.
+Bitte melde verantwortungsvoll an `security@customermates.com`. Der PGP-Key liegt im Repository. Wir bestätigen den Eingang innerhalb von 24 Stunden.
 
 ## Weiter
 
-- [Self-Hosting](/docs/self-hosting): wenn du das selbst betreiben willst.
-- [API-Keys](/docs/api-keys): Hygiene-Regeln.
+- [Self-Hosting](/docs/self-hosting): Customermates selbst betreiben.
+- [API-Keys](/docs/api-keys): Regeln zur Key-Hygiene.
 - [MCP](/docs/mcp): wie die KI-Oberfläche geformt ist.

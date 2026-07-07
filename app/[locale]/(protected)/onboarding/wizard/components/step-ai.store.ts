@@ -4,9 +4,9 @@ import { makeAutoObservable, runInAction } from "mobx";
 
 import { createApiKeyAction } from "../../../profile/actions";
 
-export type StepAiChoice = "claudeCode" | "claudeDesktop" | "codex" | "cursor" | "gemini" | "skip";
+export type StepAiChoice = "connector" | "claudeCode" | "codex" | "cursor" | "gemini" | "claudeDesktop" | "skip";
 
-const CHOICE_LABELS: Record<Exclude<StepAiChoice, "skip">, string> = {
+const CHOICE_LABELS: Record<Exclude<StepAiChoice, "connector" | "skip">, string> = {
   claudeCode: "Claude Code",
   claudeDesktop: "Claude Desktop",
   codex: "Codex",
@@ -25,7 +25,7 @@ export class StepAiStore {
   }
 
   get canContinue(): boolean {
-    return this.choice === "skip" || this.apiKey !== null;
+    return this.choice === "connector" || this.choice === "skip" || this.apiKey !== null;
   }
 
   setChoice = (choice: StepAiChoice) => {
@@ -35,7 +35,7 @@ export class StepAiStore {
   };
 
   createApiKey = async () => {
-    if (!this.choice || this.choice === "skip") return;
+    if (!this.choice || this.choice === "connector" || this.choice === "skip") return;
 
     this.isCreating = true;
     this.hasError = false;

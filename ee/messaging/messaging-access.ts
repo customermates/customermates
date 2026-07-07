@@ -25,10 +25,14 @@ export function threadFolderMembershipWhere(
       { connectedAccountId: { notIn: states.map((state) => state.id) } },
       ...states.map((state) => ({
         connectedAccountId: state.id,
-        messages: { some: folderMessageWhere(state.visibleSet) },
+        messages: { some: { isHidden: false, ...folderMessageWhere(state.visibleSet) } },
       })),
     ],
   };
+}
+
+export function threadHasActivityWhere(): Prisma.MessagingThreadWhereInput {
+  return { OR: [{ lastMessageAt: { not: null } }, { messages: { some: { isDraft: true } } }] };
 }
 
 export function calendarEventAccessWhere(companyId: string, userId: string): Prisma.CalendarEventWhereInput {

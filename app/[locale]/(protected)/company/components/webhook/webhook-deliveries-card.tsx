@@ -75,6 +75,7 @@ export const WebhookDeliveriesCard = observer(({ initialDeliveries }: Props) => 
 
   return (
     <DataViewContainer
+      anchorScope="company-webhook-deliveries"
       columns={columns}
       store={webhookDeliveriesStore}
       onRowClick={(item) => {

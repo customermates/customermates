@@ -29,3 +29,7 @@ if [ -z "$VERCEL" ]; then
 fi
 
 echo "Database reset complete!"
+echo ""
+echo "WARNING: this reset dropped and recreated the workflow schemas. If a dev server was"
+echo "running during the reset, its embedded workflow worker has crashed and will NOT recover."
+echo "RESTART the dev server now, or backfills and webhook jobs will queue forever."

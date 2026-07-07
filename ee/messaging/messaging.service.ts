@@ -1,6 +1,15 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import type { CreateAuthLinkData } from "@unipile/sdk";
-import type { UnipileAccount } from "./unipile.schema";
+import type { UnipileAccount, UnipileAttachment } from "./unipile.schema";
+import type {
+  SocialPost,
+  SocialPostList,
+  SocialCommentList,
+  SocialReactionList,
+  SocialProfile,
+  RelationRequestList,
+  RelationRequestResult,
+} from "./posts/social-posts.schema";
 
 import {
   UnipileAccounts,
@@ -8,6 +17,7 @@ import {
   UnipileEmails,
   UnipileHostedAuth,
   UnipileMessaging,
+  UnipilePosts,
   UnipileUsers,
 } from "@unipile/sdk";
 import { createClient, createConfig } from "@unipile/sdk/dist/client";
@@ -19,10 +29,20 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
-import { UnipileAccountSchema, UnipileUserSchema } from "./unipile.schema";
+import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
+import {
+  SocialPostSchema,
+  SocialPostListSchema,
+  SocialCommentListSchema,
+  SocialReactionListSchema,
+  SocialProfileSchema,
+  RelationRequestListSchema,
+  RelationRequestResultSchema,
+} from "./posts/social-posts.schema";
 
 const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
+const OUTBOUND_SEND_TIMEOUT_MS = 90_000;
 
 type MessageFile = { filename: string; content_type: string; content: string };
 
@@ -45,6 +65,7 @@ class UnipileRequestError extends Error {
     readonly errorType: string | null,
     readonly bodyText: string,
     readonly retryAfterSeconds: number | null = null,
+    readonly url: string | null = null,
   ) {
     super(`Unipile v2 request failed: ${status} ${bodyText}`);
     this.name = "UnipileRequestError";
@@ -88,6 +109,19 @@ const UNIPILE_BAD_IMPL_TYPES = new Set([
   "api/already_exists",
 ]);
 
+const UNIPILE_TRANSIENT_5XX_TYPES = new Set(["api/proxy_error", "api/proxy_timeout", "api/proxy_auth_error"]);
+
+function endpointHint(url: string | null): string {
+  if (!url) return "unknown";
+  try {
+    const segments = new URL(url).pathname.split("/").filter(Boolean).slice(2);
+
+    return segments.map((segment) => (segment.length > 20 || segment.includes("@") ? "{id}" : segment)).join("/");
+  } catch {
+    return "unknown";
+  }
+}
+
 function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
   const type = err.errorType ?? "";
 
@@ -105,6 +139,16 @@ export function getRetryAfterSeconds(err: unknown): number | null {
 
 export function isUnipileTimeout(err: unknown): boolean {
   return err instanceof UnipileRequestError && err.status === 0;
+}
+
+export function isUnipileResourceNotFound(err: unknown): boolean {
+  if (!(err instanceof UnipileRequestError)) return false;
+
+  return err.status === 404 || (err.errorType ?? "").endsWith("/resource_not_found");
+}
+
+export function getUnipileStatus(err: unknown): number | null {
+  return err instanceof UnipileRequestError ? err.status : null;
 }
 
 const fetchWithTimeout: typeof fetch = (input, init) =>
@@ -164,6 +208,7 @@ async function requestData<T>(
       errorType,
       bodyText,
       result.response ? parseRetryAfter(result.response.headers) : null,
+      result.response?.url ?? null,
     );
   }
 
@@ -178,6 +223,7 @@ export class MessagingService {
     calendar: UnipileCalendar;
     users: UnipileUsers;
     hostedAuth: UnipileHostedAuth;
+    posts: UnipilePosts;
   };
 
   private get sdk() {
@@ -199,6 +245,7 @@ export class MessagingService {
         calendar: new UnipileCalendar({ client }),
         users: new UnipileUsers({ client }),
         hostedAuth: new UnipileHostedAuth({ client }),
+        posts: new UnipilePosts({ client }),
       };
     }
 
@@ -215,6 +262,15 @@ export class MessagingService {
         tags: { unipileErrorType: type },
       });
     } else if (UNIPILE_BAD_IMPL_TYPES.has(type)) Sentry.captureException(source);
+    else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
+      Sentry.captureException(source, {
+        tags: {
+          unipileStatus: String(source.status),
+          unipileErrorType: type || "none",
+          unipileEndpoint: endpointHint(source.url),
+        },
+      });
+    }
 
     const error = unipileErrorCode(source);
 
@@ -308,6 +364,7 @@ export class MessagingService {
     limit?: number;
     after?: string;
     metaOnly?: boolean;
+    timeoutMs?: number;
   }) {
     return requestData(
       this.sdk.emails.getEmailsList({
@@ -316,12 +373,18 @@ export class MessagingService {
           input.cursor != null
             ? { cursor: input.cursor, limit: input.limit }
             : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       }),
     );
   }
 
-  async listFolders(input: { accountId: string }) {
-    return requestData(this.sdk.emails.getFoldersList({ path: { account_id: input.accountId } }));
+  async listFolders(input: { accountId: string; timeoutMs?: number }) {
+    return requestData(
+      this.sdk.emails.getFoldersList({
+        path: { account_id: input.accountId },
+        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+      }),
+    );
   }
 
   async listFolderEmails(input: {
@@ -332,6 +395,7 @@ export class MessagingService {
     limit?: number;
     after?: string;
     metaOnly?: boolean;
+    timeoutMs?: number;
   }) {
     return requestData(
       this.sdk.emails.getFolderEmailsList({
@@ -340,6 +404,7 @@ export class MessagingService {
           input.cursor != null
             ? { cursor: input.cursor, limit: input.limit }
             : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       }),
     );
   }
@@ -351,6 +416,31 @@ export class MessagingService {
     const parsed = z.looseObject({ emails: z.array(z.unknown()).nullish() }).parse(raw);
 
     return { emails: parsed.emails ?? [] };
+  }
+
+  async getEmail(input: { accountId: string; emailId: string; timeoutMs?: number }): Promise<unknown> {
+    return requestData(
+      this.sdk.emails.getEmail({
+        path: { account_id: input.accountId, email_id: input.emailId },
+        ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
+      }),
+    );
+  }
+
+  async getEmailAttachments(input: {
+    accountId: string;
+    emailId: string;
+  }): Promise<MessagingSendResult<UnipileAttachment[]>> {
+    try {
+      const raw = await requestData(
+        this.sdk.emails.getEmail({ path: { account_id: input.accountId, email_id: input.emailId } }),
+      );
+      const parsed = z.looseObject({ attachments: z.array(UnipileAttachmentSchema).nullish() }).parse(raw);
+
+      return { ok: true, data: parsed.attachments ?? [] };
+    } catch (err) {
+      return this.mapError(err);
+    }
   }
 
   async listCalendars(input: { accountId: string; cursor?: string; offset?: number; limit?: number }) {
@@ -423,21 +513,81 @@ export class MessagingService {
     chatId: string | null;
     messageId: string;
     attachmentId: string;
+    fileName?: string | null;
+    size?: number | null;
   }): Promise<{ body: ReadableStream<Uint8Array>; contentType: string | null }> {
-    const result = isEmailProvider(input.provider)
-      ? await this.sdk.emails.getAttachment1({
+    if (isEmailProvider(input.provider)) return this.downloadEmailAttachment(input);
+
+    return this.streamAttachment(
+      this.sdk.messaging.getAttachment({
+        path: {
+          account_id: input.accountId,
+          chat_id: input.chatId ?? "",
+          message_id: input.messageId,
+          attachment_id: input.attachmentId,
+        },
+        parseAs: "stream",
+      }),
+    );
+  }
+
+  private async downloadEmailAttachment(input: {
+    accountId: string;
+    messageId: string;
+    attachmentId: string;
+    fileName?: string | null;
+    size?: number | null;
+  }): Promise<{ body: ReadableStream<Uint8Array>; contentType: string | null }> {
+    try {
+      return await this.streamAttachment(
+        this.sdk.emails.getAttachment1({
           path: { account_id: input.accountId, email_id: input.messageId, attachment_id: input.attachmentId },
           parseAs: "stream",
-        })
-      : await this.sdk.messaging.getAttachment({
-          path: {
-            account_id: input.accountId,
-            chat_id: input.chatId ?? "",
-            message_id: input.messageId,
-            attachment_id: input.attachmentId,
-          },
+        }),
+      );
+    } catch (err) {
+      if (!isUnipileResourceNotFound(err)) throw err;
+
+      const resolvedId = await this.resolveEmailAttachmentId(input);
+      if (resolvedId === null || resolvedId === input.attachmentId) throw err;
+
+      return this.streamAttachment(
+        this.sdk.emails.getAttachment1({
+          path: { account_id: input.accountId, email_id: input.messageId, attachment_id: resolvedId },
           parseAs: "stream",
-        });
+        }),
+      );
+    }
+  }
+
+  private async resolveEmailAttachmentId(input: {
+    accountId: string;
+    messageId: string;
+    attachmentId: string;
+    fileName?: string | null;
+    size?: number | null;
+  }): Promise<string | null> {
+    const raw = await requestData(
+      this.sdk.emails.getEmail({ path: { account_id: input.accountId, email_id: input.messageId } }),
+    );
+    const parsed = z.looseObject({ attachments: z.array(UnipileAttachmentSchema).nullish() }).safeParse(raw);
+    const attachments = parsed.success ? (parsed.data.attachments ?? []) : [];
+
+    const byId = attachments.find((a) => a.id === input.attachmentId);
+    if (byId?.id) return byId.id;
+
+    const byNameAndSize = attachments.find(
+      (a) => a.filename === input.fileName && (input.size == null || a.file_size === input.size),
+    );
+    if (byNameAndSize?.id) return byNameAndSize.id;
+
+    return null;
+  }
+
+  private async streamAttachment(
+    call: Promise<{ error?: unknown; response: Response }>,
+  ): Promise<{ body: ReadableStream<Uint8Array>; contentType: string | null }> {
+    const result = await call;
 
     if (result.error !== undefined || !result.response?.ok) {
       const errorType = (result.error as { type?: string } | null | undefined)?.type ?? null;
@@ -518,6 +668,7 @@ export class MessagingService {
         this.sdk.messaging.sendMessage({
           path: { account_id: input.accountId, chat_id: input.chatId },
           body: { text: input.text, ...(input.attachments ? { attachments: input.attachments } : {}) },
+          signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
           ...multipartOptions(input.attachments),
         }),
       );
@@ -537,23 +688,40 @@ export class MessagingService {
     text: string;
     name?: string;
     attachments?: MessageFile[];
-  }): Promise<MessagingSendResult<{ chat_id: string | null }>> {
+    inboxId?: string;
+  }): Promise<MessagingSendResult<{ chatId: string | null; messageId: string | null }>> {
     try {
+      const body = {
+        text: input.text,
+        users_ids: input.usersIds,
+        ...(input.name ? { name: input.name } : {}),
+        ...(input.attachments ? { attachments: input.attachments } : {}),
+      };
       const raw = await requestData(
-        this.sdk.messaging.startChat({
-          path: { account_id: input.accountId },
-          body: {
-            text: input.text,
-            users_ids: input.usersIds,
-            ...(input.name ? { name: input.name } : {}),
-            ...(input.attachments ? { attachments: input.attachments } : {}),
-          },
-          ...multipartOptions(input.attachments),
-        }),
+        input.inboxId
+          ? this.sdk.messaging.startChatFromInbox({
+              path: { account_id: input.accountId, inbox_id: input.inboxId },
+              body,
+              signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+              ...multipartOptions(input.attachments),
+            })
+          : this.sdk.messaging.startChat({
+              path: { account_id: input.accountId },
+              body,
+              signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
+              ...multipartOptions(input.attachments),
+            }),
       );
-      const data = z.looseObject({ chat_id: z.string().nullish() }).parse(raw);
+      const data = z
+        .looseObject({
+          chat_id: z.string().nullish(),
+          message_id: z.union([z.string(), z.array(z.string())]).nullish(),
+        })
+        .parse(raw);
 
-      return { ok: true, data: { chat_id: data.chat_id ?? null } };
+      const messageId = Array.isArray(data.message_id) ? (data.message_id[0] ?? null) : (data.message_id ?? null);
+
+      return { ok: true, data: { chatId: data.chat_id ?? null, messageId } };
     } catch (err) {
       return this.mapError(err);
     }
@@ -591,12 +759,215 @@ export class MessagingService {
               : {}),
             ...(input.attachments ? { attachments: input.attachments } : {}),
           },
+          signal: AbortSignal.timeout(OUTBOUND_SEND_TIMEOUT_MS),
           ...multipartOptions(input.attachments),
         }),
       );
       const data = z.looseObject({ id: z.string().min(1), message_id: z.string().min(1) }).parse(raw);
 
       return { ok: true, data: { id: data.id, messageId: data.message_id } };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listUserPosts(input: {
+    accountId: string;
+    userId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SocialPostList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.getPostsList({
+          path: { account_id: input.accountId, user_id: input.userId },
+          query:
+            input.cursor != null
+              ? { cursor: input.cursor, limit: input.limit }
+              : { offset: input.offset, limit: input.limit },
+        }),
+      );
+
+      return { ok: true, data: SocialPostListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async getPost(input: { accountId: string; postId: string }): Promise<MessagingSendResult<SocialPost>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.getPost({ path: { account_id: input.accountId, post_id: input.postId } }),
+      );
+
+      return { ok: true, data: SocialPostSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listPostComments(input: {
+    accountId: string;
+    postId: string;
+    sortBy?: "MOST_RECENT" | "MOST_RELEVANT";
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SocialCommentList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.getPostCommentsList({
+          path: { account_id: input.accountId, post_id: input.postId },
+          query:
+            input.cursor != null
+              ? { cursor: input.cursor, limit: input.limit }
+              : { offset: input.offset, limit: input.limit, sort_by: input.sortBy },
+        }),
+      );
+
+      return { ok: true, data: SocialCommentListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listCommentReactions(input: {
+    accountId: string;
+    postId: string;
+    commentId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SocialReactionList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.getPostCommentReactionsList({
+          path: { account_id: input.accountId, post_id: input.postId, comment_id: input.commentId },
+          query:
+            input.cursor != null
+              ? { cursor: input.cursor, limit: input.limit }
+              : { offset: input.offset, limit: input.limit },
+        }),
+      );
+
+      return { ok: true, data: SocialReactionListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listPostReactions(input: {
+    accountId: string;
+    postId: string;
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SocialReactionList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.posts.getPostReactionsList({
+          path: { account_id: input.accountId, post_id: input.postId },
+          query:
+            input.cursor != null
+              ? { cursor: input.cursor, limit: input.limit }
+              : { offset: input.offset, limit: input.limit },
+        }),
+      );
+
+      return { ok: true, data: SocialReactionListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async getSocialProfile(input: {
+    accountId: string;
+    identifier: string;
+  }): Promise<MessagingSendResult<SocialProfile>> {
+    try {
+      const raw = await requestData(
+        this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
+      );
+
+      return { ok: true, data: SocialProfileSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listRelationRequests(input: {
+    accountId: string;
+    direction: "received" | "sent";
+    cursor?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<RelationRequestList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.users.getRelationRequestsList({
+          path: { account_id: input.accountId },
+          query:
+            input.cursor != null
+              ? { type: input.direction, cursor: input.cursor, limit: input.limit }
+              : { type: input.direction, offset: input.offset, limit: input.limit },
+        }),
+      );
+
+      return { ok: true, data: RelationRequestListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async createRelationRequest(input: {
+    accountId: string;
+    userId: string;
+    message?: string;
+  }): Promise<MessagingSendResult<RelationRequestResult>> {
+    try {
+      const raw = await requestData(
+        this.sdk.users.createRelationRequest({
+          path: { account_id: input.accountId },
+          body: { user_id: input.userId, message: input.message },
+        }),
+      );
+
+      return { ok: true, data: RelationRequestResultSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async acceptRelationRequest(input: {
+    accountId: string;
+    invitationId: string;
+  }): Promise<MessagingSendResult<RelationRequestResult>> {
+    try {
+      const raw = await requestData(
+        this.sdk.users.acceptRelationRequest({
+          path: { account_id: input.accountId, request_id: input.invitationId },
+        }),
+      );
+
+      return { ok: true, data: RelationRequestResultSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async cancelRelationRequest(input: {
+    accountId: string;
+    invitationId: string;
+  }): Promise<MessagingSendResult<RelationRequestResult>> {
+    try {
+      const raw = await requestData(
+        this.sdk.users.cancelRelationRequest({
+          path: { account_id: input.accountId, request_id: input.invitationId },
+        }),
+      );
+
+      return { ok: true, data: RelationRequestResultSchema.parse(raw) };
     } catch (err) {
       return this.mapError(err);
     }

@@ -113,11 +113,17 @@ export const OnboardingWizard = observer(
 
         {showFooterNav && (
           <AppCardFooter>
-            <Button disabled={isFirstStep || isSubmitting} type="button" variant="outline" onClick={back}>
+            <Button
+              disabled={isFirstStep || isSubmitting}
+              id="onboarding-back"
+              type="button"
+              variant="outline"
+              onClick={back}
+            >
               {t("OnboardingWizard.back")}
             </Button>
 
-            <Button disabled={isSubmitting} type="button" onClick={() => void next()}>
+            <Button disabled={isSubmitting} id="onboarding-next" type="button" onClick={() => void next()}>
               {t("OnboardingWizard.next")}
             </Button>
           </AppCardFooter>

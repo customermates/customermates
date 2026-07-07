@@ -21,10 +21,11 @@ export const startChatOperation: ZodOpenApiOperationObject = {
   },
   responses: {
     "201": {
-      description: "The chat was started and the first message was sent successfully.",
+      description:
+        "The chat was started and the first message was sent successfully. Returns the app thread id of the started chat, or null when it could not be resolved yet.",
       content: {
         "application/json": {
-          schema: z.null(),
+          schema: z.object({ threadId: z.uuid().nullable() }),
         },
       },
     },

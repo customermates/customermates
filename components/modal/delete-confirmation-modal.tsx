@@ -32,11 +32,17 @@ export const DeleteConfirmationModal = observer(() => {
           </AppCardBody>
 
           <AppCardFooter>
-            <Button disabled={isLoading} type="button" variant="outline" onClick={() => close()}>
+            <Button
+              disabled={isLoading}
+              id="confirm-delete-cancel"
+              type="button"
+              variant="outline"
+              onClick={() => close()}
+            >
               {t("Common.actions.cancel")}
             </Button>
 
-            <Button disabled={isLoading} type="submit" variant="destructive">
+            <Button disabled={isLoading} id="confirm-delete" type="submit" variant="destructive">
               {t("Common.actions.delete")}
             </Button>
           </AppCardFooter>

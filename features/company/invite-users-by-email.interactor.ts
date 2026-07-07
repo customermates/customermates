@@ -17,7 +17,7 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 
-const Schema = z.object({
+export const InviteUsersByEmailSchema = z.object({
   emails: z.array(z.email()).min(1).max(20),
 });
 
@@ -25,7 +25,7 @@ const OutputSchema = z.object({
   sent: z.number(),
 });
 
-export type InviteUsersByEmailData = Data<typeof Schema>;
+export type InviteUsersByEmailData = Data<typeof InviteUsersByEmailSchema>;
 type InviteUsersByEmailResult = Data<typeof OutputSchema>;
 
 @TenantInteractor({ resource: Resource.users, action: Action.create })
@@ -41,7 +41,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(Schema)
+  @Validate(InviteUsersByEmailSchema)
   @ValidateOutput(OutputSchema)
   async invoke(data: InviteUsersByEmailData): Validated<InviteUsersByEmailResult> {
     const user = getTenantUser();

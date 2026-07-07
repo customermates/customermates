@@ -110,6 +110,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                     aria-label={t("Common.actions.delete")}
                     className="size-8"
                     disabled={isLoading}
+                    id="entity-delete"
                     size="icon"
                     type="button"
                     variant="secondary"
@@ -124,7 +125,14 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             )}
 
             {showEditFieldsAction && (
-              <Button className="h-8" size="sm" type="button" variant="secondary" onClick={toggleEditingCustomField}>
+              <Button
+                className="h-8"
+                id="entity-edit-fields"
+                size="sm"
+                type="button"
+                variant="secondary"
+                onClick={toggleEditingCustomField}
+              >
                 <Icon icon={Pencil} />
 
                 <span className="hidden sm:inline">{t("Common.actions.editCustomFields")}</span>
@@ -137,7 +145,14 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
                   {t("Common.actions.cancel")}
                 </Button>
 
-                <Button className="h-8" size="sm" type="button" variant="secondary" onClick={onAddCustomField}>
+                <Button
+                  className="h-8"
+                  id="entity-add-custom-field"
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={onAddCustomField}
+                >
                   <Icon icon={Plus} />
 
                   <span className="hidden sm:inline">{t("Common.actions.addCustomField")}</span>
@@ -149,6 +164,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
               <Button
                 className="h-8"
                 disabled={isLoading}
+                id="entity-reset"
                 size="sm"
                 type="button"
                 variant="secondary"
@@ -159,7 +175,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
             )}
 
             {canManage && (
-              <Button className="h-8" disabled={saveDisabled} form={formId} size="sm" type="submit">
+              <Button className="h-8" disabled={saveDisabled} form={formId} id="entity-save" size="sm" type="submit">
                 {t("Common.actions.save")}
               </Button>
             )}

@@ -27,6 +27,7 @@ export abstract class GetMessageAttachmentMetaRepo {
     provider: MessagingProvider;
     mime: string | null;
     fileName: string | null;
+    size: number | null;
   }>;
 }
 
@@ -59,6 +60,8 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
       chatId: meta.unipileThreadId,
       messageId: meta.unipileMessageId,
       attachmentId: data.attachmentId,
+      fileName: meta.fileName,
+      size: meta.size,
     });
 
     return {
