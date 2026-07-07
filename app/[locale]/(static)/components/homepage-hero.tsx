@@ -3,6 +3,19 @@ import type { Hero } from "@/core/fumadocs/schemas/homepage";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Google,
+  GoogleCalendar,
+  Instagram,
+  Linkedin,
+  Mail,
+  Messenger,
+  Outlook,
+  OutlookCalendar,
+  Telegram,
+  Whatsapp,
+  XTwitter,
+} from "@/components/icons/channel-icon";
 import { AgplGithubBadge } from "@/components/marketing/agpl-github-badge";
 import { WaveDecoration } from "@/components/marketing/wave-decoration";
 
@@ -13,21 +26,6 @@ import { AppLink } from "@/components/shared/app-link";
 type Props = {
   heroSection: Hero;
 };
-
-const germanyFlag = (
-  <svg
-    aria-label="Germany"
-    className="ml-1 inline-block h-[0.85em] w-auto -translate-y-[0.08em] rounded-[2px] align-middle ring-1 ring-border"
-    role="img"
-    viewBox="0 0 5 3"
-  >
-    <rect fill="#000" height="1" width="5" y="0" />
-
-    <rect fill="#dd0000" height="1" width="5" y="1" />
-
-    <rect fill="#ffce00" height="1" width="5" y="2" />
-  </svg>
-);
 
 export function HomepageHero({ heroSection }: Props) {
   return (
@@ -53,23 +51,44 @@ export function HomepageHero({ heroSection }: Props) {
         <div className="mx-auto flex w-full max-w-[1000px] flex-col items-center px-4 text-center">
           <AgplGithubBadge />
 
-          <h1 className="m-0 max-w-[900px] bg-[linear-gradient(to_bottom,#171717,#262626_45%,#525252)] bg-clip-text text-[40px] font-bold leading-[1.02] tracking-[-0.035em] text-transparent sm:text-[52px] md:text-[64px] dark:bg-[linear-gradient(to_bottom,#fafafa,#e5e5e5_45%,#a3a3a3)]">
-            {heroSection.title}
+          <h1 className="m-0 max-w-[900px] bg-[linear-gradient(to_bottom,#171717,#262626_45%,#525252)] bg-clip-text text-[40px] font-extrabold leading-[1.02] tracking-[-0.035em] text-transparent sm:text-[52px] md:text-[64px] dark:bg-[linear-gradient(to_bottom,#fafafa,#e5e5e5_45%,#a3a3a3)]">
+            {/* eslint-disable react/jsx-newline */}
+            {heroSection.title}{" "}
+            {heroSection.titleAccent ? (
+              <span className="font-medium italic text-primary" style={{ fontFamily: "var(--font-serif)" }}>
+                {heroSection.titleAccent}
+              </span>
+            ) : null}
+            {/* eslint-enable react/jsx-newline */}
           </h1>
 
-          {heroSection.titleAccent ? (
-            <div
-              className="mt-3 text-[26px] italic text-primary sm:text-[32px] md:text-[36px] tracking-[-0.02em]"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              {heroSection.titleAccent}
-            </div>
-          ) : null}
-
-          <p className="mx-auto mt-6 max-w-[680px] text-[15px] leading-normal text-muted-foreground md:text-[17px]">
-            {/* eslint-disable-next-line react/jsx-newline */}
-            {heroSection.subtitle} {germanyFlag}
+          <p className="mx-auto mt-6 max-w-[680px] text-[15px] font-medium leading-normal text-muted-foreground md:text-[17px]">
+            {heroSection.subtitle}
           </p>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+            <Linkedin size={28} />
+
+            <Instagram size={28} />
+
+            <Whatsapp size={28} />
+
+            <Messenger size={28} />
+
+            <Telegram size={28} />
+
+            <XTwitter size={28} />
+
+            <Google size={28} />
+
+            <Outlook size={28} />
+
+            <Mail size={28} />
+
+            <OutlookCalendar size={28} />
+
+            <GoogleCalendar size={28} />
+          </div>
 
           <div className="my-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
             <Button asChild className="w-full shadow-[0_6px_14px_-4px_rgba(94,74,227,0.45)] sm:w-auto" size="lg">
