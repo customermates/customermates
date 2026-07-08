@@ -358,7 +358,7 @@ export const manageSocialRelationsTool = {
   title: "Manage social relations",
   description:
     "Use this to manage connection / relation requests on a connected LinkedIn or Instagram account. " +
-    "action list returns the invitations RECEIVED by the account owner, each with an invitationId, the sender and any message. " +
+    "action list returns invitations, each with an invitationId, sender and any message: direction=received (default) lists requests sent TO the account owner; direction=sent lists the owner's own outgoing/pending requests (use it to find the invitationId to cancel). " +
     "action invite SENDS A REAL connection request to identifier (a provider user id from get_social_profile or a thread participant), with an optional short message; confirm with the user before sending. " +
     "action accept confirms a received request by invitationId (from action list). " +
     "action cancel withdraws or refuses a request by invitationId. " +

@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
-import type { SalesListPage } from "./sales-navigator.schema";
+import type { SalesListItemPage } from "./sales-navigator.schema";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -15,15 +15,16 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { formatRetryAfter } from "../retry-after";
-import { SalesListKindSchema, SalesListPageSchema } from "./sales-navigator.schema";
+import { SalesListItemPageSchema, SalesListKindSchema } from "./sales-navigator.schema";
 
-export const ListSalesListsSchema = z.object({
+export const LinkedinBrowseSalesListSchema = z.object({
   connectedAccountId: z.uuid(),
   kind: SalesListKindSchema.default("leads"),
+  listId: z.string().min(1),
   offset: z.number().int().min(0).optional(),
   limit: z.number().int().min(1).max(100).default(10),
 });
-type ListSalesListsData = Data<typeof ListSalesListsSchema>;
+type LinkedinBrowseSalesListData = Data<typeof LinkedinBrowseSalesListSchema>;
 
 @TenantInteractor({
   permissions: [
@@ -32,7 +33,10 @@ type ListSalesListsData = Data<typeof ListSalesListsSchema>;
   ],
   condition: "OR",
 })
-export class ListSalesListsInteractor extends AuthenticatedInteractor<ListSalesListsData, SalesListPage> {
+export class LinkedinBrowseSalesListInteractor extends AuthenticatedInteractor<
+  LinkedinBrowseSalesListData,
+  SalesListItemPage
+> {
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
@@ -40,24 +44,25 @@ export class ListSalesListsInteractor extends AuthenticatedInteractor<ListSalesL
     super();
   }
 
-  @Validate(ListSalesListsSchema)
-  @ValidateOutput(SalesListPageSchema)
-  async invoke(data: ListSalesListsData): Validated<SalesListPage> {
+  @Validate(LinkedinBrowseSalesListSchema)
+  @ValidateOutput(SalesListItemPageSchema)
+  async invoke(data: LinkedinBrowseSalesListData): Validated<SalesListItemPage> {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesListPage>(
+        error: createZodError<SalesListItemPage>(
           t("Common.errors.salesNavigatorRequiresLinkedin", { provider: account.provider }),
         ),
       };
     }
 
-    const res = await this.messagingService.listSalesLists({
+    const res = await this.messagingService.browseSalesList({
       accountId: account.unipileAccountId,
       kind: data.kind,
+      listId: data.listId,
       offset: data.offset,
       limit: data.limit,
     });
@@ -65,7 +70,7 @@ export class ListSalesListsInteractor extends AuthenticatedInteractor<ListSalesL
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesListPage>(
+        error: createZodError<SalesListItemPage>(
           t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
         ),
       };

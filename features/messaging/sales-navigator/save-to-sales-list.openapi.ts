@@ -1,7 +1,7 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { SaveToSalesListSchema } from "@/ee/messaging/sales-navigator/save-to-sales-list.interactor";
-import { SaveToSalesListResultSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
+import { LinkedinSaveToSalesListSchema } from "@/ee/messaging/sales-navigator/linkedin-save-to-sales-list.interactor";
+import { LinkedinSaveToSalesListResultSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
 export const saveToSalesListOperation: ZodOpenApiOperationObject = {
@@ -14,7 +14,7 @@ export const saveToSalesListOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: SaveToSalesListSchema,
+        schema: LinkedinSaveToSalesListSchema,
       },
     },
   },
@@ -23,7 +23,7 @@ export const saveToSalesListOperation: ZodOpenApiOperationObject = {
       description: "Confirmation that the item was saved to the list.",
       content: {
         "application/json": {
-          schema: SaveToSalesListResultSchema,
+          schema: LinkedinSaveToSalesListResultSchema,
         },
       },
     },

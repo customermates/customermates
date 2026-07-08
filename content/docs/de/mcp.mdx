@@ -94,20 +94,20 @@ Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, dea
 | `get_record_schema` | ✓ | | Schema und Custom-Column-Metadaten, nie Record-Daten. Ein Entity-Typ, oder alle fünf, wenn `entity` fehlt. Vor jedem Create oder Update aufrufen. |
 | `list_records` | ✓ | | Suchen, filtern, sortieren, paginieren für einen Entity-Typ. Liefert immer das Total. Deals enthalten totalValue und totalQuantity, Services amount. |
 | `search_records` | ✓ | | Freitextsuche über einen oder mehrere Entity-Typen in einem Call. |
-| `get_records` | ✓ | | Volle Record-Daten per ID, bis 100, Typen mischbar, optional mit Stammdaten oder Notes. |
+| `get_records` | ✓ | | Volle Record-Daten per ID, bis 100, Typen mischbar; Contacts auch per E-Mail, Telefon oder provider:handle. Liefert immer die Felder; Markdown-Notes je Eintrag mit include=withNotes. |
 | `create_contacts` | | | Bis 100 Contacts anlegen, Custom-Column-Werte und Relations-IDs inline. |
-| `create_organizations` | | | Bis 100 Organizations anlegen. |
+| `create_organizations` | | | Bis 100 Organizations anlegen, Custom-Column-Werte und Contact-/User-/Deal-/Task-IDs inline. |
 | `create_deals` | | | Bis 100 Deals anlegen, Services als Inline-Array. |
-| `create_services` | | | Bis 100 Services anlegen. |
-| `create_tasks` | | | Bis 100 Tasks anlegen. |
-| `update_contacts` | | | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value). Fasst Beziehungen nie an. |
+| `create_services` | | | Bis 100 Services anlegen, Custom-Column-Werte und User-/Deal-/Task-IDs inline. |
+| `create_tasks` | | | Bis 100 Tasks anlegen, Custom-Column-Werte und Relations-IDs inline. |
+| `update_contacts` | | | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value); Org-/Deal-/User-/Task-Beziehungen bleiben unberührt, aber ein übergebenes `identifiers`-Array ERSETZT die Messaging-Kanäle des Contacts (nicht gelistete werden entkoppelt). |
 | `update_organizations` | | | Partial-Update per ID. Fasst Beziehungen nie an. |
-| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
+| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten und `services` (Inline-Array aus `{serviceId, quantity}`, das die komplette Service-Menge des Deals ERSETZT); Org-/User-/Contact-/Task-Beziehungen bleiben unberührt (nutze manage_record_links). |
 | `update_services` | | | Partial-Update per ID. |
 | `update_tasks` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
 | `update_record_notes` | | | Markdown-Notes auf 1 bis 100 Records ersetzen oder anhängen, gewählt über `mode`. |
 | `manage_record_links` | | | IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern. |
-| `delete_records` | | ✓ | IRREVERSIBLE Löschen von 1 bis 100 Records per ID. |
+| `delete_records` | | ✓ | IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail, Telefon oder provider:value). |
 
 Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; ruf zuerst `get_record_schema` für die Column-IDs auf.
 
@@ -115,7 +115,7 @@ Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_workspace_context` | ✓ | | Dein User, das Company-Profil, alle Rollen inklusive Rechte und jedes verbundene Messaging-Konto in einem Call. Der natürliche erste Call einer Session. |
+| `get_workspace_context` | ✓ | | Dein User, das Company-Profil, alle Rollen inklusive Rechte und deine verbundenen Messaging-Konten (deine eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
 | `list_users` | ✓ | | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
 
 ### Messaging (Preview)
@@ -124,9 +124,9 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachrichten werden ausgeblendet, außer sie enthalten einen Draft), mit threadId liefert es einen Thread mit voller Nachrichtenliste inklusive Drafts. |
-| `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, Kalenderereignisse) für den Workspace oder einen Record. |
-| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat, mit connectedAccountId plus attendeeIdentifiers startet es einen neuen. Neue LinkedIn-Chats gehen per linkedinProduct plus inmailSubject auch als Sales-Navigator- oder Recruiter-InMail raus. |
+| `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive). |
+| `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, LinkedIn-Account-Aktivitäten und Kalenderereignisse) für den Workspace oder einen Record. |
+| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setze linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb deines Netzwerks per InMail anzuschreiben. |
 | `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
 | `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und du sendest ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
 | `discard_message_draft` | | ✓ | Draft per Draft-Message-ID löschen. |
@@ -136,20 +136,20 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_social_posts` | ✓ | | Posts eines verbundenen LinkedIn- oder Instagram-Kontos. Mit postId holt es einen einzelnen Post; authorIdentifier ist standardmäßig der Kontoinhaber. |
+| `get_social_posts` | ✓ | | Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Listet die Posts beliebiger Nutzer über authorIdentifier (ein Public Identifier oder eine Provider-Member-ID, z. B. aus dem LinkedIn-Kanal eines Kontakts; Standard ist `me`, der Kontoinhaber) oder holt einen einzelnen Post per postId. |
 | `get_social_post_engagement` | ✓ | | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
 | `get_social_profile` | ✓ | | Ein LinkedIn- oder Instagram-Profil per identifier (Public Identifier, Provider-Member-ID oder `me`); liefert Name, Headline, Ort, Zähler und Netzwerkdistanz, soweit verfügbar. |
-| `manage_social_relations` | | | Kontaktanfragen: erhaltene Einladungen listen, invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
-| `search_sales_leads` | ✓ | | Findet Personen über Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). Braucht ein Sales-Navigator-Abo. |
-| `search_sales_companies` | ✓ | | Findet Unternehmen über Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). Braucht ein Sales-Navigator-Abo. |
-| `get_sales_search_parameters` | ✓ | | Löst die Parameter-IDs für die Sales-Navigator-Suchfilter auf (Standorte, Branchen, Jobtitel, Unternehmen, Listen und mehr), nach Typ und Keyword. Findet auch bestehende Lead- und Account-Listen per Name. |
-| `manage_sales_lists` | | | Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead bzw. ein Unternehmen in eine bestehende Liste speichern. Neue Listen entstehen in Sales Navigator selbst. |
+| `manage_social_relations` | | | Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder deine eigenen gesendeten/ausgehenden über direction), invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
+| `linkedin_search_sales_leads` | ✓ | | Findet Personen über LinkedIn Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). Braucht ein Sales-Navigator-Abo. |
+| `linkedin_search_sales_companies` | ✓ | | Findet Unternehmen über LinkedIn Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). Braucht ein Sales-Navigator-Abo. |
+| `linkedin_get_sales_search_parameters` | ✓ | | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus deine Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
+| `linkedin_manage_sales_lists` | | | LinkedIn-Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead bzw. ein Unternehmen in eine bestehende Liste speichern. Neue Listen entstehen in Sales Navigator selbst. |
 
 ### Dokumentation und Deep Research
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `search_docs` | ✓ | | Volltextsuche über die Produkt-Guides und die REST-Referenz. Liefert Slug, Titel, URL, Snippet. |
+| `search_docs` | ✓ | | Volltextsuche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Liefert Slug, Source, Titel, URL, Snippet. |
 | `get_docs_page` | ✓ | | Eine Doku-Seite als Markdown inklusive kanonischer URL. Listet bei einem Miss alle gültigen Slugs. |
 | `search` | ✓ | | Von ChatGPT-Deep-Research-Connectors verlangt; föderiert CRM-Records und Docs. Interaktive Agents nehmen besser `search_records` oder `search_docs`. |
 | `fetch` | ✓ | | Deep-Research-Gegenstück zu `search`: holt ein Ergebnis per ID. |

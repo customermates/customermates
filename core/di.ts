@@ -224,13 +224,13 @@ import { ListSocialPostCommentsInteractor } from "@/ee/messaging/posts/list-soci
 import { ListSocialCommentReactionsInteractor } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
 import { ListSocialPostReactionsInteractor } from "@/ee/messaging/posts/list-social-post-reactions.interactor";
 import { GetSocialProfileInteractor } from "@/ee/messaging/posts/get-social-profile.interactor";
-import { ListSalesListsInteractor } from "@/ee/messaging/sales-navigator/list-sales-lists.interactor";
-import { BrowseSalesListInteractor } from "@/ee/messaging/sales-navigator/browse-sales-list.interactor";
-import { SaveToSalesListInteractor } from "@/ee/messaging/sales-navigator/save-to-sales-list.interactor";
-import { SearchSalesNavigatorInteractor } from "@/ee/messaging/sales-navigator/search-sales-navigator.interactor";
-import { SearchSalesPeopleInteractor } from "@/ee/messaging/sales-navigator/search-sales-people.interactor";
-import { SearchSalesCompaniesInteractor } from "@/ee/messaging/sales-navigator/search-sales-companies.interactor";
-import { ListSalesSearchParametersInteractor } from "@/ee/messaging/sales-navigator/list-sales-search-parameters.interactor";
+import { LinkedinListSalesListsInteractor } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
+import { LinkedinBrowseSalesListInteractor } from "@/ee/messaging/sales-navigator/linkedin-browse-sales-list.interactor";
+import { LinkedinSaveToSalesListInteractor } from "@/ee/messaging/sales-navigator/linkedin-save-to-sales-list.interactor";
+import { LinkedinSearchSalesNavigatorInteractor } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor";
+import { LinkedinSearchSalesPeopleInteractor } from "@/ee/messaging/sales-navigator/linkedin-search-sales-people.interactor";
+import { LinkedinSearchSalesCompaniesInteractor } from "@/ee/messaging/sales-navigator/linkedin-search-sales-companies.interactor";
+import { LinkedinListSalesSearchParametersInteractor } from "@/ee/messaging/sales-navigator/linkedin-list-sales-search-parameters.interactor";
 import { ListRelationRequestsInteractor } from "@/ee/messaging/posts/list-relation-requests.interactor";
 import { CreateRelationRequestInteractor } from "@/ee/messaging/posts/create-relation-request.interactor";
 import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-relation-request.interactor";
@@ -1167,26 +1167,26 @@ export const getListSocialPostReactionsInteractor = () =>
 export const getGetSocialProfileInteractor = () =>
   new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getListSalesListsInteractor = () =>
-  new ListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinListSalesListsInteractor = () =>
+  new LinkedinListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getBrowseSalesListInteractor = () =>
-  new BrowseSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinBrowseSalesListInteractor = () =>
+  new LinkedinBrowseSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getSaveToSalesListInteractor = () =>
-  new SaveToSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinSaveToSalesListInteractor = () =>
+  new LinkedinSaveToSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getSearchSalesNavigatorInteractor = () =>
-  new SearchSalesNavigatorInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinSearchSalesNavigatorInteractor = () =>
+  new LinkedinSearchSalesNavigatorInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getSearchSalesPeopleInteractor = () =>
-  new SearchSalesPeopleInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinSearchSalesPeopleInteractor = () =>
+  new LinkedinSearchSalesPeopleInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getSearchSalesCompaniesInteractor = () =>
-  new SearchSalesCompaniesInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinSearchSalesCompaniesInteractor = () =>
+  new LinkedinSearchSalesCompaniesInteractor(getConnectedAccountRepo(), getMessagingService());
 
-export const getListSalesSearchParametersInteractor = () =>
-  new ListSalesSearchParametersInteractor(getConnectedAccountRepo(), getMessagingService());
+export const getLinkedinListSalesSearchParametersInteractor = () =>
+  new LinkedinListSalesSearchParametersInteractor(getConnectedAccountRepo(), getMessagingService());
 
 export const getListRelationRequestsInteractor = () =>
   new ListRelationRequestsInteractor(getConnectedAccountRepo(), getMessagingService());

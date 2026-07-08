@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
-import type { SalesCompanyPage } from "./sales-navigator.schema";
+import type { SalesSearchParameterPage } from "./sales-navigator.schema";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -15,15 +15,16 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { formatRetryAfter } from "../retry-after";
-import { SalesCompanyFiltersSchema, SalesCompanyPageSchema } from "./sales-navigator.schema";
+import { SalesSearchParameterPageSchema, SalesSearchParameterTypeSchema } from "./sales-navigator.schema";
 
-export const SearchSalesCompaniesSchema = z.object({
+export const LinkedinListSalesSearchParametersSchema = z.object({
   connectedAccountId: z.uuid(),
-  filters: SalesCompanyFiltersSchema.optional(),
+  type: SalesSearchParameterTypeSchema,
+  keywords: z.string().optional(),
   offset: z.number().int().min(0).optional(),
   limit: z.number().int().min(1).max(100).default(10),
 });
-type SearchSalesCompaniesData = Data<typeof SearchSalesCompaniesSchema>;
+type LinkedinListSalesSearchParametersData = Data<typeof LinkedinListSalesSearchParametersSchema>;
 
 @TenantInteractor({
   permissions: [
@@ -32,9 +33,9 @@ type SearchSalesCompaniesData = Data<typeof SearchSalesCompaniesSchema>;
   ],
   condition: "OR",
 })
-export class SearchSalesCompaniesInteractor extends AuthenticatedInteractor<
-  SearchSalesCompaniesData,
-  SalesCompanyPage
+export class LinkedinListSalesSearchParametersInteractor extends AuthenticatedInteractor<
+  LinkedinListSalesSearchParametersData,
+  SalesSearchParameterPage
 > {
   constructor(
     private accountRepo: FindUsableAccountRepo,
@@ -43,24 +44,25 @@ export class SearchSalesCompaniesInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(SearchSalesCompaniesSchema)
-  @ValidateOutput(SalesCompanyPageSchema)
-  async invoke(data: SearchSalesCompaniesData): Validated<SalesCompanyPage> {
+  @Validate(LinkedinListSalesSearchParametersSchema)
+  @ValidateOutput(SalesSearchParameterPageSchema)
+  async invoke(data: LinkedinListSalesSearchParametersData): Validated<SalesSearchParameterPage> {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesCompanyPage>(
+        error: createZodError<SalesSearchParameterPage>(
           t("Common.errors.salesNavigatorRequiresLinkedin", { provider: account.provider }),
         ),
       };
     }
 
-    const res = await this.messagingService.searchSalesCompanies({
+    const res = await this.messagingService.listSalesSearchParameters({
       accountId: account.unipileAccountId,
-      filters: data.filters,
+      type: data.type,
+      keywords: data.keywords,
       offset: data.offset,
       limit: data.limit,
     });
@@ -68,7 +70,7 @@ export class SearchSalesCompaniesInteractor extends AuthenticatedInteractor<
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesCompanyPage>(
+        error: createZodError<SalesSearchParameterPage>(
           t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
         ),
       };

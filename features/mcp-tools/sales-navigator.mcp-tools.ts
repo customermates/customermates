@@ -5,67 +5,67 @@ import { z } from "zod";
 import { encodeToToon, formatDatesInResponse, runInteractor, validationError } from "./utils";
 
 import { SalesCompanySchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
-import { ListSalesListsSchema } from "@/ee/messaging/sales-navigator/list-sales-lists.interactor";
-import { BrowseSalesListSchema } from "@/ee/messaging/sales-navigator/browse-sales-list.interactor";
-import { SaveToSalesListSchema } from "@/ee/messaging/sales-navigator/save-to-sales-list.interactor";
-import { SearchSalesNavigatorSchema } from "@/ee/messaging/sales-navigator/search-sales-navigator.interactor";
-import { SearchSalesPeopleSchema } from "@/ee/messaging/sales-navigator/search-sales-people.interactor";
-import { SearchSalesCompaniesSchema } from "@/ee/messaging/sales-navigator/search-sales-companies.interactor";
-import { ListSalesSearchParametersSchema } from "@/ee/messaging/sales-navigator/list-sales-search-parameters.interactor";
+import { LinkedinListSalesListsSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.interactor";
+import { LinkedinBrowseSalesListSchema } from "@/ee/messaging/sales-navigator/linkedin-browse-sales-list.interactor";
+import { LinkedinSaveToSalesListSchema } from "@/ee/messaging/sales-navigator/linkedin-save-to-sales-list.interactor";
+import { LinkedinSearchSalesNavigatorSchema } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor";
+import { LinkedinSearchSalesPeopleSchema } from "@/ee/messaging/sales-navigator/linkedin-search-sales-people.interactor";
+import { LinkedinSearchSalesCompaniesSchema } from "@/ee/messaging/sales-navigator/linkedin-search-sales-companies.interactor";
+import { LinkedinListSalesSearchParametersSchema } from "@/ee/messaging/sales-navigator/linkedin-list-sales-search-parameters.interactor";
 import {
-  getBrowseSalesListInteractor,
-  getListSalesListsInteractor,
-  getListSalesSearchParametersInteractor,
-  getSaveToSalesListInteractor,
-  getSearchSalesCompaniesInteractor,
-  getSearchSalesNavigatorInteractor,
-  getSearchSalesPeopleInteractor,
+  getLinkedinBrowseSalesListInteractor,
+  getLinkedinListSalesListsInteractor,
+  getLinkedinListSalesSearchParametersInteractor,
+  getLinkedinSaveToSalesListInteractor,
+  getLinkedinSearchSalesCompaniesInteractor,
+  getLinkedinSearchSalesNavigatorInteractor,
+  getLinkedinSearchSalesPeopleInteractor,
 } from "@/core/di";
 
 const SearchSalesLeadsToolSchema = z.object({
-  connectedAccountId: SearchSalesNavigatorSchema.shape.connectedAccountId.describe(
+  connectedAccountId: LinkedinSearchSalesNavigatorSchema.shape.connectedAccountId.describe(
     "Connected account id of a LinkedIn account with a Sales Navigator subscription (from get_workspace_context)",
   ),
-  url: SearchSalesNavigatorSchema.shape.url
+  url: LinkedinSearchSalesNavigatorSchema.shape.url
     .optional()
     .describe(
       "A Sales Navigator search URL copied from the browser (linkedin.com/sales/search/...). When set, filters are ignored",
     ),
-  filters: SearchSalesPeopleSchema.shape.filters.describe(
-    "Structured people search. Fields taking parameter ids resolve them via get_sales_search_parameters with the type named in the field description",
+  filters: LinkedinSearchSalesPeopleSchema.shape.filters.describe(
+    "Structured people search. Fields taking parameter ids resolve them via linkedin_get_sales_search_parameters with the type named in the field description",
   ),
-  offset: SearchSalesNavigatorSchema.shape.offset.describe("Pagination offset (results come in pages)"),
-  limit: SearchSalesNavigatorSchema.shape.limit.describe("Results per page (1-100, default 10)"),
+  offset: LinkedinSearchSalesNavigatorSchema.shape.offset.describe("Pagination offset (results come in pages)"),
+  limit: LinkedinSearchSalesNavigatorSchema.shape.limit.describe("Results per page (1-100, default 10)"),
 });
 
 const SearchSalesCompaniesToolSchema = z.object({
-  connectedAccountId: SearchSalesCompaniesSchema.shape.connectedAccountId.describe(
+  connectedAccountId: LinkedinSearchSalesCompaniesSchema.shape.connectedAccountId.describe(
     "Connected account id of a LinkedIn account with a Sales Navigator subscription (from get_workspace_context)",
   ),
-  url: SearchSalesNavigatorSchema.shape.url
+  url: LinkedinSearchSalesNavigatorSchema.shape.url
     .optional()
     .describe(
       "A Sales Navigator company search URL copied from the browser (linkedin.com/sales/search/company...). When set, filters are ignored",
     ),
-  filters: SearchSalesCompaniesSchema.shape.filters.describe(
-    "Structured company search. Fields taking parameter ids resolve them via get_sales_search_parameters with the type named in the field description",
+  filters: LinkedinSearchSalesCompaniesSchema.shape.filters.describe(
+    "Structured company search. Fields taking parameter ids resolve them via linkedin_get_sales_search_parameters with the type named in the field description",
   ),
-  offset: SearchSalesCompaniesSchema.shape.offset.describe("Pagination offset (results come in pages)"),
-  limit: SearchSalesCompaniesSchema.shape.limit.describe("Results per page (1-100, default 10)"),
+  offset: LinkedinSearchSalesCompaniesSchema.shape.offset.describe("Pagination offset (results come in pages)"),
+  limit: LinkedinSearchSalesCompaniesSchema.shape.limit.describe("Results per page (1-100, default 10)"),
 });
 
 const GetSalesSearchParametersToolSchema = z.object({
-  connectedAccountId: ListSalesSearchParametersSchema.shape.connectedAccountId.describe(
+  connectedAccountId: LinkedinListSalesSearchParametersSchema.shape.connectedAccountId.describe(
     "Connected account id of a LinkedIn account with a Sales Navigator subscription (from get_workspace_context)",
   ),
-  type: ListSalesSearchParametersSchema.shape.type.describe(
+  type: LinkedinListSalesSearchParametersSchema.shape.type.describe(
     "Which parameter family to look up, matching the filter field you want to fill",
   ),
-  keywords: ListSalesSearchParametersSchema.shape.keywords.describe(
+  keywords: LinkedinListSalesSearchParametersSchema.shape.keywords.describe(
     "Keyword filter, e.g. a city, industry or list name",
   ),
-  offset: ListSalesSearchParametersSchema.shape.offset.describe("Pagination offset"),
-  limit: ListSalesSearchParametersSchema.shape.limit.describe("Results per page (1-100, default 10)"),
+  offset: LinkedinListSalesSearchParametersSchema.shape.offset.describe("Pagination offset"),
+  limit: LinkedinListSalesSearchParametersSchema.shape.limit.describe("Results per page (1-100, default 10)"),
 });
 
 const ManageSalesListsToolSchema = z.object({
@@ -74,20 +74,22 @@ const ManageSalesListsToolSchema = z.object({
     .describe(
       "List-list operation: list (enumerate the account's Sales Navigator lists), browse (read the members of one list), or save (add a lead or account to an existing list)",
     ),
-  connectedAccountId: ListSalesListsSchema.shape.connectedAccountId.describe(
+  connectedAccountId: LinkedinListSalesListsSchema.shape.connectedAccountId.describe(
     "Connected account id of a LinkedIn account with a Sales Navigator subscription (from get_workspace_context)",
   ),
-  kind: ListSalesListsSchema.shape.kind.describe("Which list family: leads (people, default) or accounts (companies)"),
-  listId: BrowseSalesListSchema.shape.listId
+  kind: LinkedinListSalesListsSchema.shape.kind.describe(
+    "Which list family: leads (people, default) or accounts (companies)",
+  ),
+  listId: LinkedinBrowseSalesListSchema.shape.listId
     .optional()
     .describe("Required for browse and save: the list id from action list"),
-  providerId: SaveToSalesListSchema.shape.providerId
+  providerId: LinkedinSaveToSalesListSchema.shape.providerId
     .optional()
     .describe(
-      "Required for save: the LinkedIn user id (kind leads, e.g. from search_sales_leads or get_social_profile) or company id (kind accounts) to save",
+      "Required for save: the LinkedIn user id (kind leads, e.g. from linkedin_search_sales_leads or get_social_profile) or company id (kind accounts) to save",
     ),
-  offset: ListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
-  limit: ListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
+  offset: LinkedinListSalesListsSchema.shape.offset.describe("list and browse: pagination offset"),
+  limit: LinkedinListSalesListsSchema.shape.limit.describe("list and browse: items per page (1-100, default 10)"),
 });
 
 function formatSalesList(list: SalesList) {
@@ -135,14 +137,14 @@ function formatSalesCompany(company: SalesCompany) {
 }
 
 export const searchSalesLeadsTool = {
-  name: "search_sales_leads",
+  name: "linkedin_search_sales_leads",
   title: "Search Sales Navigator leads",
   description:
     "Use this when the user wants to find people via LinkedIn Sales Navigator, for example to import them as contacts. " +
     "Two modes: pass a Sales Navigator search URL the user copied from their browser, or build a structured search with filters " +
-    "(keywords plus location, industry, company, job title, seniority, headcount and more; resolve parameter ids via get_sales_search_parameters first). " +
+    "(keywords plus location, industry, company, job title, seniority, headcount and more; resolve parameter ids via linkedin_get_sales_search_parameters first). " +
     "Runs through the connected LinkedIn account with the account owner's license. " +
-    "Returns lead rows with id (use as providerId for manage_sales_lists save), name, headline, location and profile url. " +
+    "Returns lead rows with id (use as providerId for linkedin_manage_sales_lists save), name, headline, location and profile url. " +
     "Paginate with offset plus limit; LinkedIn caps a single search at 2500 results, so narrow filters beat deep paging. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -159,7 +161,7 @@ export const searchSalesLeadsTool = {
 
     if (params.url) {
       return runInteractor(
-        getSearchSalesNavigatorInteractor().invoke({
+        getLinkedinSearchSalesNavigatorInteractor().invoke({
           connectedAccountId: params.connectedAccountId,
           url: params.url,
           offset: params.offset,
@@ -169,7 +171,7 @@ export const searchSalesLeadsTool = {
       );
     }
     return runInteractor(
-      getSearchSalesPeopleInteractor().invoke({
+      getLinkedinSearchSalesPeopleInteractor().invoke({
         connectedAccountId: params.connectedAccountId,
         filters: params.filters,
         offset: params.offset,
@@ -181,13 +183,13 @@ export const searchSalesLeadsTool = {
 };
 
 export const searchSalesCompaniesTool = {
-  name: "search_sales_companies",
+  name: "linkedin_search_sales_companies",
   title: "Search Sales Navigator companies",
   description:
     "Use this when the user wants to find companies (accounts) via LinkedIn Sales Navigator, for example to import them as organizations. " +
     "Two modes: pass a Sales Navigator company search URL the user copied from their browser, or build a structured search with filters " +
-    "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids via get_sales_search_parameters first). " +
-    "Returns company rows with id (use as providerId for manage_sales_lists save with kind accounts), name, industry, location, headcount and website. " +
+    "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids via linkedin_get_sales_search_parameters first). " +
+    "Returns company rows with id (use as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount and website. " +
     "Paginate with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -204,7 +206,7 @@ export const searchSalesCompaniesTool = {
 
     if (params.url) {
       return runInteractor(
-        getSearchSalesNavigatorInteractor().invoke({
+        getLinkedinSearchSalesNavigatorInteractor().invoke({
           connectedAccountId: params.connectedAccountId,
           url: params.url,
           offset: params.offset,
@@ -214,7 +216,7 @@ export const searchSalesCompaniesTool = {
       );
     }
     return runInteractor(
-      getSearchSalesCompaniesInteractor().invoke({
+      getLinkedinSearchSalesCompaniesInteractor().invoke({
         connectedAccountId: params.connectedAccountId,
         filters: params.filters,
         offset: params.offset,
@@ -226,19 +228,19 @@ export const searchSalesCompaniesTool = {
 };
 
 export const getSalesSearchParametersTool = {
-  name: "get_sales_search_parameters",
+  name: "linkedin_get_sales_search_parameters",
   title: "Get Sales Navigator search parameters",
   description:
-    "Use this to resolve the parameter ids that fill the filter fields of search_sales_leads and search_sales_companies. " +
+    "Use this to resolve the parameter ids that fill the filter fields of linkedin_search_sales_leads and linkedin_search_sales_companies. " +
     "Pass a type (LOCATION, INDUSTRY, JOB_TITLE, JOB_FUNCTION, COMPANY, SCHOOL, GROUP, RELATION, PERSONA, PROFILE_LANGUAGE, POSTAL_CODE, " +
     "LEAD_LIST, ACCOUNT_LIST, SAVED_PEOPLE_SEARCH, SAVED_COMPANY_SEARCH, RECENT_SEARCH) plus keywords and get back matching ids with display names. " +
-    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name (their id is the listId for manage_sales_lists). " +
+    "LEAD_LIST and ACCOUNT_LIST also find existing Sales Navigator lists by name (their id is the listId for linkedin_manage_sales_lists). " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSalesSearchParametersToolSchema,
   execute: (params: z.infer<typeof GetSalesSearchParametersToolSchema>) =>
     runInteractor(
-      getListSalesSearchParametersInteractor().invoke({
+      getLinkedinListSalesSearchParametersInteractor().invoke({
         connectedAccountId: params.connectedAccountId,
         type: params.type,
         keywords: params.keywords,
@@ -257,13 +259,13 @@ export const getSalesSearchParametersTool = {
 };
 
 export const manageSalesListsTool = {
-  name: "manage_sales_lists",
+  name: "linkedin_manage_sales_lists",
   title: "Manage Sales Navigator lists",
   description:
     "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with id, name and item count. " +
     "action browse returns the members of one list by listId. " +
-    "action save ADDS a person or company to an existing list: pass listId plus providerId (a LinkedIn user id from search_sales_leads, get_social_profile or a thread participant; a company id for kind accounts). " +
+    "action save ADDS a person or company to an existing list: pass listId plus providerId (a LinkedIn user id from linkedin_search_sales_leads, get_social_profile or a thread participant; a company id for kind accounts). " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
@@ -271,7 +273,7 @@ export const manageSalesListsTool = {
   execute: (params: z.infer<typeof ManageSalesListsToolSchema>) => {
     if (params.action === "list") {
       return runInteractor(
-        getListSalesListsInteractor().invoke({
+        getLinkedinListSalesListsInteractor().invoke({
           connectedAccountId: params.connectedAccountId,
           kind: params.kind,
           offset: params.offset,
@@ -288,9 +290,9 @@ export const manageSalesListsTool = {
       );
     }
     if (params.action === "browse") {
-      const parsed = BrowseSalesListSchema.safeParse(params);
+      const parsed = LinkedinBrowseSalesListSchema.safeParse(params);
       if (!parsed.success) return validationError(parsed.error);
-      return runInteractor(getBrowseSalesListInteractor().invoke(parsed.data), (data) =>
+      return runInteractor(getLinkedinBrowseSalesListInteractor().invoke(parsed.data), (data) =>
         encodeToToon(
           formatDatesInResponse({
             items: data.data.map(formatSalesListItem),
@@ -300,9 +302,9 @@ export const manageSalesListsTool = {
         ),
       );
     }
-    const parsed = SaveToSalesListSchema.safeParse(params);
+    const parsed = LinkedinSaveToSalesListSchema.safeParse(params);
     if (!parsed.success) return validationError(parsed.error);
-    return runInteractor(getSaveToSalesListInteractor().invoke(parsed.data), (data) =>
+    return runInteractor(getLinkedinSaveToSalesListInteractor().invoke(parsed.data), (data) =>
       encodeToToon({ listId: parsed.data.listId, providerId: parsed.data.providerId, status: data.object ?? "saved" }),
     );
   },

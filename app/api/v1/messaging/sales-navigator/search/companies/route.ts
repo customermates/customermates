@@ -3,13 +3,13 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSearchSalesCompaniesInteractor } from "@/core/di";
+import { getLinkedinSearchSalesCompaniesInteractor } from "@/core/di";
 import { handleError } from "@/core/api/interactor-handler";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const result = await getSearchSalesCompaniesInteractor().invoke(body);
+    const result = await getLinkedinSearchSalesCompaniesInteractor().invoke(body);
 
     if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
 

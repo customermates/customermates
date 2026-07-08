@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
-import type { SalesListItemPage } from "./sales-navigator.schema";
+import type { LinkedinSaveToSalesListResult } from "./sales-navigator.schema";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -10,30 +10,25 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Resource, Action, MessagingProvider } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { formatRetryAfter } from "../retry-after";
-import { SalesListItemPageSchema, SalesListKindSchema } from "./sales-navigator.schema";
+import { SalesListKindSchema, LinkedinSaveToSalesListResultSchema } from "./sales-navigator.schema";
 
-export const BrowseSalesListSchema = z.object({
+export const LinkedinSaveToSalesListSchema = z.object({
   connectedAccountId: z.uuid(),
   kind: SalesListKindSchema.default("leads"),
   listId: z.string().min(1),
-  offset: z.number().int().min(0).optional(),
-  limit: z.number().int().min(1).max(100).default(10),
+  providerId: z.string().min(1),
 });
-type BrowseSalesListData = Data<typeof BrowseSalesListSchema>;
+type LinkedinSaveToSalesListData = Data<typeof LinkedinSaveToSalesListSchema>;
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
-export class BrowseSalesListInteractor extends AuthenticatedInteractor<BrowseSalesListData, SalesListItemPage> {
+@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
+  LinkedinSaveToSalesListData,
+  LinkedinSaveToSalesListResult
+> {
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
@@ -41,33 +36,31 @@ export class BrowseSalesListInteractor extends AuthenticatedInteractor<BrowseSal
     super();
   }
 
-  @Validate(BrowseSalesListSchema)
-  @ValidateOutput(SalesListItemPageSchema)
-  async invoke(data: BrowseSalesListData): Validated<SalesListItemPage> {
+  @Write({ input: LinkedinSaveToSalesListSchema, output: LinkedinSaveToSalesListResultSchema, tx: false })
+  async invoke(data: LinkedinSaveToSalesListData): Validated<LinkedinSaveToSalesListResult> {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesListItemPage>(
+        error: createZodError<LinkedinSaveToSalesListResult>(
           t("Common.errors.salesNavigatorRequiresLinkedin", { provider: account.provider }),
         ),
       };
     }
 
-    const res = await this.messagingService.browseSalesList({
+    const res = await this.messagingService.saveToSalesList({
       accountId: account.unipileAccountId,
       kind: data.kind,
       listId: data.listId,
-      offset: data.offset,
-      limit: data.limit,
+      providerId: data.providerId,
     });
     if (!res.ok) {
       const t = await getTranslations();
       return {
         ok: false,
-        error: createZodError<SalesListItemPage>(
+        error: createZodError<LinkedinSaveToSalesListResult>(
           t(`Common.errors.${res.error}`, { retryAfter: formatRetryAfter(await getLocale(), res.retryAfterSeconds) }),
         ),
       };

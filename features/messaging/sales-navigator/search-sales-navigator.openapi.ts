@@ -1,6 +1,6 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { SearchSalesNavigatorSchema } from "@/ee/messaging/sales-navigator/search-sales-navigator.interactor";
+import { LinkedinSearchSalesNavigatorSchema } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor";
 import { SalesListItemPageSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
@@ -14,7 +14,7 @@ export const searchSalesNavigatorOperation: ZodOpenApiOperationObject = {
   requestBody: {
     content: {
       "application/json": {
-        schema: SearchSalesNavigatorSchema,
+        schema: LinkedinSearchSalesNavigatorSchema,
       },
     },
   },

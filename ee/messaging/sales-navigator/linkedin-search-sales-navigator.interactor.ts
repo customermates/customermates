@@ -15,15 +15,30 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { formatRetryAfter } from "../retry-after";
-import { SalesListItemPageSchema, SalesPeopleFiltersSchema } from "./sales-navigator.schema";
+import { SalesListItemPageSchema } from "./sales-navigator.schema";
 
-export const SearchSalesPeopleSchema = z.object({
+export const LinkedinSearchSalesNavigatorSchema = z.object({
   connectedAccountId: z.uuid(),
-  filters: SalesPeopleFiltersSchema.optional(),
+  url: z
+    .string()
+    .url()
+    .refine(
+      (value) => {
+        try {
+          const { hostname, pathname } = new URL(value);
+          return (hostname === "linkedin.com" || hostname.endsWith(".linkedin.com")) && pathname.startsWith("/sales");
+        } catch {
+          return false;
+        }
+      },
+      {
+        error: "url must be a LinkedIn Sales Navigator search URL (linkedin.com/sales/...)",
+      },
+    ),
   offset: z.number().int().min(0).optional(),
   limit: z.number().int().min(1).max(100).default(10),
 });
-type SearchSalesPeopleData = Data<typeof SearchSalesPeopleSchema>;
+type LinkedinSearchSalesNavigatorData = Data<typeof LinkedinSearchSalesNavigatorSchema>;
 
 @TenantInteractor({
   permissions: [
@@ -32,7 +47,10 @@ type SearchSalesPeopleData = Data<typeof SearchSalesPeopleSchema>;
   ],
   condition: "OR",
 })
-export class SearchSalesPeopleInteractor extends AuthenticatedInteractor<SearchSalesPeopleData, SalesListItemPage> {
+export class LinkedinSearchSalesNavigatorInteractor extends AuthenticatedInteractor<
+  LinkedinSearchSalesNavigatorData,
+  SalesListItemPage
+> {
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
@@ -40,9 +58,9 @@ export class SearchSalesPeopleInteractor extends AuthenticatedInteractor<SearchS
     super();
   }
 
-  @Validate(SearchSalesPeopleSchema)
+  @Validate(LinkedinSearchSalesNavigatorSchema)
   @ValidateOutput(SalesListItemPageSchema)
-  async invoke(data: SearchSalesPeopleData): Validated<SalesListItemPage> {
+  async invoke(data: LinkedinSearchSalesNavigatorData): Validated<SalesListItemPage> {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {
@@ -55,9 +73,9 @@ export class SearchSalesPeopleInteractor extends AuthenticatedInteractor<SearchS
       };
     }
 
-    const res = await this.messagingService.searchSalesPeople({
+    const res = await this.messagingService.searchSalesNavigator({
       accountId: account.unipileAccountId,
-      filters: data.filters,
+      url: data.url,
       offset: data.offset,
       limit: data.limit,
     });

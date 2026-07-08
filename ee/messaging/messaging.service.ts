@@ -19,7 +19,7 @@ import type {
   SalesPeopleFilters,
   SalesSearchParameterPage,
   SalesSearchParameterType,
-  SaveToSalesListResult,
+  LinkedinSaveToSalesListResult,
 } from "./sales-navigator/sales-navigator.schema";
 
 import {
@@ -56,7 +56,7 @@ import {
   SalesListItemPageSchema,
   SalesListPageSchema,
   SalesSearchParameterPageSchema,
-  SaveToSalesListResultSchema,
+  LinkedinSaveToSalesListResultSchema,
 } from "./sales-navigator/sales-navigator.schema";
 
 const UNIPILE_BASE_URL = "https://api.unipile.com";
@@ -1049,14 +1049,14 @@ export class MessagingService {
     kind: SalesListKind;
     listId: string;
     providerId: string;
-  }): Promise<MessagingSendResult<SaveToSalesListResult>> {
+  }): Promise<MessagingSendResult<LinkedinSaveToSalesListResult>> {
     try {
       const path = { account_id: input.accountId, list_id: input.listId };
       const raw = await (input.kind === "leads"
         ? requestData(this.sdk.linkedin.saveSalesLeadToList({ path, body: { user_id: input.providerId } }))
         : requestData(this.sdk.linkedin.saveSalesAccountToList({ path, body: { company_id: input.providerId } })));
 
-      return { ok: true, data: SaveToSalesListResultSchema.parse(raw) };
+      return { ok: true, data: LinkedinSaveToSalesListResultSchema.parse(raw) };
     } catch (err) {
       return this.mapError(err);
     }

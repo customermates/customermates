@@ -47,10 +47,10 @@ export const SalesListItemPageSchema = z.looseObject({
 });
 export type SalesListItemPage = z.infer<typeof SalesListItemPageSchema>;
 
-export const SaveToSalesListResultSchema = z.looseObject({
+export const LinkedinSaveToSalesListResultSchema = z.looseObject({
   object: z.string().nullish(),
 });
-export type SaveToSalesListResult = z.infer<typeof SaveToSalesListResultSchema>;
+export type LinkedinSaveToSalesListResult = z.infer<typeof LinkedinSaveToSalesListResultSchema>;
 
 export const SalesListKindSchema = z.enum(["leads", "accounts"]);
 export type SalesListKind = z.infer<typeof SalesListKindSchema>;
