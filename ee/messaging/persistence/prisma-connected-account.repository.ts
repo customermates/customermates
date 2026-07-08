@@ -120,6 +120,7 @@ export class PrismaConnectedAccountRepo
     folders?: EmailFolder[];
     foldersSyncedAt?: Date;
     selectedFolderIds?: string[];
+    linkedinProducts?: string[];
   }) {
     const { unipileAccountId } = args;
 
@@ -140,6 +141,7 @@ export class PrismaConnectedAccountRepo
         folders: args.folders as Prisma.InputJsonValue | undefined,
         foldersSyncedAt: args.foldersSyncedAt,
         selectedFolderIds: args.selectedFolderIds,
+        linkedinProducts: args.linkedinProducts,
       },
     });
 
@@ -313,6 +315,7 @@ export class PrismaConnectedAccountRepo
       folders: true,
       selectedFolderIds: true,
       foldersSyncedAt: true,
+      linkedinProducts: true,
       user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
     } as const;
   }

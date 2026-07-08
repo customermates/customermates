@@ -224,6 +224,13 @@ import { ListSocialPostCommentsInteractor } from "@/ee/messaging/posts/list-soci
 import { ListSocialCommentReactionsInteractor } from "@/ee/messaging/posts/list-social-comment-reactions.interactor";
 import { ListSocialPostReactionsInteractor } from "@/ee/messaging/posts/list-social-post-reactions.interactor";
 import { GetSocialProfileInteractor } from "@/ee/messaging/posts/get-social-profile.interactor";
+import { ListSalesListsInteractor } from "@/ee/messaging/sales-navigator/list-sales-lists.interactor";
+import { BrowseSalesListInteractor } from "@/ee/messaging/sales-navigator/browse-sales-list.interactor";
+import { SaveToSalesListInteractor } from "@/ee/messaging/sales-navigator/save-to-sales-list.interactor";
+import { SearchSalesNavigatorInteractor } from "@/ee/messaging/sales-navigator/search-sales-navigator.interactor";
+import { SearchSalesPeopleInteractor } from "@/ee/messaging/sales-navigator/search-sales-people.interactor";
+import { SearchSalesCompaniesInteractor } from "@/ee/messaging/sales-navigator/search-sales-companies.interactor";
+import { ListSalesSearchParametersInteractor } from "@/ee/messaging/sales-navigator/list-sales-search-parameters.interactor";
 import { ListRelationRequestsInteractor } from "@/ee/messaging/posts/list-relation-requests.interactor";
 import { CreateRelationRequestInteractor } from "@/ee/messaging/posts/create-relation-request.interactor";
 import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-relation-request.interactor";
@@ -1159,6 +1166,27 @@ export const getListSocialPostReactionsInteractor = () =>
 
 export const getGetSocialProfileInteractor = () =>
   new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListSalesListsInteractor = () =>
+  new ListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getBrowseSalesListInteractor = () =>
+  new BrowseSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSaveToSalesListInteractor = () =>
+  new SaveToSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSearchSalesNavigatorInteractor = () =>
+  new SearchSalesNavigatorInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSearchSalesPeopleInteractor = () =>
+  new SearchSalesPeopleInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSearchSalesCompaniesInteractor = () =>
+  new SearchSalesCompaniesInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getListSalesSearchParametersInteractor = () =>
+  new ListSalesSearchParametersInteractor(getConnectedAccountRepo(), getMessagingService());
 
 export const getListRelationRequestsInteractor = () =>
   new ListRelationRequestsInteractor(getConnectedAccountRepo(), getMessagingService());

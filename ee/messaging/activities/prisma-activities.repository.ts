@@ -108,6 +108,12 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
       fetchCalendar ? this.listCalendarEvents(emails, fetchN) : [],
     ]);
 
+    const myAccountIds = await this.listMySendingAccountIds(
+      messages
+        .filter(({ message }) => message.direction === "outbound")
+        .map(({ message }) => message.connectedAccountId),
+    );
+
     const merged: ActivityEntryDto[] = [
       ...auditLogs.map((log) => ({
         kind: "audit" as const,
@@ -123,6 +129,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         at: message.sentAt,
         message,
         thread,
+        senderIsMine: message.direction === "outbound" && myAccountIds.has(message.connectedAccountId),
       })),
       ...activities.map((activity) => ({
         kind: "activity" as const,
@@ -149,6 +156,17 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
       })
       .sort((a, b) => b.at.getTime() - a.at.getTime() || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0))
       .slice(skip, skip + pageSize);
+  }
+
+  private async listMySendingAccountIds(accountIds: string[]): Promise<Set<string>> {
+    if (accountIds.length === 0) return new Set();
+
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: { id: { in: [...new Set(accountIds)] }, companyId: this.companyId, userId: this.userId },
+      select: { id: true },
+    });
+
+    return new Set(rows.map((row) => row.id));
   }
 
   async getCount(params: GetQueryParams) {

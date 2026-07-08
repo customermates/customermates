@@ -59,7 +59,7 @@ function formatFieldList(fields: string[]): string {
 
 export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: Props) => {
   const t = useTranslations();
-  const { intlStore, timelineDetailModalStore, activitiesStore: store, userStore } = useRootStore();
+  const { intlStore, timelineDetailModalStore, activitiesStore: store } = useRootStore();
 
   useEffect(() => {
     store.init(entityType, entityId, initial);
@@ -169,7 +169,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                 }
 
                 if (entry.kind === "message") {
-                  const { message, thread } = entry;
+                  const { message, thread, senderIsMine } = entry;
                   const isOutbound = message.direction === "outbound";
                   const isGroup = thread.type !== "single";
                   const providerLabel = t(`Common.providers.${message.provider}`);
@@ -180,7 +180,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                   );
                   const senderLabel = messageSenderName(message);
                   const senderName =
-                    senderLabel || (isOutbound ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender"));
+                    senderLabel || (senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender"));
                   const title = isGroup ? thread.label?.trim() || senderName : senderName;
                   const rawPreview = messagePreview(message);
                   const isUnsupported = isUnipileUnsupportedBody(rawPreview);
@@ -193,7 +193,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                   if (preview && isGroup) {
                     subtitle = (
                       <>
-                        <span className="font-semibold">{isOutbound ? t("Inbox.youPrefix") : `${senderName}:`} </span>
+                        <span className="font-semibold">{senderIsMine ? t("Inbox.youPrefix") : `${senderName}:`} </span>
 
                         {preview}
                       </>
@@ -210,14 +210,8 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                       avatar={
                         <IdentityAvatar
                           badge={messageBadge}
-                          name={
-                            isOutbound ? [userStore.user?.firstName, userStore.user?.lastName] : senderLabel || title
-                          }
-                          src={
-                            isOutbound
-                              ? userStore.user?.avatarUrl || message.sender.pictureUrl
-                              : message.sender.contact?.avatarUrl || message.sender.pictureUrl
-                          }
+                          name={senderLabel || title}
+                          src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
                         />
                       }
                       isFirst={index === 0}

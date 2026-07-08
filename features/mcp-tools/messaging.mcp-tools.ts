@@ -225,7 +225,10 @@ export const sendChatMessageTool = {
     "Use this when sending a real chat message (LinkedIn, WhatsApp, and other connected chat accounts). SIDE EFFECT: delivers a real message. " +
     "Exactly one mode: pass threadId to send text into that existing thread (optional draftMessageId converts a saved draft on send), " +
     "or omit threadId to start a new chat, which requires connectedAccountId (see get_workspace_context) and attendeeIdentifiers " +
-    "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional subject to name the group. " +
+    "(the recipients' provider handles, i.e. the value of a contact's messaging channel) plus optional chatName to name the group. " +
+    "New LinkedIn chats default to the Classic product; set linkedinProduct to sales_navigator or recruiter to send an InMail from that product's inbox " +
+    "(requires inmailSubject; recruiter also inmailSignature), or set inmail true on classic to InMail someone outside the network. " +
+    "Only use a linkedinProduct listed in the account's linkedinProducts from get_workspace_context; an unavailable product is rejected. " +
     "An identical text sent into the same thread within about a minute is rejected as a duplicate. " +
     "For email use send_email.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },

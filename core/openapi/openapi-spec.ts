@@ -71,17 +71,20 @@ import { sendEmailOperation } from "@/features/messaging/outbound/send-email.ope
 import { startChatOperation } from "@/features/messaging/outbound/start-chat.openapi";
 import { saveDraftOperation } from "@/features/messaging/outbound/save-draft.openapi";
 import { discardDraftOperation } from "@/features/messaging/outbound/discard-draft.openapi";
-import {
-  getSocialPostsOperation,
-  getSocialPostEngagementOperation,
-} from "@/features/messaging/posts/social-posts.openapi";
+import { getSocialPostsOperation } from "@/features/messaging/posts/list-social-posts.openapi";
+import { getSocialPostEngagementOperation } from "@/features/messaging/posts/list-social-post-comments.openapi";
 import { getSocialProfileOperation } from "@/features/messaging/posts/social-profiles.openapi";
-import {
-  listRelationRequestsOperation,
-  createRelationRequestOperation,
-  acceptRelationRequestOperation,
-  cancelRelationRequestOperation,
-} from "@/features/messaging/posts/social-relations.openapi";
+import { searchSalesNavigatorOperation } from "@/features/messaging/sales-navigator/search-sales-navigator.openapi";
+import { searchSalesPeopleOperation } from "@/features/messaging/sales-navigator/search-sales-people.openapi";
+import { searchSalesCompaniesOperation } from "@/features/messaging/sales-navigator/search-sales-companies.openapi";
+import { listSalesSearchParametersOperation } from "@/features/messaging/sales-navigator/list-sales-search-parameters.openapi";
+import { listSalesListsOperation } from "@/features/messaging/sales-navigator/list-sales-lists.openapi";
+import { browseSalesListOperation } from "@/features/messaging/sales-navigator/browse-sales-list.openapi";
+import { saveToSalesListOperation } from "@/features/messaging/sales-navigator/save-to-sales-list.openapi";
+import { listRelationRequestsOperation } from "@/features/messaging/posts/list-relation-requests.openapi";
+import { createRelationRequestOperation } from "@/features/messaging/posts/create-relation-request.openapi";
+import { acceptRelationRequestOperation } from "@/features/messaging/posts/accept-relation-request.openapi";
+import { cancelRelationRequestOperation } from "@/features/messaging/posts/cancel-relation-request.openapi";
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
 import { DeleteContactSchema } from "@/features/contacts/delete/delete-contact.interactor";
 import { DeleteManyContactsSchema } from "@/features/contacts/delete/delete-many-contacts.interactor";
@@ -315,6 +318,27 @@ export function generateOpenApiSpec() {
       },
       "/v1/messaging/social-profiles/search": {
         post: getSocialProfileOperation,
+      },
+      "/v1/messaging/sales-navigator/search": {
+        post: searchSalesNavigatorOperation,
+      },
+      "/v1/messaging/sales-navigator/search/people": {
+        post: searchSalesPeopleOperation,
+      },
+      "/v1/messaging/sales-navigator/search/companies": {
+        post: searchSalesCompaniesOperation,
+      },
+      "/v1/messaging/sales-navigator/search/parameters": {
+        post: listSalesSearchParametersOperation,
+      },
+      "/v1/messaging/sales-navigator/lists/search": {
+        post: listSalesListsOperation,
+      },
+      "/v1/messaging/sales-navigator/lists/browse": {
+        post: browseSalesListOperation,
+      },
+      "/v1/messaging/sales-navigator/lists/save": {
+        post: saveToSalesListOperation,
       },
       "/v1/messaging/social-relations/search": {
         post: listRelationRequestsOperation,

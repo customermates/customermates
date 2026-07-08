@@ -9,52 +9,82 @@ pricing:
   users: Users
   monthly: Monthly
   yearly: Yearly
+  yearlySavings: 2 months free
+  footnote: "Connected accounts are the email and messaging accounts (Gmail, Outlook, LinkedIn, WhatsApp and more) your team links to the inbox. Add extra accounts anytime."
   pricingCards:
-  - title: Free
-    description: Perfect for trying out
-    price: Free
-    priceSubtext: for 7 days
-    buttonText: Start for free
+  - title: Starter
+    description: Your AI CRM
+    price: "12"
+    monthlyPrice: 12
+    annualPrice: 10
+    priceSubtext: EUR/Month
+    priceNote: billed annually
+    buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - Full Pro access for 7 days
-      - No credit card required
-      - Cancel anytime
+      - Contacts, deals, tasks & organizations
+      - Custom fields, roles & pipelines
+      - "AI assistant & MCP: connect Claude or Codex"
+      - Webhooks & API
+      - Audit log
   - title: Pro
-    description: Core CRM for modern teams
-    badge: Recommended
-    price: "7"
+    description: CRM + unified inbox
+    price: "29"
+    monthlyPrice: 29
+    annualPrice: 24
     priceSubtext: EUR/Month
-    buttonText: Start for free
+    priceNote: billed annually
+    buttonText: Start free trial
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Everything in Starter
+      - "Unified inbox: email, LinkedIn, WhatsApp, Instagram, Telegram"
+      - 1 connected account per user included (extra 9€/month)
+      - Calendar sync
+      - Message templates & snippets
+      - Full contact timeline across channels
+      - Higher AI limits
+  - title: Business
+    description: For teams
+    badge: Most popular
+    price: "59"
+    monthlyPrice: 59
+    annualPrice: 49
+    priceSubtext: EUR/Month
+    priceNote: billed annually
+    buttonText: Start free trial
     buttonHref: /auth/signup
     buttonColor: primary
     buttonVariant: shadow
     shadow: md
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
-      - Unlimited Users
-      - Unlimited contacts & organizations
-      - Deals, services & tasks
-      - Team roles and permissions
-      - Audit Logging
-      - Single Sign-On
-      - API and n8n automation
-      - Priority Support
+      - Everything in Pro
+      - 3 connected accounts per user included (extra 8€/month)
+      - Shared team inboxes & assignment
+      - Roles & granular permissions
+      - Advanced automation & sequences
+      - Analytics & team reporting
+      - Bulk actions & saved views
+      - Onboarding & migration help
+      - Priority support
   - title: Enterprise
-    description: Custom solutions for large teams
-    price: Get a quote
-    buttonText: Get in touch
+    description: Scale & compliance
+    price: Custom
+    buttonText: Contact sales
     buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
-      - Everything in Pro
-      - Whitelabeling
-      - Custom integrations
-      - Dedicated support
-      - SLA guarantee
+      - Everything in Business
+      - Single Sign-On
+      - White-label
+      - Unlimited connected accounts (fair use)
+      - Dedicated support & custom terms
 
 comparison:
   header: Compare plans

@@ -42,11 +42,12 @@ function payloadString(payload: Record<string, unknown>, key: string): string | 
 }
 
 const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { kind: "message" }> }) => {
-  const { intlStore, userStore } = useRootStore();
+  const { intlStore } = useRootStore();
   const t = useTranslations();
-  const { message, thread } = entry;
+  const { message, thread, senderIsMine } = entry;
   const isOutbound = message.direction === "outbound";
-  const senderName = messageSenderName(message) || (isOutbound ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender"));
+  const senderName =
+    messageSenderName(message) || (senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender"));
   const title = thread.type !== "single" ? thread.label?.trim() || senderName : senderName;
   const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
   const sanitized = !isEmail && message.bodyHtml ? sanitizeHtml(message.bodyHtml) : null;
@@ -78,12 +79,8 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
         avatar={
           <IdentityAvatar
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
-            name={isOutbound ? [userStore.user?.firstName, userStore.user?.lastName] : senderName}
-            src={
-              isOutbound
-                ? userStore.user?.avatarUrl || message.sender.pictureUrl
-                : message.sender.contact?.avatarUrl || message.sender.pictureUrl
-            }
+            name={senderName}
+            src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
           />
         }
         provider={message.provider}
@@ -283,7 +280,7 @@ export const TimelineDetailModal = observer(() => {
     : entry.kind === "message"
       ? (entry.message.subject ??
         messageSenderName(entry.message) ??
-        (entry.message.direction === "outbound" ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
+        (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
         ? entry.event.title
         : entry.kind === "audit"

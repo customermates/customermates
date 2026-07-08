@@ -47,6 +47,13 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
   const relativeTime = thread.lastMessageAt ? intlStore.formatRelativeTime(thread.lastMessageAt) : null;
   const ProviderIcon = getProviderIcon(thread.provider);
 
+  const lastMessagePrefix =
+    thread.lastMessageFromSelf && thread.isOwner
+      ? t("Inbox.youPrefix")
+      : thread.lastMessageSenderName
+        ? `${thread.lastMessageSenderName}:`
+        : null;
+
   return (
     <button
       className={cn(
@@ -118,11 +125,7 @@ export const ThreadRow = observer(({ thread, selected, onClick }: Props) => {
             !previewText && !kindLabel && "italic opacity-80",
           )}
         >
-          {isGroup && previewText && (thread.lastMessageFromSelf || thread.lastMessageSenderName) && (
-            <span className="font-semibold">
-              {thread.lastMessageFromSelf ? t("Inbox.youPrefix") : `${thread.lastMessageSenderName}:`}{" "}
-            </span>
-          )}
+          {isGroup && previewText && lastMessagePrefix && <span className="font-semibold">{lastMessagePrefix} </span>}
 
           {previewText ?? kindLabel ?? placeholder ?? ""}
         </p>

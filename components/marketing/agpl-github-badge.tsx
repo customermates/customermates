@@ -27,7 +27,7 @@ export async function AgplGithubBadge({ className }: Props) {
 
   return (
     <div
-      className={`mb-[18px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs text-foreground ${className ?? ""}`}
+      className={`mb-[24px] inline-flex items-center gap-2 rounded-full border border-border bg-card px-[11px] py-[5px] text-xs text-foreground ${className ?? ""}`}
     >
       <AppLink
         external

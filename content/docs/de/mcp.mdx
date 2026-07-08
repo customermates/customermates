@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 39 CRM-Tools. Es gibt zwei Wege zu verbinden:
+Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 43 CRM-Tools. Es gibt zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starte auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
@@ -52,7 +52,7 @@ Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clie
 
 Du musst dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt dich kurz und fasst deinen Workspace zusammen, um den Start zu personalisieren.
 
-Die volle 39-Tool-Oberfläche ist der Standard. Hänge `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
+Die volle 43-Tool-Oberfläche ist der Standard. Hänge `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -76,7 +76,7 @@ Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf 
 
 ## Tool-Katalog
 
-Customermates exponiert 39 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging (Preview), Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert 43 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging (Preview), Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
 
 Zwei Flags pro Tool:
 
@@ -126,7 +126,7 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 |---|---|---|---|
 | `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachrichten werden ausgeblendet, außer sie enthalten einen Draft), mit threadId liefert es einen Thread mit voller Nachrichtenliste inklusive Drafts. |
 | `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, Kalenderereignisse) für den Workspace oder einen Record. |
-| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat, mit connectedAccountId plus attendeeIdentifiers startet es einen neuen. |
+| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat, mit connectedAccountId plus attendeeIdentifiers startet es einen neuen. Neue LinkedIn-Chats gehen per linkedinProduct plus inmailSubject auch als Sales-Navigator- oder Recruiter-InMail raus. |
 | `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
 | `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und du sendest ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
 | `discard_message_draft` | | ✓ | Draft per Draft-Message-ID löschen. |
@@ -140,6 +140,10 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 | `get_social_post_engagement` | ✓ | | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
 | `get_social_profile` | ✓ | | Ein LinkedIn- oder Instagram-Profil per identifier (Public Identifier, Provider-Member-ID oder `me`); liefert Name, Headline, Ort, Zähler und Netzwerkdistanz, soweit verfügbar. |
 | `manage_social_relations` | | | Kontaktanfragen: erhaltene Einladungen listen, invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
+| `search_sales_leads` | ✓ | | Findet Personen über Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). Braucht ein Sales-Navigator-Abo. |
+| `search_sales_companies` | ✓ | | Findet Unternehmen über Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). Braucht ein Sales-Navigator-Abo. |
+| `get_sales_search_parameters` | ✓ | | Löst die Parameter-IDs für die Sales-Navigator-Suchfilter auf (Standorte, Branchen, Jobtitel, Unternehmen, Listen und mehr), nach Typ und Keyword. Findet auch bestehende Lead- und Account-Listen per Name. |
+| `manage_sales_lists` | | | Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead bzw. ein Unternehmen in eine bestehende Liste speichern. Neue Listen entstehen in Sales Navigator selbst. |
 
 ### Dokumentation und Deep Research
 
@@ -177,7 +181,7 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 
 ### Eingrenzen mit ?toolsets=
 
-Alle 39 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hänge `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+Alle 43 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hänge `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging

@@ -10,7 +10,7 @@ import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import { isEmailProvider } from "../../provider";
+import { deriveLinkedinProducts, isEmailProvider } from "../../provider";
 import { BACKFILL_EMAIL_TIMEOUT_MS } from "./paginate";
 import { isUnipileRateLimit } from "../../messaging.service";
 import { deriveAccountFeatures, mapUnipileProvider, mapUnipileStatus } from "../../unipile.mappers";
@@ -141,7 +141,11 @@ export class PrepareBackfillInteractor {
       if (parsed.success && parsed.data.disabled !== true) inboxIds.push(parsed.data.id);
     }
 
-    return inboxIds.length > 0 ? inboxIds.sort() : [ACCOUNT_WIDE_SOURCE];
+    if (inboxIds.length === 0) return [ACCOUNT_WIDE_SOURCE];
+
+    await this.repo.updateAccountUnscoped({ unipileAccountId, linkedinProducts: deriveLinkedinProducts(inboxIds) });
+
+    return inboxIds.sort();
   }
 
   private async resolveEmailFolders(account: ConnectedAccount, sourceFilter?: string[]): Promise<string[]> {

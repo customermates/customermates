@@ -31,6 +31,7 @@ export abstract class BackfillConnectedAccountRepo {
     folders?: EmailFolder[];
     foldersSyncedAt?: Date;
     selectedFolderIds?: string[];
+    linkedinProducts?: string[];
   }): Promise<ConnectedAccount | null>;
   abstract markAccountHasCalendarUnscoped(unipileAccountId: string): Promise<void>;
 }

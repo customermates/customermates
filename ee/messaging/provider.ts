@@ -36,13 +36,7 @@ export function isDeterministicProvider(provider: MessagingProvider): boolean {
   return DETERMINISTIC_PROVIDERS.includes(provider);
 }
 
-const HANDLE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "telegram", "instagram"];
-
-export const MANUAL_CHANNEL_PROVIDERS: ReadonlyArray<MessagingProvider> = [
-  "mail",
-  ...PHONE_PROVIDERS,
-  ...HANDLE_PROVIDERS,
-];
+export const HANDLE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "telegram", "instagram"];
 
 export function isHandleProvider(provider: MessagingProvider): boolean {
   return HANDLE_PROVIDERS.includes(provider);
@@ -52,6 +46,19 @@ const SOCIAL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["linkedin", "instagr
 
 export function isSocialProvider(provider: MessagingProvider): boolean {
   return SOCIAL_PROVIDERS.includes(provider);
+}
+
+export const LINKEDIN_PRODUCTS = ["classic", "sales_navigator", "recruiter"] as const;
+export type LinkedinProduct = (typeof LINKEDIN_PRODUCTS)[number];
+
+export const LINKEDIN_PRODUCT_PRIMARY_INBOX: Record<LinkedinProduct, string> = {
+  classic: "CLASSIC_PRIMARY",
+  sales_navigator: "SALES_NAVIGATOR_PRIMARY",
+  recruiter: "RECRUITER_PRIMARY",
+};
+
+export function deriveLinkedinProducts(inboxIds: string[]): LinkedinProduct[] {
+  return LINKEDIN_PRODUCTS.filter((product) => inboxIds.includes(LINKEDIN_PRODUCT_PRIMARY_INBOX[product]));
 }
 
 export function isUsableSenderFor(

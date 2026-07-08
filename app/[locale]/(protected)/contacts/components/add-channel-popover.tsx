@@ -1,150 +1,162 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, Loader2, Plus } from "lucide-react";
+import { Command as CommandPrimitive } from "cmdk";
+import { Plus, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { AppForm } from "@/components/forms/form-context";
-import { FormInput } from "@/components/forms/form-input";
-import { FormSelect } from "@/components/forms/form-select";
-import { iconButtonClass, iconButtonIconClass } from "@/components/ui/icon-button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { MANUAL_CHANNEL_PROVIDERS } from "@/ee/messaging/provider";
+import type { MessagingProvider } from "@/generated/prisma";
+
+import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+
+const SOURCE_HINT_KEYS = {
+  conversation: "EntityChannels.addChannel.sourceConversations",
+  contact: "EntityChannels.addChannel.sourceContacts",
+  lookup: "EntityChannels.addChannel.sourceLookup",
+} as const;
 
 export const AddChannelPopover = observer(({ contactId }: { contactId: string }) => {
   const t = useTranslations();
   const { addChannelStore: store } = useRootStore();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     store.setContactId(contactId);
     store.reset();
   }, [store, contactId]);
 
-  const showFooterDivider = store.manualMode || store.isSearching || store.query.trim().length >= 2;
+  useEffect(() => {
+    if (!store.open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) store.setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [store, store.open]);
+
+  const candidates = store.mergedCandidates;
+  const addAsNewOptions = store.addAsNewOptions;
+  const value = store.query.trim();
+  const busy = store.isSearching || store.isResolving;
+  const hasResults = candidates.length > 0 || addAsNewOptions.length > 0;
+  const showList = store.open && (busy || hasResults || value.length >= 2);
+  const showEmpty = !busy && value.length >= 2 && !hasResults;
+
+  const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${provider}`);
 
   return (
-    <Popover open={store.open} onOpenChange={store.setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <PopoverTrigger aria-label={t("EntityChannels.addChannel.trigger")} className={iconButtonClass}>
-            <Plus aria-hidden className={iconButtonIconClass} />
-          </PopoverTrigger>
-        </TooltipTrigger>
+    <CommandPrimitive ref={containerRef} className="relative" shouldFilter={false}>
+      <div className="border-border bg-card focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
+        <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
 
-        <TooltipContent>{t("EntityChannels.addChannel.trigger")}</TooltipContent>
-      </Tooltip>
+        <CommandPrimitive.Input
+          aria-label={t("EntityChannels.addChannel.trigger")}
+          className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
+          placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
+          value={store.query}
+          onClick={() => store.setOpen(true)}
+          onFocus={() => store.setOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              store.setOpen(false);
+              event.currentTarget.blur();
+            } else if (event.key === "Tab") store.setOpen(false);
+          }}
+          onValueChange={(next) => {
+            store.setOpen(true);
+            store.setQuery(next);
+          }}
+        />
+      </div>
 
-      <PopoverContent align="start" className="flex w-80 flex-col overflow-hidden p-0">
-        {store.manualMode ? (
-          <AppForm className="flex flex-col gap-2 p-3" store={store}>
-            <FormSelect
-              id="provider"
-              items={MANUAL_CHANNEL_PROVIDERS.map((p) => {
-                const ProviderIcon = getProviderIcon(p);
-                return {
-                  value: p,
-                  label: t(`Common.providers.${p}`),
-                  startContent: <ProviderIcon className="size-4 shrink-0" />,
-                };
-              })}
-              label={null}
-              onValueChange={store.changeProvider}
-            />
+      {showList && (
+        <div className="bg-popover text-popover-foreground absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-md border shadow-md">
+          <CommandList>
+            {busy && candidates.length === 0 && (
+              <div className="text-muted-foreground py-3 text-center text-sm">
+                {t("EntityChannels.addChannel.searching")}
+              </div>
+            )}
 
-            <FormInput
-              autoFocus
-              id="value"
-              label={null}
-              placeholder={t(`EntityChannels.addChannel.placeholder.${store.form.provider}`)}
-            />
+            {showEmpty && <CommandEmpty>{t("EntityChannels.addChannel.noResults")}</CommandEmpty>}
 
-            <Button className="self-end" disabled={store.isLoading} size="sm" type="submit">
-              {store.isLoading && <Loader2 className="size-4 animate-spin" />}
+            {candidates.length > 0 && (
+              <CommandGroup>
+                {candidates.map(({ candidate, source }) => {
+                  const ProviderIcon = getProviderIcon(candidate.provider);
+                  const channelLabel = channelDisplayLabel(candidate.provider, candidate.value, candidate.profileUrl);
+                  const primary = candidate.displayName || channelLabel;
+                  const showLabel = Boolean(
+                    candidate.displayName && channelLabel && channelLabel !== candidate.displayName,
+                  );
+                  return (
+                    <CommandItem
+                      key={`${candidate.provider}:${candidate.value}`}
+                      value={`${candidate.provider}:${candidate.value}`}
+                      onSelect={() => void store.selectCandidate(candidate)}
+                    >
+                      <ProviderIcon className="size-5 shrink-0" />
 
-              {t("EntityChannels.addChannel.add")}
-            </Button>
-          </AppForm>
-        ) : (
-          <Command className="rounded-none" shouldFilter={false}>
-            <CommandInput
-              autoFocus
-              placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
-              value={store.query}
-              onValueChange={store.setQuery}
-            />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{primary}</p>
 
-            <CommandList>
-              {store.isSearching && (
-                <div className="text-muted-foreground py-3 text-center text-sm">
-                  {t("EntityChannels.addChannel.searching")}
-                </div>
-              )}
+                        <p className="text-muted-foreground truncate text-xs">
+                          {showLabel ? channelLabel : t(SOURCE_HINT_KEYS[source])}
+                        </p>
+                      </div>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            )}
 
-              {!store.isSearching && store.query.trim().length >= 2 && store.candidates.length === 0 && (
-                <CommandEmpty>{t("EntityChannels.addChannel.noResults")}</CommandEmpty>
-              )}
+            {addAsNewOptions.length === 1 && (
+              <CommandGroup>
+                <CommandItem
+                  key={`add:${addAsNewOptions[0]}`}
+                  value={`add:${addAsNewOptions[0]}`}
+                  onSelect={() => void store.addAsNew(addAsNewOptions[0])}
+                >
+                  <Plus className="size-5 shrink-0" />
 
-              {store.candidates.length > 0 && (
-                <CommandGroup>
-                  {store.candidates.map((candidate) => {
-                    const ProviderIcon = getProviderIcon(candidate.provider);
-                    const channelLabel = channelDisplayLabel(candidate.provider, candidate.value, candidate.profileUrl);
+                  <span className="min-w-0 flex-1 truncate text-sm">
+                    {t("EntityChannels.addChannel.addAs", { value, provider: providerLabel(addAsNewOptions[0]) })}
+                  </span>
+                </CommandItem>
+              </CommandGroup>
+            )}
+
+            {addAsNewOptions.length > 1 && (
+              <div className="border-border flex items-center gap-2 border-t px-3 py-2">
+                <span className="text-muted-foreground shrink-0 text-xs">
+                  {t("EntityChannels.addChannel.addAsLabel")}
+                </span>
+
+                <div className="flex items-center gap-1">
+                  {addAsNewOptions.map((provider) => {
+                    const ProviderIcon = getProviderIcon(provider);
                     return (
-                      <CommandItem
-                        key={`${candidate.provider}:${candidate.value}`}
-                        value={`${candidate.provider}:${candidate.value}`}
-                        onSelect={() => void store.linkCandidate(candidate)}
+                      <button
+                        key={provider}
+                        aria-label={providerLabel(provider)}
+                        className="hover:bg-accent flex size-8 items-center justify-center rounded-md transition-[background-color,transform] active:scale-[0.97] motion-reduce:transition-none"
+                        type="button"
+                        onClick={() => void store.addAsNew(provider)}
                       >
-                        <ProviderIcon className="size-5 shrink-0" />
-
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{candidate.displayName ?? channelLabel}</p>
-
-                          {channelLabel && channelLabel !== candidate.displayName && (
-                            <p className="text-muted-foreground truncate text-xs">{channelLabel}</p>
-                          )}
-                        </div>
-                      </CommandItem>
+                        <ProviderIcon className="size-5" />
+                      </button>
                     );
                   })}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        )}
-
-        <div className={cn("flex items-center px-3 py-2", showFooterDivider && "border-border border-t")}>
-          {store.manualMode ? (
-            <button
-              className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-[11px] transition-colors"
-              type="button"
-              onClick={() => store.setManualMode(false)}
-            >
-              <ChevronLeft className="size-3.5" />
-
-              {t("Common.actions.back")}
-            </button>
-          ) : (
-            <button
-              className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-[11px] transition-colors"
-              type="button"
-              onClick={() => store.setManualMode(true)}
-            >
-              <Plus className="size-3.5" />
-
-              {t("EntityChannels.addChannel.manualHeading")}
-            </button>
-          )}
+                </div>
+              </div>
+            )}
+          </CommandList>
         </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </CommandPrimitive>
   );
 });

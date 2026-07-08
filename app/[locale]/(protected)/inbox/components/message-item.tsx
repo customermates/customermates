@@ -26,6 +26,7 @@ type Props = {
   message: MessagingMessageDto;
   accountOwner: AccountOwnerDto | null;
   senderAvatarUrl?: string | null;
+  isMine: boolean;
 };
 
 function hasLoadableRemoteImages(html: string): boolean {
@@ -47,7 +48,7 @@ function hasLoadableRemoteImages(html: string): boolean {
   });
 }
 
-export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }: Props) => {
+export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, isMine }: Props) => {
   const t = useTranslations();
   const {
     intlStore,
@@ -80,14 +81,17 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
     );
   }
 
-  const sender = deriveMessageSender(message, accountOwner, senderAvatarUrl, t);
+  const sender = deriveMessageSender(message, accountOwner, senderAvatarUrl, isMine, t);
   const resolvedName = sender.resolvedName;
+  const avatarName = sender.avatarName;
   const pictureUrl = sender.avatarUrl;
 
   const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
   const inlineHtml = !isEmail && !isDeleted ? message.bodyHtml : null;
   const isUnsupportedBody = isUnipileUnsupportedBody(message.bodyText);
   const displayText = isUnsupportedBody ? null : message.bodyText;
+  const chatSubject =
+    !isEmail && !isDeleted && message.provider === "linkedin" ? message.subject?.trim() || null : null;
 
   const reactionTotals = new Map<string, number>();
   for (const r of message.reactions) reactionTotals.set(r.value, (reactionTotals.get(r.value) ?? 0) + 1);
@@ -95,7 +99,13 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
   const hasAttachments = message.attachmentsMeta.length > 0;
   const hasReactions = reactionTotals.size > 0;
   const showUnsupported =
-    !hasAttachments && !hasReactions && !inlineHtml && !displayText && !isEmail && pendingFiles.length === 0;
+    !hasAttachments &&
+    !hasReactions &&
+    !inlineHtml &&
+    !displayText &&
+    !chatSubject &&
+    !isEmail &&
+    pendingFiles.length === 0;
   const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
   const recipientRows = (
     [
@@ -128,7 +138,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
         type="button"
         onClick={() => threadParticipantsStore.setOpen(true)}
       >
-        <Avatar name={resolvedName} size="lg" src={pictureUrl} title={avatarTooltip} />
+        <Avatar name={avatarName} size="lg" src={pictureUrl} title={avatarTooltip} />
       </button>
 
       <div
@@ -171,13 +181,15 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl }:
             </>
           ) : showUnsupported ? (
             <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.attachmentUnsupported")}</div>
-          ) : inlineHtml || displayText ? (
+          ) : inlineHtml || displayText || chatSubject ? (
             <div className={cn("px-3.5 pt-2 pb-1 leading-relaxed wrap-anywhere", fullBleedMedia && "w-min min-w-full")}>
+              {chatSubject && <div className="pb-0.5 font-medium">{chatSubject}</div>}
+
               {inlineHtml ? (
                 <SanitizedHtml className="prose-sm max-w-none wrap-anywhere [&_a]:underline" html={inlineHtml} />
-              ) : (
-                <MessageText text={displayText ?? ""} />
-              )}
+              ) : displayText ? (
+                <MessageText text={displayText} />
+              ) : null}
             </div>
           ) : null}
 

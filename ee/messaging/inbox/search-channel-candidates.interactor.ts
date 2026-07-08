@@ -14,6 +14,7 @@ const OutputSchema = z.object({
   value: z.string(),
   displayName: z.string().nullable(),
   profileUrl: z.string().nullable(),
+  messagingId: z.string().nullable(),
 });
 export type ChannelCandidateDto = Data<typeof OutputSchema>;
 

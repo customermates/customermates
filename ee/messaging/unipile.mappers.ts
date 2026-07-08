@@ -36,7 +36,7 @@ function canonicalChatIdentifier(parts: {
   id?: string | null;
 }): string {
   const phoneDigits = parts.phone?.replace(/[^\d]/g, "");
-  if (phoneDigits) return phoneDigits;
+  if (phoneDigits) return `+${phoneDigits}`;
 
   const fallback = parts.publicIdentifier?.trim() || parts.providerId?.trim() || parts.id?.trim() || "";
 

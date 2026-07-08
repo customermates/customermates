@@ -9,52 +9,82 @@ pricing:
   users: Nutzer
   monthly: Monatlich
   yearly: Jährlich
+  yearlySavings: 2 Monate geschenkt
+  footnote: "Verbundene Konten sind die E-Mail- und Messaging-Konten (Gmail, Outlook, LinkedIn, WhatsApp und mehr), die dein Team mit dem Posteingang verknüpft. Weitere Konten lassen sich jederzeit hinzubuchen."
   pricingCards:
-  - title: Free
-    description: Perfekt zum Ausprobieren
-    price: Kostenlos
-    priceSubtext: für 7 Tage
-    buttonText: Kostenlos starten
+  - title: Starter
+    description: Dein KI-CRM
+    price: "12"
+    monthlyPrice: 12
+    annualPrice: 10
+    priceSubtext: EUR/Monat
+    priceNote: jährliche Abrechnung
+    buttonText: Kostenlos testen
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - Voller Pro-Zugang für 7 Tage
-      - Keine Kreditkarte erforderlich
-      - Jederzeit kündbar
+      - Kontakte, Deals, Aufgaben & Unternehmen
+      - Custom Fields, Rollen & Pipelines
+      - "KI-Assistent & MCP: verbinde Claude oder Codex"
+      - Webhooks & API
+      - Audit-Log
   - title: Pro
-    description: CRM-Basis für moderne Teams
-    badge: Empfohlen
-    price: "7"
+    description: CRM + zentraler Posteingang
+    price: "29"
+    monthlyPrice: 29
+    annualPrice: 24
     priceSubtext: EUR/Monat
-    buttonText: Kostenlos starten
+    priceNote: jährliche Abrechnung
+    buttonText: Kostenlos testen
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Alles aus Starter
+      - "Zentraler Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
+      - 1 verbundenes Konto pro Nutzer inklusive (weitere je 9€/Monat)
+      - Kalender-Synchronisation
+      - Nachrichtenvorlagen & Textbausteine
+      - Vollständiger Kontaktverlauf über alle Kanäle
+      - Höhere KI-Limits
+  - title: Business
+    description: Für Teams
+    badge: Beliebteste Wahl
+    price: "59"
+    monthlyPrice: 59
+    annualPrice: 49
+    priceSubtext: EUR/Monat
+    priceNote: jährliche Abrechnung
+    buttonText: Kostenlos testen
     buttonHref: /auth/signup
     buttonColor: primary
     buttonVariant: shadow
     shadow: md
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
-      - Unbegrenzte Nutzer
-      - Unbegrenzte Kontakte & Organisationen
-      - Deals, Services & Aufgaben
-      - Teamrollen und Rechte
-      - Audit Logging
-      - Single Sign-On
-      - API und n8n-Automatisierung
+      - Alles aus Pro
+      - 3 verbundene Konten pro Nutzer inklusive (weitere je 8€/Monat)
+      - Geteilte Team-Postfächer & Zuweisung
+      - Rollen & granulare Rechte
+      - Erweiterte Automatisierung & Sequenzen
+      - Analysen & Team-Reporting
+      - Massenaktionen & gespeicherte Ansichten
+      - Onboarding- & Migrationshilfe
       - Priorisierter Support
   - title: Enterprise
-    description: Individuelle Lösungen für große Teams
+    description: Skalierung & Compliance
     price: Individuell
     buttonText: Kontakt aufnehmen
     buttonHref: mailto:sales@customermates.com?subject=Anfrage%20Enterprise%20Plan
     buttonColor: primary
     buttonVariant: solid
     features:
-      - Alles aus Pro
-      - Whitelabeling
-      - Individuelle Integrationen
-      - Dedizierter Support
-      - SLA-Garantie
+      - Alles aus Business
+      - Single Sign-On
+      - White-Label
+      - Unbegrenzte verbundene Konten (Fair Use)
+      - Dedizierter Support & individuelle Konditionen
 
 comparison:
   header: Pläne vergleichen

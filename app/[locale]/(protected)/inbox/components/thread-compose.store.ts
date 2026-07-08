@@ -1,6 +1,7 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import type { RootStore } from "@/core/stores/root.store";
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
+import type { LinkedinProduct } from "@/ee/messaging/provider";
 import type { $ZodErrorTree } from "zod/v4/core";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
@@ -35,6 +36,8 @@ type ThreadComposeForm = {
   subject: string;
   cc: string[];
   bcc: string[];
+  linkedinProduct: LinkedinProduct;
+  inmailSignature: string;
 };
 
 export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
@@ -56,6 +59,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       subject: "",
       cc: [],
       bcc: [],
+      linkedinProduct: "classic",
+      inmailSignature: "",
     });
 
     makeObservable(this, {
@@ -66,6 +71,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       pendingAttachments: observable,
       newThreadTarget: observable,
       isEmail: computed,
+      isLinkedin: computed,
       isNewThread: computed,
       toggleCcBcc: action,
       addAttachments: action,
@@ -121,6 +127,10 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     return this.form.provider ? isEmailProvider(this.form.provider) : false;
   }
 
+  get isLinkedin(): boolean {
+    return this.form.provider === "linkedin";
+  }
+
   toggleCcBcc = () => {
     this.showCcBcc = !this.showCcBcc;
   };
@@ -148,11 +158,15 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       subject,
       cc: [],
       bcc: [],
+      linkedinProduct: "classic",
+      inmailSignature: "",
     });
   };
 
   setNewThreadAccount = (connectedAccountId: string) => {
     if (this.newThreadTarget) this.newThreadTarget = { ...this.newThreadTarget, connectedAccountId };
+    this.form.linkedinProduct = "classic";
+    this.form.inmailSignature = "";
   };
 
   initializeNewThread = (init: {
@@ -180,6 +194,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       subject: "",
       cc: [],
       bcc: [],
+      linkedinProduct: "classic",
+      inmailSignature: "",
     });
   };
 
@@ -327,10 +343,22 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
             attendeeIdentifiers: [target.recipientIdentifier],
             text: this.form.body,
             attachments,
+            ...(this.isLinkedin && this.form.linkedinProduct !== "classic"
+              ? {
+                  linkedinProduct: this.form.linkedinProduct,
+                  inmailSubject: this.form.subject.trim() || undefined,
+                  inmailSignature:
+                    this.form.linkedinProduct === "recruiter"
+                      ? this.form.inmailSignature.trim() || undefined
+                      : undefined,
+                }
+              : {}),
           });
 
       if (!result.ok) {
-        this.setError(this.toComposeError(result.error));
+        const tree = this.toComposeError(result.error);
+        this.setError(tree);
+        if (!toastZodErrorTree(tree)) this.toastError("Common.notifications.unexpectedError");
         return;
       }
 
@@ -340,6 +368,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.form.subject = "";
         this.form.cc = [];
         this.form.bcc = [];
+        this.form.linkedinProduct = "classic";
+        this.form.inmailSignature = "";
         this.attachments = [];
       });
 
@@ -354,10 +384,17 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   private toComposeError(error: unknown): $ZodErrorTree<ThreadComposeForm> {
     const tree = error as { properties?: Record<string, unknown> };
-    if (!tree?.properties?.text) return error as $ZodErrorTree<ThreadComposeForm>;
+    if (!tree?.properties?.text && !tree?.properties?.inmailSubject) return error as $ZodErrorTree<ThreadComposeForm>;
 
-    const properties: Record<string, unknown> = { ...tree.properties, body: tree.properties.text };
-    delete properties.text;
+    const properties: Record<string, unknown> = { ...tree.properties };
+    if (properties.text) {
+      properties.body = properties.text;
+      delete properties.text;
+    }
+    if (properties.inmailSubject) {
+      properties.subject = properties.inmailSubject;
+      delete properties.inmailSubject;
+    }
     return { ...tree, properties } as $ZodErrorTree<ThreadComposeForm>;
   }
 

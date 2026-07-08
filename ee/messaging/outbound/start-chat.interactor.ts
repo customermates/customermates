@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
-import type { MessagingService } from "../messaging.service";
+import type { MessagingService, StartChatSpecifics } from "../messaging.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
@@ -23,7 +23,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import { isHandleProvider } from "../provider";
+import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
@@ -31,11 +31,26 @@ import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 
+export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
+
 export const BaseStartChatInputSchema = z.object({
   connectedAccountId: z.uuid(),
   attendeeIdentifiers: z.array(z.string().min(1)).min(1),
   text: z.string().max(20_000),
-  subject: z.string().max(998).optional(),
+  chatName: z.string().max(998).optional().describe("Optional display name for the new chat (group chats)"),
+  linkedinProduct: LinkedinProductSchema.optional().describe(
+    "LinkedIn only: which product to send from. classic (default), sales_navigator or recruiter start the chat from that product's inbox; the two latter send an InMail and require inmailSubject (recruiter also inmailSignature)",
+  ),
+  inmail: z
+    .boolean()
+    .optional()
+    .describe("LinkedIn classic only: send as InMail to message people outside your network (uses InMail credit)"),
+  inmailSubject: z
+    .string()
+    .max(998)
+    .optional()
+    .describe("Subject line of the InMail. Required for sales_navigator and recruiter"),
+  inmailSignature: z.string().max(998).optional().describe("Sender signature. Required for recruiter"),
   attachments: z.array(SendAttachmentSchema).max(20).optional(),
 });
 
@@ -45,6 +60,20 @@ export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx
       code: "custom",
       params: { error: CustomErrorCode.messageContentRequired },
       path: ["text"],
+    });
+  }
+  if ((d.linkedinProduct === "sales_navigator" || d.linkedinProduct === "recruiter") && !d.inmailSubject?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.inmailSubjectRequired },
+      path: ["inmailSubject"],
+    });
+  }
+  if (d.linkedinProduct === "recruiter" && !d.inmailSignature?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.inmailSignatureRequired },
+      path: ["inmailSignature"],
     });
   }
 });
@@ -77,7 +106,11 @@ type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }
   | { ok: false; error: string; retryAfterSeconds?: number };
 
-const PRIMARY_INBOX_ID = "CLASSIC_PRIMARY";
+const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
+  classic: "Classic",
+  sales_navigator: "Sales Navigator",
+  recruiter: "Recruiter",
+};
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
 export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, StartChatResult> {
@@ -114,13 +147,27 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       };
     }
 
+    const product = data.linkedinProduct ?? "classic";
+    const inboxId = await this.resolveInboxId(account, product);
+
+    if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId) {
+      const t = await getTranslations();
+      return {
+        ok: false,
+        error: createZodError<StartChatResult>(
+          t("Common.errors.linkedinInboxUnavailable", { product: PRODUCT_LABEL[product] }),
+        ),
+      };
+    }
+
     const res = await this.messagingService.startChat({
       accountId: account.unipileAccountId,
       usersIds: attendees.ids,
       text: data.text,
-      name: data.subject,
+      name: data.chatName,
       attachments: data.attachments,
-      inboxId: await this.resolveInboxId(account),
+      inboxId,
+      specifics: this.buildSpecifics(data),
     });
 
     if (!res.ok) {
@@ -146,7 +193,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
           origin: MessagingMessageOrigin.unipile,
           sender: { ...EMPTY_ATTENDEE, displayName: account.displayName, isSelf: true },
           recipients: { to: attendees.attendees, cc: [], bcc: [] },
-          subject: data.subject ?? null,
+          subject: product === "classic" ? null : (data.inmailSubject ?? null),
           bodyText: data.text,
           bodyHtml: null,
           attachmentsMeta: [],
@@ -169,6 +216,25 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
 
   private async precheck(data: StartChatData, ctx: z.RefinementCtx) {
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
+    if (account.provider !== MessagingProvider.linkedin) {
+      if (data.linkedinProduct || data.inmail || data.inmailSubject || data.inmailSignature) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.linkedinProductRequiresLinkedin },
+          path: ["linkedinProduct"],
+        });
+      }
+    } else if (
+      data.linkedinProduct &&
+      account.linkedinProducts.length > 0 &&
+      !account.linkedinProducts.includes(data.linkedinProduct)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.linkedinProductUnavailable },
+        path: ["linkedinProduct"],
+      });
+    }
     data.attendeeIdentifiers.forEach((raw, index) => {
       const normalized = normalizeChannelValue(account.provider, raw);
       if (!normalized) {
@@ -183,7 +249,19 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     });
   }
 
-  private async resolveInboxId(account: ConnectedAccount): Promise<string | undefined> {
+  private buildSpecifics(data: StartChatData): StartChatSpecifics | undefined {
+    if (data.linkedinProduct === "sales_navigator" && data.inmailSubject)
+      return { linkedin: { sales_navigator: { subject: data.inmailSubject } } };
+
+    if (data.linkedinProduct === "recruiter" && data.inmailSubject && data.inmailSignature)
+      return { linkedin: { recruiter: { subject: data.inmailSubject, signature: data.inmailSignature } } };
+
+    if (data.inmail) return { linkedin: { classic: { inmail: true } } };
+
+    return undefined;
+  }
+
+  private async resolveInboxId(account: ConnectedAccount, product: LinkedinProduct): Promise<string | undefined> {
     if (account.provider !== MessagingProvider.linkedin) return undefined;
 
     const items = await this.messagingService
@@ -197,7 +275,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       if (parsed.success && parsed.data.disabled !== true) inboxIds.push(parsed.data.id);
     }
 
-    return inboxIds.find((id) => id === PRIMARY_INBOX_ID) ?? inboxIds.sort()[0];
+    return inboxIds.find((id) => id === LINKEDIN_PRODUCT_PRIMARY_INBOX[product]);
   }
 
   private plainAttendees(identifiers: string[]): ResolvedAttendees {

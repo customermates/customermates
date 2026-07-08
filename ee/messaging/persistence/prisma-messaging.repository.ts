@@ -44,7 +44,7 @@ import {
   threadFolderMembershipWhere,
   threadHasActivityWhere,
 } from "../messaging-access";
-import { channelClass, classWhere, isEmailProvider } from "../provider";
+import { channelClass, classWhere, isEmailProvider, isHandleProvider } from "../provider";
 import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 type MappedThreadRow = ReturnType<PrismaMessagingRepo["mapThreadRow"]>;
@@ -72,7 +72,10 @@ export class PrismaMessagingRepo
       where: {
         companyId: this.companyId,
         isSelf: false,
-        displayName: { contains: query, mode: "insensitive" },
+        OR: [
+          { displayName: { contains: query, mode: "insensitive" } },
+          { identifier: { contains: query, mode: "insensitive" } },
+        ],
         thread: threadAccessWhere(this.companyId, this.userId),
       },
       select: {
@@ -80,6 +83,7 @@ export class PrismaMessagingRepo
         identifier: true,
         displayName: true,
         profileUrl: true,
+        providerUserId: true,
       },
       take: 50,
     });
@@ -88,7 +92,7 @@ export class PrismaMessagingRepo
     const candidates: ChannelCandidateDto[] = [];
     for (const row of rows) {
       if (!row.identifier) continue;
-      const key = `${row.provider}:${row.identifier}`;
+      const key = `${channelClass(row.provider)}:${row.identifier}`;
       if (seen.has(key)) continue;
       seen.add(key);
       candidates.push({
@@ -96,6 +100,7 @@ export class PrismaMessagingRepo
         value: row.identifier,
         displayName: row.displayName,
         profileUrl: row.profileUrl,
+        messagingId: isHandleProvider(row.provider) ? (row.providerUserId ?? null) : null,
       });
       if (candidates.length >= 10) break;
     }

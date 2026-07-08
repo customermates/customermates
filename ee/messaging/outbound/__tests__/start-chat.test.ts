@@ -25,13 +25,22 @@ import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
 const WHATSAPP_NUMBER = "+49 176 56945421";
-const NORMALIZED_NUMBER = "4917656945421";
+const NORMALIZED_NUMBER = "+4917656945421";
 
 const linkedinAccount = {
   id: ACCOUNT_ID,
   unipileAccountId: "acc-1",
   provider: MessagingProvider.linkedin,
   displayName: "Me",
+  linkedinProducts: ["classic", "sales_navigator", "recruiter"],
+} as never;
+
+const classicOnlyAccount = {
+  id: ACCOUNT_ID,
+  unipileAccountId: "acc-1",
+  provider: MessagingProvider.linkedin,
+  displayName: "Me",
+  linkedinProducts: ["classic"],
 } as never;
 
 const whatsappAccount = {
@@ -39,6 +48,7 @@ const whatsappAccount = {
   unipileAccountId: "acc-1",
   provider: MessagingProvider.whatsapp,
   displayName: "Me",
+  linkedinProducts: [],
 } as never;
 
 function makeInteractor(account: unknown, service: any, threadRepo: any = { persistOutboundMessageOrThrow: vi.fn() }) {
@@ -115,6 +125,195 @@ describe("StartChatInteractor inbox routing", () => {
   });
 });
 
+describe("StartChatInteractor linkedin products", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const productInboxes = {
+    data: [
+      { object: "Inbox", id: "CLASSIC_PRIMARY", disabled: false },
+      { object: "Inbox", id: "SALES_NAVIGATOR_PRIMARY", disabled: false },
+      { object: "Inbox", id: "RECRUITER_PRIMARY", disabled: false },
+    ],
+  };
+
+  it("sends a sales navigator inmail through SALES_NAVIGATOR_PRIMARY with the subject specifics", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue(productInboxes),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      linkedinProduct: "sales_navigator",
+      inmailSubject: "New business opportunity",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(service.startChat).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inboxId: "SALES_NAVIGATOR_PRIMARY",
+        specifics: { linkedin: { sales_navigator: { subject: "New business opportunity" } } },
+      }),
+    );
+  });
+
+  it("sends a recruiter inmail through RECRUITER_PRIMARY with subject and signature specifics", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue(productInboxes),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      linkedinProduct: "recruiter",
+      inmailSubject: "Open to work?",
+      inmailSignature: "Benjamin Wagner",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(service.startChat).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inboxId: "RECRUITER_PRIMARY",
+        specifics: { linkedin: { recruiter: { subject: "Open to work?", signature: "Benjamin Wagner" } } },
+      }),
+    );
+  });
+
+  it("sends a classic inmail through CLASSIC_PRIMARY with the inmail flag", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue(productInboxes),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      inmail: true,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(service.startChat).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inboxId: "CLASSIC_PRIMARY",
+        specifics: { linkedin: { classic: { inmail: true } } },
+      }),
+    );
+  });
+
+  it("never falls back to another inbox when the product inbox is missing", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue({
+        data: [{ object: "Inbox", id: "CLASSIC_PRIMARY", disabled: false }],
+      }),
+      startChat: vi.fn(),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      linkedinProduct: "sales_navigator",
+      inmailSubject: "New business opportunity",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.issues.some((issue: any) => issue.message === "Common.errors.linkedinInboxUnavailable")).toBe(
+      true,
+    );
+    expect(service.startChat).not.toHaveBeenCalled();
+  });
+
+  it("rejects a product the account does not have", async () => {
+    const service = { listInboxes: vi.fn(), startChat: vi.fn() };
+
+    const result: any = await makeInteractor(classicOnlyAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      linkedinProduct: "sales_navigator",
+      inmailSubject: "New business opportunity",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.linkedinProductUnavailable),
+    ).toBe(true);
+    expect(service.startChat).not.toHaveBeenCalled();
+  });
+
+  it("allows a product the account has (does not reject on availability)", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue(productInboxes),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+    };
+
+    const result: any = await makeInteractor(classicOnlyAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects an inmail without a subject at validation", async () => {
+    const service = { listInboxes: vi.fn(), startChat: vi.fn() };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      linkedinProduct: "sales_navigator",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.inmailSubjectRequired),
+    ).toBe(true);
+    expect(service.startChat).not.toHaveBeenCalled();
+  });
+
+  it("rejects linkedin product options on a non-linkedin account", async () => {
+    const service = { listInboxes: vi.fn(), startChat: vi.fn() };
+
+    const result: any = await makeInteractor(whatsappAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: [WHATSAPP_NUMBER],
+      text: "hello there",
+      linkedinProduct: "sales_navigator",
+      inmailSubject: "New business opportunity",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.linkedinProductRequiresLinkedin),
+    ).toBe(true);
+    expect(service.startChat).not.toHaveBeenCalled();
+  });
+
+  it("sends a plain classic chat without specifics by default", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue(productInboxes),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(service.startChat.mock.calls[0][0].inboxId).toBe("CLASSIC_PRIMARY");
+    expect(service.startChat.mock.calls[0][0].specifics).toBeUndefined();
+  });
+});
+
 describe("StartChatInteractor persistence", () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -141,6 +340,27 @@ describe("StartChatInteractor persistence", () => {
     expect(call.message.direction).toBe(MessagingMessageDirection.outbound);
     expect(call.message.recipients.to).toHaveLength(1);
     expect(call.message.recipients.to[0].identifier).toBe(NORMALIZED_NUMBER);
+  });
+
+  it("does not persist a subject for a classic send even when inmailSubject is supplied", async () => {
+    const service = {
+      listInboxes: vi.fn().mockResolvedValue({ data: [{ object: "Inbox", id: "CLASSIC_PRIMARY", disabled: false }] }),
+      startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: "chat_1", messageId: "msg_1" } }),
+    };
+    const threadRepo = {
+      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ messagingThreadId: THREAD_ID }),
+    };
+
+    const result: any = await makeInteractor(linkedinAccount, service, threadRepo).invoke({
+      connectedAccountId: ACCOUNT_ID,
+      attendeeIdentifiers: ["ada-lovelace"],
+      text: "hello there",
+      inmailSubject: "phantom",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(service.startChat.mock.calls[0][0].specifics).toBeUndefined();
+    expect(threadRepo.persistOutboundMessageOrThrow.mock.calls[0][0].message.subject).toBeNull();
   });
 
   it("returns a null thread id without persisting when the provider reports no chat id", async () => {

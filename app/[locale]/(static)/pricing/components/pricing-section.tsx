@@ -10,17 +10,15 @@ import { PricingCardComponent } from "./pricing-card";
 
 type Props = Pricing;
 
-const MONTHLY_PER_USER = 9;
-const YEARLY_MONTHLY_EQUIVALENT_PER_USER = 7;
-const YEARLY_DISCOUNT_PERCENT = Math.round((1 - YEARLY_MONTHLY_EQUIVALENT_PER_USER / MONTHLY_PER_USER) * 100);
-
 export function PricingSection({
   ariaLabelSlider,
   ariaLabelTabs,
+  footnote,
   monthly,
   pricingCards: mdxPricingCards,
   users,
   yearly,
+  yearlySavings,
 }: Props) {
   const [userCount, setUserCount] = useState(1);
   const [isAnnual, setIsAnnual] = useState(true);
@@ -30,7 +28,7 @@ export function PricingSection({
     <>
       {yearly}
 
-      <span className="ml-1 text-x-xs font-bold">{`-${YEARLY_DISCOUNT_PERCENT}%`}</span>
+      {yearlySavings && <span className="ml-1 text-x-xs font-bold">{yearlySavings}</span>}
     </>
   );
 
@@ -76,15 +74,17 @@ export function PricingSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto justify-center items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto justify-center items-stretch">
         {mdxPricingCards.map((card, index) => {
-          const hasDynamicPrice = card.title.toLowerCase() === "pro";
-          const perUserPerMonth = isAnnual ? YEARLY_MONTHLY_EQUIVALENT_PER_USER : MONTHLY_PER_USER;
-          const displayPrice = hasDynamicPrice ? `${userCount * perUserPerMonth}` : card.price;
+          const perUserPerMonth = isAnnual ? card.annualPrice : card.monthlyPrice;
+          const displayPrice = perUserPerMonth != null ? `${userCount * perUserPerMonth}` : card.price;
+          const priceNote = perUserPerMonth != null && isAnnual ? card.priceNote : undefined;
 
-          return <PricingCardComponent key={index} card={card} displayPrice={displayPrice} />;
+          return <PricingCardComponent key={index} card={card} displayPrice={displayPrice} priceNote={priceNote} />;
         })}
       </div>
+
+      {footnote && <p className="mx-auto mt-6 max-w-3xl text-center text-x-xs text-muted-foreground">{footnote}</p>}
     </>
   );
 }

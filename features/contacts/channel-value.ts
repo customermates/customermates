@@ -2,7 +2,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { z } from "zod";
 
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
+import { HANDLE_PROVIDERS, isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
 
 const HANDLE_URL_PATTERNS: Partial<Record<MessagingProvider, RegExp>> = {
   linkedin: /linkedin\.com\/in\/([^/?#]+)/i,
@@ -11,6 +11,7 @@ const HANDLE_URL_PATTERNS: Partial<Record<MessagingProvider, RegExp>> = {
 };
 
 const HANDLE_CHARSET = /^[\w.@+=-]{1,160}$/;
+const PHONE_CHARSET = /^\+?[\d\s\-()]{6,}$/;
 
 export function parseChannelHandle(provider: MessagingProvider, raw: string): string {
   const value = raw.trim();
@@ -26,10 +27,26 @@ export function normalizeChannelValue(provider: MessagingProvider, raw: string):
   if (isEmailProvider(provider)) return z.email().safeParse(value).success ? value.toLowerCase() : null;
 
   if (isPhoneProvider(provider)) {
-    const digits = value.replace(/[^\d]/g, "");
-    return z.e164().safeParse(`+${digits}`).success ? digits : null;
+    const e164 = `+${value.replace(/[^\d]/g, "")}`;
+    return z.e164().safeParse(e164).success ? e164 : null;
   }
 
   const handle = parseChannelHandle(provider, value);
   return HANDLE_CHARSET.test(handle) ? handle : null;
+}
+
+export function inferChannelProviders(input: string): MessagingProvider[] {
+  const value = input.trim();
+  if (!value) return [];
+
+  if (z.email().safeParse(value).success) return ["mail"];
+
+  for (const [provider, pattern] of Object.entries(HANDLE_URL_PATTERNS))
+    if (pattern.test(value)) return [provider as MessagingProvider];
+
+  if (PHONE_CHARSET.test(value) && z.e164().safeParse(`+${value.replace(/[^\d]/g, "")}`).success) return ["whatsapp"];
+
+  if (HANDLE_CHARSET.test(value.replace(/^@/, ""))) return [...HANDLE_PROVIDERS];
+
+  return [];
 }

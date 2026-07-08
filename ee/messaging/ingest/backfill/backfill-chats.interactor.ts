@@ -16,7 +16,6 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { isExcludedChatId, mapParticipantRecord, mapUnipileUser, normalizeChatMessage } from "../../chat-normalize";
-import { buildChatAttendee } from "../../unipile.mappers";
 import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
@@ -244,27 +243,11 @@ export class BackfillChatsInteractor {
       return [];
     }
 
-    const attendee = chat.user ? mapUnipileUser(chat.user) : this.oneToOneAttendeeFromChat(chat);
-    if (!attendee) return [];
+    if (!chat.user) return [];
+
+    const attendee = mapUnipileUser(chat.user);
 
     return [{ ...attendee, isSelf: isSelfAccount(account, attendee.identifier) }];
-  }
-
-  private oneToOneAttendeeFromChat(chat: UnipileChat): MessagingAttendee | null {
-    const providerId = chat.user_id && chat.user_id !== "undefined" ? chat.user_id : chat.id;
-    if (!providerId) return null;
-
-    return buildChatAttendee({
-      id: providerId,
-      name: chat.name ?? null,
-      phone: null,
-      publicIdentifier: chat.id,
-      providerId,
-      pictureUrl: chat.image_url ?? null,
-      profileUrl: null,
-      headline: null,
-      occupation: null,
-    });
   }
 
   private async fetchParticipants(account: ConnectedAccount, chatId: string): Promise<MessagingAttendee[]> {

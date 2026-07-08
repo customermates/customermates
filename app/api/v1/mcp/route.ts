@@ -28,6 +28,12 @@ import {
   getSocialProfileTool,
   manageSocialRelationsTool,
 } from "@/features/mcp-tools/social-posts.mcp-tools";
+import {
+  searchSalesLeadsTool,
+  searchSalesCompaniesTool,
+  getSalesSearchParametersTool,
+  manageSalesListsTool,
+} from "@/features/mcp-tools/sales-navigator.mcp-tools";
 import { searchDocsTool, getDocsPageTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { searchTool, fetchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
 import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
@@ -67,7 +73,16 @@ const TOOL_GROUPS: Record<string, McpTool[]> = {
     discardMessageDraftTool,
     updateMessagingThreadTool,
   ],
-  social: [getSocialPostsTool, getSocialPostEngagementTool, getSocialProfileTool, manageSocialRelationsTool],
+  social: [
+    getSocialPostsTool,
+    getSocialPostEngagementTool,
+    getSocialProfileTool,
+    manageSocialRelationsTool,
+    searchSalesLeadsTool,
+    searchSalesCompaniesTool,
+    getSalesSearchParametersTool,
+    manageSalesListsTool,
+  ],
   docs: [searchDocsTool, getDocsPageTool],
   "custom-columns": [manageCustomColumnsTool],
   widgets: [manageWidgetsTool],

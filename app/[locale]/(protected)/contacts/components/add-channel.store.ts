@@ -1,57 +1,67 @@
-import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { ChannelCandidateDto } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
+import type { ContactDto } from "@/features/contacts/contact.schema";
 import type { IdentifierInput } from "@/features/contacts/contact.schema";
 
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
-import { MessagingProvider, Resource } from "@/generated/prisma";
+import type { MessagingProvider } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
-import { checkChannelConflictAction, searchChannelCandidatesAction } from "../actions";
+import { checkChannelConflictAction, getContactsAction, searchChannelCandidatesAction } from "../actions";
 import { resolveProviderProfileAction } from "../../inbox/actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { isHandleProvider } from "@/ee/messaging/provider";
-import { parseChannelHandle } from "@/features/contacts/channel-value";
-import { Debouncer } from "@/core/utils/debounce";
+import { channelClass, isHandleProvider } from "@/ee/messaging/provider";
+import { inferChannelProviders, normalizeChannelValue, parseChannelHandle } from "@/features/contacts/channel-value";
+import { Debouncer, SEARCH_DEBOUNCE_MS } from "@/core/utils/debounce";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 const MIN_QUERY_LENGTH = 2;
+const LOOKUP_DEBOUNCE_MS = 600;
 
-type ManualChannelForm = { provider: MessagingProvider; value: string };
+type CandidateSource = "conversation" | "contact" | "lookup";
+type TaggedCandidate = { candidate: ChannelCandidateDto; source: CandidateSource };
+const SOURCE_PRIORITY: Record<CandidateSource, number> = { lookup: 0, contact: 1, conversation: 2 };
 
-const INITIAL: ManualChannelForm = {
-  provider: MessagingProvider.mail,
-  value: "",
-};
+type AddChannelForm = { value: string };
 
-export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
+function channelKey(provider: MessagingProvider, value: string): string {
+  return `${channelClass(provider)}:${value}`;
+}
+
+export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   open = false;
   query = "";
-  candidates: ChannelCandidateDto[] = [];
+  candidates: TaggedCandidate[] = [];
+  liveCandidate: TaggedCandidate | null = null;
   isSearching = false;
-  manualMode = false;
+  isResolving = false;
   contactId: string | undefined = undefined;
 
-  private debouncer = new Debouncer();
+  private searchDebouncer = new Debouncer(SEARCH_DEBOUNCE_MS);
+  private lookupDebouncer = new Debouncer(LOOKUP_DEBOUNCE_MS);
 
   constructor(rootStore: RootStore) {
-    super(rootStore, { ...INITIAL }, Resource.contacts);
+    super(rootStore, { value: "" }, Resource.contacts);
 
     makeObservable(this, {
       open: observable,
       query: observable,
       candidates: observable,
+      liveCandidate: observable,
       isSearching: observable,
-      manualMode: observable,
+      isResolving: observable,
       contactId: observable,
+      contactChannelKeys: computed,
+      mergedCandidates: computed,
+      addAsNewOptions: computed,
       reset: action,
       setOpen: action,
       setQuery: action,
-      setManualMode: action,
       setContactId: action,
-      changeProvider: action,
-      linkCandidate: action,
-      onSubmit: action,
+      selectCandidate: action,
+      addAsNew: action,
     });
   }
 
@@ -64,70 +74,90 @@ export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
     if (!next) this.reset();
   };
 
-  setManualMode = (next: boolean) => {
-    this.setError(undefined);
-    this.manualMode = next;
-    if (next) {
-      this.query = "";
-      this.candidates = [];
-      this.isSearching = false;
-      this.debouncer.cancel();
-      this.onInitOrRefresh({ ...INITIAL });
-    }
-  };
+  get contactChannelKeys(): Set<string> {
+    return new Set(this.rootStore.contactDetailStore.channels.map((c) => channelKey(c.provider, c.value)));
+  }
 
-  changeProvider = (provider: string) => {
-    this.onChange("provider", provider);
-    this.onChange("value", "");
-    this.setError(undefined);
-  };
+  get mergedCandidates(): TaggedCandidate[] {
+    const contactKeys = this.contactChannelKeys;
+    const byKey = new Map<string, TaggedCandidate>();
+    for (const tagged of [...this.candidates, ...(this.liveCandidate ? [this.liveCandidate] : [])]) {
+      const key = channelKey(tagged.candidate.provider, tagged.candidate.value);
+      if (contactKeys.has(key)) continue;
+      const existing = byKey.get(key);
+      if (!existing || SOURCE_PRIORITY[tagged.source] < SOURCE_PRIORITY[existing.source]) byKey.set(key, tagged);
+    }
+    return [...byKey.values()];
+  }
+
+  get addAsNewOptions(): MessagingProvider[] {
+    const contactKeys = this.contactChannelKeys;
+    const candidateKeys = new Set(
+      this.mergedCandidates.map((t) => channelKey(t.candidate.provider, t.candidate.value)),
+    );
+    return inferChannelProviders(this.query).filter((provider) => {
+      const value = normalizeChannelValue(provider, this.query);
+      if (!value) return false;
+      const key = channelKey(provider, value);
+      return !candidateKeys.has(key) && !contactKeys.has(key);
+    });
+  }
 
   setQuery = (value: string) => {
     this.query = value;
-    this.debouncer.cancel();
+    this.searchDebouncer.cancel();
+    this.lookupDebouncer.cancel();
 
-    if (value.trim().length < MIN_QUERY_LENGTH) {
+    const trimmed = value.trim();
+    if (trimmed.length < MIN_QUERY_LENGTH) {
       this.candidates = [];
+      this.liveCandidate = null;
       this.isSearching = false;
+      this.isResolving = false;
       return;
     }
 
     this.isSearching = true;
-    this.debouncer.run(() => void this.refresh());
+    this.searchDebouncer.run(() => void this.refreshLocal());
+
+    if (this.singleHandleProvider(trimmed)) {
+      this.isResolving = true;
+      this.lookupDebouncer.run(() => void this.refreshLive());
+    } else {
+      this.liveCandidate = null;
+      this.isResolving = false;
+    }
   };
 
-  linkCandidate = async (candidate: ChannelCandidateDto): Promise<void> => {
-    const messagingId = isHandleProvider(candidate.provider) ? candidate.value : undefined;
+  selectCandidate = async (candidate: ChannelCandidateDto): Promise<void> => {
+    const messagingId = candidate.messagingId ?? (isHandleProvider(candidate.provider) ? candidate.value : undefined);
 
     const conflict = await checkChannelConflictAction({
       provider: candidate.provider,
       value: candidate.value,
-      messagingId,
+      messagingId: messagingId ?? undefined,
       contactId: this.contactId,
     });
     if (!conflict.ok) {
-      this.setError(conflict.error);
+      toastZodErrorTree(conflict.error);
       return;
     }
 
     this.rootStore.contactDetailStore.addChannel({
       provider: candidate.provider,
       value: candidate.value,
-      messagingId,
+      messagingId: messagingId ?? undefined,
       displayName: candidate.displayName ?? undefined,
       profileUrl: candidate.profileUrl ?? undefined,
     });
     this.close();
   };
 
-  onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
-    event?.preventDefault();
-    const provider = this.form.provider;
-    const raw = this.form.value.trim();
+  addAsNew = async (provider: MessagingProvider): Promise<void> => {
     if (this.isLoading) return;
+    const raw = this.query.trim();
 
     this.setIsLoading(true);
-    this.setError(undefined);
     try {
       let input: IdentifierInput = { provider, value: raw };
 
@@ -149,7 +179,7 @@ export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
             };
           }
         }
-      }
+      } else input = { provider, value: normalizeChannelValue(provider, raw) ?? raw };
 
       const conflict = await checkChannelConflictAction({
         provider: input.provider,
@@ -158,7 +188,7 @@ export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
         contactId: this.contactId,
       });
       if (!conflict.ok) {
-        this.setError(conflict.error);
+        toastZodErrorTree(conflict.error);
         return;
       }
 
@@ -169,6 +199,90 @@ export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
     }
   };
 
+  private singleHandleProvider(query: string): MessagingProvider | null {
+    const providers = inferChannelProviders(query);
+    return providers.length === 1 && isHandleProvider(providers[0]) ? providers[0] : null;
+  }
+
+  private refreshLocal = async (): Promise<void> => {
+    const requested = this.query.trim();
+    if (requested.length < MIN_QUERY_LENGTH) return;
+
+    const [participants, contacts] = await Promise.all([
+      searchChannelCandidatesAction({ query: requested }),
+      getContactsAction({ searchTerm: requested, pagination: { page: 1, pageSize: 10 } }),
+    ]);
+
+    runInAction(() => {
+      if (this.query.trim() !== requested) return;
+      this.candidates = [
+        ...this.contactCandidates(contacts.items, requested),
+        ...participants.map((candidate): TaggedCandidate => ({ source: "conversation", candidate })),
+      ];
+      this.isSearching = false;
+    });
+  };
+
+  private refreshLive = async (): Promise<void> => {
+    const requested = this.query.trim();
+    const provider = this.singleHandleProvider(requested);
+    if (!provider) {
+      runInAction(() => (this.isResolving = false));
+      return;
+    }
+
+    await this.rootStore.connectedAccountsStore.ensureLoaded();
+    const [account] = this.rootStore.connectedAccountsStore.usableSendersFor(provider);
+    if (!account) {
+      runInAction(() => {
+        if (this.query.trim() === requested) this.liveCandidate = null;
+        this.isResolving = false;
+      });
+      return;
+    }
+
+    const handle = parseChannelHandle(provider, requested);
+    const resolved = await resolveProviderProfileAction({ connectedAccountId: account.id, identifier: handle });
+
+    runInAction(() => {
+      if (this.query.trim() !== requested) return;
+      this.isResolving = false;
+      if (!resolved.ok) return;
+      this.liveCandidate = {
+        source: "lookup",
+        candidate: {
+          provider,
+          value: resolved.data.publicIdentifier ?? handle,
+          displayName: resolved.data.displayName ?? null,
+          profileUrl: resolved.data.profileUrl ?? null,
+          messagingId: resolved.data.providerId,
+        },
+      };
+    });
+  };
+
+  private contactCandidates(contacts: ContactDto[], query: string): TaggedCandidate[] {
+    const needle = query.toLowerCase();
+    const valueQuery = inferChannelProviders(query).length > 0;
+    const out: TaggedCandidate[] = [];
+    for (const contact of contacts) {
+      for (const identifier of contact.identifiers) {
+        if (valueQuery && !identifier.value.toLowerCase().includes(needle)) continue;
+        out.push({
+          source: "contact",
+          candidate: {
+            provider: identifier.provider,
+            value: identifier.value,
+            displayName: identifier.displayName,
+            profileUrl: identifier.profileUrl,
+            messagingId: identifier.messagingId,
+          },
+        });
+      }
+    }
+    return out;
+  }
+
   private close = () => {
     runInAction(() => {
       this.open = false;
@@ -176,26 +290,15 @@ export class AddChannelStore extends BaseFormStore<ManualChannelForm> {
     });
   };
 
-  private refresh = async (): Promise<void> => {
-    const requestedQuery = this.query.trim();
-    if (requestedQuery.length < MIN_QUERY_LENGTH) return;
-
-    const results = await searchChannelCandidatesAction({
-      query: requestedQuery,
-    });
-    runInAction(() => {
-      if (this.query.trim() !== requestedQuery) return;
-      this.candidates = results;
-      this.isSearching = false;
-    });
-  };
-
   reset = () => {
+    this.open = false;
     this.query = "";
     this.candidates = [];
+    this.liveCandidate = null;
     this.isSearching = false;
-    this.manualMode = false;
-    this.debouncer.cancel();
-    this.onInitOrRefresh({ ...INITIAL });
+    this.isResolving = false;
+    this.searchDebouncer.cancel();
+    this.lookupDebouncer.cancel();
+    this.onInitOrRefresh({ value: "" });
   };
 }

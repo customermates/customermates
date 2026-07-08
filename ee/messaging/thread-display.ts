@@ -185,21 +185,26 @@ export function deriveMessageSender(
   message: { sender: MessagingAttendee; provider: MessagingProvider; direction: string },
   accountOwner: { displayName: string; avatarUrl: string | null } | null,
   senderAvatarUrl: string | null | undefined,
+  isMine: boolean,
   t: (key: string, values?: Record<string, string | number>) => string,
 ): {
   resolvedName: string;
+  avatarName: string;
   avatarUrl: string | undefined;
   isUnlinked: boolean;
   isOutbound: boolean;
 } {
   const isOutbound = message.direction === "outbound";
-  const resolvedName = isOutbound ? t("Inbox.senderYou") : messageSenderName(message) || t("Inbox.senderUnknown");
-  const avatarUrl =
-    message.sender.contact?.avatarUrl ??
-    senderAvatarUrl ??
-    message.sender.pictureUrl ??
-    (isOutbound ? (accountOwner?.avatarUrl ?? undefined) : undefined);
+  const senderLabel = messageSenderName(message);
+  const accountName = senderLabel || accountOwner?.displayName?.trim() || t("Inbox.senderUnknown");
+  const resolvedName = isOutbound
+    ? isMine
+      ? t("Inbox.senderYou")
+      : accountName
+    : senderLabel || t("Inbox.senderUnknown");
+  const avatarName = isOutbound ? accountName : senderLabel || t("Inbox.senderUnknown");
+  const avatarUrl = message.sender.contact?.avatarUrl ?? senderAvatarUrl ?? message.sender.pictureUrl ?? undefined;
   const isUnlinked = !isOutbound && isAttendeeUnlinked(message.sender);
 
-  return { resolvedName, avatarUrl: avatarUrl ?? undefined, isUnlinked, isOutbound };
+  return { resolvedName, avatarName, avatarUrl: avatarUrl ?? undefined, isUnlinked, isOutbound };
 }

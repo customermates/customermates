@@ -31,4 +31,18 @@ describe("normalizeChatMessage", () => {
 
     expect(msg?.editedAt).toBeNull();
   });
+  it("captures the inmail subject from message specifics", () => {
+    const msg = normalizeChatMessage(
+      v2Message({ specifics: { subject: "New business opportunity" } }),
+      MessagingProvider.linkedin,
+    );
+
+    expect(msg?.subject).toBe("New business opportunity");
+  });
+
+  it("leaves the subject null when specifics carry none", () => {
+    const msg = normalizeChatMessage(v2Message(), MessagingProvider.linkedin);
+
+    expect(msg?.subject).toBeNull();
+  });
 });

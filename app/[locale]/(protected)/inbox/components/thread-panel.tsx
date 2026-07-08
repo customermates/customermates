@@ -85,6 +85,7 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
 
                 <MessageItem
                   accountOwner={accountOwners[message.connectedAccountId] ?? null}
+                  isMine={thread.isOwner}
                   message={message}
                   senderAvatarUrl={
                     message.sender.identifier ? avatarByIdentifier.get(message.sender.identifier) : undefined

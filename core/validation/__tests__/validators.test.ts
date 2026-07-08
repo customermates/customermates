@@ -546,8 +546,8 @@ describe("normalizeChannelValue", () => {
     expect(normalizeChannelValue(MessagingProvider.mail, "not-an-email")).toBeNull();
   });
 
-  it("normalizes a whatsapp number to bare digits", () => {
-    expect(normalizeChannelValue(MessagingProvider.whatsapp, "+49 170 1234567")).toBe("491701234567");
+  it("normalizes a whatsapp number to e164", () => {
+    expect(normalizeChannelValue(MessagingProvider.whatsapp, "+49 170 1234567")).toBe("+491701234567");
   });
 
   it("returns null for a too-short whatsapp number", () => {

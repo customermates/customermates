@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4000/api",
+      "url": "https://customermates.tailf11599.ts.net/api",
       "description": "API Server"
     }
   ],
@@ -30258,6 +30258,2684 @@
         }
       }
     },
+    "/v1/messaging/sales-navigator/search": {
+      "post": {
+        "operationId": "searchSalesNavigator",
+        "summary": "Run a Sales Navigator search from a URL",
+        "description": "Executes a LinkedIn Sales Navigator search from a pasted search URL through a connected LinkedIn account and returns the result rows page by page (offset pagination). Requires the connected account to have a Sales Navigator subscription.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of Sales Navigator search results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "member_id": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "display_name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_identifier": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profile_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_picture_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "summary": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "industry": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "network_distance": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "can_send_inmail": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "shared_relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "has_been_saved": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "current_positions": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "company": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "role": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "additionalProperties": {}
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/search/people": {
+      "post": {
+        "operationId": "searchSalesPeople",
+        "summary": "Search Sales Navigator people (leads)",
+        "description": "Runs a structured LinkedIn Sales Navigator people search through a connected LinkedIn account. Filters take parameter ids resolved via the search-parameters endpoint (location, industry, company, job title, and more) plus native enums like seniority and company headcount. Returns lead rows page by page (offset pagination, LinkedIn caps a single search at 2500 results). Requires the connected account to have a Sales Navigator subscription.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "filters": {
+                    "type": "object",
+                    "properties": {
+                      "keywords": {
+                        "type": "string"
+                      },
+                      "load_saved_search": {
+                        "description": "Runs a saved search (id from parameter type SAVED_PEOPLE_SEARCH). Overrides all other filters",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "last_viewed_at": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "load_recent_search": {
+                        "description": "Runs a recent search (id from parameter type RECENT_SEARCH). Overrides all other filters",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "current_company": {
+                        "description": "Parameter ids of type COMPANY or ACCOUNT_LIST",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "past_company": {
+                        "description": "Parameter ids of type COMPANY or ACCOUNT_LIST",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "company_headcount": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                51,
+                                201,
+                                501,
+                                1001,
+                                5001,
+                                10001
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                0,
+                                10,
+                                200,
+                                500,
+                                1000,
+                                5000,
+                                10000
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "company_type": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "PUBLIC_COMPANY",
+                            "PRIVATELY_HELD",
+                            "NON_PROFIT",
+                            "EDUCATIONAL_INSTITUTION",
+                            "PARTNERSHIP",
+                            "SELF_EMPLOYED",
+                            "SELF_OWNED",
+                            "GOVERNMENT_AGENCY"
+                          ]
+                        }
+                      },
+                      "company_location": {
+                        "description": "Parameter ids of type LOCATION",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "function": {
+                        "description": "Parameter ids of type JOB_FUNCTION",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "current_job_title": {
+                        "description": "Parameter ids of type JOB_TITLE",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "past_job_title": {
+                        "description": "Parameter ids of type JOB_TITLE",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "seniority": {
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "OWNER/PARTNER",
+                                "CXO",
+                                "VICE_PRESIDENT",
+                                "DIRECTOR",
+                                "EXPERIENCED_MANAGER",
+                                "ENTRY_LEVEL_MANAGER",
+                                "STRATEGIC",
+                                "SENIOR",
+                                "ENTRY_LEVEL",
+                                "IN_TRAINING"
+                              ]
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "OWNER/PARTNER",
+                                "CXO",
+                                "VICE_PRESIDENT",
+                                "DIRECTOR",
+                                "EXPERIENCED_MANAGER",
+                                "ENTRY_LEVEL_MANAGER",
+                                "STRATEGIC",
+                                "SENIOR",
+                                "ENTRY_LEVEL",
+                                "IN_TRAINING"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "years_in_company": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                3,
+                                6,
+                                10
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                2,
+                                5,
+                                10
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "years_in_position": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                3,
+                                6,
+                                10
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                2,
+                                5,
+                                10
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "years_of_experience": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                3,
+                                6,
+                                10
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                2,
+                                5,
+                                10
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "location": {
+                        "description": "Parameter ids of type LOCATION",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "postal_code": {
+                        "description": "Parameter ids of type POSTAL_CODE",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "radius": {
+                            "description": "Distance radius in miles",
+                            "type": "number",
+                            "enum": [
+                              1,
+                              5,
+                              10,
+                              25,
+                              35,
+                              50,
+                              75,
+                              100
+                            ]
+                          }
+                        }
+                      },
+                      "industry": {
+                        "description": "Parameter ids of type INDUSTRY",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "first_name": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "last_name": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "profile_language": {
+                        "description": "Parameter ids of type PROFILE_LANGUAGE",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "group": {
+                        "description": "Parameter ids of type GROUP",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "school": {
+                        "description": "Parameter ids of type SCHOOL",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "following_your_company": {
+                        "type": "boolean"
+                      },
+                      "viewed_your_profile_recently": {
+                        "type": "boolean"
+                      },
+                      "network_distance": {
+                        "description": "1 first degree, 2 second, 3 third+, GROUP shared group members",
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            1,
+                            2,
+                            3,
+                            "GROUP"
+                          ]
+                        }
+                      },
+                      "connections_of": {
+                        "description": "Parameter ids of type RELATION",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "past_colleague": {
+                        "type": "boolean"
+                      },
+                      "shared_experiences": {
+                        "type": "boolean"
+                      },
+                      "changed_jobs": {
+                        "type": "boolean"
+                      },
+                      "posted_on_linkedin": {
+                        "type": "boolean"
+                      },
+                      "persona": {
+                        "description": "Parameter ids of type PERSONA",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "account_list": {
+                        "description": "Parameter ids of type ACCOUNT_LIST",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "lead_list": {
+                        "description": "Parameter ids of type LEAD_LIST",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "recent_interaction": {
+                        "type": "object",
+                        "properties": {
+                          "viewed_profile": {
+                            "type": "boolean"
+                          },
+                          "messaged": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "saved_resources": {
+                        "type": "object",
+                        "properties": {
+                          "saved_leads": {
+                            "type": "boolean"
+                          },
+                          "saved_accounts": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of Sales Navigator people search results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "member_id": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "display_name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_identifier": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profile_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_picture_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "summary": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "industry": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "network_distance": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "can_send_inmail": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "shared_relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "has_been_saved": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "current_positions": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "company": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "role": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "additionalProperties": {}
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/search/companies": {
+      "post": {
+        "operationId": "searchSalesCompanies",
+        "summary": "Search Sales Navigator companies (accounts)",
+        "description": "Runs a structured LinkedIn Sales Navigator company search through a connected LinkedIn account. Filters take parameter ids resolved via the search-parameters endpoint (location, industry, account lists) plus native ranges like headcount, annual revenue and spotlights. Returns company rows page by page (offset pagination, LinkedIn caps a single company search at 1000 results). Requires the connected account to have a Sales Navigator subscription.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "filters": {
+                    "type": "object",
+                    "properties": {
+                      "keywords": {
+                        "type": "string"
+                      },
+                      "load_saved_search": {
+                        "description": "Runs a saved search (id from parameter type SAVED_COMPANY_SEARCH). Overrides all other filters",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "last_viewed_at": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "load_recent_search": {
+                        "description": "Runs a recent search (id from parameter type RECENT_SEARCH). Overrides all other filters",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      },
+                      "annual_revenue": {
+                        "description": "Revenue range in millions",
+                        "type": "object",
+                        "properties": {
+                          "min": {
+                            "type": "number",
+                            "enum": [
+                              0,
+                              0.5,
+                              1,
+                              2.5,
+                              5,
+                              10,
+                              20,
+                              50,
+                              100,
+                              500,
+                              1000
+                            ]
+                          },
+                          "max": {
+                            "type": "number",
+                            "enum": [
+                              0.5,
+                              1,
+                              2.5,
+                              5,
+                              10,
+                              20,
+                              50,
+                              100,
+                              500,
+                              1000
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "currency"
+                        ]
+                      },
+                      "headcount": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                51,
+                                201,
+                                501,
+                                1001,
+                                5001,
+                                10001
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                0,
+                                10,
+                                200,
+                                500,
+                                1000,
+                                5000,
+                                10000
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "headcount_growth": {
+                        "description": "Growth range in percent",
+                        "type": "object",
+                        "properties": {
+                          "min": {
+                            "type": "number"
+                          },
+                          "max": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "min",
+                          "max"
+                        ]
+                      },
+                      "location": {
+                        "description": "Parameter ids of type LOCATION",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "postal_code": {
+                        "description": "Parameter ids of type POSTAL_CODE",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "industry": {
+                        "description": "Parameter ids of type INDUSTRY",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "followers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                1,
+                                51,
+                                101,
+                                1001,
+                                5001
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                50,
+                                100,
+                                1000,
+                                5000
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "department_headcount": {
+                        "description": "department is a parameter id of type JOB_FUNCTION",
+                        "type": "object",
+                        "properties": {
+                          "min": {
+                            "type": "number"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "department": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "min",
+                          "max",
+                          "department"
+                        ]
+                      },
+                      "department_headcount_growth": {
+                        "description": "department is a parameter id of type JOB_FUNCTION",
+                        "type": "object",
+                        "properties": {
+                          "min": {
+                            "type": "number"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "department": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "min",
+                          "max",
+                          "department"
+                        ]
+                      },
+                      "fortune": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "min": {
+                              "type": "number",
+                              "enum": [
+                                51,
+                                101,
+                                251
+                              ]
+                            },
+                            "max": {
+                              "type": "number",
+                              "enum": [
+                                50,
+                                100,
+                                250,
+                                500
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "spotlights": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "HIRING_ON_LINKEDIN",
+                            "RECENT_LEADERSHIP_CHANGE",
+                            "RECENT_FUNDING_EVENTS",
+                            "FIRST_DEGREE_CONNECTIONS"
+                          ]
+                        }
+                      },
+                      "saved_accounts": {
+                        "description": "Include all your saved accounts in the results",
+                        "type": "boolean"
+                      },
+                      "account_list": {
+                        "description": "Parameter ids of type ACCOUNT_LIST",
+                        "type": "object",
+                        "properties": {
+                          "include": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "exclude": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of Sales Navigator company search results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "display_name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_identifier": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profile_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_picture_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "industry": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "summary": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headcount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "specialties": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "website": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "founded_on": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "is_hiring_on_linkedin": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "has_been_saved": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "is_starred": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/search/parameters": {
+      "post": {
+        "operationId": "listSalesSearchParameters",
+        "summary": "List Sales Navigator search parameters",
+        "description": "Resolves the parameter ids used by the Sales Navigator people and company search filters. Pass a type (LOCATION, INDUSTRY, JOB_TITLE, COMPANY, LEAD_LIST, ACCOUNT_LIST and more) and optional keywords to look up matching ids with display names. LEAD_LIST and ACCOUNT_LIST also resolve existing list ids by name.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "COMPANY",
+                      "ACCOUNT_LIST",
+                      "LEAD_LIST",
+                      "LOCATION",
+                      "POSTAL_CODE",
+                      "JOB_FUNCTION",
+                      "JOB_TITLE",
+                      "INDUSTRY",
+                      "GROUP",
+                      "SCHOOL",
+                      "RELATION",
+                      "PERSONA",
+                      "SAVED_PEOPLE_SEARCH",
+                      "SAVED_COMPANY_SEARCH",
+                      "RECENT_SEARCH",
+                      "PROFILE_LANGUAGE"
+                    ]
+                  },
+                  "keywords": {
+                    "type": "string"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of search parameters (id and display name).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/lists/search": {
+      "post": {
+        "operationId": "listSalesLists",
+        "summary": "List Sales Navigator lists",
+        "description": "Lists the Sales Navigator lead lists (kind leads, default) or account lists (kind accounts) of a connected LinkedIn account. Lists can only be created in the Sales Navigator UI; the API reads and fills existing lists.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "kind": {
+                    "default": "leads",
+                    "type": "string",
+                    "enum": [
+                      "leads",
+                      "accounts"
+                    ]
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of Sales Navigator lists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "items_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "last_modified_at": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "last_viewed_at": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/lists/browse": {
+      "post": {
+        "operationId": "browseSalesList",
+        "summary": "Browse a Sales Navigator list",
+        "description": "Returns the leads (kind leads, default) or accounts (kind accounts) saved in a Sales Navigator list of a connected LinkedIn account, page by page (offset pagination).",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "kind": {
+                    "default": "leads",
+                    "type": "string",
+                    "enum": [
+                      "leads",
+                      "accounts"
+                    ]
+                  },
+                  "listId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 10,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "listId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A page of list members.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "object": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "member_id": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "display_name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_identifier": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "profile_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "public_picture_url": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "headline": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "summary": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "industry": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "network_distance": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "can_send_inmail": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "shared_relations_count": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "has_been_saved": {
+                            "anyOf": [
+                              {
+                                "anyOf": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "current_positions": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "company": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "role": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "additionalProperties": {}
+                                }
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "total_count": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/sales-navigator/lists/save": {
+      "post": {
+        "operationId": "saveToSalesList",
+        "summary": "Save a lead or account to a Sales Navigator list",
+        "description": "Saves a person (kind leads, providerId is the LinkedIn user id) or a company (kind accounts, providerId is the LinkedIn company id) to an existing Sales Navigator list on a connected LinkedIn account. New lists must be created in the Sales Navigator UI first.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connectedAccountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "kind": {
+                    "default": "leads",
+                    "type": "string",
+                    "enum": [
+                      "leads",
+                      "accounts"
+                    ]
+                  },
+                  "listId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "providerId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "connectedAccountId",
+                  "listId",
+                  "providerId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Confirmation that the item was saved to the list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/messaging/social-relations/search": {
       "post": {
         "operationId": "listRelationRequests",
@@ -41069,7 +43747,31 @@
             "type": "string",
             "maxLength": 20000
           },
-          "subject": {
+          "chatName": {
+            "description": "Optional display name for the new chat (group chats)",
+            "type": "string",
+            "maxLength": 998
+          },
+          "linkedinProduct": {
+            "description": "LinkedIn only: which product to send from. classic (default), sales_navigator or recruiter start the chat from that product's inbox; the two latter send an InMail and require inmailSubject (recruiter also inmailSignature)",
+            "type": "string",
+            "enum": [
+              "classic",
+              "sales_navigator",
+              "recruiter"
+            ]
+          },
+          "inmail": {
+            "description": "LinkedIn classic only: send as InMail to message people outside your network (uses InMail credit)",
+            "type": "boolean"
+          },
+          "inmailSubject": {
+            "description": "Subject line of the InMail. Required for sales_navigator and recruiter",
+            "type": "string",
+            "maxLength": 998
+          },
+          "inmailSignature": {
+            "description": "Sender signature. Required for recruiter",
             "type": "string",
             "maxLength": 998
           },
@@ -41573,6 +44275,13 @@
                 "type": "null"
               }
             ]
+          },
+          "linkedinProducts": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -41592,7 +44301,8 @@
           "isOwner",
           "folders",
           "selectedFolderIds",
-          "foldersSyncedAt"
+          "foldersSyncedAt",
+          "linkedinProducts"
         ],
         "additionalProperties": false
       },

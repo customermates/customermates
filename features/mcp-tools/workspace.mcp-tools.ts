@@ -28,8 +28,9 @@ export const getWorkspaceContextTool = {
   description:
     "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
     "Each role carries its full permission list; match roleId values from list_users against it. " +
-    "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt }; " +
-    "use the id as connectedAccountId for send_email and send_chat_message and check status before sending.",
+    "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
+    "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
+    "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: z.object({}),
   execute: async () => {

@@ -7,7 +7,9 @@ import { Send, Loader2, Check, ChevronDown, Paperclip, Smile } from "lucide-reac
 import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingProvider } from "@/generated/prisma";
+import type { LinkedinProduct } from "@/ee/messaging/provider";
 
+import { LINKEDIN_PRODUCTS } from "@/ee/messaging/provider";
 import { attachmentSubtitle, describeFile, downloadLocalFile } from "./attachment-classify";
 import { AttachmentRow } from "./attachment-row";
 import { AppChip } from "@/components/chip/app-chip";
@@ -68,6 +70,12 @@ const COMPOSER_EMOJIS = [
   "🤞",
 ];
 
+const LINKEDIN_PRODUCT_LABELS: Record<LinkedinProduct, string> = {
+  classic: "Classic",
+  sales_navigator: "Sales Navigator InMail",
+  recruiter: "Recruiter InMail",
+};
+
 type Props = {
   provider: MessagingProvider;
   threadId?: string;
@@ -120,11 +128,16 @@ export const ThreadReplyComposer = observer(
 
     if (!userStore.can(Resource.inboxMessages, Action.create)) return null;
 
-    const { isLoading, isEmail, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
+    const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, attachments } = threadComposeStore;
+    const linkedinProduct = threadComposeStore.form.linkedinProduct;
 
     const senders = isNewThread ? connectedAccountsStore.usableSendersFor(provider) : [];
     const activeSender =
       senders.find((account) => account.id === threadComposeStore.newThreadTarget?.connectedAccountId) ?? senders[0];
+    const senderProducts = activeSender?.linkedinProducts ?? [];
+    const availableProducts = senderProducts.length
+      ? LINKEDIN_PRODUCTS.filter((product) => senderProducts.includes(product))
+      : LINKEDIN_PRODUCTS;
     const senderLabel = (account: (typeof senders)[number]) => {
       const name = account.displayName?.trim();
       if (name && account.emailAddress && name !== account.emailAddress) return `${name} · ${account.emailAddress}`;
@@ -163,6 +176,64 @@ export const ThreadReplyComposer = observer(
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        )}
+
+        {isLinkedin && isNewThread && (
+          <>
+            {availableProducts.length > 1 && (
+              <div className="border-border/60 flex items-center gap-2 border-b px-3 py-1">
+                <span className="text-muted-foreground shrink-0 text-xs font-medium">{t("Inbox.compose.sendAs")}</span>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="focus-visible:ring-ring/50 min-w-0 rounded-md outline-none focus-visible:ring-[3px]"
+                      type="button"
+                    >
+                      <AppChip interactive endContent={<ChevronDown className="size-3" />} variant="secondary">
+                        {LINKEDIN_PRODUCT_LABELS[linkedinProduct]}
+                      </AppChip>
+                    </button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="start">
+                    {availableProducts.map((product) => (
+                      <DropdownMenuItem
+                        key={product}
+                        onSelect={() => threadComposeStore.onChange("linkedinProduct", product)}
+                      >
+                        <Check className={product === linkedinProduct ? "size-4" : "size-4 opacity-0"} />
+
+                        {LINKEDIN_PRODUCT_LABELS[product]}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+
+            {linkedinProduct !== "classic" && (
+              <>
+                <FormInput
+                  className="h-9 rounded-none border-0 bg-transparent px-3 text-sm shadow-none focus-visible:ring-0"
+                  containerClassName="border-border/60 w-full border-b"
+                  id="subject"
+                  label={null}
+                  placeholder={t("Inbox.compose.inmailSubjectPlaceholder")}
+                />
+
+                {linkedinProduct === "recruiter" && (
+                  <FormInput
+                    className="h-9 rounded-none border-0 bg-transparent px-3 text-sm shadow-none focus-visible:ring-0"
+                    containerClassName="border-border/60 w-full border-b"
+                    id="inmailSignature"
+                    label={null}
+                    placeholder={t("Inbox.compose.inmailSignaturePlaceholder")}
+                  />
+                )}
+              </>
+            )}
+          </>
         )}
 
         {isEmail && (

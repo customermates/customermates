@@ -10,12 +10,24 @@ import type {
   RelationRequestList,
   RelationRequestResult,
 } from "./posts/social-posts.schema";
+import type {
+  SalesCompanyFilters,
+  SalesCompanyPage,
+  SalesListItemPage,
+  SalesListKind,
+  SalesListPage,
+  SalesPeopleFilters,
+  SalesSearchParameterPage,
+  SalesSearchParameterType,
+  SaveToSalesListResult,
+} from "./sales-navigator/sales-navigator.schema";
 
 import {
   UnipileAccounts,
   UnipileCalendar,
   UnipileEmails,
   UnipileHostedAuth,
+  UnipileLinkedIn,
   UnipileMessaging,
   UnipilePosts,
   UnipileUsers,
@@ -39,12 +51,27 @@ import {
   RelationRequestListSchema,
   RelationRequestResultSchema,
 } from "./posts/social-posts.schema";
+import {
+  SalesCompanyPageSchema,
+  SalesListItemPageSchema,
+  SalesListPageSchema,
+  SalesSearchParameterPageSchema,
+  SaveToSalesListResultSchema,
+} from "./sales-navigator/sales-navigator.schema";
 
 const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
 const OUTBOUND_SEND_TIMEOUT_MS = 90_000;
 
 type MessageFile = { filename: string; content_type: string; content: string };
+
+export type StartChatSpecifics = {
+  linkedin: {
+    classic?: { inmail?: boolean };
+    sales_navigator?: { subject: string };
+    recruiter?: { subject: string; signature: string };
+  };
+};
 
 type EmailAttendee = { email: string; display_name?: string };
 
@@ -224,6 +251,7 @@ export class MessagingService {
     users: UnipileUsers;
     hostedAuth: UnipileHostedAuth;
     posts: UnipilePosts;
+    linkedin: UnipileLinkedIn;
   };
 
   private get sdk() {
@@ -246,6 +274,7 @@ export class MessagingService {
         users: new UnipileUsers({ client }),
         hostedAuth: new UnipileHostedAuth({ client }),
         posts: new UnipilePosts({ client }),
+        linkedin: new UnipileLinkedIn({ client }),
       };
     }
 
@@ -689,6 +718,7 @@ export class MessagingService {
     name?: string;
     attachments?: MessageFile[];
     inboxId?: string;
+    specifics?: StartChatSpecifics;
   }): Promise<MessagingSendResult<{ chatId: string | null; messageId: string | null }>> {
     try {
       const body = {
@@ -696,6 +726,7 @@ export class MessagingService {
         users_ids: input.usersIds,
         ...(input.name ? { name: input.name } : {}),
         ...(input.attachments ? { attachments: input.attachments } : {}),
+        ...(input.specifics ? { specifics: input.specifics } : {}),
       };
       const raw = await requestData(
         input.inboxId
@@ -968,6 +999,148 @@ export class MessagingService {
       );
 
       return { ok: true, data: RelationRequestResultSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listSalesLists(input: {
+    accountId: string;
+    kind: SalesListKind;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesListPage>> {
+    try {
+      const options = { path: { account_id: input.accountId }, query: { offset: input.offset, limit: input.limit } };
+      const raw = await (input.kind === "leads"
+        ? requestData(this.sdk.linkedin.getSalesLeadLists(options))
+        : requestData(this.sdk.linkedin.getSalesAccountLists(options)));
+
+      return { ok: true, data: SalesListPageSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async browseSalesList(input: {
+    accountId: string;
+    kind: SalesListKind;
+    listId: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesListItemPage>> {
+    try {
+      const options = {
+        path: { account_id: input.accountId, list_id: input.listId },
+        query: { offset: input.offset, limit: input.limit },
+      };
+      const raw = await (input.kind === "leads"
+        ? requestData(this.sdk.linkedin.browseSalesLeadList(options))
+        : requestData(this.sdk.linkedin.browseSalesAccountList(options)));
+
+      return { ok: true, data: SalesListItemPageSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async saveToSalesList(input: {
+    accountId: string;
+    kind: SalesListKind;
+    listId: string;
+    providerId: string;
+  }): Promise<MessagingSendResult<SaveToSalesListResult>> {
+    try {
+      const path = { account_id: input.accountId, list_id: input.listId };
+      const raw = await (input.kind === "leads"
+        ? requestData(this.sdk.linkedin.saveSalesLeadToList({ path, body: { user_id: input.providerId } }))
+        : requestData(this.sdk.linkedin.saveSalesAccountToList({ path, body: { company_id: input.providerId } })));
+
+      return { ok: true, data: SaveToSalesListResultSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async searchSalesNavigator(input: {
+    accountId: string;
+    url: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesListItemPage>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.performSalesSearchFromUrl({
+          path: { account_id: input.accountId },
+          query: { offset: input.offset, limit: input.limit },
+          body: { url: input.url },
+        }),
+      );
+
+      return { ok: true, data: SalesListItemPageSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async searchSalesPeople(input: {
+    accountId: string;
+    filters?: SalesPeopleFilters;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesListItemPage>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.performSalesPeopleSearch({
+          path: { account_id: input.accountId },
+          query: { offset: input.offset, limit: input.limit },
+          body: input.filters,
+        }),
+      );
+
+      return { ok: true, data: SalesListItemPageSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async searchSalesCompanies(input: {
+    accountId: string;
+    filters?: SalesCompanyFilters;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesCompanyPage>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.performSalesCompaniesSearch({
+          path: { account_id: input.accountId },
+          query: { offset: input.offset, limit: input.limit },
+          body: input.filters,
+        }),
+      );
+
+      return { ok: true, data: SalesCompanyPageSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listSalesSearchParameters(input: {
+    accountId: string;
+    type: SalesSearchParameterType;
+    keywords?: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<MessagingSendResult<SalesSearchParameterPage>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.getSalesSearchParameters({
+          path: { account_id: input.accountId },
+          query: { type: input.type, keywords: input.keywords, offset: input.offset, limit: input.limit },
+        }),
+      );
+
+      return { ok: true, data: SalesSearchParameterPageSchema.parse(raw) };
     } catch (err) {
       return this.mapError(err);
     }

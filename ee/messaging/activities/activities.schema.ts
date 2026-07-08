@@ -63,6 +63,7 @@ export const ActivityEntryDtoSchema = z.union([
     at: z.date(),
     message: MessagingMessageDtoSchema,
     thread: ActivityThreadRefSchema,
+    senderIsMine: z.boolean(),
   }),
   z.object({
     kind: z.literal("activity"),

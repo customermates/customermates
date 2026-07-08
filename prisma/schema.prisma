@@ -1160,6 +1160,7 @@ model ConnectedAccount {
   folders              Json                    @default("[]")
   selectedFolderIds    String[]                @default([])
   foldersSyncedAt      DateTime?
+  linkedinProducts     String[]                @default([])
   shared               Boolean                 @default(false)
   syncing              Boolean                 @default(false)
   providerSyncing      Boolean                 @default(false)

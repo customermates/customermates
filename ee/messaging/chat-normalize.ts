@@ -86,7 +86,7 @@ export function normalizeChatMessage(raw: UnipileMessage, provider: MessagingPro
     provider,
     direction: isOutbound ? MessagingMessageDirection.outbound : MessagingMessageDirection.inbound,
     origin: MessagingMessageOrigin.external,
-    subject: null,
+    subject: raw.specifics?.subject ?? null,
     bodyHtml: null,
     bodyText,
     sender: { ...sender, isSelf: isOutbound },

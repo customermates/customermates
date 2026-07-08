@@ -19,6 +19,8 @@ export const pricingCardSchema = z.object({
   description: z.string(),
   badge: z.string().optional(),
   price: z.string(),
+  monthlyPrice: z.number().optional(),
+  annualPrice: z.number().optional(),
   priceSubtext: z.string().optional(),
   priceNote: z.string().optional(),
   buttonText: z.string(),
@@ -34,10 +36,12 @@ export type PricingCard = z.infer<typeof pricingCardSchema>;
 export const pricingDataSchema = z.object({
   ariaLabelSlider: z.string(),
   ariaLabelTabs: z.string(),
+  footnote: z.string().optional(),
   monthly: z.string(),
   pricingCards: z.array(pricingCardSchema),
   users: z.string(),
   yearly: z.string(),
+  yearlySavings: z.string().optional(),
 });
 export type Pricing = z.infer<typeof pricingDataSchema>;
 
