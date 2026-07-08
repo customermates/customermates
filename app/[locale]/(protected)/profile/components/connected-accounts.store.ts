@@ -118,14 +118,19 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
   reconnect = async (id: string): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      await startReconnectAccountAction(id);
+      const res = await startReconnectAccountAction(id);
+      window.location.assign(res.data.url);
     });
   };
 
   connectAccount = async (): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await startConnectAccountAction();
-      if (res && !res.ok) toastZodErrorTree(res.error);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+      window.location.assign(res.data.url);
     });
   };
 

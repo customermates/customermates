@@ -68,14 +68,22 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
                   className="w-full sm:flex-1"
                   label={t("SignInForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
-                  onClick={() => void continueWithGoogleAction(callbackURL, "/auth/signin")}
+                  onClick={() =>
+                    void continueWithGoogleAction(callbackURL, "/auth/signin").then((res) => {
+                      if (res.data.url) window.location.assign(res.data.url);
+                    })
+                  }
                 />
 
                 <SignInProviderButton
                   className="w-full sm:flex-1"
                   label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
                   providerId="microsoft"
-                  onClick={() => void continueWithMicrosoftAction(callbackURL, "/auth/signin")}
+                  onClick={() =>
+                    void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
+                      if (res.data.url) window.location.assign(res.data.url);
+                    })
+                  }
                 />
               </div>
 

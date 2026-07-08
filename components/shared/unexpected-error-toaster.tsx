@@ -57,20 +57,36 @@ export function UnexpectedErrorToaster() {
   const handleApplicationError = useApplicationErrorHandler();
 
   useEffect(() => {
+    let navigatingAway = false;
+    const markNavigating = () => {
+      navigatingAway = true;
+    };
+    const clearNavigating = () => {
+      navigatingAway = false;
+    };
+
     function handlePromise(e: PromiseRejectionEvent) {
+      if (navigatingAway) return;
       handleApplicationError(e.reason);
     }
 
     function handleErrorEvent(e: ErrorEvent) {
+      if (navigatingAway) return;
       handleApplicationError(e.error || e.message);
     }
 
     window.addEventListener("unhandledrejection", handlePromise);
     window.addEventListener("error", handleErrorEvent);
+    window.addEventListener("beforeunload", markNavigating);
+    window.addEventListener("pagehide", markNavigating);
+    window.addEventListener("pageshow", clearNavigating);
 
     return () => {
       window.removeEventListener("unhandledrejection", handlePromise);
       window.removeEventListener("error", handleErrorEvent);
+      window.removeEventListener("beforeunload", markNavigating);
+      window.removeEventListener("pagehide", markNavigating);
+      window.removeEventListener("pageshow", clearNavigating);
     };
   }, [handleApplicationError]);
 

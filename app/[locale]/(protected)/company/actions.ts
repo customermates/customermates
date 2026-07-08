@@ -37,7 +37,8 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function createCheckoutSessionAction() {
-  return serializeResult(getCreateCheckoutSessionInteractor().invoke());
+  const result = await getCreateCheckoutSessionInteractor().invoke();
+  return { ok: true as const, data: { url: result.redirect } };
 }
 
 export async function refreshSubscriptionAction() {

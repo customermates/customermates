@@ -76,7 +76,11 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
                   className="w-full sm:flex-1"
                   label={t("SignUpForm.buttonLabel", { provider: "Google" })}
                   providerId="google"
-                  onClick={() => void continueWithGoogleAction(undefined, "/auth/signup")}
+                  onClick={() =>
+                    void continueWithGoogleAction(undefined, "/auth/signup").then((res) => {
+                      if (res.data.url) window.location.assign(res.data.url);
+                    })
+                  }
                 />
 
                 <SignInProviderButton
@@ -85,7 +89,11 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
                     provider: "Microsoft",
                   })}
                   providerId="microsoft"
-                  onClick={() => void continueWithMicrosoftAction(undefined, "/auth/signup")}
+                  onClick={() =>
+                    void continueWithMicrosoftAction(undefined, "/auth/signup").then((res) => {
+                      if (res.data.url) window.location.assign(res.data.url);
+                    })
+                  }
                 />
               </div>
 

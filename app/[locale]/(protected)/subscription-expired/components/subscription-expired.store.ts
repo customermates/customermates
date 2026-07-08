@@ -15,7 +15,8 @@ export class SubscriptionExpiredStore extends BaseStore {
 
   handleSubscribe = async (): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      await createCheckoutSessionAction();
+      const res = await createCheckoutSessionAction();
+      window.location.assign(res.data.url);
     });
   };
 }

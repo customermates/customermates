@@ -5,8 +5,6 @@ import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interac
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
 
-import { redirect } from "next/navigation";
-
 import {
   getSignInWithEmailInteractor,
   getSignUpWithEmailInteractor,
@@ -25,7 +23,7 @@ export async function signInWithEmailAction(data: EmailSignInData) {
 
 export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
   const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL, errorCallbackURL });
-  if (isRedirect(result)) redirect(result.redirect);
+  return { ok: true as const, data: { url: isRedirect(result) ? result.redirect : null } };
 }
 
 export async function continueWithMicrosoftAction(callbackURL?: string, errorCallbackURL?: string) {
@@ -34,7 +32,7 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
     callbackURL,
     errorCallbackURL,
   });
-  if (isRedirect(result)) redirect(result.redirect);
+  return { ok: true as const, data: { url: isRedirect(result) ? result.redirect : null } };
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData) {
