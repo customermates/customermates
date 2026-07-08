@@ -39,6 +39,13 @@ ALTER TABLE "MessagingMessage"
 -- CreateIndex: GIN index for the folder-visibility read filter (hasSome / isEmpty)
 CREATE INDEX "MessagingMessage_folderIds_idx" ON "MessagingMessage" USING GIN ("folderIds");
 
+-- The DELETE FROM "ConnectedAccount" above cascades to inbound events that reference an account, but
+-- connectedAccountId is nullable: account-level webhook events (account_status, account_callback, ...) are
+-- stored with connectedAccountId = NULL and so survive the cascade. Their old TEXT source categories are not
+-- part of the narrowed MessagingInboundEventSource, so clear the remaining events before the cast; they are
+-- re-received via webhooks under v2.
+DELETE FROM "MessagingInboundEvent";
+
 -- AlterTable: MessagingInboundEvent - typed source + dead-letter retry state
 ALTER TABLE "MessagingInboundEvent"
   ALTER COLUMN "source" TYPE "MessagingInboundEventSource" USING "source"::"MessagingInboundEventSource",
