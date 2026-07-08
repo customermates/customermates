@@ -2,7 +2,7 @@
 
 import type { SVGProps } from "react";
 
-import NextLink from "next/link";
+import NextLink, { useLinkStatus } from "next/link";
 import { ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 type NavItem = {
   key: string;
@@ -52,6 +53,19 @@ type NavMainParentProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+function NavLinkOverlayBridge() {
+  const { pending } = useLinkStatus();
+  const { loadingOverlayStore } = useRootStore();
+
+  useEffect(() => {
+    if (!pending) return;
+    loadingOverlayStore.setIsLoading(true);
+    return () => loadingOverlayStore.setIsLoading(false);
+  }, [pending, loadingOverlayStore]);
+
+  return null;
+}
+
 function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMainParentProps) {
   return (
     <Collapsible asChild className="group/collapsible" open={open} onOpenChange={onOpenChange}>
@@ -76,6 +90,8 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
 
                   <SidebarMenuSubButton asChild isActive={subActive}>
                     <NextLink href={sub.href} id={`nav-${sub.key}`} onClick={() => onNavigate(sub.key)}>
+                      <NavLinkOverlayBridge />
+
                       <span>{sub.title}</span>
                     </NextLink>
                   </SidebarMenuSubButton>
@@ -125,6 +141,8 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
       <SidebarMenuItem key={item.key}>
         <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
           <NextLink href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
+            <NavLinkOverlayBridge />
+
             <Icon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>

@@ -16,7 +16,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 import { EntityDrawer } from "@/components/entity-detail/entity-drawer";
 import { LoadingOverlay } from "@/components/shared/loading-overlay";
-import { NavigationLoadingOverlay } from "@/components/shared/navigation-loading-overlay";
 import { DeleteConfirmationModal } from "@/components/modal/delete-confirmation-modal";
 import { NavigationGuardModal } from "@/components/modal/navigation-guard-modal";
 import { UnexpectedErrorToaster } from "@/components/shared/unexpected-error-toaster";
@@ -57,8 +56,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <NavigationGuardModal />
 
       <LoadingOverlay />
-
-      <NavigationLoadingOverlay />
 
       <UnexpectedErrorToaster />
 
