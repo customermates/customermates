@@ -1044,7 +1044,7 @@ export const getProcessAccountAddWebhookInteractor = () =>
     getEventService(),
   );
 export const getProcessAccountReadyWebhookInteractor = () =>
-  new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo());
+  new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
 export const getProcessProviderSyncWebhookInteractor = () =>
   new ProcessProviderSyncWebhookInteractor(getConnectedAccountRepo());
 export const getProcessAccountReconnectWebhookInteractor = () =>

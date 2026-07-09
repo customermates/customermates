@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all 43 CRM tools automatically. There are two ways to connect:
+Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all 44 CRM tools automatically. There are two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve. No key to manage. Start on [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -52,7 +52,7 @@ The server briefs the model automatically the moment a client connects. Clients 
 
 You do not need to teach the model how to use the CRM. The server sends instructions when a client connects, so the model follows the workflow automatically: read the schema first, find ids before writing, change relations only through `manage_record_links`, and confirm before deleting or sending. In clients that support MCP prompts (Claude Code, Cursor), a built-in get-started prompt is available too; it interviews you and summarizes your workspace to personalize the start.
 
-The full 43-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+The full 44-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## How the tool surface is shaped
 
@@ -76,7 +76,7 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog
 
-Customermates exposes 43 MCP tools, all enabled by default. They cover records, workspace, messaging (preview), social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
+Customermates exposes 44 MCP tools, all enabled by default. They cover records, workspace, messaging (preview), social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
 
 Two flags per tool:
 
@@ -131,6 +131,7 @@ The messaging surface is in preview: live today, still evolving.
 | `save_message_draft` | | | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it. |
 | `discard_message_draft` | | ✓ | Delete a draft by its draft message id. |
 | `update_messaging_thread` | | | Set the thread state: unread, open, closed, or spam. |
+| `connect_messaging_account` | | | Generate a link the user opens in a browser to connect a channel (WhatsApp, LinkedIn, email, Instagram, Telegram). You return the link; the user finishes auth there. Expires in 30 minutes. |
 
 ### Social posts
 
@@ -181,7 +182,7 @@ The messaging surface is in preview: live today, still evolving.
 
 ### Narrowing with ?toolsets=
 
-All 43 tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
+All 44 tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging

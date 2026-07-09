@@ -37,7 +37,7 @@ function build(overrides: { chats?: unknown[]; participants?: unknown[] }) {
   const ingest = {
     upsertChatThreadUnscoped: vi.fn().mockResolvedValue({ id: "thread-row-1" }),
     ingestMessageUnscoped: vi.fn().mockResolvedValue(undefined),
-    findThreadBackfillStateUnscoped: vi.fn().mockResolvedValue(null),
+    findThreadLatestMessageAtUnscoped: vi.fn().mockResolvedValue(null),
   };
   const repo = {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
@@ -122,6 +122,42 @@ describe("BackfillChatsInteractor (list-only page)", () => {
     const args = ingest.upsertChatThreadUnscoped.mock.calls[0][0];
     expect(args.participants).toHaveLength(1);
     expect(args.participants[0].displayName).toBe("Alice");
+  });
+
+  it("reconciles name + counterpart for an already-current single chat without pulling messages", async () => {
+    const singleChat = {
+      object: "Chat",
+      id: "43138869645350@lid",
+      name: "Carla Wiegand",
+      is_group: false,
+      is_channel: false,
+      type: "1to1",
+      user_id: "43138869645350@lid",
+      user: {
+        id: "43138869645350@lid",
+        object: "User",
+        type: "individual",
+        display_name: "Carla Wiegand",
+        public_identifier: "+491627147841",
+      },
+      last_message: { text: "", is_sender: false },
+      last_message_timestamp: "2026-07-04T12:43:43.000Z",
+    };
+    const { interactor, messagingService, ingest, repo } = build({ chats: [singleChat] });
+    ingest.findThreadLatestMessageAtUnscoped.mockResolvedValue(new Date("2026-07-08T12:20:22.000Z"));
+
+    await interactor.invoke(accountWide as any);
+
+    expect(ingest.upsertChatThreadUnscoped).toHaveBeenCalledTimes(1);
+    const args = ingest.upsertChatThreadUnscoped.mock.calls[0][0];
+    expect(args.name).toBe("Carla Wiegand");
+    expect(args.participants).toHaveLength(1);
+    expect(args.participants[0].displayName).toBe("Carla Wiegand");
+    expect(args.participants[0].isSelf).toBe(false);
+
+    expect(ingest.ingestMessageUnscoped).not.toHaveBeenCalled();
+    expect(messagingService.listChatMessages).not.toHaveBeenCalled();
+    expect(repo.recordRawBackfillItemUnscoped).not.toHaveBeenCalled();
   });
 
   it("lists a LinkedIn inbox source via listInboxChats, honoring the incoming cursor", async () => {

@@ -6,6 +6,7 @@ Conventions:
 - List results are TOON-encoded tables with id and name first; page through with page/pageSize, total is always included.
 - save_message_draft prepares a reply for the user to review and send from their inbox; send_email and send_chat_message deliver immediately.
 - Start a session with get_workspace_context to learn the user, company, roles, and connected messaging accounts.
+- To connect a new messaging channel (WhatsApp, LinkedIn, email, Instagram, Telegram), call connect_messaging_account; it returns a link the user opens in a browser to finish auth. You cannot complete the connection yourself, so hand the link over and ask them to open it.
 - All tools are enabled by default. Appending ?toolsets=records,messaging,... to the server URL narrows the surface; omitting it keeps everything.`;
 
 export const GET_STARTED_PROMPT = `Connected to my Customermates CRM via MCP.

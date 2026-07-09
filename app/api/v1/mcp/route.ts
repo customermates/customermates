@@ -21,6 +21,7 @@ import {
   saveMessageDraftTool,
   discardMessageDraftTool,
   updateMessagingThreadTool,
+  connectMessagingAccountTool,
 } from "@/features/mcp-tools/messaging.mcp-tools";
 import {
   getSocialPostsTool,
@@ -72,6 +73,7 @@ const TOOL_GROUPS: Record<string, McpTool[]> = {
     saveMessageDraftTool,
     discardMessageDraftTool,
     updateMessagingThreadTool,
+    connectMessagingAccountTool,
   ],
   social: [
     getSocialPostsTool,

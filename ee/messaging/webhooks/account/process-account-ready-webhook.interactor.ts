@@ -4,6 +4,7 @@ import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
 import type { AccountWebhookRepo } from "./account-webhook.repo";
 
@@ -15,7 +16,10 @@ type Payload = z.infer<typeof Schema>;
 
 @SystemInteractor
 export class ProcessAccountReadyWebhookInteractor {
-  constructor(private accountRepo: AccountWebhookRepo) {}
+  constructor(
+    private accountRepo: AccountWebhookRepo,
+    private backgroundTaskService: BackgroundTaskService,
+  ) {}
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
@@ -28,5 +32,7 @@ export class ProcessAccountReadyWebhookInteractor {
       syncing: true,
       providerSyncing: false,
     });
+
+    await this.backgroundTaskService.dispatch("backfill-connected-account", { connectedAccountId: account.id });
   }
 }

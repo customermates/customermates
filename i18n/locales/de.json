@@ -918,6 +918,12 @@
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channelLimitReached": "Während der Vorschau sind maximal 2 verbundene Kanäle pro Konto möglich. Da diese Funktion auf deutlich teurerer Infrastruktur läuft, sind höhere Limits künftig mit dem kostenpflichtigen Pro-Tarif verfügbar.",
+    "channels": {
+      "imap": "IMAP",
+      "linkedinClassic": "LinkedIn (Classic)",
+      "linkedinRecruiter": "LinkedIn (Classic & Recruiter)",
+      "linkedinSalesNavigator": "LinkedIn (Classic & Sales Navigator)"
+    },
     "checkpointToastDescription": "Die Sicherheitsüberprüfung konnte nicht abgeschlossen werden. Starte die Verbindung erneut und kontaktiere den Support, falls das Problem bestehen bleibt.",
     "checkpointToastTitle": "Verifizierung fehlgeschlagen",
     "connectAccount": "Kanal verbinden",

@@ -918,6 +918,12 @@
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
     "channelLimitReached": "Channel connections are limited to 2 per account during the preview. As this feature runs on significantly more expensive infrastructure, higher limits will be available with the paid Pro tier in the future.",
+    "channels": {
+      "imap": "IMAP",
+      "linkedinClassic": "LinkedIn (Classic)",
+      "linkedinRecruiter": "LinkedIn (Classic & Recruiter)",
+      "linkedinSalesNavigator": "LinkedIn (Classic & Sales Navigator)"
+    },
     "checkpointToastDescription": "The security verification could not be completed. Start the connection again, and contact support if it keeps happening.",
     "checkpointToastTitle": "Verification failed",
     "connectAccount": "Connect channel",

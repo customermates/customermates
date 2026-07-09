@@ -1,10 +1,12 @@
 "use client";
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
+import type { MessagingProvider } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -12,6 +14,12 @@ import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -23,6 +31,66 @@ import { accountStatusChipColor, getProviderDisplayLabel } from "./account-statu
 type Props = {
   accounts: ConnectedAccountDto[];
 };
+
+const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; labelKey: string }[] = [
+  { key: "google", icon: "google", labelKey: "Common.providers.google" },
+  { key: "outlook", icon: "outlook", labelKey: "Common.providers.outlook" },
+  { key: "imap", icon: "mail", labelKey: "ConnectedAccountsCard.channels.imap" },
+  { key: "whatsapp", icon: "whatsapp", labelKey: "Common.providers.whatsapp" },
+  { key: "linkedin", icon: "linkedin", labelKey: "ConnectedAccountsCard.channels.linkedinClassic" },
+  {
+    key: "linkedin_sales_navigator",
+    icon: "linkedin",
+    labelKey: "ConnectedAccountsCard.channels.linkedinSalesNavigator",
+  },
+  { key: "linkedin_recruiter", icon: "linkedin", labelKey: "ConnectedAccountsCard.channels.linkedinRecruiter" },
+  { key: "instagram", icon: "instagram", labelKey: "Common.providers.instagram" },
+  { key: "telegram", icon: "telegram", labelKey: "Common.providers.telegram" },
+];
+
+const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
+
+const ConnectAction = observer(() => {
+  const t = useTranslations();
+  const { connectedAccountsStore } = useRootStore();
+  const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="h-8" id="profile-connected-accounts-connect" size="sm">
+          <span className="-space-x-1.5 flex items-center">
+            {FEATURED_PROVIDERS.map((provider) => {
+              const ChannelIcon = getProviderIcon(provider);
+              return <ChannelIcon key={provider} className="ring-primary size-5 rounded-full ring-2" />;
+            })}
+
+            {overflowCount > 0 && (
+              <span className="bg-primary-foreground text-primary ring-primary flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2">
+                +{overflowCount}
+              </span>
+            )}
+          </span>
+
+          <span className="hidden sm:inline">{t("ConnectedAccountsCard.connectAccount")}</span>
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        {CONNECT_CHANNEL_OPTIONS.map((option) => {
+          const ChannelIcon = getProviderIcon(option.icon);
+          return (
+            <DropdownMenuItem key={option.key} onClick={() => void connectedAccountsStore.connectAccount(option.key)}>
+              <ChannelIcon className="size-4" />
+
+              {t(option.labelKey)}
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+});
 
 export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   const t = useTranslations();
@@ -36,22 +104,7 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
     return () => connectedAccountsStore.stopSyncPolling();
   }, [connectedAccountsStore]);
 
-  const topBarActions = useMemo(
-    () =>
-      canConnect ? (
-        <Button
-          className="h-8"
-          id="profile-connected-accounts-connect"
-          size="sm"
-          onClick={() => void connectedAccountsStore.connectAccount()}
-        >
-          <Plus className="size-3.5" />
-
-          <span className="hidden sm:inline">{t("ConnectedAccountsCard.connectAccount")}</span>
-        </Button>
-      ) : null,
-    [canConnect, t, connectedAccountsStore],
-  );
+  const topBarActions = useMemo(() => (canConnect ? <ConnectAction /> : null), [canConnect]);
   useSetTopBarActions(topBarActions);
 
   if (connectedAccountsStore.items.length === 0) {

@@ -452,7 +452,7 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async findThreadBackfillStateUnscoped(args: { connectedAccountId: string; unipileThreadId: string }) {
+  async findThreadLatestMessageAtUnscoped(args: { connectedAccountId: string; unipileThreadId: string }) {
     const row = await this.prisma.messagingThread.findUnique({
       where: {
         connectedAccountId_unipileThreadId: {
@@ -460,11 +460,17 @@ export class PrismaMessagingRepo
           unipileThreadId: args.unipileThreadId,
         },
       },
-      select: { lastMessageAt: true, _count: { select: { messages: true } } },
+      select: {
+        messages: {
+          where: { isHidden: false, isDraft: false },
+          orderBy: { sentAt: "desc" },
+          take: 1,
+          select: { sentAt: true },
+        },
+      },
     });
-    if (!row) return null;
 
-    return { lastMessageAt: row.lastMessageAt, hasMessages: row._count.messages > 0 };
+    return row?.messages[0]?.sentAt ?? null;
   }
 
   private async resolveThreadIdByAlt(connectedAccountId: string, unipileThreadId: string): Promise<string> {

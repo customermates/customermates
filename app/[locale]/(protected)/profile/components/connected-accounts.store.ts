@@ -1,4 +1,5 @@
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
 import type { RootStore } from "@/core/stores/root.store";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -123,9 +124,9 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     });
   };
 
-  connectAccount = async (): Promise<void> => {
+  connectAccount = async (channel: ConnectChannel): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
-      const res = await startConnectAccountAction();
+      const res = await startConnectAccountAction(channel);
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return;

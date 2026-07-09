@@ -21,10 +21,10 @@ export abstract class MessagingIngestRepo {
       lastMessageIsSender?: boolean | null;
     },
   ): Promise<{ id: string }>;
-  abstract findThreadBackfillStateUnscoped(args: {
+  abstract findThreadLatestMessageAtUnscoped(args: {
     connectedAccountId: string;
     unipileThreadId: string;
-  }): Promise<{ lastMessageAt: Date | null; hasMessages: boolean } | null>;
+  }): Promise<Date | null>;
   abstract updateMessageReactionsUnscoped(args: {
     companyId: string;
     connectedAccountId: string;

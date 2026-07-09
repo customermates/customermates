@@ -1279,8 +1279,8 @@ model AccountActivity {
   id                 String              @id @default(uuid())
   companyId          String
   company            Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  connectedAccountId String?
-  connectedAccount   ConnectedAccount?   @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  connectedAccountId String
+  connectedAccount   ConnectedAccount    @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   identifier         String?
   kind               AccountActivityKind
   payload            Json                @default("{}")

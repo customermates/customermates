@@ -98,19 +98,10 @@ export class BackfillChatsInteractor {
     const chat = parsed.data;
     if (isExcludedChatId(chat.id)) return;
 
-    if (await this.isThreadCurrent(account.id, chat)) return;
-
-    await this.repo.recordRawBackfillItemUnscoped({
-      companyId: account.companyId,
-      connectedAccountId: account.id,
-      accountId: account.unipileAccountId,
-      itemType: "chat",
-      payload: rawChat,
-      unipileMessageId: chat.id,
-    });
+    const current = await this.isThreadCurrent(account.id, chat);
 
     const type: MessagingThreadType = chat.is_group ? "group" : chat.is_channel ? "channel" : "single";
-    const participants = await this.resolveParticipants(account, chat);
+    const participants = await this.resolveParticipants(account, chat, { allowFetch: !current });
     const lastActivity = chat.last_message_timestamp ?? chat.updated_at ?? null;
     const lastMessageText = chat.last_message?.text?.trim() || null;
 
@@ -147,16 +138,30 @@ export class BackfillChatsInteractor {
       return;
     }
 
+    if (current) return;
+
+    await this.repo.recordRawBackfillItemUnscoped({
+      companyId: account.companyId,
+      connectedAccountId: account.id,
+      accountId: account.unipileAccountId,
+      itemType: "chat",
+      payload: rawChat,
+      unipileMessageId: chat.id,
+    });
+
     await this.pullAndIngestMessages(account, chat.id);
   }
 
   private async isThreadCurrent(connectedAccountId: string, chat: UnipileChat): Promise<boolean> {
     if (!chat.last_message_timestamp) return false;
 
-    const state = await this.ingest.findThreadBackfillStateUnscoped({ connectedAccountId, unipileThreadId: chat.id });
-    if (!state || !state.hasMessages || state.lastMessageAt === null) return false;
+    const latestMessageAt = await this.ingest.findThreadLatestMessageAtUnscoped({
+      connectedAccountId,
+      unipileThreadId: chat.id,
+    });
+    if (latestMessageAt === null) return false;
 
-    return state.lastMessageAt >= new Date(chat.last_message_timestamp);
+    return latestMessageAt >= new Date(chat.last_message_timestamp);
   }
 
   private async pullAndIngestMessages(account: ConnectedAccount, chatId: string): Promise<void> {
@@ -230,7 +235,11 @@ export class BackfillChatsInteractor {
     }
   }
 
-  private async resolveParticipants(account: ConnectedAccount, chat: UnipileChat): Promise<MessagingAttendee[]> {
+  private async resolveParticipants(
+    account: ConnectedAccount,
+    chat: UnipileChat,
+    opts: { allowFetch: boolean },
+  ): Promise<MessagingAttendee[]> {
     if (chat.is_group) {
       const inline = (chat.participants ?? [])
         .filter((p) => p.is_self !== true)
@@ -238,7 +247,7 @@ export class BackfillChatsInteractor {
 
       if (inline.length) return inline;
 
-      if ((chat.participants_count ?? 0) > 0) return this.fetchParticipants(account, chat.id);
+      if (opts.allowFetch && (chat.participants_count ?? 0) > 0) return this.fetchParticipants(account, chat.id);
 
       return [];
     }

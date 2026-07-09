@@ -14,6 +14,8 @@ import {
 import { GetQueryParamsSchema, FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { isRedirect } from "@/features/auth/auth-outcome";
+import { CONNECT_CHANNEL_KEYS } from "@/ee/messaging/connect/connect-channels";
 import { ActivitiesParamsSchema } from "@/ee/messaging/activities/activities.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
@@ -31,6 +33,7 @@ import {
   getSaveDraftInteractor,
   getDiscardDraftInteractor,
   getUpdateThreadInteractor,
+  getCreateAuthLinkInteractor,
 } from "@/core/di";
 
 const GetMessagingThreadsSchema = z.object({
@@ -312,4 +315,31 @@ export const updateMessagingThreadTool = {
   inputSchema: UpdateMessagingThreadSchema,
   execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
     runInteractor(getUpdateThreadInteractor().invoke(params), () => `Thread ${params.threadId} set to ${params.state}`),
+};
+
+const ConnectMessagingAccountSchema = z.object({
+  channel: z
+    .enum(CONNECT_CHANNEL_KEYS)
+    .describe(
+      "Which channel to connect: google (Gmail), outlook, imap (any other email via IMAP/SMTP), whatsapp, " +
+        "linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram, telegram.",
+    ),
+});
+
+export const connectMessagingAccountTool = {
+  name: "connect_messaging_account",
+  title: "Connect messaging account",
+  description:
+    "Generate a secure link the user opens in a browser to connect a messaging channel to their inbox. " +
+    "You cannot complete the connection yourself: return the link and tell the user to open it and finish auth there " +
+    "(scan a QR code for WhatsApp, sign in for email or LinkedIn). The link is single-user and expires in 30 minutes. " +
+    "channel is one of google (Gmail), outlook, imap, whatsapp, linkedin, linkedin_sales_navigator, linkedin_recruiter, instagram, telegram. " +
+    "Requires a paid subscription and fewer than 5 connected channels. " +
+    "Call get_workspace_context first to see which accounts are already connected. Returns the connect url.",
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  inputSchema: ConnectMessagingAccountSchema,
+  execute: async (params: z.infer<typeof ConnectMessagingAccountSchema>) => {
+    const result = await getCreateAuthLinkInteractor().invoke(params);
+    return isRedirect(result) ? encodeToToon({ url: result.redirect }) : validationError(result.error);
+  },
 };

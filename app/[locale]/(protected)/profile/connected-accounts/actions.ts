@@ -1,5 +1,7 @@
 "use server";
 
+import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
+
 import { z } from "zod";
 
 import {
@@ -14,8 +16,8 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
-export async function startConnectAccountAction() {
-  const result = await getCreateAuthLinkInteractor().invoke();
+export async function startConnectAccountAction(channel: ConnectChannel) {
+  const result = await getCreateAuthLinkInteractor().invoke({ channel });
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
   return { ok: false as const, error: z.treeifyError(result.error) };
 }

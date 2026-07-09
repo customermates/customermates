@@ -123,9 +123,9 @@ Jede Delivery wird protokolliert. Deliveries siehst du in der UI (Unternehmen, d
 
 Eine Delivery gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt oder die Request timeoutet. Der Request-Timeout beträgt 5 Sekunden.
 
-Um eine fehlgeschlagene Delivery erneut zuzustellen, nutze die UI oder `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Dabei entsteht ein neuer Delivery-Record; das Original bleibt unverändert.
+Customermates wiederholt fehlgeschlagene Deliveries automatisch: bis zu 5 Wiederholungen bei Timeouts, 5xx-Responses und 408, 425 und 429. Dauerhafte 4xx-Responses (zum Beispiel 400, 401, 403, 404) werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Die Retries laufen innerhalb des Delivery-Runs, erzeugen also keine zusätzlichen Delivery-Records; jeder Record zeigt das Endergebnis.
 
-Customermates wiederholt fehlgeschlagene Deliveries nicht automatisch. Wenn dein Receiver ausgefallen war, stelle aus der UI erneut zu oder steuere Retries über das Delivery-Log.
+Du kannst jede Delivery zusätzlich selbst erneut zustellen, aus der UI oder per `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein manueller Resend erzeugt einen neuen Delivery-Record; das Original bleibt unverändert.
 
 ## Ordering und Concurrency
 

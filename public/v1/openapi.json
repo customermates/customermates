@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:4000/api",
+      "url": "https://customermates.tailf11599.ts.net//api",
       "description": "API Server"
     }
   ],

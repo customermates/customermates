@@ -123,9 +123,9 @@ Every delivery is recorded. Review deliveries in the UI (Company, then Webhook D
 
 A delivery is marked failed if the HTTP status is outside the 2xx range or the request times out. The request timeout is 5 seconds.
 
-To re-send a failed delivery, use the UI or `manage_webhooks` with `action: "resend_delivery"` and the delivery id. This creates a new delivery record; the original is unchanged.
+Customermates automatically retries failed deliveries: up to 5 retries for timeouts, 5xx responses, and 408, 425, and 429. Permanent 4xx responses (for example 400, 401, 403, 404) are not retried, because a repeat would fail the same way. Retries happen inside the delivery run, so they do not create extra delivery records; each record shows the final outcome.
 
-Customermates does not retry failed deliveries automatically. If your receiver is down, re-send from the UI or drive retries from the delivery log.
+You can also resend any delivery yourself from the UI or with `manage_webhooks` and `action: "resend_delivery"` plus the delivery id. A manual resend creates a new delivery record; the original is unchanged.
 
 ## Ordering and concurrency
 

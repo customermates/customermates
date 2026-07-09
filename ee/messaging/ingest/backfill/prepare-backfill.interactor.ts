@@ -28,7 +28,9 @@ export function classifyAccountReadiness(account: UnipileAccount): "ready" | "wa
   if (account.status === "disconnected" || account.status === "paused") return "stalled";
 
   const syncStatus = account.initial_sync?.status;
-  if (syncStatus) return syncStatus === "completed" || syncStatus === "failed" ? "ready" : "waiting";
+  const gateOnInitialSync = mapUnipileProvider(account.provider) !== MessagingProvider.whatsapp;
+  if (gateOnInitialSync && syncStatus)
+    return syncStatus === "completed" || syncStatus === "failed" ? "ready" : "waiting";
 
   return account.status === "running" ? "ready" : "waiting";
 }
@@ -59,6 +61,8 @@ export class PrepareBackfillInteractor {
       return { status: "stopped" };
 
     const snapshot = await this.fetchAccount(account.unipileAccountId);
+    const provider = snapshot ? mapUnipileProvider(snapshot.provider) : account.provider;
+
     if (snapshot) {
       const readiness = classifyAccountReadiness(snapshot);
       if (readiness === "stalled") return { status: "stopped" };
@@ -68,7 +72,6 @@ export class PrepareBackfillInteractor {
     const features = snapshot
       ? await this.refreshAccountFromSnapshot(account, snapshot)
       : { hasMessaging: account.hasMessaging, hasCalendar: account.hasCalendar };
-    const provider = snapshot ? mapUnipileProvider(snapshot.provider) : account.provider;
 
     const kind = !features.hasMessaging ? "none" : isEmailProvider(provider) ? "email" : "chat";
     const sources =
