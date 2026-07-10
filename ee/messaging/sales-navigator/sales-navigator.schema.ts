@@ -36,7 +36,32 @@ export const SalesListItemSchema = z.looseObject({
   relations_count: z.number().nullish(),
   shared_relations_count: z.number().nullish(),
   has_been_saved: z.union([z.boolean(), z.string()]).nullish(),
-  current_positions: z.array(z.looseObject({ company: z.string().nullish(), role: z.string().nullish() })).nullish(),
+  current_positions: z
+    .array(
+      z.looseObject({
+        company: z.string().nullish(),
+        role: z.string().nullish(),
+        company_id: z.string().nullish(),
+        company_url: z.string().nullish(),
+      }),
+    )
+    .nullish(),
+  work_experience: z
+    .array(
+      z.looseObject({
+        company: z
+          .looseObject({
+            name: z.string().nullish(),
+            id: z.string().nullish(),
+            public_identifier: z.string().nullish(),
+            profile_url: z.string().nullish(),
+          })
+          .nullish(),
+        job_title: z.string().nullish(),
+        ended_on: z.string().nullish(),
+      }),
+    )
+    .nullish(),
 });
 export type SalesListItem = z.infer<typeof SalesListItemSchema>;
 

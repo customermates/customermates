@@ -81,11 +81,12 @@ type Props = {
   threadId?: string;
   defaultSubject?: string | null;
   defaultRecipients?: string[];
+  defaultCc?: string[];
   bare?: boolean;
 };
 
 export const ThreadReplyComposer = observer(
-  ({ threadId, provider, defaultSubject, defaultRecipients, bare }: Props) => {
+  ({ threadId, provider, defaultSubject, defaultRecipients, defaultCc, bare }: Props) => {
     const t = useTranslations();
     const { userStore, threadComposeStore, connectedAccountsStore } = useRootStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -116,8 +117,8 @@ export const ThreadReplyComposer = observer(
       if (initializedThreadId.current === threadId) return;
       initializedThreadId.current = threadId;
       if (threadComposeStore.form.threadId === threadId) return;
-      threadComposeStore.initialize({ provider, threadId, defaultSubject, defaultRecipients });
-    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients]);
+      threadComposeStore.initialize({ provider, threadId, defaultSubject, defaultRecipients, defaultCc });
+    }, [threadComposeStore, provider, threadId, defaultSubject, defaultRecipients, defaultCc]);
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -246,6 +247,22 @@ export const ThreadReplyComposer = observer(
               placeholder={t("Inbox.compose.subjectPlaceholder")}
             />
 
+            {!isNewThread && (
+              <div className="border-border/60 flex items-center gap-2 border-b px-3 py-1">
+                <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">
+                  {t("Inbox.compose.toLabel")}
+                </span>
+
+                <FormInputChips
+                  arrayMode
+                  className="min-h-7 border-0 bg-transparent p-0 text-sm shadow-none focus-within:ring-0"
+                  containerClassName="flex-1"
+                  id="recipients"
+                  label={null}
+                />
+              </div>
+            )}
+
             {showCcBcc && (
               <div className="border-border/60 flex flex-col border-b">
                 <div className="flex items-center gap-2 px-3 py-1">
@@ -259,7 +276,6 @@ export const ThreadReplyComposer = observer(
                     containerClassName="flex-1"
                     id="cc"
                     label={null}
-                    placeholder={t("Inbox.compose.recipientPlaceholder")}
                   />
                 </div>
 
@@ -274,7 +290,6 @@ export const ThreadReplyComposer = observer(
                     containerClassName="flex-1"
                     id="bcc"
                     label={null}
-                    placeholder={t("Inbox.compose.recipientPlaceholder")}
                   />
                 </div>
               </div>

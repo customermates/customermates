@@ -8,9 +8,11 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ImageOff, Pencil, Send, Trash2 } from "lucide-react";
 
+import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
+import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quote";
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -46,6 +48,43 @@ function hasLoadableRemoteImages(html: string): boolean {
 
     return !tiny && !hidden;
   });
+}
+
+function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: string | null; onPaper?: boolean }) {
+  const t = useTranslations();
+  const [showQuoted, setShowQuoted] = useState(false);
+
+  return (
+    <>
+      <MessageText text={visible} />
+
+      {quoted && (
+        <>
+          <button
+            className={cn(
+              "mt-1 text-xs underline underline-offset-2",
+              onPaper ? "text-neutral-500 hover:text-neutral-800" : "text-muted-foreground hover:text-foreground",
+            )}
+            type="button"
+            onClick={() => setShowQuoted((prev) => !prev)}
+          >
+            {showQuoted ? t("Inbox.hideQuotedText") : t("Inbox.showQuotedText")}
+          </button>
+
+          {showQuoted && (
+            <div
+              className={cn(
+                "mt-1 border-l-2 pl-2",
+                onPaper ? "border-neutral-300 text-neutral-500" : "border-border/60 text-muted-foreground",
+              )}
+            >
+              <MessageText text={quoted} />
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
 }
 
 export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, isMine }: Props) => {
@@ -87,9 +126,13 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const pictureUrl = sender.avatarUrl;
 
   const isEmail = isEmailProvider(message.provider) && Boolean(message.bodyHtml);
+  const emailPlainBody = isEmail && isPlainTextEmailBody(message.bodyHtml ?? "") ? (message.bodyHtml ?? "") : null;
   const inlineHtml = !isEmail && !isDeleted ? message.bodyHtml : null;
   const isUnsupportedBody = isUnipileUnsupportedBody(message.bodyText);
-  const displayText = isUnsupportedBody ? null : message.bodyText;
+  const rawDisplayText = isUnsupportedBody ? null : message.bodyText;
+  const quoteSource = isEmail ? emailPlainBody : isEmailProvider(message.provider) ? rawDisplayText : null;
+  const quoteSplit = quoteSource ? splitQuotedText(quoteSource) : { visible: "", quoted: null };
+  const displayText = !isEmail && quoteSource ? quoteSplit.visible : rawDisplayText;
   const chatSubject =
     !isEmail && !isDeleted && message.provider === "linkedin" ? message.subject?.trim() || null : null;
 
@@ -109,6 +152,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const canLoadRemoteImages = isEmail && !showRemoteImages && hasLoadableRemoteImages(message.bodyHtml ?? "");
   const recipientRows = (
     [
+      ["Inbox.compose.toLabel", message.recipients.to],
       ["Inbox.compose.ccLabel", message.recipients.cc],
       ["Inbox.compose.bccLabel", message.recipients.bcc],
     ] as const
@@ -163,21 +207,29 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           ) : isEmail ? (
             <>
               {recipientRows.length > 0 && (
-                <div className="border-border/60 text-muted-foreground flex flex-col gap-0.5 border-b px-3.5 py-2 text-xs">
+                <div className="border-border/60 text-muted-foreground flex flex-col gap-1 border-b px-3.5 py-2 text-xs">
                   {recipientRows.map(([labelKey, list]) => (
-                    <span key={labelKey} className="wrap-anywhere">
-                      <span className="font-medium">{t(labelKey)}: </span>
+                    <div key={labelKey} className="flex flex-wrap items-center gap-1">
+                      <span className="font-medium">{t(labelKey)}:</span>
 
-                      {list
-                        .map((r) => r.identifier?.trim() || r.displayName)
-                        .filter(Boolean)
-                        .join(", ")}
-                    </span>
+                      {list.map((r, index) => {
+                        const label = r.identifier?.trim() || r.displayName;
+                        if (!label) return null;
+
+                        return <AppChip key={`${labelKey}:${label}:${index}`}>{label}</AppChip>;
+                      })}
+                    </div>
                   ))}
                 </div>
               )}
 
-              <EmailFrame html={message.bodyHtml ?? ""} showRemoteImages={showRemoteImages} />
+              {emailPlainBody ? (
+                <div className="bg-white px-4 py-3 leading-normal text-neutral-900 wrap-anywhere">
+                  <TextWithQuote quoted={quoteSplit.quoted} visible={quoteSplit.visible} onPaper />
+                </div>
+              ) : (
+                <EmailFrame html={message.bodyHtml ?? ""} showRemoteImages={showRemoteImages} />
+              )}
             </>
           ) : showUnsupported ? (
             <div className="text-muted-foreground px-3.5 py-2 italic">{t("Inbox.attachmentUnsupported")}</div>
@@ -188,7 +240,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
               {inlineHtml ? (
                 <SanitizedHtml className="prose-sm max-w-none wrap-anywhere [&_a]:underline" html={inlineHtml} />
               ) : displayText ? (
-                <MessageText text={displayText} />
+                <TextWithQuote quoted={quoteSplit.quoted} visible={displayText} />
               ) : null}
             </div>
           ) : null}

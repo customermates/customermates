@@ -107,12 +107,16 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = this.attachments.filter((_, i) => i !== index);
   };
 
-  private validateEmails(): boolean {
+  private validateEmails(requireRecipients = false): boolean {
     if (!this.isEmail) return true;
 
     const result = z
-      .object({ cc: z.array(z.email()), bcc: z.array(z.email()) })
-      .safeParse({ cc: this.form.cc, bcc: this.form.bcc });
+      .object({
+        recipients: requireRecipients ? z.array(z.email()).min(1) : z.array(z.email()),
+        cc: z.array(z.email()),
+        bcc: z.array(z.email()),
+      })
+      .safeParse({ recipients: this.form.recipients, cc: this.form.cc, bcc: this.form.bcc });
 
     if (result.success) {
       if (this.error) this.setError(undefined);
@@ -140,11 +144,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     threadId: string;
     defaultSubject?: string | null;
     defaultRecipients?: string[];
+    defaultCc?: string[];
   }) => {
     const subject = init.defaultSubject?.startsWith("Re:")
       ? init.defaultSubject
       : `Re: ${init.defaultSubject ?? ""}`.trim();
-    this.showCcBcc = false;
+    this.showCcBcc = (init.defaultCc?.length ?? 0) > 0;
     this.editingDraftId = null;
     this.attachments = [];
     this.draftAttachments = [];
@@ -156,7 +161,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       recipients: init.defaultRecipients ?? [],
       body: "",
       subject,
-      cc: [],
+      cc: init.defaultCc ?? [],
       bcc: [],
       linkedinProduct: "classic",
       inmailSignature: "",
@@ -238,7 +243,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   send = async (): Promise<void> => {
     if (this.isNewThread) return this.sendNewThread();
     if (!this.form.threadId || (!this.form.body.trim() && this.attachments.length === 0)) return;
-    if (!this.validateEmails()) return;
+    if (!this.validateEmails(true)) return;
 
     const detail = this.rootStore.messagingThreadDetailStore;
     const draftId = this.editingDraftId;

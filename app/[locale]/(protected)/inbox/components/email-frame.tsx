@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
+import { HTML_QUOTE_HIDE_CSS, htmlContainsQuote } from "@/ee/messaging/email-quote";
 
 type Props = {
   html: string;
@@ -31,15 +32,21 @@ export function EmailFrame({ html, showRemoteImages = false }: Props) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [showQuoted, setShowQuoted] = useState(false);
   const t = useTranslations();
 
   useEffect(() => setMounted(true), []);
 
-  const srcDoc = useMemo(() => {
+  const { srcDoc, hasQuote } = useMemo(() => {
     const sanitized = mounted ? sanitizeHtml(html) : "";
+    const containsQuote = mounted && htmlContainsQuote(sanitized);
     const csp = `default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:${showRemoteImages ? " https:" : ""};`;
-    return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style></head><body>${sanitized}</body></html>`;
-  }, [html, showRemoteImages, mounted]);
+    const quoteCss = containsQuote && !showQuoted ? `<style>${HTML_QUOTE_HIDE_CSS}</style>` : "";
+    return {
+      srcDoc: `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style>${quoteCss}</head><body>${sanitized}</body></html>`,
+      hasQuote: containsQuote,
+    };
+  }, [html, showRemoteImages, mounted, showQuoted]);
 
   useEffect(() => {
     const iframe = ref.current;
@@ -73,13 +80,25 @@ export function EmailFrame({ html, showRemoteImages = false }: Props) {
   }, [srcDoc]);
 
   return (
-    <iframe
-      ref={ref}
-      className="block w-full bg-white"
-      sandbox="allow-same-origin"
-      srcDoc={srcDoc}
-      style={{ height: `${height}px` }}
-      title={t("Inbox.compose.emailContent")}
-    />
+    <>
+      <iframe
+        ref={ref}
+        className="block w-full bg-white"
+        sandbox="allow-same-origin"
+        srcDoc={srcDoc}
+        style={{ height: `${height}px` }}
+        title={t("Inbox.compose.emailContent")}
+      />
+
+      {hasQuote && (
+        <button
+          className="text-muted-foreground hover:text-foreground self-start px-3.5 py-1.5 text-xs underline underline-offset-2"
+          type="button"
+          onClick={() => setShowQuoted((prev) => !prev)}
+        >
+          {showQuoted ? t("Inbox.hideQuotedText") : t("Inbox.showQuotedText")}
+        </button>
+      )}
+    </>
   );
 }

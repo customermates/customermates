@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 
 import { Spinner } from "@/components/ui/spinner";
@@ -7,6 +9,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const LoadingOverlay = observer(() => {
   const { loadingOverlayStore } = useRootStore();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    loadingOverlayStore.setIsLoading(false);
+  }, [pathname, loadingOverlayStore]);
 
   if (!loadingOverlayStore.isLoading) return null;
 

@@ -67,7 +67,7 @@ const GetSocialProfileToolSchema = z.object({
     .string()
     .min(1)
     .describe(
-      "Who to look up. LinkedIn: the public identifier (the /in/<slug> part) or a provider member id, e.g. the id on a thread participant, reaction sender or comment author. Instagram: the username. Use 'me' for the account owner.",
+      "Who or what to look up. LinkedIn person: the public identifier (the /in/<slug> part) or a provider member id, e.g. the id on a thread participant, reaction sender or comment author. LinkedIn company: the public identifier (the /company/<slug> part) or a provider company id, e.g. a current_positions company_id from linkedin_search_sales_leads. Instagram: the username. Use 'me' for the account owner.",
     ),
 });
 
@@ -160,8 +160,18 @@ function formatReaction(reaction: {
 }
 
 function formatProfile(profile: SocialProfile) {
+  const currentPositions = (profile.specifics?.experience ?? [])
+    .filter((entry) => entry.ended_on == null)
+    .map((entry) => ({
+      company: entry.company?.name ?? null,
+      role: entry.job_title ?? null,
+      company_id: entry.company?.id ?? null,
+      company_url: entry.company?.profile_url ?? null,
+    }))
+    .filter((position) => Object.values(position).some((value) => value != null));
   const fields = {
     id: profile.id,
+    type: profile.type,
     public_identifier: profile.public_identifier,
     display_name: profile.display_name,
     first_name: profile.first_name,
@@ -173,6 +183,7 @@ function formatProfile(profile: SocialProfile) {
     headline: profile.specifics?.headline ?? profile.specifics?.occupation,
     location: profile.specifics?.location,
     industry: profile.specifics?.industry,
+    current_positions: currentPositions.length > 0 ? currentPositions : null,
     network_distance: profile.specifics?.network_distance,
     can_send_inmail: profile.specifics?.can_send_inmail,
     has_pending_relation_request: profile.specifics?.relation_request != null ? true : undefined,
@@ -338,12 +349,12 @@ export const getSocialPostEngagementTool = {
 
 export const getSocialProfileTool = {
   name: "get_social_profile",
-  title: "Get social profile",
+  title: "Get person or company profile",
   description:
     "Use this when the user wants details about a person or company on a connected LinkedIn or Instagram account. " +
-    "Pass connectedAccountId and identifier. On LinkedIn the identifier is the public identifier (the /in/<slug> part) or a provider member id, " +
-    "for example the id on a thread participant, a reaction sender or a comment author; use 'me' for the account owner. On Instagram it is the username. " +
-    "Returns id, name, headline, location, profile and picture urls, follower and relation counts, and network distance where the provider exposes them. " +
+    "Pass connectedAccountId and identifier. On LinkedIn the identifier is the public identifier (the /in/<slug> part for a person, the /company/<slug> part for a company) or a provider id, " +
+    "for example the id on a thread participant, a reaction sender, a comment author or a current_positions company_id on a Sales Navigator lead; use 'me' for the account owner. On Instagram it is the username. " +
+    "Returns id, name, headline, location, profile and picture urls, follower and relation counts, network distance and current_positions (company, role, company_id) where the provider exposes them, plus type (individual vs organization) telling you which kind of profile you got. " +
     "A nonexistent identifier can surface as a generic provider error rather than a not-found message.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: GetSocialProfileToolSchema,

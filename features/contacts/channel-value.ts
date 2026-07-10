@@ -10,14 +10,21 @@ const HANDLE_URL_PATTERNS: Partial<Record<MessagingProvider, RegExp>> = {
   instagram: /instagram\.com\/([^/?#]+)/i,
 };
 
-const HANDLE_CHARSET = /^[\w.@+=-]{1,160}$/;
+const HANDLE_CHARSET = /^[\p{L}\p{N}\p{M}_.@+=-]{1,160}$/u;
 const PHONE_CHARSET = /^\+?[\d\s\-()]{6,}$/;
 
 export function parseChannelHandle(provider: MessagingProvider, raw: string): string {
   const value = raw.trim();
   const pattern = HANDLE_URL_PATTERNS[provider];
   const match = pattern ? value.match(pattern) : null;
-  return (match ? match[1] : value).replace(/^@/, "").replace(/\/+$/, "");
+  const handle = (match ? match[1] : value).replace(/^@/, "").replace(/\/+$/, "");
+  if (!handle.includes("%")) return handle;
+
+  try {
+    return decodeURIComponent(handle);
+  } catch {
+    return handle;
+  }
 }
 
 export function normalizeChannelValue(provider: MessagingProvider, raw: string): string | null {

@@ -44,6 +44,22 @@ describe("normalizeChannelValue", () => {
   it("extracts the handle for handle providers", () => {
     expect(normalizeChannelValue("linkedin", "linkedin.com/in/jane-doe/")).toBe("jane-doe");
   });
+
+  it("accepts handles with non-ascii letters the provider issues", () => {
+    expect(normalizeChannelValue("linkedin", "andreas-meeß-7b026891")).toBe("andreas-meeß-7b026891");
+    expect(normalizeChannelValue("linkedin", "jürgen-müller-1a2b3c")).toBe("jürgen-müller-1a2b3c");
+  });
+
+  it("decodes percent-encoded handles to their canonical form", () => {
+    expect(normalizeChannelValue("linkedin", "andreas-mee%C3%9F-7b026891")).toBe("andreas-meeß-7b026891");
+    expect(normalizeChannelValue("linkedin", "https://www.linkedin.com/in/andreas-mee%C3%9F-7b026891")).toBe(
+      "andreas-meeß-7b026891",
+    );
+  });
+
+  it("rejects values with malformed percent sequences", () => {
+    expect(normalizeChannelValue("linkedin", "broken-%ZZ-handle")).toBeNull();
+  });
 });
 
 describe("parseChannelHandle", () => {

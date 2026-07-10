@@ -5,11 +5,10 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { Fragment, useEffect } from "react";
 
-import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
-import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ThreadDetail } from "./messaging-thread-detail.store";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { deriveReplyRecipients } from "@/ee/messaging/reply-recipients";
 
 import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
@@ -21,17 +20,6 @@ import { ThreadReplyComposer } from "./thread-reply-composer";
 type Props = {
   threadDetail: ThreadDetail | null;
 };
-
-function collectReplyRecipients(thread: MessagingThread, messages: MessagingMessageDto[]): string[] {
-  const recipients = new Set<string>();
-  const lastInbound = [...messages].reverse().find((m) => m.direction === "inbound");
-  if (lastInbound) {
-    for (const r of lastInbound.recipients.to) if (r.identifier) recipients.add(r.identifier);
-    if (lastInbound.sender.identifier) recipients.add(lastInbound.sender.identifier);
-  }
-  for (const p of thread.participants) if (p.identifier) recipients.add(p.identifier);
-  return Array.from(recipients);
-}
 
 export const ThreadPanel = observer(({ threadDetail }: Props) => {
   const t = useTranslations();
@@ -54,6 +42,7 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
   }
 
   const { messages, accountOwners } = store;
+  const replyRecipients = deriveReplyRecipients(thread.participants, messages);
 
   const avatarByIdentifier = new Map<string, string>();
   for (const p of thread.participants) {
@@ -98,7 +87,8 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
       </MessagesScrollContainer>
 
       <ThreadReplyComposer
-        defaultRecipients={collectReplyRecipients(thread, messages)}
+        defaultCc={replyRecipients.cc}
+        defaultRecipients={replyRecipients.to}
         defaultSubject={thread.subject}
         provider={thread.provider}
         threadId={thread.id}

@@ -47,7 +47,7 @@ export class ProcessEmailNewWebhookInteractor {
       message,
       backfill: false,
     });
-    if (result.isEcho) return;
+    if (result.isEcho || result.isDuplicate) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_EMAIL_RECEIVED,

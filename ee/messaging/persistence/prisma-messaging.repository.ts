@@ -500,6 +500,16 @@ export class PrismaMessagingRepo
   async upsertThreadParticipantsUnscoped(args: RepoArgs<ResyncThreadRepo, "upsertThreadParticipantsUnscoped">) {
     const usable = args.participants.filter((p) => p.attendeeId.trim());
     const nonSelf = usable.filter((p) => !p.isSelf);
+
+    if (nonSelf.length > 0) {
+      const selfIdentifiers = usable.flatMap((p) => (p.isSelf && p.identifier ? [p.identifier] : []));
+      if (selfIdentifiers.length > 0) {
+        await this.prisma.messagingThreadParticipant.deleteMany({
+          where: { messagingThreadId: args.messagingThreadId, identifier: { in: selfIdentifiers } },
+        });
+      }
+    }
+
     const participants = dedupeParticipants(nonSelf.length > 0 ? nonSelf : usable);
     if (participants.length === 0) return;
 
@@ -936,6 +946,23 @@ export class PrismaMessagingRepo
       backfill: false,
     });
 
+    if (result.isDuplicate) {
+      const duplicate = args.message.providerMessageId
+        ? await this.prisma.messagingMessage.findFirst({
+            where: {
+              connectedAccountId: args.connectedAccountId,
+              providerMessageId: args.message.providerMessageId,
+              isDraft: false,
+            },
+            orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          })
+        : null;
+
+      if (!duplicate) throw new Error("Outbound message deduplicated without a persisted row");
+
+      return duplicate as unknown as MessagingMessage;
+    }
+
     if (!result.isEcho) return result.message;
 
     const existing = await this.findMessageByUnipileIdUnscoped({
@@ -1236,6 +1263,29 @@ export class PrismaMessagingRepo
         });
       }
       return { isEcho: true as const };
+    }
+
+    if (!existing && safeMessage.providerMessageId && isEmailProvider(safeMessage.provider)) {
+      const duplicate = await this.prisma.messagingMessage.findFirst({
+        where: { connectedAccountId, providerMessageId: safeMessage.providerMessageId, isDraft: false },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        select: { id: true, folderIds: true, sender: true },
+      });
+
+      if (duplicate) {
+        const duplicateSender = duplicate.sender as unknown as MessagingAttendee;
+        const upgradeSender = hasLetter(safeMessage.sender.displayName) && !hasLetter(duplicateSender.displayName);
+
+        await this.prisma.messagingMessage.update({
+          where: { id: duplicate.id },
+          data: {
+            folderIds: [...new Set([...duplicate.folderIds, ...(safeMessage.folderIds ?? [])])],
+            ...(upgradeSender ? { sender: safeMessage.sender as unknown as Prisma.InputJsonValue } : {}),
+          },
+        });
+
+        return { isEcho: false as const, isDuplicate: true as const };
+      }
     }
 
     const { unipileThreadId, threadType, previewText, ...messageFields } = safeMessage;

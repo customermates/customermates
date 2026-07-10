@@ -103,6 +103,24 @@ function formatSalesList(list: SalesList) {
 }
 
 function formatSalesListItem(item: SalesListItem) {
+  const positionEntries =
+    item.current_positions ??
+    (item.work_experience ?? [])
+      .filter((entry) => entry.ended_on == null)
+      .map((entry) => ({
+        company: entry.company?.name,
+        role: entry.job_title,
+        company_id: entry.company?.id,
+        company_url: entry.company?.profile_url,
+      }));
+  const currentPositions = positionEntries
+    .map((position) => ({
+      company: position.company ?? null,
+      role: position.role ?? null,
+      company_id: position.company_id ?? null,
+      company_url: position.company_url ?? null,
+    }))
+    .filter((position) => Object.values(position).some((value) => value != null));
   const fields = {
     id: item.id,
     member_id: item.member_id,
@@ -115,6 +133,8 @@ function formatSalesListItem(item: SalesListItem) {
     network_distance: item.network_distance,
     can_send_inmail: item.can_send_inmail,
     shared_relations_count: item.shared_relations_count,
+    has_been_saved: item.has_been_saved,
+    current_positions: currentPositions.length > 0 ? currentPositions : null,
   };
 
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value != null));
@@ -131,6 +151,10 @@ function formatSalesCompany(company: SalesCompany) {
     headcount: company.headcount,
     website: company.website,
     summary: company.summary,
+    specialties: company.specialties?.length ? company.specialties : null,
+    founded_on: company.founded_on,
+    is_hiring_on_linkedin: company.is_hiring_on_linkedin,
+    has_been_saved: company.has_been_saved,
   };
 
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value != null));
@@ -144,7 +168,7 @@ export const searchSalesLeadsTool = {
     "Two modes: pass a Sales Navigator search URL the user copied from their browser, or build a structured search with filters " +
     "(keywords plus location, industry, company, job title, seniority, headcount and more; resolve parameter ids via linkedin_get_sales_search_parameters first). " +
     "Runs through the connected LinkedIn account with the account owner's license. " +
-    "Returns lead rows with id (use as providerId for linkedin_manage_sales_lists save), name, headline, location and profile url. " +
+    "Returns lead rows with id (use as providerId for linkedin_manage_sales_lists save), name, headline, location, profile url and current_positions (company, role, company_id, company_url); use a position's company_id with get_social_profile or as providerId for linkedin_manage_sales_lists kind accounts; has_been_saved marks leads already on one of your lists. " +
     "Paginate with offset plus limit; LinkedIn caps a single search at 2500 results, so narrow filters beat deep paging. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -189,7 +213,7 @@ export const searchSalesCompaniesTool = {
     "Use this when the user wants to find companies (accounts) via LinkedIn Sales Navigator, for example to import them as organizations. " +
     "Two modes: pass a Sales Navigator company search URL the user copied from their browser, or build a structured search with filters " +
     "(keywords plus location, industry, headcount, annual revenue, spotlights and more; resolve parameter ids via linkedin_get_sales_search_parameters first). " +
-    "Returns company rows with id (use as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount and website. " +
+    "Returns company rows with id (use as providerId for linkedin_manage_sales_lists save with kind accounts), name, industry, location, headcount, website, specialties, founded year plus hiring and saved flags. " +
     "Paginate with offset plus limit; LinkedIn caps a single company search at 1000 results. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription; without one the provider rejects the call.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
@@ -264,7 +288,7 @@ export const manageSalesListsTool = {
   description:
     "Use this to work with the Sales Navigator lead and account lists of a connected LinkedIn account. " +
     "action list enumerates the existing lists (kind leads for people, accounts for companies) with id, name and item count. " +
-    "action browse returns the members of one list by listId. " +
+    "action browse returns the members of one list by listId; lead rows include current_positions (company, role, company_id, company_url), and a company_id resolves via get_social_profile. " +
     "action save ADDS a person or company to an existing list: pass listId plus providerId (a LinkedIn user id from linkedin_search_sales_leads, get_social_profile or a thread participant; a company id for kind accounts). " +
     "New lists cannot be created via the API; the user creates them in Sales Navigator first. " +
     "Requires a connected LinkedIn account with an active Sales Navigator subscription.",

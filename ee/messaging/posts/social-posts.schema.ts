@@ -81,6 +81,22 @@ const SocialProfileSpecificsSchema = z.looseObject({
   is_open_profile: z.boolean().nullish(),
   is_open_to_work: z.boolean().nullish(),
   website_url: z.string().nullish(),
+  experience: z
+    .array(
+      z.looseObject({
+        company: z
+          .looseObject({
+            name: z.string().nullish(),
+            id: z.string().nullish(),
+            public_identifier: z.string().nullish(),
+            profile_url: z.string().nullish(),
+          })
+          .nullish(),
+        job_title: z.string().nullish(),
+        ended_on: z.string().nullish(),
+      }),
+    )
+    .nullish(),
 });
 
 export const SocialProfileSchema = z.looseObject({

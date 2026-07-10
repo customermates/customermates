@@ -103,6 +103,37 @@ describe("get_social_profile", () => {
     expect(result).toContain("Engineer");
     expect(result).toContain("London");
   });
+
+  it("carries the type discriminator for company profiles", async () => {
+    spies.getSocialProfile.mockResolvedValue({
+      ok: true as const,
+      data: { id: "c1", type: "organization", display_name: "Acme GmbH", public_identifier: "acme" },
+    });
+    const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "acme" });
+    expect(result).toContain("organization");
+    expect(result).toContain("Acme GmbH");
+  });
+
+  it("maps ongoing experience entries into current_positions", async () => {
+    spies.getSocialProfile.mockResolvedValue({
+      ok: true as const,
+      data: {
+        id: "u2",
+        display_name: "Grace Hopper",
+        specifics: {
+          experience: [
+            { company: { name: "Navy Labs", id: "navy-1" }, job_title: "Admiral" },
+            { company: { name: "Past Inc", id: "past-1" }, job_title: "Analyst", ended_on: "01/01/1980" },
+          ],
+        },
+      },
+    });
+    const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "grace" });
+    expect(result).toContain("current_positions");
+    expect(result).toContain("Navy Labs");
+    expect(result).toContain("navy-1");
+    expect(result).not.toContain("Past Inc");
+  });
 });
 
 describe("manage_social_relations routing", () => {

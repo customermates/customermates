@@ -47,7 +47,7 @@ export class ProcessMessageNewWebhookInteractor {
       message,
       backfill: false,
     });
-    if (result.isEcho) return;
+    if (result.isEcho || result.isDuplicate) return;
 
     await this.eventService.publish(
       envelope.type === "message.update"

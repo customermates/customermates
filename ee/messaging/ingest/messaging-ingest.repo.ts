@@ -7,7 +7,11 @@ export abstract class MessagingIngestRepo {
     connectedAccountId: string;
     message: IngestMessage;
     backfill?: boolean;
-  }): Promise<{ isEcho: true } | { isEcho: false; message: MessagingMessage }>;
+  }): Promise<
+    | { isEcho: true; isDuplicate?: false }
+    | { isEcho: false; isDuplicate: true }
+    | { isEcho: false; isDuplicate?: false; message: MessagingMessage }
+  >;
   abstract upsertChatThreadUnscoped(
     args: Pick<MessagingThread, "connectedAccountId" | "unipileThreadId" | "provider" | "subject" | "participants"> & {
       companyId: string;

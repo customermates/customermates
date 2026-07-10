@@ -206,10 +206,12 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       displayName: account.displayName,
       isSelf: true,
     };
+    const markSelf = (attendee: MessagingAttendee): MessagingAttendee =>
+      attendee.identifier === sender.identifier ? { ...attendee, isSelf: true } : attendee;
     const recipients = {
-      to: data.to.map((attendee) => emailRecipient(attendee.identifier, attendee.display_name)),
-      cc: (data.cc ?? []).map((email) => emailRecipient(email)),
-      bcc: (data.bcc ?? []).map((email) => emailRecipient(email)),
+      to: data.to.map((attendee) => markSelf(emailRecipient(attendee.identifier, attendee.display_name))),
+      cc: (data.cc ?? []).map((email) => markSelf(emailRecipient(email))),
+      bcc: (data.bcc ?? []).map((email) => markSelf(emailRecipient(email))),
     };
 
     if (data.draftMessageId) {
