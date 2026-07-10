@@ -80,7 +80,6 @@ export class ProcessAccountAddWebhookInteractor {
       displayName,
       emailAddress,
       provider,
-      providerSyncing: true,
       hasMessaging,
       hasCalendar,
     });

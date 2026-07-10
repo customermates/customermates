@@ -40,4 +40,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.status]: scalarSelectOperators,
   [FilterFieldKey.provider]: scalarSelectOperators,
   [FilterFieldKey.state]: scalarSelectOperators,
+  [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
+  [FilterFieldKey.calendarId]: scalarSelectOperators,
+  [FilterFieldKey.startsAt]: dateOperators,
 };

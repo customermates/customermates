@@ -35,7 +35,6 @@ export const ConnectedAccountDtoSchema = z.object({
   displayName: z.string().nullable(),
   shared: z.boolean(),
   syncing: z.boolean(),
-  preparing: z.boolean(),
   lastSyncedAt: z.date().nullable(),
   createdAt: z.date(),
   owner: ConnectedAccountOwnerSchema,
@@ -165,4 +164,5 @@ export type IngestMessage = Pick<
   threadType?: MessagingThreadType;
   folderIds?: string[];
   editedAt?: Date | null;
+  previewText?: string | null;
 };

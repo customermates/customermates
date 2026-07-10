@@ -35,6 +35,10 @@ export function threadHasActivityWhere(): Prisma.MessagingThreadWhereInput {
   return { OR: [{ lastMessageAt: { not: null } }, { messages: { some: { isDraft: true } } }] };
 }
 
+export function calendarAccessWhere(companyId: string, userId: string): Prisma.CalendarWhereInput {
+  return { companyId, connectedAccount: { is: accessibleAccountWhere(userId) } };
+}
+
 export function calendarEventAccessWhere(companyId: string, userId: string): Prisma.CalendarEventWhereInput {
   return { companyId, connectedAccount: { is: accessibleAccountWhere(userId) } };
 }

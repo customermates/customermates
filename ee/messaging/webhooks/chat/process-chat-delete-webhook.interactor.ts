@@ -31,16 +31,17 @@ export class ProcessChatDeleteWebhookInteractor {
     const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.ingest.deleteChatThreadUnscoped({
+    const thread = await this.ingest.deleteChatThreadUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       unipileThreadId: envelope.payload.id,
     });
+    if (!thread) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_CHAT_DELETED,
       {
-        entityId: envelope.payload.id,
+        entityId: thread.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,

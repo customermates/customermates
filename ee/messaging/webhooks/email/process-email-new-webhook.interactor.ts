@@ -12,6 +12,7 @@ import type { EventService } from "@/features/event/event.service";
 import { DomainEvent } from "@/features/event/domain-events";
 import { buildEmailMessage } from "../../unipile.mappers";
 import { UnipileEmailSchema } from "../../unipile.schema";
+import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 
 const Schema = z.object({
   type: z.enum(["email.new", "email.new.bounce"]),
@@ -38,23 +39,25 @@ export class ProcessEmailNewWebhookInteractor {
       emailAddress: account.emailAddress,
       sentFolderIds: account.sentFolderIds,
     });
-    if (!message) return;
+    if (!message) throw new UnmappableWebhookPayloadError(envelope.payload.email.id || null);
 
-    await this.ingest.ingestMessageUnscoped({
+    const result = await this.ingest.ingestMessageUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       message,
       backfill: false,
     });
+    if (result.isEcho) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_EMAIL_RECEIVED,
       {
-        entityId: envelope.payload.email.id,
+        entityId: result.message.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,
           providerMessageId: envelope.payload.email.id,
+          threadId: result.message.messagingThreadId,
         },
       },
       { systemCompanyId: account.companyId },

@@ -86,10 +86,11 @@ describe("isExpectedError", () => {
     expect(isExpectedError(new Error(DEMO_MODE_MESSAGE))).toBe(true);
   });
 
-  it("recognizes an AppError from a DIFFERENT bundle copy via the isAppError marker (instanceof fails across duplicated chunks)", () => {
-    const foreignDemo = { isAppError: true, name: "DemoModeError", statusCode: 403, message: DEMO_MODE_MESSAGE };
-    const foreignAuth = { isAppError: true, name: "AuthError", statusCode: 401, message: "Not authenticated" };
-    expect(foreignDemo instanceof DemoModeError).toBe(false);
+  it("recognizes an AppError from a DIFFERENT bundle copy via the Symbol.for brand (prototype instanceof fails across duplicated chunks)", () => {
+    const brand = Symbol.for("customermates.appError");
+    const foreignDemo = { [brand]: true, name: "DemoModeError", statusCode: 403, message: DEMO_MODE_MESSAGE };
+    const foreignAuth = { [brand]: true, name: "AuthError", statusCode: 401, message: "Not authenticated" };
+    expect(foreignDemo instanceof DemoModeError).toBe(true);
     expect(isExpectedError(foreignDemo)).toBe(true);
     expect(isExpectedError(foreignAuth)).toBe(true);
   });
@@ -113,8 +114,9 @@ describe("appErrorResponse", () => {
     expect(appErrorResponse(new AuthError())).toEqual({ message: "Not authenticated", statusCode: 401 });
   });
 
-  it("maps an AppError from a different bundle copy via the marker (instanceof would fail)", () => {
-    const foreign = { isAppError: true, name: "ForbiddenError", statusCode: 403, message: "Not authorized" };
+  it("maps an AppError from a different bundle copy via the Symbol.for brand (prototype instanceof would fail)", () => {
+    const brand = Symbol.for("customermates.appError");
+    const foreign = { [brand]: true, name: "ForbiddenError", statusCode: 403, message: "Not authorized" };
     expect(appErrorResponse(foreign)).toEqual({ message: "Not authorized", statusCode: 403 });
   });
 

@@ -16,6 +16,7 @@ import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/wor
 import {
   getMessagingThreadsTool,
   getActivitiesTool,
+  getCalendarsTool,
   sendChatMessageTool,
   sendEmailTool,
   saveMessageDraftTool,
@@ -68,6 +69,7 @@ const TOOL_GROUPS: Record<string, McpTool[]> = {
   messaging: [
     getMessagingThreadsTool,
     getActivitiesTool,
+    getCalendarsTool,
     sendChatMessageTool,
     sendEmailTool,
     saveMessageDraftTool,

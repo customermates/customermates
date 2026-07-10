@@ -4,7 +4,7 @@ import { LinkedinSaveToSalesListSchema } from "@/ee/messaging/sales-navigator/li
 import { LinkedinSaveToSalesListResultSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
-export const saveToSalesListOperation: ZodOpenApiOperationObject = {
+export const linkedinSaveToSalesListOperation: ZodOpenApiOperationObject = {
   operationId: "saveToSalesList",
   summary: "Save a lead or account to a Sales Navigator list",
   description:

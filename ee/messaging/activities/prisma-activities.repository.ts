@@ -96,16 +96,19 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const page = params.pagination?.page ?? 1;
     const skip = params.skip ?? (page - 1) * pageSize;
     const fetchN = skip + pageSize;
+    const direction = params.sortDescriptor?.direction === "asc" ? ("asc" as const) : ("desc" as const);
 
     const providers = query.providers && [...query.providers];
     const threadIds = query.threadIdsIn && [...query.threadIdsIn];
     const threadIdsNotIn = query.threadIdsNotIn && [...query.threadIdsNotIn];
 
     const [auditLogs, messages, activities, calendarEvents] = await Promise.all([
-      fetchAudit ? this.listAuditLogs(entityIds, fetchN) : [],
-      fetchMessages ? this.listMessages({ contactIds, limit: fetchN, providers, threadIds, threadIdsNotIn }) : [],
-      fetchActivities ? this.listAccountActivities(contactIds, fetchN) : [],
-      fetchCalendar ? this.listCalendarEvents(emails, fetchN) : [],
+      fetchAudit ? this.listAuditLogs(entityIds, fetchN, direction) : [],
+      fetchMessages
+        ? this.listMessages({ contactIds, limit: fetchN, providers, threadIds, threadIdsNotIn, direction })
+        : [],
+      fetchActivities ? this.listAccountActivities(contactIds, fetchN, direction) : [],
+      fetchCalendar ? this.listCalendarEvents(emails, fetchN, direction) : [],
     ]);
 
     const myAccountIds = await this.listMySendingAccountIds(
@@ -154,7 +157,10 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         seen.add(key);
         return true;
       })
-      .sort((a, b) => b.at.getTime() - a.at.getTime() || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0))
+      .sort((a, b) => {
+        const byAt = a.at.getTime() - b.at.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+        return direction === "asc" ? byAt : -byAt;
+      })
       .slice(skip, skip + pageSize);
   }
 
@@ -221,10 +227,10 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     };
   }
 
-  private listAuditLogs(entityIds: string[] | undefined, limit: number) {
+  private listAuditLogs(entityIds: string[] | undefined, limit: number, direction: "asc" | "desc") {
     return this.prisma.auditLog.findMany({
       where: { companyId: this.companyId, ...(entityIds?.length ? { entityId: { in: entityIds } } : {}) },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      orderBy: [{ createdAt: direction }, { id: direction }],
       take: limit,
       select: {
         id: true,
@@ -248,8 +254,9 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     providers?: string[];
     threadIds?: string[];
     threadIdsNotIn?: string[];
+    direction: "asc" | "desc";
   }) {
-    const { contactIds, providers, threadIds, threadIdsNotIn } = args;
+    const { contactIds, providers, threadIds, threadIdsNotIn, direction } = args;
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
@@ -282,7 +289,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
             }
           : {}),
       },
-      orderBy: [{ sentAt: "desc" }, { id: "desc" }],
+      orderBy: [{ sentAt: direction }, { id: direction }],
       take: args.limit,
       include: {
         thread: {
@@ -349,7 +356,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     });
   }
 
-  private async listAccountActivities(contactIds: string[] | undefined, limit: number) {
+  private async listAccountActivities(contactIds: string[] | undefined, limit: number, direction: "asc" | "desc") {
     if (!this.canAccess(Resource.inboxMessages)) return [];
 
     const scoped: Prisma.AccountActivityWhereInput = {};
@@ -362,7 +369,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const rows = await this.prisma.accountActivity.findMany({
       where: { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-      orderBy: [{ occurredAt: "desc" }, { id: "desc" }],
+      orderBy: [{ occurredAt: direction }, { id: direction }],
       take: limit,
       select: { id: true, payload: true, occurredAt: true },
     });
@@ -390,7 +397,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     });
   }
 
-  private async listCalendarEvents(emails: string[] | undefined, limit: number) {
+  private async listCalendarEvents(emails: string[] | undefined, limit: number, direction: "asc" | "desc") {
     if (emails && emails.length === 0) return [];
 
     const rows = await this.prisma.calendarEvent.findMany({
@@ -399,7 +406,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
       include: { connectedAccount: { select: { provider: true } } },
-      orderBy: [{ startsAt: "desc" }, { id: "desc" }],
+      orderBy: [{ startsAt: direction }, { id: direction }],
       take: limit,
     });
 

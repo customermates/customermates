@@ -4,7 +4,7 @@ import { LinkedinBrowseSalesListSchema } from "@/ee/messaging/sales-navigator/li
 import { SalesListItemPageSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 
-export const browseSalesListOperation: ZodOpenApiOperationObject = {
+export const linkedinBrowseSalesListOperation: ZodOpenApiOperationObject = {
   operationId: "browseSalesList",
   summary: "Browse a Sales Navigator list",
   description:

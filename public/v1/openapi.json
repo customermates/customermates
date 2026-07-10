@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://customermates.tailf11599.ts.net//api",
+      "url": "http://localhost:4000/api",
       "description": "API Server"
     }
   ],
@@ -26413,6 +26413,3636 @@
         }
       }
     },
+    "/v1/messaging/calendars/search": {
+      "post": {
+        "operationId": "getCalendars",
+        "summary": "Get calendars",
+        "description": "Retrieves the calendars of connected accounts visible to the caller (own accounts plus shared ones), with optional filtering (connectedAccountId), search, sorting, and pagination. Calendar ids match the entityId of the messaging.calendar.changed webhook event.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "equals",
+                                  "title": "equals"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "contains",
+                                  "title": "contains"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gt",
+                                  "title": "gt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gte",
+                                  "title": "gte"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lt",
+                                  "title": "lt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lte",
+                                  "title": "lte"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Single value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "in",
+                                  "title": "in"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notIn",
+                                  "title": "notIn"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "between",
+                                  "title": "between"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Multi value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "isNull",
+                                  "title": "isNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "isNotNull",
+                                  "title": "isNotNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasUnset",
+                                  "title": "hasUnset"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "allSet",
+                                  "title": "allSet"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "type": "string",
+                              "const": "inLastDays",
+                              "title": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Relative window filter"
+                        }
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "searchTerm": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "sortDescriptor": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "direction"
+                    ]
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "number",
+                        "minimum": 1
+                      },
+                      "pageSize": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "const": 5,
+                            "title": "5"
+                          },
+                          {
+                            "type": "number",
+                            "const": 10,
+                            "title": "10"
+                          },
+                          {
+                            "type": "number",
+                            "const": 25,
+                            "title": "25"
+                          },
+                          {
+                            "type": "number",
+                            "const": 100,
+                            "title": "100"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "page",
+                      "pageSize"
+                    ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The calendars were retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customColumns": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "plain"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Plain"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "date"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Date"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateTime"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateRange"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateTimeRange"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "link"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Link"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "currency"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "currency": {
+                                    "type": "string",
+                                    "enum": [
+                                      "eur",
+                                      "usd",
+                                      "gbp",
+                                      "jpy",
+                                      "cny",
+                                      "inr",
+                                      "brl",
+                                      "cad",
+                                      "aud",
+                                      "chf",
+                                      "sek",
+                                      "nok",
+                                      "dkk",
+                                      "pln",
+                                      "czk",
+                                      "huf",
+                                      "try",
+                                      "twd",
+                                      "zar",
+                                      "mxn",
+                                      "krw",
+                                      "hkd",
+                                      "sgd",
+                                      "nzd",
+                                      "aed",
+                                      "sar",
+                                      "ils"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "currency"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Currency"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "singleSelect"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "options": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "value": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "color": {
+                                          "type": "string",
+                                          "enum": [
+                                            "default",
+                                            "secondary",
+                                            "destructive",
+                                            "success",
+                                            "warning",
+                                            "info"
+                                          ]
+                                        },
+                                        "isDefault": {
+                                          "type": "boolean"
+                                        },
+                                        "index": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "value",
+                                        "label",
+                                        "color",
+                                        "isDefault",
+                                        "index"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "options"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "SingleSelect"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "email"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Email"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "phone"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Phone"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "equals",
+                                    "title": "equals"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "contains",
+                                    "title": "contains"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "gt",
+                                    "title": "gt"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "gte",
+                                    "title": "gte"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "lt",
+                                    "title": "lt"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "lte",
+                                    "title": "lte"
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Single value filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "in",
+                                    "title": "in"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notIn",
+                                    "title": "notIn"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "between",
+                                    "title": "between"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Multi value filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "isNull",
+                                    "title": "isNull"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "isNotNull",
+                                    "title": "isNotNull"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasUnset",
+                                    "title": "hasUnset"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "allSet",
+                                    "title": "allSet"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "type": "string",
+                                "const": "inLastDays",
+                                "title": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "searchTerm": {
+                      "type": "string"
+                    },
+                    "sortDescriptor": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "asc",
+                            "desc"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "direction"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number",
+                          "minimum": 1
+                        },
+                        "pageSize": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 5,
+                              "title": "5"
+                            },
+                            {
+                              "type": "number",
+                              "const": 10,
+                              "title": "10"
+                            },
+                            {
+                              "type": "number",
+                              "const": 25,
+                              "title": "25"
+                            },
+                            {
+                              "type": "number",
+                              "const": 100,
+                              "title": "100"
+                            }
+                          ]
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "total": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "operators": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "equals",
+                                "contains",
+                                "in",
+                                "notIn",
+                                "gt",
+                                "gte",
+                                "lt",
+                                "lte",
+                                "between",
+                                "isNull",
+                                "isNotNull",
+                                "hasNone",
+                                "hasSome",
+                                "hasUnset",
+                                "allSet",
+                                "inLastDays"
+                              ]
+                            }
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "operators"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "savedFilterPresets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "filters": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "equals",
+                                          "title": "equals"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "contains",
+                                          "title": "contains"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "gt",
+                                          "title": "gt"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "gte",
+                                          "title": "gte"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "lt",
+                                          "title": "lt"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "lte",
+                                          "title": "lte"
+                                        }
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Single value filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "in",
+                                          "title": "in"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "notIn",
+                                          "title": "notIn"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "between",
+                                          "title": "between"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Multi value filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "isNull",
+                                          "title": "isNull"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "isNotNull",
+                                          "title": "isNotNull"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasUnset",
+                                          "title": "hasUnset"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "allSet",
+                                          "title": "allSet"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "type": "string",
+                                      "const": "inLastDays",
+                                      "title": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relative window filter"
+                                }
+                              ],
+                              "type": "object"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "filters"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "connectedAccountId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "google",
+                              "outlook",
+                              "mail",
+                              "linkedin",
+                              "whatsapp",
+                              "instagram",
+                              "telegram"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "color": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "timezone": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "connectedAccountId",
+                          "provider",
+                          "name",
+                          "description",
+                          "color",
+                          "timezone"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/calendars/{id}": {
+      "get": {
+        "operationId": "getCalendarById",
+        "summary": "Get a calendar by ID",
+        "description": "Fetches one calendar of a connected account visible to the caller, or null when no calendar with this id is accessible. The id matches the entityId of the messaging.calendar.changed webhook event.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The calendar was retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "connectedAccountId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "color": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "timezone": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "connectedAccountId",
+                        "provider",
+                        "name",
+                        "description",
+                        "color",
+                        "timezone"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/calendar-events/search": {
+      "post": {
+        "operationId": "getCalendarEvents",
+        "summary": "Get calendar events",
+        "description": "Retrieves calendar events visible to the caller, ordered by start time, with optional filtering (calendarId, connectedAccountId, startsAt date range), sorting, and pagination. Event ids match the entityId of the messaging.calendar.event.changed webhook event.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "equals",
+                                  "title": "equals"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "contains",
+                                  "title": "contains"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gt",
+                                  "title": "gt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gte",
+                                  "title": "gte"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lt",
+                                  "title": "lt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lte",
+                                  "title": "lte"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Single value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "in",
+                                  "title": "in"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notIn",
+                                  "title": "notIn"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "between",
+                                  "title": "between"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Multi value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "isNull",
+                                  "title": "isNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "isNotNull",
+                                  "title": "isNotNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasUnset",
+                                  "title": "hasUnset"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "allSet",
+                                  "title": "allSet"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "type": "string",
+                              "const": "inLastDays",
+                              "title": "inLastDays"
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Relative window filter"
+                        }
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "searchTerm": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "sortDescriptor": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "direction"
+                    ]
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "number",
+                        "minimum": 1
+                      },
+                      "pageSize": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "const": 5,
+                            "title": "5"
+                          },
+                          {
+                            "type": "number",
+                            "const": 10,
+                            "title": "10"
+                          },
+                          {
+                            "type": "number",
+                            "const": 25,
+                            "title": "25"
+                          },
+                          {
+                            "type": "number",
+                            "const": 100,
+                            "title": "100"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "page",
+                      "pageSize"
+                    ]
+                  },
+                  "groupedPagination": {
+                    "type": "object",
+                    "properties": {
+                      "groupingColumnId": {
+                        "type": "string"
+                      },
+                      "perGroup": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 500
+                      },
+                      "overrides": {
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 500
+                        }
+                      }
+                    },
+                    "required": [
+                      "groupingColumnId",
+                      "perGroup"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The calendar events were retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customColumns": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "plain"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Plain"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "date"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Date"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTime"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateTime"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateRange"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "dateTimeRange"
+                              },
+                              "options": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "displayFormat": {
+                                        "type": "string",
+                                        "enum": [
+                                          "numericalLong",
+                                          "numericalShort",
+                                          "descriptiveShort",
+                                          "descriptiveLong",
+                                          "relative"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "displayFormat"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type"
+                            ],
+                            "additionalProperties": false,
+                            "title": "DateTimeRange"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "link"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Link"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "currency"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "currency": {
+                                    "type": "string",
+                                    "enum": [
+                                      "eur",
+                                      "usd",
+                                      "gbp",
+                                      "jpy",
+                                      "cny",
+                                      "inr",
+                                      "brl",
+                                      "cad",
+                                      "aud",
+                                      "chf",
+                                      "sek",
+                                      "nok",
+                                      "dkk",
+                                      "pln",
+                                      "czk",
+                                      "huf",
+                                      "try",
+                                      "twd",
+                                      "zar",
+                                      "mxn",
+                                      "krw",
+                                      "hkd",
+                                      "sgd",
+                                      "nzd",
+                                      "aed",
+                                      "sar",
+                                      "ils"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "currency"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Currency"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "singleSelect"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "options": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "value": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "color": {
+                                          "type": "string",
+                                          "enum": [
+                                            "default",
+                                            "secondary",
+                                            "destructive",
+                                            "success",
+                                            "warning",
+                                            "info"
+                                          ]
+                                        },
+                                        "isDefault": {
+                                          "type": "boolean"
+                                        },
+                                        "index": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "value",
+                                        "label",
+                                        "color",
+                                        "isDefault",
+                                        "index"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "options"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "SingleSelect"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "email"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Email"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "contact",
+                                  "organization",
+                                  "deal",
+                                  "service",
+                                  "task"
+                                ]
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "phone"
+                              },
+                              "options": {
+                                "type": "object",
+                                "properties": {
+                                  "color": {
+                                    "type": "string",
+                                    "enum": [
+                                      "default",
+                                      "secondary",
+                                      "destructive",
+                                      "success",
+                                      "warning",
+                                      "info"
+                                    ]
+                                  },
+                                  "allowMultiple": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "color",
+                                  "allowMultiple"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "label",
+                              "entityType",
+                              "type",
+                              "options"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Phone"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "equals",
+                                    "title": "equals"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "contains",
+                                    "title": "contains"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "gt",
+                                    "title": "gt"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "gte",
+                                    "title": "gte"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "lt",
+                                    "title": "lt"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "lte",
+                                    "title": "lte"
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Single value filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "in",
+                                    "title": "in"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "notIn",
+                                    "title": "notIn"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "between",
+                                    "title": "between"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasNone",
+                                    "title": "hasNone"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasSome",
+                                    "title": "hasSome"
+                                  }
+                                ]
+                              },
+                              "value": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Multi value filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "const": "isNull",
+                                    "title": "isNull"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "isNotNull",
+                                    "title": "isNotNull"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "hasUnset",
+                                    "title": "hasUnset"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "allSet",
+                                    "title": "allSet"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Standalone filter"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "type": "string",
+                                "const": "inLastDays",
+                                "title": "inLastDays"
+                              },
+                              "value": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "field",
+                              "operator",
+                              "value"
+                            ],
+                            "additionalProperties": false,
+                            "title": "Relative window filter"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "searchTerm": {
+                      "type": "string"
+                    },
+                    "sortDescriptor": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "asc",
+                            "desc"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "field",
+                        "direction"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number",
+                          "minimum": 1
+                        },
+                        "pageSize": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 5,
+                              "title": "5"
+                            },
+                            {
+                              "type": "number",
+                              "const": 10,
+                              "title": "10"
+                            },
+                            {
+                              "type": "number",
+                              "const": 25,
+                              "title": "25"
+                            },
+                            {
+                              "type": "number",
+                              "const": 100,
+                              "title": "100"
+                            }
+                          ]
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "total": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "operators": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "equals",
+                                "contains",
+                                "in",
+                                "notIn",
+                                "gt",
+                                "gte",
+                                "lt",
+                                "lte",
+                                "between",
+                                "isNull",
+                                "isNotNull",
+                                "hasNone",
+                                "hasSome",
+                                "hasUnset",
+                                "allSet",
+                                "inLastDays"
+                              ]
+                            }
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "operators"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "savedFilterPresets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "filters": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "equals",
+                                          "title": "equals"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "contains",
+                                          "title": "contains"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "gt",
+                                          "title": "gt"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "gte",
+                                          "title": "gte"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "lt",
+                                          "title": "lt"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "lte",
+                                          "title": "lte"
+                                        }
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Single value filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "in",
+                                          "title": "in"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "notIn",
+                                          "title": "notIn"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "between",
+                                          "title": "between"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasNone",
+                                          "title": "hasNone"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasSome",
+                                          "title": "hasSome"
+                                        }
+                                      ]
+                                    },
+                                    "value": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Multi value filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "const": "isNull",
+                                          "title": "isNull"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "isNotNull",
+                                          "title": "isNotNull"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "hasUnset",
+                                          "title": "hasUnset"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "const": "allSet",
+                                          "title": "allSet"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Standalone filter"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "field": {
+                                      "type": "string"
+                                    },
+                                    "operator": {
+                                      "type": "string",
+                                      "const": "inLastDays",
+                                      "title": "inLastDays"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "required": [
+                                    "field",
+                                    "operator",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false,
+                                  "title": "Relative window filter"
+                                }
+                              ],
+                              "type": "object"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "filters"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "conferenceUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "startsAt": {
+                            "type": "string"
+                          },
+                          "endsAt": {
+                            "type": "string"
+                          },
+                          "allDay": {
+                            "type": "boolean"
+                          },
+                          "timezone": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "recurrenceRule": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "confirmed",
+                              "cancelled"
+                            ]
+                          },
+                          "attendees": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "email": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "responseStatus": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "isOrganizer": {
+                                  "default": false,
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "displayName",
+                                "responseStatus",
+                                "isOrganizer"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "organizer": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "email": {
+                                    "type": "string"
+                                  },
+                                  "displayName": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "responseStatus": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "isOrganizer": {
+                                    "default": false,
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "email",
+                                  "displayName",
+                                  "responseStatus",
+                                  "isOrganizer"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "connectedAccountId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "calendarId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "google",
+                              "outlook",
+                              "mail",
+                              "linkedin",
+                              "whatsapp",
+                              "instagram",
+                              "telegram"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "description",
+                          "location",
+                          "conferenceUrl",
+                          "startsAt",
+                          "endsAt",
+                          "allDay",
+                          "timezone",
+                          "recurrenceRule",
+                          "status",
+                          "attendees",
+                          "organizer",
+                          "id",
+                          "connectedAccountId",
+                          "calendarId",
+                          "provider"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messaging/calendar-events/{id}": {
+      "get": {
+        "operationId": "getCalendarEventById",
+        "summary": "Get a calendar event by ID",
+        "description": "Fetches one calendar event visible to the caller, including organizer and attendees, or null when no event with this id is accessible. The id matches the entityId of the messaging.calendar.event.changed webhook event.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The calendar event was retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "location": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "conferenceUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "startsAt": {
+                          "type": "string"
+                        },
+                        "endsAt": {
+                          "type": "string"
+                        },
+                        "allDay": {
+                          "type": "boolean"
+                        },
+                        "timezone": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "recurrenceRule": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "confirmed",
+                            "cancelled"
+                          ]
+                        },
+                        "attendees": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "email": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "responseStatus": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "isOrganizer": {
+                                "default": false,
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "email",
+                              "displayName",
+                              "responseStatus",
+                              "isOrganizer"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "organizer": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "email": {
+                                  "type": "string"
+                                },
+                                "displayName": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "responseStatus": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "isOrganizer": {
+                                  "default": false,
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "email",
+                                "displayName",
+                                "responseStatus",
+                                "isOrganizer"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "connectedAccountId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "calendarId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "enum": [
+                            "google",
+                            "outlook",
+                            "mail",
+                            "linkedin",
+                            "whatsapp",
+                            "instagram",
+                            "telegram"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "description",
+                        "location",
+                        "conferenceUrl",
+                        "startsAt",
+                        "endsAt",
+                        "allDay",
+                        "timezone",
+                        "recurrenceRule",
+                        "status",
+                        "attendees",
+                        "organizer",
+                        "id",
+                        "connectedAccountId",
+                        "calendarId",
+                        "provider"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/messaging/send-email": {
       "post": {
         "operationId": "sendEmail",
@@ -42632,12 +46262,18 @@
                   },
                   "providerMessageId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerMessageId"
+                  "providerMessageId",
+                  "threadId"
                 ]
               }
             },
@@ -42705,12 +46341,18 @@
                   },
                   "providerMessageId": {
                     "type": "string"
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
                   "connectedAccountId",
                   "provider",
-                  "providerMessageId"
+                  "providerMessageId",
+                  "threadId"
                 ]
               }
             },
@@ -44147,9 +47789,6 @@
           "syncing": {
             "type": "boolean"
           },
-          "preparing": {
-            "type": "boolean"
-          },
           "lastSyncedAt": {
             "anyOf": [
               {
@@ -44294,7 +47933,6 @@
           "displayName",
           "shared",
           "syncing",
-          "preparing",
           "lastSyncedAt",
           "createdAt",
           "owner",

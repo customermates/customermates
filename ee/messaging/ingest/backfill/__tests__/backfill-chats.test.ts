@@ -42,7 +42,6 @@ function build(overrides: { chats?: unknown[]; participants?: unknown[] }) {
   const repo = {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
-    recordRawBackfillItemUnscoped: vi.fn().mockResolvedValue(undefined),
   };
   const interactor = new BackfillChatsInteractor(repo as any, messagingService as any, ingest as any);
 
@@ -143,7 +142,7 @@ describe("BackfillChatsInteractor (list-only page)", () => {
       last_message: { text: "", is_sender: false },
       last_message_timestamp: "2026-07-04T12:43:43.000Z",
     };
-    const { interactor, messagingService, ingest, repo } = build({ chats: [singleChat] });
+    const { interactor, messagingService, ingest } = build({ chats: [singleChat] });
     ingest.findThreadLatestMessageAtUnscoped.mockResolvedValue(new Date("2026-07-08T12:20:22.000Z"));
 
     await interactor.invoke(accountWide as any);
@@ -157,7 +156,6 @@ describe("BackfillChatsInteractor (list-only page)", () => {
 
     expect(ingest.ingestMessageUnscoped).not.toHaveBeenCalled();
     expect(messagingService.listChatMessages).not.toHaveBeenCalled();
-    expect(repo.recordRawBackfillItemUnscoped).not.toHaveBeenCalled();
   });
 
   it("lists a LinkedIn inbox source via listInboxChats, honoring the incoming cursor", async () => {

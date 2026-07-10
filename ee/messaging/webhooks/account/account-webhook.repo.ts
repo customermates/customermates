@@ -6,6 +6,8 @@ import type {
   MessagingProvider,
 } from "@/generated/prisma";
 
+import type { EmailFolder } from "../../email-folders";
+
 import { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
 
 export abstract class WebhookUserRepo {
@@ -31,8 +33,11 @@ export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedR
     emailAddress?: string | null;
     provider?: MessagingProvider;
     syncing?: boolean;
-    providerSyncing?: boolean;
     hasMessaging?: boolean;
     hasCalendar?: boolean;
+    sentFolderIds?: string[];
+    folders?: EmailFolder[];
+    foldersSyncedAt?: Date;
+    selectedFolderIds?: string[];
   }): Promise<ConnectedAccount | null>;
 }

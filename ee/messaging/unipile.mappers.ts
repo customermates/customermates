@@ -176,6 +176,9 @@ export function buildEmailMessage(
   const unipileMessageId = email.id;
   if (!unipileMessageId) return null;
 
+  const sentAt = new Date(email.date);
+  if (Number.isNaN(sentAt.getTime())) return null;
+
   const self = account.emailAddress?.trim().toLowerCase() || null;
   const sentFolders = new Set(account.sentFolderIds ?? []);
   const inSentFolder = sentFolders.size > 0 && (email.folders ?? []).some((folderId) => sentFolders.has(folderId));
@@ -202,6 +205,7 @@ export function buildEmailMessage(
     subject: email.subject ?? null,
     bodyHtml: email.body ?? null,
     bodyText: null,
+    previewText: email.snippet ?? null,
     sender: { ...sender, isSelf: senderIsSelf },
     recipients: { to, cc, bcc },
     threadType: counterparts.size > 1 ? "group" : undefined,
@@ -211,6 +215,6 @@ export function buildEmailMessage(
     isEvent: false,
     isDeleted: false,
     isHidden: false,
-    sentAt: new Date(email.date),
+    sentAt,
   };
 }

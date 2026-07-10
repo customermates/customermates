@@ -9,9 +9,9 @@ import { updateContactOperation } from "@/features/contacts/upsert/update-contac
 import { updateManyContactsOperation } from "@/features/contacts/upsert/update-many-contacts.openapi";
 import { getContactByIdOperation } from "@/features/contacts/get/get-contact-by-id.openapi";
 import { getContactsConfigurationOperation } from "@/features/contacts/get/get-contacts-configuration.openapi";
-import { webhookContactCreatedOperation } from "@/features/contacts/webhooks/contact-created.openapi";
-import { webhookContactUpdatedOperation } from "@/features/contacts/webhooks/contact-updated.openapi";
-import { webhookContactDeletedOperation } from "@/features/contacts/webhooks/contact-deleted.openapi";
+import { webhookContactCreatedOperation } from "@/features/contacts/upsert/contact-created.openapi";
+import { webhookContactUpdatedOperation } from "@/features/contacts/upsert/contact-updated.openapi";
+import { webhookContactDeletedOperation } from "@/features/contacts/delete/contact-deleted.openapi";
 import { getOrganizationsOperation } from "@/features/organizations/get/get-organizations.openapi";
 import { getOrganizationsConfigurationOperation } from "@/features/organizations/get/get-organizations-configuration.openapi";
 import { getOrganizationByIdOperation } from "@/features/organizations/get/get-organization-by-id.openapi";
@@ -21,9 +21,9 @@ import { createOrganizationOperation } from "@/features/organizations/upsert/cre
 import { createManyOrganizationsOperation } from "@/features/organizations/upsert/create-many-organizations.openapi";
 import { updateOrganizationOperation } from "@/features/organizations/upsert/update-organization.openapi";
 import { updateManyOrganizationsOperation } from "@/features/organizations/upsert/update-many-organizations.openapi";
-import { webhookOrganizationCreatedOperation } from "@/features/organizations/webhooks/organization-created.openapi";
-import { webhookOrganizationUpdatedOperation } from "@/features/organizations/webhooks/organization-updated.openapi";
-import { webhookOrganizationDeletedOperation } from "@/features/organizations/webhooks/organization-deleted.openapi";
+import { webhookOrganizationCreatedOperation } from "@/features/organizations/upsert/organization-created.openapi";
+import { webhookOrganizationUpdatedOperation } from "@/features/organizations/upsert/organization-updated.openapi";
+import { webhookOrganizationDeletedOperation } from "@/features/organizations/delete/organization-deleted.openapi";
 import { getDealsOperation } from "@/features/deals/get/get-deals.openapi";
 import { getDealsConfigurationOperation } from "@/features/deals/get/get-deals-configuration.openapi";
 import { getDealByIdOperation } from "@/features/deals/get/get-deal-by-id.openapi";
@@ -33,9 +33,9 @@ import { createDealOperation } from "@/features/deals/upsert/create-deal.openapi
 import { createManyDealsOperation } from "@/features/deals/upsert/create-many-deals.openapi";
 import { updateDealOperation } from "@/features/deals/upsert/update-deal.openapi";
 import { updateManyDealsOperation } from "@/features/deals/upsert/update-many-deals.openapi";
-import { webhookDealCreatedOperation } from "@/features/deals/webhooks/deal-created.openapi";
-import { webhookDealUpdatedOperation } from "@/features/deals/webhooks/deal-updated.openapi";
-import { webhookDealDeletedOperation } from "@/features/deals/webhooks/deal-deleted.openapi";
+import { webhookDealCreatedOperation } from "@/features/deals/upsert/deal-created.openapi";
+import { webhookDealUpdatedOperation } from "@/features/deals/upsert/deal-updated.openapi";
+import { webhookDealDeletedOperation } from "@/features/deals/delete/deal-deleted.openapi";
 import { getServicesOperation } from "@/features/services/get/get-services.openapi";
 import { getServicesConfigurationOperation } from "@/features/services/get/get-services-configuration.openapi";
 import { getServiceByIdOperation } from "@/features/services/get/get-service-by-id.openapi";
@@ -45,9 +45,9 @@ import { createServiceOperation } from "@/features/services/upsert/create-servic
 import { createManyServicesOperation } from "@/features/services/upsert/create-many-services.openapi";
 import { updateServiceOperation } from "@/features/services/upsert/update-service.openapi";
 import { updateManyServicesOperation } from "@/features/services/upsert/update-many-services.openapi";
-import { webhookServiceCreatedOperation } from "@/features/services/webhooks/service-created.openapi";
-import { webhookServiceUpdatedOperation } from "@/features/services/webhooks/service-updated.openapi";
-import { webhookServiceDeletedOperation } from "@/features/services/webhooks/service-deleted.openapi";
+import { webhookServiceCreatedOperation } from "@/features/services/upsert/service-created.openapi";
+import { webhookServiceUpdatedOperation } from "@/features/services/upsert/service-updated.openapi";
+import { webhookServiceDeletedOperation } from "@/features/services/delete/service-deleted.openapi";
 import { getTasksOperation } from "@/features/tasks/get/get-tasks.openapi";
 import { getTasksConfigurationOperation } from "@/features/tasks/get/get-tasks-configuration.openapi";
 import { getTaskByIdOperation } from "@/features/tasks/get/get-task-by-id.openapi";
@@ -57,34 +57,38 @@ import { createTaskOperation } from "@/features/tasks/upsert/create-task.openapi
 import { createManyTasksOperation } from "@/features/tasks/upsert/create-many-tasks.openapi";
 import { updateTaskOperation } from "@/features/tasks/upsert/update-task.openapi";
 import { updateManyTasksOperation } from "@/features/tasks/upsert/update-many-tasks.openapi";
-import { webhookTaskCreatedOperation } from "@/features/tasks/webhooks/task-created.openapi";
-import { webhookTaskUpdatedOperation } from "@/features/tasks/webhooks/task-updated.openapi";
-import { webhookTaskDeletedOperation } from "@/features/tasks/webhooks/task-deleted.openapi";
+import { webhookTaskCreatedOperation } from "@/features/tasks/upsert/task-created.openapi";
+import { webhookTaskUpdatedOperation } from "@/features/tasks/upsert/task-updated.openapi";
+import { webhookTaskDeletedOperation } from "@/features/tasks/delete/task-deleted.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
-import { getUserProfileOperation } from "@/features/user/get/get-user-profile.openapi";
-import { getConnectedAccountsOperation } from "@/features/messaging/connect/get-my-connected-accounts.openapi";
-import { getMessagingThreadsOperation } from "@/features/messaging/inbox/get-messaging-threads.openapi";
-import { getMessagingThreadOperation } from "@/features/messaging/inbox/get-messaging-thread.openapi";
-import { sendChatMessageOperation } from "@/features/messaging/outbound/send-chat-message.openapi";
-import { getActivitiesOperation } from "@/features/messaging/activities/get-activities.openapi";
-import { sendEmailOperation } from "@/features/messaging/outbound/send-email.openapi";
-import { startChatOperation } from "@/features/messaging/outbound/start-chat.openapi";
-import { saveDraftOperation } from "@/features/messaging/outbound/save-draft.openapi";
-import { discardDraftOperation } from "@/features/messaging/outbound/discard-draft.openapi";
-import { getSocialPostsOperation } from "@/features/messaging/posts/list-social-posts.openapi";
-import { getSocialPostEngagementOperation } from "@/features/messaging/posts/list-social-post-comments.openapi";
-import { getSocialProfileOperation } from "@/features/messaging/posts/social-profiles.openapi";
-import { searchSalesNavigatorOperation } from "@/features/messaging/sales-navigator/search-sales-navigator.openapi";
-import { searchSalesPeopleOperation } from "@/features/messaging/sales-navigator/search-sales-people.openapi";
-import { searchSalesCompaniesOperation } from "@/features/messaging/sales-navigator/search-sales-companies.openapi";
-import { listSalesSearchParametersOperation } from "@/features/messaging/sales-navigator/list-sales-search-parameters.openapi";
-import { listSalesListsOperation } from "@/features/messaging/sales-navigator/list-sales-lists.openapi";
-import { browseSalesListOperation } from "@/features/messaging/sales-navigator/browse-sales-list.openapi";
-import { saveToSalesListOperation } from "@/features/messaging/sales-navigator/save-to-sales-list.openapi";
-import { listRelationRequestsOperation } from "@/features/messaging/posts/list-relation-requests.openapi";
-import { createRelationRequestOperation } from "@/features/messaging/posts/create-relation-request.openapi";
-import { acceptRelationRequestOperation } from "@/features/messaging/posts/accept-relation-request.openapi";
-import { cancelRelationRequestOperation } from "@/features/messaging/posts/cancel-relation-request.openapi";
+import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
+import { getConnectedAccountsOperation } from "@/ee/messaging/connect/get-my-connected-accounts.openapi";
+import { getMessagingThreadsOperation } from "@/ee/messaging/inbox/get-messaging-threads.openapi";
+import { getMessagingThreadOperation } from "@/ee/messaging/inbox/get-messaging-thread.openapi";
+import { sendChatMessageOperation } from "@/ee/messaging/outbound/send-chat-message.openapi";
+import { getActivitiesOperation } from "@/ee/messaging/activities/get-activities.openapi";
+import { getCalendarsOperation } from "@/ee/calendar/get-calendars.openapi";
+import { getCalendarByIdOperation } from "@/ee/calendar/get-calendar-by-id.openapi";
+import { getCalendarEventsOperation } from "@/ee/calendar/get-calendar-events.openapi";
+import { getCalendarEventByIdOperation } from "@/ee/calendar/get-calendar-event-by-id.openapi";
+import { sendEmailOperation } from "@/ee/messaging/outbound/send-email.openapi";
+import { startChatOperation } from "@/ee/messaging/outbound/start-chat.openapi";
+import { saveDraftOperation } from "@/ee/messaging/outbound/save-draft.openapi";
+import { discardDraftOperation } from "@/ee/messaging/outbound/discard-draft.openapi";
+import { getSocialPostsOperation } from "@/ee/messaging/posts/list-social-posts.openapi";
+import { getSocialPostEngagementOperation } from "@/ee/messaging/posts/list-social-post-comments.openapi";
+import { getSocialProfileOperation } from "@/ee/messaging/posts/get-social-profile.openapi";
+import { linkedinSearchSalesNavigatorOperation } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.openapi";
+import { linkedinSearchSalesPeopleOperation } from "@/ee/messaging/sales-navigator/linkedin-search-sales-people.openapi";
+import { linkedinSearchSalesCompaniesOperation } from "@/ee/messaging/sales-navigator/linkedin-search-sales-companies.openapi";
+import { linkedinListSalesSearchParametersOperation } from "@/ee/messaging/sales-navigator/linkedin-list-sales-search-parameters.openapi";
+import { linkedinListSalesListsOperation } from "@/ee/messaging/sales-navigator/linkedin-list-sales-lists.openapi";
+import { linkedinBrowseSalesListOperation } from "@/ee/messaging/sales-navigator/linkedin-browse-sales-list.openapi";
+import { linkedinSaveToSalesListOperation } from "@/ee/messaging/sales-navigator/linkedin-save-to-sales-list.openapi";
+import { listRelationRequestsOperation } from "@/ee/messaging/posts/list-relation-requests.openapi";
+import { createRelationRequestOperation } from "@/ee/messaging/posts/create-relation-request.openapi";
+import { acceptRelationRequestOperation } from "@/ee/messaging/posts/accept-relation-request.openapi";
+import { cancelRelationRequestOperation } from "@/ee/messaging/posts/cancel-relation-request.openapi";
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
 import { DeleteContactSchema } from "@/features/contacts/delete/delete-contact.interactor";
 import { DeleteManyContactsSchema } from "@/features/contacts/delete/delete-many-contacts.interactor";
@@ -93,20 +97,20 @@ import { CreateContactSchema } from "@/features/contacts/upsert/create-contact.i
 import { CreateManyContactsSchema } from "@/features/contacts/upsert/create-many-contacts.interactor";
 import { UpdateContactSchema } from "@/features/contacts/upsert/update-contact.interactor";
 import { UpdateManyContactsSchema } from "@/features/contacts/upsert/update-many-contacts.interactor";
-import { webhookMessagingMessageReceivedOperation } from "@/features/messaging/webhooks/message-received.openapi";
-import { webhookMessagingMessageUpdatedOperation } from "@/features/messaging/webhooks/message-updated.openapi";
-import { webhookMessagingMessageDeletedOperation } from "@/features/messaging/webhooks/message-deleted.openapi";
-import { webhookMessagingMessageReactionOperation } from "@/features/messaging/webhooks/message-reaction.openapi";
-import { webhookMessagingEmailReceivedOperation } from "@/features/messaging/webhooks/email-received.openapi";
-import { webhookMessagingEmailDeletedOperation } from "@/features/messaging/webhooks/email-deleted.openapi";
-import { webhookMessagingChatUpdatedOperation } from "@/features/messaging/webhooks/chat-updated.openapi";
-import { webhookMessagingChatDeletedOperation } from "@/features/messaging/webhooks/chat-deleted.openapi";
-import { webhookMessagingCalendarChangedOperation } from "@/features/messaging/webhooks/calendar-changed.openapi";
-import { webhookMessagingCalendarEventChangedOperation } from "@/features/messaging/webhooks/calendar-event-changed.openapi";
-import { webhookMessagingRelationCreatedOperation } from "@/features/messaging/webhooks/relation-created.openapi";
-import { WebhookContactCreatedSchema } from "@/features/contacts/webhooks/contact-created.openapi";
-import { WebhookContactUpdatedSchema } from "@/features/contacts/webhooks/contact-updated.openapi";
-import { WebhookContactDeletedSchema } from "@/features/contacts/webhooks/contact-deleted.openapi";
+import { webhookMessagingMessageReceivedOperation } from "@/ee/messaging/webhooks/message/message-received.openapi";
+import { webhookMessagingMessageUpdatedOperation } from "@/ee/messaging/webhooks/message/message-updated.openapi";
+import { webhookMessagingMessageDeletedOperation } from "@/ee/messaging/webhooks/message/message-deleted.openapi";
+import { webhookMessagingMessageReactionOperation } from "@/ee/messaging/webhooks/message/message-reaction.openapi";
+import { webhookMessagingEmailReceivedOperation } from "@/ee/messaging/webhooks/email/email-received.openapi";
+import { webhookMessagingEmailDeletedOperation } from "@/ee/messaging/webhooks/email/email-deleted.openapi";
+import { webhookMessagingChatUpdatedOperation } from "@/ee/messaging/webhooks/chat/chat-updated.openapi";
+import { webhookMessagingChatDeletedOperation } from "@/ee/messaging/webhooks/chat/chat-deleted.openapi";
+import { webhookMessagingCalendarChangedOperation } from "@/ee/messaging/webhooks/calendar/calendar-changed.openapi";
+import { webhookMessagingCalendarEventChangedOperation } from "@/ee/messaging/webhooks/calendar/calendar-event-changed.openapi";
+import { webhookMessagingRelationCreatedOperation } from "@/ee/messaging/webhooks/relation/relation-created.openapi";
+import { WebhookContactCreatedSchema } from "@/features/contacts/upsert/contact-created.openapi";
+import { WebhookContactUpdatedSchema } from "@/features/contacts/upsert/contact-updated.openapi";
+import { WebhookContactDeletedSchema } from "@/features/contacts/delete/contact-deleted.openapi";
 import { env } from "@/env";
 import { DeleteDealSchema } from "@/features/deals/delete/delete-deal.interactor";
 import { DeleteOrganizationSchema } from "@/features/organizations/delete/delete-organization.interactor";
@@ -136,29 +140,29 @@ import { UpdateTaskSchema } from "@/features/tasks/upsert/update-task.interactor
 import { UpdateManyTasksSchema } from "@/features/tasks/upsert/update-many-tasks.interactor";
 import { DeleteManyTasksSchema } from "@/features/tasks/delete/delete-many-tasks.interactor";
 import { GetTaskByIdSchema } from "@/features/tasks/get/get-task-by-id.interactor";
-import { WebhookOrganizationCreatedSchema } from "@/features/organizations/webhooks/organization-created.openapi";
-import { WebhookOrganizationUpdatedSchema } from "@/features/organizations/webhooks/organization-updated.openapi";
-import { WebhookOrganizationDeletedSchema } from "@/features/organizations/webhooks/organization-deleted.openapi";
-import { WebhookDealCreatedSchema } from "@/features/deals/webhooks/deal-created.openapi";
-import { WebhookDealUpdatedSchema } from "@/features/deals/webhooks/deal-updated.openapi";
-import { WebhookDealDeletedSchema } from "@/features/deals/webhooks/deal-deleted.openapi";
-import { WebhookServiceCreatedSchema } from "@/features/services/webhooks/service-created.openapi";
-import { WebhookServiceUpdatedSchema } from "@/features/services/webhooks/service-updated.openapi";
-import { WebhookServiceDeletedSchema } from "@/features/services/webhooks/service-deleted.openapi";
-import { WebhookTaskCreatedSchema } from "@/features/tasks/webhooks/task-created.openapi";
-import { WebhookTaskUpdatedSchema } from "@/features/tasks/webhooks/task-updated.openapi";
-import { WebhookTaskDeletedSchema } from "@/features/tasks/webhooks/task-deleted.openapi";
-import { WebhookMessagingMessageReceivedSchema } from "@/features/messaging/webhooks/message-received.openapi";
-import { WebhookMessagingMessageUpdatedSchema } from "@/features/messaging/webhooks/message-updated.openapi";
-import { WebhookMessagingMessageDeletedSchema } from "@/features/messaging/webhooks/message-deleted.openapi";
-import { WebhookMessagingMessageReactionSchema } from "@/features/messaging/webhooks/message-reaction.openapi";
-import { WebhookMessagingEmailReceivedSchema } from "@/features/messaging/webhooks/email-received.openapi";
-import { WebhookMessagingEmailDeletedSchema } from "@/features/messaging/webhooks/email-deleted.openapi";
-import { WebhookMessagingChatUpdatedSchema } from "@/features/messaging/webhooks/chat-updated.openapi";
-import { WebhookMessagingChatDeletedSchema } from "@/features/messaging/webhooks/chat-deleted.openapi";
-import { WebhookMessagingCalendarChangedSchema } from "@/features/messaging/webhooks/calendar-changed.openapi";
-import { WebhookMessagingCalendarEventChangedSchema } from "@/features/messaging/webhooks/calendar-event-changed.openapi";
-import { WebhookMessagingRelationCreatedSchema } from "@/features/messaging/webhooks/relation-created.openapi";
+import { WebhookOrganizationCreatedSchema } from "@/features/organizations/upsert/organization-created.openapi";
+import { WebhookOrganizationUpdatedSchema } from "@/features/organizations/upsert/organization-updated.openapi";
+import { WebhookOrganizationDeletedSchema } from "@/features/organizations/delete/organization-deleted.openapi";
+import { WebhookDealCreatedSchema } from "@/features/deals/upsert/deal-created.openapi";
+import { WebhookDealUpdatedSchema } from "@/features/deals/upsert/deal-updated.openapi";
+import { WebhookDealDeletedSchema } from "@/features/deals/delete/deal-deleted.openapi";
+import { WebhookServiceCreatedSchema } from "@/features/services/upsert/service-created.openapi";
+import { WebhookServiceUpdatedSchema } from "@/features/services/upsert/service-updated.openapi";
+import { WebhookServiceDeletedSchema } from "@/features/services/delete/service-deleted.openapi";
+import { WebhookTaskCreatedSchema } from "@/features/tasks/upsert/task-created.openapi";
+import { WebhookTaskUpdatedSchema } from "@/features/tasks/upsert/task-updated.openapi";
+import { WebhookTaskDeletedSchema } from "@/features/tasks/delete/task-deleted.openapi";
+import { WebhookMessagingMessageReceivedSchema } from "@/ee/messaging/webhooks/message/message-received.openapi";
+import { WebhookMessagingMessageUpdatedSchema } from "@/ee/messaging/webhooks/message/message-updated.openapi";
+import { WebhookMessagingMessageDeletedSchema } from "@/ee/messaging/webhooks/message/message-deleted.openapi";
+import { WebhookMessagingMessageReactionSchema } from "@/ee/messaging/webhooks/message/message-reaction.openapi";
+import { WebhookMessagingEmailReceivedSchema } from "@/ee/messaging/webhooks/email/email-received.openapi";
+import { WebhookMessagingEmailDeletedSchema } from "@/ee/messaging/webhooks/email/email-deleted.openapi";
+import { WebhookMessagingChatUpdatedSchema } from "@/ee/messaging/webhooks/chat/chat-updated.openapi";
+import { WebhookMessagingChatDeletedSchema } from "@/ee/messaging/webhooks/chat/chat-deleted.openapi";
+import { WebhookMessagingCalendarChangedSchema } from "@/ee/messaging/webhooks/calendar/calendar-changed.openapi";
+import { WebhookMessagingCalendarEventChangedSchema } from "@/ee/messaging/webhooks/calendar/calendar-event-changed.openapi";
+import { WebhookMessagingRelationCreatedSchema } from "@/ee/messaging/webhooks/relation/relation-created.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
 import { ConnectedAccountDtoSchema, MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
@@ -281,7 +285,7 @@ export function generateOpenApiSpec() {
         post: getUsersOperation,
       },
       "/v1/users/me": {
-        get: getUserProfileOperation,
+        get: getUserDetailsOperation,
       },
       "/v1/messaging/connected-accounts": {
         get: getConnectedAccountsOperation,
@@ -297,6 +301,18 @@ export function generateOpenApiSpec() {
       },
       "/v1/messaging/activities/search": {
         post: getActivitiesOperation,
+      },
+      "/v1/messaging/calendars/search": {
+        post: getCalendarsOperation,
+      },
+      "/v1/messaging/calendars/{id}": {
+        get: getCalendarByIdOperation,
+      },
+      "/v1/messaging/calendar-events/search": {
+        post: getCalendarEventsOperation,
+      },
+      "/v1/messaging/calendar-events/{id}": {
+        get: getCalendarEventByIdOperation,
       },
       "/v1/messaging/send-email": {
         post: sendEmailOperation,
@@ -320,25 +336,25 @@ export function generateOpenApiSpec() {
         post: getSocialProfileOperation,
       },
       "/v1/messaging/sales-navigator/search": {
-        post: searchSalesNavigatorOperation,
+        post: linkedinSearchSalesNavigatorOperation,
       },
       "/v1/messaging/sales-navigator/search/people": {
-        post: searchSalesPeopleOperation,
+        post: linkedinSearchSalesPeopleOperation,
       },
       "/v1/messaging/sales-navigator/search/companies": {
-        post: searchSalesCompaniesOperation,
+        post: linkedinSearchSalesCompaniesOperation,
       },
       "/v1/messaging/sales-navigator/search/parameters": {
-        post: listSalesSearchParametersOperation,
+        post: linkedinListSalesSearchParametersOperation,
       },
       "/v1/messaging/sales-navigator/lists/search": {
-        post: listSalesListsOperation,
+        post: linkedinListSalesListsOperation,
       },
       "/v1/messaging/sales-navigator/lists/browse": {
-        post: browseSalesListOperation,
+        post: linkedinBrowseSalesListOperation,
       },
       "/v1/messaging/sales-navigator/lists/save": {
-        post: saveToSalesListOperation,
+        post: linkedinSaveToSalesListOperation,
       },
       "/v1/messaging/social-relations/search": {
         post: listRelationRequestsOperation,

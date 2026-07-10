@@ -10,6 +10,7 @@ const ENFORCED = true;
 
 const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete"]);
+const BODY_VERBS = new Set(["post", "put", "patch"]);
 const VERB_EXPORT_PATTERN = /export (async )?function (GET|POST|PUT|PATCH|DELETE)/g;
 
 function toSpecPath(routeFile: string): string {
@@ -59,5 +60,18 @@ describe("v1 REST OpenAPI coverage", () => {
       .filter((operation) => !routes.has(operation))
       .map((operation) => `${operation} is in generateOpenApiSpec() but has no route handler under app/api/v1`);
     expect(orphaned).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents a requestBody for every write-verb operation", () => {
+    const spec = generateOpenApiSpec() as { paths?: Record<string, Record<string, { requestBody?: unknown }>> };
+    const missing: string[] = [];
+    for (const [path, entry] of Object.entries(spec.paths ?? {})) {
+      for (const [verb, operation] of Object.entries(entry)) {
+        if (BODY_VERBS.has(verb) && operation.requestBody === undefined) {
+          missing.push(`${verb} ${path} has no requestBody in generateOpenApiSpec()`);
+        }
+      }
+    }
+    expect(missing).toEqual([]);
   });
 });

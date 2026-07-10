@@ -60,7 +60,7 @@ export class ProcessMessageReactionWebhookInteractor {
     await this.eventService.publish(
       DomainEvent.MESSAGING_MESSAGE_REACTION,
       {
-        entityId: message_id,
+        entityId: updated.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,

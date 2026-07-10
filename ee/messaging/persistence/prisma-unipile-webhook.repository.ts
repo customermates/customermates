@@ -12,10 +12,7 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
   async createWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "createWebhookEventUnscoped">) {
     const row = await this.prisma.messagingInboundEvent.create({
       data: {
-        companyId: args.companyId,
         source: args.source,
-        eventType: args.eventType,
-        accountId: args.accountId,
         payload: args.payload as Prisma.InputJsonValue,
       },
       select: { id: true },
@@ -28,20 +25,29 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
   async findWebhookEventByIdOrThrowUnscoped(id: string) {
     return this.prisma.messagingInboundEvent.findUniqueOrThrow({
       where: { id },
-      select: { id: true, source: true, payload: true, processed: true },
+      select: { id: true, payload: true, processed: true },
     });
   }
 
   @BypassTenantGuard
-  async markWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "markWebhookEventUnscoped">) {
+  async markWebhookEventProcessedUnscoped(id: string) {
+    await this.prisma.messagingInboundEvent.update({
+      where: { id },
+      data: { processed: true, processedAt: new Date(), error: null, lastErrorAt: null },
+    });
+  }
+
+  @BypassTenantGuard
+  async markWebhookEventFailedUnscoped(args: RepoArgs<WebhookEventRepo, "markWebhookEventFailedUnscoped">) {
     await this.prisma.messagingInboundEvent.update({
       where: { id: args.id },
       data: {
-        processed: args.processed,
-        processedAt: args.processed ? new Date() : null,
-        ...(args.error !== undefined
-          ? { error: args.error, lastErrorAt: args.lastErrorAt ?? new Date(), attemptCount: { increment: 1 } }
-          : {}),
+        processed: args.terminal,
+        processedAt: args.terminal ? new Date() : null,
+        error: args.error,
+        lastErrorAt: new Date(),
+        attemptCount: { increment: 1 },
+        ...(args.unipileMessageId != null ? { unipileMessageId: args.unipileMessageId } : {}),
       },
     });
   }

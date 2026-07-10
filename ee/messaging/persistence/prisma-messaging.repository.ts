@@ -5,8 +5,6 @@ import { MessagingMessageDirection, MessagingMessageOrigin, MessagingThreadType 
 
 import { randomUUID } from "node:crypto";
 
-import * as Sentry from "@sentry/node";
-
 import type { AttachmentMeta, MessagingAttendee, MessagingMessage, IngestMessage } from "../messaging.schema";
 
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.interactor";
@@ -664,23 +662,16 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
-  async recordUnprocessableMessageUnscoped(args: RepoArgs<ResyncThreadRepo, "recordUnprocessableMessageUnscoped">) {
-    try {
-      await this.prisma.messagingInboundEvent.create({
-        data: {
-          source: "backfill",
-          companyId: args.companyId,
-          connectedAccountId: args.connectedAccountId,
-          payload: args.payload as Prisma.InputJsonValue,
-          processed: false,
-        },
-      });
-    } catch (err) {
-      Sentry.captureException(err, { tags: { connectedAccountId: args.connectedAccountId } });
-    }
-
-    Sentry.captureException(new Error(`resync message unprocessable for account ${args.connectedAccountId}`), {
-      tags: { connectedAccountId: args.connectedAccountId },
+  async recordUnusableItemUnscoped(args: RepoArgs<ResyncThreadRepo, "recordUnusableItemUnscoped">) {
+    await this.prisma.messagingInboundEvent.create({
+      data: {
+        source: "backfill",
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        payload: args.payload as Prisma.InputJsonValue,
+        unipileMessageId: args.unipileMessageId ?? null,
+        processed: false,
+      },
     });
   }
 
@@ -1247,9 +1238,10 @@ export class PrismaMessagingRepo
       return { isEcho: true as const };
     }
 
-    const { unipileThreadId, threadType, ...messageFields } = safeMessage;
+    const { unipileThreadId, threadType, previewText, ...messageFields } = safeMessage;
 
-    const previewSource = safeMessage.bodyText?.trim() || safeMessage.bodyHtml?.replace(/<[^>]*>/g, "").trim();
+    const previewSource =
+      previewText?.trim() || safeMessage.bodyText?.trim() || safeMessage.bodyHtml?.replace(/<[^>]*>/g, "").trim();
     const hidden = safeMessage.isHidden === true;
     const canonicalSentAt = existing?.sentAt ?? safeMessage.sentAt;
 
@@ -1299,12 +1291,7 @@ export class PrismaMessagingRepo
       });
     }
 
-    return {
-      isEcho: false as const,
-      message: upserted,
-      contactId,
-      isNew: !existing,
-    };
+    return { isEcho: false as const, message: upserted };
   }
 
   private async resolveSenderContactId(companyId: string, message: IngestMessage): Promise<string | null> {
@@ -1423,18 +1410,24 @@ export class PrismaMessagingRepo
 
     await this.prisma.messagingMessage.update({ where: { id: message.id }, data: { reactions: args.reactions } });
 
-    return { messagingThreadId: message.messagingThreadId };
+    return { id: message.id, messagingThreadId: message.messagingThreadId };
   }
 
   @BypassTenantGuard
   async deleteMessageUnscoped(args: RepoArgs<MessagingIngestRepo, "deleteMessageUnscoped">) {
-    await this.prisma.messagingMessage.deleteMany({
+    const message = await this.prisma.messagingMessage.findFirst({
       where: {
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
         unipileMessageId: args.unipileMessageId,
       },
+      select: { id: true, messagingThreadId: true },
     });
+    if (!message) return null;
+
+    await this.prisma.messagingMessage.deleteMany({ where: { id: message.id } });
+
+    return { id: message.id, messagingThreadId: message.messagingThreadId };
   }
 
   @BypassTenantGuard
@@ -1451,7 +1444,7 @@ export class PrismaMessagingRepo
 
     await this.prisma.messagingMessage.update({ where: { id: message.id }, data: { isDeleted: true } });
 
-    return { messagingThreadId: message.messagingThreadId };
+    return { id: message.id, messagingThreadId: message.messagingThreadId };
   }
 
   @BypassTenantGuard
@@ -1483,31 +1476,45 @@ export class PrismaMessagingRepo
   async updateChatThreadMetadataUnscoped(args: RepoArgs<MessagingIngestRepo, "updateChatThreadMetadataUnscoped">) {
     const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
 
-    await this.prisma.messagingThread.updateMany({
+    const thread = await this.prisma.messagingThread.findFirst({
       where: {
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
         unipileThreadId,
       },
+      select: { id: true },
+    });
+    if (!thread) return null;
+
+    await this.prisma.messagingThread.update({
+      where: { id: thread.id },
       data: {
         name: args.name ?? undefined,
         subject: args.subject ?? undefined,
         type: args.type ?? undefined,
       },
     });
+
+    return { id: thread.id };
   }
 
   @BypassTenantGuard
   async deleteChatThreadUnscoped(args: RepoArgs<MessagingIngestRepo, "deleteChatThreadUnscoped">) {
     const unipileThreadId = await this.resolveThreadIdByAlt(args.connectedAccountId, args.unipileThreadId);
 
-    await this.prisma.messagingThread.deleteMany({
+    const thread = await this.prisma.messagingThread.findFirst({
       where: {
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
         unipileThreadId,
       },
+      select: { id: true },
     });
+    if (!thread) return null;
+
+    await this.prisma.messagingThread.deleteMany({ where: { id: thread.id } });
+
+    return { id: thread.id };
   }
 }
 
@@ -1571,6 +1578,7 @@ function sanitizeMessage(message: IngestMessage): IngestMessage {
     subject: cleanString(message.subject),
     bodyText: cleanString(message.bodyText),
     bodyHtml: cleanString(message.bodyHtml),
+    previewText: cleanString(message.previewText ?? null),
     sender: cleanAttendee(message.sender),
     recipients: {
       to: message.recipients.to.map(cleanAttendee),

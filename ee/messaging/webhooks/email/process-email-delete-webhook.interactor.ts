@@ -31,20 +31,22 @@ export class ProcessEmailDeleteWebhookInteractor {
     const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.ingest.deleteMessageUnscoped({
+    const deleted = await this.ingest.deleteMessageUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       unipileMessageId: envelope.payload.email.id,
     });
+    if (!deleted) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_EMAIL_DELETED,
       {
-        entityId: envelope.payload.email.id,
+        entityId: deleted.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,
           providerMessageId: envelope.payload.email.id,
+          threadId: deleted.messagingThreadId,
         },
       },
       { systemCompanyId: account.companyId },

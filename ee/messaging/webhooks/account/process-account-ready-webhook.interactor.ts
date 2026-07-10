@@ -30,7 +30,6 @@ export class ProcessAccountReadyWebhookInteractor {
       unipileAccountId: account.unipileAccountId,
       status: ConnectedAccountStatus.ok,
       syncing: true,
-      providerSyncing: false,
     });
 
     await this.backgroundTaskService.dispatch("backfill-connected-account", { connectedAccountId: account.id });

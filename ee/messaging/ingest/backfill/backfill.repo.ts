@@ -8,21 +8,12 @@ export abstract class BackfillConnectedAccountRepo {
     payload: unknown;
     unipileMessageId?: string | null;
   }): Promise<void>;
-  abstract recordRawBackfillItemUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    accountId: string;
-    itemType: "chat" | "email";
-    payload: unknown;
-    unipileMessageId?: string | null;
-  }): Promise<void>;
   abstract findAccountByIdUnscoped(id: string): Promise<ConnectedAccount | null>;
   abstract updateAccountUnscoped(args: {
     unipileAccountId: string;
     status?: ConnectedAccountStatus;
     lastSyncedAt?: Date;
     syncing?: boolean;
-    providerSyncing?: boolean;
     hasMessaging?: boolean;
     hasCalendar?: boolean;
     displayName?: string | null;

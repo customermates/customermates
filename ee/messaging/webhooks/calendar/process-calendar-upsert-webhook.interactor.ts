@@ -32,7 +32,7 @@ export class ProcessCalendarUpsertWebhookInteractor {
     const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.calendarRepo.upsertCalendarUnscoped({
+    const calendar = await this.calendarRepo.upsertCalendarUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       unipileCalendarId: envelope.payload.id,
@@ -42,10 +42,12 @@ export class ProcessCalendarUpsertWebhookInteractor {
       timezone: envelope.payload.timezone ?? null,
     });
 
+    if (!account.hasCalendar) await this.calendarRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
+
     await this.eventService.publish(
       DomainEvent.MESSAGING_CALENDAR_CHANGED,
       {
-        entityId: envelope.payload.id,
+        entityId: calendar.id,
         payload: {
           connectedAccountId: account.id,
           providerCalendarId: envelope.payload.id,

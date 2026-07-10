@@ -21,6 +21,7 @@ const CATCHUP_DELAY_MS = 10_000;
 const GIVE_UP_RATE_LIMIT_SECONDS = 600;
 const RESWEEP_DELAY_MS = 90_000;
 const BACKFILL_RESWEEPS = 2;
+const FINAL_SWEEP_DELAY_MS = 45 * 60_000;
 const MAX_PAGE_TIMEOUT_RETRIES = 4;
 const CALENDAR_SOURCE = "calendar";
 
@@ -141,6 +142,27 @@ async function drainWithResweeps(kind: PageKind, connectedAccountId: string, sou
   return paused;
 }
 
+async function finalSweep(connectedAccountId: string, sourceFilter?: string[]): Promise<void> {
+  const token = await claimBackfill(connectedAccountId);
+  if (!token) return;
+
+  try {
+    const plan = await prepare(connectedAccountId, token, sourceFilter);
+
+    if (plan.status === "ready") {
+      const paused = plan.kind === "none" ? false : await drainSources(plan.kind, connectedAccountId, plan.sources);
+
+      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE]);
+    }
+
+    await releaseClaim(connectedAccountId, token);
+  } catch (err) {
+    await reportFailure(WORKFLOW_NAME, toWorkflowFailure(err));
+    await releaseClaim(connectedAccountId, token).catch(() => undefined);
+    throw err;
+  }
+}
+
 export async function backfillConnectedAccount(payload: BackfillConnectedAccountPayload): Promise<void> {
   "use workflow";
   const { connectedAccountId, sourceFilter } = payload;
@@ -150,14 +172,13 @@ export async function backfillConnectedAccount(payload: BackfillConnectedAccount
 
   try {
     const plan = await awaitReady(connectedAccountId, token, sourceFilter);
-    if (plan.status !== "ready") {
-      await releaseClaim(connectedAccountId, token);
-      return;
+
+    if (plan.status === "ready") {
+      const paused =
+        plan.kind === "none" ? false : await drainWithResweeps(plan.kind, connectedAccountId, plan.sources);
+
+      if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE]);
     }
-
-    const paused = plan.kind === "none" ? false : await drainWithResweeps(plan.kind, connectedAccountId, plan.sources);
-
-    if (!paused && plan.hasCalendar) await drainSources("calendar", connectedAccountId, [CALENDAR_SOURCE]);
 
     await releaseClaim(connectedAccountId, token);
   } catch (err) {
@@ -165,4 +186,7 @@ export async function backfillConnectedAccount(payload: BackfillConnectedAccount
     await releaseClaim(connectedAccountId, token).catch(() => undefined);
     throw err;
   }
+
+  await sleep(FINAL_SWEEP_DELAY_MS);
+  await finalSweep(connectedAccountId, sourceFilter);
 }

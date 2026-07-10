@@ -16,4 +16,7 @@ export enum FilterFieldKey {
   status = "status",
   provider = "provider",
   state = "state",
+  connectedAccountId = "connectedAccountId",
+  calendarId = "calendarId",
+  startsAt = "startsAt",
 }

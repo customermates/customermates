@@ -6,17 +6,17 @@ import type { DomainEvent } from "@/features/event/domain-events";
 import { type DomainEventMap } from "@/features/event/domain-events";
 import { WebhookEventSchema } from "../webhook.schema";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import type { WebhookMessagingMessageReceivedSchema } from "@/features/messaging/webhooks/message-received.openapi";
-import type { WebhookMessagingMessageUpdatedSchema } from "@/features/messaging/webhooks/message-updated.openapi";
-import type { WebhookMessagingMessageDeletedSchema } from "@/features/messaging/webhooks/message-deleted.openapi";
-import type { WebhookMessagingMessageReactionSchema } from "@/features/messaging/webhooks/message-reaction.openapi";
-import type { WebhookMessagingEmailReceivedSchema } from "@/features/messaging/webhooks/email-received.openapi";
-import type { WebhookMessagingEmailDeletedSchema } from "@/features/messaging/webhooks/email-deleted.openapi";
-import type { WebhookMessagingChatUpdatedSchema } from "@/features/messaging/webhooks/chat-updated.openapi";
-import type { WebhookMessagingChatDeletedSchema } from "@/features/messaging/webhooks/chat-deleted.openapi";
-import type { WebhookMessagingCalendarChangedSchema } from "@/features/messaging/webhooks/calendar-changed.openapi";
-import type { WebhookMessagingCalendarEventChangedSchema } from "@/features/messaging/webhooks/calendar-event-changed.openapi";
-import type { WebhookMessagingRelationCreatedSchema } from "@/features/messaging/webhooks/relation-created.openapi";
+import type { WebhookMessagingMessageReceivedSchema } from "@/ee/messaging/webhooks/message/message-received.openapi";
+import type { WebhookMessagingMessageUpdatedSchema } from "@/ee/messaging/webhooks/message/message-updated.openapi";
+import type { WebhookMessagingMessageDeletedSchema } from "@/ee/messaging/webhooks/message/message-deleted.openapi";
+import type { WebhookMessagingMessageReactionSchema } from "@/ee/messaging/webhooks/message/message-reaction.openapi";
+import type { WebhookMessagingEmailReceivedSchema } from "@/ee/messaging/webhooks/email/email-received.openapi";
+import type { WebhookMessagingEmailDeletedSchema } from "@/ee/messaging/webhooks/email/email-deleted.openapi";
+import type { WebhookMessagingChatUpdatedSchema } from "@/ee/messaging/webhooks/chat/chat-updated.openapi";
+import type { WebhookMessagingChatDeletedSchema } from "@/ee/messaging/webhooks/chat/chat-deleted.openapi";
+import type { WebhookMessagingCalendarChangedSchema } from "@/ee/messaging/webhooks/calendar/calendar-changed.openapi";
+import type { WebhookMessagingCalendarEventChangedSchema } from "@/ee/messaging/webhooks/calendar/calendar-event-changed.openapi";
+import type { WebhookMessagingRelationCreatedSchema } from "@/ee/messaging/webhooks/relation/relation-created.openapi";
 
 type SchemaObject = {
   $ref?: string;

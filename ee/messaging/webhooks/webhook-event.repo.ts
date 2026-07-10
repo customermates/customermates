@@ -2,22 +2,20 @@ import { type MessagingInboundEvent, MessagingInboundEventSource } from "@/gener
 
 export const WEBHOOK_INBOUND_SOURCE = MessagingInboundEventSource.webhook;
 
-type InboundEventRow = Pick<MessagingInboundEvent, "id" | "source" | "payload" | "processed">;
+type InboundEventRow = Pick<MessagingInboundEvent, "id" | "payload" | "processed">;
 
 export abstract class WebhookEventRepo {
   abstract createWebhookEventUnscoped(args: {
-    companyId: string | null;
     source: MessagingInboundEventSource;
-    eventType: string | null;
-    accountId: string | null;
     payload: unknown;
   }): Promise<{ id: string }>;
   abstract findWebhookEventByIdOrThrowUnscoped(id: string): Promise<InboundEventRow>;
-  abstract markWebhookEventUnscoped(args: {
+  abstract markWebhookEventProcessedUnscoped(id: string): Promise<void>;
+  abstract markWebhookEventFailedUnscoped(args: {
     id: string;
-    processed: boolean;
-    error?: string | null;
-    lastErrorAt?: Date | null;
+    error: string;
+    terminal: boolean;
+    unipileMessageId?: string | null;
   }): Promise<void>;
   abstract findReprocessableEventIdsUnscoped(args: {
     olderThan: Date;

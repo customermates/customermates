@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { ConnectedAccountStatus, MessagingMessageDirection } from "@/generated/prisma";
+import { ConnectedAccountStatus } from "@/generated/prisma";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -65,8 +65,8 @@ export class BackfillEmailsInteractor {
               offset: query.offset,
               timeoutMs: BACKFILL_EMAIL_TIMEOUT_MS,
             }),
-      handleItem: async (item) => {
-        const unipileMessageId = await this.upsertEmailThread(account, item);
+      handleItem: async (rawEmail) => {
+        const unipileMessageId = await this.upsertEmailThread(account, rawEmail);
         if (unipileMessageId) seenIds.add(unipileMessageId);
       },
     });
@@ -84,26 +84,18 @@ export class BackfillEmailsInteractor {
     return result;
   }
 
-  private async upsertEmailThread(account: ConnectedAccount, item: unknown): Promise<string | null> {
-    const parsed = UnipileEmailSchema.safeParse(item);
+  private async upsertEmailThread(account: ConnectedAccount, rawEmail: unknown): Promise<string | null> {
+    const parsed = UnipileEmailSchema.safeParse(rawEmail);
 
     if (!parsed.success) {
       await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
-        payload: item,
+        payload: rawEmail,
       });
+
       return null;
     }
-
-    await this.repo.recordRawBackfillItemUnscoped({
-      companyId: account.companyId,
-      connectedAccountId: account.id,
-      accountId: account.unipileAccountId,
-      itemType: "email",
-      payload: item,
-      unipileMessageId: parsed.data.id ?? null,
-    });
 
     const normalized = buildEmailMessage(parsed.data, {
       provider: account.provider,
@@ -116,26 +108,13 @@ export class BackfillEmailsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: parsed.data,
-        unipileMessageId: parsed.data.id ?? null,
+        unipileMessageId: parsed.data.id,
       });
-      return parsed.data.id ?? null;
+
+      return null;
     }
 
     try {
-      await this.ingest.upsertChatThreadUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        unipileThreadId: normalized.unipileThreadId,
-        provider: account.provider,
-        type: normalized.threadType,
-        name: null,
-        subject: normalized.subject,
-        participants: [normalized.sender, ...normalized.recipients.to, ...normalized.recipients.cc],
-        lastMessageAt: normalized.sentAt,
-        lastMessagePreview: parsed.data.snippet ?? null,
-        lastMessageIsSender: normalized.direction === MessagingMessageDirection.outbound,
-      });
-
       await this.ingest.ingestMessageUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
@@ -155,10 +134,12 @@ export class BackfillEmailsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: parsed.data,
-        unipileMessageId: parsed.data.id ?? null,
+        unipileMessageId: parsed.data.id,
       });
+
+      return null;
     }
 
-    return parsed.data.id ?? null;
+    return parsed.data.id;
   }
 }

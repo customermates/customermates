@@ -4,12 +4,15 @@ import {
   encodeToToon,
   runInteractor,
   validationError,
+  customErrorMessage,
   formatDatesInResponse,
   mcpPage,
   mcpPageSize,
   filtersDescription,
   sortDescription,
 } from "./utils";
+
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { GetQueryParamsSchema, FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
@@ -27,6 +30,9 @@ import {
   getGetMessagingThreadsApiInteractor,
   getGetMessagingThreadInteractor,
   getGetActivitiesApiInteractor,
+  getGetCalendarsApiInteractor,
+  getGetCalendarEventsApiInteractor,
+  getGetCalendarEventByIdInteractor,
   getSendEmailInteractor,
   getSendChatMessageInteractor,
   getStartChatInteractor,
@@ -210,6 +216,83 @@ export const getActivitiesTool = {
           }),
         ),
     ),
+};
+
+const GetCalendarsToolSchema = z.object({
+  list: z
+    .enum(["calendars", "events"])
+    .default("calendars")
+    .describe("Which collection to list: calendars (default) or calendar events. Ignored when eventId is set"),
+  eventId: z
+    .uuid()
+    .optional()
+    .describe(
+      "Calendar event id (the entityId of a messaging.calendar.event.changed webhook event). When set, returns that event's detail",
+    ),
+  searchTerm: z.string().optional().describe("Free-text search against the calendar name or event title"),
+  filters: z
+    .array(FilterSchema)
+    .optional()
+    .describe(
+      filtersDescription(
+        `for calendars ${filterFieldsHint([FilterFieldKey.connectedAccountId])}; for events ${filterFieldsHint([FilterFieldKey.calendarId, FilterFieldKey.connectedAccountId, FilterFieldKey.startsAt])}`,
+      ),
+    ),
+  sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("name (calendars) or startsAt (events)")),
+  page: mcpPage(),
+  pageSize: mcpPageSize(25, "Results per page: 5, 10, 25, or 100 (default 25)"),
+});
+
+export const getCalendarsTool = {
+  name: "get_calendars",
+  title: "Get calendars and events",
+  description:
+    'Reads synced calendars of connected accounts. list: "calendars" returns the accessible calendars (ids match the entityId of messaging.calendar.changed webhook events); list: "events" returns calendar events ordered by start time (filter by calendarId or a startsAt range for agenda windows). ' +
+    "With eventId set, returns that event's detail including organizer and attendees (ids match the entityId of messaging.calendar.event.changed webhook events). " +
+    "Optional: searchTerm, filters, sortDescriptor, page, pageSize.",
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  inputSchema: GetCalendarsToolSchema,
+  execute: async ({
+    list,
+    eventId,
+    searchTerm,
+    filters,
+    sortDescriptor,
+    page,
+    pageSize,
+  }: z.infer<typeof GetCalendarsToolSchema>) => {
+    if (eventId) {
+      const result = await getGetCalendarEventByIdInteractor().invoke({ id: eventId });
+      if (!result.ok) return validationError(result.error);
+      if (!result.data) return customErrorMessage(CustomErrorCode.calendarEventNotFound);
+
+      return encodeToToon(formatDatesInResponse(result.data));
+    }
+
+    const params = GetQueryParamsSchema.parse({ searchTerm, filters, sortDescriptor, pagination: { page, pageSize } });
+
+    if (list === "events") {
+      return runInteractor(getGetCalendarEventsApiInteractor().invoke(params), (data) =>
+        encodeToToon(
+          formatDatesInResponse({
+            items: data.items,
+            total: data.pagination?.total ?? data.items.length,
+            page,
+          }),
+        ),
+      );
+    }
+
+    return runInteractor(getGetCalendarsApiInteractor().invoke(params), (data) =>
+      encodeToToon(
+        formatDatesInResponse({
+          items: data.items,
+          total: data.pagination?.total ?? data.items.length,
+          page,
+        }),
+      ),
+    );
+  },
 };
 
 const SendChatMessageToolSchema = BaseSendChatMessageSchema.omit({ attachments: true })

@@ -41,7 +41,7 @@ export class ProcessMessageDeleteWebhookInteractor {
     await this.eventService.publish(
       DomainEvent.MESSAGING_MESSAGE_DELETED,
       {
-        entityId: envelope.payload.id,
+        entityId: deleted.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,

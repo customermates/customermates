@@ -23,8 +23,6 @@ import type { RepoArgs } from "@/core/utils/types";
 
 import { randomUUID } from "node:crypto";
 
-import * as Sentry from "@sentry/node";
-
 import { AccountActivityKind } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
@@ -83,7 +81,7 @@ export class PrismaConnectedAccountRepo
       pictureUrl: args.pictureUrl,
     };
 
-    await this.prisma.accountActivity.upsert({
+    const row = await this.prisma.accountActivity.upsert({
       where: {
         connectedAccountId_kind_identifier: {
           connectedAccountId: args.connectedAccountId,
@@ -100,7 +98,10 @@ export class PrismaConnectedAccountRepo
         occurredAt: args.occurredAt,
       },
       update: { payload, occurredAt: args.occurredAt },
+      select: { id: true },
     });
+
+    return row;
   }
 
   @BypassTenantGuard
@@ -112,7 +113,6 @@ export class PrismaConnectedAccountRepo
     lastSyncedAt?: Date;
     provider?: MessagingProvider;
     syncing?: boolean;
-    providerSyncing?: boolean;
     ownerAvatarUrl?: string | null;
     hasMessaging?: boolean;
     hasCalendar?: boolean;
@@ -133,7 +133,6 @@ export class PrismaConnectedAccountRepo
         lastSyncedAt: args.lastSyncedAt,
         provider: args.provider,
         syncing: args.syncing,
-        providerSyncing: args.providerSyncing,
         ownerAvatarUrl: args.ownerAvatarUrl,
         hasMessaging: args.hasMessaging,
         hasCalendar: args.hasCalendar,
@@ -179,7 +178,6 @@ export class PrismaConnectedAccountRepo
         backfillClaimedAt: null,
         backfillClaimToken: null,
         syncing: false,
-        providerSyncing: false,
         lastSyncedAt: new Date(),
       },
     });
@@ -223,44 +221,16 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
-    try {
-      await this.prisma.messagingInboundEvent.create({
-        data: {
-          source: "backfill",
-          companyId: args.companyId,
-          connectedAccountId: args.connectedAccountId,
-          payload: args.payload as Prisma.InputJsonValue,
-          unipileMessageId: args.unipileMessageId ?? null,
-          processed: false,
-        },
-      });
-    } catch (err) {
-      Sentry.captureException(err, { tags: { connectedAccountId: args.connectedAccountId } });
-    }
-
-    Sentry.captureException(new Error(`backfill item unusable for account ${args.connectedAccountId}`), {
-      tags: { connectedAccountId: args.connectedAccountId },
+    await this.prisma.messagingInboundEvent.create({
+      data: {
+        source: "backfill",
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        payload: args.payload as Prisma.InputJsonValue,
+        unipileMessageId: args.unipileMessageId ?? null,
+        processed: false,
+      },
     });
-  }
-
-  @BypassTenantGuard
-  async recordRawBackfillItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordRawBackfillItemUnscoped">) {
-    try {
-      await this.prisma.messagingInboundEvent.create({
-        data: {
-          source: "backfill",
-          companyId: args.companyId,
-          connectedAccountId: args.connectedAccountId,
-          accountId: args.accountId,
-          eventType: args.itemType,
-          payload: args.payload as Prisma.InputJsonValue,
-          unipileMessageId: args.unipileMessageId ?? null,
-          processed: true,
-        },
-      });
-    } catch (err) {
-      Sentry.captureException(err, { tags: { connectedAccountId: args.connectedAccountId } });
-    }
   }
 
   @BypassTenantGuard
@@ -309,7 +279,6 @@ export class PrismaConnectedAccountRepo
       displayName: true,
       shared: true,
       syncing: true,
-      providerSyncing: true,
       lastSyncedAt: true,
       createdAt: true,
       folders: true,
@@ -324,12 +293,10 @@ export class PrismaConnectedAccountRepo
     row: Prisma.ConnectedAccountGetPayload<{ select: PrismaConnectedAccountRepo["dtoSelect"] }>,
     isOwner: boolean,
   ): ConnectedAccountDto {
-    const { user, providerSyncing, syncing, folders, ...account } = row;
+    const { user, folders, ...account } = row;
     return {
       ...account,
       folders: EmailFolderSchema.array().catch([]).parse(folders),
-      syncing: syncing || providerSyncing,
-      preparing: providerSyncing,
       owner: { userId: user.id, firstName: user.firstName, lastName: user.lastName, avatarUrl: user.avatarUrl },
       isOwner,
     };

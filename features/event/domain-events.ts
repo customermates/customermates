@@ -356,6 +356,7 @@ export type DomainEventMap = {
       connectedAccountId: string;
       provider: MessagingProvider;
       providerMessageId: string;
+      threadId: string;
     };
   };
   [DomainEvent.MESSAGING_EMAIL_DELETED]: {
@@ -366,6 +367,7 @@ export type DomainEventMap = {
       connectedAccountId: string;
       provider: MessagingProvider;
       providerMessageId: string;
+      threadId: string;
     };
   };
   [DomainEvent.MESSAGING_CHAT_UPDATED]: {

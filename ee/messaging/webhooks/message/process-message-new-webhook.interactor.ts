@@ -10,8 +10,9 @@ import type { MessagingIngestRepo } from "../../ingest/messaging-ingest.repo";
 import type { EventService } from "@/features/event/event.service";
 
 import { DomainEvent } from "@/features/event/domain-events";
-import { normalizeChatMessage } from "../../chat-normalize";
+import { isExcludedChatId, normalizeChatMessage } from "../../chat-normalize";
 import { UnipileMessageSchema } from "../../unipile.schema";
+import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 
 const Schema = z.object({
   type: z.enum(["message.new", "message.update"]),
@@ -34,7 +35,11 @@ export class ProcessMessageNewWebhookInteractor {
     if (account.status === ConnectedAccountStatus.deleted) return;
 
     const message = normalizeChatMessage(envelope.payload, account.provider);
-    if (!message) return;
+    if (!message) {
+      if (isExcludedChatId(envelope.payload.chat_id)) return;
+
+      throw new UnmappableWebhookPayloadError(envelope.payload.id || null);
+    }
 
     const result = await this.ingest.ingestMessageUnscoped({
       companyId: account.companyId,

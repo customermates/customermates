@@ -118,14 +118,13 @@ export class PrepareBackfillInteractor {
 
     const update: Parameters<BackfillConnectedAccountRepo["updateAccountUnscoped"]>[0] = {
       unipileAccountId: account.unipileAccountId,
-      providerSyncing: false,
     };
     if (hasMessaging !== account.hasMessaging) update.hasMessaging = hasMessaging;
     if (hasCalendar !== account.hasCalendar) update.hasCalendar = hasCalendar;
     if (!account.displayName && snapshot.name) update.displayName = snapshot.name;
     if (account.status === ConnectedAccountStatus.connecting) update.status = mapUnipileStatus(snapshot.status);
 
-    await this.repo.updateAccountUnscoped(update);
+    if (Object.keys(update).length > 1) await this.repo.updateAccountUnscoped(update);
 
     return { hasMessaging, hasCalendar };
   }

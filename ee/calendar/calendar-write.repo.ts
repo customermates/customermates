@@ -24,6 +24,13 @@ export abstract class CalendarWriteRepo {
     event: CalendarEventCore;
     attendeeEmails: string[];
   }): Promise<{ id: string }>;
-  abstract deleteCalendarEventUnscoped(args: { connectedAccountId: string; unipileEventId: string }): Promise<void>;
-  abstract deleteCalendarUnscoped(args: { connectedAccountId: string; unipileCalendarId: string }): Promise<void>;
+  abstract deleteCalendarEventUnscoped(args: {
+    connectedAccountId: string;
+    unipileEventId: string;
+  }): Promise<{ id: string } | null>;
+  abstract deleteCalendarUnscoped(args: {
+    connectedAccountId: string;
+    unipileCalendarId: string;
+  }): Promise<{ id: string } | null>;
+  abstract markAccountHasCalendarUnscoped(unipileAccountId: string): Promise<void>;
 }

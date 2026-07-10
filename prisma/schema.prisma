@@ -1163,7 +1163,6 @@ model ConnectedAccount {
   linkedinProducts     String[]                @default([])
   shared               Boolean                 @default(false)
   syncing              Boolean                 @default(false)
-  providerSyncing      Boolean                 @default(false)
   ownerAvatarUrl       String?
   lastSyncedAt         DateTime?
   backfillClaimedAt    DateTime?
@@ -1407,8 +1406,6 @@ model MessagingInboundEvent {
   connectedAccountId String?
   connectedAccount   ConnectedAccount? @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   source             MessagingInboundEventSource
-  eventType          String?
-  accountId          String?
   unipileMessageId   String?
   payload            Json
   processed          Boolean           @default(false)
@@ -1418,7 +1415,7 @@ model MessagingInboundEvent {
   receivedAt         DateTime          @default(now())
   processedAt        DateTime?
 
-  @@index([accountId])
+  @@index([source, processed, receivedAt])
 }
 
 enum MessagingInboundEventSource {

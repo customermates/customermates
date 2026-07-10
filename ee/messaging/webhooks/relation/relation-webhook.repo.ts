@@ -8,5 +8,5 @@ export abstract class WebhookActivityRepo {
     profileUrl: string | null;
     pictureUrl: string | null;
     occurredAt: Date;
-  }): Promise<void>;
+  }): Promise<{ id: string }>;
 }

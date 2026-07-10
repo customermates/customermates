@@ -3,7 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { CommonApiResponses } from "@/core/api/interactor-handler";
 import { UserDetailsDtoSchema } from "@/features/user/get/get-user-details.interactor";
 
-export const getUserProfileOperation: ZodOpenApiOperationObject = {
+export const getUserDetailsOperation: ZodOpenApiOperationObject = {
   operationId: "getUserProfile",
   summary: "Get own user profile",
   description: "Retrieves the authenticated user's profile information.",

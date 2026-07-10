@@ -31,15 +31,16 @@ export class ProcessCalendarDeleteWebhookInteractor {
     const account = await this.accountRepo.findAccountByUnipileIdOrThrowUnscoped(envelope.account_id);
     if (account.status === ConnectedAccountStatus.deleted) return;
 
-    await this.calendarRepo.deleteCalendarUnscoped({
+    const calendar = await this.calendarRepo.deleteCalendarUnscoped({
       connectedAccountId: account.id,
       unipileCalendarId: envelope.payload.id,
     });
+    if (!calendar) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_CALENDAR_CHANGED,
       {
-        entityId: envelope.payload.id,
+        entityId: calendar.id,
         payload: {
           connectedAccountId: account.id,
           providerCalendarId: envelope.payload.id,

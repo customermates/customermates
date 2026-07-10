@@ -39,6 +39,11 @@ import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
 import { PrismaCalendarRepo } from "@/ee/calendar/prisma-calendar.repository";
+import { PrismaCalendarEventsRepo } from "@/ee/calendar/prisma-calendar-events.repository";
+import { GetCalendarsInteractor } from "@/ee/calendar/get-calendars.interactor";
+import { GetCalendarByIdInteractor } from "@/ee/calendar/get-calendar-by-id.interactor";
+import { GetCalendarEventsInteractor } from "@/ee/calendar/get-calendar-events.interactor";
+import { GetCalendarEventByIdInteractor } from "@/ee/calendar/get-calendar-event-by-id.interactor";
 // Services
 import { EmailService } from "@/features/email/email.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -177,12 +182,13 @@ import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reco
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { ProcessUnipileWebhookInteractor } from "@/ee/messaging/webhooks/process-unipile-webhook.interactor";
-import type { UnipileWebhookHandlerMap } from "@/ee/messaging/webhooks/webhook-interactor";
+import type { UnipileWebhookHandlerMap } from "@/ee/messaging/webhooks/process-unipile-webhook.interactor";
 import { ProcessMessageNewWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-new-webhook.interactor";
 import { ProcessMessageDeleteWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-delete-webhook.interactor";
 import { ProcessMessageReactionWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-reaction-webhook.interactor";
 import { ProcessEmailNewWebhookInteractor } from "@/ee/messaging/webhooks/email/process-email-new-webhook.interactor";
 import { ProcessEmailDeleteWebhookInteractor } from "@/ee/messaging/webhooks/email/process-email-delete-webhook.interactor";
+import { ProcessEmailFolderWebhookInteractor } from "@/ee/messaging/webhooks/email/process-email-folder-webhook.interactor";
 import { ProcessChatUpdateWebhookInteractor } from "@/ee/messaging/webhooks/chat/process-chat-update-webhook.interactor";
 import { ProcessChatDeleteWebhookInteractor } from "@/ee/messaging/webhooks/chat/process-chat-delete-webhook.interactor";
 import { ProcessRelationWebhookInteractor } from "@/ee/messaging/webhooks/relation/process-relation-webhook.interactor";
@@ -192,7 +198,6 @@ import { ProcessCalendarEventUpsertWebhookInteractor } from "@/ee/messaging/webh
 import { ProcessCalendarEventDeleteWebhookInteractor } from "@/ee/messaging/webhooks/calendar/process-calendar-event-delete-webhook.interactor";
 import { ProcessAccountAddWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-add-webhook.interactor";
 import { ProcessAccountReadyWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-ready-webhook.interactor";
-import { ProcessProviderSyncWebhookInteractor } from "@/ee/messaging/webhooks/account/process-provider-sync-webhook.interactor";
 import { ProcessAccountReconnectWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-reconnect-webhook.interactor";
 import { ProcessAccountRemoveWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-remove-webhook.interactor";
 import { ProcessAccountStatusWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-status-webhook.interactor";
@@ -298,6 +303,7 @@ export const getMessagingRepo = () => new PrismaMessagingRepo();
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
+export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -342,11 +348,7 @@ export const getWidgetGroupingService = () => new WidgetGroupingService();
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
 export const getIngestUnipileWebhookInteractor = () =>
-  new IngestUnipileWebhookInteractor(
-    getUnipileWebhookRepo(),
-    getConnectedAccountRepo(),
-    getProcessUnipileWebhookInteractor(),
-  );
+  new IngestUnipileWebhookInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
 // ─── Section 4: Interactors ─────────────────────────────────────────────────
 
@@ -1021,6 +1023,8 @@ export const getProcessEmailNewWebhookInteractor = () =>
   new ProcessEmailNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessEmailDeleteWebhookInteractor = () =>
   new ProcessEmailDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+export const getProcessEmailFolderWebhookInteractor = () =>
+  new ProcessEmailFolderWebhookInteractor(getConnectedAccountRepo(), getMessagingService());
 export const getProcessChatUpdateWebhookInteractor = () =>
   new ProcessChatUpdateWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessChatDeleteWebhookInteractor = () =>
@@ -1035,6 +1039,12 @@ export const getProcessCalendarEventUpsertWebhookInteractor = () =>
   new ProcessCalendarEventUpsertWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
   new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
+export const getGetCalendarsApiInteractor = () =>
+  new GetCalendarsInteractor(getCalendarRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
+export const getGetCalendarByIdInteractor = () => new GetCalendarByIdInteractor(getCalendarRepo());
+export const getGetCalendarEventsApiInteractor = () =>
+  new GetCalendarEventsInteractor(getCalendarEventsRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
+export const getGetCalendarEventByIdInteractor = () => new GetCalendarEventByIdInteractor(getCalendarEventsRepo());
 export const getProcessAccountAddWebhookInteractor = () =>
   new ProcessAccountAddWebhookInteractor(
     getMessagingService(),
@@ -1045,8 +1055,6 @@ export const getProcessAccountAddWebhookInteractor = () =>
   );
 export const getProcessAccountReadyWebhookInteractor = () =>
   new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
-export const getProcessProviderSyncWebhookInteractor = () =>
-  new ProcessProviderSyncWebhookInteractor(getConnectedAccountRepo());
 export const getProcessAccountReconnectWebhookInteractor = () =>
   new ProcessAccountReconnectWebhookInteractor(
     getMessagingService(),
@@ -1061,23 +1069,34 @@ export const getProcessAccountStatusWebhookInteractor = () =>
 export const getProcessUnipileWebhookInteractor = () => {
   const messageNew = getProcessMessageNewWebhookInteractor();
   const emailNew = getProcessEmailNewWebhookInteractor();
-  const providerSync = getProcessProviderSyncWebhookInteractor();
   const accountStatus = getProcessAccountStatusWebhookInteractor();
   const calendarUpsert = getProcessCalendarUpsertWebhookInteractor();
   const calendarEventUpsert = getProcessCalendarEventUpsertWebhookInteractor();
   const relation = getProcessRelationWebhookInteractor();
+
+  const ignoreEvent = { invoke: () => Promise.resolve() };
+  const emailFolder = getProcessEmailFolderWebhookInteractor();
 
   const handlers: UnipileWebhookHandlerMap = {
     "message.new": messageNew,
     "message.update": messageNew,
     "message.delete": getProcessMessageDeleteWebhookInteractor(),
     "message.reaction.new": getProcessMessageReactionWebhookInteractor(),
+    "message.receipt.read": ignoreEvent,
+    "message.receipt.delivery": ignoreEvent,
     "email.new": emailNew,
     "email.new.bounce": emailNew,
     "email.delete": getProcessEmailDeleteWebhookInteractor(),
+    "email.draft.new": ignoreEvent,
+    "email.draft.delete": ignoreEvent,
+    "email.folder.update": emailFolder,
+    "email.folder.create": emailFolder,
+    "email.folder.delete": emailFolder,
+    "tracking.open": ignoreEvent,
+    "tracking.click": ignoreEvent,
     "account.add": getProcessAccountAddWebhookInteractor(),
-    "account.initial_sync.running": providerSync,
-    "account.initial_sync.failed": providerSync,
+    "account.initial_sync.running": ignoreEvent,
+    "account.initial_sync.failed": ignoreEvent,
     "account.initial_sync.completed": getProcessAccountReadyWebhookInteractor(),
     "account.reconnect": getProcessAccountReconnectWebhookInteractor(),
     "account.remove": getProcessAccountRemoveWebhookInteractor(),

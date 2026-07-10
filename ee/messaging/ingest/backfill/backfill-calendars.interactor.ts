@@ -142,17 +142,36 @@ export class BackfillCalendarsInteractor {
       return null;
     }
 
-    const stored = await this.calendarRepo.upsertCalendarUnscoped({
-      companyId: account.companyId,
-      connectedAccountId: account.id,
-      unipileCalendarId: parsed.data.id,
-      name: parsed.data.name ?? "(Unnamed calendar)",
-      description: parsed.data.description ?? null,
-      color: parsed.data.background_color ?? null,
-      timezone: parsed.data.timezone ?? null,
-    });
+    try {
+      const stored = await this.calendarRepo.upsertCalendarUnscoped({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        unipileCalendarId: parsed.data.id,
+        name: parsed.data.name ?? "(Unnamed calendar)",
+        description: parsed.data.description ?? null,
+        color: parsed.data.background_color ?? parsed.data.color ?? null,
+        timezone: parsed.data.timezone ?? null,
+      });
 
-    return { unipileCalendarId: parsed.data.id, calendarId: stored.id };
+      return { unipileCalendarId: parsed.data.id, calendarId: stored.id };
+    } catch (err) {
+      Sentry.captureException(err, {
+        tags: {
+          unipileAccountId: account.unipileAccountId,
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          step: "calendar",
+        },
+      });
+      await this.repo.recordUnusableItemUnscoped({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        payload: parsed.data,
+        unipileMessageId: parsed.data.id,
+      });
+
+      return null;
+    }
   }
 
   private async processCalendarEvent(account: ConnectedAccount, calendarId: string, rawEvent: unknown): Promise<void> {
@@ -175,7 +194,7 @@ export class BackfillCalendarsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: parsed.data,
-        unipileMessageId: parsed.data.id ?? null,
+        unipileMessageId: parsed.data.id,
       });
 
       return;
@@ -195,14 +214,14 @@ export class BackfillCalendarsInteractor {
           unipileAccountId: account.unipileAccountId,
           companyId: account.companyId,
           connectedAccountId: account.id,
-          step: "calendar",
+          step: "calendar-event",
         },
       });
       await this.repo.recordUnusableItemUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
-        payload: normalized,
-        unipileMessageId: parsed.data.id ?? null,
+        payload: parsed.data,
+        unipileMessageId: parsed.data.id,
       });
     }
   }

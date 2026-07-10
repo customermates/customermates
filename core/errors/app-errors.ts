@@ -1,12 +1,22 @@
-class AppError extends Error {
-  readonly isAppError = true;
+const APP_ERROR_BRAND = Symbol.for("customermates.appError");
+const UNMAPPABLE_WEBHOOK_PAYLOAD_BRAND = Symbol.for("customermates.unmappableWebhookPayload");
 
+function hasBrand(value: unknown, brand: symbol): boolean {
+  return typeof value === "object" && value !== null && (value as Record<symbol, unknown>)[brand] === true;
+}
+
+class AppError extends Error {
   constructor(
     message: string,
     public readonly statusCode: number,
   ) {
     super(message);
     this.name = this.constructor.name;
+    (this as Record<symbol, unknown>)[APP_ERROR_BRAND] = true;
+  }
+
+  static [Symbol.hasInstance](value: unknown): value is AppError {
+    return hasBrand(value, APP_ERROR_BRAND);
   }
 }
 
@@ -55,12 +65,22 @@ export class WebhookNonRetryableFailure extends Error {
   }
 }
 
-function isAppErrorLike(err: unknown): boolean {
-  return err instanceof AppError || (err as { isAppError?: unknown } | null | undefined)?.isAppError === true;
+export class UnmappableWebhookPayloadError extends Error {
+  constructor(public readonly unipileMessageId: string | null) {
+    super(
+      `Unipile webhook payload could not be mapped to an ingestable item${unipileMessageId ? ` (${unipileMessageId})` : ""}`,
+    );
+    this.name = "UnmappableWebhookPayloadError";
+    (this as Record<symbol, unknown>)[UNMAPPABLE_WEBHOOK_PAYLOAD_BRAND] = true;
+  }
+
+  static [Symbol.hasInstance](value: unknown): value is UnmappableWebhookPayloadError {
+    return hasBrand(value, UNMAPPABLE_WEBHOOK_PAYLOAD_BRAND);
+  }
 }
 
 export function isExpectedError(err: unknown): boolean {
-  if (isAppErrorLike(err)) return true;
+  if (err instanceof AppError) return true;
 
   const message = (err as { message?: unknown } | null | undefined)?.message;
   if (typeof message !== "string") return false;
@@ -69,7 +89,7 @@ export function isExpectedError(err: unknown): boolean {
 }
 
 export function appErrorResponse(err: unknown): { message: string; statusCode: number } | null {
-  if (!isAppErrorLike(err)) return null;
+  if (!(err instanceof AppError)) return null;
 
   const { message, statusCode } = err as { message?: unknown; statusCode?: unknown };
   if (typeof message !== "string" || typeof statusCode !== "number") return null;

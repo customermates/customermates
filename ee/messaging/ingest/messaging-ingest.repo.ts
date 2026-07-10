@@ -7,9 +7,7 @@ export abstract class MessagingIngestRepo {
     connectedAccountId: string;
     message: IngestMessage;
     backfill?: boolean;
-  }): Promise<
-    { isEcho: true } | { isEcho: false; message: MessagingMessage; contactId: string | null; isNew: boolean }
-  >;
+  }): Promise<{ isEcho: true } | { isEcho: false; message: MessagingMessage }>;
   abstract upsertChatThreadUnscoped(
     args: Pick<MessagingThread, "connectedAccountId" | "unipileThreadId" | "provider" | "subject" | "participants"> & {
       companyId: string;
@@ -30,17 +28,17 @@ export abstract class MessagingIngestRepo {
     connectedAccountId: string;
     unipileMessageId: string;
     reactions: MessageReactionEntry[];
-  }): Promise<{ messagingThreadId: string } | null>;
+  }): Promise<{ id: string; messagingThreadId: string } | null>;
   abstract deleteMessageUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     unipileMessageId: string;
-  }): Promise<void>;
+  }): Promise<{ id: string; messagingThreadId: string } | null>;
   abstract markMessageDeletedUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     unipileMessageId: string;
-  }): Promise<{ messagingThreadId: string } | null>;
+  }): Promise<{ id: string; messagingThreadId: string } | null>;
   abstract updateChatThreadMetadataUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
@@ -48,12 +46,12 @@ export abstract class MessagingIngestRepo {
     name?: string | null;
     subject?: string | null;
     type?: MessagingThreadType;
-  }): Promise<void>;
+  }): Promise<{ id: string } | null>;
   abstract deleteChatThreadUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     unipileThreadId: string;
-  }): Promise<void>;
+  }): Promise<{ id: string } | null>;
   abstract reconcileFolderMembershipUnscoped(args: {
     companyId: string;
     connectedAccountId: string;

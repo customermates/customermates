@@ -72,6 +72,9 @@ export function normalizeChatMessage(raw: UnipileMessage, provider: MessagingPro
   if (!raw.id || !raw.chat_id) return null;
   if (isExcludedChatId(raw.chat_id)) return null;
 
+  const sentAt = new Date(raw.timestamp);
+  if (Number.isNaN(sentAt.getTime())) return null;
+
   const isOutbound = raw.is_sender === true;
   const sender = mapUnipileUser(raw.sender, { isSelf: isOutbound });
   const bodyText = raw.text ?? null;
@@ -97,7 +100,7 @@ export function normalizeChatMessage(raw: UnipileMessage, provider: MessagingPro
     isDeleted,
     isHidden: (raw.is_hidden ?? false) || isContentless,
     threadType: inferWhatsappGroupType(raw.chat_id, provider),
-    sentAt: new Date(raw.timestamp),
-    editedAt: raw.is_edited === true ? new Date(raw.timestamp) : null,
+    sentAt,
+    editedAt: raw.is_edited === true ? sentAt : null,
   };
 }

@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all 44 CRM tools automatically. There are two ways to connect:
+Customermates exposes one MCP endpoint at `https://customermates.com/api/v1/mcp`. A connected client discovers all 45 CRM tools automatically. There are two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve. No key to manage. Start on [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -52,7 +52,7 @@ The server briefs the model automatically the moment a client connects. Clients 
 
 You do not need to teach the model how to use the CRM. The server sends instructions when a client connects, so the model follows the workflow automatically: read the schema first, find ids before writing, change relations only through `manage_record_links`, and confirm before deleting or sending. In clients that support MCP prompts (Claude Code, Cursor), a built-in get-started prompt is available too; it interviews you and summarizes your workspace to personalize the start.
 
-The full 44-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
+The full 45-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`. Keys and details are in [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
 ## How the tool surface is shaped
 
@@ -76,7 +76,7 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog
 
-Customermates exposes 44 MCP tools, all enabled by default. They cover records, workspace, messaging (preview), social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
+Customermates exposes 45 MCP tools, all enabled by default. They cover records, workspace, messaging (preview), social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
 
 Two flags per tool:
 
@@ -126,6 +126,7 @@ The messaging surface is in preview: live today, still evolving.
 |---|---|---|---|
 | `get_messaging_threads` | ✓ | | Two modes: without threadId lists inbox threads with filters and sorting (threads with no message yet are hidden unless they hold a draft); with threadId returns one thread plus a page of its messages (default 25, newest first, drafts included). |
 | `get_activities` | ✓ | | Activity timeline (messages, audit-log changes, LinkedIn account activities, and calendar events) for the workspace or one record. |
+| `get_calendars` | ✓ | | Three modes: list: "calendars" (default) lists the calendars of accessible connected accounts; list: "events" lists calendar events ordered by start time, filterable by calendarId or a startsAt date range; with eventId it returns one event's detail including organizer and attendees. Ids match the entityId of calendar webhook events. |
 | `send_chat_message` | | | Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic. |
 | `send_email` | | | Delivers immediately. Send or reply from a connected email account; can send a saved draft via draftMessageId. |
 | `save_message_draft` | | | Prepare a reply for review: the draft shows up in the inbox compose box and the user sends it. Drafts are thread-bound, one per thread, saving again updates it. |
@@ -182,7 +183,7 @@ The messaging surface is in preview: live today, still evolving.
 
 ### Narrowing with ?toolsets=
 
-All 44 tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
+All 45 tools are on by default. To expose only part of the surface, append `?toolsets=` with comma-separated group keys to the endpoint URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging

@@ -26,6 +26,7 @@ type Props = Omit<ComponentProps<typeof Badge>, "children"> & {
   children: ReactNode;
   startContent?: ReactNode;
   endContent?: ReactNode;
+  tooltip?: ReactNode;
 } & VariantProps<typeof chipVariants>;
 
 export function AppChip({
@@ -35,6 +36,7 @@ export function AppChip({
   size = "sm",
   startContent,
   endContent,
+  tooltip,
   ...props
 }: Props) {
   const labelRef = useRef<HTMLSpanElement | null>(null);
@@ -69,14 +71,14 @@ export function AppChip({
     </Badge>
   );
 
-  const showTooltip = isTruncated && typeof children === "string";
+  const showTooltip = tooltip != null || (isTruncated && typeof children === "string");
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>{chip}</TooltipTrigger>
 
-        {showTooltip && <TooltipContent>{children}</TooltipContent>}
+        {showTooltip && <TooltipContent className="max-w-xs">{tooltip ?? children}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );

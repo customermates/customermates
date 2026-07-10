@@ -77,6 +77,9 @@ const RELATION_FIELD_MAPPING: Record<FilterFieldKey, string> = {
   [FilterFieldKey.state]: "state",
   [FilterFieldKey.participantContactId]: "participantContactId",
   [FilterFieldKey.participants]: "participants",
+  [FilterFieldKey.connectedAccountId]: "connectedAccountId",
+  [FilterFieldKey.calendarId]: "calendarId",
+  [FilterFieldKey.startsAt]: "startsAt",
 };
 
 export abstract class BaseQueryBuilder<TWhereInput extends Record<string, unknown>> {

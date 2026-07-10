@@ -35,7 +35,7 @@ export class ProcessRelationWebhookInteractor {
     const user = envelope.payload.user;
     const fullName = user.display_name ?? ([user.first_name, user.last_name].filter(Boolean).join(" ").trim() || null);
 
-    await this.activityRepo.recordLinkedinConnectionAcceptedUnscoped({
+    const activity = await this.activityRepo.recordLinkedinConnectionAcceptedUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       providerUserId: user.id,
@@ -49,7 +49,7 @@ export class ProcessRelationWebhookInteractor {
     await this.eventService.publish(
       DomainEvent.MESSAGING_RELATION_CREATED,
       {
-        entityId: user.id,
+        entityId: activity.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,

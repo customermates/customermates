@@ -20,7 +20,6 @@ export class ConnectedAccountModalStore extends BaseModalStore<ConnectedAccountD
         displayName: null,
         shared: false,
         syncing: false,
-        preparing: false,
         lastSyncedAt: null,
         createdAt: new Date(),
         owner: { userId: "", firstName: "", lastName: "", avatarUrl: null },

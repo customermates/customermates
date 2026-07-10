@@ -2,7 +2,7 @@ import type { MessagingService } from "../../messaging.service";
 import type { MessagingIngestRepo } from "../messaging-ingest.repo";
 import type { MessagingAttendee, IngestMessage } from "../../messaging.schema";
 import type { ConnectedAccount, MessagingThreadType } from "@/generated/prisma";
-import type { UnipileChat } from "../../unipile.schema";
+import type { UnipileChat, UnipileMessage } from "../../unipile.schema";
 import type { BackfillConnectedAccountRepo } from "./backfill.repo";
 import type { PageResult } from "./paginate";
 
@@ -133,21 +133,13 @@ export class BackfillChatsInteractor {
         companyId: account.companyId,
         connectedAccountId: account.id,
         payload: chat,
+        unipileMessageId: chat.id,
       });
 
       return;
     }
 
     if (current) return;
-
-    await this.repo.recordRawBackfillItemUnscoped({
-      companyId: account.companyId,
-      connectedAccountId: account.id,
-      accountId: account.unipileAccountId,
-      itemType: "chat",
-      payload: rawChat,
-      unipileMessageId: chat.id,
-    });
 
     await this.pullAndIngestMessages(account, chat.id);
   }
@@ -165,7 +157,7 @@ export class BackfillChatsInteractor {
   }
 
   private async pullAndIngestMessages(account: ConnectedAccount, chatId: string): Promise<void> {
-    let messages: IngestMessage[];
+    let messages: { message: IngestMessage; raw: UnipileMessage }[];
     try {
       messages = await this.pullLatestMessages(account, chatId);
     } catch (err) {
@@ -183,10 +175,13 @@ export class BackfillChatsInteractor {
       return;
     }
 
-    for (const message of messages) await this.ingestMessageSafely(account, message);
+    for (const { message, raw } of messages) await this.ingestMessageSafely(account, message, raw);
   }
 
-  private async pullLatestMessages(account: ConnectedAccount, chatId: string): Promise<IngestMessage[]> {
+  private async pullLatestMessages(
+    account: ConnectedAccount,
+    chatId: string,
+  ): Promise<{ message: IngestMessage; raw: UnipileMessage }[]> {
     const page = await this.messagingService.listChatMessages({
       accountId: account.unipileAccountId,
       chatId,
@@ -194,12 +189,11 @@ export class BackfillChatsInteractor {
       timeoutMs: BACKFILL_MESSAGE_TIMEOUT_MS,
     });
 
-    const messages: IngestMessage[] = [];
+    const messages: { message: IngestMessage; raw: UnipileMessage }[] = [];
     for (const raw of page.data ?? []) {
       const parsed = UnipileMessageSchema.safeParse(raw);
-      const normalized = parsed.success ? normalizeChatMessage(parsed.data, account.provider) : null;
 
-      if (!normalized) {
+      if (!parsed.success) {
         await this.repo.recordUnusableItemUnscoped({
           companyId: account.companyId,
           connectedAccountId: account.id,
@@ -209,13 +203,32 @@ export class BackfillChatsInteractor {
         continue;
       }
 
-      messages.push(normalized);
+      const normalized = normalizeChatMessage(parsed.data, account.provider);
+
+      if (!normalized) {
+        if (isExcludedChatId(parsed.data.chat_id)) continue;
+
+        await this.repo.recordUnusableItemUnscoped({
+          companyId: account.companyId,
+          connectedAccountId: account.id,
+          payload: parsed.data,
+          unipileMessageId: parsed.data.id,
+        });
+
+        continue;
+      }
+
+      messages.push({ message: normalized, raw: parsed.data });
     }
 
     return messages;
   }
 
-  private async ingestMessageSafely(account: ConnectedAccount, message: IngestMessage): Promise<void> {
+  private async ingestMessageSafely(
+    account: ConnectedAccount,
+    message: IngestMessage,
+    raw: UnipileMessage,
+  ): Promise<void> {
     try {
       await this.ingest.ingestMessageUnscoped({
         companyId: account.companyId,
@@ -231,6 +244,12 @@ export class BackfillChatsInteractor {
           connectedAccountId: account.id,
           step: "message",
         },
+      });
+      await this.repo.recordUnusableItemUnscoped({
+        companyId: account.companyId,
+        connectedAccountId: account.id,
+        payload: raw,
+        unipileMessageId: message.unipileMessageId,
       });
     }
   }
@@ -274,6 +293,8 @@ export class BackfillChatsInteractor {
         if (attendee) participants.push(attendee);
       }
     } catch (err) {
+      if (isUnipileRateLimit(err)) throw err;
+
       Sentry.captureException(err, {
         tags: {
           unipileAccountId: account.unipileAccountId,

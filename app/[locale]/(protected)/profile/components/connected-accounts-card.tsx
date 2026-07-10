@@ -6,7 +6,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -146,12 +146,13 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
                 <InfoRow label={t("ConnectedAccountsCard.provider")}>{providerLabel}</InfoRow>
 
                 <InfoRow label={t("ConnectedAccountsCard.status")}>
-                  {account.preparing ? (
-                    <AppChip startContent={<Loader2 className="animate-spin" />} variant="secondary">
-                      {t("ConnectedAccountsCard.preparing")}
-                    </AppChip>
-                  ) : account.syncing ? (
-                    <AppChip startContent={<Loader2 className="animate-spin" />} variant="info">
+                  {account.syncing ? (
+                    <AppChip
+                      endContent={<Info />}
+                      startContent={<Loader2 className="animate-spin" />}
+                      tooltip={t("ConnectedAccountsCard.syncingTooltip")}
+                      variant="info"
+                    >
                       {t("ConnectedAccountsCard.syncing")}
                     </AppChip>
                   ) : (

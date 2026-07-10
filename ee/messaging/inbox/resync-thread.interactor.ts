@@ -58,10 +58,11 @@ export abstract class ResyncThreadRepo {
     message: IngestMessage;
     backfill?: boolean;
   }): Promise<unknown>;
-  abstract recordUnprocessableMessageUnscoped(args: {
+  abstract recordUnusableItemUnscoped(args: {
     companyId: string;
     connectedAccountId: string;
     payload: unknown;
+    unipileMessageId?: string | null;
   }): Promise<void>;
 }
 
@@ -174,10 +175,9 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         }),
       handleItem: async (raw) => {
         const parsed = UnipileMessageSchema.safeParse(raw);
-        const normalized = parsed.success ? normalizeChatMessage(parsed.data, thread.provider) : null;
 
-        if (!normalized) {
-          await this.repo.recordUnprocessableMessageUnscoped({
+        if (!parsed.success) {
+          await this.repo.recordUnusableItemUnscoped({
             companyId: thread.companyId,
             connectedAccountId: thread.connectedAccountId,
             payload: raw,
@@ -186,7 +186,20 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
           return;
         }
 
-        if (await this.ingestSafely(thread, normalized)) messageCount += 1;
+        const normalized = normalizeChatMessage(parsed.data, thread.provider);
+
+        if (!normalized) {
+          await this.repo.recordUnusableItemUnscoped({
+            companyId: thread.companyId,
+            connectedAccountId: thread.connectedAccountId,
+            payload: parsed.data,
+            unipileMessageId: parsed.data.id,
+          });
+
+          return;
+        }
+
+        if (await this.ingestSafely(thread, normalized, parsed.data)) messageCount += 1;
       },
     });
 
@@ -203,22 +216,41 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
     for (const raw of emails) {
       const parsed = UnipileEmailSchema.safeParse(raw);
-      if (!parsed.success) continue;
+
+      if (!parsed.success) {
+        await this.repo.recordUnusableItemUnscoped({
+          companyId: thread.companyId,
+          connectedAccountId: thread.connectedAccountId,
+          payload: raw,
+        });
+
+        continue;
+      }
 
       const normalized = buildEmailMessage(parsed.data, {
         provider: thread.provider,
         emailAddress: thread.emailAddress,
         sentFolderIds: thread.sentFolderIds,
       });
-      if (!normalized) continue;
 
-      if (await this.ingestSafely(thread, normalized)) messageCount += 1;
+      if (!normalized) {
+        await this.repo.recordUnusableItemUnscoped({
+          companyId: thread.companyId,
+          connectedAccountId: thread.connectedAccountId,
+          payload: parsed.data,
+          unipileMessageId: parsed.data.id,
+        });
+
+        continue;
+      }
+
+      if (await this.ingestSafely(thread, normalized, parsed.data)) messageCount += 1;
     }
 
     return messageCount;
   }
 
-  private async ingestSafely(thread: ResyncThread, message: IngestMessage): Promise<boolean> {
+  private async ingestSafely(thread: ResyncThread, message: IngestMessage, raw: unknown): Promise<boolean> {
     try {
       await this.repo.ingestMessageUnscoped({
         companyId: thread.companyId,
@@ -235,6 +267,12 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
         },
+      });
+      await this.repo.recordUnusableItemUnscoped({
+        companyId: thread.companyId,
+        connectedAccountId: thread.connectedAccountId,
+        payload: raw,
+        unipileMessageId: message.unipileMessageId,
       });
 
       return false;

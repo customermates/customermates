@@ -4,6 +4,8 @@ import { z } from "zod";
 
 import { CalendarEventStatus } from "@/generated/prisma";
 
+import { MessagingProviderSchema } from "@/ee/messaging/messaging.schema";
+
 const CalendarEventStatusSchema = z.enum(CalendarEventStatus);
 
 const CalendarAttendeeSchema = z.object({
@@ -30,7 +32,6 @@ const CalendarEventCoreSchema = z.object({
   attendees: z.array(CalendarAttendeeSchema),
   organizer: CalendarAttendeeSchema.nullable(),
 });
-
 export type CalendarEventCore = z.infer<typeof CalendarEventCoreSchema>;
 
 export const CalendarEventSchema = CalendarEventCoreSchema.extend({
@@ -41,3 +42,24 @@ export const CalendarEventSchema = CalendarEventCoreSchema.extend({
   updatedAt: z.date(),
 });
 export type CalendarEvent = Data<typeof CalendarEventSchema>;
+
+export const CalendarDtoSchema = z.object({
+  id: z.uuid(),
+  connectedAccountId: z.uuid(),
+  provider: MessagingProviderSchema,
+  name: z.string(),
+  description: z.string().nullable(),
+  color: z.string().nullable(),
+  timezone: z.string().nullable(),
+});
+export type CalendarDto = z.infer<typeof CalendarDtoSchema>;
+
+export const CalendarEventDtoSchema = CalendarEventSchema.omit({
+  unipileEventId: true,
+  visibility: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  provider: MessagingProviderSchema,
+});
+export type CalendarEventDto = z.infer<typeof CalendarEventDtoSchema>;

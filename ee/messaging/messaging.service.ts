@@ -1033,6 +1033,7 @@ export class MessagingService {
       const options = {
         path: { account_id: input.accountId, list_id: input.listId },
         query: { offset: input.offset, limit: input.limit },
+        body: {},
       };
       const raw = await (input.kind === "leads"
         ? requestData(this.sdk.linkedin.browseSalesLeadList(options))
@@ -1094,7 +1095,7 @@ export class MessagingService {
         this.sdk.linkedin.performSalesPeopleSearch({
           path: { account_id: input.accountId },
           query: { offset: input.offset, limit: input.limit },
-          body: input.filters,
+          body: input.filters ?? {},
         }),
       );
 
@@ -1115,7 +1116,7 @@ export class MessagingService {
         this.sdk.linkedin.performSalesCompaniesSearch({
           path: { account_id: input.accountId },
           query: { offset: input.offset, limit: input.limit },
-          body: input.filters,
+          body: input.filters ?? {},
         }),
       );
 

@@ -37,7 +37,7 @@ export class ProcessChatUpdateWebhookInteractor {
     const chat = envelope.payload;
     const type: MessagingThreadType | undefined = chat.is_group ? "group" : chat.is_channel ? "channel" : undefined;
 
-    await this.ingest.updateChatThreadMetadataUnscoped({
+    const thread = await this.ingest.updateChatThreadMetadataUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       unipileThreadId: chat.id,
@@ -45,11 +45,12 @@ export class ProcessChatUpdateWebhookInteractor {
       subject: chat.description ?? null,
       type,
     });
+    if (!thread) return;
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_CHAT_UPDATED,
       {
-        entityId: envelope.payload.id,
+        entityId: thread.id,
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,

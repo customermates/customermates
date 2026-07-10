@@ -12,6 +12,7 @@ import type { EventService } from "@/features/event/event.service";
 import { DomainEvent } from "@/features/event/domain-events";
 import { buildCalendarEvent, collectAttendeeEmails } from "@/ee/calendar/calendar-normalize";
 import { UnipileCalendarEventSchema } from "../../unipile.schema";
+import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 
 const Schema = z.object({
   type: z.enum(["calendar.event.new", "calendar.event.update"]),
@@ -34,7 +35,7 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
     if (account.status === ConnectedAccountStatus.deleted) return;
 
     const normalized = buildCalendarEvent(envelope.payload);
-    if (!normalized) return;
+    if (!normalized) throw new UnmappableWebhookPayloadError(envelope.payload.id || null);
 
     const calendar = await this.calendarRepo.findOrCreateCalendarByUnipileIdUnscoped({
       companyId: account.companyId,
@@ -44,7 +45,9 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
       timezone: normalized.timezone,
     });
 
-    await this.calendarRepo.upsertCalendarEventUnscoped({
+    if (!account.hasCalendar) await this.calendarRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
+
+    const event = await this.calendarRepo.upsertCalendarEventUnscoped({
       companyId: account.companyId,
       connectedAccountId: account.id,
       calendarId: calendar.id,
@@ -55,7 +58,7 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
     await this.eventService.publish(
       DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED,
       {
-        entityId: envelope.payload.id,
+        entityId: event.id,
         payload: {
           connectedAccountId: account.id,
           providerCalendarId: envelope.payload.calendar_id,

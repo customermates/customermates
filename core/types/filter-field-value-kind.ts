@@ -35,6 +35,9 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },
   [FilterFieldKey.timelineKind]: { kind: "enum", values: TIMELINE_KINDS },
   [FilterFieldKey.participants]: { kind: "linkStatus" },
+  [FilterFieldKey.connectedAccountId]: { kind: "string" },
+  [FilterFieldKey.calendarId]: { kind: "string" },
+  [FilterFieldKey.startsAt]: { kind: "date" },
 };
 
 export const filterValueKind = (field: string): FilterValueKind | undefined =>
