@@ -39,9 +39,12 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { messagingThreadsStore } = useRootStore();
+  const { messagingThreadsStore, connectedAccountsStore } = useRootStore();
 
   useDataViewSync(messagingThreadsStore, threads);
+
+  useEffect(() => void connectedAccountsStore.ensureLoaded(), [connectedAccountsStore]);
+  const channelsNeedingAction = connectedAccountsStore.needsActionCount;
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -91,11 +94,17 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
             <Cable className="size-3.5" />
 
             <span className="hidden sm:inline">{t("ConnectedAccountsCard.title")}</span>
+
+            {channelsNeedingAction > 0 && (
+              <span className="bg-warning/25 text-warning inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md px-1.5 text-[11px] font-medium tabular-nums">
+                {channelsNeedingAction}
+              </span>
+            )}
           </Link>
         </Button>
       </div>
     ),
-    [handleRefresh, isRefreshing, messagingThreadsStore, searchPlaceholder, t],
+    [handleRefresh, isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction],
   );
   useSetTopBarActions(topBarNode);
 

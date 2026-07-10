@@ -23,7 +23,9 @@ import {
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
+  getGetMyConnectedAccountsInteractor,
 } from "@/core/di";
+import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { homepageSource } from "@/core/fumadocs/source";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
@@ -128,6 +130,7 @@ export default async function RootLayout({ children }: Props) {
   const isRegistered = user?.email != null;
   let systemTaskCount = 0;
   let unreadThreadCount = 0;
+  let channelsNeedingActionCount = 0;
   let company: Company | null = null;
   let subscriptionStatus: SubscriptionStatus | null = null;
   let trialDaysLeft: number | null = null;
@@ -141,15 +144,18 @@ export default async function RootLayout({ children }: Props) {
     emailVerified = authSession?.user?.emailVerified ?? false;
 
     if (isAuthenticated) {
-      const [companyResult, systemTaskCountResult, subscriptionResult, unreadThreadCountResult] = await Promise.all([
-        getGetCompanyDetailsInteractor().invoke(),
-        getCountSystemTasksInteractor().invoke(),
-        getGetSubscriptionInteractor().invoke(),
-        getGetUnreadThreadCountInteractor().invoke(),
-      ]);
+      const [companyResult, systemTaskCountResult, subscriptionResult, unreadThreadCountResult, accountsResult] =
+        await Promise.all([
+          getGetCompanyDetailsInteractor().invoke(),
+          getCountSystemTasksInteractor().invoke(),
+          getGetSubscriptionInteractor().invoke(),
+          getGetUnreadThreadCountInteractor().invoke(),
+          getGetMyConnectedAccountsInteractor().invoke(),
+        ]);
       company = companyResult.data;
       systemTaskCount = systemTaskCountResult.data;
       unreadThreadCount = unreadThreadCountResult.data;
+      channelsNeedingActionCount = accountsResult.ok ? accountsResult.data.filter(accountNeedsAction).length : 0;
       subscriptionStatus = subscriptionResult.data?.status ?? null;
       const trialEndDate = subscriptionResult.data?.trialEndDate ?? null;
       trialDaysLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000)) : null;
@@ -175,6 +181,7 @@ export default async function RootLayout({ children }: Props) {
           messages={messages}
         >
           <NavigationSwitch
+            channelsNeedingActionCount={channelsNeedingActionCount}
             company={company}
             defaultSidebarOpen={initialSidebarOpen}
             emailVerified={emailVerified}

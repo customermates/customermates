@@ -46,6 +46,7 @@ import { NavUser } from "./navigation/nav-user";
 type Props = {
   systemTaskCount: number;
   unreadThreadCount: number;
+  channelsNeedingActionCount: number;
   user: ExtendedUser | null;
   subscriptionStatus: SubscriptionStatus | null;
   trialDaysLeft: number | null;
@@ -53,7 +54,15 @@ type Props = {
 };
 
 export const AppSidebar = observer(
-  ({ user, systemTaskCount, unreadThreadCount, subscriptionStatus, trialDaysLeft, emailVerified }: Props) => {
+  ({
+    user,
+    systemTaskCount,
+    unreadThreadCount,
+    channelsNeedingActionCount,
+    subscriptionStatus,
+    trialDaysLeft,
+    emailVerified,
+  }: Props) => {
     const t = useTranslations();
     const pathname = usePathname();
     const intlPathname = useIntlPathname();
@@ -185,6 +194,7 @@ export const AppSidebar = observer(
                     href: "/profile/connected-accounts",
                     icon: Mail,
                     visible: userStore.canAccess(Resource.inboxMessages),
+                    badge: channelsNeedingActionCount,
                   },
                 ].filter((i) => i.visible),
               },
@@ -246,7 +256,15 @@ export const AppSidebar = observer(
             ].filter((i) => i.visible),
           },
         ].filter((g) => g.items.length > 0),
-      [t, rootStore.isCloudHosted, subscriptionStatus, userStore.user, systemTaskCount, unreadThreadCount],
+      [
+        t,
+        rootStore.isCloudHosted,
+        subscriptionStatus,
+        userStore.user,
+        systemTaskCount,
+        unreadThreadCount,
+        channelsNeedingActionCount,
+      ],
     );
 
     const secondaryItems: NavSecondaryItem[] = useMemo(

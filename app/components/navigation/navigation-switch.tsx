@@ -24,6 +24,7 @@ type Props = {
   trialDaysLeft: number | null;
   systemTaskCount: number;
   unreadThreadCount: number;
+  channelsNeedingActionCount: number;
   user: ExtendedUser | null;
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
@@ -38,6 +39,7 @@ export function NavigationSwitch({
   trialDaysLeft,
   systemTaskCount,
   unreadThreadCount,
+  channelsNeedingActionCount,
   user,
   emailVerified,
   defaultSidebarOpen = true,
@@ -86,6 +88,7 @@ export function NavigationSwitch({
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen}>
       <AppSidebar
+        channelsNeedingActionCount={channelsNeedingActionCount}
         emailVerified={emailVerified}
         subscriptionStatus={subscriptionStatus}
         systemTaskCount={systemTaskCount}

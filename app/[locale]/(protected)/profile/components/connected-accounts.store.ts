@@ -7,7 +7,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { action, computed, makeObservable } from "mobx";
 
-import { isUsableSenderFor } from "@/ee/messaging/provider";
+import { accountNeedsAction, isUsableSenderFor } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import {
@@ -37,6 +37,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
     makeObservable(this, {
       hasSyncingAccount: computed,
+      needsActionCount: computed,
       disconnect: action,
       resync: action,
       reconnect: action,
@@ -47,6 +48,10 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
   get hasSyncingAccount(): boolean {
     return this.items.some((account) => account.syncing);
+  }
+
+  get needsActionCount(): number {
+    return this.items.filter(accountNeedsAction).length;
   }
 
   ensureLoaded = (): Promise<void> => {

@@ -21,6 +21,7 @@ import {
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   key: string;
@@ -66,7 +67,19 @@ function NavLinkOverlayBridge() {
   return null;
 }
 
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+
+  return (
+    <span className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
+      {count}
+    </span>
+  );
+}
+
 function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMainParentProps) {
+  const subBadgeCount = (item.items ?? []).reduce((sum, sub) => sum + (sub.badge ?? 0), 0);
+
   return (
     <Collapsible asChild className="group/collapsible" open={open} onOpenChange={onOpenChange}>
       <SidebarMenuItem>
@@ -75,7 +88,14 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
 
           <span className="min-w-0 truncate">{item.title}</span>
 
-          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          {!open && <NavBadge count={subBadgeCount} />}
+
+          <ChevronRight
+            className={cn(
+              "transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
+              (open || subBadgeCount <= 0) && "ml-auto",
+            )}
+          />
         </SidebarMenuButton>
 
         <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
@@ -93,6 +113,8 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                       <NavLinkOverlayBridge />
 
                       <span>{sub.title}</span>
+
+                      <NavBadge count={sub.badge ?? 0} />
                     </NextLink>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -147,11 +169,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
 
             <span className="min-w-0 truncate">{item.title}</span>
 
-            {item.badge !== undefined && item.badge > 0 && (
-              <span className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
-                {item.badge}
-              </span>
-            )}
+            <NavBadge count={item.badge ?? 0} />
           </NextLink>
         </SidebarMenuButton>
       </SidebarMenuItem>

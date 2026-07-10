@@ -69,6 +69,12 @@ export function isUsableSenderFor(
   return isEmailProvider(provider) ? isEmailProvider(account.provider) : account.provider === provider;
 }
 
+const ACCOUNT_ACTION_STATUSES: ReadonlyArray<string> = ["credentials", "permissions", "error"];
+
+export function accountNeedsAction(account: { status: string }): boolean {
+  return ACCOUNT_ACTION_STATUSES.includes(account.status);
+}
+
 export function getProviderProfileUrl(provider: MessagingProvider, value: string): string | null {
   if (!value) return null;
   if (value.startsWith("http://") || value.startsWith("https://")) return value;

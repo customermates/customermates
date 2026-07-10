@@ -46,6 +46,12 @@ export const ThreadSettings = observer(
     const selfParticipant = participants.find((p) => p.isSelf) ?? null;
     const accountOwner =
       messagingThreadDetailStore.accountOwners[messagingThreadDetailStore.thread?.connectedAccountId ?? ""] ?? null;
+    const selfLabel = isOwner
+      ? t("Inbox.senderYou")
+      : accountOwner?.displayName?.trim() ||
+        (selfParticipant
+          ? participantLabel(selfParticipant, provider, t("Inbox.senderUnknown"))
+          : t("Inbox.senderUnknown"));
     const linkable = participants.filter((p) => !p.isSelf && p.identifier.trim());
     const unlinkedCount = linkable.filter((p) => !p.contact).length;
     const showBadge = canManageContacts && unlinkedCount > 0;
@@ -149,14 +155,10 @@ export const ThreadSettings = observer(
                   <div className="flex flex-col gap-1">
                     {(selfParticipant || accountOwner) && (
                       <div className="flex items-center gap-3 py-2">
-                        <Avatar
-                          name={t("Inbox.senderYou")}
-                          size="lg"
-                          src={selfParticipant?.pictureUrl ?? accountOwner?.avatarUrl ?? undefined}
-                        />
+                        <Avatar name={selfLabel} size="lg" src={selfParticipant?.pictureUrl ?? undefined} />
 
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium">{t("Inbox.senderYou")}</div>
+                          <div className="truncate text-sm font-medium">{selfLabel}</div>
 
                           {(selfParticipant?.identifier || accountOwner?.accountLabel) && (
                             <div className="text-muted-foreground truncate text-xs">

@@ -26,8 +26,9 @@ function thread(over: {
   name: string | null;
   provider: MessagingProvider;
   participants: MessagingAttendee[];
+  isOwner?: boolean;
 }) {
-  return deriveThreadDisplay(over, t);
+  return deriveThreadDisplay({ ...over, isOwner: over.isOwner ?? true }, t);
 }
 
 describe("deriveThreadDisplay title precedence", () => {
@@ -119,5 +120,46 @@ describe("deriveThreadDisplay secondary line", () => {
 
     expect(view.displayName).toBe("+4915123456789");
     expect(view.displayNameSecondary).toBeNull();
+  });
+});
+
+describe("deriveThreadDisplay self-chat ownership", () => {
+  function selfAttendee(): MessagingAttendee {
+    return {
+      attendeeId: "self",
+      displayName: null,
+      identifier: "",
+      pictureUrl: null,
+      profileUrl: null,
+      headline: null,
+      occupation: null,
+      isSelf: true,
+    };
+  }
+
+  it("labels an owned self-chat as You", () => {
+    const view = thread({
+      type: "single",
+      subject: null,
+      name: null,
+      provider: "whatsapp",
+      participants: [selfAttendee()],
+      isOwner: true,
+    });
+
+    expect(view.displayName).toBe("Inbox.senderYou");
+  });
+
+  it("never labels a shared self-chat as You", () => {
+    const view = thread({
+      type: "single",
+      subject: null,
+      name: null,
+      provider: "whatsapp",
+      participants: [selfAttendee()],
+      isOwner: false,
+    });
+
+    expect(view.displayName).toBe("Inbox.senderUnknown");
   });
 });

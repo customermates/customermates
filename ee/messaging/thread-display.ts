@@ -137,6 +137,7 @@ export function deriveThreadDisplay(
     subject: string | null;
     provider: MessagingProvider;
     participants: MessagingAttendee[];
+    isOwner: boolean;
   },
   t: (key: string, values?: Record<string, string | number>) => string,
 ): {
@@ -152,7 +153,9 @@ export function deriveThreadDisplay(
   const counterpart = threadCounterpart(thread.participants);
   const isSelfChat = !isGroup && thread.participants.length > 0 && thread.participants.every((p) => p.isSelf);
   const fallback = isSelfChat
-    ? t("Inbox.senderYou")
+    ? thread.isOwner
+      ? t("Inbox.senderYou")
+      : t("Inbox.senderUnknown")
     : thread.provider === "linkedin"
       ? t("Inbox.linkedinContact")
       : t("Inbox.senderUnknown");
