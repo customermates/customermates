@@ -71,6 +71,7 @@ export enum CustomErrorCode {
   socialPostsRequireSocialAccount = "socialPostsRequireSocialAccount",
   unipileResourceNotFound = "unipileResourceNotFound",
   unipileProviderError = "unipileProviderError",
+  unipileInvalidRequest = "unipileInvalidRequest",
   unipileRateLimit = "unipileRateLimit",
   unipileServiceUnavailable = "unipileServiceUnavailable",
   unipileRequestTimeout = "unipileRequestTimeout",

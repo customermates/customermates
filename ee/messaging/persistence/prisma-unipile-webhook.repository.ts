@@ -53,6 +53,20 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
   }
 
   @BypassTenantGuard
+  async countRecentEmailDeletesUnscoped(args: RepoArgs<WebhookEventRepo, "countRecentEmailDeletesUnscoped">) {
+    return this.prisma.messagingInboundEvent.count({
+      where: {
+        source: WEBHOOK_INBOUND_SOURCE,
+        receivedAt: { gte: args.since },
+        AND: [
+          { payload: { path: ["type"], equals: "email.delete" } },
+          { payload: { path: ["account_id"], equals: args.unipileAccountId } },
+        ],
+      },
+    });
+  }
+
+  @BypassTenantGuard
   async findReprocessableEventIdsUnscoped(args: RepoArgs<WebhookEventRepo, "findReprocessableEventIdsUnscoped">) {
     const rows = await this.prisma.messagingInboundEvent.findMany({
       where: {

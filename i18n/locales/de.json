@@ -313,6 +313,7 @@
       "termsNotAgreed": "Sie müssen den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Bitte erneut verbinden.",
+      "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Empfänger-Kennungen und Nachrichtenparameter prüfen.",
       "unipileProviderError": "Der Anbieter hat aktuell Probleme. Bitte später erneut versuchen.",
       "unipileRateLimit": "Dieser Kanal hat sein Limit vorerst erreicht. Bitte {retryAfter} erneut versuchen. Mehr unter https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "Die Anfrage hat das Zeitlimit überschritten. Die Aktion wurde möglicherweise trotzdem ausgeführt, bitte prüfe das Ergebnis vor einem erneuten Versuch.",

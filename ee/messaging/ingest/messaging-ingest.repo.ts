@@ -33,6 +33,17 @@ export abstract class MessagingIngestRepo {
     unipileMessageId: string;
     reactions: MessageReactionEntry[];
   }): Promise<{ id: string; messagingThreadId: string } | null>;
+  abstract findMessageByUnipileIdUnscoped(args: {
+    connectedAccountId: string;
+    unipileMessageId: string;
+  }): Promise<MessagingMessage | null>;
+  abstract moveEmailMessageUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    unipileMessageId: string;
+    newUnipileMessageId: string;
+    folderIds: string[];
+  }): Promise<{ id: string } | null>;
   abstract deleteMessageUnscoped(args: {
     companyId: string;
     connectedAccountId: string;

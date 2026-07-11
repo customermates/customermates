@@ -1022,7 +1022,13 @@ export const getProcessMessageReactionWebhookInteractor = () =>
 export const getProcessEmailNewWebhookInteractor = () =>
   new ProcessEmailNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessEmailDeleteWebhookInteractor = () =>
-  new ProcessEmailDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessEmailDeleteWebhookInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getMessagingService(),
+    getUnipileWebhookRepo(),
+  );
 export const getProcessEmailFolderWebhookInteractor = () =>
   new ProcessEmailFolderWebhookInteractor(getConnectedAccountRepo(), getMessagingService());
 export const getProcessChatUpdateWebhookInteractor = () =>

@@ -1481,6 +1481,26 @@ export class PrismaMessagingRepo
   }
 
   @BypassTenantGuard
+  async moveEmailMessageUnscoped(args: RepoArgs<MessagingIngestRepo, "moveEmailMessageUnscoped">) {
+    const message = await this.prisma.messagingMessage.findFirst({
+      where: {
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        unipileMessageId: args.unipileMessageId,
+      },
+      select: { id: true },
+    });
+    if (!message) return null;
+
+    await this.prisma.messagingMessage.update({
+      where: { id: message.id },
+      data: { unipileMessageId: args.newUnipileMessageId, folderIds: args.folderIds, isHidden: false },
+    });
+
+    return { id: message.id };
+  }
+
+  @BypassTenantGuard
   async markMessageDeletedUnscoped(args: RepoArgs<MessagingIngestRepo, "markMessageDeletedUnscoped">) {
     const message = await this.prisma.messagingMessage.findFirst({
       where: {

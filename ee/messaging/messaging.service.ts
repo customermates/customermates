@@ -86,7 +86,7 @@ type ProviderProfile = {
   headline: string | null;
 };
 
-class UnipileRequestError extends Error {
+export class UnipileRequestError extends Error {
   constructor(
     readonly status: number,
     readonly errorType: string | null,
@@ -124,6 +124,7 @@ const UNIPILE_ERROR_CODES: Record<string, CustomErrorCode> = {
   "api/proxy_auth_error": CustomErrorCode.unipileServiceUnavailable,
   "api/inactive_subscription": CustomErrorCode.unipileServiceUnavailable,
   "api/not_implemented": CustomErrorCode.unipileServiceUnavailable,
+  "provider/invalid_parameters": CustomErrorCode.unipileInvalidRequest,
 };
 
 const UNIPILE_BAD_IMPL_TYPES = new Set([
@@ -392,6 +393,7 @@ export class MessagingService {
     offset?: number;
     limit?: number;
     after?: string;
+    before?: string;
     metaOnly?: boolean;
     timeoutMs?: number;
   }) {
@@ -401,7 +403,13 @@ export class MessagingService {
         query:
           input.cursor != null
             ? { cursor: input.cursor, limit: input.limit }
-            : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+            : {
+                offset: input.offset,
+                limit: input.limit,
+                after: input.after,
+                before: input.before,
+                meta_only: input.metaOnly,
+              },
         ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       }),
     );
@@ -423,6 +431,7 @@ export class MessagingService {
     offset?: number;
     limit?: number;
     after?: string;
+    before?: string;
     metaOnly?: boolean;
     timeoutMs?: number;
   }) {
@@ -432,7 +441,13 @@ export class MessagingService {
         query:
           input.cursor != null
             ? { cursor: input.cursor, limit: input.limit }
-            : { offset: input.offset, limit: input.limit, after: input.after, meta_only: input.metaOnly },
+            : {
+                offset: input.offset,
+                limit: input.limit,
+                after: input.after,
+                before: input.before,
+                meta_only: input.metaOnly,
+              },
         ...(input.timeoutMs != null ? { signal: AbortSignal.timeout(input.timeoutMs) } : {}),
       }),
     );

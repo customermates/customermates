@@ -313,6 +313,7 @@
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
       "unipileDisconnectedAccount": "The channel is disconnected. Please reconnect it and try again.",
+      "unipileInvalidRequest": "The provider rejected the request as invalid. Check the recipient identifiers and message parameters.",
       "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
       "unipileRateLimit": "This channel reached its limit for now. You can try again {retryAfter}. Learn more at https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "The request timed out. The action may still have completed, please check before retrying.",
