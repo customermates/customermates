@@ -4,7 +4,7 @@ description: "Automate lead qualification with ChatGPT using BANT, MEDDIC, ANUM,
 
 hero:
   title: "Lead Qualification with ChatGPT: Replace Manual Scoring with AI"
-  description: "Manual lead scoring wastes hours and produces inconsistent results. ChatGPT applies qualification frameworks like BANT, MEDDIC, ANUM, and FAINT at scale -- here is how to set it up with n8n and your CRM."
+  description: "Manual lead scoring wastes hours and produces inconsistent results. ChatGPT applies qualification frameworks like BANT, MEDDIC, ANUM, and FAINT at scale, here is how to set it up with n8n and your CRM."
 
 blogPost:
   author: Benjamin Wagner
@@ -20,7 +20,7 @@ blogPost:
 
 # Lead Qualification with ChatGPT: Replace Manual Scoring with AI
 
-Manual lead scoring wastes hours and produces inconsistent results. ChatGPT applies qualification frameworks like BANT, MEDDIC, ANUM, and FAINT at scale -- here is how to set it up with n8n and your CRM.
+Manual lead scoring wastes hours and produces inconsistent results. ChatGPT applies qualification frameworks like BANT, MEDDIC, ANUM, and FAINT at scale, here is how to set it up with n8n and your CRM.
 
 ## The Problem with Manual Lead Qualification
 
@@ -130,7 +130,7 @@ Before scoring leads with AI, clarify the handoff between Marketing Qualified Le
 
 - **MQL (score 6-10):** Marketing continues nurturing, sales is notified but does not act yet.
 - **SQL (score 11-15):** Sales accepts and reaches out within 24 hours.
-- **Hot Lead (score 16-20):** Immediate action -- sales contacts within 1 hour.
+- **Hot Lead (score 16-20):** Immediate action, sales contacts within 1 hour.
 
 Document these thresholds in a shared agreement between marketing and sales. When AI enforces the criteria, both teams trust the process.
 
@@ -304,7 +304,7 @@ Add a CRM node to write the results. In Customermates, map the total score to a 
 Use an If node to branch the workflow:
 - **Hot leads (score 16-20):** Send an immediate Slack message or email to the assigned sales rep with the lead summary and score breakdown.
 - **Warm leads (score 10-15):** Add to an email nurture sequence or schedule a follow-up task in the CRM.
-- **Cold leads (score 1-9):** Tag for periodic review. Do not discard -- circumstances change.
+- **Cold leads (score 1-9):** Tag for periodic review. Do not discard, circumstances change.
 - **Disqualified leads:** Archive with the disqualification reason logged in the CRM. This data helps refine your ICP and marketing targeting over time.
 
 ### Workflow Cost Estimate
@@ -313,12 +313,12 @@ Use an If node to branch the workflow:
 |-----------|-------------|
 | n8n Cloud (Starter) | EUR 20 |
 | OpenAI API (200 leads scored) | EUR 5-10 |
-| Customermates CRM | EUR 7/user |
+| Customermates CRM | EUR 12/user |
 | **Total (1 user)** | **EUR 35-40** |
 
 At 200 leads per month, the entire automation costs less than one hour of a sales rep's time.
 
-## When AI Lead Qualification Works -- and When It Does Not
+## When AI Lead Qualification Works, and When It Does Not
 
 AI scoring is powerful but not universal. Understanding its limits prevents costly mistakes.
 
@@ -352,7 +352,7 @@ Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT a
 | Scoring consistency | Very high (AI applies same criteria) | High (rules are consistent) | N/A |
 | Adaptability | Change prompt to change framework | Rebuild rules for each change | N/A |
 | Qualitative analysis | Yes (reads text, detects signals) | No (numeric/boolean rules only) | N/A |
-| Cost | EUR 7/user + EUR 5-10 API | EUR 800+/month (Professional plan) | EUR 14/user + external tool |
+| Cost | EUR 12/user + EUR 5-10 API | From ~EUR 90/seat (Professional plan) | EUR 14/user + external tool |
 | n8n integration | Native | API available | API available |
 
 **HubSpot's built-in scoring** is rule-based: you define points for actions (opened email = +5, visited pricing page = +10). It works for engagement scoring but cannot analyze the content of a lead's message or apply qualification frameworks to free-text input.
@@ -369,8 +369,8 @@ Many CRMs offer built-in lead scoring. Here is how they compare to the ChatGPT a
 |--------|----------|---------|
 | Daily scoring time | 1.5 hours | 10 minutes (review only) |
 | Monthly scoring time | 30 hours | 3.5 hours |
-| Time saved per month | -- | 26.5 hours |
-| Value at EUR 50/hour | -- | EUR 1,325/month |
+| Time saved per month |, | 26.5 hours |
+| Value at EUR 50/hour |, | EUR 1,325/month |
 
 ### Conversion Improvement
 
@@ -386,9 +386,9 @@ Teams that switch from manual to AI-assisted qualification typically see convers
 
 Your CRM needs to support custom fields, tagging, and automation triggers for this workflow to function smoothly.
 
-**Customermates.** EUR 7/user/month, all features included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The flat pricing model means you do not pay extra for automation features that enterprise CRMs gate behind higher tiers.
+**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Custom fields for scores, tags for classification, native n8n integration for automated updates, GDPR-compliant EU hosting. The native MCP integration (45 tools) lets Claude, ChatGPT, or Gemini operate the CRM directly, and a unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into one place on the Pro tier. Automation is included at every tier, so you do not pay extra for features that enterprise CRMs gate behind higher plans.
 
-**HubSpot.** Lead scoring is available on the Professional plan (starting at EUR 800/month for 5 users). The built-in scoring is rule-based, not AI-powered. For AI scoring via n8n, the free CRM tier works but lacks advanced automation triggers.
+**HubSpot.** Lead scoring is available on the Professional plan (from about EUR 90 per seat per month). The built-in scoring is rule-based, not AI-powered. For AI scoring via n8n, the free CRM tier works but lacks advanced automation triggers.
 
 **Pipedrive.** Custom fields and tags available on all plans (from EUR 14/user/month). No native lead scoring, but the API integrates well with n8n for external scoring workflows.
 
@@ -398,7 +398,7 @@ For teams that want maximum automation at minimum cost, Customermates plus n8n p
 
 ### Can ChatGPT really replace a human SDR for lead qualification?
 
-Not entirely. ChatGPT excels at the initial scoring pass -- applying frameworks consistently and at scale. But it cannot replace the judgment, relationship intelligence, and intuition of an experienced SDR. The best approach is hybrid: AI scores and routes, humans review and engage.
+Not entirely. ChatGPT excels at the initial scoring pass, applying frameworks consistently and at scale. But it cannot replace the judgment, relationship intelligence, and intuition of an experienced SDR. The best approach is hybrid: AI scores and routes, humans review and engage.
 
 ### Which framework should I start with?
 
@@ -420,7 +420,7 @@ Build a feedback loop. When a sales rep disagrees with an AI score, they update 
 
 When using the OpenAI API with a business agreement and DPA, data is processed but not used for training. For maximum compliance, minimize the PII sent (use company name and message content, not personal email addresses), and consider a self-hosted LLM via Ollama for sensitive data. On the CRM side, Customermates stores data in the EU by default and is fully GDPR-compliant.
 
-### What if I only get 20 leads per month -- is automation worth it?
+### What if I only get 20 leads per month, is automation worth it?
 
 Even at low volume, the consistency benefit matters. Manual scoring at 20 leads per month takes less time, but the inconsistency problem persists. If your team has more than one person scoring leads, automation ensures everyone uses the same criteria. The setup time (2-3 hours) pays for itself within the first month through reduced scoring disagreements and faster response times.
 

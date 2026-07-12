@@ -55,27 +55,27 @@ Die MCP-Oberfläche fügt Input-Guardrails hinzu, die Tool-Calls absichern:
 - Update-Tools für den falschen Record-Typ werden mit einem Verweis auf das richtige Tool abgelehnt.
 - Destruktive Tools verlangen eine explizite Liste von Record-IDs. Es gibt keinen Delete-by-Filter-Shortcut.
 
-Den vollständigen Tool-Katalog findest du unter [MCP](/docs/mcp#tool-catalog).
+Den vollständigen Tool-Katalog finden Sie unter [MCP](/docs/mcp#tool-catalog).
 
 ## Daten at-rest
 
 - Die Postgres-Verschlüsselung hängt vom Provider ab. In der Managed-Cloud liegen die Daten in einer EU-Region mit Disk-Level-Encryption at-rest.
 - Secrets in `.env` werden nie geloggt. Der Logger redaktiert alles, was wie ein Key, Token oder Passwort aussieht.
-- Webhook-Secrets liegen in Postgres, weil sie abrufbar sein müssen, um ausgehende Requests zu signieren. Wenn du sie woanders halten willst, self-hoste mit deinem eigenen Secret-Manager.
+- Webhook-Secrets liegen in Postgres, weil sie abrufbar sein müssen, um ausgehende Requests zu signieren. Wenn Sie sie woanders halten wollen, self-hosten Sie mit Ihrem eigenen Secret-Manager.
 
 ## Daten in-transit
 
 - HTTPS überall in der Managed-Cloud.
-- Bei Self-Host stellst du das TLS selbst bereit. Das Caddy-Beispiel findest du unter [Self-Hosting](/docs/self-hosting).
+- Bei Self-Host stellen Sie das TLS selbst bereit. Das Caddy-Beispiel finden Sie unter [Self-Hosting](/docs/self-hosting).
 - Webhook-Deliveries gehen nur an HTTPS-URLs. HTTP wird auf Schema-Ebene abgelehnt.
 
-## Audit-Logging (Enterprise)
+## Audit-Logging
 
-Jeder Write wird mit User, Action, Entity sowie Vorher- und Nachher-Werten geloggt. Er ist aus der UI abfragbar und als JSON exportierbar. Audit-Logging ist ein Enterprise-Feature, verfügbar in kostenpflichtigen Cloud-Plänen oder beim Self-Host mit einem Lizenzschlüssel.
+Jeder Write wird mit User, Action, Entity sowie Vorher- und Nachher-Werten geloggt. Er ist aus der UI abfragbar und als JSON exportierbar. Audit-Logging ist in jedem Cloud-Plan enthalten. Die selbstgehostete Community-Edition enthält kein Audit-Logging.
 
 ## Vulnerabilities melden
 
-Bitte melde verantwortungsvoll an `security@customermates.com`. Der PGP-Key liegt im Repository. Wir bestätigen den Eingang innerhalb von 24 Stunden.
+Bitte melden Sie verantwortungsvoll an `security@customermates.com`. Der PGP-Key liegt im Repository. Wir bestätigen den Eingang innerhalb von 24 Stunden.
 
 ## Weiter
 

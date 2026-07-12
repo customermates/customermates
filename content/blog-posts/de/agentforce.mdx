@@ -41,11 +41,13 @@ Die Architektur ist für Großunternehmen, die ohnehin in Salesforce leben, gut 
 
 ## Agentforce-Kosten 2026
 
-Salesforce hat zwei Preismodelle für Agentforce ausprobiert. Beide sind weiter im Markt, und beide kommen zusätzlich zu Ihrer bestehenden Salesforce-Rechnung.
+Salesforce bietet drei Preismodelle für Agentforce an. Alle kommen zusätzlich zu Ihrer bestehenden Salesforce-Rechnung, und Flex Credits und Konversationen lassen sich nicht in derselben Org kombinieren.
 
 **Konversationsbasierte Abrechnung.** 2 US-Dollar pro Konversation. Eine Konversation ist eine Nutzer-Interaktion mit einem Agenten über eine Sitzung, unabhängig von der Anzahl der Wechsel. Sinnvoll bei vorhersagbaren Kundenservice-Volumina.
 
-**Flex Credits.** 0,10 US-Dollar pro Agent-Aktion, in Paketen von 100.000 Credits zu 5.000 US-Dollar Mindestabnahme. Eine Aktion ist grob ein Tool-Aufruf: einen Datensatz lesen, ein Feld aktualisieren, eine E-Mail senden. Sinnvoll bei variablen internen Workloads, bei denen die Konversationszahl schwer vorhersagbar ist.
+**Flex Credits.** Grob 0,10 US-Dollar pro Agent-Aktion (eine Aktion verbraucht 20 Credits, ein Paket von 100.000 Credits kostet 500 US-Dollar). Eine Aktion ist grob ein Tool-Aufruf: einen Datensatz lesen, ein Feld aktualisieren, eine E-Mail senden. Voice-Aktionen kosten 30 Credits. Sinnvoll bei variablen internen Workloads, bei denen die Konversationszahl schwer vorhersagbar ist.
+
+**Nutzerbasierte Lizenzierung.** Eine sitzplatzbasierte Option ab 125 US-Dollar pro Nutzer pro Monat, bis 550 US-Dollar pro Nutzer pro Monat für die Edition Agentforce 1 Sales. Sinnvoll, wenn die Nutzung hoch und vorhersagbar genug ist, dass ein fester Sitzplatzpreis die verbrauchsbasierte Abrechnung schlägt.
 
 Für ein typisches Mittelstands-Vertriebsteam mit Agentforce-SDR im Outbound:
 - Konversationen pro Tag: 50 bis 200 Interessenten
@@ -57,7 +59,7 @@ Für Kundenservice:
 - Tickets pro Tag: 100 bis 500
 - Konversationskosten: 200 bis 1.000 €/Tag, 6.000 bis 30.000 €/Monat
 
-**Wichtiger Kontext:** Agentforce setzt Sales Cloud, Service Cloud oder Data Cloud als Plattform voraus. Sales Cloud Pro startet bei 165 € pro Nutzer pro Monat. Ein 25-Personen-Team mit Sales Cloud Pro plus Agentforce gibt realistisch 5.000 bis 15.000 € pro Monat aus, vor Implementierungskosten.
+**Wichtiger Kontext:** Agentforce setzt Sales Cloud, Service Cloud oder Data Cloud als Plattform voraus. Sales Cloud reicht von 25 US-Dollar pro Nutzer pro Monat (Starter Suite) über 100 (Pro Suite) bis 175 (Enterprise) und 350 (Unlimited), oberhalb von Starter jährlich abgerechnet. Die meisten Teams, die Agentforce einsetzen, liegen auf Enterprise. Ein 25-Personen-Team mit Sales Cloud Enterprise plus Agentforce gibt realistisch 5.000 bis 15.000 US-Dollar pro Monat aus, vor Implementierungskosten.
 
 Die Implementierung läuft typisch zwischen 30.000 und 150.000 € für einen Salesforce-Partner, der Agentforce neben einer bestehenden Salesforce-Installation einrichtet.
 
@@ -85,11 +87,11 @@ Drei Kontexte, in denen es die falsche Wahl ist:
 
 Der Markt hat sich auf drei Architekturen für KI-Agenten im CRM eingependelt:
 
-**Salesforce Agentforce.** Closed Source, gehostet, in die Salesforce-Plattform integriert. Beste Wahl für Enterprise-Salesforce-Häuser mit Budget. Preis: 2 €/Konversation oder 0,10 €/Aktion plus Salesforce-Lizenz.
+**Salesforce Agentforce.** Closed Source, gehostet, in die Salesforce-Plattform integriert. Geeignet für Enterprise-Salesforce-Häuser mit Budget. Preis: 2 US-Dollar/Konversation, rund 0,10 US-Dollar/Aktion oder ab 125 US-Dollar/Nutzer/Monat, plus Salesforce-Lizenz.
 
 **HubSpot Breeze Agents.** Closed Source, gehostet, in HubSpot integriert. Kleinerer Funktionsumfang als Agentforce, einfacher aufzusetzen. Preis: enthalten ab Sales Hub Pro. Eingeschränkte Sprachunterstützung außerhalb Englisch.
 
-**Open-Source-CRM + externes LLM über MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex oder ein beliebiges MCP-fähiges Modell. Open Source unter AGPL-3.0, selbst hostbar, EU-gehostete Cloud-Option. Preis: 7 €/Nutzer/Monat fürs CRM plus KI-API-Kosten (typisch 5 bis 50 €/Monat für kleine Teams).
+**Open-Source-CRM + externes LLM über MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex oder ein beliebiges MCP-fähiges Modell. Open Source unter AGPL-3.0, selbst hostbar, EU-gehostete Cloud-Option. Preis: ab 12 €/Nutzer/Monat fürs CRM (Starter; Pro ab 29 € mit vereinheitlichtem Posteingang) plus KI-API-Kosten (typisch 5 bis 50 €/Monat für kleine Teams).
 
 Der architektonische Unterschied: Agentforce und Breeze packen den Agenten in den CRM-Anbieter-Stack. Open Source plus MCP hält den Agenten getrennt vom CRM, sodass Sie Modelle tauschen, Anbieter wechseln und die Datenschicht selbst besitzen können.
 
@@ -97,7 +99,7 @@ Für die meisten Teams unter 100 Nutzern liefert der Open-Source-Pfad 80 bis 90 
 
 ## Customermates als Open-Source-Agentforce-Alternative
 
-Customermates stellt 54 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen beliebigen anderen MCP-fähigen Agenten das vollständige CRM bedienen lassen:
+Customermates stellt 45 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen beliebigen anderen MCP-fähigen Agenten das vollständige CRM bedienen lassen:
 
 **Lese-Operationen.** Kontakte, Unternehmen, Deals, Aufgaben, Services durchsuchen. Filter nach beliebigem Feld. Kommunikationshistorie abrufen. Pipeline-Status abfragen.
 
@@ -107,7 +109,7 @@ Customermates stellt 54 MCP-Tools bereit, die Claude, Codex, ChatGPT oder einen 
 
 Die Agenten-Schicht ist Ihre Wahl: Claude Sonnet für kostengünstige Routinearbeit, Claude Opus für komplexe Schlussfolgerungen, GPT-4o für spezifische Anwendungsfälle, lokale Modelle wie Mistral oder Llama für vollständige Datensouveränität.
 
-Das CRM ist Open Source unter AGPL-3.0. Self-Hosted kostet die Servermiete (Hetzner CX21 für 5 €/Monat reicht für ein 20-Personen-Team). Cloud-gehostet startet die [Preisgestaltung](/pricing) bei 7 €/Nutzer/Monat im Jahresplan, mit EU-Hosting (Deutschland) als Standard.
+Das CRM ist Open Source unter AGPL-3.0. Self-Hosted kostet die Servermiete (Hetzner CX21 für 5 €/Monat reicht für ein 20-Personen-Team). Cloud-gehostet startet die [Preisgestaltung](/pricing) bei 12 €/Nutzer/Monat (10 € im Jahresplan, Starter), mit EU-Hosting (Deutschland) als Standard.
 
 Der Trade-off ist ehrlich: Salesforce hat einen 25-Jahres-Vorsprung bei Enterprise-Integrationen, branchenspezifischen Funktionen und Partner-Ökosystem. Customermates hat einen kleineren Funktionsumfang, weniger Integrationen und ein jüngeres Produkt. Für Vertriebsteams, die Agent-natives CRM ohne Salesforces Preisschild und Lock-in wollen, fällt der Trade-off zugunsten Customermates aus. Für Großunternehmen mit komplexer Salesforce-Installation ist Agentforce die natürliche Erweiterung.
 
@@ -139,13 +141,13 @@ Das Ergebnis: Vier Monate vom Vertragsabschluss bis zu konsistentem Wert. Vendor
 
 Salesforce hat detaillierte Auftragsverarbeitungsverträge und EU-Datenresidenz-Optionen für Agentforce. Der Einstein Trust Layer fügt spezifische Schutzmechanismen hinzu (PII-Maskierung, Audit-Logging), die die Compliance-Position vereinfachen. Für die meisten Anwendungsfälle ist Agentforce DSGVO-tauglich; für regulierte Sektoren mit strengen Datensouveränitäts-Anforderungen bleibt Self-Hosting auf EU-Infrastruktur die sauberste Option.
 
-Für deutsche Mittelständler in Banken, Versicherungen oder Gesundheitswesen ist Customermates Self-Hosted auf einem deutschen Server (Hetzner, IONOS) der einzige Weg ohne Drittland-Datentransfer. Schrems-II-Risiko entfällt strukturell.
+Für deutsche Mittelständler in Banken, Versicherungen oder Gesundheitswesen ist Customermates Self-Hosted auf einem deutschen Server (Hetzner, IONOS) der sauberste Weg ohne Drittland-Datentransfer. Schrems-II-Risiko entfällt strukturell.
 
 ## Häufige Fehler bei der Agentforce-Bewertung
 
 Drei Muster, die ich bei Agentforce-Evaluierungen wiederholt sehe und die Budget verbrennen:
 
-**Die Plattform-Steuer unterschätzen.** Käufer fokussieren auf den Agentforce-Preis pro Konversation (2 €/Konversation) und vergessen, dass die zugrundeliegende Sales-Cloud- oder Service-Cloud-Lizenz der eigentliche Kostentreiber ist. Ein 25-Nutzer-Team mit Sales Cloud Pro plus Agentforce gibt realistisch 5.000 bis 15.000 € pro Monat aus, bevor der erste Agent live geht. Der Agentforce-Posten ist selten der größte. Budgets immer für den vollen Salesforce-Stack rechnen.
+**Die Plattform-Steuer unterschätzen.** Käufer fokussieren auf den Agentforce-Preis pro Konversation (2 €/Konversation) und vergessen, dass die zugrundeliegende Sales-Cloud- oder Service-Cloud-Lizenz der eigentliche Kostentreiber ist. Ein 25-Nutzer-Team mit Sales Cloud Enterprise plus Agentforce gibt realistisch 5.000 bis 15.000 US-Dollar pro Monat aus, bevor der erste Agent live geht. Der Agentforce-Posten ist selten der größte. Budgets immer für den vollen Salesforce-Stack rechnen.
 
 **Vor der Datenarbeit kaufen.** Agentforce-Agenten sind nur so klug wie die Salesforce-Datenschicht unter ihnen. Wer Agentforce auf eine halb-bereinigte Salesforce-Instanz packt, bekommt Agenten, die halluzinieren oder bei fehlenden Feldern hängenbleiben. Die Datenvorbereitung, oft vier bis acht Wochen Bereinigung bevor irgendein Agent deployt wird, ist die unglamouröse Voraussetzung, die entscheidet, ob die Agenten tatsächlich funktionieren.
 
@@ -177,7 +179,7 @@ Für Teams unter 50 Nutzern ohne bestehendes Salesforce ist die kosteneffiziente
 
 **Was kostet Agentforce für kleine Teams?**
 
-Die realistische Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 € pro Monat für Sales Cloud Pro plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich: dasselbe Team auf Customermates plus Claude-API läuft bei rund 100 bis 200 € pro Monat.
+Die realistische Mindestkosten für Agentforce sind die Salesforce-Plattform-Lizenz plus die Agentforce-Nutzung. Für ein 10-Personen-Team sind das grob 2.000 bis 5.000 US-Dollar pro Monat für Sales Cloud Enterprise plus Agentforce, vor Implementierung. Die meisten kleinen Teams können das nicht rechtfertigen. Zum Vergleich: dasselbe Team auf Customermates plus Claude-API läuft bei rund 100 bis 200 € pro Monat.
 
 **Wie migriere ich später von Agentforce, falls nötig?**
 

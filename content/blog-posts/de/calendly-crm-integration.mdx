@@ -21,7 +21,7 @@ blogPost:
 
 Ein Interessent bucht ein 30-minütiges Erstgespräch über Calendly. Sie prüfen Ihren Posteingang, öffnen das CRM, legen manuell einen Kontakt an, kopieren die E-Mail-Adresse, fügen die Telefonnummer hinzu, erstellen einen Deal, ordnen ihn einer Pipeline-Stufe zu, setzen eine Follow-up-Erinnerung. Fünf Minuten weg. Bei jeder einzelnen Buchung.
 
-Bei 20 Calendly-Terminen pro Woche sind das über 8 Stunden pro Monat für Dateneingabe, die eine Calendly CRM Integration automatisch erledigen könnte. Dieser Leitfaden zeigt jeden Weg von Calendly ins CRM -- native Integrationen, Zapier und n8n für volle Kontrolle -- plus fortgeschrittene Workflows wie Routing-Formulare, Round-Robin-Zuweisung und Post-Meeting-Automatisierung.
+Bei 20 Calendly-Terminen pro Woche sind das über 8 Stunden pro Monat für Dateneingabe, die eine Calendly CRM Integration automatisch erledigen könnte. Dieser Leitfaden zeigt jeden Weg von Calendly ins CRM, native Integrationen, Zapier und n8n für volle Kontrolle, plus fortgeschrittene Workflows wie Routing-Formulare, Round-Robin-Zuweisung und Post-Meeting-Automatisierung.
 
 ## Warum Calendly mit dem CRM verbinden?
 
@@ -29,7 +29,7 @@ Calendly löst die Terminplanung. Ihr CRM verwaltet Pipeline und Kundenbeziehung
 
 ### 1. Manuelle Doppelerfassung
 
-Jede Buchung erfordert das erneute Eintippen von Namen, E-Mail-Adressen, Telefonnummern und Antworten auf individuelle Fragen in CRM-Felder. Bei 20 Terminen pro Woche und 3 Minuten pro Eintrag sind das 4 Stunden pro Monat reine Dateneingabe. Über ein Jahr sind das 48 Stunden -- mehr als eine volle Arbeitswoche -- nur für das Kopieren von Daten zwischen zwei Bildschirmen.
+Jede Buchung erfordert das erneute Eintippen von Namen, E-Mail-Adressen, Telefonnummern und Antworten auf individuelle Fragen in CRM-Felder. Bei 20 Terminen pro Woche und 3 Minuten pro Eintrag sind das 4 Stunden pro Monat reine Dateneingabe. Über ein Jahr sind das 48 Stunden, mehr als eine volle Arbeitswoche, nur für das Kopieren von Daten zwischen zwei Bildschirmen.
 
 ### 2. Verpasste Follow-ups
 
@@ -182,7 +182,7 @@ Für Teams, die bereits Customermates nutzen, ist n8n eingebaut. Kein separates 
 
 ## Schritt-für-Schritt: Calendly mit Customermates via n8n verbinden
 
-Hier ist eine konkrete Anleitung für die Verbindung von Calendly mit Customermates CRM (7 EUR pro Nutzer/Monat mit voller REST-API). Dieses Muster funktioniert für jedes CRM mit einer API.
+Hier ist eine konkrete Anleitung für die Verbindung von Calendly mit Customermates CRM (ab 12 EUR pro Nutzer/Monat, Starter-Stufe, mit voller REST-API inklusive). Dieses Muster funktioniert für jedes CRM mit einer API.
 
 ### Voraussetzungen
 
@@ -357,7 +357,7 @@ Jede Antwort auf eine individuelle Frage ist im Webhook-Payload verfügbar. Stel
 - "Wie sind Sie auf uns aufmerksam geworden?" wird zur Lead-Quelle
 - "In welchem Budgetrahmen bewegen Sie sich?" wird zum geschätzten Deal-Wert
 
-So wird Calendly zu einem leichtgewichtigen Lead-Qualifizierungsformular. Beschränken Sie sich auf maximal 3-4 Fragen -- mehr reduziert die Buchungsabschlussrate.
+So wird Calendly zu einem leichtgewichtigen Lead-Qualifizierungsformular. Beschränken Sie sich auf maximal 3-4 Fragen, mehr reduziert die Buchungsabschlussrate.
 
 ### Kontakte vor der Erstellung deduplizieren
 
@@ -390,9 +390,9 @@ Fügen Sie in n8n einen Error-Handling-Zweig hinzu, der eine Slack-Nachricht ode
 | Pipedrive | Via Marketplace/Zapier | 20-70 EUR/Monat (Zapier) | $14-99/Benutzer/Monat | Pipeline-fokussierter Vertrieb |
 | Zoho CRM | Via Zapier/n8n | 0-70 EUR/Monat | Kostenlos bis $52/Benutzer/Monat | All-in-One-Suiten-Sucher |
 | Freshsales | Via Zapier/n8n | 0-70 EUR/Monat | Kostenlos bis $69/Benutzer/Monat | Teams mit integriertem Telefon |
-| Customermates | Via n8n (eingebaut) | 0 EUR (inklusive) | 7 EUR/Nutzer/Monat | KMUs mit Fokus auf DSGVO-Konformität und faire Preise |
+| Customermates | Via n8n (eingebaut) | 0 EUR (inklusive) | Ab 12 EUR/Nutzer/Monat | KMUs mit Fokus auf DSGVO-Konformität und faire Preise |
 
-Für kleine und mittelständische Teams liefert Customermates zu 7 EUR pro Nutzer/Monat in Kombination mit dem eingebauten n8n (kostenlos, keine Pro-Aufgaben-Gebühren) eine Calendly CRM Integration zu einem Bruchteil dessen, was HubSpot oder Salesforce verlangen. Sie erhalten vollen API-Zugang, DSGVO-konforme Datenverarbeitung und keine Pro-Automatisierungs-Gebühren.
+Für kleine und mittelständische Teams liefert Customermates ab 12 EUR pro Nutzer/Monat in Kombination mit dem eingebauten n8n (kostenlos, keine Pro-Aufgaben-Gebühren) eine Calendly CRM Integration zu einem Bruchteil dessen, was HubSpot oder Salesforce verlangen. Sie erhalten vollen API-Zugang, DSGVO-konforme Datenverarbeitung und keine Pro-Automatisierungs-Gebühren.
 
 ## ROI der Calendly-CRM-Automatisierung
 
@@ -417,7 +417,7 @@ Dazu die verbesserte Conversion durch schnellere Lead-Reaktion (5-Minuten-Reakti
 
 **Jährlicher Gesamt-ROI: 6.000-8.000 EUR.**
 
-Die Investition: Customermates zu 7 EUR/Nutzer/Monat (420 EUR/Jahr für 5 Nutzer) plus eine selbst gehostete n8n-Instanz (kostenlos). Break-even im ersten Monat.
+Die Investition: Customermates Starter zu 12 EUR/Nutzer/Monat (720 EUR/Jahr für 5 Nutzer) plus eine selbst gehostete n8n-Instanz (kostenlos). Break-even im ersten Monat.
 
 ## Fehlerbehebung häufiger Probleme
 
@@ -461,7 +461,7 @@ Für HubSpot und Salesforce starten Sie mit der nativen Integration für grundle
 
 ### Kann Calendly automatisch Deals in meinem CRM erstellen?
 
-Ja. Ob über eine native Integration (HubSpot, Salesforce) oder ein Automatisierungstool (n8n, Zapier) -- jede Calendly-Buchung kann automatische Deal-Erstellung, Kontakterstellung, Aufgabenzuweisung, Benachrichtigungen und Follow-up-Sequenzen auslösen.
+Ja. Ob über eine native Integration (HubSpot, Salesforce) oder ein Automatisierungstool (n8n, Zapier), jede Calendly-Buchung kann automatische Deal-Erstellung, Kontakterstellung, Aufgabenzuweisung, Benachrichtigungen und Follow-up-Sequenzen auslösen.
 
 ### Ist die Calendly API kostenlos nutzbar?
 
@@ -473,7 +473,7 @@ Fügen Sie in Ihrem Automatisierungs-Workflow einen Suchschritt hinzu, der beste
 
 ### Welches ist das günstigste CRM für eine Calendly Integration?
 
-Customermates zu 7 EUR pro Nutzer/Monat ist eines der erschwinglichsten CRMs mit einer vollen REST-API für die Calendly Integration. In Kombination mit dem eingebauten n8n (kostenlos, keine Pro-Aufgaben-Gebühren) betragen die Gesamtkosten einer vollständigen Calendly CRM Integration nur 7 EUR/Nutzer/Monat. Vergleichen Sie dies mit HubSpot Professional ($100+/Benutzer/Monat für native Calendly-Integration) oder Salesforce Enterprise ($165+/Benutzer/Monat).
+Customermates ab 12 EUR pro Nutzer/Monat ist eines der erschwinglichsten CRMs mit einer vollen REST-API für die Calendly Integration. In Kombination mit dem eingebauten n8n (kostenlos, keine Pro-Aufgaben-Gebühren) betragen die Gesamtkosten einer vollständigen Calendly CRM Integration nur 12 EUR/Nutzer/Monat. Vergleichen Sie dies mit HubSpot Professional ($100+/Benutzer/Monat für native Calendly-Integration) oder Salesforce Enterprise ($175+/Benutzer/Monat).
 
 ### Kann ich Calendly-Stornierungen automatisch in meinem CRM verarbeiten?
 
@@ -487,8 +487,8 @@ Ja. Calendly's Webhook-System sendet Daten an jede öffentlich erreichbare URL. 
 
 Eine Calendly CRM Integration ist kein Luxus. Sie ist grundlegende Vertriebsinfrastruktur. Jede Buchung, die nicht automatisch in Ihrem CRM landet, ist ein potenziell verpasstes Follow-up, ein vergessener Deal, ein Umsatzverlust.
 
-Für Teams, die HubSpot oder Salesforce nutzen, bringen native Integrationen Sie in Minuten ans Ziel. Für alle anderen -- und für Teams, die fortgeschrittene Workflows wie Lead-Scoring, Stornierungsbehandlung und Post-Meeting-Automatisierung wollen -- bietet n8n plus die API Ihres CRMs unbegrenzte Möglichkeiten ohne laufende Kosten.
+Für Teams, die HubSpot oder Salesforce nutzen, bringen native Integrationen Sie in Minuten ans Ziel. Für alle anderen, und für Teams, die fortgeschrittene Workflows wie Lead-Scoring, Stornierungsbehandlung und Post-Meeting-Automatisierung wollen, bietet n8n plus die API Ihres CRMs unbegrenzte Möglichkeiten ohne laufende Kosten.
 
-Wenn Sie ein CRM suchen, das gut mit Calendly und n8n zusammenarbeitet, liefert Customermates die Kernfunktionen, die Vertriebsteams brauchen -- zu 7 EUR pro Nutzer/Monat, mit einer sauberen API, eingebauter n8n-Automatisierung und DSGVO-konformer Datenverarbeitung. Kein Enterprise-Pricing, keine versteckten Gebühren, kein Feature-Gating beim API-Zugang.
+Wenn Sie ein CRM suchen, das gut mit Calendly und n8n zusammenarbeitet, liefert Customermates die Kernfunktionen, die Vertriebsteams brauchen, ab 12 EUR pro Nutzer/Monat, mit einer sauberen API, eingebauter n8n-Automatisierung und DSGVO-konformer Datenverarbeitung. Kein Enterprise-Pricing, keine versteckten Gebühren, kein Feature-Gating beim API-Zugang.
 
 Richten Sie die Integration einmal ein. Lassen Sie sie laufen. Nutzen Sie Ihre Zeit für Gespräche, nicht für Copy-Paste.

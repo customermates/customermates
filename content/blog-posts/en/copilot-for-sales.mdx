@@ -35,7 +35,7 @@ Microsoft Copilot for Sales is a sales-focused extension of Microsoft 365 Copilo
 - Logging email and meeting activity into the CRM as structured records
 - Answering "what is the latest with Acme" inside Outlook
 
-The official product is "Microsoft 365 Copilot for Sales", and as of March 2026 the Microsoft Learn docs refer to it as "Sales agent" — the same product, repositioned as part of Microsoft's broader agentic shift inside Microsoft 365 Copilot.
+The official product is "Microsoft 365 Copilot for Sales", and as of March 2026 the Microsoft Learn docs refer to it as "Sales agent", the same product, repositioned as part of Microsoft's broader agentic shift inside Microsoft 365 Copilot.
 
 ## Is Copilot for Sales a CRM?
 
@@ -83,7 +83,7 @@ The realistic total cost calculation for a 10-seat team:
 
 For a 10-seat team that is roughly $1,275/month, or $15,300 per year, before any implementation. The standalone $50/user advertised price is a marketing reference point; the actual all-in cost is in the $100-170/user range depending on which plans you pick.
 
-If your CRM is Salesforce instead of Dynamics, replace the Dynamics line with Salesforce Sales Cloud Professional ($80/user/month) for a similar total.
+If your CRM is Salesforce instead of Dynamics, replace the Dynamics line with Salesforce Sales Cloud Pro Suite ($100/user/month, more for Enterprise) for a comparable stack.
 
 ## How do I turn on Copilot for Sales?
 
@@ -139,7 +139,7 @@ A few options sit in the alternative space, with very different tradeoffs.
 
 **HubSpot Breeze AI.** HubSpot's bundled AI features inside Sales Hub, Service Hub, and Marketing Hub. Lighter-weight than the Microsoft or Salesforce options, but still requires Pro or Enterprise tiers to access most AI capabilities. The trade-offs are detailed in the [HubSpot alternative](/compare/hubspot-alternative) comparison.
 
-**[Customermates](/).** The open-source alternative for teams that want AI inside the CRM without the license stack. Customermates is an open-source CRM with 57 native [MCP](/features/api) tools that let Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly. Instead of paying $50/user for an AI layer plus $80/user for a CRM, you pay €7 per user per month for the CRM and bring your own AI assistant (which most teams already have a subscription to). The result is the same outcome — drafted emails, summarized meetings, updated records, all from inside the AI assistant your team uses — at roughly one-tenth the seat cost and without lock-in to Microsoft or Salesforce.
+**[Customermates](/).** The open-source alternative for teams that want AI inside the CRM without the license stack. Customermates is an open-source CRM with 45 native [MCP](/features/api) tools that let Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly, and operate a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) from the same chat. Instead of paying $50/user for an AI layer plus $100/user for a CRM, you pay €29 per user per month for the Pro tier (the one that adds the unified inbox, so drafted emails actually send from it) and bring your own AI assistant (which most teams already have a subscription to). The result is the same outcome (drafted emails, summarized meetings, updated records, all from inside the AI assistant your team uses) at a fraction of the seat cost and without lock-in to Microsoft or Salesforce.
 
 The key architectural difference: Copilot for Sales puts the AI in Microsoft 365 and reaches into the CRM. Customermates puts the CRM at the center and lets any AI assistant operate it. For teams that are not already deeply in the Microsoft stack, the second pattern is lighter, cheaper, and more flexible.
 
@@ -155,7 +155,7 @@ To make the comparison concrete, here is what Copilot for Sales lets sellers do,
 | Get meeting prep | Copilot pulls from CRM, drafts brief | Claude reads CRM via MCP, drafts brief in chat |
 | Log a customer call | Click in Teams, save activity | Tell Claude what happened; structured note + task creation |
 
-The user experience differs (in-app for Copilot, in-chat for Customermates), but the deal-record outcome is the same. The cost difference is roughly an order of magnitude, and the platform commitment is dramatically lower.
+The user experience differs (in-app for Copilot, in-chat for Customermates), but the deal-record outcome is the same. The cost difference is large, and the platform commitment is much lower.
 
 ## Frequently asked questions
 
@@ -187,4 +187,4 @@ The standalone Copilot for Sales license is being consolidated into Microsoft 36
 Limited. The core experience requires Microsoft 365 (Outlook, Teams, Word). Salesforce as the CRM is supported; Gmail, Slack, and other non-Microsoft productivity tools are not.
 
 **What is the open-source alternative to Copilot for Sales?**
-[Customermates](/) is an open-source CRM with 57 native MCP tools that let Claude, ChatGPT, and Gemini operate the CRM directly. It produces the same workflow outcomes (drafted emails, meeting summaries, deal updates) without the layered Microsoft license stack. Free to self-host via Docker; cloud from €7 per user per month.
+[Customermates](/) is an open-source CRM with 45 native MCP tools that let Claude, ChatGPT, and Gemini operate the CRM directly, including a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram). It produces the same workflow outcomes (drafted emails, meeting summaries, deal updates) without the layered Microsoft license stack. Free to self-host via Docker; cloud from €29 per user per month for the Pro tier that includes the unified inbox.

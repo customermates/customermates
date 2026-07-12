@@ -58,7 +58,7 @@ Einstein for Sales is the package most CRM buyers evaluate first. The headline f
 - **Sales Email and Generative Drafting**: composing and sending personalized emails directly from the CRM record
 - **Einstein Relationship Insights**: surfacing connections between contacts, accounts, and your sales reps' networks
 
-These all live inside Sales Cloud and require either Sales Cloud Einstein (a per-user add-on) or the Einstein 1 Sales Edition (a higher-price all-in tier).
+These all live inside Sales Cloud and require either Sales Cloud Einstein (a per-user add-on) or the higher-price all-in edition (renamed from Einstein 1 Sales to Agentforce 1 Sales in 2026).
 
 ## Salesforce Einstein for Service, Marketing, and Commerce
 
@@ -100,7 +100,7 @@ Salesforce Einstein pricing is the part that surprises most buyers, because ther
 
 **Per-user add-ons.** Sales Cloud Einstein and Service Cloud Einstein are sold per user per month on top of the base CRM license. Public list pricing has historically sat around $50-75 per user per month for Sales Cloud Einstein, with substantial enterprise discounts.
 
-**Bundled editions.** Einstein 1 Sales Edition and Einstein 1 Service Edition are higher-price tiers that include Einstein, Sales/Service Cloud, and Slack at a single per-user rate. Public list pricing is in the $500/user/month range for Einstein 1 Sales Edition, again with discounts.
+**Bundled editions.** The top edition, renamed from Einstein 1 to Agentforce 1 in 2026, includes the AI layer, Sales/Service Cloud, and Slack at a single per-user rate. Public list pricing is in the $550/user/month range for Agentforce 1 Sales Edition, again with discounts.
 
 **Consumption-based generative AI.** Einstein GPT and Agentforce add metered consumption on top of seat licensing. Generative actions are billed per "Einstein Request" or per Flex Credit, and large deployments can run into five-figure monthly bills depending on how many emails, summaries, and agent actions are produced.
 
@@ -158,7 +158,7 @@ There is a middle layer of products that give you most of what Einstein delivers
 
 **Pipedrive AI Assistant.** A lighter pitch focused on sales reps: deal-level AI suggestions, email composition, and forecasting. Less ambitious than Einstein, but appropriate for sales-only teams. The trade-off is documented in the [Pipedrive alternative comparison](/compare/pipedrive-alternative).
 
-**[Customermates](/).** An open-source CRM where the AI layer is the LLM you already use. Through 57 native MCP tools, Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly. There is no separate AI layer to license, no Data Cloud, no Trust Layer to budget. The CRM exposes its data model over a standardized protocol, and any compatible AI agent operates it. It is €7 per user per month on EU cloud (yearly), or free to self-host via Docker.
+**[Customermates](/).** An open-source CRM where the AI layer is the LLM you already use. Through 45 native MCP tools, Claude, ChatGPT, and Gemini read and write contacts, organizations, deals, services, and tasks directly. The same CRM also includes a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that those agents can read, draft, and send from. There is no separate AI layer to license, no Data Cloud, no Trust Layer to budget. The CRM exposes its data model over a standardized protocol, and any compatible AI agent operates it. It is €12 per user per month on EU cloud (Starter tier), or free to self-host via Docker.
 
 The architectural difference matters: Einstein is a closed AI layer inside a closed platform. The MCP-based approach is a CRM that any AI can drive, and the AI you bring with you keeps improving without a Salesforce release cycle.
 
@@ -172,7 +172,7 @@ A useful Einstein deployment is a project, not a feature flip. The shape of a 60
 
 **Days 31 to 60: workflow integration.** Sales managers and admins configure prompt templates in Prompt Builder (or in Agentforce Builder for the newer agent flows). Reps get hands-on training on the conversational interface. Einstein Activity Capture is rolled out. Lead Scoring and Opportunity Scoring move from "informational" to "trigger automation" once managers trust the signal.
 
-**Days 61 to 90: tuning and adoption.** Generative AI usage is measured per rep. Prompt templates that produce poor output are revised. Models that score consistently wrong are retrained. By day 90, daily active usage among reps should be above 60%. If it is below that, the deployment is at risk and the conversation shifts from "rolling out Einstein" to "why are reps not using Einstein" — a different and harder problem.
+**Days 61 to 90: tuning and adoption.** Generative AI usage is measured per rep. Prompt templates that produce poor output are revised. Models that score consistently wrong are retrained. By day 90, daily active usage among reps should be above 60%. If it is below that, the deployment is at risk and the conversation shifts from "rolling out Einstein" to "why are reps not using Einstein", a different and harder problem.
 
 The overrun pattern is consistent. Teams that try to compress this into 30 days end up with poor data quality and broken trust. Teams that allow 90 days for the first wave and then a second wave for additional capabilities (custom prompts, agent flows, third-party connectors) are the ones who report Einstein paying for itself within a year.
 
@@ -217,7 +217,7 @@ Einstein GPT is the generative AI part of Einstein. Einstein is the broader umbr
 Einstein is the AI layer. Agentforce is the platform for building agents on top of that layer. Einstein Copilot was renamed to Agentforce Assistant in early 2025.
 
 **How much does Salesforce Einstein cost?**
-There is no single price. Per-user Einstein add-ons run in the $50-75/user/month range; bundled Einstein 1 editions are around $500/user/month list. Generative AI usage and Data Cloud are billed separately. Realistic floor for value: $200-400/user/month after discounts.
+There is no single price. Per-user Einstein add-ons have historically run in the $50-75/user/month range; the bundled top edition (renamed from Einstein 1 to Agentforce 1 in 2026) is around $550/user/month list. Generative AI and agent usage is billed on consumption (per conversation or Flex Credits), and Data Cloud is billed separately. Realistic floor for value: $200-400/user/month after discounts.
 
 **Does Salesforce Einstein work with my existing data?**
 Predictive features need at least 12 months of CRM history. Generative features benefit from Data Cloud being connected. Without history or clean data, Einstein scores poorly.
@@ -229,7 +229,7 @@ Yes. Einstein runs on Hyperforce regions including EU, and the Trust Layer enfor
 Yes for the older predictive features. Most newer generative and grounding capabilities expect Data Cloud connected.
 
 **Are there open-source Salesforce Einstein alternatives?**
-[Customermates](/) is the closest in concept: an open-source CRM where any MCP-compatible AI agent (Claude, ChatGPT, Gemini) reads and writes records directly through 57 native tools. Free to self-host, €7/user/month on EU cloud.
+[Customermates](/) is the closest in concept: an open-source CRM where any MCP-compatible AI agent (Claude, ChatGPT, Gemini) reads and writes records directly through 45 native tools, alongside a native unified inbox the same agents can operate. Free to self-host, from €12/user/month on EU cloud.
 
 **What is the smallest team that benefits from Einstein?**
 Realistically, organizations with 25+ paid Sales Cloud seats and an admin. Below that, the cost and implementation overhead exceed the value.

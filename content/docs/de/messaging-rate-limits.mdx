@@ -3,7 +3,7 @@ title: Nachrichten-Ratenlimits
 description: Warum verbundene Kanäle Ratenlimits haben, welche Limits pro Anbieter gelten und was passiert, wenn ein Limit erreicht wird.
 ---
 
-Wenn du einen Kanal verbindest (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sperren. Um innerhalb sicherer Grenzen zu bleiben, wendet Customermates pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde.
+Wenn Sie einen Kanal verbinden (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sperren. Um innerhalb sicherer Grenzen zu bleiben, wendet Customermates pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde.
 
 Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das verbundene Konto innerhalb der Anbieterlimits und setzt von selbst fort.
 
@@ -49,14 +49,14 @@ Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Prof
 | Outlook | E-Mail senden | 300 / Tag |
 | IMAP | E-Mail senden | 300 / Tag |
 
-## Was du siehst, wenn ein Limit erreicht wird
+## Was Sie sehen, wenn ein Limit erreicht wird
 
 Die Aktion gibt eine Meldung mit der Wartezeit zurück, zum Beispiel:
 
 > Das Rate-Limit dieses Kanals wurde erreicht. Erneut versuchen ist in 2 Minuten möglich.
 
-Sobald das angegebene Fenster vorbei ist, kannst du es erneut versuchen. Es geht nichts verloren.
+Sobald das angegebene Fenster vorbei ist, können Sie es erneut versuchen. Es geht nichts verloren.
 
 ## Der Verlauf synchronisiert sich selbst
 
-Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; du musst nichts tun. Beim Öffnen einer Unterhaltung werden deren Nachrichten zudem bei Bedarf geladen, und neue Aktivität trifft in Echtzeit über Webhooks ein.
+Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; Sie müssen nichts tun. Beim Öffnen einer Unterhaltung werden deren Nachrichten zudem bei Bedarf geladen, und neue Aktivität trifft in Echtzeit über Webhooks ein.

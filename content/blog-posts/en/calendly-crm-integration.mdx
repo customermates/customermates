@@ -21,7 +21,7 @@ blogPost:
 
 A prospect books a 30-minute discovery call through Calendly. You check your inbox, open the CRM, manually create a contact, copy the email address, add the phone number, create a deal, assign it to a pipeline stage, set a follow-up reminder. Five minutes gone. For every single booking.
 
-If you handle 20 Calendly appointments per week, that is over 8 hours per month spent on data entry that a Calendly CRM integration could handle automatically. This guide covers every path from Calendly into a CRM -- native integrations, Zapier, and n8n for full control -- plus advanced workflows like routing forms, round-robin assignment, and post-meeting automation.
+If you handle 20 Calendly appointments per week, that is over 8 hours per month spent on data entry that a Calendly CRM integration could handle automatically. This guide covers every path from Calendly into a CRM, native integrations, Zapier, and n8n for full control, plus advanced workflows like routing forms, round-robin assignment, and post-meeting automation.
 
 ## Why Connect Calendly to Your CRM?
 
@@ -29,7 +29,7 @@ Calendly solves scheduling. Your CRM manages pipeline and relationships. Without
 
 ### 1. Manual Double Entry
 
-Every booking requires re-typing names, email addresses, phone numbers, and custom-question answers into CRM fields. With 20 appointments per week at 3 minutes each, that is 4 hours per month of pure data entry. Over a year, that is 48 hours -- more than a full work week -- spent copying data between two screens.
+Every booking requires re-typing names, email addresses, phone numbers, and custom-question answers into CRM fields. With 20 appointments per week at 3 minutes each, that is 4 hours per month of pure data entry. Over a year, that is 48 hours, more than a full work week, spent copying data between two screens.
 
 ### 2. Missed Follow-Ups
 
@@ -182,7 +182,7 @@ For teams already using Customermates, n8n is built in. No separate hosting or c
 
 ## Step-by-Step: Connect Calendly to Customermates via n8n
 
-Here is a concrete walkthrough for connecting Calendly to Customermates CRM (EUR 7 per user/month with a full REST API). This same pattern works for any CRM with an API.
+Here is a concrete walkthrough for connecting Calendly to Customermates CRM (from EUR 12 per user/month, Starter tier, with a full REST API included). This same pattern works for any CRM with an API.
 
 ### Prerequisites
 
@@ -357,7 +357,7 @@ Every answer to a custom question is available in the webhook payload. Ask quest
 - "How did you hear about us?" maps to Lead Source
 - "What is your budget range?" maps to Deal Value (estimated)
 
-This turns Calendly into a lightweight lead qualification form. Keep it to 3-4 questions maximum -- more than that reduces booking completion rates.
+This turns Calendly into a lightweight lead qualification form. Keep it to 3-4 questions maximum, more than that reduces booking completion rates.
 
 ### Deduplicate Contacts Before Creating
 
@@ -390,9 +390,9 @@ Add an error-handling branch in n8n that sends a Slack message or email if any n
 | Pipedrive | Via Marketplace/Zapier | $20-70/month (Zapier) | $14-99/user/month | Pipeline-focused sales teams |
 | Zoho CRM | Via Zapier/n8n | $0-70/month | Free-$52/user/month | All-in-one suite seekers |
 | Freshsales | Via Zapier/n8n | $0-70/month | Free-$69/user/month | Teams needing built-in phone |
-| Customermates | Via n8n (built-in) | EUR 0 (included) | EUR 7/user/month | SMBs wanting GDPR compliance and fair pricing |
+| Customermates | Via n8n (built-in) | EUR 0 (included) | From EUR 12/user/month | SMBs wanting GDPR compliance and fair pricing |
 
-For small and mid-size teams, Customermates at EUR 7 per user/month combined with its built-in n8n (free, no per-task fees) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, GDPR-compliant data handling, and zero per-automation fees.
+For small and mid-size teams, Customermates from EUR 12 per user/month combined with its built-in n8n (free, no per-task fees) delivers a Calendly CRM integration at a fraction of what HubSpot or Salesforce charge. You get full API access, GDPR-compliant data handling, and zero per-automation fees.
 
 ## ROI of Automating Calendly-to-CRM
 
@@ -417,7 +417,7 @@ Add improved conversion from faster lead response (5-minute response = 8x higher
 
 **Total annual ROI: EUR 6,000-8,000.**
 
-The investment: Customermates at EUR 7/user/month (EUR 420/year for 5 users) plus a self-hosted n8n instance (free). Break-even in the first month.
+The investment: Customermates Starter at EUR 12/user/month (EUR 720/year for 5 users) plus a self-hosted n8n instance (free). Break-even in the first month.
 
 ## Troubleshooting Common Issues
 
@@ -473,7 +473,7 @@ Add a lookup step in your automation workflow that searches for existing contact
 
 ### What is the cheapest CRM for a Calendly integration?
 
-Customermates at EUR 7 per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its built-in n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just EUR 7/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($165+/user/month).
+Customermates from EUR 12 per user/month is one of the most affordable CRMs with a full REST API for Calendly integration. Combined with its built-in n8n (free, no per-task fees), the total cost of a complete Calendly CRM integration is just EUR 12/user/month. Compare this to HubSpot Professional ($100+/user/month for native Calendly integration) or Salesforce Enterprise ($175+/user/month).
 
 ### Can I handle Calendly cancellations in my CRM automatically?
 
@@ -487,8 +487,8 @@ Yes. Calendly's webhook system sends data to any publicly accessible URL. If you
 
 A Calendly CRM integration is not a luxury. It is basic sales infrastructure. Every booking that does not automatically land in your CRM is a potential follow-up missed, a deal forgotten, a revenue leak.
 
-For teams using HubSpot or Salesforce, native integrations get you started in minutes. For everyone else -- and for teams that want advanced workflows like lead scoring, cancellation handling, and post-meeting automation -- n8n plus your CRM's API gives you unlimited power at zero ongoing cost.
+For teams using HubSpot or Salesforce, native integrations get you started in minutes. For everyone else, and for teams that want advanced workflows like lead scoring, cancellation handling, and post-meeting automation, n8n plus your CRM's API gives you unlimited power at zero ongoing cost.
 
-If you are looking for a CRM that pairs well with Calendly and n8n, Customermates delivers the core features sales teams need at EUR 7 per user/month, with a clean API, built-in n8n automation, and GDPR-compliant data handling. No enterprise pricing, no hidden fees, no feature gates on API access.
+If you are looking for a CRM that pairs well with Calendly and n8n, Customermates delivers the core features sales teams need from EUR 12 per user/month, with a clean API, built-in n8n automation, and GDPR-compliant data handling. No enterprise pricing, no hidden fees, and API access is included in every tier.
 
 Set up the integration once. Let it run. Spend your time on conversations, not copy-paste.

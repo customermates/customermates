@@ -39,7 +39,7 @@ Buyers usually mean the first two when they say "customizable." Vendors usually 
 
 Six baseline capabilities:
 
-1. **Multiple typed custom field types.** Plain text is not enough. You need date, datetime, currency, single-select, multi-select, link, email, phone. Customermates ships eight typed field types, [HubSpot](https://www.hubspot.com/products/crm/customization) and [Zoho](https://www.zoho.com/crm/customization.html) ship more.
+1. **Multiple typed custom field types.** Plain text is not enough. You need date, datetime, currency, single-select, link, email, phone. Customermates ships ten typed field types. [HubSpot](https://www.hubspot.com/products/crm/customization) and [Zoho](https://www.zoho.com/crm/customization.html) are in the same range; Salesforce ships far more.
 2. **Per-entity custom fields.** Add fields to contacts, deals, organizations, tasks, and (if available) custom objects independently.
 3. **Saved views with filters and sorts.** Multiple per user, shareable with the team.
 4. **A real REST or GraphQL API.** Without programmatic access, customization stops at the UI ceiling.
@@ -58,7 +58,7 @@ If a vendor charges for any of these as a premium upsell, that is a signal the c
 | **Pipedrive** | 10 types | Higher tiers | Yes | No | $14/user/mo |
 | **monday CRM** | Many | Yes (board-level) | Yes | No | $12/seat/mo |
 | **SuiteCRM** | Unlimited | Yes | Yes | Yes (open-source) | Free self-host |
-| **Customermates** | 8 types, unlimited per entity | 5 built-in entities, all custom-fieldable | Yes, full + 15 webhooks + MCP | Yes (Docker) | €7/user/mo |
+| **Customermates** | 10 types, unlimited per entity | 5 built-in entities, all custom-fieldable | Yes, full + 26 webhooks + MCP | Yes (Docker) | From €12/user/mo |
 | **Knack / Caspio (no-code)** | Unlimited | Build from scratch | Yes | No | $30+/mo |
 
 Two patterns are visible. Closed SaaS CRMs (Salesforce, HubSpot, Pipedrive, monday) ship strong customization in the UI but gate higher capabilities behind enterprise tiers. Open-source CRMs (SuiteCRM, Customermates) ship the data model and API openly, with no upsell, and self-hosting is real.
@@ -87,7 +87,7 @@ Pick this when:
 - You want to avoid the SaaS upsell ladder. Open-source CRMs typically ship custom fields, custom objects (via code or admin UI), API, and webhooks at the base level.
 - You have a developer in the team or your stack is technical enough to manage Docker.
 
-Customermates is one option here. The data model is five entities (contacts, organizations, deals, services, tasks), all linkable to each other via a single `link_entities` operation, with eight typed custom field types that are unlimited per entity. The MCP server exposes 57 tools so AI agents can read and write the same data the UI sees. Self-hosting is `git clone` plus `docker compose up -d`.
+Customermates is one option here. The data model is five entities (contacts, organizations, deals, services, tasks), all linkable to each other, with ten typed custom field types that are unlimited per entity. Two things set it apart on the modern end. The MCP server exposes 45 tools so AI agents like Claude, ChatGPT, and Gemini read and write the same data the UI sees and take over the data entry. And a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram into the CRM, so customer conversations sit next to the records they belong to (messaging is on the Pro tier and up). Self-hosting is `git clone` plus `docker compose up -d`.
 
 ## A practical evaluation checklist
 
@@ -116,7 +116,7 @@ The customization power of a CRM is also its biggest risk. Discipline matters mo
 
 A customizable CRM system in 2026 is not about counting field types. It is about whether the data model can fit your business without forcing every team into the vendor's enterprise tier. The leading SaaS CRMs (Salesforce, HubSpot, Pipedrive, Zoho) deliver real customization on higher tiers. Open-source CRMs (SuiteCRM, Customermates) deliver it at the base level with no upsell, and let you self-host. No-code builders like Knack or Caspio give you total flexibility at the cost of becoming the maintainer.
 
-If you want a customizable CRM that already includes the API, webhooks, custom fields, and an MCP server for AI agent automation, [Customermates](/pricing) ships at €7 per user per month. The first seven days are free, no credit card. If self-hosting is a hard requirement, the same product is on [GitHub](https://github.com/customermates/customermates) under AGPL-3.0.
+If you want a customizable CRM that already includes the API, webhooks, custom fields, and an MCP server for AI agent automation, [Customermates](/pricing) ships from €12 per user per month. The first seven days on Pro are free, no credit card. If self-hosting is a hard requirement, the same product is on [GitHub](https://github.com/customermates/customermates) under AGPL-3.0.
 
 ## Frequently asked questions
 
@@ -133,4 +133,4 @@ Yes, in three ways: (1) no-code platforms like Knack or Caspio let you build a C
 Yes for very small teams or solo operators. Excel and Google Sheets handle a few hundred contacts and basic pipeline tracking fine. Where they break: relationships between entities, automation, multi-user access controls, audit trails, mobile, AI integration. When you outgrow a spreadsheet, the next step is usually a customizable CRM with custom fields and an API rather than another spreadsheet.
 
 **What features should a customizable CRM have?**
-Six baseline capabilities: (1) multiple typed custom field types beyond plain text, (2) per-entity custom fields, (3) saved views with filters and sorts, (4) a real REST or GraphQL API, (5) webhooks for automation, (6) open data export. If a vendor charges extra for any of these, the customization story is mostly marketing. Customermates ships all six at the €7 per user per month base tier including 8 typed field types, 15 webhook events, full OpenAPI 3.1 REST, and an MCP server.
+Six baseline capabilities: (1) multiple typed custom field types beyond plain text, (2) per-entity custom fields, (3) saved views with filters and sorts, (4) a real REST or GraphQL API, (5) webhooks for automation, (6) open data export. If a vendor charges extra for any of these, the customization story is mostly marketing. Customermates ships all six at the €12 per user per month Starter tier including 10 typed field types, 26 webhook events, full OpenAPI 3.1 REST, and an MCP server.

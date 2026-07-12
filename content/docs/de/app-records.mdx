@@ -10,10 +10,10 @@ Customermates hat fünf Datensatztypen: Contacts, Organizations, Deals, Services
 Jeder Datensatztyp hat dieselben drei Oberflächen:
 
 - **Liste** unter `/{type}` (zum Beispiel `/contacts`), locale-präfixiert wie `https://customermates.com/en/contacts`. Suche, Filter, Sortierung und Massenaktionen leben hier.
-- **Drawer**: Hänge `?open={entityType}:{id}` an die Listen-URL an (zum Beispiel `/contacts?open=contact:{id}`), um einen Datensatz über der Liste zu bearbeiten.
+- **Drawer**: Hängen Sie `?open={entityType}:{id}` an die Listen-URL an (zum Beispiel `/contacts?open=contact:{id}`), um einen Datensatz über der Liste zu bearbeiten.
 - **Detailseite** unter `/{type}/{id}` (zum Beispiel `/contacts/42`) für den vollen Datensatz, Custom Fields und das Löschen.
 
-Zeilen tragen nie eine DOM-Id. Öffne einen Datensatz über seine URL oder den Drawer-Deep-Link, nie durch Klick auf eine per Id gesuchte Zeile.
+Zeilen tragen nie eine DOM-Id. Öffnen Sie einen Datensatz über seine URL oder den Drawer-Deep-Link, nie durch Klick auf eine per Id gesuchte Zeile.
 
 ## Listen und Toolbars
 
@@ -47,20 +47,20 @@ Notizen sind ein beschriftetes Feld im Formular. Dort bearbeiten, dann speichern
 
 Jeder Datensatztyp kann benutzerdefinierte Custom Columns tragen. Es gibt keine fest im Typ verankerten Workflow-Felder, also weder eine produktseitige Deal-Stage noch einen produktseitigen Task-Status. `get_record_schema` gibt zurück, welche Columns ein Workspace für den jeweiligen Typ konfiguriert hat.
 
-Eine `singleSelect`-Custom-Column kann eine Board-Ansicht (Kanban) steuern. `#{type}-display-options` wechselt die Liste zwischen Tabelle und einem Board, gruppiert nach einer gewählten `singleSelect`-Column. Im Board ziehst du einen Datensatz zwischen den Spalten, um den Wert dieser Column zu ändern; das Pendant im Drawer oder Detail-Formular ist, das Feld zu setzen und zu speichern. Das gilt für jeden Datensatztyp mit mindestens einer `singleSelect`-Column, nicht nur für Deals.
+Eine `singleSelect`-Custom-Column kann eine Board-Ansicht (Kanban) steuern. `#{type}-display-options` wechselt die Liste zwischen Tabelle und einem Board, gruppiert nach einer gewählten `singleSelect`-Column. Im Board ziehen Sie einen Datensatz zwischen den Spalten, um den Wert dieser Column zu ändern; das Pendant im Drawer oder Detail-Formular ist, das Feld zu setzen und zu speichern. Das gilt für jeden Datensatztyp mit mindestens einer `singleSelect`-Column, nicht nur für Deals.
 
-Der Demo-Workspace bringt Beispiel-Columns mit, um das Muster zu zeigen, etwa eine "Status"-Column bei Deals sowie "Status"- und "Priority"-Columns bei Tasks. Das sind vorbefüllte Beispiele, kein festes Verhalten. Benenne sie um, ändere ihre Optionen, füge weitere hinzu oder entferne sie pro Workspace.
+Der Demo-Workspace bringt Beispiel-Columns mit, um das Muster zu zeigen, etwa eine "Status"-Column bei Deals sowie "Status"- und "Priority"-Columns bei Tasks. Das sind vorbefüllte Beispiele, kein festes Verhalten. Benennen Sie sie um, ändern Sie ihre Optionen, fügen Sie weitere hinzu oder entfernen Sie sie pro Workspace.
 
-Datensätze verknüpfen sich mit anderen Datensätzen über beschriftete Relations-Felder im Formular. Wähle die Datensätze, dann speichern.
+Datensätze verknüpfen sich mit anderen Datensätzen über beschriftete Relations-Felder im Formular. Wählen Sie die Datensätze, dann speichern.
 
 ## Tipps für Agents
 
-- Finde Steuerelemente über die stabilen Ids oben, zum Beispiel `document.querySelector('#deals-add')`. Ids sind über Sprachen und Viewports identisch, sichtbare Labels nicht.
-- Um einen Datensatz zu öffnen, baue die URL selbst: `/{type}/{id}` für die volle Seite oder `/{type}?open={entityType}:{id}` für den Drawer. Versuche nicht, eine Zeile anzuklicken.
-- Bevorzuge [MCP](/docs/mcp)-Tools gegenüber dem Bedienen der UI, wenn ein Tool existiert. Einen Datensatz anlegen oder ändern, oder den Wert einer `singleSelect`-Column setzen, ist ein Tool-Call statt einer Klickstrecke.
+- Finden Sie Steuerelemente über die stabilen Ids oben, zum Beispiel `document.querySelector('#deals-add')`. Ids sind über Sprachen und Viewports identisch, sichtbare Labels nicht.
+- Um einen Datensatz zu öffnen, bauen Sie die URL selbst: `/{type}/{id}` für die volle Seite oder `/{type}?open={entityType}:{id}` für den Drawer. Versuchen Sie nicht, eine Zeile anzuklicken.
+- Bevorzugen Sie [MCP](/docs/mcp)-Tools gegenüber dem Bedienen der UI, wenn ein Tool existiert. Einen Datensatz anlegen oder ändern, oder den Wert einer `singleSelect`-Column setzen, ist ein Tool-Call statt einer Klickstrecke.
 
 ## Verwandte Seiten
 
 - [Kernkonzepte](/docs/concepts): Entitäten, Beziehungen, Custom Columns.
-- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das deine KI aufrufen kann.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das Ihre KI aufrufen kann.
 - [App-Guide, Dashboard](/docs/app-dashboard)

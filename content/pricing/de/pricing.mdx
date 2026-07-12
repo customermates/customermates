@@ -1,7 +1,7 @@
 ---
 title: "Preise: Das Agentic Open-Source CRM"
 titleAccent: einfach, ehrlich, europäisch.
-description: "Faire, transparente Preise für das Agentic Open-Source CRM. Gebaut für native KI-Integration und n8n-Automatisierung. Keine versteckten Kosten, keine Feature-Limits. Eine Pipedrive-Alternative mit DSGVO-konformem Hosting."
+description: "Faire, transparente Preise für das Agentic Open-Source CRM. KI-Agenten bedienen das CRM über natives MCP, und ein zentraler Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab. Jede CRM-Kernfunktion in jedem Tarif ab 12 €, mit Preisen, die mit dem Messaging-Umfang wachsen. Eine Pipedrive-Alternative mit DSGVO-konformem Hosting."
 
 pricing:
   ariaLabelSlider: Anzahl der Nutzer
@@ -10,10 +10,12 @@ pricing:
   monthly: Monatlich
   yearly: Jährlich
   yearlySavings: 2 Monate geschenkt
-  footnote: "Verbundene Konten sind die E-Mail- und Messaging-Konten (Gmail, Outlook, LinkedIn, WhatsApp und mehr), die dein Team mit dem Posteingang verknüpft. Weitere Konten lassen sich jederzeit hinzubuchen."
+  footnote: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Limits und Preise für weitere Konten hängen vom Tarif ab, siehe unten."
+  totalSuffixSingular: "EUR/Monat gesamt für {count} Nutzer"
+  totalSuffixPlural: "EUR/Monat gesamt für {count} Nutzer"
   pricingCards:
   - title: Starter
-    description: Dein KI-CRM
+    description: Ihr KI-CRM
     price: "12"
     monthlyPrice: 12
     annualPrice: 10
@@ -24,13 +26,12 @@ pricing:
     buttonColor: default
     buttonVariant: bordered
     features:
-      - Kontakte, Deals, Aufgaben & Unternehmen
-      - Custom Fields, Rollen & Pipelines
-      - "KI-Assistent & MCP: verbinde Claude oder Codex"
-      - Webhooks & API
-      - Audit-Log
+      - Kontakte, Unternehmen, Deals, Services & Aufgaben
+      - "KI-Assistent via MCP: verbinden Sie Claude, ChatGPT oder Gemini"
+      - REST-API, Webhooks & n8n-Automatisierung
   - title: Pro
-    description: CRM + zentraler Posteingang
+    description: CRM + zentraler Posteingang. Inklusive 7 Tage kostenloser Testphase.
+    badge: 7 Tage kostenlos testen
     price: "29"
     monthlyPrice: 29
     annualPrice: 24
@@ -43,14 +44,12 @@ pricing:
     features:
       - Alles aus Starter
       - "Zentraler Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
-      - 1 verbundenes Konto pro Nutzer inklusive (weitere je 9€/Monat)
-      - Kalender-Synchronisation
-      - Nachrichtenvorlagen & Textbausteine
-      - Vollständiger Kontaktverlauf über alle Kanäle
-      - Höhere KI-Limits
+      - 1 verbundenes Konto pro Nutzer inklusive
+      - Kalender-Synchronisation & LinkedIn Sales Navigator
   - title: Business
     description: Für Teams
     badge: Beliebteste Wahl
+    featured: true
     price: "59"
     monthlyPrice: 59
     annualPrice: 49
@@ -64,13 +63,10 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Alles aus Pro
-      - 3 verbundene Konten pro Nutzer inklusive (weitere je 8€/Monat)
-      - Geteilte Team-Postfächer & Zuweisung
-      - Rollen & granulare Rechte
-      - Erweiterte Automatisierung & Sequenzen
-      - Analysen & Team-Reporting
-      - Massenaktionen & gespeicherte Ansichten
-      - Onboarding- & Migrationshilfe
+      - 3 verbundene Konten pro Nutzer inklusive
+      - "Weitere Konten: 8 € pro Konto und Monat"
+      - "Geteilte Konten: teamweite Postfach-Sichtbarkeit"
+      - Ein teamweiter Verlauf über alle Kanäle
       - Priorisierter Support
   - title: Enterprise
     description: Skalierung & Compliance
@@ -81,18 +77,27 @@ pricing:
     buttonVariant: solid
     features:
       - Alles aus Business
-      - Single Sign-On
-      - White-Label
-      - Unbegrenzte verbundene Konten (Fair Use)
+      - Individuelle KI-Agenten, Lead-Suche & -Anreicherung
+      - Done-for-you-Einrichtung
+      - SSO, White-Label & unbegrenzte verbundene Konten (Fair Use)
       - Dedizierter Support & individuelle Konditionen
 
 comparison:
-  header: Pläne vergleichen
+  header: Pläne
   plans:
+    starter:
+      name: Starter
+      button: Kostenlos testen
+      buttonHref: /auth/signup
     pro:
       name: Pro
-      button: Kostenlos starten
+      button: Kostenlos testen
       buttonHref: /auth/signup
+    business:
+      name: Business
+      button: Kostenlos testen
+      buttonHref: /auth/signup
+      featured: true
     enterprise:
       name: Enterprise
       button: Kontakt aufnehmen
@@ -100,74 +105,107 @@ comparison:
   sections:
   - title: Preis & Nutzer
     rows:
-      - label: Preis
-        pro: "7€ pro Nutzer/Monat (jährlich) oder 9€ pro Nutzer/Monat (monatlich)"
+      - label: Preis pro Nutzer/Monat
+        starter: "12 €"
+        pro: "29 €"
+        business: "59 €"
         enterprise: "Individuell"
-      - label: Nutzer
-        pro: "Unbegrenzt"
-        enterprise: "Unbegrenzt"
-  - title: Hauptfunktionen
+      - label: Preis pro Nutzer/Monat (jährliche Abrechnung)
+        starter: "10 €"
+        pro: "24 €"
+        business: "49 €"
+        enterprise: "Individuell"
+  - title: Messaging
     rows:
-      - label: Unbegrenzte Einträge
+      - label: Zentraler Posteingang
+        starter: false
         pro: true
+        business: true
         enterprise: true
-      - label: Deals & Pipelines
+      - label: Verbundene Konten pro Nutzer
+        starter: "0"
+        pro: "1"
+        business: "3 (+ 8 € pro weiterem Konto)"
+        enterprise: "Unbegrenzt (Fair Use)"
+      - label: Geteilte Konten
+        starter: false
+        pro: false
+        business: true
+        enterprise: true
+      - label: Kalender-Synchronisation
+        starter: false
         pro: true
+        business: true
         enterprise: true
-      - label: Services & Aufgaben
+      - label: Social-Post-Tracking
+        starter: false
         pro: true
+        business: true
         enterprise: true
-      - label: Tags & Notizen
+      - label: LinkedIn Sales Navigator
+        starter: false
         pro: true
+        business: true
         enterprise: true
-      - label: Filter & Segmente
-        pro: true
-        enterprise: true
-      - label: Import & Export
-        pro: true
-        enterprise: true
-      - label: Mobile Optimierung
-        pro: true
-        enterprise: true
-  - title: Team & Automatisierung
+  - title: CRM-Kern
     rows:
-      - label: Teamfunktionen
+      - label: Kontakte, Unternehmen, Deals, Services & Aufgaben
+        starter: true
         pro: true
+        business: true
         enterprise: true
-      - label: Rechtemanagement
+      - label: Custom Fields, Rollen & Rechte
+        starter: true
         pro: true
+        business: true
         enterprise: true
-      - label: Audit Logging
+      - label: Audit-Log
+        starter: true
         pro: true
+        business: true
         enterprise: true
-      - label: Single Sign-On
+      - label: REST-API & Webhooks
+        starter: true
         pro: true
+        business: true
+        enterprise: true
+      - label: KI-Assistent via MCP
+        starter: true
+        pro: true
+        business: true
         enterprise: true
       - label: n8n-Integration
+        starter: true
         pro: true
+        business: true
         enterprise: true
-      - label: API-Zugriff
-        pro: true
-        enterprise: true
-  - title: Support
+  - title: Enterprise
     rows:
-      - label: Priorisierter Support
-        pro: true
-        enterprise: true
-  - title: Support & Service
-    rows:
-      - label: Whitelabeling
+      - label: Single Sign-On
+        starter: false
         pro: false
+        business: false
         enterprise: true
-      - label: Dedizierter Support
+      - label: White-Label
+        starter: false
         pro: false
+        business: false
         enterprise: true
-      - label: Onboarding-Call
+      - label: Individuelle KI-Agenten
+        starter: false
         pro: false
+        business: false
         enterprise: true
-      - label: SLA-Garantie
+      - label: Lead-Suche & -Anreicherung
+        starter: false
         pro: false
+        business: false
         enterprise: true
+      - label: Support
+        starter: "Community & E-Mail"
+        pro: "E-Mail"
+        business: "Priorisiert"
+        enterprise: "Dediziert"
 
 faq:
   title: Häufig gestellte Fragen
@@ -180,13 +218,19 @@ faq:
     content: Wir wachsen organisch und investieren direkt in das Produkt und den Support. So bleibt unser CRM dauerhaft zukunftssicher.
   - id: pricing-faq-3
     title: Warum ein spezialisiertes CRM?
-    content: Ein Open-Source-CRM entwickelt für native KI-Integration fügt sich in Ihre Abläufe ein, statt sie zu erzwingen. Teams bleiben flexibel, arbeiten effizienter und können das System mit native KI-Integration und Automatisierung erweitern.
+    content: Ein Open-Source-CRM entwickelt für native KI-Integration fügt sich in Ihre Abläufe ein, statt sie zu erzwingen. Teams bleiben flexibel, arbeiten effizienter und können das System mit nativer KI-Integration und Automatisierung erweitern.
   - id: pricing-faq-4
     title: Wie verbessert Ihr CRM die Produktivität?
-    content: Wir setzen auf eine selbsterklärende Benutzeroberfläche und eine echte 1-Klick-Bedienung. So vermeiden wir die Notwendigkeit von intensiven Schulungen. Dadurch sparen Sie Zeit, vermeiden Fehler und konzentrieren sich auf Ihre Kunden – statt auf das System.
+    content: Wir setzen auf eine selbsterklärende Benutzeroberfläche und eine echte 1-Klick-Bedienung. So vermeiden wir die Notwendigkeit von intensiven Schulungen. Dadurch sparen Sie Zeit, vermeiden Fehler und konzentrieren sich auf Ihre Kunden, statt auf das System.
   - id: pricing-faq-5
     title: Warum ist Ihr CRM eine starke Wahl?
-    content: "Wir bieten die CRM-Kernfunktionen, die die meisten Teams wirklich brauchen, kombiniert mit native KI-Integration, offenen APIs und der nahtlosen Anbindung an Systeme wie n8n. So erhalten Sie ein Open-Source-CRM entwickelt für native KI-Integration, flexible Erweiterungen, faire Preise und ohne teure Zusatzmodule."
+    content: "Wir bieten die CRM-Kernfunktionen, die die meisten Teams wirklich brauchen, kombiniert mit nativer KI-Integration, offenen APIs und der nahtlosen Anbindung an Systeme wie n8n. So erhalten Sie ein Open-Source-CRM entwickelt für native KI-Integration, flexible Erweiterungen, faire Preise und ohne teure Zusatzmodule."
+  - id: pricing-faq-6
+    title: Was zählt als verbundenes Konto?
+    content: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Pro enthält 1 verbundenes Konto pro Nutzer, Business enthält 3 pro Nutzer mit weiteren Konten für 8 € im Monat, und Enterprise ist unbegrenzt im Rahmen von Fair Use."
+  - id: pricing-faq-7
+    title: Wie funktioniert die monatliche Abrechnung?
+    content: "Abgerechnet wird die höchste Anzahl aktiver Nutzer, die im jeweiligen Abrechnungsmonat erreicht wurde, ohne anteilige Teilberechnung. Das Gleiche gilt für zusätzliche verbundene Konten: Wir berechnen die im Monat erreichte Spitzenzahl."
 
 cta:
   action: Bereit loszulegen?

@@ -5,18 +5,18 @@ description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mc
 
 Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 45 CRM-Tools. Es gibt zwei Wege zu verbinden:
 
-- **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starte auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+- **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starten Sie auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
 
-Für das End-to-End-Setup auf einer Seite spring zu deinem Client: [Claude Desktop](/docs/connect-custom-connector#claude), [ChatGPT](/docs/connect-custom-connector#chatgpt), [Claude Code](/docs/connect-cli#claude-code), [Codex](/docs/connect-cli#codex), [Cursor](/docs/connect-cli#cursor) oder [Gemini](/docs/connect-cli#gemini-cli). Diese Seite ist die Protokoll-Referenz.
+Für das End-to-End-Setup auf einer Seite springen Sie zu Ihrem Client: [Claude Desktop](/docs/connect-custom-connector#claude), [ChatGPT](/docs/connect-custom-connector#chatgpt), [Claude Code](/docs/connect-cli#claude-code), [Codex](/docs/connect-cli#codex), [Cursor](/docs/connect-cli#cursor) oder [Gemini](/docs/connect-cli#gemini-cli). Diese Seite ist die Protokoll-Referenz.
 
 ## Wann MCP passt
 
-- Deine KI soll das CRM lesen und schreiben, ohne dass du IDs kopierst.
-- Die KI soll Fähigkeiten entdecken, statt dass du API-Calls von Hand schreibst.
+- Ihre KI soll das CRM lesen und schreiben, ohne dass Sie IDs kopieren.
+- Die KI soll Fähigkeiten entdecken, statt dass Sie API-Calls von Hand schreiben.
 - Ein Endpoint für Claude, ChatGPT, Cursor, Codex und weitere Clients.
 
-Nimm stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations-Service genau weiß, welchen Endpoint er braucht. OpenAPI ist die kanonische HTTP-Referenz. MCP ist die Agent-native Oberfläche darüber.
+Nehmen Sie stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations-Service genau weiß, welchen Endpoint er braucht. OpenAPI ist die kanonische HTTP-Referenz. MCP ist die Agent-native Oberfläche darüber.
 
 ## Der Endpoint
 
@@ -24,14 +24,14 @@ Nimm stattdessen [OpenAPI](/docs/openapi), wenn ein Entwickler oder Integrations
 POST https://customermates.com/api/v1/mcp
 Content-Type: application/json
 Accept: application/json, text/event-stream
-x-api-key: <dein-64-zeichen-key>
+x-api-key: <ihr-64-zeichen-key>
 ```
 
 Der Endpoint spricht Model Context Protocol (Streamable-HTTP-Variante). `tools/list` liefert jedes Tool mit JSON Schema. `tools/call` ruft ein Tool per Name auf.
 
 Da es die Streamable-HTTP-Variante ist, muss jede Request `Accept: application/json, text/event-stream` senden. Ohne diesen Header liefert der Endpoint `406 Not Acceptable`. Alle unterstützten MCP-Clients setzen ihn automatisch; nur rohe HTTP-Aufrufe (curl, Skripte) müssen ihn explizit ergänzen.
 
-Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, base62 (a-z, A-Z, 0-9), und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für dich holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+Der `x-api-key`-Header ist die API-Key-Methode. Der Key ist 64 Zeichen lang, base62 (a-z, A-Z, 0-9), und erbt die Rechte des Users, der ihn erstellt hat. Es gibt kein Scoping pro Key. Custom-Connector-Clients (Claude, ChatGPT) authentifizieren sich stattdessen per OAuth und senden ein Bearer-Token, das sie für Sie holen und erneuern. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
 ## Client verbinden
 
@@ -50,9 +50,9 @@ Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clie
 
 ## Server-Instructions, Prompts und Toolsets
 
-Du musst dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt dich kurz und fasst deinen Workspace zusammen, um den Start zu personalisieren.
+Sie müssen dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt Sie kurz und fasst Ihren Workspace zusammen, um den Start zu personalisieren.
 
-Die volle 45-Tool-Oberfläche ist der Standard. Hänge `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
+Die volle 45-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -68,7 +68,7 @@ Die MCP-Oberfläche ist so gebaut, dass auch Modelle mit schwächerer Planung si
 
 ## CLI-Nutzung
 
-Wenn du einen lokalen Client willst statt GUI, verbinden Tools wie `mcporter` denselben Endpoint. API-Key einmal in der Client-Config speichern und Tools aus der Shell aufrufen.
+Wenn Sie einen lokalen Client statt GUI wollen, verbinden Tools wie `mcporter` denselben Endpoint. API-Key einmal in der Client-Config speichern und Tools aus der Shell aufrufen.
 
 ## OpenAPI neben MCP
 
@@ -76,7 +76,7 @@ Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf 
 
 ## Tool-Katalog
 
-Customermates exponiert 45 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging (Preview), Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert 45 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
 
 Zwei Flags pro Tool:
 
@@ -102,37 +102,37 @@ Siebzehn Tools arbeiten gegen die fünf Record-Typen (contact, organization, dea
 | `create_tasks` | | | Bis 100 Tasks anlegen, Custom-Column-Werte und Relations-IDs inline. |
 | `update_contacts` | | | Partial-Update per Contact-Key (ID, E-Mail, Telefon oder provider:value); Org-/Deal-/User-/Task-Beziehungen bleiben unberührt, aber ein übergebenes `identifiers`-Array ERSETZT die Messaging-Kanäle des Contacts (nicht gelistete werden entkoppelt). |
 | `update_organizations` | | | Partial-Update per ID. Fasst Beziehungen nie an. |
-| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten und `services` (Inline-Array aus `{serviceId, quantity}`, das die komplette Service-Menge des Deals ERSETZT); Org-/User-/Contact-/Task-Beziehungen bleiben unberührt (nutze manage_record_links). |
+| `update_deals` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten und `services` (Inline-Array aus `{serviceId, quantity}`, das die komplette Service-Menge des Deals ERSETZT); Org-/User-/Contact-/Task-Beziehungen bleiben unberührt (nutzen Sie manage_record_links). |
 | `update_services` | | | Partial-Update per ID. |
 | `update_tasks` | | | Partial-Update per ID, inklusive singleSelect-Custom-Column-Werten. Fasst Beziehungen nie an. |
 | `update_record_notes` | | | Markdown-Notes auf 1 bis 100 Records ersetzen oder anhängen, gewählt über `mode`. |
 | `manage_record_links` | | | IDs auf einer Beziehung hinzufügen oder entfernen (`action` add oder remove). Der einzige Weg, Beziehungen zu ändern. |
 | `delete_records` | | ✓ | IRREVERSIBLES Hard-Delete von 1 bis 100 Records per ID (Contacts auch per E-Mail, Telefon oder provider:value). |
 
-Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; ruf zuerst `get_record_schema` für die Column-IDs auf.
+Alle Create- und Update-Tools nehmen Custom-Column-Werte über customFieldValues; rufen Sie zuerst `get_record_schema` für die Column-IDs auf.
 
 ### Workspace
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `get_workspace_context` | ✓ | | Dein User, das Company-Profil, alle Rollen inklusive Rechte und deine verbundenen Messaging-Konten (deine eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
+| `get_workspace_context` | ✓ | | Ihr User, das Company-Profil, alle Rollen inklusive Rechte und Ihre verbundenen Messaging-Konten (Ihre eigenen plus die mit dem Workspace geteilten) in einem Call. Der natürliche erste Call einer Session. |
 | `list_users` | ✓ | | Teammitglieder mit ID, Name, E-Mail, roleId und Status. |
 
-### Messaging (Preview)
+### Messaging
 
-Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
+Die Messaging-Tools sind ab dem Pro-Tarif verfügbar.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
 | `get_messaging_threads` | ✓ | | Zwei Modi: ohne threadId listet es Inbox-Threads mit Filtern und Sortierung (Threads ohne Nachricht werden ausgeblendet, außer sie enthalten einen Draft); mit threadId liefert es einen Thread plus eine Seite seiner Nachrichten (Standard 25, neueste zuerst, Drafts inklusive). |
 | `get_activities` | ✓ | | Aktivitäts-Timeline (Nachrichten, Audit-Log-Änderungen, LinkedIn-Account-Aktivitäten und Kalenderereignisse) für den Workspace oder einen Record. |
 | `get_calendars` | ✓ | | Drei Modi: list: "calendars" (Standard) listet die Kalender der zugänglichen verbundenen Konten; list: "events" listet Kalenderereignisse sortiert nach Startzeit, filterbar nach calendarId oder einem startsAt-Zeitraum; mit eventId liefert es die Details eines Ereignisses inklusive Organisator und Teilnehmern. Die Ids entsprechen der entityId der Kalender-Webhook-Events. |
-| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setze linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb deines Netzwerks per InMail anzuschreiben. |
+| `send_chat_message` | | | Stellt sofort zu. Mit threadId antwortet es in einem bestehenden Chat; mit connectedAccountId plus attendeeIdentifiers startet es einen neuen (optionales chatName benennt eine Gruppe). Neue LinkedIn-Chats sind standardmäßig Classic; setzen Sie linkedinProduct auf sales_navigator oder recruiter für ein InMail (braucht inmailSubject), oder inmail:true, um auf Classic jemanden außerhalb Ihres Netzwerks per InMail anzuschreiben. |
 | `send_email` | | | Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; kann einen gespeicherten Draft über draftMessageId senden. |
-| `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und du sendest ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
+| `save_message_draft` | | | Antwort zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox-Compose-Box, und Sie senden ihn selbst. Drafts hängen am Thread, einer pro Thread, erneutes Speichern aktualisiert ihn. |
 | `discard_message_draft` | | ✓ | Draft per Draft-Message-ID löschen. |
 | `update_messaging_thread` | | | Thread-State setzen: unread, open, closed oder spam. |
-| `connect_messaging_account` | | | Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Du gibst den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab. |
+| `connect_messaging_account` | | | Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden (WhatsApp, LinkedIn, E-Mail, Instagram, Telegram). Sie geben den Link zurück; der User schließt die Auth dort ab. Läuft nach 30 Minuten ab. |
 
 ### Social Posts
 
@@ -141,10 +141,10 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 | `get_social_posts` | ✓ | | Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Listet die Posts beliebiger Nutzer über authorIdentifier (ein Public Identifier oder eine Provider-Member-ID, z. B. aus dem LinkedIn-Kanal eines Kontakts; Standard ist `me`, der Kontoinhaber) oder holt einen einzelnen Post per postId. |
 | `get_social_post_engagement` | ✓ | | Engagement zu einem Post: kind=comments (Standard) listet Kommentare, kind=reactions wer reagiert hat; mit commentId die Reaktionen auf diesen Kommentar. |
 | `get_social_profile` | ✓ | | Ein LinkedIn- oder Instagram-Profil einer Person oder eines Unternehmens per identifier (der `/in/<slug>`- oder `/company/<slug>`-Teil der Profil-URL, eine Provider-ID oder `me`); liefert Name, Headline, Ort, Zähler und Netzwerkdistanz, soweit verfügbar, plus einen Typ, der Person und Organisation unterscheidet. |
-| `manage_social_relations` | | | Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder deine eigenen gesendeten/ausgehenden über direction), invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
+| `manage_social_relations` | | | Kontaktanfragen: Einladungen listen (standardmäßig erhaltene, oder Ihre eigenen gesendeten/ausgehenden über direction), invite (sendet eine echte Anfrage), accept oder cancel per invitationId. |
 | `linkedin_search_sales_leads` | ✓ | | Findet Personen über LinkedIn Sales Navigator: entweder aus einer eingefügten Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Unternehmen, Jobtitel, Seniorität und mehr). Lead-Zeilen enthalten die aktuellen Positionen (Unternehmen, Rolle und Unternehmens-ID, nutzbar mit `get_social_profile`). Braucht ein Sales-Navigator-Abo. |
 | `linkedin_search_sales_companies` | ✓ | | Findet Unternehmen über LinkedIn Sales Navigator: entweder aus einer eingefügten Unternehmens-Such-URL oder als strukturierte Suche mit Filtern (Keywords, Standort, Branche, Mitarbeiterzahl, Jahresumsatz und mehr). Braucht ein Sales-Navigator-Abo. |
-| `linkedin_get_sales_search_parameters` | ✓ | | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus deine Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
+| `linkedin_get_sales_search_parameters` | ✓ | | Löst die IDs hinter den LinkedIn-Sales-Navigator-Sucheingaben nach Typ auf (Standorte, Branchen, Jobtitel, Funktionen, Unternehmen, Schulen, Gruppen und mehr) plus Ihre Lead-/Account-Listen und gespeicherten/letzten Suchen; Keyword ist optional, ein reiner Typ zählt also die ganze Familie auf. |
 | `linkedin_manage_sales_lists` | | | LinkedIn-Sales-Navigator-Lead- und -Account-Listen: Listen aufzählen, die Mitglieder einer Liste lesen oder einen Lead bzw. ein Unternehmen in eine bestehende Liste speichern. Neue Listen entstehen in Sales Navigator selbst. |
 
 ### Dokumentation und Deep Research
@@ -172,18 +172,18 @@ Die Messaging-Oberfläche ist Preview: heute live, entwickelt sich noch.
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `manage_webhooks` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn du dessen `id` übergibst) und die erneute Zustellung (Action resend_delivery). |
+| `manage_webhooks` | | ✓ | Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). |
 
 ### Admin und Team
 
 | Tool | Read | Destructive | Zweck |
 |---|---|---|---|
-| `update_workspace_settings` | | | `target` profile aktualisiert deinen Namen, dein Land und deinen Avatar; `target` company aktualisiert Company-Name, Adresse und Währung (nur Admins). |
+| `update_workspace_settings` | | | `target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar; `target` company aktualisiert Company-Name, Adresse und Währung (nur Admins). |
 | `manage_team` | | | Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). |
 
 ### Eingrenzen mit ?toolsets=
 
-Alle 45 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hänge `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+Alle 45 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
@@ -195,7 +195,7 @@ Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webh
 
 - **Bestätigen vor destruktiven Aktionen.** Die Server-Instructions weisen das Modell an, sich vor `delete_records` und vor jedem Send-Tool beim User rückzuversichern.
 - **Beziehungen nur über `manage_record_links`.** Die Update-Tools fassen Beziehungen nie an, und `null` auf einem Relationship-Array wird serverseitig mit Remediation-Hint abgelehnt.
-- **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und du sendest sie aus der Inbox. Drafts hängen am Thread; eine komplett neue ausgehende Nachricht lässt sich nicht als Draft anlegen.
+- **Erst Draft, dann Send.** `send_email` und `send_chat_message` stellen sofort zu. Wer eine Nachricht vorbereitet haben will, bekommt sie über `save_message_draft`, und Sie senden sie aus der Inbox. Drafts hängen am Thread; eine komplett neue ausgehende Nachricht lässt sich nicht als Draft anlegen.
 - **Destructive-Flags überall.** Jedes destruktive Tool und jede destruktive Action hat `destructiveHint: true` und den Präfix `IRREVERSIBLE` in der Beschreibung.
 - **Jedes Enum-Feld** listet gültige Werte inline in der Beschreibung, und **jedes `filters`-Feld** enthält ein konkretes JSON-Beispiel.
 

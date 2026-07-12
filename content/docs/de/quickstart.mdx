@@ -3,24 +3,24 @@ title: Quickstart
 description: Von der Registrierung bis zum ersten KI-aktualisierten Datensatz in wenigen Minuten.
 ---
 
-Lege einen Customermates-Account an, verbinde einen KI-Client und beginne, Prompts zu senden. Customermates ist ein KI-natives Open-Source-CRM. Claude und ChatGPT verbinden sich per Custom Connector und brauchen keinen API-Key. CLI-Clients und Editoren verbinden sich per API-Key.
+Legen Sie einen Customermates-Account an, verbinden Sie einen KI-Client und beginnen Sie, Prompts zu senden. Customermates ist ein KI-natives Open-Source-CRM. Claude und ChatGPT verbinden sich per Custom Connector und brauchen keinen API-Key. CLI-Clients und Editoren verbinden sich per API-Key.
 
 ## 1. Account anlegen
 
-Registriere dich unter [customermates.com/auth/signup](https://customermates.com/auth/signup). Keine Kreditkarte nötig. Die ersten sieben Tage sind kostenlos, danach wählst du einen Plan.
+Registrieren Sie sich unter [customermates.com/auth/signup](https://customermates.com/auth/signup). Keine Kreditkarte nötig. Die ersten sieben Tage sind kostenlos, danach wählen Sie einen Plan.
 
-## 2. Deine KI verbinden
+## 2. Ihre KI verbinden
 
-**Nutzt du Claude (Web, Desktop, Mobile) oder ChatGPT?** Füge einen Custom Connector hinzu, kein API-Key nötig. In deinem KI-Client: **Settings → Connectors → Add custom connector**, `https://customermates.com/api/v1/mcp` einfügen, anmelden und freigeben. Volle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+**Nutzen Sie Claude (Web, Desktop, Mobile) oder ChatGPT?** Fügen Sie einen Custom Connector hinzu, kein API-Key nötig. In Ihrem KI-Client: **Settings → Connectors → Add custom connector**, `https://customermates.com/api/v1/mcp` einfügen, anmelden und freigeben. Volle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
-**Nutzt du ein CLI oder einen Editor?** Lege zuerst einen API-Key an (**Profil → API Keys → Neuer Key**) und kopiere die 64 Zeichen, die nur einmal angezeigt werden. Dann folge der Seite deines Clients:
+**Nutzen Sie ein CLI oder einen Editor?** Legen Sie zuerst einen API-Key an (**Profil → API Keys → Neuer Key**) und kopieren Sie die 64 Zeichen, die nur einmal angezeigt werden. Dann folgen Sie der Seite Ihres Clients:
 
 - [Claude Code](/docs/connect-cli#claude-code): ein Terminal-Befehl
 - [Cursor](/docs/connect-cli#cursor): Settings-UI, zwei Klicks
 - [Codex](/docs/connect-cli#codex): ein TOML-Block in `~/.codex/config.toml`
 - [Gemini](/docs/connect-cli#gemini-cli): ein Settings-Block
 
-Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die KI die Tool-Oberfläche und die Workspace-Konventionen von Anfang an kennt. In Clients, die MCP-Prompts unterstützen, etwa Claude, kannst du zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: dein Name, deine Rolle und eine erste Zusammenfassung deines Workspace.
+Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die KI die Tool-Oberfläche und die Workspace-Konventionen von Anfang an kennt. In Clients, die MCP-Prompts unterstützen, etwa Claude, können Sie zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
 
 ## 3. Einen echten Prompt probieren
 
@@ -28,19 +28,19 @@ Der Server sendet seine Instruktionen beim Verbinden an den Client, sodass die K
 - *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
 - *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Organisation Initech und starte einen Deal über 12 Stunden Beratung."*
 
-Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Feldnamen wie der Status eines Deals sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Rufe `get_record_schema` auf, um die Columns zu sehen, die in deinem Workspace existieren.
+Der Agent meldet, welche Tools er aufgerufen hat und was sich geändert hat. Feldnamen wie der Status eines Deals sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Rufen Sie `get_record_schema` auf, um die Columns zu sehen, die in Ihrem Workspace existieren.
 
 ## 4. Optional: einen Webhook abonnieren
 
 Um andere Tools zu benachrichtigen, wenn sich im CRM etwas ändert:
 
-Gehe zu **Unternehmen → Webhooks → Neu**. Setze die URL auf einen Einweg-Endpoint von [webhook.site](https://webhook.site). Wähle unter Events `contact.created` und `deal.updated` und speichere.
+Gehen Sie zu **Unternehmen → Webhooks → Neu**. Setzen Sie die URL auf einen Einweg-Endpoint von [webhook.site](https://webhook.site). Wählen Sie unter Events `contact.created` und `deal.updated` und speichern Sie.
 
-Bearbeite einen Contact. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload.
+Bearbeiten Sie einen Contact. Innerhalb weniger Sekunden erscheint die Delivery auf webhook.site mit voller Payload.
 
 Volle Webhook-Docs: [Webhooks](/docs/webhooks).
 
 ## Weiter
 
 - [Kernkonzepte](/docs/concepts): Datensätze, Custom Columns und Beziehungen auf einen Blick.
-- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das deine KI über das Model Context Protocol (MCP) aufrufen kann.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das Ihre KI über das Model Context Protocol (MCP) aufrufen kann.

@@ -15,7 +15,7 @@ Customermates verfolgt fünf Datensatztypen, jeder kann eigene Felder tragen, si
 | **Service** | Produkt oder Leistung an einem Deal | name, amount |
 | **Task** | Ein To-do | name, assignees |
 
-Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einem anderen Datensatz oder ein Custom-Column-Wert. Es gibt auf keinem Datensatztyp feste Status- oder Stage-Felder; dafür nutzt du Custom Columns. Mit `get_record_schema` liest du die Spalten, die in einem Workspace existieren.
+Jeder Datensatz hat `id`, `createdAt`, `updatedAt` und unterstützt Markdown-`notes`. Alles andere ist entweder eine Beziehung zu einem anderen Datensatz oder ein Custom-Column-Wert. Es gibt auf keinem Datensatztyp feste Status- oder Stage-Felder; dafür nutzen Sie Custom Columns. Mit `get_record_schema` lesen Sie die Spalten, die in einem Workspace existieren.
 
 ## Beziehungen
 
@@ -34,7 +34,7 @@ Tasks verknüpfen sich mit Usern, Contacts, Organizations, Deals und Services.
 
 ## Custom Columns
 
-Das Standard-Schema deckt die Basics ab. Für alles andere fügst du eine Custom Column hinzu.
+Das Standard-Schema deckt die Basics ab. Für alles andere fügen Sie eine Custom Column hinzu.
 
 Zehn Typen:
 
@@ -51,29 +51,29 @@ Zehn Typen:
 | **Email** | Eine oder mehrere E-Mails |
 | **Phone** | Eine oder mehrere Telefonnummern |
 
-Single-select-Columns sind das Mittel, um eigene Workflows abzubilden. Ein Deal-"Status" oder eine Task-"Priorität" ist eine Single-select-Column, die du selbst definierst, mit den Optionen deiner Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Single-select-Column gruppieren.
+Single-select-Columns sind das Mittel, um eigene Workflows abzubilden. Ein Deal-"Status" oder eine Task-"Priorität" ist eine Single-select-Column, die Sie selbst definieren, mit den Optionen Ihrer Wahl, pro Workspace. Eine Board-Ansicht kann Datensätze dann nach jeder beliebigen Single-select-Column gruppieren.
 
 Custom Columns sind First-Class in Filtern, Widgets und der MCP-Oberfläche.
 
 ## Widgets
 
-Widgets sind Dashboard-Charts auf Live-Daten. Du wählst einen Datensatztyp, eine Group-by-Achse (Feld oder Custom Column), eine Aggregation (Count, Deal Value, Deal Quantity) und einen Chart-Typ (Bar, Doughnut oder Radar). Filter grenzen die Daten ein.
+Widgets sind Dashboard-Charts auf Live-Daten. Sie wählen einen Datensatztyp, eine Group-by-Achse (Feld oder Custom Column), eine Aggregation (Count, Deal Value, Deal Quantity) und einen Chart-Typ (Bar, Doughnut oder Radar). Filter grenzen die Daten ein.
 
 Ein Widget rendert neu, sobald sich die zugrundeliegenden Datensätze ändern.
 
 ## Webhooks
 
-Jeder Write löst ein Domain-Event aus: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Du abonnierst per URL und Event-Liste. Jede Zustellung enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von wo nach wo geändert hat, sodass Abonnenten auf Diffs reagieren können, ohne zu pollen.
+Jeder Write löst ein Domain-Event aus: `contact.created`, `deal.updated`, `task.deleted` und so weiter. Sie abonnieren per URL und Event-Liste. Jede Zustellung enthält den geänderten Datensatz plus eine `changes`-Map, die zeigt, was sich von wo nach wo geändert hat, sodass Abonnenten auf Diffs reagieren können, ohne zu pollen.
 
 Siehe [Webhooks](/docs/webhooks) für den vollständigen Event-Katalog und die Payload-Struktur.
 
 ## Notes
 
-Notes sind Markdown pro Datensatz. Sie rendern in der UI über einen Tiptap-Editor und sind überall sonst Plain Markdown. Du kannst sie über `update_record_notes` mit dem passenden `mode` ersetzen oder anhängen.
+Notes sind Markdown pro Datensatz. Sie rendern in der UI über einen Tiptap-Editor und sind überall sonst Plain Markdown. Sie können sie über `update_record_notes` mit dem passenden `mode` ersetzen oder anhängen.
 
 ## User, Rollen, Company
 
-User sind deine Teammitglieder. Rollen werden pro Workspace definiert und steuern, was jeder User lesen und schreiben darf. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, Cross-Tenant-Zugriff ist nicht möglich.
+User sind Ihre Teammitglieder. Rollen werden pro Workspace definiert und steuern, was jeder User lesen und schreiben darf. Die Company ist der Tenant. Jeder Datensatz lebt in genau einer Company, Cross-Tenant-Zugriff ist nicht möglich.
 
 ## Weiter
 

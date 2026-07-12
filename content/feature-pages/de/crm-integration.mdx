@@ -1,11 +1,11 @@
 ---
 title: CRM-Integration - Tools verbinden mit n8n, API & Webhooks
-description: "CRM mit jedem Tool verbinden ueber n8n-Automatisierung, REST API und Webhooks. Open-Source Zapier-Alternative mit 400+ Konnektoren. EU-gehostet."
+description: "CRM mit jedem Tool verbinden über n8n-Automatisierung, REST API und Webhooks. Open-Source Zapier-Alternative mit 400+ Konnektoren. EU-gehostet."
 featureName: CRM Integration
 
 hero:
   title: CRM-Integration, die Ihren gesamten Tech-Stack verbindet
-  description: Verbinden Sie Customermates mit jedem Tool, das Ihr Unternehmen nutzt. Die integrierte n8n-Engine ersetzt Zapier mit 400+ Konnektoren, die REST API gibt Entwicklern volle Kontrolle, und Echtzeit-Webhooks halten Systeme synchron. Alles inklusive fuer 7 EUR pro Nutzer und Monat.
+  description: Verbinden Sie Customermates mit jedem Tool, das Ihr Unternehmen nutzt. Die integrierte n8n-Engine ersetzt Zapier mit 400+ Konnektoren, die REST API gibt Entwicklern volle Kontrolle, und Echtzeit-Webhooks halten Systeme synchron. Ein nativer MCP-Endpoint lässt KI-Agenten das CRM bedienen, und ein natives gemeinsames Postfach bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram hinein. In jeder Stufe enthalten, ab 12 EUR pro Nutzer und Monat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -26,107 +26,115 @@ cta:
 
 CRM-Integration ist der Prozess der Verbindung Ihres Kundenbeziehungsmanagementsystems mit den anderen Softwaretools und Plattformen, auf die Ihr Unternehmen angewiesen ist. Das umfasst [E-Mail-Clients](/features/email-integration), Kalender, Buchhaltungssoftware, Marketing-Plattformen, Support-Desks, Kommunikationstools wie [Slack](/features/slack-integration) und interne Eigenentwicklungen.
 
-Das Ziel ist einfach: Datensilos eliminieren. Wenn Ihr CRM von Ihren anderen Tools getrennt ist, verschwendet Ihr Team Zeit mit dem Kopieren von Daten zwischen Systemen, Informationen werden inkonsistent und Kontext geht verloren. Integrierte Systeme teilen Daten automatisch, halten jedes Tool synchron und geben Ihrem Team eine einzige Quelle der Wahrheit fuer Kundeninformationen.
+Das Ziel ist einfach: Datensilos eliminieren. Wenn Ihr CRM von Ihren anderen Tools getrennt ist, verschwendet Ihr Team Zeit mit dem Kopieren von Daten zwischen Systemen, Informationen werden inkonsistent und Kontext geht verloren. Integrierte Systeme teilen Daten automatisch, halten jedes Tool synchron und geben Ihrem Team eine einzige Quelle der Wahrheit für Kundeninformationen.
 
-Effektive CRM-Integration verwandelt Ihr CRM von einer eigenstaendigen Kontaktdatenbank in den vernetzten Knotenpunkt Ihrer gesamten Geschaeftsablaeufe. Daten fliessen herein ueber Lead-Formulare, E-Mail und Telefon. Sie fliessen heraus zu Rechnungsstellung, Projektmanagement und Marketing-Automatisierung. Jedes System bleibt abgestimmt, ohne manuelles Eingreifen.
+Effektive CRM-Integration verwandelt Ihr CRM von einer eigenständigen Kontaktdatenbank in den vernetzten Knotenpunkt Ihrer gesamten Geschäftsabläufe. Daten fließen herein über Lead-Formulare, E-Mail und Telefon. Sie fließen heraus zu Rechnungsstellung, Projektmanagement und Marketing-Automatisierung. Jedes System bleibt abgestimmt, ohne manuelles Eingreifen.
 
 ## So funktioniert CRM-Integration in Customermates
 
-Customermates ist von Grund auf fuer Integration gebaut. Drei komplementaere Ansaetze geben Ihnen die Flexibilitaet, praktisch jedes Tool oder jede Plattform zu verbinden, unabhaengig vom technischen Kenntnisstand Ihres Teams.
+Customermates ist von Grund auf für Integration gebaut. Vier komplementäre Ansätze, native KI-Agenten, die integrierte n8n-Engine, die REST API und Webhooks, geben Ihnen die Flexibilität, praktisch jedes Tool oder jede Plattform zu verbinden, unabhängig vom technischen Kenntnisstand Ihres Teams. Hinzu kommt: Die Kommunikationskanäle, die die meisten Teams separat integrieren, sind als natives gemeinsames Postfach direkt im CRM eingebaut.
+
+### Native KI-Agenten (MCP)
+
+Customermates stellt einen nativen Model-Context-Protocol-(MCP-)Endpoint unter `https://customermates.com/api/v1/mcp` bereit, authentifiziert per `x-api-key`. Verbinden Sie Claude, ChatGPT oder Gemini, und sie bedienen das CRM direkt über 45 Tools in neun Toolsets: Datensätze lesen und schreiben, Deal-Phasen verschieben, Follow-ups entwerfen und, ab einer Messaging-Stufe, das gemeinsame Postfach bearbeiten. Statt Daten an ein KI-Tool zu synchronisieren, arbeitet die KI im CRM mit Ihren Berechtigungen. Der MCP-Endpoint ist ab der Starter-Stufe verfügbar; Messaging-Tools erfordern Pro oder höher. Grenzen Sie die bereitgestellten Tools pro Client mit dem Parameter `?toolsets=` ein.
+
+### Natives gemeinsames Postfach
+
+Die meisten CRMs binden E-Mail und Messaging über Zusatzprodukte von Drittanbietern an. Customermates enthält sie nativ. E-Mail, LinkedIn, WhatsApp, Instagram und Telegram liegen in einem gemeinsamen Postfach im CRM, und jede Konversation wird automatisch am richtigen Kontakt protokolliert. Das gemeinsame Postfach ist ab der Pro-Stufe (29 €/Nutzer/Monat) enthalten; geteilte, teamweite Postfächer kommen mit der Business-Stufe (59 €/Nutzer/Monat).
 
 ### Integrierte n8n-Automatisierung (ersetzt Zapier)
 
-Hier hebt sich Customermates von anderen CRMs ab. Die integrierte [n8n](https://n8n.io)-Automatisierungs-Engine bietet einen visuellen Workflow-Builder mit ueber 400 vorgefertigten Konnektoren. Verbinden Sie Ihr CRM mit Slack, Google Sheets, Mailchimp, Stripe, Notion, Airtable, Xero, lexoffice und hunderten weiteren, ohne eine einzige Zeile Code zu schreiben.
+Hier hebt sich Customermates von anderen CRMs ab. Die integrierte [n8n](https://n8n.io)-Automatisierungs-Engine bietet einen visuellen Workflow-Builder mit über 400 vorgefertigten Konnektoren. Verbinden Sie Ihr CRM mit Slack, Google Sheets, Mailchimp, Stripe, Notion, Airtable, Xero, lexoffice und hunderten weiteren, ohne eine einzige Zeile Code zu schreiben.
 
-n8n dient als leistungsstarke Open-Source-Alternative zu Zapier oder Make, laeuft aber direkt in Ihrem CRM. Kein separates Abonnement, keine Kosten pro Ausfuehrung und keine Daten, die Ihre Umgebung verlassen. Erstellen Sie mehrstufige Workflows mit bedingter Logik, Datentransformation, Fehlerbehandlung und Zeitplanung, alles ueber eine visuelle Drag-and-Drop-Oberflaeche.
+n8n dient als leistungsstarke Open-Source-Alternative zu Zapier oder Make, läuft aber direkt in Ihrem CRM. Kein separates Abonnement, keine Kosten pro Ausführung und keine Daten, die Ihre Umgebung verlassen. Erstellen Sie mehrstufige Workflows mit bedingter Logik, Datentransformation, Fehlerbehandlung und Zeitplanung, alles über eine visuelle Drag-and-Drop-Oberfläche.
 
-**Beispiel-Workflow:** Wenn ein Deal in Customermates zu "Gewonnen" wechselt, erstellt n8n automatisch eine Rechnung in lexoffice, sendet eine Gratulationsnachricht in den Slack-Vertriebskanal, erstellt ein Projekt in Notion mit den Deal-Details und fuegt den Kunden zu einer After-Sales-E-Mail-Sequenz in Brevo hinzu. Fuenf Systeme aktualisiert durch ein CRM-Ereignis, null manuelle Arbeit.
+**Beispiel-Workflow:** Wenn ein Deal in Customermates zu "Gewonnen" wechselt, erstellt n8n automatisch eine Rechnung in lexoffice, sendet eine Gratulationsnachricht in den Slack-Vertriebskanal, erstellt ein Projekt in Notion mit den Deal-Details und fügt den Kunden zu einer After-Sales-E-Mail-Sequenz in Brevo hinzu. Fünf Systeme aktualisiert durch ein CRM-Ereignis, null manuelle Arbeit.
 
 ### REST API
 
-Fuer Entwickler und individuelle Anwendungen stellt Customermates eine umfassende REST API bereit, die alle CRM-Entitaeten abdeckt: Kontakte, Organisationen, Deals, Aufgaben, Notizen und benutzerdefinierte Felder. Vollstaendige CRUD-Operationen, Filterung, Paginierung, Massenoperationen und API-Key-Authentifizierung. Beim Self-Hosting gibt es keine kuenstlichen Rate Limits.
+Für Entwickler und individuelle Anwendungen stellt Customermates eine umfassende REST API bereit, die alle CRM-Entitäten abdeckt: Kontakte, Organisationen, Deals, Services und Aufgaben, samt ihrer benutzerdefinierten Felder. Vollständige CRUD-Operationen, Filterung, Paginierung, Massenoperationen und API-Key-Authentifizierung. Beim Self-Hosting gibt es keine künstlichen Rate Limits.
 
 ### Webhooks
 
-Konfigurieren Sie Webhooks, die Echtzeit-Benachrichtigungen senden, wenn Ereignisse in Ihrem CRM auftreten. Deal erstellt, Kontakt aktualisiert, Aufgabe erledigt, Phase gewechselt oder jedes andere Ereignis loest einen HTTP POST an die von Ihnen angegebene URL aus. Webhooks ermoeglichen ereignisgesteuerte Architekturen, bei denen Ihre Systeme sofort auf CRM-Aenderungen reagieren.
+Konfigurieren Sie Webhooks, die Echtzeit-Benachrichtigungen senden, wenn Ereignisse in Ihrem CRM auftreten. Deal erstellt, Kontakt aktualisiert, Aufgabe erledigt, Phase gewechselt oder jedes andere Ereignis löst einen HTTP POST an die von Ihnen angegebene URL aus. Webhooks ermöglichen ereignisgesteuerte Architekturen, bei denen Ihre Systeme sofort auf CRM-Änderungen reagieren.
 
-## Beliebte CRM-Integrations-Anwendungsfaelle
+## Beliebte CRM-Integrations-Anwendungsfälle
 
-**CRM + [E-Mail](/features/email-integration).** Synchronisieren Sie Gmail und [Outlook](/features/outlook-integration) mit Ihrem CRM. Jede gesendete und empfangene E-Mail wird automatisch am Kontaktdatensatz protokolliert. Vorlagen, Tracking und automatisierte Sequenzen sind inklusive.
+**CRM + [E-Mail](/features/email-integration).** Synchronisieren Sie Gmail und [Outlook](/features/outlook-integration) mit Ihrem CRM. Jede gesendete und empfangene E-Mail wird automatisch am Kontaktdatensatz protokolliert. Vorlagen, Tracking und automatisierte Sequenzen sind ab der Pro-Stufe (29 €/Nutzer/Monat) enthalten, die das gemeinsame Postfach zum Kern-CRM hinzufügt.
 
-**CRM + [Slack](/features/slack-integration).** Senden Sie Deal-Updates, neue Lead-Alarme und Aufgabenerinnerungen an Slack-Kanaele. Erstellen Sie CRM-Datensaetze aus Slack-Nachrichten. Halten Sie Ihr Team im Kommunikationstool informiert, das es bereits nutzt.
+**CRM + [Slack](/features/slack-integration).** Senden Sie Deal-Updates, neue Lead-Alarme und Aufgabenerinnerungen an Slack-Kanäle. Erstellen Sie CRM-Datensätze aus Slack-Nachrichten. Halten Sie Ihr Team im Kommunikationstool informiert, das es bereits nutzt.
 
 **CRM + Buchhaltung.** Wenn ein Deal abgeschlossen wird, erstellen Sie automatisch eine Rechnung in lexoffice, sevDesk, Xero oder QuickBooks. Synchronisieren Sie Kundendaten, Zahlungsstatus und Umsatzzahlen zwischen CRM und Finanzsystemen.
 
-**CRM + Marketing-Automatisierung.** Synchronisieren Sie Kontakte und Segmente zu Mailchimp, Brevo oder ActiveCampaign. Loesen Sie E-Mail-Kampagnen basierend auf Deal-Phasen, Kontaktfeldern oder benutzerdefinierten Ereignissen aus.
+**CRM + Marketing-Automatisierung.** Synchronisieren Sie Kontakte und Segmente zu Mailchimp, Brevo oder ActiveCampaign. Lösen Sie E-Mail-Kampagnen basierend auf Deal-Phasen, Kontaktfeldern oder benutzerdefinierten Ereignissen aus.
 
 **CRM + Webformulare.** Erfassen Sie Leads von Website-Formularen und erstellen Sie automatisch Kontakte. Leiten Sie Leads basierend auf Formulardaten, Geografie oder Deal-Wert an den richtigen Vertriebsmitarbeiter weiter.
 
-**CRM + Kalender.** Synchronisieren Sie Aktivitaeten mit Google Calendar oder Outlook. Meeting-Planung, Follow-up-Erinnerungen und Aufgabenfristen fliessen bidirektional zwischen CRM und Kalender.
+**CRM + Kalender.** Synchronisieren Sie Aktivitäten mit Google Calendar oder Outlook. Meeting-Planung, Follow-up-Erinnerungen und Aufgabenfristen fließen bidirektional zwischen CRM und Kalender. Die native Kalendersynchronisierung ist ab der Pro-Stufe zusammen mit dem gemeinsamen Postfach enthalten.
 
-**CRM + Projektmanagement.** Wenn ein Deal abgeschlossen wird, erstellen Sie ein Projekt in Asana, Monday, Notion oder Linear mit vorausgefuellten Deal-Details. Die Vertrieb-zu-Lieferung-Uebergabe geschieht automatisch.
+**CRM + Projektmanagement.** Wenn ein Deal abgeschlossen wird, erstellen Sie ein Projekt in Asana, Monday, Notion oder Linear mit vorausgefüllten Deal-Details. Die Vertrieb-zu-Lieferung-Übergabe geschieht automatisch.
 
-**CRM + [LinkedIn](/features/linkedin-integration).** Reichern Sie Kontaktdatensaetze mit LinkedIn-Profildaten an. Importieren Sie Verbindungen, verfolgen Sie Social-Selling-Aktivitaeten und ueberwachen Sie Jobwechsel bei Schluesselpersonen.
+**CRM + [LinkedIn](/features/linkedin-integration).** Reichern Sie Kontaktdatensätze mit LinkedIn-Profildaten an. Importieren Sie Verbindungen, verfolgen Sie Social-Selling-Aktivitäten und überwachen Sie Jobwechsel bei Schlüsselpersonen.
 
-## Customermates vs. Zapier fuer CRM-Integration
+## Customermates vs. Zapier für CRM-Integration
 
-Viele Unternehmen nutzen Zapier, um ihr CRM mit anderen Tools zu verbinden. Customermates macht dies ueberfluessig, indem die n8n-Automatisierungs-Engine direkt im CRM integriert ist.
+Viele Unternehmen nutzen Zapier, um ihr CRM mit anderen Tools zu verbinden. Customermates macht dies überflüssig, indem die n8n-Automatisierungs-Engine direkt im CRM integriert ist.
 
-| Faehigkeit | Customermates (n8n integriert) | Zapier + anderes CRM |
+| Fähigkeit | Customermates (n8n integriert) | Zapier + anderes CRM |
 |---|---|---|
-| Monatliche Kosten | 7 EUR/Nutzer (alles inklusive) | CRM-Kosten + Zapier ab 20 USD/Monat |
-| Kosten pro Ausfuehrung | Keine | Ja (Zapier berechnet pro Aufgabe) |
+| Monatliche Kosten | Ab 12 EUR/Nutzer (n8n, API, Webhooks inklusive) | CRM-Kosten + Zapier ab 20 USD/Monat |
+| Kosten pro Ausführung | Keine | Ja (Zapier berechnet pro Aufgabe) |
 | Vorgefertigte Konnektoren | 400+ | 7.000+ |
 | Mehrstufige Workflows | Unbegrenzte Schritte, kostenlos | Premium-Plan erforderlich |
 | Bedingte Logik | Inklusive | Premium-Plan erforderlich |
-| Fehlerbehandlung | Integrierte Wiederholung und Fallback | Begrenzt in Free/Starter-Plaenen |
-| Self-Hosting moeglich | Ja (Daten bleiben auf Ihren Servern) | Nein |
+| Fehlerbehandlung | Integrierte Wiederholung und Fallback | Begrenzt in Free/Starter-Plänen |
+| Self-Hosting möglich | Ja (Daten bleiben auf Ihren Servern) | Nein |
 | Open Source | Ja | Nein |
 | Datenverarbeitung | EU (oder Ihre Infrastruktur) | Standard: USA |
 
-Zapier verbindet mehr Dienste, aber Customermates liefert besseren Wert fuer CRM-zentrische Automatisierung. Komplexe Workflows, die bei Zapier 50 bis 100 USD pro Monat kosten wuerden, laufen in Customermates ohne Zusatzkosten.
+Zapier verbindet mehr Dienste, aber Customermates liefert besseren Wert für CRM-zentrische Automatisierung. Komplexe Workflows, die bei Zapier 50 bis 100 USD pro Monat kosten würden, laufen in Customermates ohne Zusatzkosten.
 
 ## Zentrale Vorteile
 
-**Datensilos eliminieren.** Verbundene Systeme teilen Daten automatisch. Kontaktinformationen bleiben tooluebergreifend konsistent, Deal-Updates gelangen zu Reporting und Buchhaltung, und Ihr Team arbeitet mit einer einzigen Quelle der Wahrheit.
+**Datensilos eliminieren.** Verbundene Systeme teilen Daten automatisch. Kontaktinformationen bleiben toolübergreifend konsistent, Deal-Updates gelangen zu Reporting und Buchhaltung, und Ihr Team arbeitet mit einer einzigen Quelle der Wahrheit.
 
-**Systemuebergreifende Workflows automatisieren.** Erstellen Sie Workflows, die fuenf, zehn oder zwanzig Tools umspannen. Lead-Erfassung, E-Mail-Sequenzen, Deal-Benachrichtigungen, Rechnungserstellung und Projektanlage koennen alle von einem einzigen CRM-Trigger aus laufen, ohne manuelle Schritte.
+**Systemübergreifende Workflows automatisieren.** Erstellen Sie Workflows, die fünf, zehn oder zwanzig Tools umspannen. Lead-Erfassung, E-Mail-Sequenzen, Deal-Benachrichtigungen, Rechnungserstellung und Projektanlage können alle von einem einzigen CRM-Trigger aus laufen, ohne manuelle Schritte.
 
-**Kein Vendor Lock-in.** Customermates ist Open Source mit vollstaendiger API. Ihre Daten sind immer zugaenglich und portabel. Wenn Sie jemals migrieren oder eine individuelle Anwendung bauen muessen, stehen Ihre CRM-Daten ohne Einschraenkungen zur Verfuegung.
+**Kein Vendor Lock-in.** Customermates ist Open Source mit vollständiger API. Ihre Daten sind immer zugänglich und portabel. Wenn Sie jemals migrieren oder eine individuelle Anwendung bauen müssen, stehen Ihre CRM-Daten ohne Einschränkungen zur Verfügung.
 
-**Integrierte Zapier-Alternative.** Die n8n-Engine ersetzt die Notwendigkeit eines separaten Automatisierungsabonnements. Statt fuer Zapier oder Make zusaetzlich zu Ihrem CRM zu bezahlen, erhalten Sie gleichwertige Funktionalitaet im Preis von 7 EUR pro Nutzer und Monat.
+**Integrierte Zapier-Alternative.** Die n8n-Engine ersetzt die Notwendigkeit eines separaten Automatisierungsabonnements. Statt für Zapier oder Make zusätzlich zu Ihrem CRM zu bezahlen, erhalten Sie gleichwertige Funktionalität bereits ab der Starter-Stufe für 12 EUR pro Nutzer und Monat.
 
-**Entwicklerfreundlich und fuer Business-Anwender zugaenglich.** Business-Anwender bauen [Integrationen](/features/integrations) visuell mit n8n. Entwickler arbeiten direkt mit der API. Beide Gruppen erhalten die Tools, die sie brauchen.
+**Entwicklerfreundlich und für Business-Anwender zugänglich.** Business-Anwender bauen [Integrationen](/features/integrations) visuell mit n8n. Entwickler arbeiten direkt mit der API. Beide Gruppen erhalten die Tools, die sie brauchen.
 
-## Warum Customermates fuer CRM-Integration?
+## Warum Customermates für CRM-Integration?
 
-**n8n eingebaut, nicht angebaut.** Die meisten CRMs bieten begrenzte Zapier-Unterstuetzung oder einfache native Konnektoren. Customermates beinhaltet die vollstaendige n8n-Plattform mit visuellem Workflow-Bau, Fehlerbehandlung, Zeitplanung und 400+ Konnektoren. Das ist kein vereinfachtes Automatisierungs-Widget. Es ist eine vollstaendige Workflow-Automatisierungs-Engine.
+**n8n eingebaut, nicht angebaut.** Die meisten CRMs bieten begrenzte Zapier-Unterstützung oder einfache native Konnektoren. Customermates beinhaltet die vollständige n8n-Plattform mit visuellem Workflow-Bau, Fehlerbehandlung, Zeitplanung und 400+ Konnektoren. Das ist kein vereinfachtes Automatisierungs-Widget. Es ist eine vollständige Workflow-Automatisierungs-Engine.
 
-**Alle Integrationen zu einem Preis.** API-Zugang, Webhooks und n8n-Workflows stehen jedem Nutzer fuer 7 EUR pro Monat zur Verfuegung. Andere CRMs verlangen Aufpreise fuer API-Zugang, begrenzen Webhook-Endpunkte oder sperren Automatisierung hinter Premium-Stufen. Customermates beinhaltet alles.
+**Alle Integrationen ab der Einstiegsstufe.** API-Zugang, Webhooks und n8n-Workflows stehen jedem Nutzer ab 12 EUR pro Monat zur Verfügung. Andere CRMs verlangen Aufpreise für API-Zugang, begrenzen Webhook-Endpunkte oder sperren Automatisierung hinter Premium-Stufen. Bei Customermates sind sie bereits in Starter enthalten.
 
-**EU-Datenverarbeitung.** Alle Daten, die durch Customermates-Integrationen fliessen, werden in EU-Rechenzentren verarbeitet, mit vollstaendiger DSGVO-Konformitaet. Das ist entscheidend fuer Unternehmen, die Compliance ueber ihre gesamte Integrationskette sicherstellen muessen.
+**EU-Datenverarbeitung.** Alle Daten, die durch Customermates-Integrationen fließen, werden in EU-Rechenzentren verarbeitet, mit vollständiger DSGVO-Konformität. Das ist entscheidend für Unternehmen, die Compliance über ihre gesamte Integrationskette sicherstellen müssen.
 
-**Open Source und erweiterbar.** Sowohl Customermates als auch n8n sind Open Source. Erstellen Sie Konnektoren fuer proprietaere Systeme, aendern Sie Workflows nach Ihren genauen Anforderungen und tragen Sie Verbesserungen zur Community bei.
+**Open Source und erweiterbar.** Sowohl Customermates als auch n8n sind Open Source. Erstellen Sie Konnektoren für proprietäre Systeme, ändern Sie Workflows nach Ihren genauen Anforderungen und tragen Sie Verbesserungen zur Community bei.
 
-**Self-Hosting fuer volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur. Behalten Sie alle API-Zugangsdaten, Workflow-Daten und Ausfuehrungsprotokolle auf Ihren Servern. Kein Drittanbieter beruehrt Ihre Integrationsdaten.
+**Self-Hosting für volle Kontrolle.** Betreiben Sie Customermates auf Ihrer eigenen Infrastruktur. Behalten Sie alle API-Zugangsdaten, Workflow-Daten und Ausführungsprotokolle auf Ihren Servern. Kein Drittanbieter berührt Ihre Integrationsdaten.
 
-## Haeufig gestellte Fragen
+## Häufig gestellte Fragen
 
 **Was ist der Unterschied zwischen CRM-Integration und CRM-Integrationen?**
-"CRM-Integration" bezieht sich auf den allgemeinen Prozess und die Strategie der Verbindung Ihres CRM mit anderen Tools. "[CRM-Integrationen](/features/integrations)" bezieht sich auf die spezifischen Verbindungen und Konnektoren, die verfuegbar sind. Customermates unterstuetzt beides: eine robuste Integrationsarchitektur (API, Webhooks, n8n) und 400+ spezifische vorgefertigte Integrationen.
+"CRM-Integration" bezieht sich auf den allgemeinen Prozess und die Strategie der Verbindung Ihres CRM mit anderen Tools. "[CRM-Integrationen](/features/integrations)" bezieht sich auf die spezifischen Verbindungen und Konnektoren, die verfügbar sind. Customermates unterstützt beides: eine robuste Integrationsarchitektur (natives MCP, API, Webhooks, n8n) und 400+ spezifische vorgefertigte Integrationen.
 
 **Kann Customermates Zapier ersetzen?**
-Fuer CRM-bezogene Automatisierungen, ja. Die integrierte n8n-Engine bietet gleichwertige Funktionalitaet einschliesslich mehrstufiger Workflows, bedingter Logik, Datentransformation und Zeitplanung. Teams, die Zapier nur fuer CRM-Verbindungen nutzen, koennen ihr Zapier-Abonnement vollstaendig aufgeben.
+Für CRM-bezogene Automatisierungen, ja. Die integrierte n8n-Engine bietet gleichwertige Funktionalität einschließlich mehrstufiger Workflows, bedingter Logik, Datentransformation und Zeitplanung. Teams, die Zapier nur für CRM-Verbindungen nutzen, können ihr Zapier-Abonnement vollständig aufgeben.
 
 **Brauche ich technische Kenntnisse, um Integrationen einzurichten?**
-Nein. Der visuelle n8n-Workflow-Builder ermoeglicht es jedem, Integrationen durch Ziehen und Verbinden von Knoten zu erstellen. Fuer Standardszenarien wie Slack-Benachrichtigungen, E-Mail-Sync oder Kalenderintegration ist kein Coding erforderlich. API und Webhooks stehen Teams mit Entwicklungsressourcen fuer individuelle Loesungen zur Verfuegung.
+Nein. Der visuelle n8n-Workflow-Builder ermöglicht es jedem, Integrationen durch Ziehen und Verbinden von Knoten zu erstellen. Für Standardszenarien wie Slack-Benachrichtigungen, E-Mail-Sync oder Kalenderintegration ist kein Coding erforderlich. API und Webhooks stehen Teams mit Entwicklungsressourcen für individuelle Lösungen zur Verfügung.
 
-**Gibt es ein Limit fuer die Anzahl der Integrationen?**
-Nein. Sie koennen so viele n8n-Workflows, API-Verbindungen und Webhook-Endpunkte erstellen, wie Sie benoetigen. Es gibt keine Kosten pro Integration und keine kuenstlichen Limits fuer die Anzahl aktiver Integrationen.
+**Gibt es ein Limit für die Anzahl der Integrationen?**
+Nein. Sie können so viele n8n-Workflows, API-Verbindungen und Webhook-Endpunkte erstellen, wie Sie benötigen. Es gibt keine Kosten pro Integration und keine künstlichen Limits für die Anzahl aktiver Integrationen.
 
 **Was passiert mit meinen Integrationen beim Self-Hosting?**
-Beim Self-Hosting von Customermates laeuft die n8n-Engine auf Ihrer Infrastruktur neben dem CRM. Alle Workflow-Daten, API-Zugangsdaten und Ausfuehrungsprotokolle bleiben auf Ihren Servern. Sie haben vollstaendige Kontrolle ueber Ihre Integrationsumgebung.
+Beim Self-Hosting von Customermates läuft die n8n-Engine auf Ihrer Infrastruktur neben dem CRM. Alle Workflow-Daten, API-Zugangsdaten und Ausführungsprotokolle bleiben auf Ihren Servern. Sie haben vollständige Kontrolle über Ihre Integrationsumgebung.
 
 ## Starten Sie heute mit CRM-Integration
 
-Beginnen Sie in Minuten, Ihre Tools zu verbinden. Registrieren Sie sich bei Customermates, oeffnen Sie den n8n-Workflow-Builder und erstellen Sie Ihre erste Integration visuell. Konfigurieren Sie einen Webhook, erkunden Sie die API-Dokumentation oder nutzen Sie eine vorgefertigte Vorlage, um Slack, Gmail oder Ihre Buchhaltungssoftware zu verbinden. Alle Integrationsfaehigkeiten stehen ab dem ersten Tag bereit.
+Beginnen Sie in Minuten, Ihre Tools zu verbinden. Registrieren Sie sich bei Customermates, öffnen Sie den n8n-Workflow-Builder und erstellen Sie Ihre erste Integration visuell. Konfigurieren Sie einen Webhook, erkunden Sie die API-Dokumentation oder nutzen Sie eine vorgefertigte Vorlage, um Slack, Gmail oder Ihre Buchhaltungssoftware zu verbinden. Alle Integrationsfähigkeiten stehen ab dem ersten Tag bereit.

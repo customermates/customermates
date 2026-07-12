@@ -70,7 +70,7 @@ Every conversation, regardless of channel, ends up in one place. Email syncs int
 
 The test is simple: can a new account owner walk in tomorrow, open the contact record, and see everything that has happened, without logging into another tool? If yes, capture is solved. If no, that is the first thing to fix.
 
-This usually starts with [email integration](/features/email-integration) and a calendar sync. Once those are reliable the rest follows.
+This usually starts with [email integration](/features/email-integration) and a calendar sync. A CRM with a native unified inbox spanning email, LinkedIn, WhatsApp, Instagram, and Telegram solves most of the capture problem in one place. Once those are reliable the rest follows.
 
 ### 2. A Single Customer Timeline
 
@@ -119,7 +119,7 @@ The CIM software category fragments into several adjacent product types. Pick th
 
 Modern CRMs (HubSpot, Pipedrive, Customermates, Salesforce, Zoho) function as CIM platforms for sales-led businesses. They sync email, calendar, and notes; they store activities; they trigger workflows. For teams under 50 people, this is often the entire stack you need.
 
-The differentiator is how good the logging is. Manual logging dies in week three. The CRMs worth having log automatically: email sync that does not require a button click, calendar events that attach themselves, AI agents that draft and update notes without prompting. With Customermates the agents you already use, Claude or ChatGPT, write directly into the CRM through 57 [MCP](https://modelcontextprotocol.io) tools, so the interaction record stays current without anyone typing into it.
+The differentiator is how good the logging is. Manual logging dies in week three. The CRMs worth having log automatically: email sync that does not require a button click, calendar events that attach themselves, AI agents that draft and update notes without prompting. Customermates leans on two of these. A native unified inbox pulls email, LinkedIn, WhatsApp, Instagram, and Telegram onto the contact record, and the agents you already use, Claude or ChatGPT, write directly into the CRM through 45 [MCP](https://modelcontextprotocol.io) tools, so the interaction record stays current without anyone typing into it.
 
 ### Contact Centers and Helpdesks
 
@@ -175,7 +175,7 @@ A short field guide to the failures I see most.
 
 ### Fragmented Tools and Data
 
-The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses 15 webhook events per entity (created, updated, deleted across contacts, organizations, deals, services, tasks) so any external tool can stay in sync without polling.
+The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses 26 webhook events, 15 record events (created, updated, and deleted across contacts, organizations, deals, services, and tasks) plus 11 messaging and calendar events, so any external tool can stay in sync without polling.
 
 ### Manual Logging That Decays
 
@@ -222,7 +222,7 @@ For most small and mid-size teams, the realistic path is not buying a separate C
 - Open tasks per owner.
 - Deals with no activity in 14 days.
 
-This setup costs nothing beyond your CRM seat and a few hours of configuration. It is also the substrate that makes AI agents useful: once the data is unified, an agent like Claude or ChatGPT, connected through MCP, can read the timeline and write the next action without you switching tools. That is the bet behind Customermates: an open-source CRM with 57 MCP tools, [from 7 euros per user per month](/pricing), built so the AI you already use can run the interaction system for you.
+This setup costs nothing beyond your CRM seat and a few hours of configuration. It is also the substrate that makes AI agents useful: once the data is unified, an agent like Claude or ChatGPT, connected through MCP, can read the timeline and write the next action without you switching tools. That is the bet behind Customermates: an open-source CRM with a native unified inbox and 45 MCP tools, [from 12 euros per user per month](/pricing), built so the AI you already use can run the interaction system for you.
 
 ## Frequently Asked Questions
 

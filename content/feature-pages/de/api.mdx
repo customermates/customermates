@@ -4,8 +4,8 @@ description: "CRM API mit REST API, Webhooks, OpenAPI-Spec und Automatisierungs-
 featureName: CRM API
 
 hero:
-  title: Eine CRM API, gebaut fuer Entwickler, die schnell liefern
-  description: Greifen Sie auf jedes CRM-Datum ueber eine saubere REST API zu. Erstellen Sie individuelle Integrationen, synchronisieren Sie Daten systemuebergreifend und automatisieren Sie Workflows mit Webhooks, API-Keys, OpenAPI-Spec und n8n. Alles inklusive fuer 7 EUR pro Nutzer und Monat.
+  title: Eine CRM API, gebaut für Entwickler, die schnell liefern
+  description: Greifen Sie auf jedes CRM-Datum über eine saubere REST API zu. Erstellen Sie individuelle Integrationen, synchronisieren Sie Daten systemübergreifend und automatisieren Sie Workflows mit Webhooks, API-Keys, OpenAPI-Spec und n8n. Ein nativer MCP-Endpoint lässt KI-Agenten wie Claude, ChatGPT und Gemini das CRM direkt lesen und beschreiben. In jeder Stufe enthalten, ab 12 EUR pro Nutzer und Monat.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -24,82 +24,86 @@ cta:
 
 ## Was ist eine CRM API?
 
-Eine CRM API (Application Programming Interface) ist eine Sammlung von Endpoints, die es externer Software ermoeglichen, programmatisch auf Daten in Ihrem CRM zuzugreifen, diese zu erstellen, zu aktualisieren und zu loeschen. Anstatt ausschliesslich ueber die Benutzeroberflaeche mit Ihrem CRM zu interagieren, ermoeglicht eine API Entwicklern, individuelle Integrationen, automatisierte Workflows und Anwendungen zu erstellen, die direkt mit CRM-Daten arbeiten.
+Eine CRM API (Application Programming Interface) ist eine Sammlung von Endpoints, die es externer Software ermöglichen, programmatisch auf Daten in Ihrem CRM zuzugreifen, diese zu erstellen, zu aktualisieren und zu löschen. Anstatt ausschließlich über die Benutzeroberfläche mit Ihrem CRM zu interagieren, ermöglicht eine API Entwicklern, individuelle Integrationen, automatisierte Workflows und Anwendungen zu erstellen, die direkt mit CRM-Daten arbeiten.
 
-APIs sind unverzichtbar fuer Unternehmen, deren CRM als Teil eines groesseren Technologie-Stacks funktionieren muss. Ob Sie ein individuelles Dashboard erstellen, Daten mit einem ERP- oder Buchhaltungssystem synchronisieren, Prozesse automatisieren, die ueber die Standard-UI hinausgehen, oder CRM-Funktionalitaet in eine andere Anwendung einbetten, die API ist das Tor, das dies ermoeglicht.
+APIs sind unverzichtbar für Unternehmen, deren CRM als Teil eines größeren Technologie-Stacks funktionieren muss. Ob Sie ein individuelles Dashboard erstellen, Daten mit einem ERP- oder Buchhaltungssystem synchronisieren, Prozesse automatisieren, die über die Standard-UI hinausgehen, oder CRM-Funktionalität in eine andere Anwendung einbetten, die API ist das Tor, das dies ermöglicht.
 
-Eine gute CRM API ist gut dokumentiert, versioniert, vorhersagbar und gibt Ihnen Zugang zu denselben Daten und Operationen, die in der Benutzeroberflaeche verfuegbar sind. Sie sollte sich wie ein erstklassiges Produktfeature anfuehlen, nicht wie ein nachtraeglicher Anbau fuer Enterprise-Kunden.
+Eine gute CRM API ist gut dokumentiert, versioniert, vorhersagbar und gibt Ihnen Zugang zu denselben Daten und Operationen, die in der Benutzeroberfläche verfügbar sind. Sie sollte sich wie ein erstklassiges Produktfeature anfühlen, nicht wie ein nachträglicher Anbau für Enterprise-Kunden.
 
 ## So funktioniert die CRM API in Customermates
 
-Customermates bietet eine umfassende REST API, die Entwicklern vollen programmatischen Zugang zu allen CRM-Daten und -Operationen gibt. Der API-Zugang ist fuer 7 EUR pro Nutzer und Monat enthalten, ohne separate Entwickler-Stufe.
+Customermates bietet eine umfassende REST API, die Entwicklern vollen programmatischen Zugang zu allen CRM-Daten und -Operationen gibt. Der API-Zugang ist in jeder Preisstufe enthalten, ab 12 EUR pro Nutzer und Monat, ohne separate Entwickler-Stufe.
 
-**REST-Architektur mit vorhersagbaren Endpoints.** Die API folgt Standard-REST-Konventionen mit vorhersagbaren URL-Strukturen, Standard-HTTP-Methoden (GET, POST, PUT, PATCH, DELETE) und JSON-Request- und Response-Bodies. Endpoints folgen einem konsistenten Muster: `/api/v1/{resource}` fuer Sammlungen und `/api/v1/{resource}/{id}` fuer einzelne Datensaetze.
+**REST-Architektur mit vorhersagbaren Endpoints.** Die API folgt Standard-REST-Konventionen mit vorhersagbaren URL-Strukturen, Standard-HTTP-Methoden (GET, POST, PUT, PATCH, DELETE) und JSON-Request- und Response-Bodies. Endpoints folgen einem konsistenten Muster: `/api/v1/{resource}` für Sammlungen und `/api/v1/{resource}/{id}` für einzelne Datensätze.
 
-**Vollstaendige CRUD-Operationen ueber alle Entitaeten.** Erstellen, lesen, aktualisieren und loeschen Sie Datensaetze fuer jede CRM-Entitaet: Kontakte, Organisationen, Deals, Aufgaben, Notizen, Aktivitaeten, Pipelines und benutzerdefinierte Objekte. Jede in der Benutzeroberflaeche verfuegbare Operation ist ueber die API verfuegbar und gewaehrleistet Feature-Paritaet.
+**Vollständige CRUD-Operationen über alle Entitäten.** Erstellen, lesen, aktualisieren und löschen Sie Datensätze für jede CRM-Entität: Kontakte, Organisationen, Deals, Services und Aufgaben, inklusive ihrer benutzerdefinierten Felder. Jede in der Benutzeroberfläche verfügbare Operation ist über die API verfügbar und gewährleistet Feature-Parität.
 
-**OpenAPI-Spezifikation.** Die API ist mit einer vollstaendigen OpenAPI-(Swagger-)Spezifikation dokumentiert. Importieren Sie die Spec in Postman, Insomnia oder jeden beliebigen API-Client, um Endpoints interaktiv zu erkunden. Nutzen Sie die Spec zur automatischen Generierung von Client-Libraries in jeder Programmiersprache.
+**OpenAPI-Spezifikation.** Die API ist mit einer vollständigen OpenAPI-3.1-Spezifikation dokumentiert, verfügbar unter `/api/v1/openapi`. Importieren Sie die Spec in Postman, Insomnia oder jeden beliebigen API-Client, um Endpoints interaktiv zu erkunden. Nutzen Sie die Spec zur automatischen Generierung von Client-Libraries in jeder Programmiersprache.
 
-**Filterung, Sortierung und Paginierung.** Fragen Sie Datensaetze mit flexiblen Filterparametern ab. Filtern Sie nach jedem Standard- oder benutzerdefinierten Feld, kombinieren Sie mehrere Bedingungen mit AND/OR-Logik, sortieren Sie Ergebnisse nach jedem Feld und paginieren Sie effizient durch grosse Ergebnismengen. Die API unterstuetzt Cursor-basierte Paginierung fuer konsistente Performance bei grossen Datensaetzen.
+**Nativer MCP-Endpoint für KI-Agenten.** Über REST hinaus stellt Customermates einen nativen Model-Context-Protocol-(MCP-)Endpoint unter `https://customermates.com/api/v1/mcp` bereit, authentifiziert per `x-api-key`. KI-Agenten wie Claude, ChatGPT und Gemini verbinden sich damit und bedienen das CRM direkt. 45 Tools über neun Toolsets lassen sie Datensätze lesen und schreiben, Deal-Phasen verschieben und Follow-ups entwerfen, und, ab einer Messaging-Stufe, im gemeinsamen Postfach lesen und senden. Grenzen Sie die bereitgestellten Tools pro Client mit dem Parameter `?toolsets=` ein.
 
-**Authentifizierung ueber API-Keys.** Authentifizieren Sie API-Anfragen mit sicheren API-Keys, die in Ihren Kontoeinstellungen generiert werden. Keys koennen jederzeit erstellt und widerrufen werden. Jeder Key erbt die Berechtigungen des Nutzers, der ihn erstellt hat, sodass der API-Zugang Ihre bestehende rollenbasierte Zugriffskontrolle respektiert.
+**Filterung, Sortierung und Paginierung.** Fragen Sie Datensätze mit flexiblen Filterparametern ab. Filtern Sie nach jedem Standard- oder benutzerdefinierten Feld, kombinieren Sie mehrere Bedingungen mit AND/OR-Logik, sortieren Sie Ergebnisse nach jedem Feld und paginieren Sie effizient durch große Ergebnismengen. Die API unterstützt Cursor-basierte Paginierung für konsistente Performance bei großen Datensätzen.
 
-**Webhooks fuer Echtzeit-Event-Streaming.** Konfigurieren Sie Webhooks, um Echtzeit-HTTP-POST-Benachrichtigungen zu erhalten, wenn Ereignisse in Ihrem CRM eintreten. Kontakt erstellt, Deal-Phase geaendert, Aufgabe abgeschlossen, Notiz hinzugefuegt und Dutzende anderer Ereignisse koennen Webhook-Zustellungen an jede von Ihnen angegebene URL ausloesen. Webhooks beinhalten Retry-Logik mit exponentiellem Backoff fuer fehlgeschlagene Zustellungen.
+**Authentifizierung über API-Keys.** Authentifizieren Sie API-Anfragen mit sicheren API-Keys, die in Ihren Kontoeinstellungen generiert werden. Keys können jederzeit erstellt und widerrufen werden. Jeder Key erbt die Berechtigungen des Nutzers, der ihn erstellt hat, sodass der API-Zugang Ihre bestehende rollenbasierte Zugriffskontrolle respektiert.
 
-**Zugriff auf benutzerdefinierte Felder.** Alle benutzerdefinierten Felder sind vollstaendig ueber die API zugaenglich, mit denselben Feldtypen, Validierungsregeln und Optionen wie in der Benutzeroberflaeche. Lesen und schreiben Sie benutzerdefinierte Felddaten auf jedem Datensatztyp, um Integrationen zu ermoeglichen, die mit Ihrem spezifischen Datenmodell arbeiten.
+**Webhooks für Echtzeit-Event-Streaming.** Konfigurieren Sie Webhooks, um Echtzeit-HTTP-POST-Benachrichtigungen zu erhalten, wenn Ereignisse in Ihrem CRM eintreten. Customermates sendet 26 Webhook-Events: 15 Datensatz-Ereignisse (erstellt, aktualisiert und gelöscht für jede der fünf Entitäten: Kontakte, Organisationen, Deals, Services, Aufgaben) plus 11 Messaging- und Kalender-Ereignisse. Jedes davon kann eine Zustellung an eine von Ihnen angegebene URL auslösen. Webhooks beinhalten Retry-Logik mit exponentiellem Backoff für fehlgeschlagene Zustellungen.
 
-**Batch-Operationen.** Fuehren Sie Massen-Erstell-, Aktualisierungs- oder Loeschoperationen in einem einzigen API-Call durch. Verarbeiten Sie Hunderte von Datensaetzen gleichzeitig fuer Datenmigrationen, Massenanreicherung oder Massenaktualisierungen. Batch-Endpoints reduzieren die Anzahl der API-Calls und verbessern den Durchsatz fuer grosse Operationen.
+**Zugriff auf benutzerdefinierte Felder.** Alle benutzerdefinierten Felder sind vollständig über die API zugänglich, mit denselben Feldtypen, Validierungsregeln und Optionen wie in der Benutzeroberfläche. Lesen und schreiben Sie benutzerdefinierte Felddaten auf jedem Datensatztyp, um Integrationen zu ermöglichen, die mit Ihrem spezifischen Datenmodell arbeiten.
 
-**Rate-Limiting mit klaren Headern.** Die API implementiert faire Rate-Limits fuer konsistente Performance. Rate-Limit-Header in jeder Antwort zeigen Ihnen genau, wie viele Anfragen in Ihrem aktuellen Zeitfenster verbleiben, sodass Ihre Anwendungen sanft drosseln koennen.
+**Batch-Operationen.** Führen Sie Massen-Erstell-, Aktualisierungs- oder Löschoperationen in einem einzigen API-Call durch. Verarbeiten Sie Hunderte von Datensätzen gleichzeitig für Datenmigrationen, Massenanreicherung oder Massenaktualisierungen. Batch-Endpoints reduzieren die Anzahl der API-Calls und verbessern den Durchsatz für große Operationen.
 
-**Versionierte API mit Abwaertskompatibilitaet.** API-Versionen folgen Semantic Versioning. Breaking Changes werden nur in neuen Hauptversionen eingefuehrt, und fruehere Versionen werden mit dokumentierten Deprecation-Zeitplaenen unterstuetzt. Ihre Integrationen werden nicht ohne Vorankuendigung brechen.
+**Rate-Limiting mit klaren Headern.** Die API implementiert faire Rate-Limits für konsistente Performance. Rate-Limit-Header in jeder Antwort zeigen Ihnen genau, wie viele Anfragen in Ihrem aktuellen Zeitfenster verbleiben, sodass Ihre Anwendungen sanft drosseln können.
+
+**Versionierte API mit Abwärtskompatibilität.** API-Versionen folgen Semantic Versioning. Breaking Changes werden nur in neuen Hauptversionen eingeführt, und frühere Versionen werden mit dokumentierten Deprecation-Zeitplänen unterstützt. Ihre Integrationen werden nicht ohne Vorankündigung brechen.
 
 ## Zentrale Vorteile
 
-**Bauen Sie alles auf Ihrem CRM auf.** Die API entfernt die Einschraenkungen der Standardoberflaeche. Individuelle Dashboards, mobile Apps, Partner-Portale, kundenseitige Tools und interne Automatisierungsskripte sind alle moeglich, wenn jede CRM-Operation programmatisch verfuegbar ist.
+**KI-Agenten bedienen Ihr CRM.** Der native MCP-Endpoint macht Customermates zu einem System, das KI-Agenten steuern können. Richten Sie Claude, ChatGPT oder Gemini darauf aus, und sie übernehmen die Dateneingabe: Datensätze anlegen, Deal-Phasen aktualisieren und Follow-ups entwerfen, über dieselbe berechtigungsgeprüfte API, die auch Ihr eigener Code nutzt. Die Pipeline bleibt aktuell, ohne dass jemand in Formulare tippt.
 
-**Automatisieren Sie ueber die UI hinaus mit Code oder n8n.** Waehrend die integrierte n8n-Engine viele Automatisierungsszenarien visuell handhabt, ermoeglicht die API individuelle Automatisierungslogik fuer Szenarien, die Code erfordern. Nutzen Sie n8n fuer No-Code-Workflows und die API fuer individuelle Skripte. Beide Ansaetze arbeiten nahtlos zusammen.
+**Bauen Sie alles auf Ihrem CRM auf.** Die API entfernt die Einschränkungen der Standardoberfläche. Individuelle Dashboards, mobile Apps, Partner-Portale, kundenseitige Tools und interne Automatisierungsskripte sind alle möglich, wenn jede CRM-Operation programmatisch verfügbar ist.
 
-**Daten im gesamten Tech-Stack synchronisieren.** Halten Sie Ihre CRM-Daten konsistent mit ERP-Systemen, Buchhaltungssoftware, Marketing-Plattformen, Support-Desks und Data-Warehouses. API und Webhooks zusammen ermoeglichen Push- und Pull-Synchronisierungsmuster fuer Echtzeit- oder geplante Datenfluesse.
+**Automatisieren Sie über die UI hinaus mit Code oder n8n.** Während die integrierte n8n-Engine viele Automatisierungsszenarien visuell handhabt, ermöglicht die API individuelle Automatisierungslogik für Szenarien, die Code erfordern. Nutzen Sie n8n für No-Code-Workflows und die API für individuelle Skripte. Beide Ansätze arbeiten nahtlos zusammen.
 
-**CRM-Daten in individuelle Anwendungen einbetten.** Erstellen Sie interne Tools, Kundenportale oder Partner-Dashboards, die CRM-Daten in Echtzeit ziehen. Die API macht jede Anwendung CRM-faehig, ohne dass Nutzer den Kontext wechseln muessen.
+**Daten im gesamten Tech-Stack synchronisieren.** Halten Sie Ihre CRM-Daten konsistent mit ERP-Systemen, Buchhaltungssoftware, Marketing-Plattformen, Support-Desks und Data-Warehouses. API und Webhooks zusammen ermöglichen Push- und Pull-Synchronisierungsmuster für Echtzeit- oder geplante Datenflüsse.
 
-**Entwicklerfreundlich ab dem ersten Tag.** Standard-REST-Konventionen, durchgaengig JSON, OpenAPI-Spec, vorhersagbare Fehlerbehandlung und klare Rate-Limit-Header bedeuten, dass Ihre Entwickler sofort mit dem Bauen beginnen koennen. Keine proprietaeren Abfragesprachen, keine komplexen Authentifizierungsfluesse, keine steile Lernkurve.
+**CRM-Daten in individuelle Anwendungen einbetten.** Erstellen Sie interne Tools, Kundenportale oder Partner-Dashboards, die CRM-Daten in Echtzeit ziehen. Die API macht jede Anwendung CRM-fähig, ohne dass Nutzer den Kontext wechseln müssen.
 
-**Open-Source-Transparenz.** Da Customermates Open Source ist, ist die API-Implementierung vollstaendig einsehbar. Entwickler koennen den Quellcode hinter jedem Endpoint lesen, genau verstehen, wie er funktioniert, und sogar Verbesserungen beitragen.
+**Entwicklerfreundlich ab dem ersten Tag.** Standard-REST-Konventionen, durchgängig JSON, OpenAPI-Spec, vorhersagbare Fehlerbehandlung und klare Rate-Limit-Header bedeuten, dass Ihre Entwickler sofort mit dem Bauen beginnen können. Keine proprietären Abfragesprachen, keine komplexen Authentifizierungsflüsse, keine steile Lernkurve.
 
-## Haeufige CRM-API-Anwendungsfaelle
+**Open-Source-Transparenz.** Da Customermates Open Source ist, ist die API-Implementierung vollständig einsehbar. Entwickler können den Quellcode hinter jedem Endpoint lesen, genau verstehen, wie er funktioniert, und sogar Verbesserungen beitragen.
 
-**Individuelles Dashboard und Reporting.** Erstellen Sie interne Dashboards, die CRM-Daten mit Daten aus anderen Systemen kombinieren. Ziehen Sie Pipeline-Metriken, Aktivitaetszahlen, Umsatzzahlen und Konversionsraten ueber die API und stellen Sie sie in einer massgeschneiderten Oberflaeche fuer Ihr Management dar.
+## Häufige CRM-API-Anwendungsfälle
+
+**Individuelles Dashboard und Reporting.** Erstellen Sie interne Dashboards, die CRM-Daten mit Daten aus anderen Systemen kombinieren. Ziehen Sie Pipeline-Metriken, Aktivitätszahlen, Umsatzzahlen und Konversionsraten über die API und stellen Sie sie in einer maßgeschneiderten Oberfläche für Ihr Management dar.
 
 **Website- und Formular-Integration.** Wenn ein Besucher ein Formular auf Ihrer Website absendet, nutzen Sie die API, um automatisch einen Kontakt und Deal in Customermates zu erstellen. Ordnen Sie Formularfelder CRM-Feldern zu, wenden Sie Lead-Scoring-Regeln an und leiten Sie den neuen Lead in die passende Pipeline.
 
-**Datenmigration von anderen CRMs.** Nutzen Sie die API, um Daten aus HubSpot, Salesforce, Pipedrive oder Tabellen in Customermates zu migrieren. Erstellen Sie Migrationsskripte mit voller Kontrolle ueber Feldzuordnung, Deduplizierung und Datentransformation.
+**Datenmigration von anderen CRMs.** Nutzen Sie die API, um Daten aus HubSpot, Salesforce, Pipedrive oder Tabellen in Customermates zu migrieren. Erstellen Sie Migrationsskripte mit voller Kontrolle über Feldzuordnung, Deduplizierung und Datentransformation.
 
-**ERP- und Buchhaltungssystem-Sync.** Synchronisieren Sie Deal-Daten mit Ihrem ERP- oder Buchhaltungssystem. Wenn ein Deal gewonnen wird, uebertragen Sie Rechnungsdaten an Ihr Abrechnungssystem. Wenn eine Zahlung eingeht, aktualisieren Sie den Deal-Status im CRM. Bidirektionaler Sync haelt beide Systeme aktuell.
+**ERP- und Buchhaltungssystem-Sync.** Synchronisieren Sie Deal-Daten mit Ihrem ERP- oder Buchhaltungssystem. Wenn ein Deal gewonnen wird, übertragen Sie Rechnungsdaten an Ihr Abrechnungssystem. Wenn eine Zahlung eingeht, aktualisieren Sie den Deal-Status im CRM. Bidirektionaler Sync hält beide Systeme aktuell.
 
-**Webhook-gesteuerte Workflow-Orchestrierung.** Nutzen Sie Webhooks, um externe Prozesse auszuloesen, wenn CRM-Ereignisse eintreten. Bei Deal-Gewinn die Bereitstellung in Ihrem Produkt starten. Bei Kontaktaktualisierung Aenderungen an Ihre E-Mail-Marketing-Plattform synchronisieren. Bei ueberfaelliger Aufgabe eine Slack-Benachrichtigung senden.
+**Webhook-gesteuerte Workflow-Orchestrierung.** Nutzen Sie Webhooks, um externe Prozesse auszulösen, wenn CRM-Ereignisse eintreten. Bei Deal-Gewinn die Bereitstellung in Ihrem Produkt starten. Bei Kontaktaktualisierung Änderungen an Ihre E-Mail-Marketing-Plattform synchronisieren. Bei überfälliger Aufgabe eine Slack-Benachrichtigung senden.
 
-**Mobile und Desktop-Anwendungen.** Erstellen Sie individuelle mobile oder Desktop-Anwendungen, die ueber die API auf CRM-Daten zugreifen. Vertriebsteams im Aussendienst koennen Datensaetze ueber massgeschneiderte Interfaces einsehen und aktualisieren.
+**Mobile und Desktop-Anwendungen.** Erstellen Sie individuelle mobile oder Desktop-Anwendungen, die über die API auf CRM-Daten zugreifen. Vertriebsteams im Außendienst können Datensätze über maßgeschneiderte Interfaces einsehen und aktualisieren.
 
-**Datenanreicherungs-Pipelines.** Reichern Sie CRM-Kontakte mit Daten von Drittanbietern an. Nutzen Sie die API, um Kontakte zu lesen, Enrichment-Dienste aufzurufen und die angereicherten Daten zurueckzuschreiben. Automatisieren Sie die Pipeline fuer zeitgesteuerte Ausfuehrung oder loesen Sie sie via Webhooks bei neuen Kontakten aus.
+**Datenanreicherungs-Pipelines.** Reichern Sie CRM-Kontakte mit Daten von Drittanbietern an. Nutzen Sie die API, um Kontakte zu lesen, Enrichment-Dienste aufzurufen und die angereicherten Daten zurückzuschreiben. Automatisieren Sie die Pipeline für zeitgesteuerte Ausführung oder lösen Sie sie via Webhooks bei neuen Kontakten aus.
 
-**Testen und Entwicklung mit Sandbox-Daten.** Nutzen Sie die API, um Testumgebungen mit realistischen CRM-Daten zu fuellen. Erstellen Sie automatisierte Testsuiten, die CRM-Datensaetze erstellen, aendern und verifizieren, um sicherzustellen, dass Ihre Integrationen korrekt funktionieren.
+**Testen und Entwicklung mit Sandbox-Daten.** Nutzen Sie die API, um Testumgebungen mit realistischen CRM-Daten zu füllen. Erstellen Sie automatisierte Testsuiten, die CRM-Datensätze erstellen, ändern und verifizieren, um sicherzustellen, dass Ihre Integrationen korrekt funktionieren.
 
-## Warum Customermates fuer API-Zugang?
+## Warum Customermates für API-Zugang?
 
 **Open Source und voll transparent.** Die API ist Teil der Open-Source-Codebasis von Customermates. Einsehen, verstehen, beitragen. Kein Black-Box-API-Verhalten.
 
-**EU-gehostet und DSGVO-konform.** Der gesamte API-Verkehr wird ueber europaeische Infrastruktur geleitet, mit vollstaendiger DSGVO-Konformitaet. Programmatischer Datenzugriff unterliegt denselben Datenschutzstandards wie die Benutzeroberflaeche.
+**EU-gehostet und DSGVO-konform.** Der gesamte API-Verkehr wird über europäische Infrastruktur geleitet, mit vollständiger DSGVO-Konformität. Programmatischer Datenzugriff unterliegt denselben Datenschutzstandards wie die Benutzeroberfläche.
 
-**Einfache, faire Preisgestaltung.** API-Zugang ist im Pauschalpreis von 7 EUR pro Nutzer und Monat enthalten. Keine separate API-Stufe, keine Kosten pro Anfrage, keine Premium-Entwicklerplaene. Jeder zahlende Nutzer erhaelt vollen API-Zugang.
+**Einfache, faire Preisgestaltung.** API-Zugang ist in jedem Plan enthalten, ab 12 EUR pro Nutzer und Monat. Keine separate API-Stufe, keine Kosten pro Anfrage, keine Premium-Entwicklerpläne. Jeder zahlende Nutzer erhält vollen API-Zugang.
 
-**Self-Hosting fuer volle Kontrolle.** Wenn Sie Customermates self-hosten, laeuft die API auf Ihrer Infrastruktur. API-Verkehr, Authentifizierung, Rate-Limits und Datenzugriff liegen vollstaendig unter Ihrer Kontrolle. Ideal fuer Organisationen mit strengen Sicherheits- oder Compliance-Anforderungen.
+**Self-Hosting für volle Kontrolle.** Wenn Sie Customermates self-hosten, läuft die API auf Ihrer Infrastruktur. API-Verkehr, Authentifizierung, Rate-Limits und Datenzugriff liegen vollständig unter Ihrer Kontrolle. Ideal für Organisationen mit strengen Sicherheits- oder Compliance-Anforderungen.
 
-**Webhook-Zuverlaessigkeit mit Retry-Logik.** Webhook-Zustellungen beinhalten automatische Retries mit exponentiellem Backoff. Zustellungsprotokolle ermoeglichen die Inspektion von Payload und Antwort fuer jedes Webhook-Event, was das Debugging vereinfacht.
+**Webhook-Zuverlässigkeit mit Retry-Logik.** Webhook-Zustellungen beinhalten automatische Retries mit exponentiellem Backoff. Zustellungsprotokolle ermöglichen die Inspektion von Payload und Antwort für jedes Webhook-Event, was das Debugging vereinfacht.
 
-**n8n-Integration fuer hybride Workflows.** Kombinieren Sie API-Level-Kontrolle mit visueller n8n-Automatisierung. Nutzen Sie n8n fuer Standard-Workflows und die API fuer komplexe individuelle Logik. Beides ist ohne Aufpreis enthalten.
+**n8n-Integration für hybride Workflows.** Kombinieren Sie API-Level-Kontrolle mit visueller n8n-Automatisierung. Nutzen Sie n8n für Standard-Workflows und die API für komplexe individuelle Logik. Beides ist ohne Aufpreis enthalten.
 
 ## Starten Sie heute mit der CRM API
 
-Beginnen Sie in Minuten mit dem Bauen auf der Customermates API. Generieren Sie Ihren API-Key in den Kontoeinstellungen, erkunden Sie die OpenAPI-Spec und machen Sie Ihre erste Anfrage. Ob Sie eine einfache Formular-Integration oder eine komplexe Multi-System-Datenpipeline erstellen, die API gibt Ihnen alles, was Sie brauchen. Alle API-Funktionen sind fuer 7 EUR pro Nutzer und Monat enthalten.
+Beginnen Sie in Minuten mit dem Bauen auf der Customermates API. Generieren Sie Ihren API-Key in den Kontoeinstellungen, erkunden Sie die OpenAPI-Spec und machen Sie Ihre erste Anfrage. Ob Sie eine einfache Formular-Integration oder eine komplexe Multi-System-Datenpipeline erstellen, die API gibt Ihnen alles, was Sie brauchen. Alle API-Funktionen sind ab 12 EUR pro Nutzer und Monat enthalten, in jeder Preisstufe.

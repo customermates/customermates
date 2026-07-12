@@ -4,7 +4,7 @@ description: "Use ChatGPT to summarize meeting notes into action items and follo
 
 hero:
   title: "ChatGPT Summarize Meeting Notes: From Raw Call Notes to CRM in Seconds"
-  description: "Every customer call produces a wall of text. ChatGPT turns it into a three-sentence summary you can drop straight into your CRM -- manually or fully automated with n8n."
+  description: "Every customer call produces a wall of text. ChatGPT turns it into a three-sentence summary you can drop straight into your CRM, manually or fully automated with n8n."
 
 blogPost:
   author: Benjamin Wagner
@@ -20,13 +20,13 @@ blogPost:
 
 # ChatGPT Summarize Meeting Notes: From Raw Call Notes to CRM in Seconds
 
-Every customer call produces a wall of text. ChatGPT turns it into a three-sentence summary you can drop straight into your CRM -- manually or fully automated with n8n.
+Every customer call produces a wall of text. ChatGPT turns it into a three-sentence summary you can drop straight into your CRM, manually or fully automated with n8n.
 
 ## Why Summarizing Meeting Notes Matters for Sales Teams
 
 Documentation after customer calls is a universal pain point. Sales reps type paragraphs of unstructured text, paste them somewhere, and hope a colleague can make sense of it later. The result: CRM fields sit empty, notes live in personal notebooks, and deal context evaporates the moment someone goes on vacation.
 
-According to a [Salesforce study](https://www.salesforce.com/resources/research-reports/state-of-sales/), sales reps spend only 28% of their week actually selling. The rest goes to admin tasks -- and post-call documentation is one of the biggest time sinks.
+According to a [Salesforce study](https://www.salesforce.com/resources/research-reports/state-of-sales/), sales reps spend only 28% of their week actually selling. The rest goes to admin tasks, and post-call documentation is one of the biggest time sinks.
 
 Structured summaries solve three problems at once:
 
@@ -40,7 +40,7 @@ For CRM systems like [Customermates](/), [Pipedrive](https://www.pipedrive.com/)
 
 ## AI Meeting Recording Tools: Otter, Fireflies, and Fathom Compared
 
-Before diving into ChatGPT prompts, it is worth understanding the tools that capture meeting transcripts automatically. These tools record your calls, generate transcripts, and -- in some cases -- produce their own AI summaries.
+Before diving into ChatGPT prompts, it is worth understanding the tools that capture meeting transcripts automatically. These tools record your calls, generate transcripts, and, in some cases, produce their own AI summaries.
 
 | Feature | Otter.ai | Fireflies.ai | Fathom |
 |---------|----------|---------------|--------|
@@ -54,13 +54,13 @@ Before diving into ChatGPT prompts, it is worth understanding the tools that cap
 | n8n integration | Via API | Native webhook | Via API |
 | GDPR/EU hosting | US only | US (EU DPA available) | US (EU DPA available) |
 
-**Otter.ai** is strong for individual users who want real-time transcription during meetings. Its AI summaries are decent but generic -- they do not map to CRM fields.
+**Otter.ai** is strong for individual users who want real-time transcription during meetings. Its AI summaries are decent but generic, they do not map to CRM fields.
 
 **Fireflies.ai** offers the best integration story for automation. Its webhooks send transcripts to external tools like n8n the moment a meeting ends. This makes it the top choice for the automated workflow described later in this article.
 
 **Fathom** produces the most action-oriented summaries out of the box. It highlights action items, questions, and decisions without prompting. However, its export options are more limited for custom automation.
 
-**The gap these tools leave:** All three generate summaries, but none produce output structured for your specific CRM fields. That is where ChatGPT comes in -- you control the output format with a prompt, ensuring summaries map directly to your CRM's data model.
+**The gap these tools leave:** All three generate summaries, but none produce output structured for your specific CRM fields. That is where ChatGPT comes in, you control the output format with a prompt, ensuring summaries map directly to your CRM's data model.
 
 ## ChatGPT Prompts for Summarizing Meeting Notes
 
@@ -169,7 +169,7 @@ This eliminates the 10-15 minutes reps typically spend writing follow-up emails.
 > - Contact: Lisa, Mueller GmbH, [Role not stated]
 > - Main topic: CRM software evaluation to replace Excel-based customer management.
 > - Pain points: Excel becoming chaotic at scale; GDPR compliance requirement; limited budget.
-> - Decisions: None finalized -- internal review with managing director next week.
+> - Decisions: None finalized, internal review with managing director next week.
 > - Next steps: Send quote by Tuesday (owner: us); Lisa presents to MD next week (owner: Lisa).
 > - Deal stage: Discovery.
 
@@ -196,7 +196,7 @@ The best meeting note workflow starts before the call. By integrating your calen
 
 ## Automating the Entire Flow with n8n
 
-Copy-pasting works, but full automation is better. With [n8n](https://n8n.io/), you can build a workflow that automatically summarizes meeting notes and writes the result into your CRM -- no manual steps required.
+Copy-pasting works, but full automation is better. With [n8n](https://n8n.io/), you can build a workflow that automatically summarizes meeting notes and writes the result into your CRM, no manual steps required.
 
 ### Architecture Overview
 
@@ -221,7 +221,7 @@ Use an n8n Webhook node as the entry point. Connect it to your meeting tool (Fir
 Add an OpenAI node in n8n. Configure it with your API key and the three-sentence prompt from above. Pass the transcript text as input. The node returns the structured summary.
 
 **3. Write to CRM.**
-Add a CRM node (Customermates, HubSpot, Pipedrive, or any CRM with an API). Map the summary to the notes field on the relevant deal or contact. If you use Customermates, the n8n integration is native -- select the contact, choose "Add Note", and map the summary field.
+Add a CRM node (Customermates, HubSpot, Pipedrive, or any CRM with an API). Map the summary to the notes field on the relevant deal or contact. If you use Customermates, the n8n integration is native, select the contact, choose "Add Note", and map the summary field.
 
 **4. Notify the team (optional).**
 Add a Slack or email node to ping the deal owner that a new summary is available. Include the summary text in the notification so they can review it without opening the CRM.
@@ -235,10 +235,10 @@ Add a second ChatGPT node to extract action items from the same transcript. Then
 |-----------|-------------|
 | n8n Cloud (Starter) | EUR 20 |
 | OpenAI API (100 summaries) | EUR 2-5 |
-| Customermates CRM | EUR 7/user |
-| **Total (1 user)** | **EUR 32-35** |
+| Customermates CRM | EUR 12/user |
+| **Total (1 user)** | **EUR 34-37** |
 
-At 100 meeting summaries per month, the API cost is negligible. The time savings -- roughly 80 minutes per week for an active sales rep -- far outweigh the expense.
+At 100 meeting summaries per month, the API cost is negligible. The time savings, roughly 80 minutes per week for an active sales rep, far outweigh the expense.
 
 ## Privacy and GDPR Considerations for AI-Powered Summaries
 
@@ -251,7 +251,7 @@ OpenAI offers a Data Processing Addendum (DPA) for API users. If you use the Cha
 ### GDPR Compliance Checklist for Meeting Summaries
 
 - **Legal basis:** Document your legal basis for processing meeting data (typically legitimate interest or contract performance).
-- **Data minimization:** Only send the meeting transcript to the AI -- not the full customer record. Strip email addresses, phone numbers, and other PII that is not needed for summarization.
+- **Data minimization:** Only send the meeting transcript to the AI, not the full customer record. Strip email addresses, phone numbers, and other PII that is not needed for summarization.
 - **Retention:** Define how long AI-generated summaries are stored in your CRM. Align with your data retention policy.
 - **Right to erasure:** Ensure that deleting a contact in your CRM also removes associated AI-generated notes.
 - **Transparency:** Update your privacy notice to mention AI processing of meeting data if applicable.
@@ -271,15 +271,15 @@ Ensure your CRM stores data in a GDPR-compliant way. Customermates hosts data in
 
 Not every CRM handles notes and automation equally well. Here is how popular options compare for this specific workflow:
 
-**Customermates.** EUR 7/user/month, all features included. Native n8n integration, notes on deals and contacts, GDPR-compliant EU hosting, open-source. Built for teams that want fast data entry without complex configuration. The flat pricing means AI-powered automation does not require an expensive tier upgrade.
+**Customermates.** From EUR 12/user/month (Starter), the full core CRM included. Native n8n integration, plus a native MCP server so an AI agent (Claude, ChatGPT, or Gemini) can read and write records directly, notes on deals and contacts, GDPR-compliant EU hosting, open-source. On the Pro tier it adds a native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram) that the same agent can operate. Built for teams that want fast data entry without complex configuration. Native AI and MCP are included from the entry tier, no separate upgrade needed.
 
-**HubSpot.** Free tier available, but automation features require paid plans starting at EUR 45/month. Notes work well, but the interface is more complex. Good if you also need marketing automation. Meeting recording integrations are built in on paid tiers.
+**HubSpot.** Free CRM tier available; paid Sales Hub plans start at USD 15/seat/month (Starter), with the automation most teams want gating at Professional (USD 90/seat/month, plus a one-time onboarding fee). Notes work well, but the interface is more complex. Good if you also need marketing automation. Meeting recording integrations are built in on paid tiers.
 
-**Pipedrive.** Starting at EUR 14/user/month. Strong sales pipeline focus. Notes are well-structured but n8n integration requires the API, which is available on all plans. Pipedrive has its own AI features on higher tiers, but they are less customizable than the ChatGPT approach.
+**Pipedrive.** After the July 2025 rebrand, plans start at USD 14/user/month (Lite), with Growth at USD 39 adding workflow automation (annual billing). Strong sales pipeline focus. Notes are well-structured but n8n integration requires the API, which is available on all plans. Pipedrive has its own AI features on higher tiers, but they are less customizable than the ChatGPT approach.
 
-**Salesforce.** Starting at EUR 25/user/month. The most customizable option, but configuration complexity is high. Einstein AI offers built-in meeting insights on premium tiers. Best for large teams with a dedicated admin.
+**Salesforce.** Starting at USD 25/user/month (Starter Suite, annual billing). Highly customizable, but configuration complexity is high. Einstein and Agentforce add AI on premium tiers and add-ons. Suited to large teams with a dedicated admin.
 
-For teams that want to combine AI summarization with CRM automation at the lowest total cost, Customermates plus n8n is the most cost-effective stack.
+For teams that want to combine AI summarization with CRM automation at a low total cost, Customermates plus n8n is a lean, low-friction stack.
 
 ## Frequently Asked Questions
 
@@ -301,7 +301,7 @@ Yes. Fireflies sends transcripts to a webhook URL directly, which is the easiest
 
 ### What if ChatGPT gets something wrong in the summary?
 
-AI summaries should always be reviewed before they become the official CRM record. Build a review step into your workflow -- either a manual check or an n8n node that sends the summary to the deal owner for approval before writing it to the CRM. Errors are rare but they happen, especially with ambiguous phrasing or multiple speakers.
+AI summaries should always be reviewed before they become the official CRM record. Build a review step into your workflow, either a manual check or an n8n node that sends the summary to the deal owner for approval before writing it to the CRM. Errors are rare but they happen, especially with ambiguous phrasing or multiple speakers.
 
 ### How does this compare to built-in meeting AI in tools like Fathom or Fireflies?
 
@@ -309,7 +309,7 @@ Built-in meeting AI produces generic summaries optimized for that tool's format.
 
 ### Does this work with CRM systems other than Customermates?
 
-Yes. The n8n workflow works with any CRM that has an API or n8n integration. HubSpot, Pipedrive, Salesforce, Zoho, and many others are supported. The ChatGPT summarization step is CRM-agnostic -- only the final "write to CRM" node changes depending on your system.
+Yes. The n8n workflow works with any CRM that has an API or n8n integration. HubSpot, Pipedrive, Salesforce, Zoho, and many others are supported. The ChatGPT summarization step is CRM-agnostic, only the final "write to CRM" node changes depending on your system.
 
 ### Can I summarize meeting notes in German or other languages?
 

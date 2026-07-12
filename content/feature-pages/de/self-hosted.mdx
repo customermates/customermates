@@ -36,7 +36,7 @@ Customermates ist als [Open-Source-CRM](/blog/open-source-crm) mit Docker als pr
 
 **Docker-Deployment.** Customermates wird als Docker-Container ausgeliefert, was die Bereitstellung auf jeder Infrastruktur unkompliziert macht, die Docker unterstützt. Ob Sie Bare-Metal-Server, virtuelle Maschinen oder einen Kubernetes-Cluster betreiben, die containerisierte Architektur fügt sich in Ihr bestehendes Setup ein. Ein einziger `docker compose up`-Befehl startet eine laufende Instanz mit CRM, Datenbank und allen konfigurierten Abhängigkeiten.
 
-**Voller Quellcode-Zugang.** Customermates ist Open Source. Sie können jede Zeile Code einsehen, das Sicherheitsmodell auditieren, Datenverarbeitungspraktiken verifizieren und die Anwendung an Ihre spezifischen Bedürfnisse anpassen. Es gibt keine Black Boxes, keine verschleierten Module und keine versteckte Telemetrie. Was Sie im Repository sehen, ist exakt das, was auf Ihrem Server läuft.
+**Voller Quellcode-Zugang.** Customermates ist Open Core: Das Kern-CRM ist Open Source unter der AGPL-3.0-Lizenz, die Enterprise-Module (gemeinsames Postfach, Kalender-Sync und Audit-Logging) sind source-available unter einer kommerziellen Lizenz. Sie können jede Zeile Code einsehen, das Sicherheitsmodell auditieren, Datenverarbeitungspraktiken verifizieren und den AGPL-Kern an Ihre spezifischen Bedürfnisse anpassen. Es gibt keine Black Boxes, keine verschleierten Module und keine versteckte Telemetrie. Was Sie im Repository sehen, ist exakt das, was auf Ihrem Server läuft.
 
 **Ihre Daten bleiben auf Ihren Servern.** Wenn Sie Customermates selbst hosten, verbleiben alle Kundendaten, Dateien, Anhänge, Notizen, E-Mails und Systemprotokolle auf Infrastruktur, die Sie kontrollieren. Die Anwendung telefoniert nicht nach Hause, synchronisiert keine Daten mit externen Diensten und benötigt nach der Ersteinrichtung keine Internetverbindung.
 
@@ -48,11 +48,11 @@ Customermates ist als [Open-Source-CRM](/blog/open-source-crm) mit Docker als pr
 
 **Vollständige Datensouveränität.** Sie entscheiden, wo Ihre Daten liegen, wer darauf zugreifen kann und wie lange sie aufbewahrt werden. Kein Dritter kann auf Ihre Kundeninformationen zugreifen, Ihre Daten bei einem Cloud-Anbieter per Gerichtsbeschluss anfordern oder Ihr CRM aufgrund eines Nutzungsbedingungsstreits abschalten. Ihre Daten gehören Ihnen im wörtlichsten Sinne.
 
-**DSGVO-Konformität durch Architektur.** Das Self-Hosting von Customermates innerhalb von EU-Infrastruktur bedeutet, dass Ihre Datenverarbeitung standardmäßig [DSGVO-Anforderungen](https://gdpr-info.eu/) erfüllt. Sie kontrollieren den Datenverarbeiter, den Datenstandort und die Aufbewahrungsrichtlinien. Für Organisationen, die Compliance gegenüber Auditoren oder Regulierungsbehörden nachweisen müssen, bietet ein Self-Hosted CRM die klarste und verteidigungsfähigste Position.
+**DSGVO-Konformität durch Architektur.** Das Self-Hosting von Customermates innerhalb von EU-Infrastruktur bedeutet, dass Ihre Datenverarbeitung standardmäßig [DSGVO-Anforderungen](https://gdpr-info.eu/) erfüllt. Sie kontrollieren den Datenverarbeiter, den Datenstandort und die Aufbewahrungsrichtlinien. Für Organisationen, die Compliance gegenüber Auditoren oder Regulierungsbehörden nachweisen müssen, bietet ein Self-Hosted CRM eine klare und verteidigungsfähige Position.
 
 **Air-Gapped-Umgebungen.** Manche Organisationen benötigen Systeme, die völlig ohne Internetverbindung operieren. Customermates kann nach dem initialen Docker-Image-Deployment in vollständig isolierten Umgebungen betrieben werden. Interne Teams greifen über das lokale Netzwerk auf das CRM zu, und für den täglichen Betrieb ist keine externe Konnektivität erforderlich.
 
-**Individuelle Sicherheitsrichtlinien.** Wenden Sie die Sicherheitsstandards Ihrer Organisation direkt an. Konfigurieren Sie Firewalls, VPN-Zugang, SSO-Integration, Verschlüsselung im Ruhezustand und Netzwerksegmentierung nach Ihren eigenen Richtlinien. Sie sind nicht auf das beschränkt, was das Admin-Panel eines Cloud-Anbieters anbietet.
+**Individuelle Sicherheitsrichtlinien.** Wenden Sie die Sicherheitsstandards Ihrer Organisation direkt an. Konfigurieren Sie Firewalls, VPN-Zugang, Verschlüsselung im Ruhezustand und Netzwerksegmentierung nach Ihren eigenen Richtlinien. Sie sind nicht auf das beschränkt, was das Admin-Panel eines Cloud-Anbieters anbietet.
 
 **Planbare Performance.** Self-Hosted-Deployments laufen auf dedizierten Ressourcen. Es gibt kein Multi-Tenant-Noisy-Neighbor-Problem, keine Engpässe durch geteilte Infrastruktur und keine Abhängigkeit von der Verfügbarkeit eines externen Anbieters. Ihr CRM arbeitet konstant, weil es auf Hardware läuft, die Sie bereitstellen und überwachen.
 
@@ -73,7 +73,7 @@ Die Wahl zwischen Cloud- und Self-Hosted-Deployment hängt von den Prioritäten 
 | Compliance-Kontrolle | Abhängig vom Anbieter | Volle Kontrolle |
 | Skalierbarkeit | Anbieter skaliert für Sie | Sie skalieren Ihre Hardware |
 
-Mit Customermates müssen Sie sich nicht dauerhaft festlegen. Sie können mit der [Cloud-Version](/features/cloud-crm) für 7 € pro Nutzer und Monat starten und jederzeit zum Self-Hosting wechseln oder umgekehrt. Die Anwendung ist in beiden Umgebungen identisch mit [voller Feature-Parität](/pricing).
+Mit Customermates müssen Sie sich nicht dauerhaft festlegen. Sie können mit der [Cloud-Version](/features/cloud-crm) ab Stufen von 12 € pro Nutzer und Monat starten und jederzeit zum Self-Hosting wechseln oder umgekehrt. Es ist dieselbe Codebasis in beiden Umgebungen: Self-Hosting ist für immer kostenlos und umfasst das volle Kern-CRM, identisch mit der Starter-Stufe für 12 €. Die native KI- und MCP-Integration, mit der Claude, ChatGPT und Gemini das CRM bedienen, läuft selbst gehostet. Das gemeinsame Postfach (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram), Kalender-Sync, Audit-Logging und White-Label-Branding sind Funktionen von Customermates Cloud; Postfach und Kalender sind ab der Pro-Stufe enthalten. Die Cloud-Stufen finden Sie unter [Preise](/pricing).
 
 ## Self-Hosted CRM im Vergleich
 
@@ -88,11 +88,11 @@ Mit Customermates müssen Sie sich nicht dauerhaft festlegen. Sie können mit de
 | EU/DSGVO-Hosting | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Integrierte Automatisierung (n8n) | <StatusAvailable /> | <StatusUnavailable /> | <StatusPartial /> | <StatusPartial /> |
 | Cloud-Option verfügbar | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> | <StatusAvailable /> |
-| Preis/Nutzer/Monat (Cloud) | 7 € pauschal | Kostenlos / 90 €+ | 25 €+ | 14 €+ |
+| Preis/Nutzer/Monat (Cloud) | Ab 12 € | Kostenlos / 90 €+ | 25 €+ | 14 €+ |
 
 [**HubSpot**](https://www.hubspot.com/products/crm), **Salesforce** und **Pipedrive** sind reine Cloud-Plattformen. Keine von ihnen bietet Self-Hosting, On-Premise-Deployment oder Zugang zum Quellcode. Wenn Ihre Compliance-Anforderungen Datensouveränität oder On-Premise-Infrastruktur vorschreiben, können diese Plattformen sie nicht erfüllen. Sehen Sie unseren [HubSpot-Alternativvergleich](/compare/hubspot-alternative), [Salesforce-Alternativvergleich](/compare/salesforce-alternative) und [Pipedrive-Alternativvergleich](/compare/pipedrive-alternative) für detaillierte Analysen.
 
-Für Organisationen, die Self-Hosted-CRM-Optionen evaluieren, steht Customermates als einziges modernes, Open-Source-CRM mit voller Feature-Parität zwischen Cloud- und Self-Hosted-Deployments.
+Für Organisationen, die Self-Hosted-CRM-Optionen evaluieren, ist Customermates ein modernes, Open-Source-CRM, das Sie in der Cloud oder auf Ihren eigenen Servern betreiben, mit demselben Kern-CRM in beiden (gemeinsames Postfach, Kalender-Sync, Audit-Logging und White-Label sind Cloud-Funktionen).
 
 ## Kostenvergleich: Self-Hosting vs. Cloud
 
@@ -100,12 +100,12 @@ Einer der überzeugendsten Gründe für das Self-Hosting eines CRM sind die Kost
 
 | Kostenfaktor | Customermates (Self-Hosted) | HubSpot Sales Hub | Salesforce Sales Cloud |
 |-------------|---------------------------|--------------------|-----------------------|
-| Softwarelizenz | Kostenlos (Open Source) | 90 €/Nutzer/Monat | 25-165 €/Nutzer/Monat |
+| Softwarelizenz | Kostenlos (Open Source) | 90 €/Nutzer/Monat | 25-175 €/Nutzer/Monat |
 | Infrastruktur (VPS) | ~30-80 €/Monat | Inklusive | Inklusive |
-| Monatliche Gesamtkosten (25 Nutzer) | ~30-80 € | 2.250 €+ | 625-4.125 € |
+| Monatliche Gesamtkosten (25 Nutzer) | ~30-80 € | 2.250 €+ | 625-4.375 € |
 | Jährliche Gesamtkosten | ~360-960 € | 27.000 €+ | 7.500-49.500 € |
 
-Self-Hosting von Customermates eliminiert nutzerbezogene Lizenzkosten vollständig. Sie zahlen nur für die Server-Infrastruktur. Für Teams ab 10 Personen sind die Einsparungen erheblich. Selbst die [Cloud-gehostete Version](/pricing) mit 7 €/Nutzer/Monat ist deutlich günstiger als die meisten Wettbewerber. Vergleichen Sie die [Salesforce-Preise](/blog/salesforce-pricing) und [Pipedrive-Preise](/blog/pipedrive-pricing) für weitere Details.
+Self-Hosting von Customermates eliminiert nutzerbezogene Lizenzkosten vollständig. Sie zahlen nur für die Server-Infrastruktur. Für Teams ab 10 Personen sind die Einsparungen erheblich. Selbst die [Cloud-gehostete Version](/pricing), ab 12 €/Nutzer/Monat, ist deutlich günstiger als die meisten Wettbewerber. Vergleichen Sie die [Salesforce-Preise](/blog/salesforce-pricing) und [Pipedrive-Preise](/blog/pipedrive-pricing) für weitere Details.
 
 ## Deployment-Optionen
 
@@ -125,7 +125,7 @@ Self-Hosting von Customermates eliminiert nutzerbezogene Lizenzkosten vollständ
 
 **Technische Teams mit Kontrollbedarf.** Entwicklungsteams, [Agenturen](/for/agencies) und IT-Organisationen, die ihre eigene Infrastruktur bevorzugt selbst verwalten, schätzen das saubere Docker-Deployment, die Standard-Datenbank und den vollen Quellcode-Zugang. Customermates fügt sich mit Integrationen für [Slack](/features/slack-integration), [E-Mail](/features/email-integration) und [eigene APIs](/features/api) nahtlos in bestehende DevOps-Workflows ein.
 
-**Kostenbewusste Skalierung.** Ab einer bestimmten Teamgröße wird Self-Hosting deutlich kostengünstiger als nutzerbezogene SaaS-Preise. Sie zahlen einmalig für die Infrastruktur und fügen Nutzer ohne zusätzliche Lizenzkosten hinzu. Für [Startups](/for/startups) und wachsende Unternehmen sind die wirtschaftlichen Vorteile überzeugend. Zusammen mit der [günstigen Cloud-Preisgestaltung](/blog/affordable-crm-software) bietet Customermates die flexibelste Kostenstruktur auf dem CRM-Markt.
+**Kostenbewusste Skalierung.** Ab einer bestimmten Teamgröße wird Self-Hosting deutlich kostengünstiger als nutzerbezogene SaaS-Preise. Sie zahlen einmalig für die Infrastruktur und fügen Nutzer ohne zusätzliche Lizenzkosten hinzu. Für [Startups](/for/startups) und wachsende Unternehmen sind die wirtschaftlichen Vorteile überzeugend. Zusammen mit der [günstigen Cloud-Preisgestaltung](/blog/affordable-crm-software) bietet Customermates eine flexible Kostenstruktur: pro Nutzer in der Cloud oder nur für die Infrastruktur beim Self-Hosting.
 
 ## Schritt für Schritt: Customermates deployen
 
@@ -157,7 +157,7 @@ Ein Linux-Server mit installiertem Docker genügt. Die Mindestanforderungen sind
 
 ### Ist Self-Hosting kostenlos oder kostet es extra?
 
-Self-Hosting von Customermates ist vollständig kostenlos, da es Open-Source-Software ist. Die Cloud-gehostete Version kostet 7 € pro Nutzer und Monat und beinhaltet Hosting, Wartung und Updates. Self-Hosted-Nutzer verwalten ihre eigene Infrastruktur und Updates. Alle Funktionen, einschließlich [Lead-Management](/features/lead-management), [Vertriebsautomatisierung](/features/sales-automation), [Pipeline-Tracking](/features/pipeline) und [Aufgabenverwaltung](/features/task-management), sind in beiden Optionen identisch.
+Self-Hosting von Customermates ist für immer vollständig kostenlos, da das Kern-CRM Open-Source-Software ist. Die Cloud-gehostete Version startet bei 12 € pro Nutzer und Monat und beinhaltet Hosting, Wartung und Updates. Self-Hosted-Nutzer verwalten ihre eigene Infrastruktur und Updates. Alle Kern-CRM-Funktionen, einschließlich [Lead-Management](/features/lead-management), [Vertriebsautomatisierung](/features/sales-automation), [Pipeline-Tracking](/features/pipeline) und [Aufgabenverwaltung](/features/task-management), sind in beiden Optionen identisch. Das gemeinsame [Postfach](/features/email-integration), Kalender-Sync, Audit-Logging und White-Label-Branding sind nur in den Cloud-Stufen verfügbar, Postfach und Kalender ab Pro.
 
 ### Wie funktionieren Updates beim Self-Hosting?
 
@@ -165,12 +165,12 @@ Updates werden als neue Docker-Images bereitgestellt. Laden Sie das neueste Imag
 
 ### Ist die Self-Hosted-Version sicher?
 
-Customermates folgt Security-Best-Practices: verschlüsselte Verbindungen, rollenbasierte Zugriffskontrolle, Audit-Logging und keine externe Telemetrie. Da Sie die Infrastruktur kontrollieren, können Sie eigene Sicherheitsebenen hinzufügen, einschließlich VPN-Zugang, Firewall-Regeln, SSO-Integration und Netzwerksegmentierung. Die Open-Source-Codebasis ermöglicht es Ihnen, jede Komponente selbst zu auditieren.
+Customermates folgt Security-Best-Practices: verschlüsselte Verbindungen, rollenbasierte Zugriffskontrolle und keine externe Telemetrie. Da Sie die Infrastruktur kontrollieren, können Sie eigene Sicherheitsebenen hinzufügen, einschließlich VPN-Zugang, Firewall-Regeln und Netzwerksegmentierung. Die Open-Source-Codebasis ermöglicht es Ihnen, jede Komponente selbst zu auditieren. Beachten Sie, dass das gemeinsame Postfach, Kalender-Sync und Audit-Logging Cloud-Funktionen sind und nicht Teil der selbst gehosteten Community-Edition.
 
 ### Kann ich Self-Hosted Customermates mit anderen Tools integrieren?
 
-Absolut. Die Self-Hosted-Version enthält dieselbe [API](/features/api), dieselben [Integrationen](/features/integrations) und dieselbe [n8n-Automatisierungs-Engine](/features/workflow-automation) wie die Cloud-Version. Verbinden Sie sich mit [E-Mail-Anbietern](/features/email-integration), [LinkedIn](/features/linkedin-integration), [Outlook](/features/outlook-integration), [Slack](/features/slack-integration) und Hunderten weiterer Tools über n8n-Workflows.
+Absolut. Die Self-Hosted-Version enthält dieselbe [API](/features/api) und dieselbe [n8n-Automatisierungs-Engine](/features/workflow-automation) wie die Cloud-Version, sodass Sie [Slack](/features/slack-integration) und Hunderte weiterer Tools über n8n-Workflows anbinden. Das native [gemeinsame Postfach](/features/integrations) mit [E-Mail](/features/email-integration), [LinkedIn](/features/linkedin-integration), [Outlook](/features/outlook-integration), WhatsApp, Instagram und Telegram ist eine Cloud-Funktion, verfügbar ab der Pro-Stufe.
 
 ## Starten Sie heute mit Self-Hosting
 
-Deployen Sie Customermates auf Ihrer Infrastruktur in unter dreißig Minuten, oder [starten Sie mit der Cloud-Version](/auth/signup) sieben Tage kostenlos ohne Kreditkarte. Alle Funktionen, einschließlich [Kontaktverwaltung](/features/contact-management), [E-Mail-Integration](/features/email-integration), [Sales-Tracking](/features/sales-tracking) und [Workflow-Automatisierung](/features/workflow-automation), sind ab dem ersten Tag verfügbar. Keine [versteckten Kosten](/blog/free-crm), keine Funktionssperren, kein Vendor Lock-in.
+Deployen Sie Customermates auf Ihrer Infrastruktur in unter dreißig Minuten, oder [starten Sie mit der Cloud-Version](/auth/signup) sieben Tage kostenlos in der Pro-Stufe, ohne Kreditkarte. Kern-Funktionen, einschließlich [Kontaktverwaltung](/features/contact-management), [Sales-Tracking](/features/sales-tracking) und [Workflow-Automatisierung](/features/workflow-automation), sind ab dem ersten Tag verfügbar; [E-Mail-Integration](/features/email-integration) und das restliche gemeinsame Postfach kommen mit der Cloud-Pro-Stufe. Keine [versteckten Kosten](/blog/free-crm), kein Vendor Lock-in.

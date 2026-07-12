@@ -3,7 +3,7 @@ title: Webhooks
 description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries prüfen und den vollständigen Event-Katalog auf einer Seite lesen.
 ---
 
-Customermates sendet einen JSON-POST an deinen HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Du wählst die Events und gibst die URL an. Fehlgeschlagene Deliveries kannst du aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
+Customermates sendet einen JSON-POST an Ihren HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
 
 ## Einsatzzwecke
 
@@ -31,7 +31,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 
 Die URL muss HTTPS sein. HTTP wird abgelehnt.
 
-## Was du bekommst
+## Was Sie bekommen
 
 Jede Delivery ist ein `POST` mit `Content-Type: application/json` und demselben Envelope:
 
@@ -86,7 +86,7 @@ Beispiel, `contact.updated`:
 }
 ```
 
-Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` siehst du die Columns, die für einen Entity-Typ in deinem Workspace konfiguriert sind.
+Die Record-Felder hängen vom Entity-Typ ab. Custom-Columns erscheinen unter `customFieldValues` als `columnId`- und `value`-Paare. Mit `get_record_schema` sehen Sie die Columns, die für einen Entity-Typ in Ihrem Workspace konfiguriert sind.
 
 ## Das `changes`-Objekt
 
@@ -98,13 +98,13 @@ Wenn ein Write kein Feld ändert, wird das Event unterdrückt. No-op-`*.updated`
 
 ## Signatur-Verifikation
 
-Wenn du ein `secret` setzt, enthält jede Request:
+Wenn Sie ein `secret` setzen, enthält jede Request:
 
 ```
 X-Webhook-Signature: <hex>
 ```
 
-`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechne den Wert auf deiner Seite neu und vergleiche in konstanter Zeit.
+`<hex>` ist `HMAC-SHA256(secret, rawRequestBody)`, Lowercase-Hex, ohne Präfix. Berechnen Sie den Wert auf Ihrer Seite neu und vergleichen Sie in konstanter Zeit.
 
 Node.js-Beispiel:
 
@@ -119,13 +119,13 @@ function verify(rawBody: string, received: string, secret: string) {
 
 ## Retries und fehlgeschlagene Deliveries
 
-Jede Delivery wird protokolliert. Deliveries siehst du in der UI (Unternehmen, dann Webhook-Deliveries) oder per `manage_webhooks` mit `action: "list_deliveries"`.
+Jede Delivery wird protokolliert. Deliveries sehen Sie in der UI (Unternehmen, dann Webhook-Deliveries) oder per `manage_webhooks` mit `action: "list_deliveries"`.
 
 Eine Delivery gilt als fehlgeschlagen, wenn der HTTP-Status außerhalb des 2xx-Bereichs liegt oder die Request timeoutet. Der Request-Timeout beträgt 5 Sekunden.
 
 Customermates wiederholt fehlgeschlagene Deliveries automatisch: bis zu 5 Wiederholungen bei Timeouts, 5xx-Responses und 408, 425 und 429. Dauerhafte 4xx-Responses (zum Beispiel 400, 401, 403, 404) werden nicht wiederholt, weil ein erneuter Versuch genauso scheitern würde. Die Retries laufen innerhalb des Delivery-Runs, erzeugen also keine zusätzlichen Delivery-Records; jeder Record zeigt das Endergebnis.
 
-Du kannst jede Delivery zusätzlich selbst erneut zustellen, aus der UI oder per `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein manueller Resend erzeugt einen neuen Delivery-Record; das Original bleibt unverändert.
+Sie können jede Delivery zusätzlich selbst erneut zustellen, aus der UI oder per `manage_webhooks` mit `action: "resend_delivery"` und der Delivery-id. Ein manueller Resend erzeugt einen neuen Delivery-Record; das Original bleibt unverändert.
 
 ## Ordering und Concurrency
 
@@ -133,7 +133,7 @@ Deliveries sind über Events hinweg nicht strikt geordnet. Zwei `contact.updated
 
 ## Notes sind JSON, nicht Markdown
 
-Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf deiner Seite als Markdown zu rendern, nutze einen Tiptap-kompatiblen Serializer. In MCP liefert `get_records` mit `include: "withNotes"` die Notes bereits als Markdown serialisiert.
+Das `notes`-Feld in Payloads ist Tiptap-JSON, dieselbe Struktur, die der Editor speichert. Um es auf Ihrer Seite als Markdown zu rendern, nutzen Sie einen Tiptap-kompatiblen Serializer. In MCP liefert `get_records` mit `include: "withNotes"` die Notes bereits als Markdown serialisiert.
 
 ## Delete-Payloads
 
@@ -141,13 +141,13 @@ Delete-Events enthalten unter `payload` den vollständigen Record, wie er vor de
 
 ## Debugging
 
-- Nutze [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
+- Nutzen Sie [webhook.site](https://webhook.site) als Einweg-Receiver beim Integrationstest.
 - Das Delivery-Log (`manage_webhooks`, `action: "list_deliveries"`) unterstützt `searchTerm` auf URL und Event-Name.
-- Wenn dein Receiver einen Fehlerstatus zurückgibt, protokolliert Customermates die Antwort, sodass du nachvollziehen kannst, was passiert ist.
+- Wenn Ihr Receiver einen Fehlerstatus zurückgibt, protokolliert Customermates die Antwort, sodass Sie nachvollziehen können, was passiert ist.
 
 ## Event-Katalog
 
-Sechsundzwanzig Events kannst du abonnieren: fünfzehn Record-Events über die fünf Entity-Typen und elf Messaging-Events. Alle nutzen den Envelope oben.
+Sechsundzwanzig Events können Sie abonnieren: fünfzehn Record-Events über die fünf Entity-Typen und elf Messaging-Events. Alle nutzen den Envelope oben.
 
 ### Record-Events
 

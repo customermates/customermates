@@ -24,9 +24,9 @@ n8n ist die Open-Source-Automatisierungsplattform, die Zapier und Make zu einem 
 
 ## Was ist n8n?
 
-[n8n](https://n8n.io/) (ausgesprochen "n-eight-n") ist eine Workflow-Automatisierungsplattform, die verschiedene Anwendungen und Dienste miteinander verbindet. Sie bauen Workflows visuell, indem Sie Nodes auf eine Arbeitsfläche ziehen und verbinden -- für die meisten Anwendungsfälle ist kein Code erforderlich.
+[n8n](https://n8n.io/) (ausgesprochen "n-eight-n") ist eine Workflow-Automatisierungsplattform, die verschiedene Anwendungen und Dienste miteinander verbindet. Sie bauen Workflows visuell, indem Sie Nodes auf eine Arbeitsfläche ziehen und verbinden, für die meisten Anwendungsfälle ist kein Code erforderlich.
 
-Was n8n von anderen Automatisierungstools unterscheidet, ist das Deployment-Modell. Sie können n8n in der Cloud nutzen (gehostet von n8n) oder auf Ihrem eigenen Server selbst hosten. Self-Hosting bedeutet, dass Ihre Daten Ihre Infrastruktur nie verlassen -- relevant für DSGVO-Compliance und datensensible Branchen.
+Was n8n von anderen Automatisierungstools unterscheidet, ist das Deployment-Modell. Sie können n8n in der Cloud nutzen (gehostet von n8n) oder auf Ihrem eigenen Server selbst hosten. Self-Hosting bedeutet, dass Ihre Daten Ihre Infrastruktur nie verlassen, relevant für DSGVO-Compliance und datensensible Branchen.
 
 n8n bietet über 400 integrierte Schnittstellen (Nodes genannt), unterstützt benutzerdefinierten Code in JavaScript und Python und erlaubt die Anbindung beliebiger APIs über HTTP-Request-Nodes. Zusätzlich gibt es native Unterstützung für KI- und LLM-Nodes, was n8n zur natürlichen Wahl für Teams macht, die KI-gestützte Automatisierungen aufbauen wollen.
 
@@ -63,7 +63,7 @@ n8n Cloud ist der schnellste Weg zum Start. Kein Server-Setup, keine Wartung, au
 | Wartungsaufwand | 1-2 Stunden/Monat |
 | **Gesamt** | **5-20 EUR** |
 
-Self-Hosting ist bei den Softwarekosten kostenlos, erfordert aber einen Server und grundlegendes DevOps-Wissen. Der Kompromiss: unbegrenzte Workflow-Ausführungen, volle Datenkontrolle und die Möglichkeit, interne Systeme anzubinden -- aber Sie übernehmen Updates, Backups und Monitoring selbst.
+Self-Hosting ist bei den Softwarekosten kostenlos, erfordert aber einen Server und grundlegendes DevOps-Wissen. Der Kompromiss: unbegrenzte Workflow-Ausführungen, volle Datenkontrolle und die Möglichkeit, interne Systeme anzubinden, aber Sie übernehmen Updates, Backups und Monitoring selbst.
 
 ### Wann welche Option wählen
 
@@ -100,7 +100,7 @@ Alle drei Plattformen lösen dasselbe Grundproblem: Anwendungen verbinden, ohne 
 
 **Wählen Sie Make,** wenn Sie einen visuellen Builder mit feinerer Kontrolle als Zapier und moderater Preisgestaltung wollen. Makes Scenario-Editor ist leistungsfähig, hat aber eine steilere Lernkurve.
 
-**Wählen Sie n8n,** wenn Sie volle Datenkontrolle, unbegrenzte Ausführungen beim Self-Hosting, KI/LLM-Integration oder schlicht Open Source bevorzugen. n8n ist die stärkste Wahl für technische Teams und für alle, die CRM-Automatisierung mit native KI-Integration verbinden möchten.
+**Wählen Sie n8n,** wenn Sie volle Datenkontrolle, unbegrenzte Ausführungen beim Self-Hosting, KI/LLM-Integration oder schlicht Open Source bevorzugen. n8n ist eine starke Wahl für technische Teams und für alle, die CRM-Automatisierung mit KI-Automatisierung verbinden möchten.
 
 ## n8n installieren: Drei Optionen
 
@@ -164,7 +164,7 @@ Klicken Sie auf den **+**-Button oder doppelklicken Sie auf die Arbeitsfläche, 
 
 ### Das Ausführungs-Panel
 
-Nach dem Ausführen eines Workflows (per Test oder Produktions-Trigger) zeigt das Ausführungs-Panel die Daten, die durch jeden Node fließen. Klicken Sie auf einen beliebigen Node, um dessen Ein- und Ausgabedaten zu sehen. Dies ist das primäre Debugging-Tool -- wenn ein Node unerwartete Daten empfängt, sehen Sie es hier sofort.
+Nach dem Ausführen eines Workflows (per Test oder Produktions-Trigger) zeigt das Ausführungs-Panel die Daten, die durch jeden Node fließen. Klicken Sie auf einen beliebigen Node, um dessen Ein- und Ausgabedaten zu sehen. Dies ist das primäre Debugging-Tool, wenn ein Node unerwartete Daten empfängt, sehen Sie es hier sofort.
 
 ### Steuerleiste oben
 
@@ -183,7 +183,7 @@ Dieser Mini-Workflow hat zwei Nodes: einen Webhook-Trigger und eine Slack-Benach
 
 **Schritt 1:** Erstellen Sie einen neuen Workflow (klicken Sie oben links auf "Add workflow").
 
-**Schritt 2:** Die Arbeitsfläche zeigt standardmäßig einen Manual Trigger. Löschen Sie ihn und fügen Sie einen **Webhook**-Node hinzu. n8n generiert eine eindeutige URL. Kopieren Sie diese -- Sie brauchen sie zum Testen.
+**Schritt 2:** Die Arbeitsfläche zeigt standardmäßig einen Manual Trigger. Löschen Sie ihn und fügen Sie einen **Webhook**-Node hinzu. n8n generiert eine eindeutige URL. Kopieren Sie diese, Sie brauchen sie zum Testen.
 
 **Schritt 3:** Fügen Sie einen **Slack**-Node hinzu (oder Gmail, Microsoft Teams oder einen anderen Benachrichtigungsdienst). Verbinden Sie ihn mit dem Webhook-Node, indem Sie vom Output-Punkt des Webhooks zum Input-Punkt des Slack-Nodes ziehen.
 
@@ -228,7 +228,7 @@ Fügen Sie einen **Customermates**-Node hinzu (oder HubSpot, Pipedrive oder Ihr 
 2. **"Create Contact"** als Aktion wählen
 3. Name, E-Mail, Firma und andere Felder aus den Webhook-Daten mappen
 
-Bei [Customermates](/) (7 EUR/Nutzer/Monat) ist die n8n-Integration nativ -- dedizierte Nodes statt roher API-Aufrufe.
+Bei [Customermates](/) (ab 12 EUR/Nutzer/Monat) ist die n8n-Integration nativ, dedizierte Nodes statt roher API-Aufrufe.
 
 ### Schritt 4: Benachrichtigung senden
 
@@ -397,13 +397,13 @@ Nach jedem Kundengespräch wird das Meeting-Transkript automatisch von ChatGPT z
 
 ### Warum Customermates gut mit n8n zusammenarbeitet
 
-Customermates (7 EUR/Nutzer/Monat, alle Funktionen inklusive) bietet eine native n8n-Integration. Das bedeutet, dass Sie in n8n dedizierte Customermates-Nodes verwenden können, anstatt rohe API-Aufrufe zu konfigurieren. Die Integration unterstützt das Erstellen, Lesen, Aktualisieren und Löschen von Kontakten, Deals, Organisationen und Notizen.
+Customermates (ab 12 EUR/Nutzer/Monat, volles Kern-CRM inklusive) bietet eine native n8n-Integration. Das bedeutet, dass Sie in n8n dedizierte Customermates-Nodes verwenden können, anstatt rohe API-Aufrufe zu konfigurieren. Die Integration unterstützt das Erstellen, Lesen, Aktualisieren und Löschen von Kontakten, Deals, Organisationen und Notizen.
 
 Für Teams, die n8n als Automatisierungs-Backbone einsetzen, beseitigt ein CRM mit nativer n8n-Unterstützung die Reibungsverluste manueller API-Konfiguration und reduziert die Einrichtungszeit von Stunden auf Minuten.
 
 ## Einen mehrteiligen Workflow bauen: Datenquelle zu CRM
 
-Sobald Sie mit grundlegenden Workflows vertraut sind, ist es Zeit für ein komplexeres Beispiel. Dieser Workflow spiegelt einen realen Anwendungsfall wider: Daten aus einer Quelle ziehen, filtern und transformieren, Berechnungen durchführen und Ihr CRM aktualisieren -- mit Benachrichtigungen und Zeitplanung.
+Sobald Sie mit grundlegenden Workflows vertraut sind, ist es Zeit für ein komplexeres Beispiel. Dieser Workflow spiegelt einen realen Anwendungsfall wider: Daten aus einer Quelle ziehen, filtern und transformieren, Berechnungen durchführen und Ihr CRM aktualisieren, mit Benachrichtigungen und Zeitplanung.
 
 ### Das Szenario
 
@@ -416,7 +416,7 @@ Jeden Montagmorgen soll Ihr Workflow:
 
 ### Schritt-für-Schritt-Aufbau
 
-**1. Schedule Trigger:** Eingestellt auf "Jeden Montag um 8:00 Uhr." Dies ersetzt den Webhook -- der Workflow läuft nach Zeitplan statt on-demand.
+**1. Schedule Trigger:** Eingestellt auf "Jeden Montag um 8:00 Uhr." Dies ersetzt den Webhook, der Workflow läuft nach Zeitplan statt on-demand.
 
 **2. Airtable-Node (oder Datenbank-Node):** Verbinden Sie sich mit Ihrer Airtable-Basis und ziehen Sie Datensätze aus der "Deals"-Tabelle für die letzten 7 Tage. Bei PostgreSQL oder MySQL verwenden Sie den entsprechenden Datenbank-Node mit einer datumsgefilterten Abfrage.
 
@@ -447,7 +447,7 @@ Wöchentliche Vertriebsübersicht:
 {{ $json.rep }}: {{ $json.dealCount }} Deals, {{ $json.totalValue }} EUR
 ```
 
-**7. Aktivieren.** Der Workflow läuft jeden Montag automatisch. Wenn Sie ihn sofort testen möchten, nutzen Sie den "Test workflow"-Button -- er führt die gesamte Kette unabhängig vom Zeitplan aus.
+**7. Aktivieren.** Der Workflow läuft jeden Montag automatisch. Wenn Sie ihn sofort testen möchten, nutzen Sie den "Test workflow"-Button, er führt die gesamte Kette unabhängig vom Zeitplan aus.
 
 ### Workflows exportieren und importieren
 
@@ -469,11 +469,11 @@ Sobald Sie mit grundlegenden Workflows vertraut sind, bietet n8n erweiterte Mög
 
 - **Sub-Workflows:** Einen Workflow aus einem anderen aufrufen, um modulare, wiederverwendbare Automatisierungsbausteine zu schaffen.
 - **Code-Nodes:** JavaScript oder Python für Logik schreiben, die sich mit Standard-Nodes nicht abbilden lässt.
-- **KI-Agent-Nodes:** Mehrstufige native KI-Integration bauen, die Tools nutzen, Entscheidungen treffen und autonom mit Ihrem CRM interagieren.
+- **KI-Agent-Nodes:** Mehrstufige KI-Agenten bauen, die Tools nutzen, Entscheidungen treffen und autonom mit Ihrem CRM interagieren.
 - **Datenbank-Nodes:** Direkte Verbindung zu PostgreSQL, MySQL, MongoDB und anderen Datenbanken.
 - **Selbst gehostete LLMs:** Ollama oder andere lokale Modell-Runner für private KI-Verarbeitung anbinden.
 
-Der [n8n-YouTube-Kanal](https://www.youtube.com/@n8n-io) und das [Community-Forum](https://community.n8n.io/) sind exzellente Ressourcen für die Weiterentwicklung. Der offizielle [n8n Level One Course](https://docs.n8n.io/courses/level-one/) umfasst sieben Kapitel: Editor-UI-Navigation, Mini-Workflow bauen, reale Automatisierungs-Anwendungsfälle, Workflow-Design-Prinzipien, mehrteiligen Workflow mit Datenquellen, Filterung, Berechnungen, Benachrichtigungen und Zeitplanung bauen, Export und Import von Workflows sowie ein Abschluss-Quiz -- ein strukturierter Lernpfad für neue Nutzer.
+Der [n8n-YouTube-Kanal](https://www.youtube.com/@n8n-io) und das [Community-Forum](https://community.n8n.io/) sind exzellente Ressourcen für die Weiterentwicklung. Der offizielle [n8n Level One Course](https://docs.n8n.io/courses/level-one/) umfasst sieben Kapitel: Editor-UI-Navigation, Mini-Workflow bauen, reale Automatisierungs-Anwendungsfälle, Workflow-Design-Prinzipien, mehrteiligen Workflow mit Datenquellen, Filterung, Berechnungen, Benachrichtigungen und Zeitplanung bauen, Export und Import von Workflows sowie ein Abschluss-Quiz, ein strukturierter Lernpfad für neue Nutzer.
 
 ## Häufig gestellte Fragen
 
@@ -499,7 +499,7 @@ Ja. Tausende Unternehmen betreiben n8n in Produktion. Für Zuverlässigkeit host
 
 ### Wie geht n8n mit DSGVO und Datenschutz um?
 
-Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle -- Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, 7 EUR/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
+Selbst gehostetes n8n gibt Ihnen die vollständige Kontrolle, Daten verlassen nie Ihre Server. Bei n8n Cloud werden Daten in der EU verarbeitet. In beiden Fällen greift n8n selbst nicht auf Ihre Workflow-Daten zu und speichert sie nicht über die Ausführung hinaus. In Kombination mit einem DSGVO-konformen CRM wie Customermates (EU-gehostet, ab 12 EUR/Nutzer/Monat) lassen sich vollständig konforme Automatisierungs-Pipelines aufbauen.
 
 ### Was ist der einfachste erste Workflow?
 

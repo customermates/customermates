@@ -4,7 +4,7 @@ description: "Lead-Qualifizierung mit ChatGPT: BANT-, MEDDIC-, ANUM-Frameworks, 
 
 hero:
   title: "Lead-Qualifizierung mit ChatGPT: Manuelles Scoring durch KI ersetzen"
-  description: "Manuelles Lead-Scoring kostet Stunden und liefert inkonsistente Ergebnisse. ChatGPT wendet Qualifizierungs-Frameworks wie BANT, MEDDIC, ANUM und FAINT skalierbar an -- so richten Sie es mit n8n und Ihrem CRM ein."
+  description: "Manuelles Lead-Scoring kostet Stunden und liefert inkonsistente Ergebnisse. ChatGPT wendet Qualifizierungs-Frameworks wie BANT, MEDDIC, ANUM und FAINT skalierbar an, so richten Sie es mit n8n und Ihrem CRM ein."
 
 blogPost:
   author: Benjamin Wagner
@@ -20,7 +20,7 @@ blogPost:
 
 # Lead-Qualifizierung mit ChatGPT: Manuelles Scoring durch KI ersetzen
 
-Manuelles Lead-Scoring kostet Stunden und liefert inkonsistente Ergebnisse. ChatGPT wendet Qualifizierungs-Frameworks wie BANT, MEDDIC, ANUM und FAINT skalierbar an -- so richten Sie es mit n8n und Ihrem CRM ein.
+Manuelles Lead-Scoring kostet Stunden und liefert inkonsistente Ergebnisse. ChatGPT wendet Qualifizierungs-Frameworks wie BANT, MEDDIC, ANUM und FAINT skalierbar an, so richten Sie es mit n8n und Ihrem CRM ein.
 
 ## Das Problem mit manueller Lead-Qualifizierung
 
@@ -130,7 +130,7 @@ Bevor Sie Leads mit KI bewerten, klären Sie die Übergabe zwischen Marketing Qu
 
 - **MQL (Score 6-10):** Marketing pflegt weiter, Vertrieb wird informiert, handelt aber noch nicht.
 - **SQL (Score 11-15):** Vertrieb übernimmt und meldet sich innerhalb von 24 Stunden.
-- **Hot Lead (Score 16-20):** Sofortige Aktion -- Vertrieb kontaktiert innerhalb von 1 Stunde.
+- **Hot Lead (Score 16-20):** Sofortige Aktion, Vertrieb kontaktiert innerhalb von 1 Stunde.
 
 Dokumentieren Sie diese Schwellenwerte in einer gemeinsamen Vereinbarung zwischen Marketing und Vertrieb. Wenn KI die Kriterien durchsetzt, vertrauen beide Teams dem Prozess.
 
@@ -307,7 +307,7 @@ Fügen Sie einen CRM-Node hinzu, um die Ergebnisse zu schreiben. In Customermate
 Nutzen Sie einen If-Node, um den Workflow zu verzweigen:
 - **Hot Leads (Score 16-20):** Sofortige Slack-Nachricht oder E-Mail an den zuständigen Vertriebsmitarbeiter mit Lead-Zusammenfassung und Score-Aufschlüsselung.
 - **Warm Leads (Score 10-15):** In E-Mail-Nurture-Sequenz aufnehmen oder Follow-up-Aufgabe im CRM planen.
-- **Cold Leads (Score 1-9):** Für regelmäßige Überprüfung taggen. Nicht verwerfen -- Umstände ändern sich.
+- **Cold Leads (Score 1-9):** Für regelmäßige Überprüfung taggen. Nicht verwerfen, Umstände ändern sich.
 - **Disqualifizierte Leads:** Mit dem Disqualifizierungsgrund im CRM archivieren. Diese Daten helfen, Ihr ICP und Marketing-Targeting im Laufe der Zeit zu verfeinern.
 
 ### Kostenaufstellung des Workflows
@@ -316,12 +316,12 @@ Nutzen Sie einen If-Node, um den Workflow zu verzweigen:
 |-----------|------------------|
 | n8n Cloud (Starter) | 20 EUR |
 | OpenAI API (200 Leads bewertet) | 5-10 EUR |
-| Customermates CRM | 7 EUR/Nutzer |
+| Customermates CRM | 12 EUR/Nutzer |
 | **Gesamt (1 Nutzer)** | **34-39 EUR** |
 
 Bei 200 Leads pro Monat kostet die gesamte Automatisierung weniger als eine Stunde eines Vertriebsmitarbeiters.
 
-## Wann KI-Lead-Qualifizierung funktioniert -- und wann nicht
+## Wann KI-Lead-Qualifizierung funktioniert, und wann nicht
 
 KI-Scoring ist leistungsfähig, aber nicht universell einsetzbar. Das Verständnis der Grenzen verhindert kostspielige Fehler.
 
@@ -355,7 +355,7 @@ Viele CRMs bieten eingebautes Lead-Scoring. So schneiden sie im Vergleich zum Ch
 | Scoring-Konsistenz | Sehr hoch (KI wendet gleiche Kriterien an) | Hoch (Regeln sind konsistent) | N/A |
 | Anpassungsfähigkeit | Prompt ändern = Framework ändern | Regeln für jede Änderung neu bauen | N/A |
 | Qualitative Analyse | Ja (liest Text, erkennt Signale) | Nein (nur numerische/boolesche Regeln) | N/A |
-| Kosten | 7 EUR/Nutzer + 5-10 EUR API | 800+ EUR/Monat (Professional-Plan) | 14 EUR/Nutzer + externes Tool |
+| Kosten | 12 EUR/Nutzer + 5-10 EUR API | Ab ~90 EUR/Sitz (Professional-Plan) | 14 EUR/Nutzer + externes Tool |
 | n8n-Integration | Nativ | API verfügbar | API verfügbar |
 
 **HubSpots eingebautes Scoring** ist regelbasiert: Sie definieren Punkte für Aktionen (E-Mail geöffnet = +5, Preisseite besucht = +10). Es funktioniert für Engagement-Scoring, kann aber den Inhalt einer Lead-Nachricht nicht analysieren oder Qualifizierungs-Frameworks auf Freitext anwenden.
@@ -372,8 +372,8 @@ Viele CRMs bieten eingebautes Lead-Scoring. So schneiden sie im Vergleich zum Ch
 |----------|--------|---------|
 | Tägliche Scoring-Zeit | 1,5 Stunden | 10 Minuten (nur Prüfung) |
 | Monatliche Scoring-Zeit | 30 Stunden | 3,5 Stunden |
-| Eingesparte Zeit pro Monat | -- | 26,5 Stunden |
-| Wert bei 50 EUR/Stunde | -- | 1.325 EUR/Monat |
+| Eingesparte Zeit pro Monat |, | 26,5 Stunden |
+| Wert bei 50 EUR/Stunde |, | 1.325 EUR/Monat |
 
 ### Conversion-Verbesserung
 
@@ -389,9 +389,9 @@ Teams, die von manueller auf KI-gestützte Qualifizierung umstellen, sehen typis
 
 Ihr CRM muss Custom-Felder, Tagging und Automatisierungs-Trigger unterstützen, damit dieser Workflow reibungslos funktioniert.
 
-**Customermates.** 7 EUR/Nutzer/Monat, alle Funktionen inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Das Einheitspreismodell bedeutet, dass Sie nicht extra für Automatisierungsfunktionen zahlen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
+**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Custom-Felder für Scores, Tags für Klassifizierung, native n8n-Integration für automatische Updates, DSGVO-konformes EU-Hosting. Über die native MCP-Integration (45 Tools) bedienen Claude, ChatGPT oder Gemini das CRM direkt, und ein vereinheitlichter Posteingang bringt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab der Pro-Stufe an einem Ort zusammen. Automatisierung ist in jeder Stufe enthalten, Sie zahlen also nicht extra für Funktionen, die Enterprise-CRMs hinter höheren Tarifen verstecken.
 
-**HubSpot.** Lead-Scoring ist im Professional-Plan verfügbar (ab 800 EUR/Monat für 5 Nutzer). Das integrierte Scoring ist regelbasiert, nicht KI-gestützt. Für KI-Scoring über n8n funktioniert der kostenlose CRM-Tarif, bietet aber keine fortgeschrittenen Automatisierungs-Trigger.
+**HubSpot.** Lead-Scoring ist im Professional-Plan verfügbar (ab etwa 90 EUR pro Sitz und Monat). Das integrierte Scoring ist regelbasiert, nicht KI-gestützt. Für KI-Scoring über n8n funktioniert der kostenlose CRM-Tarif, bietet aber keine fortgeschrittenen Automatisierungs-Trigger.
 
 **Pipedrive.** Custom-Felder und Tags in allen Plänen verfügbar (ab 14 EUR/Nutzer/Monat). Kein natives Lead-Scoring, aber die API integriert sich gut mit n8n für externe Scoring-Workflows.
 
@@ -401,7 +401,7 @@ Für Teams, die maximale Automatisierung bei minimalen Kosten wollen, liefert Cu
 
 ### Kann ChatGPT wirklich einen menschlichen SDR bei der Lead-Qualifizierung ersetzen?
 
-Nicht vollständig. ChatGPT glänzt beim initialen Scoring-Durchlauf -- Frameworks konsistent und skalierbar anwenden. Aber es kann das Urteilsvermögen, die Beziehungsintelligenz und die Intuition eines erfahrenen SDR nicht ersetzen. Der beste Ansatz ist hybrid: KI bewertet und routet, Menschen prüfen und handeln.
+Nicht vollständig. ChatGPT glänzt beim initialen Scoring-Durchlauf, Frameworks konsistent und skalierbar anwenden. Aber es kann das Urteilsvermögen, die Beziehungsintelligenz und die Intuition eines erfahrenen SDR nicht ersetzen. Der beste Ansatz ist hybrid: KI bewertet und routet, Menschen prüfen und handeln.
 
 ### Mit welchem Framework sollte man starten?
 

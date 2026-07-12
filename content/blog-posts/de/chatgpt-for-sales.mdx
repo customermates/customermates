@@ -29,7 +29,7 @@ Ich baue Customermates, ein Open-Source-CRM. Die Hälfte meiner Kunden kam über
 
 Drei Dinge haben sich in den letzten 18 Monaten geändert, die die unten stehenden Workflows funktionieren lassen:
 
-**Modelle mit langem Kontext.** GPT-4o, Claude Sonnet 4.6 und Gemini 1.5 Pro lesen 100.000+ Tokens auf einmal. Sie können einen vollständigen E-Mail-Thread, ein Anrufprotokoll und einen CRM-Datensatz in einen Prompt einfügen und eine kohärente Antwort bekommen.
+**Modelle mit langem Kontext.** Die aktuelle Generation von ChatGPT-, Claude- und Gemini-Modellen liest 100.000+ Tokens auf einmal. Sie können einen vollständigen E-Mail-Thread, ein Anrufprotokoll und einen CRM-Datensatz in einen Prompt einfügen und eine kohärente Antwort bekommen.
 
 **Stabilität von API und Tool-Use.** Die ChatGPT-API ruft externe Tools inzwischen zuverlässig auf. Mit einem CRM, das [MCP-Tools](/features/api) bereitstellt, kann der Agent Deals lesen, Notizen aktualisieren und Aufgaben anlegen, ohne dass Sie kopieren-einfügen müssen.
 
@@ -155,11 +155,13 @@ Ein CRM, das für die KI-getriebene Vertriebsmotion gebaut ist, sieht anders aus
 
 **MCP-Unterstützung.** Native MCP-Tools bedeuten, dass jedes KI-Modell (Claude, ChatGPT, Gemini, lokale Modelle) das CRM direkt bedienen kann. Ohne MCP bauen Sie für jedes Modell eigene Integrationen.
 
+**Nativer vereinheitlichter Posteingang.** Vertrieb passiert nicht nur über E-Mail. Ein CRM mit E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang lässt dieselbe KI den LinkedIn-Thread oder den WhatsApp-Austausch lesen, die Antwort entwerfen und senden, ohne den Datensatz zu verlassen. Nur wenige CRMs haben das nativ.
+
 **Bidirektionale E-Mail- und Kalendersynchronisation.** Ohne sie kann die KI nicht lesen, was gesagt wurde. Mit ihr ist jede E-Mail und jeder Termin Kontext, den der Agent nutzen kann.
 
 **Aktivitätshistorie pro Datensatz.** Jede Interaktion (E-Mail, Anruf, Notiz, KI-Entwurf) lebt am Kontaktdatensatz. Die nächste Person, die den Deal übernimmt, sieht den vollen Kontext, einschließlich, was KI-generiert war und wann.
 
-Customermates liefert alle vier. Die [Preise](/pricing) liegen pauschal bei 7 €/Nutzer/Monat, mit allen Funktionen (API, Webhooks, MCP, Integrationen) inklusive. Für Teams, die bereits einen täglichen ChatGPT-im-Vertrieb-Workflow fahren, verschwindet die Reibung des Legacy-CRMs.
+Customermates liefert alle fünf. API, Webhooks und MCP-Server sind ab der Starter-Stufe für 12 €/Nutzer/Monat enthalten; der native vereinheitlichte Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) und die bidirektionale E-Mail- und Kalendersynchronisation kommen mit der Pro-Stufe für 29 €/Nutzer/Monat. Für Teams, die bereits einen täglichen ChatGPT-im-Vertrieb-Workflow fahren, verschwindet die Reibung des Legacy-CRMs.
 
 ## Ehrliche Grenzen
 
@@ -192,10 +194,10 @@ Diese in einem Custom GPT oder ChatGPT-Projekt speichern, damit Vertriebler aufh
 > Schreibe eine 90-Wort-Cold-E-Mail an [Name] bei [Unternehmen]. Trigger: [aktuelle Finanzierung / Einstellung / News]. LinkedIn sagt: [einfügen]. Hook: [Ihr Ein-Satz-Wertversprechen]. Tonfall: peer-zu-peer, keine Vertriebssprache. Ende mit einer 15-Minuten-Frage. Füge eine P.S.-Zeile hinzu, die den Trigger natürlich aufgreift. Vermeide die Wörter „Synergie", „Hebel" und „abschließend zurückkommen".
 
 **3. LinkedIn-DM nach einer angenommenen Verbindung.**
-> Schreibe eine 50-Wort-LinkedIn-DM an [Name] bei [Unternehmen]. Sie/er hat gerade meine Verbindung angenommen. Wir haben noch nicht interagiert. Ich will ein echtes Gespräch starten, nicht pitchen. Beziehe dich auf den letzten Post: [einfügen]. Ende mit einer Frage, die sie/er tatsächlich gerne beantworten würde.
+> Schreibe eine 50-Wort-LinkedIn-DM an [Name] bei [Unternehmen]. Sie/er hat gerade meine Verbindung angenommen. Wir haben noch nicht interagiert. Ich will ein echtes Gespräch starten, nicht pitchen. Nimm Bezug auf den letzten Post: [einfügen]. Ende mit einer Frage, die sie/er tatsächlich gerne beantworten würde.
 
 **4. Nachfass Nummer 2, wenn die erste E-Mail keine Antwort bekam.**
-> Ein Interessent hat nicht auf meine erste E-Mail geantwortet. Was ich gesendet habe: [einfügen]. Was ich über sie/ihn weiß: [einfügen]. Schreibe einen Nachfass, der kürzer als der erste ist, einen anderen Winkel anspricht und genuin nützlich ist (eine relevante Case Study, eine Statistik, eine Frage). Sage nicht „ich wollte nur sicherstellen, dass du das gesehen hast" oder „ich pushe das mal hoch".
+> Ein Interessent hat nicht auf meine erste E-Mail geantwortet. Was ich gesendet habe: [einfügen]. Was ich über sie/ihn weiß: [einfügen]. Schreibe einen Nachfass, der kürzer als der erste ist, einen anderen Winkel anspricht und genuin nützlich ist (eine relevante Case Study, eine Statistik, eine Frage). Sage nicht „ich wollte nur nachhaken" oder „ich pushe das mal hoch".
 
 **5. Discovery-Call-Agenda.**
 > Ich habe einen 30-Minuten-Discovery-Call mit [Name] von [Unternehmen]. Rolle: [Rolle]. Der Trigger, der sie/ihn ins Gespräch gebracht hat, war [Grund]. Baue mir eine Agenda: 5 Minuten Opener, 15 Minuten Discovery-Fragen in Reihenfolge der Wichtigkeit, 5 Minuten Demo der relevantesten Produkt-Funktion, 5 Minuten Abschluss mit klarem nächsten Schritt. Discovery-Fragen sollten offen sein und das Offensichtliche vermeiden.
@@ -225,11 +227,11 @@ Diese in einem Custom GPT oder ChatGPT-Projekt speichern, damit Vertriebler aufh
 
 Drei Modelle dominieren Vertriebs-Workflows 2026. Jedes hat eine Persönlichkeit.
 
-**ChatGPT (GPT-4o, GPT-5).** Stärkstes Ökosystem (Custom GPTs, Projekte, Plugins), breiteste API-Integrationsunterstützung, beste Wahl für Teams, die polierte UI-Funktionen gegenüber roher Schlussfolgerungs-Qualität bevorzugen. Etwas schwächer als Claude bei Lang-Dokument-Analyse. Beste Wahl für: Cold-E-Mail-Entwürfe, Prompt-Bibliotheks-Workflows, alles, wo Sie einen Custom GPT teamübergreifend teilen wollen.
+**ChatGPT.** Breites Ökosystem (Custom GPTs, Projekte, Plugins) und weite API-Integrationsunterstützung. Gut geeignet für Teams, die polierte UI-Funktionen und einen teamübergreifend geteilten Custom GPT wollen: Cold-E-Mail-Entwürfe, Prompt-Bibliotheks-Workflows.
 
-**Claude (Sonnet 4.6, Opus 4.7).** Stärkste Lang-Kontext-Schlussfolgerungen (vollständige Anrufprotokolle, mehrteilige E-Mail-Historien, lange Angebote). Tonfall-Kalibrierung zuverlässiger als GPT für B2B-Schreiben. Nativer MCP-Support bedeutet, dass es Ihr CRM direkt über Tools wie [Customermates](/features/api) bedienen kann. Beste Wahl für: Nach-Gespräch-Zusammenfassungen, Angebotspersonalisierung, alles, wo der Input lang ist und der Output präzise sein muss.
+**Claude.** Stark bei Lang-Kontext-Schlussfolgerungen (vollständige Anrufprotokolle, mehrteilige E-Mail-Historien, lange Angebote). Nativer MCP-Support bedeutet, dass es Ihr CRM direkt über Tools wie [Customermates](/features/api) bedienen kann. Gut geeignet für Nach-Gespräch-Zusammenfassungen, Angebotspersonalisierung, alles, wo der Input lang ist und der Output präzise sein muss.
 
-**Gemini (1.5 Pro, 2.0).** Stärkstes bei multimodal (Lesen von Dashboard-Screenshots, Parsen von Charts in PDFs). Engste Google-Workspace-Integration, wenn Ihr Team in Gmail und Drive lebt. Output-Qualität liegt bei reiner Textgenerierung hinter Claude und ChatGPT. Beste Wahl für: Teams, die ohnehin tief in Google Workspace stecken, Workflows, die nicht-textuelle Eingaben lesen müssen.
+**Gemini.** Stark bei multimodal (Lesen von Dashboard-Screenshots, Parsen von Charts in PDFs) und eng in Google Workspace integriert, wenn Ihr Team in Gmail und Drive lebt. Gut geeignet für Teams, die ohnehin tief in Google Workspace stecken, und Workflows, die nicht-textuelle Eingaben lesen müssen.
 
 Das ehrliche Modell: eines als primäres wählen, gespeicherte Prompts dort konfigurieren und nur für spezifische Anwendungsfälle wechseln, in denen die Alternative deutlich besser ist. Die meisten Teams verbrennen mehr Zeit beim Wechsel zwischen Modellen, als sie einsparen, indem sie das optimale Modell für jede Aufgabe wählen.
 
@@ -277,7 +279,7 @@ Bei komplexen B2B-Deals nein. KI erledigt Vorbereitung und Verwaltung; Menschen 
 
 **Wie verbinde ich ChatGPT mit meinem CRM?**
 
-Drei Optionen: (1) Custom GPT mit API-Integration ins CRM (funktioniert, wenn Ihr CRM eine offene API hat), (2) Workflow-Automation-Tool wie n8n oder Zapier zwischen ChatGPT und CRM, (3) MCP-natives CRM, in dem ChatGPT oder Claude CRM-Datensätze direkt lesen und schreiben können. Die dritte Option liefert die beste UX; Customermates unterstützt sie nativ über [54 MCP-Tools](/features/api).
+Drei Optionen: (1) Custom GPT mit API-Integration ins CRM (funktioniert, wenn Ihr CRM eine offene API hat), (2) Workflow-Automation-Tool wie n8n oder Zapier zwischen ChatGPT und CRM, (3) MCP-natives CRM, in dem ChatGPT oder Claude CRM-Datensätze direkt lesen und schreiben können. Die dritte Option liefert die reibungsloseste UX; Customermates unterstützt sie nativ über [45 MCP-Tools](/features/api).
 
 **Ist ChatGPT gut für Cold E-Mail?**
 

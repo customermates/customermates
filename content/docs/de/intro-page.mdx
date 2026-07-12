@@ -1,29 +1,29 @@
 ---
 title: Customermates Dokumentation
-description: Open-Source-CRM mit nativem MCP-Endpoint, sodass KI-Clients dein CRM direkt lesen und schreiben. Hier starten.
+description: Open-Source-CRM mit nativem MCP-Endpoint, sodass KI-Clients Ihr CRM direkt lesen und schreiben. Hier starten.
 demo:
   src: https://demo.customermates.com/de
   title: Customermates Demo
 ---
 
-Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt dein CRM direkt, ganz ohne Copy-Paste.
+Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt Ihr CRM direkt, ganz ohne Copy-Paste.
 
 ## Client wählen und loslegen
 
-| Deine KI | Volles Setup auf einer Seite |
+| Ihre KI | Volles Setup auf einer Seite |
 |---|---|
 | Claude & ChatGPT (Custom Connector) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
 | Claude Code | [Claude Code verbinden](/docs/connect-cli#claude-code) |
 | Cursor | [Cursor verbinden](/docs/connect-cli#cursor) |
 | Beliebiger MCP-Client | [MCP-Übersicht](/docs/mcp) |
 
-Jede Seite ist in sich abgeschlossen: die Verbindungsschritte und deine ersten Kommandos. Der Server brieft deinen Client automatisch beim Verbinden, du musst also nicht zwischen Seiten wechseln.
+Jede Seite ist in sich abgeschlossen: die Verbindungsschritte und Ihre ersten Kommandos. Der Server brieft Ihren Client automatisch beim Verbinden, Sie müssen also nicht zwischen Seiten wechseln.
 
 Für einen Durchlauf mit Webhook und erster KI-Interaktion siehe [Quickstart](/docs/quickstart).
 
 ## Was Customermates ist
 
-Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks), Custom Columns, Board- und Tabellenansichten und Dashboards, plus:
+Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks), Custom Columns, Tabellen- und Kartenansichten und Dashboards, plus:
 
 - **Nativer MCP-Endpoint** unter `/api/v1/mcp`, damit ein MCP-Client CRM-Operationen ohne Plugin entdeckt und aufruft.
 - **Open Source** unter AGPLv3. Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
@@ -31,20 +31,20 @@ Ein CRM mit fünf Record-Typen (Contacts, Organizations, Deals, Services, Tasks)
 - **Webhooks** mit signierten Payloads, Retries und Delivery-Log.
 - **OpenAPI-3.1**-Spezifikation für die volle REST-Oberfläche unter `/api/v1/openapi`.
 
-## Vier Wege, wie Customermates mit deinem Stack spricht
+## Vier Wege, wie Customermates mit Ihrem Stack spricht
 
-| Ich will | Nimm |
+| Ich will | Nehmen Sie |
 |---|---|
 | Einen MCP-Client das CRM im Gespräch aktualisieren lassen | [MCP](/docs/mcp) |
 | Eine Custom-Integration in Code bauen | [OpenAPI](/docs/openapi) |
-| Auf CRM-Änderungen in Slack, einem Sequencer, BI oder deinem Warehouse reagieren | [Webhooks](/docs/webhooks) |
+| Auf CRM-Änderungen in Slack, einem Sequencer, BI oder Ihrem Warehouse reagieren | [Webhooks](/docs/webhooks) |
 | Workflows visuell ohne Code komponieren | [n8n](/docs/n8n) |
 
 Alle vier authentifizieren sich mit einem API-Key. MCP-Clients wie Claude und ChatGPT können sich auch per OAuth ohne Key verbinden. Siehe [API-Keys](/docs/api-keys).
 
 ## Design-Ansatz
 
-Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen lassen sich inkrementell ändern, und die MCP-Oberfläche bleibt klein (44 Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen können.
+Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ benannt, Fehler sind umsetzbar, Beziehungen lassen sich inkrementell ändern, und die MCP-Oberfläche bleibt klein (45 Tools, standardmäßig alle aktiv), damit auch kleinere Modelle sie zuverlässig bedienen können.
 
 ## Wie die Docs organisiert sind
 
@@ -57,4 +57,4 @@ Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ
 
 ## Ausprobieren
 
-Die eingebettete Demo auf dieser Seite ist eine Live-Instanz. Du kannst Records anlegen und löschen. Nichts wird zwischen Sessions gespeichert.
+Die eingebettete Demo auf dieser Seite ist eine Live-Instanz. Sie können Records anlegen und löschen. Nichts wird zwischen Sessions gespeichert.

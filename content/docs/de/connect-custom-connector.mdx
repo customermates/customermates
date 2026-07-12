@@ -1,11 +1,11 @@
 ---
 title: Claude & ChatGPT verbinden (Custom Connector)
-description: Füge Customermates, das Open-Source-KI-native CRM, als Custom MCP Connector zu Claude (Web, Desktop, Mobile) oder ChatGPT hinzu. OAuth-Anmeldung, kein API-Key. Inklusive Header-Auth-Fallback für ChatGPT.
+description: Fügen Sie Customermates, das Open-Source-KI-native CRM, als Custom MCP Connector zu Claude (Web, Desktop, Mobile) oder ChatGPT hinzu. OAuth-Anmeldung, kein API-Key. Inklusive Header-Auth-Fallback für ChatGPT.
 ---
 
-Customermates ist ein Open-Source-CRM, nativ für KI gebaut, und deine KI bedient es direkt über MCP. Der Custom Connector ist der einfachste Weg zu verbinden: eine URL einfügen, bei Customermates anmelden, Zugriff freigeben. Es gibt keinen API-Key zum Kopieren, keine Konfigurationsdatei zum Bearbeiten und kein Shim zum Installieren. Du autorisierst einmal, und die Verbindung bleibt bestehen.
+Customermates ist ein Open-Source-CRM, nativ für KI gebaut, und Ihre KI bedient es direkt über MCP. Der Custom Connector ist der einfachste Weg zu verbinden: eine URL einfügen, bei Customermates anmelden, Zugriff freigeben. Es gibt keinen API-Key zum Kopieren, keine Konfigurationsdatei zum Bearbeiten und kein Shim zum Installieren. Sie autorisieren einmal, und die Verbindung bleibt bestehen.
 
-Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatGPT**. Auf einem CLI oder Editor (Claude Code, Codex, Cursor, Gemini CLI) nutze stattdessen [die API-Key-Methode](/docs/connect-cli).
+Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatGPT**. Auf einem CLI oder Editor (Claude Code, Codex, Cursor, Gemini CLI) nutzen Sie stattdessen [die API-Key-Methode](/docs/connect-cli).
 
 > Custom Connectors sind ein bezahltes Feature: Claude (Pro, Max, Team, Enterprise) und ChatGPT (Plus, Pro, Business, Enterprise). Free-Tiers können keine MCP-Server hinzufügen.
 
@@ -15,7 +15,7 @@ Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatG
 https://customermates.com/api/v1/mcp
 ```
 
-Self-Host? Setze deine Instanz-URL ein.
+Self-Host? Setzen Sie Ihre Instanz-URL ein.
 
 ## Claude
 
@@ -24,26 +24,26 @@ Self-Host? Setze deine Instanz-URL ein.
 3. Ein Customermates-Fenster öffnet sich. Anmelden, dann im **Zugriff autorisieren**-Screen auf **Zulassen** klicken.
 4. Zurück in Claude erscheint Customermates mit seinen Tools.
 
-Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an deinem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
+Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
-Noch schneller: [Add to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=https%3A%2F%2Fcustomermates.com%2Fapi%2Fv1%2Fmcp) füllt den Add-Connector-Dialog für dich vor (nur Claude Web und Teams).
+Noch schneller: [Add to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Customermates&connectorUrl=https%3A%2F%2Fcustomermates.com%2Fapi%2Fv1%2Fmcp) füllt den Add-Connector-Dialog für Sie vor (nur Claude Web und Teams).
 
 ## ChatGPT
 
 In ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
-- **URL:** `https://customermates.com/api/v1/mcp` (Self-Host: deine Instanz)
+- **URL:** `https://customermates.com/api/v1/mcp` (Self-Host: Ihre Instanz)
 - **Authentication:** OAuth
 
 Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann im **Zugriff autorisieren**-Screen auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
 
 ### ChatGPT mit API-Key
 
-Lieber einen statischen Key? Füge den Connector genauso hinzu, aber authentifiziere dich per Header:
+Lieber einen statischen Key? Fügen Sie den Connector genauso hinzu, aber authentifizieren Sie sich per Header:
 
 1. Key anlegen: **Profil → API Keys → Neuer Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren.
-2. Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** dein Key.
+2. Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** Ihr Key.
 
 Speichern. ChatGPT erreicht den Server und listet jedes Tool.
 
@@ -51,41 +51,41 @@ Speichern. ChatGPT erreicht den Server und listet jedes Tool.
 
 Der Connector öffnet ein Customermates-Fenster:
 
-1. Anmelden (oder du bist schon angemeldet).
+1. Anmelden (oder Sie sind schon angemeldet).
 2. Ein **Zugriff autorisieren**-Screen nennt die App, die sich verbindet, und das Ziel, an das der Zugriff geht.
-3. Klick auf **Zulassen**.
+3. Klicken Sie auf **Zulassen**.
 
-Du landest zurück in deiner KI, verbunden, mit allen 44 Tools in der Liste.
+Sie landen zurück in Ihrer KI, verbunden, mit allen 45 Tools in der Liste.
 
-Der Connector akzeptiert jeden Client, daher ist der **Zugriff autorisieren**-Screen die Kontrolle. Er nennt die App und zeigt den Ziel-Host. Gib nur eine Verbindung frei, die du selbst gestartet hast; lehn alles ab, was du nicht gestartet hast.
+Der Connector akzeptiert jeden Client, daher ist der **Zugriff autorisieren**-Screen die Kontrolle. Er nennt die App und zeigt den Ziel-Host. Geben Sie nur eine Verbindung frei, die Sie selbst gestartet haben; lehnen Sie alles ab, was Sie nicht gestartet haben.
 
 ## Es synchronisiert und bleibt verbunden
 
-- Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an deinem Claude-Konto, nicht an einem Gerät.
-- Sie erneuert sich im Hintergrund. Nutze sie innerhalb von 30 Tagen, und du autorisierst nie neu; bleib länger untätig, und du gibst einmal mehr frei.
+- Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät.
+- Sie erneuert sich im Hintergrund. Nutzen Sie sie innerhalb von 30 Tagen, und Sie autorisieren nie neu; bleiben Sie länger untätig, und Sie geben einmal mehr frei.
 - Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb der Daten dieses Kontos. API-Keys erben die Berechtigungen des besitzenden Users; es gibt kein Scoping pro Key.
 
-## Probier deinen ersten Prompt
+## Probieren Sie Ihren ersten Prompt
 
-Der Server sendet seine Instructions an deine KI, sobald sie sich verbindet, sodass der Client Workflow und Sicherheitsregeln bereits kennt. In Clients, die MCP-Prompts unterstützen (etwa Claude), kannst du zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: dein Name, deine Rolle und eine erste Zusammenfassung deines Workspace.
+Der Server sendet seine Instructions an Ihre KI, sobald sie sich verbindet, sodass der Client Workflow und Sicherheitsregeln bereits kennt. In Clients, die MCP-Prompts unterstützen (etwa Claude), können Sie zusätzlich den eingebauten `get-started`-Prompt starten, der den Start personalisiert: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
 
 - *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
 - *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Initech-Organisation und starte einen Deal über 12 Stunden Beratung."*
 - *"Setz die Spalte Status beim Acme-Deal auf Won und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
 
-Die Datensatztypen sind Contact, Organization, Deal, Service und Task. Felder wie der Status eines Deals oder die Priorität eines Tasks sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Bitte deine KI, `get_record_schema` aufzurufen, um die Spalten und ihre erlaubten Werte zu sehen, bevor sie schreibt.
+Die Datensatztypen sind Contact, Organization, Deal, Service und Task. Felder wie der Status eines Deals oder die Priorität eines Tasks sind pro Workspace konfigurierbare Custom Columns, keine festen Produktfelder. Bitten Sie Ihre KI, `get_record_schema` aufzurufen, um die Spalten und ihre erlaubten Werte zu sehen, bevor sie schreibt.
 
 ## Tool-Aufrufe bestätigen
 
-Deine KI entscheidet, wie viel sie vor jedem Tool-Aufruf bestätigt, und du steuerst das im Client. In Claude: **Settings → Connectors → Customermates**, dann setz jedes Tool (oder die read-only-Gruppe) auf *Always allow* oder *Ask*. Lesende Tools (`get_*`, `list_*`, `search_*`) sind als read-only markiert, schreibende und löschende ebenso, sodass du die auf *Ask* lassen kannst.
+Ihre KI entscheidet, wie viel sie vor jedem Tool-Aufruf bestätigt, und Sie steuern das im Client. In Claude: **Settings → Connectors → Customermates**, dann setzen Sie jedes Tool (oder die read-only-Gruppe) auf *Always allow* oder *Ask*. Lesende Tools (`get_*`, `list_*`, `search_*`) sind als read-only markiert, schreibende und löschende ebenso, sodass Sie die auf *Ask* lassen können.
 
 ## Troubleshooting
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar; bei Header-Auth ein falscher Key | Prüfe, dass sie exakt `https://customermates.com/api/v1/mcp` lautet; bei Header-Auth den Key prüfen |
+| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar; bei Header-Auth ein falscher Key | Prüfen Sie, dass sie exakt `https://customermates.com/api/v1/mcp` lautet; bei Header-Auth den Key prüfen |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
-| Freigegeben, aber nichts verbindet | Du hast aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |
+| Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |
 | "Tool not found" | Connector-Cache stale | Connector entfernen und neu hinzufügen |
 | Server lehnt Relationship-Update ab | Null-Wipe-Schutz hat ausgelöst | Den Agenten bitten, `manage_record_links` zu nutzen |
 | Enum-Feld abgelehnt | Wert nicht in der Optionsliste der Spalte | Den Agenten bitten, vorher `get_record_schema` aufzurufen |
@@ -96,6 +96,6 @@ Custom Connectors brauchen einen bezahlten Plan, und CLI- und Editor-Clients nut
 
 ## Weiter
 
-- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das deine KI aufrufen kann.
+- [MCP-Tool-Katalog](/docs/mcp#tool-catalog): jedes Tool, das Ihre KI aufrufen kann.
 - [Webhooks](/docs/webhooks): die andere Hälfte der agentischen Schleife.
 - [CLI & Editoren](/docs/connect-cli): API-Key-Setup für Claude Code, Codex, Cursor und Gemini CLI.

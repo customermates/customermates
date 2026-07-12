@@ -45,7 +45,7 @@ Regeln sind UND-verknüpft. Für ODER: zwei Queries laufen lassen und client-sei
 
 ### Datums-Operatoren
 
-Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutze `inLastDays` mit einer ganzzahligen Anzahl von Tagen für ein rollierendes Aktualitätsfenster, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze der letzten Woche.
+Datumsfelder wie `createdAt` und `updatedAt` akzeptieren `gt`, `gte`, `lt`, `lte`, `between` und `inLastDays`. Nutzen Sie `inLastDays` mit einer ganzzahligen Anzahl von Tagen für ein rollierendes Aktualitätsfenster, zum Beispiel `{ "field": "createdAt", "operator": "inLastDays", "value": 7 }` für Datensätze der letzten Woche.
 
 ### Relationship- und Teilnehmer-Operatoren
 
@@ -56,10 +56,10 @@ Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`, `ser
 `field` ist, was `get_record_schema` unter `filterableFields` für diese Entity zurückgibt. Enthält:
 
 - Standard-Skalare (z.B. `createdAt`, `updatedAt`).
-- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombiniere sie mit `in`, `notIn`, `hasNone`, `hasSome`.
-- Custom-Column-IDs. Nutze die UUID der Spalte als Feldname.
+- Relationship-Arrays (`organizationIds`, `dealIds`, `userIds`, `contactIds`). Kombinieren Sie sie mit `in`, `notIn`, `hasNone`, `hasSome`.
+- Custom-Column-IDs. Nutzen Sie die UUID der Spalte als Feldname.
 
-Immer `get_record_schema` zuerst, wenn du unsicher bist, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
+Immer `get_record_schema` zuerst, wenn Sie unsicher sind, was filterbar ist. Die Fehlermeldung bei unbekanntem Feld listet alle verfügbaren Felder mit erlaubten Operatoren.
 
 ## Beispiele
 

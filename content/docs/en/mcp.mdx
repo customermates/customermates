@@ -76,7 +76,7 @@ Both live at the same base URL. MCP is `/api/v1/mcp`; the OpenAPI spec is at `/a
 
 ## Tool catalog
 
-Customermates exposes 45 MCP tools, all enabled by default. They cover records, workspace, messaging (preview), social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
+Customermates exposes 45 MCP tools, all enabled by default. They cover records, workspace, messaging, social posts, documentation and deep research, custom columns, widgets, webhooks, and admin. Every destructive tool is flagged and starts its description with `IRREVERSIBLE`. Relations change only through `manage_record_links`; the update tools never touch them.
 
 Two flags per tool:
 
@@ -118,9 +118,9 @@ All create and update tools take custom-column values via customFieldValues; cal
 | `get_workspace_context` | ✓ | | Your user, the company profile, all roles including permissions, and your connected messaging accounts (your own plus any shared with the workspace) in one call. The natural first call of a session. |
 | `list_users` | ✓ | | Team members with id, name, email, roleId, and status. |
 
-### Messaging (preview)
+### Messaging
 
-The messaging surface is in preview: live today, still evolving.
+The messaging surface is live today and available from the Pro tier.
 
 | Tool | Read | Destructive | Purpose |
 |---|---|---|---|

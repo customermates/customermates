@@ -1,46 +1,49 @@
 ---
 title: Self-Hosting
-description: Customermates auf eigener Infrastruktur betreiben. Wann Self-Host sinnvoll ist, wie du es mit Docker Compose installierst, und wie du es betreibst.
+description: Customermates auf eigener Infrastruktur betreiben. Wann Self-Host sinnvoll ist, wie Sie es mit Docker Compose installieren, und wie Sie es betreiben.
 ---
 
-Self-Hosting erfordert zwei Dateien (`docker-compose.yml` und `.env`) plus `docker compose up -d`. Beide Dateien liegen im [Customermates-Repo](https://github.com/customermates/customermates) und du holst sie mit `curl`. Ein `git clone` und ein Build-Schritt sind nicht nötig. Das veröffentlichte Image unter `ghcr.io/customermates/customermates:latest` wendet die Datenbank-Migrationen beim ersten Boot an.
+Self-Hosting erfordert zwei Dateien (`docker-compose.yml` und `.env`) plus `docker compose up -d`. Beide Dateien liegen im [Customermates-Repo](https://github.com/customermates/customermates) und Sie holen sie mit `curl`. Ein `git clone` und ein Build-Schritt sind nicht nötig. Das veröffentlichte Image unter `ghcr.io/customermates/customermates:latest` wendet die Datenbank-Migrationen beim ersten Boot an.
 
 ## Self-Host vs Cloud
 
-Beide betreiben dieselbe Kernanwendung. Enterprise-Features erfordern in beiden Varianten eine Lizenz.
+Beide betreiben dieselbe Kernanwendung. Das gemeinsame Postfach, Kalender-Sync, Audit-Logging, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten). In der Cloud sind sie Teil der Tarife: Postfach und Kalender-Sync ab dem Pro-Tarif, Audit-Logging in jedem Cloud-Tarif, SSO und White-Label im Enterprise-Tarif. Der kostenlose Community-Self-Host-Build enthält das volle Kern-CRM ohne die Enterprise-Edition-Features; für ein Self-Hosted-Deployment mit diesen Features kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth gibt es in der Cloud; Self-Hosted-Installationen melden sich per E-Mail an.
 
-| Wenn du… | Nimm |
+| Wenn Sie… | Nehmen Sie |
 |---|---|
-| Heute noch mit dem CRM arbeiten willst | **Cloud** |
-| Ein Team von < 20 ohne harte Data-Residency-Anforderung | **Cloud** |
-| Das CRM auf Private-Infra für Compliance brauchst | **Self-Host** |
-| Long-term weg von Pro-Seat-Pricing willst | **Self-Host** |
-| Agentur mit mehreren Mandanten bist | **Self-Host**, eine Instanz pro Mandant |
-| Zum Projekt beitragen willst | **Self-Host** lokal, Cloud für echte Arbeit |
+| Heute noch mit dem CRM arbeiten wollen | **Cloud** |
+| Ein Team von < 20 ohne harte Data-Residency-Anforderung haben | **Cloud** |
+| Das CRM auf Private-Infra für Compliance brauchen | **Self-Host** |
+| Long-term weg von Pro-Seat-Pricing wollen | **Self-Host** |
+| Eine Agentur mit mehreren Mandanten sind | **Self-Host**, eine Instanz pro Mandant |
+| Zum Projekt beitragen wollen | **Self-Host** lokal, Cloud für echte Arbeit |
 
 | | Cloud | Self-Host |
 |---|---|---|
 | Setup-Zeit | 2 Minuten | ~15 Minuten |
-| Infra, die du managst | keine | Docker, Postgres, Proxy, TLS, Backups |
+| Infra, die Sie managen | keine | Docker, Postgres, Proxy, TLS, Backups |
 | Updates | automatisch | `docker compose pull && docker compose up -d` |
-| EU-gehostet | ✓ | wo du willst |
-| Backups | automatisch täglich | du konfigurierst |
+| EU-gehostet | ✓ | wo Sie wollen |
+| Backups | automatisch täglich | Sie konfigurieren |
 | Support-SLA | inkl. in Paid-Plans | Community |
-| Enterprise-Features (SSO, Audit-Log) | Paid-Plan | Paid-License-Key |
-| Pricing | pro Sitz | kostenlos, nur Enterprise-Lizenz zahlen |
+| Gemeinsames Postfach und Kalender-Sync | ab dem Pro-Tarif | nicht enthalten (Cloud-Funktion) |
+| Audit-Log | in jedem Plan enthalten | Enterprise-Vereinbarung |
+| Enterprise-Features (Enterprise-SSO, White-Label) | Enterprise-Plan | Enterprise-Vereinbarung |
+| Google-/Microsoft-OAuth-Anmeldung | ✓ | E-Mail-Anmeldung |
+| Pricing | pro Nutzer, Tarife ab 12 €/Monat | kostenlos (Kern-CRM); Enterprise-Features per Vereinbarung |
 
-**Datenhoheit:** Die Cloud speichert Daten in unserer EU-Region, DSGVO-konform, mit üblicher Verschlüsselung at-rest und in-transit. Wenn deine Compliance verlangt, dass Daten auf deiner Infra liegen: Self-Host.
+**Datenhoheit:** Die Cloud speichert Daten in unserer EU-Region, DSGVO-konform, mit üblicher Verschlüsselung at-rest und in-transit. Wenn Ihre Compliance verlangt, dass Daten auf Ihrer Infra liegen: Self-Host.
 
-**Kostenform:** Cloud ist pro Sitz bepreist und skaliert linear. Self-Host ist kostenlos für die Kernanwendung plus was du für Infrastruktur zahlst (ein kleiner VPS trägt Hunderte User). Für ein kleines Team ist Cloud oft günstiger, wenn du die Zeit fürs eigene Postgres-Backup einrechnest. Für ein größeres Team ist Self-Host meist die günstigere Variante.
+**Kostenform:** Cloud ist pro Nutzer über Tarife bepreist, ab 12 €/Nutzer/Monat, und skaliert mit Ihrem Messaging-Umfang. Self-Host ist kostenlos für die Kernanwendung plus was Sie für Infrastruktur zahlen (ein kleiner VPS trägt Hunderte User). Für ein kleines Team ist Cloud oft günstiger, wenn Sie die Zeit fürs eigene Postgres-Backup einrechnen. Für ein größeres Team ist Self-Host meist die günstigere Variante.
 
-Du kannst zwischen beiden wechseln: Export von einem, Import ins andere. Das Datenmodell ist identisch.
+Sie können zwischen beiden wechseln: Export von einem, Import ins andere. Das Datenmodell ist identisch.
 
 ## Installation
 
 ### Voraussetzungen
 
 - Docker und Docker Compose v2.
-- Domain-Name, falls du TLS willst (lokal nicht nötig).
+- Domain-Name, falls Sie TLS wollen (lokal nicht nötig).
 - ~2 GB RAM und ein paar GB Disk pro tausend Records.
 
 ### 1. Verzeichnis anlegen und beide Config-Dateien holen
@@ -55,7 +58,7 @@ Anschließend `.env` mit echten Werten editieren:
 
 - `BETTER_AUTH_SECRET`: langer Zufallsstring (`openssl rand -hex 32`).
 - `POSTGRES_PASSWORD`: default ändern.
-- `BASE_URL`: deine Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
+- `BASE_URL`: Ihre Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
 - `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`: ein kostenloses [Resend](https://resend.com)-Projekt. Nötig für Signup-Verifizierung, Passwort-Reset und Einladungs-Mails.
 
 ### 2. Starten
@@ -70,7 +73,7 @@ First-Boot dauert eine Minute, während Prisma-Migrationen laufen. Logs ansehen:
 docker compose logs -f app
 ```
 
-Wenn die App ready ist, `http://localhost:4000` öffnen (oder dein eigenes `APP_PORT`).
+Wenn die App ready ist, `http://localhost:4000` öffnen (oder Ihr eigenes `APP_PORT`).
 
 ### 3. Erster Account
 
@@ -78,7 +81,7 @@ URL öffnen. Mit E-Mail registrieren, Verifizierungs-Link aus dem Postfach klick
 
 ### 4. Reverse-Proxy und TLS
 
-Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder dein eigenes `APP_PORT`). Caddy:
+Reverse-Proxy (Caddy, nginx, Traefik) auf den App-Port zeigen (4000 by default, oder Ihr eigenes `APP_PORT`). Caddy:
 
 ```text
 crm.example.com {
@@ -120,7 +123,7 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Hintergrund-Jobs (Webhook-Auslieferungen, Inbox-Sync und Nachrichten-Backfill) laufen prozessintern über einen eingebetteten, Postgres-gestützten Worker, der mit der App startet. Es gibt keinen externen Job-Dienst zu konfigurieren. Den Fortschritt siehst du in den App-Logs (`docker compose logs -f app`).
+Hintergrund-Jobs (Webhook-Auslieferungen, Inbox-Sync und Nachrichten-Backfill) laufen prozessintern über einen eingebetteten, Postgres-gestützten Worker, der mit der App startet. Es gibt keinen externen Job-Dienst zu konfigurieren. Den Fortschritt sehen Sie in den App-Logs (`docker compose logs -f app`).
 
 ### Alle Daten zurücksetzen
 
@@ -148,10 +151,10 @@ Für Produktion:
 
 ## Enterprise-Features
 
-Audit-Logging, SSO und White-Labeling brauchen eine Enterprise-Lizenz. Alles andere ist kostenlos. Lizenz gemäß der Anleitung konfigurieren, die mit deinem Lizenzschlüssel geliefert wird.
+Das gemeinsame Postfach, Kalender-Sync, Audit-Logging, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten). In der Cloud sind sie Teil der Tarife: Postfach und Kalender ab Pro, Audit-Logging in jedem Tarif, SSO und White-Label im Enterprise-Tarif. Der kostenlose Community-Self-Host-Build enthält sie nicht. Wenn Sie diese Features auf eigener Infrastruktur benötigen, kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung.
 
 ## Weiter
 
-- [Architektur und Sicherheit](/docs/architecture-security): was du betreibst.
+- [Architektur und Sicherheit](/docs/architecture-security): was Sie betreiben.
 - [API-Keys](/docs/api-keys): Key-Hygiene.
-- [KI verbinden](/docs/connect-custom-connector): nach dem Install einen MCP-Client auf deine Instanz zeigen.
+- [KI verbinden](/docs/connect-custom-connector): nach dem Install einen MCP-Client auf Ihre Instanz zeigen.

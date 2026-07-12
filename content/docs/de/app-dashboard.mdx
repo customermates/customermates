@@ -1,13 +1,13 @@
 ---
 title: Dashboard
-description: Der Startbildschirm nach dem Login, konfigurierbare Widgets über deinen CRM-Daten, mit stabilen Anchor ids für KI-Agents in der UI.
+description: Der Startbildschirm nach dem Login, konfigurierbare Widgets über Ihren CRM-Daten, mit stabilen Anchor ids für KI-Agents in der UI.
 ---
 
 Customermates ist ein Open-Source-CRM, KI-nativ gebaut. Diese Seite dokumentiert den **Dashboard**-Screen der Web-App: für Menschen und für KI-Agents, die die UI steuern.
 
 ## Zweck
 
-Das Dashboard ist der Startbildschirm nach dem Login. Es zeigt konfigurierbare Widgets über deinen CRM-Daten: Pipelines, Aufgaben, letzte Aktivität, was immer du einrichtest. Von hier springst du in jeden anderen Screen der App.
+Das Dashboard ist der Startbildschirm nach dem Login. Es zeigt konfigurierbare Widgets über Ihren CRM-Daten: Pipelines, Aufgaben, letzte Aktivität, was immer Sie einrichten. Von hier springen Sie in jeden anderen Screen der App.
 
 ## URL
 
@@ -21,19 +21,19 @@ Route: `/dashboard`. Alle App-Routen haben ein Locale-Präfix, zum Beispiel `htt
 | Widget hinzufügen | Seitenkopf | `#dashboard-add-widget` | Öffnet das Widget-Modal |
 | Widget speichern / zurücksetzen | Footer des Widget-Modals | `#widget-modal-save` / `#widget-modal-reset` | Erstellt oder aktualisiert das Widget (Reset erscheint bei ungespeicherten Änderungen) |
 | Globale Suche | Oben in der Sidebar | `#nav-search` | Öffnet das Such-Modal (auch Cmd/Ctrl+K) |
-| Alles durchsuchen | Such-Modal | `#global-search-input` | Springe zu jedem Contact, jeder Organization, jedem Deal, Service oder Task |
+| Alles durchsuchen | Such-Modal | `#global-search-input` | Springen Sie zu jedem Contact, jeder Organization, jedem Deal, Service oder Task |
 | Dokumentation öffnen | Sidebar-Footer | `#nav-documentation` | Öffnet `/docs` |
 | Feedback senden | Sidebar-Footer | `#nav-feedback` | Öffnet den Feedback-Dialog |
 
 ## Erster Start
 
-Neue Accounts landen im Onboarding-Wizard unter `/onboarding/wizard`, bevor sie das Dashboard sehen. Er führt durch Profil, Unternehmen, Entitäten, Demo-Daten, KI-Setup und Team-Einladungen. Navigiere ihn mit den Anchor ids `#onboarding-next` und `#onboarding-back`.
+Neue Accounts landen im Onboarding-Wizard unter `/onboarding/wizard`, bevor sie das Dashboard sehen. Er führt durch Profil, Unternehmen, Entitäten, Demo-Daten, KI-Setup und Team-Einladungen. Navigieren Sie ihn mit den Anchor ids `#onboarding-next` und `#onboarding-back`.
 
 ## Tipps für Agents
 
-- Finde Controls über die stabilen Ids oben, nicht über sichtbaren Text. CSS-Selektor-Beispiel: `#dashboard-add-widget`.
-- Zeilen tragen nie Ids. Öffne Datensätze über ihre URL oder den Drawer-Deep-Link `?open=<entityType>:<id>` (nur auf Entitäts-Seiten). Mehrere Einträge stapelst du mit Kommas, zum Beispiel `?open=contact:abc,deal:xyz`.
-- Bevorzuge [MCP](/docs/mcp)-Tools statt Klicks, wenn es ein Tool gibt. CRM-Daten lesen und schreiben geht über Tools schneller und sicherer als über die UI.
+- Finden Sie Controls über die stabilen Ids oben, nicht über sichtbaren Text. CSS-Selektor-Beispiel: `#dashboard-add-widget`.
+- Zeilen tragen nie Ids. Öffnen Sie Datensätze über ihre URL oder den Drawer-Deep-Link `?open=<entityType>:<id>` (nur auf Entitäts-Seiten). Mehrere Einträge stapeln Sie mit Kommas, zum Beispiel `?open=contact:abc,deal:xyz`.
+- Bevorzugen Sie [MCP](/docs/mcp)-Tools statt Klicks, wenn es ein Tool gibt. CRM-Daten lesen und schreiben geht über Tools schneller und sicherer als über die UI.
 
 ## Verwandte Seiten
 

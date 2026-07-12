@@ -5,7 +5,7 @@ featureName: CRM Integration
 
 hero:
   title: CRM Integration That Connects Your Entire Business Stack
-  description: Connect Customermates to every tool your business uses. The built-in n8n engine replaces Zapier with 400+ connectors, the REST API gives developers full control, and real-time webhooks keep systems in sync. All included at EUR 7 per user per month.
+  description: Connect Customermates to every tool your business uses. The built-in n8n engine replaces Zapier with 400+ connectors, the REST API gives developers full control, and real-time webhooks keep systems in sync. A native MCP endpoint lets AI agents operate the CRM, and a native unified inbox brings email, LinkedIn, WhatsApp, Instagram, and Telegram inside it. Included in every tier, from EUR 12 per user per month.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -32,7 +32,15 @@ Effective CRM integration turns your CRM from a standalone contact database into
 
 ## How CRM Integration Works in Customermates
 
-Customermates is built for integration from the ground up. Three complementary approaches give you the flexibility to connect virtually any tool or platform, regardless of your team's technical skill level.
+Customermates is built for integration from the ground up. Four complementary approaches, native AI agents, the built-in n8n engine, the REST API, and webhooks, give you the flexibility to connect virtually any tool or platform, regardless of your team's technical skill level. On top of that, the communication channels most teams integrate separately are built into the CRM as a native unified inbox.
+
+### Native AI Agents (MCP)
+
+Customermates ships a native Model Context Protocol (MCP) endpoint at `https://customermates.com/api/v1/mcp`, authenticated with `x-api-key`. Connect Claude, ChatGPT, or Gemini and they operate the CRM directly through 45 tools across nine toolsets: reading and writing records, moving deal stages, drafting follow-ups, and, on a messaging tier, working the unified inbox. Instead of syncing data out to an AI tool, the AI works inside the CRM with your permissions. The MCP endpoint is available from the Starter tier; messaging tools require Pro or above. Narrow the exposed tools per client with the `?toolsets=` parameter.
+
+### Native Unified Inbox
+
+Most CRMs bolt on email and messaging through third-party add-ons. Customermates includes them natively. Email, LinkedIn, WhatsApp, Instagram, and Telegram live in one unified inbox inside the CRM, and every conversation is logged against the right contact automatically. The unified inbox is included from the Pro tier (€29/user/month); shared, team-wide inboxes come with the Business tier (€59/user/month).
 
 ### Built-in n8n Automation (Replaces Zapier)
 
@@ -44,7 +52,7 @@ n8n serves as a powerful open-source alternative to Zapier or Make, but it runs 
 
 ### REST API
 
-For developers and custom applications, Customermates exposes a comprehensive REST API covering all CRM entities: contacts, organizations, deals, tasks, notes, and custom fields. Full CRUD operations, filtering, pagination, bulk operations, and API key authentication. Documentation is thorough with clear endpoints and response formats. When you self-host, there are no artificial rate limits.
+For developers and custom applications, Customermates exposes a comprehensive REST API covering all CRM entities: contacts, organizations, deals, services, and tasks, plus their custom fields. Full CRUD operations, filtering, pagination, bulk operations, and API key authentication. Documentation is thorough with clear endpoints and response formats. When you self-host, there are no artificial rate limits.
 
 ### Webhooks
 
@@ -52,7 +60,7 @@ Configure webhooks to push real-time notifications when events occur in your CRM
 
 ## Popular CRM Integration Use Cases
 
-**CRM + [Email](/features/email-integration).** Sync Gmail and [Outlook](/features/outlook-integration) with your CRM. Every sent and received email is automatically logged on the contact record. Templates, tracking, and automated sequences are included.
+**CRM + [Email](/features/email-integration).** Sync Gmail and [Outlook](/features/outlook-integration) with your CRM. Every sent and received email is automatically logged on the contact record. Templates, tracking, and automated sequences are included from the Pro tier (€29/user/month), which adds the unified messaging inbox on top of the core CRM.
 
 **CRM + [Slack](/features/slack-integration).** Send deal updates, new lead alerts, and task reminders to Slack channels. Create CRM records from Slack messages. Keep your team informed in the communication tool they already use.
 
@@ -62,7 +70,7 @@ Configure webhooks to push real-time notifications when events occur in your CRM
 
 **CRM + Web Forms.** Capture leads from website forms and create contacts automatically. Route leads to the right sales representative based on form data, geography, or deal value. Trigger welcome sequences instantly.
 
-**CRM + Calendar.** Sync activities with Google Calendar or Outlook. Meeting scheduling, follow-up reminders, and task deadlines flow between your CRM and calendar in both directions.
+**CRM + Calendar.** Sync activities with Google Calendar or Outlook. Meeting scheduling, follow-up reminders, and task deadlines flow between your CRM and calendar in both directions. Native calendar sync is included from the Pro tier alongside the unified inbox.
 
 **CRM + Project Management.** When a deal closes, create a project in Asana, Monday, Notion, or Linear with deal details pre-filled. The sales-to-delivery handoff happens automatically.
 
@@ -74,7 +82,7 @@ Many businesses use Zapier to connect their CRM with other tools. Customermates 
 
 | Capability | Customermates (n8n built in) | Zapier + Other CRM |
 |---|---|---|
-| Monthly cost | EUR 7/user (all included) | CRM cost + Zapier from $20/month |
+| Monthly cost | From EUR 12/user (n8n, API, webhooks included) | CRM cost + Zapier from $20/month |
 | Per-execution fees | None | Yes (Zapier charges per task) |
 | Pre-built connectors | 400+ | 7,000+ |
 | Multi-step workflows | Unlimited steps, free | Premium plan required |
@@ -94,7 +102,7 @@ Zapier connects more services, but Customermates delivers better value for CRM-c
 
 **No vendor lock-in.** Customermates is open source with a full API. Your data is always accessible and portable. If you ever need to migrate, build a custom application, or feed data to a data warehouse, your CRM data is available without restrictions.
 
-**Built-in Zapier alternative.** The n8n engine replaces the need for a separate automation subscription. Instead of paying for Zapier or Make on top of your CRM, you get equivalent functionality included in the EUR 7 per user per month price.
+**Built-in Zapier alternative.** The n8n engine replaces the need for a separate automation subscription. Instead of paying for Zapier or Make on top of your CRM, you get equivalent functionality included from the EUR 12 per user per month Starter tier.
 
 **Developer-friendly and business-user accessible.** Business users build [integrations](/features/integrations) visually with n8n. Developers work directly with the API. Both groups get the tools they need without compromise.
 
@@ -102,7 +110,7 @@ Zapier connects more services, but Customermates delivers better value for CRM-c
 
 **n8n built in, not bolted on.** Most CRMs offer limited Zapier support or basic native connectors. Customermates includes the complete n8n platform with visual workflow building, error handling, scheduling, and 400+ connectors. This is not a simplified automation widget. It is a full workflow automation engine.
 
-**All integrations at one price.** API access, webhooks, and n8n workflows are available to every user at EUR 7 per month. Other CRMs charge extra for API access, limit webhook endpoints, or gate automation behind premium tiers. Customermates includes everything.
+**All integrations from the entry tier.** API access, webhooks, and n8n workflows are available to every user from EUR 12 per month. Other CRMs charge extra for API access, limit webhook endpoints, or gate automation behind premium tiers. Customermates includes them all from Starter.
 
 **EU data processing.** All data flowing through Customermates integrations is processed in EU data centers with full GDPR and DSGVO compliance. This matters for businesses that need to ensure compliance across their entire integration chain, not just within the CRM.
 
@@ -113,7 +121,7 @@ Zapier connects more services, but Customermates delivers better value for CRM-c
 ## Frequently Asked Questions
 
 **How is CRM integration different from CRM integrations?**
-"CRM integration" refers to the general process and strategy of connecting your CRM to other tools. "[CRM integrations](/features/integrations)" refers to the specific connections and connectors available. Customermates supports both: a robust integration architecture (API, webhooks, n8n) and 400+ specific pre-built integrations.
+"CRM integration" refers to the general process and strategy of connecting your CRM to other tools. "[CRM integrations](/features/integrations)" refers to the specific connections and connectors available. Customermates supports both: a robust integration architecture (native MCP, API, webhooks, n8n) and 400+ specific pre-built integrations.
 
 **Can Customermates replace Zapier?**
 For CRM-related automations, yes. The built-in n8n engine provides equivalent functionality including multi-step workflows, conditional logic, data transformation, and scheduling. Teams that only use Zapier for CRM connections can eliminate their Zapier subscription entirely.

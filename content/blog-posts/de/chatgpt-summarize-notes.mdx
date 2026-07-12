@@ -4,7 +4,7 @@ description: "ChatGPT Gesprächsnotizen zusammenfassen: Prompt-Vorlagen für Akt
 
 hero:
   title: "ChatGPT Gesprächsnotizen zusammenfassen: Vom Gesprächsprotokoll zum CRM in Sekunden"
-  description: "Jedes Kundengespräch produziert seitenweise Notizen. ChatGPT macht daraus eine Drei-Satz-Zusammenfassung, die direkt ins CRM wandert -- manuell oder vollautomatisch mit n8n."
+  description: "Jedes Kundengespräch produziert seitenweise Notizen. ChatGPT macht daraus eine Drei-Satz-Zusammenfassung, die direkt ins CRM wandert, manuell oder vollautomatisch mit n8n."
 
 blogPost:
   author: Benjamin Wagner
@@ -20,13 +20,13 @@ blogPost:
 
 # ChatGPT Gesprächsnotizen zusammenfassen: Vom Gesprächsprotokoll zum CRM in Sekunden
 
-Jedes Kundengespräch produziert seitenweise Notizen. ChatGPT macht daraus eine Drei-Satz-Zusammenfassung, die direkt ins CRM wandert -- manuell oder vollautomatisch mit n8n.
+Jedes Kundengespräch produziert seitenweise Notizen. ChatGPT macht daraus eine Drei-Satz-Zusammenfassung, die direkt ins CRM wandert, manuell oder vollautomatisch mit n8n.
 
 ## Warum das Zusammenfassen von Gesprächsnotizen im Vertrieb entscheidend ist
 
 Dokumentation nach Kundengesprächen ist ein universelles Problem. Vertriebsmitarbeiter tippen Absätze unstrukturierten Text, kopieren sie irgendwohin und hoffen, dass Kollegen später damit etwas anfangen können. Das Ergebnis: CRM-Felder bleiben leer, Notizen leben in persönlichen Notizbüchern, und Deal-Kontext geht verloren, sobald jemand im Urlaub ist.
 
-Laut einer [Salesforce-Studie](https://www.salesforce.com/resources/research-reports/state-of-sales/) verbringen Vertriebsmitarbeiter nur 28 % ihrer Arbeitszeit mit tatsächlichem Verkaufen. Der Rest entfällt auf administrative Aufgaben -- und die Nachbereitung von Gesprächen gehört zu den größten Zeitfressern.
+Laut einer [Salesforce-Studie](https://www.salesforce.com/resources/research-reports/state-of-sales/) verbringen Vertriebsmitarbeiter nur 28 % ihrer Arbeitszeit mit tatsächlichem Verkaufen. Der Rest entfällt auf administrative Aufgaben, und die Nachbereitung von Gesprächen gehört zu den größten Zeitfressern.
 
 Strukturierte Zusammenfassungen lösen drei Probleme gleichzeitig:
 
@@ -54,13 +54,13 @@ Bevor es um ChatGPT-Prompts geht, lohnt sich ein Blick auf die Tools, die Meetin
 | n8n-Integration | Über API | Nativer Webhook | Über API |
 | DSGVO/EU-Hosting | Nur US | US (EU-AVV verfügbar) | US (EU-AVV verfügbar) |
 
-**Otter.ai** eignet sich besonders für Einzelnutzer, die Echtzeit-Transkription während Meetings wünschen. Die KI-Zusammenfassungen sind solide, aber generisch -- sie lassen sich nicht direkt auf CRM-Felder abbilden.
+**Otter.ai** eignet sich besonders für Einzelnutzer, die Echtzeit-Transkription während Meetings wünschen. Die KI-Zusammenfassungen sind solide, aber generisch, sie lassen sich nicht direkt auf CRM-Felder abbilden.
 
 **Fireflies.ai** bietet die beste Integrations-Story für Automatisierung. Die Webhooks senden Transkripte sofort nach Meeting-Ende an externe Tools wie n8n. Damit ist Fireflies die erste Wahl für den später beschriebenen automatisierten Workflow.
 
 **Fathom** liefert die aktionsorientiertesten Zusammenfassungen direkt nach dem Meeting. Es hebt Aktionspunkte, Fragen und Entscheidungen hervor, ohne dass Prompting nötig ist. Die Export-Optionen sind für individuelle Automatisierung aber eingeschränkter.
 
-**Die Lücke, die diese Tools lassen:** Alle drei generieren Zusammenfassungen, aber keine produziert Output, der auf Ihre spezifischen CRM-Felder zugeschnitten ist. Genau hier kommt ChatGPT ins Spiel -- Sie kontrollieren das Ausgabeformat per Prompt und stellen sicher, dass Zusammenfassungen direkt in Ihr CRM-Datenmodell passen.
+**Die Lücke, die diese Tools lassen:** Alle drei generieren Zusammenfassungen, aber keine produziert Output, der auf Ihre spezifischen CRM-Felder zugeschnitten ist. Genau hier kommt ChatGPT ins Spiel, Sie kontrollieren das Ausgabeformat per Prompt und stellen sicher, dass Zusammenfassungen direkt in Ihr CRM-Datenmodell passen.
 
 ## ChatGPT-Prompts zum Zusammenfassen von Gesprächsnotizen
 
@@ -172,11 +172,11 @@ Dieser Prompt eliminiert die 10-15 Minuten, die Vertriebsmitarbeiter typischerwe
 > - Kontakt: Lisa, Müller GmbH, [Rolle nicht genannt]
 > - Hauptthema: CRM-Software-Evaluation als Ersatz für Excel-basierte Kundenverwaltung.
 > - Pain Points: Excel wird bei wachsender Datenmenge unübersichtlich; DSGVO-Konformität erforderlich; begrenztes Budget.
-> - Entscheidungen: Keine finalisiert -- interne Prüfung mit Geschäftsführer nächste Woche.
+> - Entscheidungen: Keine finalisiert, interne Prüfung mit Geschäftsführer nächste Woche.
 > - Nächste Schritte: Angebot bis Dienstag senden (Verantwortlich: wir); Lisa präsentiert GF nächste Woche (Verantwortlich: Lisa).
 > - Deal-Phase: Erstgespräch.
 
-Beide Formate bewahren alle relevanten Informationen. Die strukturierte Version lässt sich direkt auf CRM-Felder in [Customermates](/) oder jedem anderen System abbilden -- ohne manuelle Nacherfassung.
+Beide Formate bewahren alle relevanten Informationen. Die strukturierte Version lässt sich direkt auf CRM-Felder in [Customermates](/) oder jedem anderen System abbilden, ohne manuelle Nacherfassung.
 
 ## Integration mit Kalender-Apps für nahtlose Erfassung
 
@@ -199,7 +199,7 @@ Der beste Workflow für Gesprächsnotizen beginnt vor dem Anruf. Durch die Integ
 
 ## Den gesamten Ablauf mit n8n automatisieren
 
-Manuelles Kopieren funktioniert, aber Vollautomatisierung ist besser. Mit [n8n](https://n8n.io/) lässt sich ein Workflow bauen, der Gesprächsnotizen automatisch zusammenfasst und das Ergebnis ins CRM schreibt -- ohne manuelle Schritte.
+Manuelles Kopieren funktioniert, aber Vollautomatisierung ist besser. Mit [n8n](https://n8n.io/) lässt sich ein Workflow bauen, der Gesprächsnotizen automatisch zusammenfasst und das Ergebnis ins CRM schreibt, ohne manuelle Schritte.
 
 ### Architektur-Überblick
 
@@ -224,7 +224,7 @@ Verwenden Sie einen n8n-Webhook-Node als Einstiegspunkt. Verbinden Sie ihn mit I
 Fügen Sie einen OpenAI-Node in n8n hinzu. Konfigurieren Sie ihn mit Ihrem API-Key und dem Drei-Satz-Prompt von oben. Übergeben Sie den Transkript-Text als Input. Der Node gibt die strukturierte Zusammenfassung zurück.
 
 **3. Ins CRM schreiben.**
-Fügen Sie einen CRM-Node hinzu (Customermates, HubSpot, Pipedrive oder jedes CRM mit API). Mappen Sie die Zusammenfassung auf das Notizfeld des jeweiligen Deals oder Kontakts. Bei Customermates ist die n8n-Integration nativ vorhanden -- Kontakt auswählen, "Notiz hinzufügen" wählen und das Zusammenfassungs-Feld zuordnen.
+Fügen Sie einen CRM-Node hinzu (Customermates, HubSpot, Pipedrive oder jedes CRM mit API). Mappen Sie die Zusammenfassung auf das Notizfeld des jeweiligen Deals oder Kontakts. Bei Customermates ist die n8n-Integration nativ vorhanden, Kontakt auswählen, "Notiz hinzufügen" wählen und das Zusammenfassungs-Feld zuordnen.
 
 **4. Team benachrichtigen (optional).**
 Fügen Sie einen Slack- oder E-Mail-Node hinzu, um den Deal-Verantwortlichen zu informieren, dass eine neue Zusammenfassung vorliegt. Fügen Sie den Zusammenfassungstext in die Benachrichtigung ein, damit der Empfänger ohne CRM-Login prüfen kann.
@@ -238,10 +238,10 @@ Fügen Sie einen zweiten ChatGPT-Node hinzu, der Aktionspunkte aus demselben Tra
 |-----------|------------------|
 | n8n Cloud (Starter) | 20 EUR |
 | OpenAI API (100 Zusammenfassungen) | 2-5 EUR |
-| Customermates CRM | 7 EUR/Nutzer |
-| **Gesamt (1 Nutzer)** | **31-34 EUR** |
+| Customermates CRM | 12 EUR/Nutzer |
+| **Gesamt (1 Nutzer)** | **34-37 EUR** |
 
-Bei 100 Gesprächszusammenfassungen pro Monat sind die API-Kosten vernachlässigbar. Die Zeitersparnis -- rund 80 Minuten pro Woche für einen aktiven Vertriebsmitarbeiter -- überwiegt die Ausgaben bei Weitem.
+Bei 100 Gesprächszusammenfassungen pro Monat sind die API-Kosten vernachlässigbar. Die Zeitersparnis, rund 80 Minuten pro Woche für einen aktiven Vertriebsmitarbeiter, überwiegt die Ausgaben bei Weitem.
 
 ## Datenschutz und DSGVO bei KI-gestützten Zusammenfassungen
 
@@ -254,7 +254,7 @@ OpenAI bietet für API-Nutzer einen Data Processing Addendum (DPA) an. Bei Nutzu
 ### DSGVO-Checkliste für Meeting-Zusammenfassungen
 
 - **Rechtsgrundlage:** Dokumentieren Sie Ihre Rechtsgrundlage für die Verarbeitung von Meeting-Daten (typischerweise berechtigtes Interesse oder Vertragserfüllung).
-- **Datenminimierung:** Senden Sie nur das Gesprächstranskript an die KI -- nicht den gesamten Kundendatensatz. Entfernen Sie E-Mail-Adressen, Telefonnummern und andere personenbezogene Daten, die für die Zusammenfassung nicht benötigt werden.
+- **Datenminimierung:** Senden Sie nur das Gesprächstranskript an die KI, nicht den gesamten Kundendatensatz. Entfernen Sie E-Mail-Adressen, Telefonnummern und andere personenbezogene Daten, die für die Zusammenfassung nicht benötigt werden.
 - **Aufbewahrung:** Legen Sie fest, wie lange KI-generierte Zusammenfassungen in Ihrem CRM gespeichert werden. Gleichen Sie dies mit Ihrer Datenschutzrichtlinie ab.
 - **Recht auf Löschung:** Stellen Sie sicher, dass beim Löschen eines Kontakts im CRM auch die zugehörigen KI-generierten Notizen entfernt werden.
 - **Transparenz:** Aktualisieren Sie Ihre Datenschutzhinweise, um die KI-Verarbeitung von Meeting-Daten zu erwähnen, falls zutreffend.
@@ -274,15 +274,15 @@ Stellen Sie sicher, dass Ihr CRM Daten DSGVO-konform speichert. Customermates ho
 
 Nicht jedes CRM geht gleich gut mit Notizen und Automatisierung um. So schneiden populäre Optionen für diesen konkreten Workflow ab:
 
-**Customermates.** 7 EUR/Nutzer/Monat, alle Funktionen inklusive. Native n8n-Integration, Notizen an Deals und Kontakten, DSGVO-konformes EU-Hosting, Open Source. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Der Einheitspreis bedeutet, dass KI-gestützte Automatisierung kein teures Tier-Upgrade erfordert.
+**Customermates.** Ab 12 EUR/Nutzer/Monat (Starter), das volle Kern-CRM inklusive. Native n8n-Integration, dazu ein nativer MCP-Server, sodass ein KI-Agent (Claude, ChatGPT oder Gemini) Datensätze direkt lesen und schreiben kann, Notizen an Deals und Kontakten, DSGVO-konformes EU-Hosting, Open Source. Ab der Pro-Stufe kommt ein nativer vereinheitlichter Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram) hinzu, den derselbe Agent bedienen kann. Entwickelt für Teams, die schnelle Dateneingabe ohne komplexe Konfiguration wollen. Native KI und MCP sind ab der Einstiegsstufe enthalten, kein separates Upgrade nötig.
 
-**HubSpot.** Kostenloser Einstieg verfügbar, Automatisierungsfunktionen erfordern jedoch kostenpflichtige Pläne ab 45 EUR/Monat. Notizen funktionieren gut, die Oberfläche ist aber komplexer. Sinnvoll, wenn Sie zusätzlich Marketing-Automatisierung benötigen. Meeting-Aufnahme-Integrationen sind in kostenpflichtigen Tarifen eingebaut.
+**HubSpot.** Kostenlose CRM-Stufe verfügbar; kostenpflichtige Sales-Hub-Pläne beginnen bei 15 USD/Sitz/Monat (Starter), die Automatisierung, die die meisten Teams wollen, greift ab Professional (90 USD/Sitz/Monat, plus einmalige Onboarding-Gebühr). Notizen funktionieren gut, die Oberfläche ist aber komplexer. Sinnvoll, wenn Sie zusätzlich Marketing-Automatisierung benötigen. Meeting-Aufnahme-Integrationen sind in kostenpflichtigen Tarifen eingebaut.
 
-**Pipedrive.** Ab 14 EUR/Nutzer/Monat. Starker Sales-Pipeline-Fokus. Notizen sind gut strukturiert, die n8n-Integration läuft über die API, die in allen Plänen verfügbar ist. Pipedrive bietet eigene KI-Features in höheren Tarifen, die aber weniger anpassbar sind als der ChatGPT-Ansatz.
+**Pipedrive.** Nach dem Rebrand im Juli 2025 beginnen die Pläne bei 14 USD/Nutzer/Monat (Lite), Growth für 39 USD ergänzt Workflow-Automation (jährliche Abrechnung). Starker Sales-Pipeline-Fokus. Notizen sind gut strukturiert, die n8n-Integration läuft über die API, die in allen Plänen verfügbar ist. Pipedrive bietet eigene KI-Features in höheren Tarifen, die aber weniger anpassbar sind als der ChatGPT-Ansatz.
 
-**Salesforce.** Ab 25 EUR/Nutzer/Monat. Die am stärksten anpassbare Option, aber mit hoher Konfigurationskomplexität. Einstein AI bietet integrierte Meeting-Insights in Premium-Tarifen. Am besten für große Teams mit dediziertem Admin.
+**Salesforce.** Ab 25 USD/Nutzer/Monat (Starter Suite, jährliche Abrechnung). Sehr anpassbar, aber mit hoher Konfigurationskomplexität. Einstein und Agentforce ergänzen KI in Premium-Tarifen und als Add-ons. Gut geeignet für große Teams mit dediziertem Admin.
 
-Für Teams, die KI-Zusammenfassung mit CRM-Automatisierung zu den niedrigsten Gesamtkosten kombinieren wollen, ist Customermates plus n8n der kosteneffektivste Stack.
+Für Teams, die KI-Zusammenfassung mit CRM-Automatisierung zu niedrigen Gesamtkosten kombinieren wollen, ist Customermates plus n8n ein schlanker, reibungsarmer Stack.
 
 ## Häufig gestellte Fragen
 
@@ -304,7 +304,7 @@ Ja. Fireflies sendet Transkripte direkt an eine Webhook-URL, was der einfachste 
 
 ### Was passiert, wenn ChatGPT in der Zusammenfassung etwas falsch erfasst?
 
-KI-Zusammenfassungen sollten immer geprüft werden, bevor sie zum offiziellen CRM-Eintrag werden. Bauen Sie einen Prüfschritt in Ihren Workflow ein -- entweder eine manuelle Kontrolle oder einen n8n-Node, der die Zusammenfassung dem Deal-Verantwortlichen zur Freigabe sendet, bevor sie ins CRM geschrieben wird.
+KI-Zusammenfassungen sollten immer geprüft werden, bevor sie zum offiziellen CRM-Eintrag werden. Bauen Sie einen Prüfschritt in Ihren Workflow ein, entweder eine manuelle Kontrolle oder einen n8n-Node, der die Zusammenfassung dem Deal-Verantwortlichen zur Freigabe sendet, bevor sie ins CRM geschrieben wird.
 
 ### Wie unterscheidet sich ChatGPT von der eingebauten Meeting-KI in Tools wie Fathom oder Fireflies?
 
@@ -312,7 +312,7 @@ Die eingebaute Meeting-KI produziert generische Zusammenfassungen, die für das 
 
 ### Funktioniert das auch mit anderen CRM-Systemen außer Customermates?
 
-Ja. Der n8n-Workflow funktioniert mit jedem CRM, das eine API oder n8n-Integration bietet. HubSpot, Pipedrive, Salesforce, Zoho und viele weitere werden unterstützt. Der ChatGPT-Zusammenfassungsschritt ist CRM-unabhängig -- nur der abschließende "Ins CRM schreiben"-Node ändert sich je nach System.
+Ja. Der n8n-Workflow funktioniert mit jedem CRM, das eine API oder n8n-Integration bietet. HubSpot, Pipedrive, Salesforce, Zoho und viele weitere werden unterstützt. Der ChatGPT-Zusammenfassungsschritt ist CRM-unabhängig, nur der abschließende "Ins CRM schreiben"-Node ändert sich je nach System.
 
 ### Kann ich Gesprächsnotizen auf Deutsch oder in anderen Sprachen zusammenfassen?
 

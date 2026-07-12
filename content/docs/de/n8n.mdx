@@ -3,21 +3,21 @@ title: n8n
 description: Visuelle Workflows über Customermates mit Webhook-Triggern und HTTP-Action-Nodes gegen die REST-API.
 ---
 
-Verbinde n8n mit Customermates, indem du einen Webhook-Node auf CRM-Events abonnierst und die REST-API aus HTTP-Request-Nodes aufrufst. Ein Custom-Node ist nicht nötig. Die REST- und MCP-Oberflächen funktionieren direkt.
+Verbinden Sie n8n mit Customermates, indem Sie einen Webhook-Node auf CRM-Events abonnieren und die REST-API aus HTTP-Request-Nodes aufrufen. Dafür ist kein Custom-Node nötig; die REST- und MCP-Oberflächen funktionieren direkt. Es gibt zusätzlich einen Customermates-Community-Node unter [github.com/customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm), falls Sie dedizierte CRM-Nodes den generischen HTTP-Request-Nodes vorziehen.
 
 ## Wann n8n passt
 
-- Dein Team bevorzugt visuelle Flows gegenüber Code.
-- Du willst Events verzweigen und transformieren, bevor du sie an ein anderes System weiterleitest, etwa Slack, HubSpot, Google Sheets oder ein Data Warehouse.
-- Du betreibst n8n ohnehin für andere Automationen.
+- Ihr Team bevorzugt visuelle Flows gegenüber Code.
+- Sie wollen Events verzweigen und transformieren, bevor Sie sie an ein anderes System weiterleiten, etwa Slack, HubSpot, Google Sheets oder ein Data Warehouse.
+- Sie betreiben n8n ohnehin für andere Automationen.
 
-Wenn eine KI das CRM im Gespräch steuern soll, nutze [MCP](/docs/mcp) stattdessen oder parallel.
+Wenn eine KI das CRM im Gespräch steuern soll, nutzen Sie [MCP](/docs/mcp) stattdessen oder parallel.
 
 ## Pattern 1: n8n aus CRM-Änderungen triggern
 
-1. Füge in n8n einen **Webhook**-Node hinzu und kopiere die generierte URL.
-2. Gehe in Customermates zu **Unternehmen → Webhooks → Neu**, füge die URL ein und wähle die gewünschten Events.
-3. Ergänze nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten des Payloads.
+1. Fügen Sie in n8n einen **Webhook**-Node hinzu und kopieren Sie die generierte URL.
+2. Gehen Sie in Customermates zu **Unternehmen → Webhooks → Neu**, fügen Sie die URL ein und wählen Sie die gewünschten Events.
+3. Ergänzen Sie nach dem Webhook-Node Schritte zum Transformieren und Weiterleiten des Payloads.
 
 Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Typische nächste Schritte:
 
@@ -27,14 +27,14 @@ Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert. Typische
 
 ## Pattern 2: aus n8n nach Customermates pushen
 
-Nutze den **HTTP-Request**-Node:
+Nutzen Sie den **HTTP-Request**-Node:
 
 - Method: `POST` für Creates, `PATCH` für Updates.
 - URL: `https://customermates.com/api/v1/<endpoint>`, wobei `<endpoint>` gleich `contacts`, `organizations`, `deals`, `services` oder `tasks` ist.
-- Headers: `x-api-key` auf deinen API-Key gesetzt, als n8n-Credential gespeichert.
+- Headers: `x-api-key` auf Ihren API-Key gesetzt, als n8n-Credential gespeichert.
 - Body: JSON gemäß [OpenAPI-Spec](/docs/openapi).
 
-Um MCP-Tool-Calls aus n8n abzusetzen, sende eine Anfrage an `/api/v1/mcp` mit `method: "tools/call"`. Damit laufen Writes durch dieselben Guardrails, die die MCP-Ebene ergänzt, etwa das Ablehnen von `null` auf einem Relationship-Array.
+Um MCP-Tool-Calls aus n8n abzusetzen, senden Sie eine Anfrage an `/api/v1/mcp` mit `method: "tools/call"`. Damit laufen Writes durch dieselben Guardrails, die die MCP-Ebene ergänzt, etwa das Ablehnen von `null` auf einem Relationship-Array.
 
 ## Pattern 3: geplante Jobs
 
@@ -44,17 +44,17 @@ Der Cron-Trigger von n8n plus die Customermates-REST-API deckt wiederkehrende Au
 - Wöchentlich: Records, die auf einen Filter passen, in ein Google Sheet exportieren.
 - Monatlich: Records archivieren, deren Custom-Status-Spalte einen bestimmten Wert hält.
 
-Lifecycle-Werte von Deals und Tasks wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. Rufe `get_record_schema` auf oder lies die OpenAPI-Spec, um zu sehen, welche Spalten und Optionen in deinem Workspace existieren, bevor du danach filterst.
+Lifecycle-Werte von Deals und Tasks wie Status oder Priorität sind pro Workspace konfigurierbare singleSelect-Custom-Columns, keine festen Felder. Rufen Sie `get_record_schema` auf oder lesen Sie die OpenAPI-Spec, um zu sehen, welche Spalten und Optionen in Ihrem Workspace existieren, bevor Sie danach filtern.
 
 ## Authentifizierung
 
-Speichere den API-Key als n8n-**Header-Auth**-Credential mit dem Header-Namen `x-api-key`. Verwende ihn über Nodes hinweg wieder, damit du ihn an einer Stelle rotierst. Keys sind 64 Zeichen lange Base62-Strings und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht.
+Speichern Sie den API-Key als n8n-**Header-Auth**-Credential mit dem Header-Namen `x-api-key`. Verwenden Sie ihn über Nodes hinweg wieder, damit Sie ihn an einer Stelle rotieren. Keys sind 64 Zeichen lange Base62-Strings und erben die Berechtigungen des besitzenden Users; ein Scoping pro Key gibt es nicht.
 
 ## Typische Fallstricke
 
-- **Relationship-Arrays**: `null` auf einem Relationship-Array wird abgelehnt. Sende `[]` zum Leeren oder nutze das Tool `manage_record_links`, um Links hinzuzufügen oder zu entfernen.
+- **Relationship-Arrays**: `null` auf einem Relationship-Array wird abgelehnt. Senden Sie `[]` zum Leeren oder nutzen Sie das Tool `manage_record_links`, um Links hinzuzufügen oder zu entfernen.
 - **Rate-Limits**: High-Frequency-Loops können in API-Limits laufen. Wenn möglich batchen.
-- **Webhook-Ordering**: Deliveries sind nicht strikt geordnet. Behandle sie als idempotente Messages mit Schlüssel `entityId`.
+- **Webhook-Ordering**: Deliveries sind nicht strikt geordnet. Behandeln Sie sie als idempotente Messages mit Schlüssel `entityId`.
 
 ## Weiter
 

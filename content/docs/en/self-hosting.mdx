@@ -7,7 +7,7 @@ Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker c
 
 ## Self-host vs cloud
 
-Both run the same core application. Enterprise features require a license in either deployment.
+Both run the same core application. The unified inbox, calendar sync, audit logging, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components). On the cloud they come with the plans: the inbox and calendar sync from the Pro tier, audit logging on every cloud plan, SSO and white-label on the Enterprise plan. The free community self-host build ships the full core CRM without the Enterprise Edition features; for a self-hosted deployment that includes them, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in is available on the cloud; self-hosted installs sign in with email.
 
 | If you… | Pick |
 |---|---|
@@ -26,12 +26,15 @@ Both run the same core application. Enterprise features require a license in eit
 | EU-hosted | ✓ | wherever you put it |
 | Backups | automatic daily | you configure |
 | Support SLA | included on paid plans | community |
-| Enterprise features (SSO, Audit Log) | paid plan | paid license key |
-| Pricing | per seat | free, pay only for Enterprise |
+| Unified inbox and calendar sync | from the Pro plan | not included (Cloud feature) |
+| Audit log | included on every plan | Enterprise agreement |
+| Enterprise features (enterprise SSO, white-label) | Enterprise plan | Enterprise agreement |
+| Google/Microsoft OAuth sign-in | ✓ | email sign-in |
+| Pricing | per user, tiers from €12/month | free (core CRM); Enterprise features by agreement |
 
 **Data custody:** Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
 
-**Cost shape:** Cloud is priced per seat and scales linearly. Self-host is free for the core application plus whatever you pay for infrastructure (a small VPS handles hundreds of users). For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
+**Cost shape:** Cloud is priced per user across tiers, starting at €12/user/month, and scales with your messaging usage. Self-host is free for the core application plus whatever you pay for infrastructure (a small VPS handles hundreds of users). For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
 
 You can migrate between them: export from one, import to the other. The data model is identical.
 
@@ -148,7 +151,7 @@ For production:
 
 ## Enterprise features
 
-Audit Logging, SSO, and White-labeling require an Enterprise license. Everything else is free. Configure the license per the instructions shipped with your license key.
+The unified inbox, calendar sync, audit logging, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components). On the cloud they come with the plans: inbox and calendar from Pro, audit logging on every plan, SSO and white-label on Enterprise. The free community self-host build does not include them. If you need them on your own infrastructure, contact us for an Enterprise Edition agreement.
 
 ## Next
 
