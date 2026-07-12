@@ -17,7 +17,7 @@ import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-const Schema = z
+export const UpsertWebhookSchema = z
   .object({
     id: z.uuid().optional(),
     url: zx.secureUrl().optional(),
@@ -37,7 +37,7 @@ const Schema = z
     if (!data.id && (!data.url || !data.events))
       ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookCreateFieldsRequired } });
   });
-export type UpsertWebhookData = Data<typeof Schema>;
+export type UpsertWebhookData = Data<typeof UpsertWebhookSchema>;
 
 export abstract class UpsertWebhookRepo {
   abstract upsertWebhookOrThrow(args: UpsertWebhookData): Promise<WebhookDto>;
@@ -55,7 +55,7 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
   }
 
   @Write({
-    input: Schema,
+    input: UpsertWebhookSchema,
     output: WebhookDtoSchema,
     precheck: (self, data, ctx) => self.precheck(data, ctx),
   })

@@ -62,6 +62,9 @@ import { webhookTaskUpdatedOperation } from "@/features/tasks/upsert/task-update
 import { webhookTaskDeletedOperation } from "@/features/tasks/delete/task-deleted.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
 import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
+import { createWebhookOperation } from "@/features/webhook/create-webhook.openapi";
+import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
+import { deleteWebhookOperation } from "@/features/webhook/delete-webhook.openapi";
 import { getConnectedAccountsOperation } from "@/ee/messaging/connect/get-my-connected-accounts.openapi";
 import { getMessagingThreadsOperation } from "@/ee/messaging/inbox/get-messaging-threads.openapi";
 import { getMessagingThreadOperation } from "@/ee/messaging/inbox/get-messaging-thread.openapi";
@@ -286,6 +289,13 @@ export function generateOpenApiSpec() {
       },
       "/v1/users/me": {
         get: getUserDetailsOperation,
+      },
+      "/v1/webhooks": {
+        post: createWebhookOperation,
+      },
+      "/v1/webhooks/{id}": {
+        get: getWebhookOperation,
+        delete: deleteWebhookOperation,
       },
       "/v1/messaging/connected-accounts": {
         get: getConnectedAccountsOperation,

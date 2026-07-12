@@ -45,3 +45,7 @@ export const WebhookDtoSchema = z.object({
 });
 
 export type WebhookDto = Data<typeof WebhookDtoSchema>;
+
+export const WebhookPublicDtoSchema = WebhookDtoSchema.omit({ secret: true }).extend({
+  hasSecret: z.boolean(),
+});
