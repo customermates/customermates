@@ -4,7 +4,7 @@ import { SignInForm } from "./sign-in-form";
 
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { requireUnauthenticated } from "@/features/auth/next/require";
-import { env } from "@/env";
+import { enabledSocialProviders } from "@/core/auth/better-auth";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -17,7 +17,7 @@ export default async function SignInPage() {
 
   return (
     <CenteredCardPage>
-      <SignInForm showSocialProviders={env.CLOUD_HOSTED} />
+      <SignInForm socialProviders={enabledSocialProviders} />
     </CenteredCardPage>
   );
 }

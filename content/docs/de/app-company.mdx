@@ -1,25 +1,26 @@
 ---
 title: Company
-description: Der Company-Screen, workspace-weite Administration mit Firmendaten, Team-Mitgliedern, Rollen, Webhooks, Deliveries und Audit-Trail, für Menschen und UI-steuernde Agents.
+description: Der Company-Screen, workspace-weite Administration mit Abonnement, Team-Mitgliedern, Rollen, Webhooks, Deliveries und Audit-Trail, für Menschen und UI-steuernde Agents.
 ---
 
 Customermates ist ein Open-Source-CRM mit integriertem MCP-Server. Diese Seite dokumentiert den **Company**-Screen der Web-App, für Menschen und für KI-Agents, die die UI steuern.
 
 ## Zweck
 
-Der Company-Screen ist die workspace-weite Administration. Hier liegen die Firmendaten selbst, das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Delivery-Historie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, finden Sie hier.
+Der Company-Screen ist die workspace-weite Administration. Hier liegen das Abonnement (nur Cloud), das Team mit seinen Berechtigungen, ausgehende Webhooks mit ihrer Delivery-Historie und der Audit-Trail. Alles, was den ganzen Workspace betrifft und nicht einen einzelnen Datensatz, finden Sie hier.
 
 ## URL
 
-Die Route ist `/company/details`. Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/company/details). Jeder Tab hat seine eigene Route: `/company/details`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries` und `/company/audit-logs`.
+Alle App-Routen sind locale-präfixiert (Beispiel: https://customermates.com/en/company/members). Jeder Tab hat seine eigene Route: `/company/subscription` (nur Cloud), `/company/settings`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries` und `/company/audit-logs`.
 
 ## Wichtige Aktionen
 
 | Aktion | Wo | Anchor id | Was passiert |
 |---|---|---|---|
-| Zu Company gehen | App-Sidebar | `#nav-company` | Öffnet /company/details |
-| Details-Tab | Sidebar-Unterpunkt | `#nav-company-details` | Firmenname, Logo, Billing |
-| Details speichern / zurücksetzen | Formular-Footer | `#company-details-save` / `#company-details-reset` | Speichert oder verwirft |
+| Zu Company gehen | App-Sidebar | `#nav-company` | Öffnet /company/subscription (Cloud) oder /company/settings (Self-Hosted) |
+| Subscription-Tab | Sidebar-Unterpunkt | `#nav-company-subscription` | Plan, Trial-Status und Plan-Auswahl (nur Cloud) |
+| Settings-Tab | Sidebar-Unterpunkt | `#nav-company-settings` | Workspace-Währung für alle Geldwerte |
+| Settings speichern / zurücksetzen | Top-Bar | `#company-settings-save` / `#company-settings-reset` | Speichert oder verwirft |
 | Members-Tab | Sidebar-Unterpunkt | `#nav-company-members` | Team-Verwaltung |
 | Mitglied einladen | Members-Toolbar | `#company-members-add` | Öffnet das Einladungs-Modal |
 | Einladung senden | Footer des Einladungs-Modals | `#member-modal-save` / `#member-modal-reset` | Verschickt die Einladung |

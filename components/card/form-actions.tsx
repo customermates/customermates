@@ -55,7 +55,7 @@ export const FormActions = observer(
             id={anchorScope ? `${anchorScope}-reset` : undefined}
             size={buttonSize}
             type="button"
-            variant="outline"
+            variant={isTopBar ? "secondary" : "outline"}
             onClick={() => store?.resetForm()}
           >
             {t("Common.actions.reset")}

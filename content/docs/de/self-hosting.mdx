@@ -7,7 +7,7 @@ Self-Hosting erfordert zwei Dateien (`docker-compose.yml` und `.env`) plus `dock
 
 ## Self-Host vs Cloud
 
-Beide betreiben dieselbe Kernanwendung. Das gemeinsame Postfach, Kalender-Sync, Audit-Logging, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten). In der Cloud sind sie Teil der Tarife: Postfach und Kalender-Sync ab dem Pro-Tarif, Audit-Logging in jedem Cloud-Tarif, SSO und White-Label im Enterprise-Tarif. Der kostenlose Community-Self-Host-Build enthält das volle Kern-CRM ohne die Enterprise-Edition-Features; für ein Self-Hosted-Deployment mit diesen Features kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth gibt es in der Cloud; Self-Hosted-Installationen melden sich per E-Mail an.
+Beide betreiben dieselbe Kernanwendung. Der Self-Host-Build entspricht dem Starter-Funktionsumfang: das volle Kern-CRM inklusive Audit-Logging. Das gemeinsame Postfach, Kalender-Sync, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten); in der Cloud sind Postfach und Kalender-Sync Teil des Pro-Tarifs, SSO und White-Label Teil des Enterprise-Tarifs. Für ein Self-Hosted-Deployment mit diesen Features kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth funktioniert in beiden Varianten, sobald Sie die Provider-Env-Vars setzen; ohne sie melden sich Self-Hosted-Installationen per E-Mail an.
 
 | Wenn Sie… | Nehmen Sie |
 |---|---|
@@ -27,9 +27,9 @@ Beide betreiben dieselbe Kernanwendung. Das gemeinsame Postfach, Kalender-Sync, 
 | Backups | automatisch täglich | Sie konfigurieren |
 | Support-SLA | inkl. in Paid-Plans | Community |
 | Gemeinsames Postfach und Kalender-Sync | ab dem Pro-Tarif | nicht enthalten (Cloud-Funktion) |
-| Audit-Log | in jedem Plan enthalten | Enterprise-Vereinbarung |
+| Audit-Log | in jedem Plan enthalten | enthalten |
 | Enterprise-Features (Enterprise-SSO, White-Label) | Enterprise-Plan | Enterprise-Vereinbarung |
-| Google-/Microsoft-OAuth-Anmeldung | ✓ | E-Mail-Anmeldung |
+| Google-/Microsoft-OAuth-Anmeldung | ✓ | ✓, Provider-Env-Vars setzen |
 | Pricing | pro Nutzer, Tarife ab 12 €/Monat | kostenlos (Kern-CRM); Enterprise-Features per Vereinbarung |
 
 **Datenhoheit:** Die Cloud speichert Daten in unserer EU-Region, DSGVO-konform, mit üblicher Verschlüsselung at-rest und in-transit. Wenn Ihre Compliance verlangt, dass Daten auf Ihrer Infra liegen: Self-Host.
@@ -151,7 +151,7 @@ Für Produktion:
 
 ## Enterprise-Features
 
-Das gemeinsame Postfach, Kalender-Sync, Audit-Logging, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten). In der Cloud sind sie Teil der Tarife: Postfach und Kalender ab Pro, Audit-Logging in jedem Tarif, SSO und White-Label im Enterprise-Tarif. Der kostenlose Community-Self-Host-Build enthält sie nicht. Wenn Sie diese Features auf eigener Infrastruktur benötigen, kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung.
+Das gemeinsame Postfach, Kalender-Sync, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten). In der Cloud sind sie Teil der Tarife: Postfach und Kalender ab Pro, SSO und White-Label im Enterprise-Tarif. Der kostenlose Community-Self-Host-Build enthält sie nicht; Audit-Logging gehört zu jedem Deployment, auch self-hosted. Wenn Sie diese Features auf eigener Infrastruktur benötigen, kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth gehört zum Core und funktioniert self-hosted, sobald Sie die Provider-Env-Vars setzen.
 
 ## Weiter
 

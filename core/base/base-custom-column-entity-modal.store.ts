@@ -10,6 +10,7 @@ import { CustomColumnType } from "@/generated/prisma";
 import type { Resource } from "@/generated/prisma";
 
 import { BaseModalStore } from "./base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import type { GlobalSearchResultItem } from "@/features/search/global-search.interactor";
 
@@ -123,14 +124,15 @@ export abstract class BaseCustomColumnEntityModalStore<
 
     try {
       const res = await this.actions.delete({ id });
-
-      if (res.ok) {
-        await this.entityStore.removeItem(id);
-        this.rootStore.globalSearchModalStore.removeRecentItem(id);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return false;
       }
 
+      await this.entityStore.removeItem(id);
+      this.rootStore.globalSearchModalStore.removeRecentItem(id);
       this.close();
-      return res.ok;
+      return true;
     } finally {
       this.setIsLoading(false);
     }

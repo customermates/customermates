@@ -48,10 +48,11 @@ Docs entry points:
 - Webhooks and event-driven integrations
 - n8n workflows and automation support
 - MCP support for agent tooling and structured tool calling
-- Enterprise features (Audit Logging, Single Sign-On, Whitelabeling) on Cloud paid plans or self-host with a license key
+- Unified inbox for email, LinkedIn, WhatsApp, Instagram, and Telegram (Cloud, from the Pro plan)
+- Audit logging on every plan, self-hosted included; Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
 - Role-based access control for teams
 - Self-hosted deployment with Docker Compose and PostgreSQL
-- Cloud pricing from **€7/user/month** (yearly) or **€9/user/month** (monthly)
+- Cloud pricing from **€12/user/month** (or **€10/user/month** billed yearly)
 
 ## 📊 Comparison
 
@@ -59,7 +60,7 @@ Customermates supports both cloud and self-hosted deployment models.
 
 | Criterion | Cloud | Self-Hosted |
 | --- | --- | --- |
-| Pricing | from €7/seat (yearly) or €9/seat (monthly) | free core + infra costs |
+| Pricing | from €12/seat (€10 yearly) | free core + infra costs |
 | Setup Time | 2 minutes | ~15 minutes |
 | Maintenance Required | None | Docker, Postgres, proxy, TLS, backups |
 | Updates | Automatic | `docker compose pull && docker compose up -d` |
@@ -69,7 +70,9 @@ Customermates supports both cloud and self-hosted deployment models.
 | Unlimited Users | ✅ | ✅ |
 | Unlimited Records | ✅ | ✅ |
 | n8n and automation workflows | ✅ | ✅ |
-| Enterprise (Audit Log, SSO, Whitelabeling) | Paid plan | Paid license key |
+| Unified inbox and calendar sync | from the Pro plan | ❌ (Cloud feature) |
+| Audit log | Included | Included |
+| Enterprise (SSO, Whitelabeling) | Enterprise plan | By agreement |
 
 If you want the full decision guide, see the [Self-hosting docs](https://customermates.com/docs/self-hosting).
 

@@ -16,6 +16,8 @@ export function PricingSection({
   footnote,
   monthly,
   pricingCards: mdxPricingCards,
+  totalSuffixPlural,
+  totalSuffixSingular,
   users,
   yearly,
   yearlySavings,
@@ -79,8 +81,21 @@ export function PricingSection({
           const perUserPerMonth = isAnnual ? card.annualPrice : card.monthlyPrice;
           const displayPrice = perUserPerMonth != null ? `${userCount * perUserPerMonth}` : card.price;
           const priceNote = perUserPerMonth != null && isAnnual ? card.priceNote : undefined;
+          const totalSuffixTemplate = userCount === 1 ? totalSuffixSingular : totalSuffixPlural;
+          const priceSubtext =
+            perUserPerMonth != null && totalSuffixTemplate
+              ? totalSuffixTemplate.replace("{count}", String(userCount))
+              : card.priceSubtext;
 
-          return <PricingCardComponent key={index} card={card} displayPrice={displayPrice} priceNote={priceNote} />;
+          return (
+            <PricingCardComponent
+              key={index}
+              card={card}
+              displayPrice={displayPrice}
+              priceNote={priceNote}
+              priceSubtext={priceSubtext}
+            />
+          );
         })}
       </div>
 

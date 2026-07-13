@@ -29,6 +29,11 @@ const socialProviders = {
     : {}),
 };
 
+export const enabledSocialProviders = {
+  google: "google" in socialProviders,
+  microsoft: "microsoft" in socialProviders,
+};
+
 export const auth = betterAuth({
   baseURL: env.BASE_URL,
 

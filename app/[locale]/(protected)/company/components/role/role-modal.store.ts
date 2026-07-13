@@ -9,6 +9,7 @@ import { Resource, Action } from "@/generated/prisma";
 import { deleteRoleAction, upsertRoleAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 function defaultRolePermissions() {
   return {
@@ -87,7 +88,12 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
     this.setIsLoading(true);
 
     try {
-      await deleteRoleAction({ id: this.form.id });
+      const res = await deleteRoleAction({ id: this.form.id });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+
       await this.rootStore.rolesStore.removeItem(this.form.id);
       this.close();
     } finally {

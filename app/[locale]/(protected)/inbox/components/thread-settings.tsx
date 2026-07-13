@@ -56,7 +56,6 @@ export const ThreadSettings = observer(
     const unlinkedCount = linkable.filter((p) => !p.contact).length;
     const showBadge = canManageContacts && unlinkedCount > 0;
     const isShared = accountShared || sharedToCrm;
-    const stateLabel = isShared ? t("Inbox.shareToCrmShared") : t("Inbox.shareToCrmPrivate");
 
     return (
       <>
@@ -87,7 +86,9 @@ export const ThreadSettings = observer(
           variant="secondary"
           onClick={() => threadParticipantsStore.setOpen(true)}
         >
-          <span className="hidden sm:inline">{stateLabel}</span>
+          <span className="hidden sm:inline">
+            {isShared ? t("Inbox.shareToCrmShared") : t("Inbox.shareToCrmPrivate")}
+          </span>
         </ClickableChip>
 
         {showBadge && (

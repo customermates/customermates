@@ -117,14 +117,12 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
     );
   }
 
-  const items = connectedAccountsStore.items;
-
   return (
     <div className="flex w-full max-w-3xl flex-col gap-4">
       <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
 
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
-        {items.map((account) => {
+        {connectedAccountsStore.items.map((account) => {
           const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
           const ProviderIcon = getProviderIcon(account.provider);
           const providerLabel = getProviderDisplayLabel(account, t);

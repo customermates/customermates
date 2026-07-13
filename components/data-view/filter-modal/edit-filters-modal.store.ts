@@ -9,6 +9,7 @@ import { makeObservable, action, observable, computed, reaction, toJS } from "mo
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { upsertFilterPresetAction, deleteFilterPresetAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData> {
   tableStore?: BaseDataViewStore<HasId>;
@@ -134,10 +135,14 @@ export class EditFiltersModalStore extends BaseModalStore<UpsertFilterPresetData
   deletePreset = async () => {
     if (!this.form.presetId || !this.tableStore?.p13nId) return;
 
-    await deleteFilterPresetAction({
+    const res = await deleteFilterPresetAction({
       p13nId: this.tableStore.p13nId,
       presetId: this.form.presetId,
     });
+    if (!res.ok) {
+      toastZodErrorTree(res.error);
+      return;
+    }
 
     this.tableStore?.setQueryOptions({ filters: [], forceRefresh: true });
     this.close();

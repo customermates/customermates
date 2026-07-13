@@ -16,7 +16,6 @@ import { FormInput } from "@/components/forms/form-input";
 import { PasswordInput } from "@/components/forms/password-input";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
-import { i18nFormatters } from "@/i18n/formatters";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
@@ -24,11 +23,11 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
 
 type Props = {
-  companyName: string | null;
-  showSocialProviders: boolean;
+  isInvited: boolean;
+  socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignUpForm = observer(({ companyName, showSocialProviders }: Props) => {
+export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
   const t = useTranslations();
   const { signUpStore } = useRootStore();
   const { isLoading, form } = signUpStore;
@@ -48,20 +47,15 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
               </AppLink>
             ),
           })}
-          title={companyName ? t("SignUpForm.inviteTitle") : t("SignUpForm.title")}
+          title={isInvited ? t("SignUpForm.inviteTitle") : t("SignUpForm.title")}
         />
 
         <AppCardBody>
           <SocialErrorToast />
 
-          {companyName ? (
+          {isInvited ? (
             <Alert className="mb-4" color="success">
-              <p className="text-x-sm">
-                {t.rich("SignUpForm.inviteSubtitle", {
-                  ...i18nFormatters,
-                  company: companyName,
-                })}
-              </p>
+              <p className="text-x-sm">{t("SignUpForm.inviteSubtitle")}</p>
             </Alert>
           ) : (
             <Alert className="mb-4" color="primary">
@@ -69,32 +63,36 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
             </Alert>
           )}
 
-          {showSocialProviders && (
+          {(socialProviders.google || socialProviders.microsoft) && (
             <>
               <div className="flex flex-col items-center gap-4 sm:flex-row">
-                <SignInProviderButton
-                  className="w-full sm:flex-1"
-                  label={t("SignUpForm.buttonLabel", { provider: "Google" })}
-                  providerId="google"
-                  onClick={() =>
-                    void continueWithGoogleAction(undefined, "/auth/signup").then((res) => {
-                      if (res.data.url) window.location.assign(res.data.url);
-                    })
-                  }
-                />
+                {socialProviders.google && (
+                  <SignInProviderButton
+                    className="w-full sm:flex-1"
+                    label={t("SignUpForm.buttonLabel", { provider: "Google" })}
+                    providerId="google"
+                    onClick={() =>
+                      void continueWithGoogleAction(undefined, "/auth/signup").then((res) => {
+                        if (res.data.url) window.location.assign(res.data.url);
+                      })
+                    }
+                  />
+                )}
 
-                <SignInProviderButton
-                  className="w-full sm:flex-1"
-                  label={t("SignUpForm.buttonLabel", {
-                    provider: "Microsoft",
-                  })}
-                  providerId="microsoft"
-                  onClick={() =>
-                    void continueWithMicrosoftAction(undefined, "/auth/signup").then((res) => {
-                      if (res.data.url) window.location.assign(res.data.url);
-                    })
-                  }
-                />
+                {socialProviders.microsoft && (
+                  <SignInProviderButton
+                    className="w-full sm:flex-1"
+                    label={t("SignUpForm.buttonLabel", {
+                      provider: "Microsoft",
+                    })}
+                    providerId="microsoft"
+                    onClick={() =>
+                      void continueWithMicrosoftAction(undefined, "/auth/signup").then((res) => {
+                        if (res.data.url) window.location.assign(res.data.url);
+                      })
+                    }
+                  />
+                )}
               </div>
 
               <div className="my-3 flex items-center">
@@ -126,7 +124,7 @@ export const SignUpForm = observer(({ companyName, showSocialProviders }: Props)
         <AppCardFooter>
           <div className="flex w-full flex-col space-y-3 items-center">
             <Button className="w-full" disabled={isLoading} type="submit">
-              {companyName ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
+              {isInvited ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
             </Button>
 
             <p className="text-x-xs text-subdued text-center mt-2">

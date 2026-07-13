@@ -47,7 +47,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       {page.data.demo && <DocsDemo src={page.data.demo.src} title={page.data.demo.title} />}
 
       <Toc actions={<DocsPageActions markdownUrl={markdownUrl} mcpUrl={mcpUrl} />} items={page.data.toc}>
-        <div className="min-w-0 overflow-hidden prose prose-sm prose-neutral dark:prose-invert max-w-none [&_.fd-codeblock]:mx-0 [&_.fd-codeblock]:w-full [&_pre]:mx-0 [&_pre]:w-full">
+        <div className="min-w-0 overflow-x-clip [--table-sticky-top:-1rem] md:[--table-sticky-top:-1.5rem] prose prose-sm prose-neutral dark:prose-invert max-w-none [&_.fd-codeblock]:mx-0 [&_.fd-codeblock]:w-full [&_pre]:mx-0 [&_pre]:w-full">
           <MDX components={components} />
         </div>
       </Toc>

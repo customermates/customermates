@@ -50,5 +50,5 @@ export async function createServiceByNameAction(name: string, userId: string | n
     customFieldValues: [],
   });
 
-  return result.ok ? result.data : null;
+  return result;
 }

@@ -11,6 +11,7 @@ import { type ChipColor } from "@/constants/chip-colors";
 import { type DateDisplayFormat } from "@/constants/date-format";
 import { deleteCustomColumnAction, upsertCustomColumnAction } from "@/app/actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnData> {
   constructor(rootStore: RootStore) {
@@ -203,7 +204,11 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     this.setIsLoading(true);
 
     try {
-      await deleteCustomColumnAction(this.form.id);
+      const res = await deleteCustomColumnAction(this.form.id);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
 
       await this.refresh();
       this.close();

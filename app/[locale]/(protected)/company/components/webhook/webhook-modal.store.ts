@@ -8,6 +8,7 @@ import { Resource } from "@/generated/prisma";
 import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
   showSecret = false;
@@ -45,8 +46,12 @@ export class WebhookModalStore extends BaseModalStore<UpsertWebhookData> {
 
     try {
       const res = await deleteWebhookAction({ id: this.form.id });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
 
-      if (res.ok) await this.rootStore.webhooksStore.removeItem(res.data);
+      await this.rootStore.webhooksStore.removeItem(res.data);
       this.close();
     } finally {
       this.setIsLoading(false);

@@ -78,8 +78,6 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
     showDeleteConfirmation(() => void modalStore.deletePreset(), modalStore.form.name);
   }
 
-  const customColumns = store.customColumns;
-
   return (
     <Popover open={modalStore.isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
@@ -185,7 +183,7 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
           <div className="min-h-0 flex-1 overflow-y-auto">
             <FilterAccordion
               baseId="filters"
-              customColumns={customColumns}
+              customColumns={store.customColumns}
               filterableFields={store.filterableFields}
               filters={modalStore.form.filters}
               value={modalStore.expandedField ?? ""}

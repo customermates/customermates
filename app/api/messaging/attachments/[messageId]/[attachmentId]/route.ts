@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { handleError } from "@/core/api/interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
@@ -17,7 +18,9 @@ export async function GET(
 ) {
   const { messageId, attachmentId } = await params;
   try {
-    const { data } = await getGetMessageAttachmentInteractor().invoke({ messageId, attachmentId });
+    const result = await getGetMessageAttachmentInteractor().invoke({ messageId, attachmentId });
+    if (!result.ok) return NextResponse.json(z.prettifyError(result.error), { status: 400 });
+    const { data } = result;
 
     const headers: Record<string, string> = {
       "content-type": data.contentType,

@@ -74,5 +74,5 @@ export async function createContactByNameAction(
     identifiers: identifier ? [identifier] : [],
   });
 
-  return result.ok ? result.data : null;
+  return result;
 }

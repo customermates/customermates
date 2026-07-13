@@ -49,8 +49,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 >({ entityId, entityType, store, masterData, identity, canDelete = true, historyPanel }: Props<Form, Dto>) {
   const t = useTranslations();
   const router = useRouter();
-  const rootStore = useRootStore();
-  const { layoutStore, customColumnModalStore, userStore } = rootStore;
+  const { layoutStore, customColumnModalStore, userStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const [hasMounted, setHasMounted] = useState(false);
   const formId = useId();
@@ -78,7 +77,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   const { canManage, isLoading, isEditingCustomField, toggleEditingCustomField, form } = store;
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
-  const canSeeHistory = rootStore.isCloudHosted && userStore.can(Resource.auditLog, Action.readAll);
+  const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
   const showDeleteAction = canManage && hasId && canDelete && !isEditingCustomField;
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
   const showLoading = store.isLoading && !store.fetchedEntity;
@@ -141,7 +140,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
             {showEditFieldsActiveActions && (
               <>
-                <Button className="h-8" size="sm" type="button" variant="ghost" onClick={toggleEditingCustomField}>
+                <Button className="h-8" size="sm" type="button" variant="secondary" onClick={toggleEditingCustomField}>
                   {t("Common.actions.cancel")}
                 </Button>
 

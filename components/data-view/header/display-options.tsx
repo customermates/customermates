@@ -181,8 +181,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     store.setViewOptions({ columnOrder: next });
   }
 
-  const sortableIds = orderedColumns.map((c) => c.uid);
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -345,7 +343,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
                 <Section label={t("Common.ariaLabels.tooltipFields")}>
                   <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                    <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+                    <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
                       <div className="flex flex-col gap-0.5">
                         {orderedColumns.map((col) => {
                           const isPinned = col.uid === "name";

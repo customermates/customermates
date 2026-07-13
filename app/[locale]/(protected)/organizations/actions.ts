@@ -50,5 +50,5 @@ export async function createOrganizationByNameAction(name: string, userId: strin
     customFieldValues: [],
   });
 
-  return result.ok ? result.data : null;
+  return result;
 }

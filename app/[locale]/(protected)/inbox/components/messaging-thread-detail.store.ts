@@ -8,6 +8,7 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 
 import { getMessagingThreadAction, updateThreadAction, resyncThreadAction } from "../actions";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export type ThreadDetail = {
   thread: MessagingThread;
@@ -98,7 +99,12 @@ export class MessagingThreadDetailStore extends BaseStore {
         threadId: thread.id,
         state: next,
       });
-      if (result.ok) this.applyState(thread.id, next);
+      if (!result.ok) {
+        toastZodErrorTree(result.error);
+        return;
+      }
+
+      this.applyState(thread.id, next);
     });
   };
 

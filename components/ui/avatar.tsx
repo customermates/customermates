@@ -19,7 +19,7 @@ function Avatar({
   children,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Root> & {
-  size?: "default" | "sm" | "lg";
+  size?: "default" | "sm" | "lg" | "xl";
   src?: string | null;
   name?: string | (string | null | undefined)[];
   fallback?: React.ReactNode;
@@ -32,7 +32,7 @@ function Avatar({
   const root = (
     <AvatarPrimitive.Root
       className={cn(
-        "group/avatar relative flex size-6 shrink-0 overflow-hidden rounded-md select-none data-[size=lg]:size-8 data-[size=lg]:rounded-lg data-[size=sm]:size-4 data-[size=sm]:rounded",
+        "group/avatar relative flex size-6 shrink-0 overflow-hidden rounded-md select-none data-[size=lg]:size-8 data-[size=lg]:rounded-lg data-[size=sm]:size-4 data-[size=sm]:rounded data-[size=xl]:size-16 data-[size=xl]:rounded-lg",
         unlinked &&
           "outline-dashed outline-primary outline-[1.5px] -outline-offset-[1.5px] data-[size=sm]:outline-[1px] data-[size=sm]:-outline-offset-[1px] data-[size=lg]:outline-[2px] data-[size=lg]:-outline-offset-[2px]",
         className,
@@ -80,7 +80,7 @@ function AvatarFallback({ className, ...props }: React.ComponentProps<typeof Ava
   return (
     <AvatarPrimitive.Fallback
       className={cn(
-        "flex size-full items-center justify-center rounded-[inherit] bg-foreground/10 text-[11px] font-medium text-foreground/70 dark:bg-foreground/15 group-data-[size=sm]/avatar:text-[8px] group-data-[size=lg]/avatar:text-sm",
+        "flex size-full items-center justify-center rounded-[inherit] bg-foreground/10 text-[11px] font-medium text-foreground/70 dark:bg-foreground/15 group-data-[size=sm]/avatar:text-[8px] group-data-[size=lg]/avatar:text-sm group-data-[size=xl]/avatar:text-lg",
         className,
       )}
       data-slot="avatar-fallback"

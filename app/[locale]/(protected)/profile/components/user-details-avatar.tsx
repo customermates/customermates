@@ -22,7 +22,7 @@ export function UserDetailsAvatar({ email, firstName, lastName, roleName, status
 
   return (
     <div className="flex items-center gap-3 min-w-0">
-      <Avatar name={[firstName, lastName]} size="lg" src={avatarUrl} />
+      <Avatar name={[firstName, lastName]} size="xl" src={avatarUrl} />
 
       <div className="flex flex-col min-w-0">
         <span className="truncate font-medium">{displayName}</span>

@@ -104,10 +104,10 @@ export class DealDetailStore extends BaseCustomColumnEntityModalStore<CreateDeal
   };
 
   createServiceOption = async (name: string) => {
-    const service = await createServiceByNameAction(name, this.rootStore.userStore.user?.id);
-    if (!service) return null;
-    this.rememberServiceAmounts([service]);
-    return { ...service, quantity: 1 };
+    const res = await createServiceByNameAction(name, this.rootStore.userStore.user?.id);
+    if (!res.ok) return res;
+    this.rememberServiceAmounts([res.data]);
+    return { ok: true as const, data: { ...res.data, quantity: 1 } };
   };
 
   rememberServiceAmounts = (items: ReadonlyArray<{ id: string; amount: number }>) => {

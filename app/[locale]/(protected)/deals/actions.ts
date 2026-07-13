@@ -51,5 +51,5 @@ export async function createDealByNameAction(name: string, userId: string | null
     customFieldValues: [],
   });
 
-  return result.ok ? result.data : null;
+  return result;
 }

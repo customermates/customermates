@@ -5,7 +5,9 @@ import { ctaSchema, faqSchema } from "./common";
 
 const pricingRowSchema = z.object({
   label: z.string(),
+  starter: z.union([z.boolean(), z.string()]),
   pro: z.union([z.boolean(), z.string()]),
+  business: z.union([z.boolean(), z.string()]),
   enterprise: z.union([z.boolean(), z.string()]),
 });
 
@@ -28,6 +30,7 @@ export const pricingCardSchema = z.object({
   buttonColor: z.enum(["default", "primary"]),
   buttonVariant: z.enum(["bordered", "shadow", "solid"]),
   features: z.array(z.string()),
+  featured: z.boolean().optional(),
   cardClassName: z.string().optional(),
   shadow: z.enum(["sm", "md"]).optional(),
 });
@@ -42,6 +45,8 @@ export const pricingDataSchema = z.object({
   users: z.string(),
   yearly: z.string(),
   yearlySavings: z.string().optional(),
+  totalSuffixSingular: z.string().optional(),
+  totalSuffixPlural: z.string().optional(),
 });
 export type Pricing = z.infer<typeof pricingDataSchema>;
 
@@ -49,10 +54,13 @@ const comparisonTablePlanSchema = z.object({
   name: z.string(),
   button: z.string(),
   buttonHref: z.string(),
+  featured: z.boolean().optional(),
 });
 
 export const comparisonTablePlansSchema = z.object({
+  starter: comparisonTablePlanSchema,
   pro: comparisonTablePlanSchema,
+  business: comparisonTablePlanSchema,
   enterprise: comparisonTablePlanSchema,
 });
 

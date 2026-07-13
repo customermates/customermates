@@ -8,6 +8,7 @@ import { resendWebhookDeliveryAction } from "../../actions";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto> {
   public isResending = false;
@@ -46,7 +47,12 @@ export class WebhookDeliveryModalStore extends BaseModalStore<WebhookDeliveryDto
     this.isResending = true;
 
     try {
-      await resendWebhookDeliveryAction({ id: this.form.id });
+      const res = await resendWebhookDeliveryAction({ id: this.form.id });
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+
       await this.rootStore.webhookDeliveriesStore.refresh();
     } finally {
       this.isResending = false;

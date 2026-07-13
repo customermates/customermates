@@ -7,23 +7,21 @@ Customermates is an open-source, AI-native CRM. This page documents the **Profil
 
 ## Purpose
 
-Profile holds your personal workspace settings: everything scoped to you as a user rather than to the company. Four tabs cover identity (name, country, avatar), preferences (theme, language, notifications), API keys for MCP and REST clients, and the messaging accounts that feed the Inbox. Changes here affect only your own account.
+Profile holds your personal workspace settings: everything scoped to you as a user rather than to the company. Three tabs cover your settings (one form for identity and preferences: name, country, avatar, theme, language), API keys for MCP and REST clients, and the messaging accounts that feed the Inbox. Changes here affect only your own account.
 
 ## URL
 
-`/profile/details`
+`/profile/settings`
 
-URLs are locale-prefixed. For example `https://customermates.com/en/profile/details`. Each tab has its own route: `/profile/details`, `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
+URLs are locale-prefixed. For example `https://customermates.com/en/profile/settings`. Each tab has its own route: `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
 
 ## Key actions
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Go to Profile | App sidebar | `#nav-profile` | Opens /profile/details |
-| Details tab | Sidebar sub-item | `#nav-profile-details` | Name, country, avatar |
-| Save / reset details | Form footer | `#profile-details-save` / `#profile-details-reset` | Persists or discards (reset appears with unsaved changes) |
-| Settings tab | Sidebar sub-item | `#nav-profile-settings` | Theme, language, notifications |
-| Save / reset settings | Form footer | `#profile-settings-save` / `#profile-settings-reset` | Persists or discards |
+| Go to Profile | App sidebar | `#nav-profile` | Opens /profile/settings |
+| Settings tab | Sidebar sub-item | `#nav-profile-settings` | Identity (name, country, avatar) and preferences (theme, language) in one form |
+| Save / reset settings | Form footer | `#profile-settings-save` / `#profile-settings-reset` | Persists or discards (reset appears with unsaved changes) |
 | API keys tab | Sidebar sub-item | `#nav-profile-api-keys` | Manage keys for MCP/REST clients |
 | Generate API key | API keys card | `#profile-api-keys-generate` | Opens the key modal |
 | Create the key | Key modal | `#api-key-save` | Key is shown once, so copy it immediately |

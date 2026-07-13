@@ -27,7 +27,7 @@ export default async function PricingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <section className="relative isolate py-16 md:py-24 w-full">
+      <section className="relative isolate pt-16 md:pt-24 pb-8 md:pb-12 w-full">
         <WaveDecoration
           className="-top-10 -left-40 w-[min(1000px,90vw)] md:-top-24 md:-left-56"
           opacity={0.45}

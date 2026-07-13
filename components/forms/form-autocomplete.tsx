@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type Identifiable = { id: string } | { key: string } | { value: string };
 
@@ -34,7 +35,7 @@ type Props<T extends Identifiable> = {
   filterFunction?: (item: T) => boolean;
   children: (item: T) => ReactElement;
   renderValue: (items: Array<{ key: string; data?: T }>) => ReactNode;
-  onCreate?: (name: string) => Promise<T | null>;
+  onCreate?: (name: string) => Promise<{ ok: true; data: T } | { ok: false; error: unknown }>;
   onChipClick?: (key: string) => void;
   emptyContent?: ReactNode;
   disabled?: boolean;
@@ -87,7 +88,6 @@ export const FormAutocomplete = observer(
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
     const t = useTranslations();
-    const isReq = required;
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
@@ -166,13 +166,17 @@ export const FormAutocomplete = observer(
       if (!name) return;
       setIsLoading(true);
       try {
-        const created = await onCreate(name);
-        if (created) {
-          const k = keyOf(created);
-          setFetchedItems((prev) => [...prev, created]);
-          setSelectedData((prev) => new Map(prev).set(k, created));
-          toggleKey(k);
+        const res = await onCreate(name);
+        if (!res.ok) {
+          toastZodErrorTree(res.error);
+          return;
         }
+
+        const created = res.data;
+        const k = keyOf(created);
+        setFetchedItems((prev) => [...prev, created]);
+        setSelectedData((prev) => new Map(prev).set(k, created));
+        toggleKey(k);
       } finally {
         setIsLoading(false);
       }
@@ -285,7 +289,7 @@ export const FormAutocomplete = observer(
             <FormLabel htmlFor={id}>
               {resolvedLabel}
 
-              {isReq ? <span className="text-destructive"> *</span> : null}
+              {required ? <span className="text-destructive"> *</span> : null}
             </FormLabel>
 
             {labelEndAddon}

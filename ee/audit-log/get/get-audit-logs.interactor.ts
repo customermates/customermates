@@ -12,7 +12,6 @@ import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
-import { CloudOnly } from "@/core/decorators/cloud-only.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const AuditLogDtoSchema = z.object({
@@ -30,7 +29,6 @@ const AuditLogDtoSchema = z.object({
 
 export abstract class GetAuditLogsRepo extends BaseGetRepo<AuditLogDto> {}
 
-@CloudOnly
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.auditLog, action: Action.readAll })
 export class GetAuditLogsInteractor extends BaseGetInteractor<AuditLogDto> {

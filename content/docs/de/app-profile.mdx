@@ -7,23 +7,21 @@ Customermates ist ein Open-Source-CRM, AI-native gebaut. Diese Seite dokumentier
 
 ## Zweck
 
-Das Profil bündelt Ihre persönlichen Workspace-Einstellungen: alles, was an Ihnen als User hängt, nicht an der Company. Vier Tabs decken Identität (Name, Land, Avatar), Präferenzen (Theme, Sprache, Benachrichtigungen), API-Keys für MCP- und REST-Clients sowie die Messaging-Konten ab, aus denen die Inbox gespeist wird. Änderungen hier betreffen nur Ihren eigenen Account.
+Das Profil bündelt Ihre persönlichen Workspace-Einstellungen: alles, was an Ihnen als User hängt, nicht an der Company. Drei Tabs decken Ihre Einstellungen (ein Formular für Identität und Präferenzen: Name, Land, Avatar, Theme, Sprache), API-Keys für MCP- und REST-Clients sowie die Messaging-Konten ab, aus denen die Inbox gespeist wird. Änderungen hier betreffen nur Ihren eigenen Account.
 
 ## URL
 
-`/profile/details`
+`/profile/settings`
 
-URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/details`. Jeder Tab hat eine eigene Route: `/profile/details`, `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
+URLs sind locale-präfixiert, zum Beispiel `https://customermates.com/en/profile/settings`. Jeder Tab hat eine eigene Route: `/profile/settings`, `/profile/api-keys`, `/profile/connected-accounts`.
 
 ## Wichtige Aktionen
 
 | Aktion | Wo | Anchor id | Was passiert |
 |---|---|---|---|
-| Zum Profil wechseln | App-Sidebar | `#nav-profile` | Öffnet /profile/details |
-| Tab Details | Sidebar-Unterpunkt | `#nav-profile-details` | Name, Land, Avatar |
-| Details speichern / zurücksetzen | Formular-Footer | `#profile-details-save` / `#profile-details-reset` | Speichert oder verwirft (Reset erscheint bei ungespeicherten Änderungen) |
-| Tab Einstellungen | Sidebar-Unterpunkt | `#nav-profile-settings` | Theme, Sprache, Benachrichtigungen |
-| Einstellungen speichern / zurücksetzen | Formular-Footer | `#profile-settings-save` / `#profile-settings-reset` | Speichert oder verwirft |
+| Zum Profil wechseln | App-Sidebar | `#nav-profile` | Öffnet /profile/settings |
+| Tab Einstellungen | Sidebar-Unterpunkt | `#nav-profile-settings` | Identität (Name, Land, Avatar) und Präferenzen (Theme, Sprache) in einem Formular |
+| Einstellungen speichern / zurücksetzen | Formular-Footer | `#profile-settings-save` / `#profile-settings-reset` | Speichert oder verwirft (Reset erscheint bei ungespeicherten Änderungen) |
 | Tab API Keys | Sidebar-Unterpunkt | `#nav-profile-api-keys` | Keys für MCP-/REST-Clients verwalten |
 | API-Key generieren | API-Keys-Karte | `#profile-api-keys-generate` | Öffnet das Key-Modal |
 | Key anlegen | Key-Modal | `#api-key-save` | Key wird einmal angezeigt, sofort kopieren |

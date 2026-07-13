@@ -25,10 +25,10 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 
 type Props = {
-  showSocialProviders: boolean;
+  socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignInForm = observer(({ showSocialProviders }: Props) => {
+export const SignInForm = observer(({ socialProviders }: Props) => {
   const searchParams = useSearchParams();
 
   const t = useTranslations();
@@ -61,30 +61,34 @@ export const SignInForm = observer(({ showSocialProviders }: Props) => {
         <AppCardBody>
           <SocialErrorToast />
 
-          {showSocialProviders && (
+          {(socialProviders.google || socialProviders.microsoft) && (
             <>
               <div className="flex flex-col items-center gap-4 sm:flex-row">
-                <SignInProviderButton
-                  className="w-full sm:flex-1"
-                  label={t("SignInForm.buttonLabel", { provider: "Google" })}
-                  providerId="google"
-                  onClick={() =>
-                    void continueWithGoogleAction(callbackURL, "/auth/signin").then((res) => {
-                      if (res.data.url) window.location.assign(res.data.url);
-                    })
-                  }
-                />
+                {socialProviders.google && (
+                  <SignInProviderButton
+                    className="w-full sm:flex-1"
+                    label={t("SignInForm.buttonLabel", { provider: "Google" })}
+                    providerId="google"
+                    onClick={() =>
+                      void continueWithGoogleAction(callbackURL, "/auth/signin").then((res) => {
+                        if (res.data.url) window.location.assign(res.data.url);
+                      })
+                    }
+                  />
+                )}
 
-                <SignInProviderButton
-                  className="w-full sm:flex-1"
-                  label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
-                  providerId="microsoft"
-                  onClick={() =>
-                    void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
-                      if (res.data.url) window.location.assign(res.data.url);
-                    })
-                  }
-                />
+                {socialProviders.microsoft && (
+                  <SignInProviderButton
+                    className="w-full sm:flex-1"
+                    label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
+                    providerId="microsoft"
+                    onClick={() =>
+                      void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
+                        if (res.data.url) window.location.assign(res.data.url);
+                      })
+                    }
+                  />
+                )}
               </div>
 
               <div className="my-3 flex items-center">

@@ -135,12 +135,12 @@ export class ThreadParticipantsStore extends BaseStore {
     await this.mutate(
       async () => {
         const created = await createContactByNameAction(trimmed, this.rootStore.userStore.user?.id, linked);
-        if (!created) return { ok: false as const };
+        if (!created.ok) return { ok: false as const };
         createdContact = {
-          id: created.id,
-          firstName: created.firstName,
-          lastName: created.lastName,
-          avatarUrl: created.avatarUrl ?? null,
+          id: created.data.id,
+          firstName: created.data.firstName,
+          lastName: created.data.lastName,
+          avatarUrl: created.data.avatarUrl ?? null,
         };
         return { ok: true as const };
       },

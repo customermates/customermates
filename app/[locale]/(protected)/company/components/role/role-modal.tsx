@@ -127,7 +127,7 @@ export const RoleModal = observer(({ store }: Props) => {
 
               {renderResourcePermissions(Resource.company)}
 
-              {store.rootStore.isCloudHosted && renderResourcePermissions(Resource.auditLog)}
+              {renderResourcePermissions(Resource.auditLog)}
 
               {renderResourcePermissions(Resource.tasks)}
 
@@ -139,7 +139,7 @@ export const RoleModal = observer(({ store }: Props) => {
 
               {renderResourcePermissions(Resource.services)}
 
-              {renderResourcePermissions(Resource.inboxMessages)}
+              {store.rootStore.isCloudHosted && renderResourcePermissions(Resource.inboxMessages)}
             </div>
           </AppCardBody>
 

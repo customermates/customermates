@@ -1,25 +1,26 @@
 ---
 title: Company
-description: The Company screen, workspace-wide administration covering company data, team members, roles, webhooks, deliveries, and the audit trail, for humans and UI-driving agents.
+description: The Company screen, workspace-wide administration covering the subscription, team members, roles, webhooks, deliveries, and the audit trail, for humans and UI-driving agents.
 ---
 
 Customermates is an open-source CRM with a built-in MCP server. This page documents the **Company** screen of the web app for humans and for AI agents that drive the UI.
 
 ## Purpose
 
-The Company screen is workspace-wide administration. It holds the company data itself, the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
+The Company screen is workspace-wide administration. It holds the subscription (Cloud only), the team and its permissions, outbound webhooks with their delivery history, and the audit trail. Everything that affects the whole workspace, not a single record, lives here.
 
 ## URL
 
-The route is `/company/details`. All app routes are locale-prefixed (example: https://customermates.com/en/company/details). Each tab has its own route: `/company/details`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries`, and `/company/audit-logs`.
+All app routes are locale-prefixed (example: https://customermates.com/en/company/members). Each tab has its own route: `/company/subscription` (Cloud only), `/company/settings`, `/company/members`, `/company/roles`, `/company/webhooks`, `/company/webhook-deliveries`, and `/company/audit-logs`.
 
 ## Key actions
 
 | Action | Where | Anchor id | What happens |
 |---|---|---|---|
-| Go to Company | App sidebar | `#nav-company` | Opens /company/details |
-| Details tab | Sidebar sub-item | `#nav-company-details` | Company name, logo, billing |
-| Save / reset details | Form footer | `#company-details-save` / `#company-details-reset` | Persists or discards |
+| Go to Company | App sidebar | `#nav-company` | Opens /company/subscription (Cloud) or /company/settings (self-hosted) |
+| Subscription tab | Sidebar sub-item | `#nav-company-subscription` | Plan, trial status, and the plan picker (Cloud only) |
+| Settings tab | Sidebar sub-item | `#nav-company-settings` | Workspace currency for all money values |
+| Save / reset settings | Top bar | `#company-settings-save` / `#company-settings-reset` | Persists or discards |
 | Members tab | Sidebar sub-item | `#nav-company-members` | Team management |
 | Invite member | Members toolbar | `#company-members-add` | Opens the invite modal |
 | Send invite | Invite modal footer | `#member-modal-save` / `#member-modal-reset` | Sends the invitation |

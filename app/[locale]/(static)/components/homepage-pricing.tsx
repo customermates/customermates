@@ -12,6 +12,8 @@ type CardConfig = {
   titleKey: "selfHosted" | "cloud";
   variant: "outline" | "default";
   featureKeys: string[];
+  compareHref?: string;
+  compareTextKey?: string;
 };
 
 const CARDS: CardConfig[] = [
@@ -28,7 +30,9 @@ const CARDS: CardConfig[] = [
     badgeKey: "badge",
     periodKey: "period",
     variant: "default",
-    featureKeys: ["featureEverything", "featureAudit", "featureSso", "featurePriority", "featureMcp"],
+    featureKeys: ["featureStarter", "featurePro", "featureBusiness"],
+    compareHref: "/pricing",
+    compareTextKey: "compareText",
   },
 ];
 
@@ -127,6 +131,12 @@ export async function HomepagePricing() {
                     {t(`HomepagePricing.${card.titleKey}.ctaText`)}
                   </AppLink>
                 </Button>
+
+                {card.compareHref && card.compareTextKey && (
+                  <AppLink className="mt-3 text-center text-[12px] text-muted-foreground" href={card.compareHref}>
+                    {t(`HomepagePricing.${card.titleKey}.${card.compareTextKey}`)}
+                  </AppLink>
+                )}
 
                 <ul className="m-0 mt-4 flex flex-col gap-2 p-0">
                   {card.featureKeys.map((featureKey) => (

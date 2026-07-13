@@ -9,6 +9,7 @@ import { Resource } from "@/generated/prisma";
 import { deleteApiKeyAction, refreshApiKeysAction } from "../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
   constructor(rootStore: RootStore) {
@@ -26,7 +27,12 @@ export class ApiKeysStore extends BaseDataViewStore<ApiKey> {
   delete = async (id: string): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await deleteApiKeyAction({ id });
-      if (res.ok) await this.removeItem(id);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+
+      await this.removeItem(id);
     });
   };
 

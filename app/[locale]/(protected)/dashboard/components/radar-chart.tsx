@@ -17,8 +17,6 @@ type Props = {
 };
 
 export const RadarChartComponent = observer(({ aggregationType, chartData, colors, textColor }: Props) => {
-  const strokeColor = chartData[0]?.strokeColor || colors[0];
-
   return (
     <ResponsiveContainer height="100%" width="100%">
       <RadarChart data={chartData}>
@@ -35,7 +33,7 @@ export const RadarChartComponent = observer(({ aggregationType, chartData, color
             r: 4,
           }}
           fill={colors[0]}
-          stroke={strokeColor}
+          stroke={chartData[0]?.strokeColor || colors[0]}
           strokeWidth={1.5}
         />
       </RadarChart>

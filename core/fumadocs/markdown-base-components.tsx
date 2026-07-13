@@ -100,7 +100,7 @@ export const markdownBaseComponents: Pick<
     </MarketingTableFrame>
   ),
   thead: ({ className, children, ...props }) => (
-    <thead className={cn("bg-muted/20 dark:bg-muted/40", className)} {...props}>
+    <thead className={cn("sticky top-[var(--table-sticky-top,4rem)] z-10 bg-card", className)} {...props}>
       {children}
     </thead>
   ),
@@ -115,12 +115,21 @@ export const markdownBaseComponents: Pick<
     </tr>
   ),
   th: ({ className, children, ...props }) => (
-    <th className={cn("px-6 py-3 text-left text-x-sm font-semibold text-foreground align-top", className)} {...props}>
+    <th
+      className={cn(
+        "min-w-[130px] bg-muted/20 px-6 py-3 text-left text-x-sm font-semibold text-foreground align-top dark:bg-muted/40",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </th>
   ),
   td: ({ className, children, ...props }) => (
-    <td className={cn("px-6 py-3 text-x-sm text-foreground align-top border-t border-border/50", className)} {...props}>
+    <td
+      className={cn("min-w-[130px] px-6 py-3 text-x-sm text-foreground align-top border-t border-border/50", className)}
+      {...props}
+    >
       {children}
     </td>
   ),

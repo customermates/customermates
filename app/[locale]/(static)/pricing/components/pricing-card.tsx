@@ -9,16 +9,20 @@ type Props = {
   card: PricingCard;
   displayPrice: string;
   priceNote?: string;
+  priceSubtext?: string;
 };
 
-export function PricingCardComponent({ card, displayPrice, priceNote }: Props) {
-  const featured = Boolean(card.badge);
+export function PricingCardComponent({ card, displayPrice, priceNote, priceSubtext }: Props) {
+  const subtext = priceSubtext ?? card.priceSubtext;
+  const featured = card.featured === true;
   const buttonVariant = card.buttonVariant === "bordered" ? "outline" : "default";
 
   return (
     <div
-      className={`relative flex h-full flex-col rounded-xl bg-card p-6 shadow-xs ${
-        featured ? "border-2 border-primary" : ""
+      className={`relative flex h-full flex-col rounded-xl p-6 ${
+        featured
+          ? "border-2 border-primary bg-primary/10 shadow-2xl shadow-primary/30 xl:z-10 xl:scale-[1.04]"
+          : "bg-card shadow-xs"
       }`}
     >
       <div className="mb-1 flex items-center justify-between">
@@ -37,7 +41,7 @@ export function PricingCardComponent({ card, displayPrice, priceNote }: Props) {
         <div>
           <span className="text-[34px] font-bold tracking-[-0.02em]">{displayPrice}</span>
 
-          {card.priceSubtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{card.priceSubtext}</span>}
+          {subtext && <span className="ml-1.5 text-[13px] text-muted-foreground">{subtext}</span>}
         </div>
 
         <p className="m-0 min-h-[18px] text-[12px] text-muted-foreground">{priceNote}</p>

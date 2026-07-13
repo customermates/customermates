@@ -32,7 +32,7 @@ export async function createTaskByNameAction(name: string, userId: string | null
     serviceIds: [],
     customFieldValues: [],
   });
-  return result.ok ? result.data : null;
+  return result;
 }
 
 export async function refreshTaskCountAction() {

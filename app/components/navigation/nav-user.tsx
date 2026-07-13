@@ -31,7 +31,6 @@ type Props = {
 export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut }: Props) => {
   const name = `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim();
   const email = user?.email ?? "";
-  const avatarSrc = user?.avatarUrl ?? undefined;
 
   return (
     <SidebarMenu>
@@ -43,7 +42,7 @@ export const NavUser = observer(({ user, theme, labels, onThemeChange, onSignOut
               size="lg"
               tooltip={name || email}
             >
-              <Avatar className="rounded-lg" name={name} size="lg" src={avatarSrc} />
+              <Avatar className="rounded-lg" name={name} size="lg" src={user?.avatarUrl ?? undefined} />
 
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{name || email}</span>

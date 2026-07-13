@@ -24,6 +24,7 @@ export type FormSelectItem = {
 type Props = {
   id: string;
   label?: string | null;
+  description?: ReactNode;
   placeholder?: string;
   required?: boolean;
   readOnly?: boolean;
@@ -38,6 +39,7 @@ export const FormSelect = observer(
   ({
     id,
     label,
+    description,
     placeholder,
     required,
     readOnly,
@@ -114,6 +116,8 @@ export const FormSelect = observer(
             {children}
           </SelectContent>
         </Select>
+
+        {description && !hasError && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>
     );
   },

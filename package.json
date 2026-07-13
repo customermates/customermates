@@ -183,7 +183,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "vercel-build": "prisma generate && prisma migrate deploy && yarn openapi:generate && yarn raw-docs:generate && next build",
-    "vercel-preview-build": "prisma generate && yarn db:reset && yarn openapi:generate && yarn raw-docs:generate && next build",
+    "vercel-preview-build": "prisma generate && yarn db:reset && tsx scripts/preview-wipe-unipile.ts && yarn openapi:generate && yarn raw-docs:generate && next build",
     "workflow:setup": "workflow-postgres-setup"
   },
   "type": "module",

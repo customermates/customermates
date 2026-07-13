@@ -31,9 +31,11 @@ export function softwareApplicationSchema(params: { description: string; locale:
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, macOS, Windows, Linux",
     offers: {
-      "@type": "Offer",
-      price: "7",
+      "@type": "AggregateOffer",
+      lowPrice: "12",
+      highPrice: "59",
       priceCurrency: "EUR",
+      offerCount: "3",
       url: `${env.BASE_URL}/${params.locale}/pricing`,
     },
     publisher: {

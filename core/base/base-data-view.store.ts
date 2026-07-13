@@ -690,6 +690,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         hiddenColumns: toJS(this.hiddenColumns),
         viewMode: toJS(this.viewMode),
         groupingColumnId: this.groupingColumnId,
+      }).then((res) => {
+        if (!res.ok) toastZodErrorTree(res.error);
       });
     }, 1000);
   };

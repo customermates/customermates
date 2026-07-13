@@ -12,11 +12,10 @@ type Props = {
 
 export function FormAutocompleteCountryItem({ countryKey, label, size = "md" }: Props) {
   const t = useTranslations();
-  const avatarSizeClass = size === "sm" ? "size-3" : "size-5";
 
   return (
     <div className="flex w-full gap-2 items-center justify-start">
-      <Avatar className={avatarSizeClass}>
+      <Avatar className={size === "sm" ? "size-3" : "size-5"}>
         <AvatarImage
           alt={t("Common.imageAlt.countryFlag", { country: label })}
           src={`https://flagcdn.com/${countryKey.toLowerCase()}.svg`}

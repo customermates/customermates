@@ -30,11 +30,12 @@ type Props = {
 
 export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const t = useTranslations();
-  const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = rootStore;
   const copy = useCopyToClipboard();
   const [composeKey, setComposeKey] = useState<string | null>(null);
   const canEditChannels = userStore.can(Resource.contacts, Action.update);
-  const canStartThread = userStore.can(Resource.inboxMessages, Action.create);
+  const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.isCloudHosted;
   const identifiers = contactDetailStore.channels;
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
       <div className="flex items-center gap-1.5">
         <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
 
-        {identifiers.length > 0 && (
+        {identifiers.length > 0 && rootStore.isCloudHosted && (
           <IconButton
             href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
             icon={ExternalLink}

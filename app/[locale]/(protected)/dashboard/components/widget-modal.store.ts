@@ -12,6 +12,7 @@ import { EntityType, WidgetGroupByType, AggregationType, Resource } from "@/gene
 import { upsertWidgetAction, deleteWidgetAction, getWidgetByIdAction, getCompanyWidgetsAction } from "../actions";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 
@@ -274,11 +275,13 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
 
     try {
       const res = await deleteWidgetAction({ id: this.form.id });
-
-      if (res.ok) {
-        await this.rootStore.widgetsStore.removeItem(res.data);
-        this.close();
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
       }
+
+      await this.rootStore.widgetsStore.removeItem(res.data);
+      this.close();
     } finally {
       this.setIsLoading(false);
     }

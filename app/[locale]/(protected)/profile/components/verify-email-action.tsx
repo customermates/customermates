@@ -15,7 +15,7 @@ export function VerifyEmailAction() {
       className="h-8"
       size="sm"
       type="button"
-      variant="outline"
+      variant="secondary"
       onClick={() => void userStore.resendVerificationEmail()}
     >
       <MailWarning className="size-3.5" />

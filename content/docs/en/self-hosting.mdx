@@ -7,7 +7,7 @@ Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker c
 
 ## Self-host vs cloud
 
-Both run the same core application. The unified inbox, calendar sync, audit logging, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components). On the cloud they come with the plans: the inbox and calendar sync from the Pro tier, audit logging on every cloud plan, SSO and white-label on the Enterprise plan. The free community self-host build ships the full core CRM without the Enterprise Edition features; for a self-hosted deployment that includes them, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in is available on the cloud; self-hosted installs sign in with email.
+Both run the same core application. The self-hosted build matches the Starter feature set: the full core CRM including audit logging. The unified inbox, calendar sync, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components); on the cloud, the inbox and calendar sync come with the Pro tier, SSO and white-label with the Enterprise plan. For a self-hosted deployment that includes them, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in works in either deployment once you set the provider env vars; without them, self-hosted installs sign in with email.
 
 | If you… | Pick |
 |---|---|
@@ -27,9 +27,9 @@ Both run the same core application. The unified inbox, calendar sync, audit logg
 | Backups | automatic daily | you configure |
 | Support SLA | included on paid plans | community |
 | Unified inbox and calendar sync | from the Pro plan | not included (Cloud feature) |
-| Audit log | included on every plan | Enterprise agreement |
+| Audit log | included on every plan | included |
 | Enterprise features (enterprise SSO, white-label) | Enterprise plan | Enterprise agreement |
-| Google/Microsoft OAuth sign-in | ✓ | email sign-in |
+| Google/Microsoft OAuth sign-in | ✓ | ✓, set the provider env vars |
 | Pricing | per user, tiers from €12/month | free (core CRM); Enterprise features by agreement |
 
 **Data custody:** Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
@@ -151,7 +151,7 @@ For production:
 
 ## Enterprise features
 
-The unified inbox, calendar sync, audit logging, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components). On the cloud they come with the plans: inbox and calendar from Pro, audit logging on every plan, SSO and white-label on Enterprise. The free community self-host build does not include them. If you need them on your own infrastructure, contact us for an Enterprise Edition agreement.
+The unified inbox, calendar sync, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components). On the cloud they come with the plans: inbox and calendar from Pro, SSO and white-label on Enterprise. The free community self-host build does not include them; audit logging is part of every deployment, self-hosted included. If you need them on your own infrastructure, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in is part of the core and works self-hosted once you set the provider env vars.
 
 ## Next
 
