@@ -3,6 +3,7 @@ import type { ConnectedAccount } from "@/generated/prisma";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { Data } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -31,12 +32,16 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     private repo: ReconnectConnectedAccountRepo,
     private messagingService: MessagingService,
     private eventService: EventService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
-  async invoke(data: ReconnectConnectedAccountData): Promise<Redirect> {
+  async invoke(data: ReconnectConnectedAccountData): Promise<Redirect | { ok: false; error: z.ZodError }> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.repo.findAccountByIdOrThrow(data.id);
 
     const baseUrl = env.BASE_URL.replace(/\/+$/, "");

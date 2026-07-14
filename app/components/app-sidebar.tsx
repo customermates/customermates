@@ -1,6 +1,7 @@
 "use client";
 
 import type { ExtendedUser } from "@/features/user/user.types";
+import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
@@ -39,16 +40,18 @@ import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
+import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type Props = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
   user: ExtendedUser | null;
-  subscriptionStatus: SubscriptionStatus | null;
+  subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   emailVerified: boolean | null;
 };
@@ -59,7 +62,7 @@ export const AppSidebar = observer(
     systemTaskCount,
     unreadThreadCount,
     channelsNeedingActionCount,
-    subscriptionStatus,
+    subscription,
     trialDaysLeft,
     emailVerified,
   }: Props) => {
@@ -73,6 +76,7 @@ export const AppSidebar = observer(
     const { setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
     const openEntity = useOpenEntity();
+    const subscriptionStatus = subscription?.status ?? null;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
     const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
@@ -90,182 +94,119 @@ export const AppSidebar = observer(
       cb?.();
     }
 
-    const navGroups: NavGroup[] = useMemo(
-      () =>
-        [
-          {
-            key: "overview",
-            label: t("NavigationBar.overview"),
-            items: [
-              {
-                key: "dashboard",
-                title: t("NavigationBar.dashboard"),
-                href: "/dashboard",
-                icon: LayoutGrid,
+    const navGroups: NavGroup[] = useMemo(() => {
+      const profileSubroutes = visibleSubroutes("profile", rootStore.isCloudHosted, userStore.canAccess);
+      const companySubroutes = visibleSubroutes("company", rootStore.isCloudHosted, userStore.canAccess);
+
+      return [
+        {
+          key: "overview",
+          label: t("NavigationBar.overview"),
+          items: [
+            {
+              key: "dashboard",
+              title: t("NavigationBar.dashboard"),
+              href: "/dashboard",
+              icon: LayoutGrid,
+              visible: true,
+            },
+            {
+              key: "inbox",
+              title: t("NavigationBar.inbox"),
+              href: "/inbox",
+              icon: Inbox,
+              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.isCloudHosted,
+              badge: unreadThreadCount,
+            },
+            {
+              key: "tasks",
+              title: t("NavigationBar.tasks"),
+              href: "/tasks",
+              icon: CheckCircle2,
+              visible: userStore.canAccess(Resource.tasks),
+              badge: systemTaskCount,
+            },
+          ].filter((i) => i.visible),
+        },
+        {
+          key: "crm",
+          label: t("NavigationBar.crm"),
+          items: [
+            {
+              key: "contacts",
+              title: t("NavigationBar.contacts"),
+              href: "/contacts",
+              icon: Users,
+              visible: userStore.canAccess(Resource.contacts),
+            },
+            {
+              key: "organizations",
+              title: t("NavigationBar.organizations"),
+              href: "/organizations",
+              icon: Building2,
+              visible: userStore.canAccess(Resource.organizations),
+            },
+            {
+              key: "deals",
+              title: t("NavigationBar.deals"),
+              href: "/deals",
+              icon: TrendingUp,
+              visible: userStore.canAccess(Resource.deals),
+            },
+            {
+              key: "services",
+              title: t("NavigationBar.services"),
+              href: "/services",
+              icon: Package,
+              visible: userStore.canAccess(Resource.services),
+            },
+          ].filter((i) => i.visible),
+        },
+        {
+          key: "workspace",
+          label: t("NavigationBar.workspace"),
+          items: [
+            {
+              key: "profile",
+              title: t("UserAvatar.profile"),
+              href: `/profile/${profileSubroutes[0]?.slug ?? "settings"}`,
+              icon: UserCircle,
+              visible: profileSubroutes.length > 0,
+              items: profileSubroutes.map((subroute) => ({
+                key: `profile-${subroute.slug}`,
+                title: t(subroute.labelKey),
+                href: `/profile/${subroute.slug}`,
+                icon: subroute.slug === "connected-accounts" ? Mail : UserCircle,
                 visible: true,
-              },
-              {
-                key: "inbox",
-                title: t("NavigationBar.inbox"),
-                href: "/inbox",
-                icon: Inbox,
-                visible: userStore.canAccess(Resource.inboxMessages),
-                badge: unreadThreadCount,
-              },
-              {
-                key: "tasks",
-                title: t("NavigationBar.tasks"),
-                href: "/tasks",
-                icon: CheckCircle2,
-                visible: userStore.canAccess(Resource.tasks),
-                badge: systemTaskCount,
-              },
-            ].filter((i) => i.visible),
-          },
-          {
-            key: "crm",
-            label: t("NavigationBar.crm"),
-            items: [
-              {
-                key: "contacts",
-                title: t("NavigationBar.contacts"),
-                href: "/contacts",
-                icon: Users,
-                visible: userStore.canAccess(Resource.contacts),
-              },
-              {
-                key: "organizations",
-                title: t("NavigationBar.organizations"),
-                href: "/organizations",
-                icon: Building2,
-                visible: userStore.canAccess(Resource.organizations),
-              },
-              {
-                key: "deals",
-                title: t("NavigationBar.deals"),
-                href: "/deals",
-                icon: TrendingUp,
-                visible: userStore.canAccess(Resource.deals),
-              },
-              {
-                key: "services",
-                title: t("NavigationBar.services"),
-                href: "/services",
-                icon: Package,
-                visible: userStore.canAccess(Resource.services),
-              },
-            ].filter((i) => i.visible),
-          },
-          {
-            key: "workspace",
-            label: t("NavigationBar.workspace"),
-            items: [
-              {
-                key: "profile",
-                title: t("UserAvatar.profile"),
-                href: "/profile/details",
-                icon: UserCircle,
-                visible: true,
-                items: [
-                  {
-                    key: "profile-details",
-                    title: t("NavigationBar.details"),
-                    href: "/profile/details",
-                    icon: UserCircle,
-                    visible: true,
-                  },
-                  {
-                    key: "profile-settings",
-                    title: t("NavigationBar.settings"),
-                    href: "/profile/settings",
-                    icon: UserCircle,
-                    visible: true,
-                  },
-                  {
-                    key: "profile-api-keys",
-                    title: t("ApiKeysCard.title"),
-                    href: "/profile/api-keys",
-                    icon: UserCircle,
-                    visible: userStore.canAccess(Resource.api),
-                  },
-                  {
-                    key: "profile-connected-accounts",
-                    title: t("NavigationBar.connectedAccounts"),
-                    href: "/profile/connected-accounts",
-                    icon: Mail,
-                    visible: userStore.canAccess(Resource.inboxMessages),
-                    badge: channelsNeedingActionCount,
-                  },
-                ].filter((i) => i.visible),
-              },
-              {
-                key: "company",
-                title: t("UserAvatar.company"),
-                href: "/company/details",
+                badge: subroute.slug === "connected-accounts" ? channelsNeedingActionCount : undefined,
+              })),
+            },
+            {
+              key: "company",
+              title: t("UserAvatar.company"),
+              href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
+              icon: Building,
+              visible: companySubroutes.length > 0,
+              items: companySubroutes.map((subroute) => ({
+                key: `company-${subroute.slug}`,
+                title: t(subroute.labelKey),
+                href: `/company/${subroute.slug}`,
                 icon: Building,
-                visible:
-                  userStore.canAccess(Resource.company) ||
-                  userStore.canAccess(Resource.users) ||
-                  (rootStore.isCloudHosted && userStore.canAccess(Resource.auditLog)) ||
-                  userStore.canAccess(Resource.api),
-                items: [
-                  {
-                    key: "company-details",
-                    title: t("NavigationBar.general"),
-                    href: "/company/details",
-                    icon: Building,
-                    visible: userStore.canAccess(Resource.company),
-                  },
-                  {
-                    key: "company-members",
-                    title: t("NavigationBar.members"),
-                    href: "/company/members",
-                    icon: Building,
-                    visible: userStore.canAccess(Resource.users),
-                  },
-                  {
-                    key: "company-roles",
-                    title: t("RolesCard.title"),
-                    href: "/company/roles",
-                    icon: Building,
-                    visible: userStore.canAccess(Resource.users),
-                  },
-                  {
-                    key: "company-audit-logs",
-                    title: t("AuditLogsCard.title"),
-                    href: "/company/audit-logs",
-                    icon: Building,
-                    visible: rootStore.isCloudHosted && userStore.canAccess(Resource.auditLog),
-                  },
-                  {
-                    key: "company-webhooks",
-                    title: t("WebhooksCard.title"),
-                    href: "/company/webhooks",
-                    icon: Building,
-                    visible: userStore.canAccess(Resource.api),
-                  },
-                  {
-                    key: "company-webhook-deliveries",
-                    title: t("WebhookDeliveriesCard.title"),
-                    href: "/company/webhook-deliveries",
-                    icon: Building,
-                    visible: userStore.canAccess(Resource.api),
-                  },
-                ].filter((i) => i.visible),
-              },
-            ].filter((i) => i.visible),
-          },
-        ].filter((g) => g.items.length > 0),
-      [
-        t,
-        rootStore.isCloudHosted,
-        subscriptionStatus,
-        userStore.user,
-        systemTaskCount,
-        unreadThreadCount,
-        channelsNeedingActionCount,
-      ],
-    );
+                visible: true,
+              })),
+            },
+          ].filter((i) => i.visible),
+        },
+      ].filter((g) => g.items.length > 0);
+    }, [
+      t,
+      rootStore.isCloudHosted,
+      subscriptionStatus,
+      userStore.user,
+      systemTaskCount,
+      unreadThreadCount,
+      channelsNeedingActionCount,
+    ]);
 
     const secondaryItems: NavSecondaryItem[] = useMemo(
       () => [
@@ -314,7 +255,13 @@ export const AppSidebar = observer(
 
     if (isDocsRoute) return null;
 
-    const planSubtitle = buildPlanSubtitle(subscriptionStatus, trialDaysLeft, emailVerified, t, router.push);
+    const planSubtitle = buildPlanSubtitle(
+      rootStore.isCloudHosted ? subscriptionStatus : null,
+      trialDaysLeft,
+      emailVerified,
+      t,
+      router.push,
+    );
 
     return (
       <>
@@ -350,7 +297,13 @@ export const AppSidebar = observer(
               }}
               theme={resolvedTheme}
               user={user}
-              onSignOut={() => closeMobileSidebar(() => void signOutAction())}
+              onSignOut={() =>
+                closeMobileSidebar(() => {
+                  void signOutAction().then((res) => {
+                    if (!res.ok) toastZodErrorTree(res.error);
+                  });
+                })
+              }
               onThemeChange={() => void handleThemeChange()}
             />
           </SidebarFooter>
@@ -442,7 +395,7 @@ function buildPlanSubtitle(
 
     if (status === "active") {
       return chipButton(
-        "/company/details",
+        "/company/subscription",
         <AppChip className="h-[16px] px-1 text-[10px]" variant="success">
           {t("Subscription.status.active")}
         </AppChip>,
@@ -456,7 +409,7 @@ function buildPlanSubtitle(
           : t("Subscription.status.trial");
       const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
       return chipButton(
-        "/company/details",
+        "/company/subscription",
         <AppChip className="h-[16px] px-1 text-[10px]" variant={variant}>
           {text}
         </AppChip>,
@@ -464,7 +417,7 @@ function buildPlanSubtitle(
     }
 
     return chipButton(
-      "/company/details",
+      "/company/subscription",
       <AppChip className="h-[16px] px-1 text-[10px]" variant="destructive">
         {t(`Subscription.status.${status}`)}
       </AppChip>,
@@ -474,7 +427,7 @@ function buildPlanSubtitle(
   const verificationChip =
     emailVerified === false
       ? chipButton(
-          "/profile/details",
+          "/profile/settings",
           <AppChip className="h-[16px] px-1 text-[10px]" variant="warning">
             {t("EmailVerification.notVerified")}
           </AppChip>,

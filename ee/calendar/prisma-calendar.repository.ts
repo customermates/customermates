@@ -202,12 +202,4 @@ export class PrismaCalendarRepo
 
     return { id: calendar.id };
   }
-
-  @BypassTenantGuard
-  async markAccountHasCalendarUnscoped(unipileAccountId: string) {
-    await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId },
-      data: { hasCalendar: true },
-    });
-  }
 }

@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -38,13 +39,19 @@ export class SearchChannelCandidatesInteractor extends AuthenticatedInteractor<
   SearchChannelCandidatesData,
   ChannelCandidateDto[]
 > {
-  constructor(private repo: SearchChannelCandidatesRepo) {
+  constructor(
+    private repo: SearchChannelCandidatesRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @Validate(Schema)
   @ValidateOutput(OutputSchema)
   async invoke(data: SearchChannelCandidatesData): Validated<ChannelCandidateDto[]> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const candidates = await this.repo.searchChannelCandidates(data.query);
     return { ok: true as const, data: candidates };
   }

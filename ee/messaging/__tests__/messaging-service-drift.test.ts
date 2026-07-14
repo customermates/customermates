@@ -72,6 +72,26 @@ describe("MessagingService boundary validation", () => {
   });
 });
 
+describe("deleteAccount tolerance", () => {
+  it("tolerates a 404 (account already gone at Unipile)", async () => {
+    stubFetch({ type: "provider/resource_not_found" }, 404);
+
+    await expect(new MessagingService().deleteAccount({ accountId: "acc_1" })).resolves.toBeUndefined();
+  });
+
+  it("tolerates a 410 (account already gone at Unipile)", async () => {
+    stubFetch({ type: "api/gone" }, 410);
+
+    await expect(new MessagingService().deleteAccount({ accountId: "acc_1" })).resolves.toBeUndefined();
+  });
+
+  it("propagates other errors instead of swallowing them", async () => {
+    stubFetch({ type: "api/internal_error" }, 500);
+
+    await expect(new MessagingService().deleteAccount({ accountId: "acc_1" })).rejects.toThrow("request failed: 500");
+  });
+});
+
 describe("downloadAttachment email fallback", () => {
   const requestUrl = (input: RequestInfo | URL): string => (input instanceof Request ? input.url : String(input));
 

@@ -1,7 +1,6 @@
 import type { Validated, Data } from "@/core/validation/validation.utils";
 import type { EmailService } from "@/features/email/email.service";
 import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
-import type { GetCompanyDetailsInteractor } from "@/features/company/get-company-details.interactor";
 
 import { z } from "zod";
 
@@ -36,7 +35,6 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   constructor(
     private readonly emailService: EmailService,
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,
-    private readonly getCompanyDetails: GetCompanyDetailsInteractor,
   ) {
     super();
   }
@@ -45,18 +43,14 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   @ValidateOutput(OutputSchema)
   async invoke(data: InviteUsersByEmailData): Validated<InviteUsersByEmailResult> {
     const user = getTenantUser();
-    const [tokenResult, companyResult] = await Promise.all([
-      this.getOrCreateInviteToken.invoke(),
-      this.getCompanyDetails.invoke(),
-    ]);
+    const tokenResult = await this.getOrCreateInviteToken.invoke();
 
     const inviteLink = `${env.BASE_URL}/invitation/${tokenResult.data.token}`;
-    const companyName = companyResult.data.name ?? "Customermates";
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();
-    const subject = t("CompanyInvite.subject", { companyName });
-    const preview = t("CompanyInvite.preview", { inviterName, companyName });
+    const subject = t("CompanyInvite.subject");
+    const preview = t("CompanyInvite.preview", { inviterName });
     const intro = t("CompanyInvite.intro", { inviterName });
     const cta = t("CompanyInvite.cta");
     const fallback = t("CompanyInvite.fallback");

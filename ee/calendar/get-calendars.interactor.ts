@@ -1,6 +1,7 @@
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -30,6 +31,7 @@ export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
     p13nRepo: P13nRepo,
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
+    private entitlements: EntitlementService,
   ) {
     super(
       repo,
@@ -44,6 +46,9 @@ export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
   @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(CalendarDtoSchema))
   async invoke(params: GetQueryParams = {}): Validated<GetResult<CalendarDto>> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     return await super.invoke(params);
   }
 }

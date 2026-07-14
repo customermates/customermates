@@ -73,7 +73,7 @@
     {
       "files": [
         "components/shared/language-selector.tsx",
-        "**/user-settings-form.tsx",
+        "**/profile-settings-form.tsx",
         "**/subscription-expired-view.tsx",
         "**/mcp-consent-card.tsx"
       ],

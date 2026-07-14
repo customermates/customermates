@@ -2,10 +2,10 @@ import type { BaseModalStore } from "../base/base-modal.store";
 
 import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
+import { CompanySettingsStore } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings.store";
 import { ForgotPasswordStore } from "@/app/[locale]/(public)/auth/forgot-password/forgot-password.store";
 import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/verify-email.store";
 import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
-import { CompanyDetailsStore } from "@/app/[locale]/(protected)/company/components/company-details/company-details.store";
 import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
@@ -20,12 +20,12 @@ import { OrganizationsStore } from "@/app/[locale]/(protected)/organizations/com
 import { StepAiStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-ai.store";
 import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
 import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
-import { UserDetailsStore } from "@/app/[locale]/(protected)/profile/components/user-details.store";
-import { UserSettingsStore } from "@/app/[locale]/(protected)/profile/components/user-settings.store";
+import { ProfileSettingsStore } from "@/app/[locale]/(protected)/profile/components/profile-settings.store";
 import { ApiKeyModalStore } from "@/app/[locale]/(protected)/profile/components/api-key-modal.store";
 import { ApiKeysStore } from "@/app/[locale]/(protected)/profile/components/api-keys.store";
 import { ConnectedAccountModalStore } from "@/app/[locale]/(protected)/profile/components/connected-account-modal.store";
 import { ConnectedAccountsStore } from "@/app/[locale]/(protected)/profile/components/connected-accounts.store";
+import { ConnectUpsellModalStore } from "@/app/[locale]/(protected)/profile/components/connect-upsell-modal.store";
 import { ContactsStore } from "@/app/[locale]/(protected)/contacts/components/contacts.store";
 import { MessagingThreadsStore } from "@/app/[locale]/(protected)/inbox/components/messaging-threads.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
@@ -72,6 +72,7 @@ export class RootStore {
   private _apiKeysStore?: ApiKeysStore;
   private _connectedAccountsStore?: ConnectedAccountsStore;
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
+  private _connectUpsellModalStore?: ConnectUpsellModalStore;
   private _companyStore?: CompanyStore;
   private _contactsStore?: ContactsStore;
   private _messagingThreadsStore?: MessagingThreadsStore;
@@ -96,7 +97,7 @@ export class RootStore {
   private _widgetsGridStore?: WidgetsStore;
   private _auditLogsStore?: AuditLogsStore;
 
-  private _companyDetailsStore?: CompanyDetailsStore;
+  private _companySettingsStore?: CompanySettingsStore;
   private _forgotPasswordStore?: ForgotPasswordStore;
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
@@ -111,8 +112,7 @@ export class RootStore {
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
   private _subscriptionExpiredStore?: SubscriptionExpiredStore;
-  private _userDetailsStore?: UserDetailsStore;
-  private _userSettingsStore?: UserSettingsStore;
+  private _profileSettingsStore?: ProfileSettingsStore;
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
   private _contactDetailStore?: ContactDetailStore;
@@ -230,12 +230,8 @@ export class RootStore {
     return (this._widgetsGridStore ??= new WidgetsStore(this));
   }
 
-  get userDetailsStore() {
-    return (this._userDetailsStore ??= new UserDetailsStore(this));
-  }
-
-  get userSettingsStore() {
-    return (this._userSettingsStore ??= new UserSettingsStore(this));
+  get profileSettingsStore() {
+    return (this._profileSettingsStore ??= new ProfileSettingsStore(this));
   }
 
   get apiKeyModalStore() {
@@ -252,6 +248,10 @@ export class RootStore {
 
   get connectedAccountModalStore() {
     return (this._connectedAccountModalStore ??= new ConnectedAccountModalStore(this));
+  }
+
+  get connectUpsellModalStore() {
+    return (this._connectUpsellModalStore ??= new ConnectUpsellModalStore(this));
   }
 
   get stepProfileStore() {
@@ -294,16 +294,16 @@ export class RootStore {
     return (this._signUpStore ??= new SignUpStore(this));
   }
 
+  get companySettingsStore() {
+    return (this._companySettingsStore ??= new CompanySettingsStore(this));
+  }
+
   get forgotPasswordStore() {
     return (this._forgotPasswordStore ??= new ForgotPasswordStore(this));
   }
 
   get resetPasswordStore() {
     return (this._resetPasswordStore ??= new ResetPasswordStore(this));
-  }
-
-  get companyDetailsStore() {
-    return (this._companyDetailsStore ??= new CompanyDetailsStore(this));
   }
 
   get subscriptionStore() {

@@ -1,9 +1,15 @@
 import type { SubscriptionService } from "./subscription.service";
 
 import { z } from "zod";
-import { Resource, Action, SubscriptionStatus as SubscriptionStatusEnum } from "@/generated/prisma";
+import {
+  Resource,
+  Action,
+  SubscriptionStatus as SubscriptionStatusEnum,
+  SubscriptionPlan as SubscriptionPlanEnum,
+} from "@/generated/prisma";
 
-import type { Subscription, SubscriptionStatus } from "@/generated/prisma";
+import type { Subscription, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -12,10 +18,13 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
+  plan: z.enum(SubscriptionPlanEnum),
   quantity: z.number().nullable(),
+  activeUsers: z.number(),
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
   customerPortalUrl: z.string().nullable(),
+  hasActiveSubscription: z.boolean(),
 });
 
 export abstract class GetSubscriptionRepo {
@@ -24,10 +33,13 @@ export abstract class GetSubscriptionRepo {
 
 export type SubscriptionDto = {
   status: SubscriptionStatus;
+  plan: SubscriptionPlan;
   quantity: number | null;
+  activeUsers: number;
   trialEndDate: Date | null;
   currentPeriodEnd: Date | null;
   customerPortalUrl: string | null;
+  hasActiveSubscription: boolean;
 };
 
 @AllowInDemoMode
@@ -35,6 +47,7 @@ export type SubscriptionDto = {
 export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, SubscriptionDto> {
   constructor(
     private repo: GetSubscriptionRepo,
+    private userRepo: CountActiveUsersRepo,
     private lemonSqueezyService: SubscriptionService,
   ) {
     super();
@@ -42,7 +55,10 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
 
   @ValidateOutput(OutputSchema)
   async invoke(): Promise<{ ok: true; data: SubscriptionDto }> {
-    const subscription = await this.repo.getSubscriptionOrThrow();
+    const [subscription, activeUsers] = await Promise.all([
+      this.repo.getSubscriptionOrThrow(),
+      this.userRepo.countActiveUsers(),
+    ]);
 
     let customerPortalUrl: string | null = null;
 
@@ -57,10 +73,13 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
       ok: true,
       data: {
         status: subscription.status,
+        plan: subscription.plan,
         quantity: subscription.quantity,
+        activeUsers,
         trialEndDate: subscription.trialEndDate,
         currentPeriodEnd: subscription.currentPeriodEnd,
         customerPortalUrl,
+        hasActiveSubscription: Boolean(subscription.lemonSqueezyId),
       },
     };
   }

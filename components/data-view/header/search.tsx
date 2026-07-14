@@ -4,6 +4,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 
 import { Search, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
   className,
   id,
 }: Props<E>) {
+  const t = useTranslations();
   const [value, setValue] = useState(store.searchTerm ?? "");
   const [expandedMobile, setExpandedMobile] = useState(Boolean(store.searchTerm));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -88,7 +90,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
 
         {expandedMobile && (
           <button
-            aria-label="Collapse search"
+            aria-label={t("Common.ariaLabels.collapseSearch")}
             className="md:hidden absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-sm p-1 text-muted-foreground hover:text-foreground"
             type="button"
             onClick={handleCollapse}

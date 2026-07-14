@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
@@ -42,6 +43,7 @@ export class ListSocialPostCommentsInteractor extends AuthenticatedInteractor<
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -49,6 +51,9 @@ export class ListSocialPostCommentsInteractor extends AuthenticatedInteractor<
   @Validate(ListSocialPostCommentsSchema)
   @ValidateOutput(SocialCommentListSchema)
   async invoke(data: ListSocialPostCommentsData): Validated<SocialCommentList> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (!isSocialProvider(account.provider)) {

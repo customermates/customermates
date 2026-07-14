@@ -9,7 +9,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const OutputSchema = z.discriminatedUnion("valid", [
-  z.object({ valid: z.literal(true), companyId: z.string(), companyName: z.string() }),
+  z.object({ valid: z.literal(true), companyId: z.string() }),
   z.object({ valid: z.literal(false), errorMessage: z.string() }),
 ]);
 
@@ -24,7 +24,7 @@ type InviteTokenData = Data<typeof Schema>;
 type ValidatedInviteToken = z.infer<typeof OutputSchema>;
 
 export abstract class InviteTokenRepo {
-  abstract findTokenUnscoped(token: string): Promise<(InviteToken & { companyName: string }) | null>;
+  abstract findTokenUnscoped(token: string): Promise<InviteToken | null>;
 }
 
 @SystemInteractor
@@ -71,7 +71,6 @@ export class InviteTokenValidationInteractor {
       data: {
         valid: true,
         companyId: inviteToken.companyId,
-        companyName: inviteToken.companyName,
       },
     };
   }

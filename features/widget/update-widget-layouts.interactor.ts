@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const LayoutBreakpointSchema = z.object({
   i: z.string(),
@@ -44,7 +43,6 @@ export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<Updat
   }
 
   @Enforce(Schema)
-  @ValidateOutput(z.null())
   async invoke(data: UpdateWidgetLayoutsData): Promise<{ ok: true; data: null }> {
     await this.repo.updateWidgetLayouts(data);
     return { ok: true as const, data: null };

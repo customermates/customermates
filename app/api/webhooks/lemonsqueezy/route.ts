@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 import { z } from "zod";
 
-import { getSubscriptionService } from "@/core/di";
+import { getDeleteAccountsForPlanInteractor, getSubscriptionService } from "@/core/di";
 import { verifyHmacSha256Hex } from "@/core/utils/hmac";
 import { env } from "@/env";
 
@@ -23,10 +23,16 @@ export async function POST(request: NextRequest) {
   const payload = z
     .looseObject({
       data: z.looseObject({ id: z.string().min(1) }),
-      meta: z.looseObject({ custom_data: z.looseObject({ company_id: z.string().min(1) }) }),
+      meta: z.looseObject({ custom_data: z.looseObject({ company_id: z.string().min(1) }).nullish() }),
     })
     .parse(JSON.parse(body));
-  await getSubscriptionService().updateSubscriptionOrThrow(payload.data.id, payload.meta.custom_data.company_id);
+
+  const { companyId, changedPlan } = await getSubscriptionService().updateSubscriptionOrThrow(
+    payload.data.id,
+    payload.meta.custom_data?.company_id,
+  );
+
+  if (changedPlan) await getDeleteAccountsForPlanInteractor().invoke({ companyId, plan: changedPlan });
 
   return NextResponse.json({ success: true });
 }

@@ -650,11 +650,17 @@ export class MessagingService {
     return { body: blob.stream(), contentType: blob.type || null };
   }
 
+  async listAccounts(): Promise<{ id: string; createdAt: Date }[]> {
+    const raw = await requestData(this.sdk.accounts.listAccounts({ query: { limit: "250" } }));
+
+    return raw.data.map((account) => ({ id: account.id, createdAt: new Date(account.created_at) }));
+  }
+
   async deleteAccount(input: { accountId: string }): Promise<void> {
     try {
       await requestData(this.sdk.accounts.removeAccount({ path: { account_id: input.accountId } }));
     } catch (err) {
-      if (err instanceof UnipileRequestError && err.status === 404) return;
+      if (err instanceof UnipileRequestError && (err.status === 404 || err.status === 410)) return;
 
       throw err;
     }

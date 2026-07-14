@@ -2,6 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -40,6 +41,7 @@ export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -51,6 +53,9 @@ export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
     tx: false,
   })
   async invoke(data: ResolveProviderProfileData): Validated<ResolvedProviderProfile> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
     const t = await getTranslations();
 

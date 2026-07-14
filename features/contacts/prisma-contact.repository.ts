@@ -10,6 +10,8 @@ import type { DeleteContactRepo } from "./delete/delete-contact.repo";
 import type { FindContactsByIdsRepo } from "./find-contacts-by-ids.repo";
 import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat.interactor";
 import type { ActivityContactRepo } from "@/ee/messaging/activities/prisma-activities.repository";
+import type { ModifyRelationContactRepo } from "@/features/relations/modify-entity-relation.interactor";
+import type { ContactIdentifierOwnersRepo } from "./contact-identifier-owners.repo";
 
 import { EntityType, Resource } from "@/generated/prisma";
 
@@ -42,7 +44,9 @@ export class PrismaContactRepo
     FindContactsByIdsRepo,
     GetCompanyWideContactRepo,
     StartChatContactRepo,
-    ActivityContactRepo
+    ActivityContactRepo,
+    ModifyRelationContactRepo,
+    ContactIdentifierOwnersRepo
 {
   private get userScopedSelect() {
     return {

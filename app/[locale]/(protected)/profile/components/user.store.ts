@@ -1,5 +1,4 @@
-import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
-import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-settings.interactor";
+import type { UserProfileData } from "@/features/user/upsert/update-user-details.interactor";
 import type { ExtendedUser } from "@/features/user/user.types";
 import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
@@ -11,6 +10,7 @@ import { Action, CountryCode, Resource } from "@/generated/prisma";
 
 import { updateThemeAction } from "@/app/[locale]/(protected)/dashboard/actions";
 import { resendVerificationEmailFromAppAction } from "../actions";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class UserStore extends BaseStore {
   public user: ExtendedUser | null = null;
@@ -37,16 +37,15 @@ export class UserStore extends BaseStore {
   };
 
   updateTheme = async (theme: Theme): Promise<void> => {
-    const currentUser = this.user;
-    if (!currentUser) return;
+    if (!this.user) return;
 
-    const settings: UpdateUserSettingsData = {
-      theme,
-      displayLanguage: currentUser.displayLanguage,
-      formattingLocale: currentUser.formattingLocale,
-    };
-    const res = await updateThemeAction(settings);
-    if (res.ok) this.updateUserSettings(res.data);
+    const res = await updateThemeAction({ theme });
+    if (!res.ok) {
+      toastZodErrorTree(res.error);
+      return;
+    }
+
+    this.applyUserUpdate(res.data);
   };
 
   can = (resource: Resource, action: Action): boolean => {
@@ -73,26 +72,20 @@ export class UserStore extends BaseStore {
     else this.permissions.clear();
 
     if (user) {
-      this.rootStore.userDetailsStore.onInitOrRefresh({
+      this.rootStore.profileSettingsStore.onInitOrRefresh({
         firstName: user.firstName,
         lastName: user.lastName,
         country: user.country ?? CountryCode.de,
         avatarUrl: user.avatarUrl,
-      });
-      this.rootStore.userSettingsStore.onInitOrRefresh({
+        theme: user.theme,
         displayLanguage: user.displayLanguage,
         formattingLocale: user.formattingLocale,
-        theme: user.theme,
       });
     }
   };
 
-  updateUserDetails = (details: UpdateUserDetailsData) => {
-    if (this.user) this.setUser({ ...this.user, ...details });
-  };
-
-  updateUserSettings = (settings: UpdateUserSettingsData) => {
-    if (this.user) this.setUser({ ...this.user, ...settings });
+  applyUserUpdate = (profile: UserProfileData) => {
+    if (this.user) this.setUser({ ...this.user, ...profile });
   };
 
   private createPermissionsMap(user: ExtendedUser): Map<string, boolean> {

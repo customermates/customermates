@@ -1,7 +1,8 @@
 import type { MessagingService } from "../messaging.service";
 import type { IngestMessage, MessagingAttendee } from "../messaging.schema";
 import type { MessagingProvider } from "@/generated/prisma";
-import type { Data } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
@@ -71,12 +72,16 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
   constructor(
     private repo: ResyncThreadRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
-  async invoke(data: ResyncThreadData): Promise<{ ok: true; data: ResyncThreadResult }> {
+  async invoke(data: ResyncThreadData): Validated<ResyncThreadResult> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const thread = await this.repo.findThreadForResyncOrThrow(data.threadId);
 
     try {

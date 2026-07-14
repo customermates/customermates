@@ -6,11 +6,13 @@ import type { InviteTokenRepo } from "@/features/company/invite-token-validation
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
-import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
 import type { RouteGuardSubscriptionRepo } from "@/features/auth/route-guard.service";
+import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
+import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link.interactor";
 
-import { Status, SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionStatus } from "@/generated/prisma";
 
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -26,9 +28,11 @@ export class PrismaCompanyRepo
     SubscriptionRepo,
     GetSubscriptionRepo,
     RefreshSubscriptionRepo,
-    AdminUpdateUserSubscriptionRepo,
     CreateCheckoutCompanyRepo,
-    RouteGuardSubscriptionRepo
+    AdminUpdateUserSubscriptionRepo,
+    RouteGuardSubscriptionRepo,
+    EntitlementSubscriptionRepo,
+    CreateAuthLinkSubscriptionRepo
 {
   @Transaction
   async updateDetails(args: RepoArgs<UpdateCompanyDetailsRepo, "updateDetails">) {
@@ -43,17 +47,6 @@ export class PrismaCompanyRepo
   async getDetails() {
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
-  }
-
-  async getCurrentCurrency() {
-    const { companyId } = this.user;
-
-    const company = await this.prisma.company.findUniqueOrThrow({
-      where: { id: companyId },
-      select: { currency: true },
-    });
-
-    return company.currency;
   }
 
   @Transaction
@@ -86,17 +79,7 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async findTokenUnscoped(token: string) {
-    const res = await this.prisma.inviteToken.findUnique({
-      where: { token },
-      include: { company: { select: { name: true } } },
-    });
-
-    if (!res) return null;
-
-    return {
-      ...res,
-      companyName: res.company.name ?? "",
-    };
+    return this.prisma.inviteToken.findUnique({ where: { token } });
   }
 
   @Transaction
@@ -107,6 +90,7 @@ export class PrismaCompanyRepo
       lemonSqueezyId: data.lemonSqueezyId,
       lemonSqueezyVariantId: data.lemonSqueezyVariantId,
       status: data.status ?? SubscriptionStatus.trial,
+      plan: data.plan,
       quantity: data.quantity,
       trialEndDate: data.trialEndDate,
       currentPeriodEnd: data.currentPeriodEnd,
@@ -117,6 +101,16 @@ export class PrismaCompanyRepo
       create: payload,
       update: payload,
     });
+  }
+
+  @BypassTenantGuard
+  async findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string) {
+    const subscription = await this.prisma.subscription.findFirstOrThrow({
+      where: { lemonSqueezyId: subscriptionId },
+      select: { companyId: true },
+    });
+
+    return subscription.companyId;
   }
 
   async getSubscriptionOrThrow() {
@@ -132,11 +126,5 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
-  }
-
-  async countActiveUsers() {
-    return await this.prisma.user.count({
-      where: { companyId: this.companyId, status: Status.active },
-    });
   }
 }

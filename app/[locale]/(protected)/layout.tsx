@@ -11,6 +11,7 @@ import { WebhookDeliveryModal } from "./company/components/webhook/webhook-deliv
 import { WebhookModal } from "./company/components/webhook/webhook-modal";
 import { ApiKeyModal } from "./profile/components/api-key-modal";
 import { ConnectedAccountModal } from "./profile/components/connected-account-modal";
+import { ConnectUpsellModal } from "./profile/components/connect-upsell-modal";
 
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
@@ -78,6 +79,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
       <ApiKeyModal />
 
       <ConnectedAccountModal />
+
+      <ConnectUpsellModal />
 
       <TimelineDetailModal />
 

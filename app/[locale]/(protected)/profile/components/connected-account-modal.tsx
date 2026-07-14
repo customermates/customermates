@@ -20,13 +20,22 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { AccountFolders } from "./account-folders";
 
 export const ConnectedAccountModal = observer(() => {
   const t = useTranslations();
-  const { connectedAccountModalStore, connectedAccountsStore, intlStore, userModalStore, userStore } = useRootStore();
+  const rootStore = useRootStore();
+  const {
+    connectedAccountModalStore,
+    connectedAccountsStore,
+    intlStore,
+    userModalStore,
+    userStore,
+    subscriptionStore,
+  } = rootStore;
   const { form: account, close } = connectedAccountModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const canUpdate = userStore.can(Resource.inboxMessages, Action.update);
@@ -37,6 +46,10 @@ export const ConnectedAccountModal = observer(() => {
   const ProviderIcon = getProviderIcon(account.provider);
   const providerLabel = getProviderDisplayLabel(account, t);
   const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
+  const canShareAccounts = getEffectiveEntitlements({
+    cloudHosted: rootStore.isCloudHosted,
+    plan: subscriptionStore.subscription?.plan ?? "pro",
+  }).sharedAccounts;
 
   return (
     <AppModal store={connectedAccountModalStore} title={title}>
@@ -138,12 +151,24 @@ export const ConnectedAccountModal = observer(() => {
                       : t("ConnectedAccountsCard.visibilityPrivate")}
                   </Label>
 
-                  <Switch
-                    checked={account.shared}
-                    disabled={!canUpdate}
-                    id="connected-account-visibility"
-                    onCheckedChange={(next) => void connectedAccountModalStore.toggleVisibility(next)}
-                  />
+                  {canShareAccounts ? (
+                    <Switch
+                      checked={account.shared}
+                      disabled={!canUpdate}
+                      id="connected-account-visibility"
+                      onCheckedChange={(next) => void connectedAccountModalStore.toggleVisibility(next)}
+                    />
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <Switch disabled checked={false} id="connected-account-visibility" />
+                        </span>
+                      </TooltipTrigger>
+
+                      <TooltipContent>{t("ConnectedAccountsCard.sharedAccountsRequiresBusiness")}</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
               ) : (
                 <AppChip variant={account.shared ? "info" : "secondary"}>

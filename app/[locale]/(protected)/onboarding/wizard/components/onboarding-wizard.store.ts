@@ -4,8 +4,9 @@ import { SalesType } from "@/generated/prisma";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { completeOnboardingWizardAction, seedOnboardingDataAction } from "../actions";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
-export const WIZARD_STEPS = ["profile", "company", "entities", "demoData", "invite", "ai"] as const;
+export const WIZARD_STEPS = ["profile", "entities", "demoData", "invite", "ai"] as const;
 type WizardStep = (typeof WIZARD_STEPS)[number];
 
 type BeforeNextHandler = () => Promise<boolean> | boolean;
@@ -74,7 +75,11 @@ export class OnboardingWizardStore {
       salesType: this.salesType,
       keepDemoData: this.keepDemoData,
     });
-    if (!result.ok) return false;
+    if (!result.ok) {
+      toastZodErrorTree(result.error);
+      return false;
+    }
+
     this.setMinStepIndex(this.currentStepIndex + 1);
     return true;
   };
@@ -82,7 +87,8 @@ export class OnboardingWizardStore {
   complete = async (): Promise<void> => {
     this.setIsSubmitting(true);
     try {
-      await completeOnboardingWizardAction();
+      const res = await completeOnboardingWizardAction();
+      if (!res.ok) toastZodErrorTree(res.error);
     } finally {
       this.setIsSubmitting(false);
     }

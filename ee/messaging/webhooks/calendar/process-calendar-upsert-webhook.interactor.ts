@@ -42,7 +42,7 @@ export class ProcessCalendarUpsertWebhookInteractor {
       timezone: envelope.payload.timezone ?? null,
     });
 
-    if (!account.hasCalendar) await this.calendarRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
+    if (!account.hasCalendar) await this.accountRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
 
     await this.eventService.publish(
       DomainEvent.MESSAGING_CALENDAR_CHANGED,

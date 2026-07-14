@@ -10,6 +10,7 @@ import type { DeleteTaskRepo } from "@/features/tasks/delete/delete-task.repo";
 import type { GetTaskByIdRepo } from "@/features/tasks/get/get-task-by-id.interactor";
 import type { FindTasksByIdsRepo } from "@/features/tasks/find-tasks-by-ids.repo";
 import type { GetCompanyWideTaskRepo } from "@/features/tasks/get-company-wide-task.repo";
+import type { ModifyRelationTaskRepo } from "@/features/relations/modify-entity-relation.interactor";
 
 import { EntityType, TaskType, Resource, Action } from "@/generated/prisma";
 
@@ -38,7 +39,8 @@ export class PrismaTaskRepo
     GetTaskByIdRepo,
     GetWidgetFilterableFieldsTaskRepo,
     FindTasksByIdsRepo,
-    GetCompanyWideTaskRepo
+    GetCompanyWideTaskRepo,
+    ModifyRelationTaskRepo
 {
   private get userScopedSelect() {
     return {

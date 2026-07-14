@@ -1,6 +1,7 @@
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import type { MessagingThreadState } from "../messaging.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
@@ -28,6 +29,7 @@ export class UpdateThreadInteractor extends AuthenticatedInteractor<UpdateThread
   constructor(
     private repo: UpdateThreadRepo,
     private validator: ValidateThreadIdsInteractor,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -38,6 +40,9 @@ export class UpdateThreadInteractor extends AuthenticatedInteractor<UpdateThread
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.threadId, path: ["threadId"] }], ctx),
   })
   async invoke(data: UpdateThreadData): Validated<null> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     if (data.state !== undefined) await this.repo.setThreadState({ threadId: data.threadId, state: data.state });
     if (data.sharedToCrm !== undefined)
       await this.repo.setThreadSharedToCrm({ threadId: data.threadId, shared: data.sharedToCrm });

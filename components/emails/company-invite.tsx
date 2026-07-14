@@ -34,13 +34,12 @@ export default function CompanyInvite({ inviteLink, subject, preview, intro, cta
 }
 
 const t = enMessages.CompanyInvite;
-const previewCompanyName = "Acme Inc.";
 const previewInviterName = "Anna Müller";
 
 CompanyInvite.PreviewProps = {
   inviteLink: `${env.BASE_URL}/invitation/example-token`,
-  subject: t.subject.replace("{companyName}", previewCompanyName),
-  preview: t.preview.replace("{inviterName}", previewInviterName).replace("{companyName}", previewCompanyName),
+  subject: t.subject,
+  preview: t.preview.replace("{inviterName}", previewInviterName),
   intro: t.intro.replace("{inviterName}", previewInviterName),
   cta: t.cta,
   fallback: t.fallback,

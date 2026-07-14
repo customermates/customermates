@@ -41,7 +41,7 @@ const entityNameExtractors: {
   [DomainEvent.TASK_CREATED]: (eventData, translate) => getTaskName(eventData.payload, translate),
   [DomainEvent.TASK_DELETED]: (eventData, translate) => getTaskName(eventData.payload, translate),
   [DomainEvent.TASK_UPDATED]: (eventData, translate) => getTaskName(eventData.payload.task, translate),
-  [DomainEvent.COMPANY_UPDATED]: (eventData) => eventData.payload.name,
+  [DomainEvent.COMPANY_UPDATED]: (_eventData, translate) => translate?.("Common.company") ?? "Company",
   [DomainEvent.USER_UPDATED]: (eventData) => `${eventData.payload.firstName} ${eventData.payload.lastName}`.trim(),
   [DomainEvent.USER_REGISTERED]: (eventData) => `${eventData.payload.firstName} ${eventData.payload.lastName}`.trim(),
   [DomainEvent.ROLE_CREATED]: (eventData) => eventData.payload.name,

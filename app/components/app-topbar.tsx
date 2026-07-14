@@ -27,6 +27,9 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
+import { WORKSPACE_SECTIONS, visibleSubroutes, type WorkspaceSection } from "./navigation/workspace-sections";
+
+import type { Resource } from "@/generated/prisma";
 
 type Sibling = { slug: string; label: string };
 type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: string | null; isEntity?: boolean };
@@ -44,37 +47,15 @@ const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null;
   company: { group: "settings", label: "company" },
 };
 
-const SUB_LABEL_MAP: Record<string, Record<string, string>> = {
-  profile: {
-    details: "NavigationBar.details",
-    settings: "NavigationBar.settings",
-    "api-keys": "ApiKeysCard.title",
-    "connected-accounts": "ConnectedAccountsCard.title",
-  },
-  company: {
-    details: "NavigationBar.general",
-    members: "NavigationBar.members",
-    roles: "RolesCard.title",
-    "audit-logs": "AuditLogsCard.title",
-    webhooks: "WebhooksCard.title",
-    "webhook-deliveries": "WebhookDeliveriesCard.title",
-  },
-};
-
-const SECTION_DEFAULT_SUBROUTE: Record<string, string> = {
-  profile: "details",
-  company: "details",
-};
-
-function getSectionHref(section: string): string {
-  const defaultSub = SECTION_DEFAULT_SUBROUTE[section];
-  return defaultSub ? `/${section}/${defaultSub}` : `/${section}`;
+function isWorkspaceSection(segment: string): segment is WorkspaceSection {
+  return segment === "profile" || segment === "company";
 }
 
 export const AppTopBar = observer(() => {
   const t = useTranslations();
   const pathname = usePathname();
-  const { layoutStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { layoutStore, userStore } = rootStore;
   const { actions, override } = useTopBarActions();
 
   const { crumbs, section } = useMemo(
@@ -85,8 +66,18 @@ export const AppTopBar = observer(() => {
         layoutStore.runtimeTitle,
         layoutStore.runtimePictureUrl,
         layoutStore.runtimeAvatarKind !== null,
+        rootStore.isCloudHosted,
+        userStore.canAccess,
       ),
-    [pathname, t, layoutStore.runtimeTitle, layoutStore.runtimePictureUrl, layoutStore.runtimeAvatarKind],
+    [
+      pathname,
+      t,
+      layoutStore.runtimeTitle,
+      layoutStore.runtimePictureUrl,
+      layoutStore.runtimeAvatarKind,
+      rootStore.isCloudHosted,
+      userStore.user,
+    ],
   );
 
   if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
@@ -152,6 +143,8 @@ function buildCrumbs(
   runtimeTitle: string | null,
   runtimePictureUrl: string | null,
   showLeafAvatar: boolean,
+  isCloudHosted: boolean,
+  canAccess: (resource: Resource) => boolean,
 ): { crumbs: Crumb[]; section: string | null } {
   const segs = pathname.split("/").filter(Boolean);
   if (segs.length <= 1) return { crumbs: [], section: null };
@@ -161,17 +154,20 @@ function buildCrumbs(
   const entry = GROUP_MAP[first];
   if (!entry) return { crumbs: [], section: null };
 
+  const workspaceSection = isWorkspaceSection(first) ? first : null;
+  const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, isCloudHosted, canAccess) : [];
+
   const crumbs: Crumb[] = [];
   const leafKey = entry.group === "settings" ? `UserAvatar.${entry.label}` : `NavigationBar.${entry.label}`;
-  crumbs.push({ label: t(leafKey), href: getSectionHref(first) });
+  const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
+  crumbs.push({ label: t(leafKey), href: sectionHref });
 
-  const subMap = SUB_LABEL_MAP[first];
   if (parts.length > 1) {
     const leaf = parts[1];
-    const subKey = subMap?.[leaf];
-    if (subKey) {
-      const siblings: Sibling[] = Object.entries(subMap).map(([slug, key]) => ({ slug, label: t(key) }));
-      crumbs.push({ label: t(subKey), siblings });
+    const subroute = workspaceSection ? WORKSPACE_SECTIONS[workspaceSection].find((s) => s.slug === leaf) : undefined;
+    if (subroute) {
+      const siblings: Sibling[] = sectionSubroutes.map((s) => ({ slug: s.slug, label: t(s.labelKey) }));
+      crumbs.push({ label: t(subroute.labelKey), siblings });
     } else {
       const fallback = leaf.length > 10 ? `${leaf.slice(0, 8)}…` : leaf;
       crumbs.push({
@@ -185,5 +181,5 @@ function buildCrumbs(
   if (first === "inbox" && runtimeTitle)
     crumbs.push({ label: runtimeTitle, pictureUrl: runtimePictureUrl, isEntity: showLeafAvatar });
 
-  return { crumbs, section: subMap ? first : null };
+  return { crumbs, section: workspaceSection };
 }

@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://customermates.tailf11599.ts.net/api",
+      "url": "http://localhost:4000/api",
       "description": "API Server"
     }
   ],
@@ -24598,6 +24598,17 @@
                     "lastName": {
                       "type": "string"
                     },
+                    "email": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "inactive",
+                        "pendingAuthorization"
+                      ]
+                    },
                     "country": {
                       "type": "string",
                       "enum": [
@@ -24807,6 +24818,30 @@
                         }
                       ]
                     },
+                    "theme": {
+                      "type": "string",
+                      "enum": [
+                        "system",
+                        "dark",
+                        "light"
+                      ]
+                    },
+                    "displayLanguage": {
+                      "type": "string",
+                      "enum": [
+                        "system",
+                        "de",
+                        "en"
+                      ]
+                    },
+                    "formattingLocale": {
+                      "type": "string",
+                      "enum": [
+                        "system",
+                        "de",
+                        "en"
+                      ]
+                    },
                     "roleId": {
                       "anyOf": [
                         {
@@ -24832,8 +24867,13 @@
                     "id",
                     "firstName",
                     "lastName",
+                    "email",
+                    "status",
                     "country",
                     "avatarUrl",
+                    "theme",
+                    "displayLanguage",
+                    "formattingLocale",
                     "roleId",
                     "roleName"
                   ],
@@ -24889,7 +24929,7 @@
       "post": {
         "operationId": "createWebhook",
         "summary": "Create a webhook subscription",
-        "description": "Subscribes an HTTPS endpoint to the given events. Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned.",
+        "description": "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Providing an existing id updates that subscription instead.",
         "tags": [
           "webhooks"
         ],
@@ -24904,9 +24944,25 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
                   "url": {
                     "type": "string",
                     "format": "uri"
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "events": {
                     "minItems": 1,
@@ -24943,17 +24999,6 @@
                       ]
                     }
                   },
-                  "description": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "maxLength": 500
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "secret": {
                     "anyOf": [
                       {
@@ -24969,11 +25014,7 @@
                   "enabled": {
                     "type": "boolean"
                   }
-                },
-                "required": [
-                  "url",
-                  "events"
-                ]
+                }
               }
             }
           }

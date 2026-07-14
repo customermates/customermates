@@ -154,18 +154,6 @@ export class PrismaWebhookDeliveryRepo
   }
 
   @BypassTenantGuard
-  async getSecretUnscoped(args: RepoArgs<DeliverWebhookRepo, "getSecretUnscoped">) {
-    const { companyId, url } = args;
-
-    const webhook = await this.prisma.webhook.findFirst({
-      where: { companyId, url },
-      select: { secret: true },
-    });
-
-    return webhook?.secret ?? null;
-  }
-
-  @BypassTenantGuard
   async markSuccessUnscoped(args: RepoArgs<DeliverWebhookRepo, "markSuccessUnscoped">) {
     const { id, companyId, ...rest } = args;
 

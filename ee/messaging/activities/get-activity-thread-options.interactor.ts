@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -35,13 +36,19 @@ export class GetActivityThreadOptionsInteractor extends AuthenticatedInteractor<
   ActivityThreadOptionsData,
   ActivityThreadOptionDto[]
 > {
-  constructor(private repo: ActivityThreadOptionsRepo) {
+  constructor(
+    private repo: ActivityThreadOptionsRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @Validate(Schema)
   @ValidateOutput(ActivityThreadOptionDtoSchema)
   async invoke(data: ActivityThreadOptionsData): Validated<ActivityThreadOptionDto[]> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const options = await this.repo.listThreadOptions(data);
 
     return { ok: true as const, data: options };

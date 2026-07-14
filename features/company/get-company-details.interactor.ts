@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Resource, Action, CountryCode, Currency, SalesType } from "@/generated/prisma";
+import { Resource, Action, Currency, SalesType } from "@/generated/prisma";
 
 import type { Company } from "@/generated/prisma";
 
@@ -10,16 +10,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const OutputSchema = z.object({
   id: z.string(),
-  name: z.string().nullable(),
-  country: z.enum(CountryCode),
   currency: z.enum(Currency),
-  street: z.string().nullable(),
-  city: z.string().nullable(),
-  postalCode: z.string().nullable(),
-  vatNumber: z.string().nullable(),
-  website: z.string().nullable(),
-  phone: z.string().nullable(),
-  email: z.string().nullable(),
   salesType: z.enum(SalesType).nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

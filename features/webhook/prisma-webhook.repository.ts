@@ -5,6 +5,8 @@ import type { DeleteWebhookRepo } from "./delete-webhook.interactor";
 import type { FindWebhooksByIdsRepo } from "./find-webhooks-by-ids.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { GetWebhooksForEventRepo } from "@/features/event/event.service";
+import type { GetWebhookByIdRepo } from "./get-webhook-by-id.interactor";
+import type { DeliverWebhookSecretRepo } from "./deliver-webhook.interactor";
 
 import type { Prisma } from "@/generated/prisma";
 
@@ -18,7 +20,14 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaWebhookRepo
   extends BaseRepository<Prisma.WebhookWhereInput>
-  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, GetWebhooksForEventRepo, FindWebhooksByIdsRepo
+  implements
+    GetWebhooksRepo,
+    UpsertWebhookRepo,
+    DeleteWebhookRepo,
+    GetWebhooksForEventRepo,
+    FindWebhooksByIdsRepo,
+    GetWebhookByIdRepo,
+    DeliverWebhookSecretRepo
 {
   private get baseSelect() {
     return {
@@ -141,6 +150,18 @@ export class PrismaWebhookRepo
   @BypassTenantGuard
   async getWebhooksForEventUnscoped(event: string, companyId: string) {
     return this.prisma.webhook.findMany({ where: { companyId, enabled: true, events: { has: event } } });
+  }
+
+  @BypassTenantGuard
+  async getSecretUnscoped(args: RepoArgs<DeliverWebhookSecretRepo, "getSecretUnscoped">) {
+    const { companyId, url } = args;
+
+    const webhook = await this.prisma.webhook.findFirst({
+      where: { companyId, url },
+      select: { secret: true },
+    });
+
+    return webhook?.secret ?? null;
   }
 
   async getWebhookByIdOrThrow(id: string) {

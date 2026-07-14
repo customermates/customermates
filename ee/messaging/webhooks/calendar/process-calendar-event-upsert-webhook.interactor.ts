@@ -45,7 +45,7 @@ export class ProcessCalendarEventUpsertWebhookInteractor {
       timezone: normalized.timezone,
     });
 
-    if (!account.hasCalendar) await this.calendarRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
+    if (!account.hasCalendar) await this.accountRepo.markAccountHasCalendarUnscoped(account.unipileAccountId);
 
     const event = await this.calendarRepo.upsertCalendarEventUnscoped({
       companyId: account.companyId,

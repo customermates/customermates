@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
@@ -18,7 +19,7 @@ import { isSocialProvider } from "../provider";
 import { formatRetryAfter } from "../retry-after";
 import { SocialReactionListSchema } from "./social-posts.schema";
 
-export const ListSocialPostReactionsSchema = z.object({
+const ListSocialPostReactionsSchema = z.object({
   connectedAccountId: z.uuid(),
   postId: z.string().min(1),
   cursor: z.string().min(1).optional(),
@@ -41,6 +42,7 @@ export class ListSocialPostReactionsInteractor extends AuthenticatedInteractor<
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -48,6 +50,9 @@ export class ListSocialPostReactionsInteractor extends AuthenticatedInteractor<
   @Validate(ListSocialPostReactionsSchema)
   @ValidateOutput(SocialReactionListSchema)
   async invoke(data: ListSocialPostReactionsData): Validated<SocialReactionList> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (!isSocialProvider(account.provider)) {

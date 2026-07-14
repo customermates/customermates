@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { CalendarEventDto } from "./calendar.schema";
 
@@ -32,13 +33,19 @@ export class GetCalendarEventByIdInteractor extends AuthenticatedInteractor<
   GetCalendarEventByIdData,
   CalendarEventDto | null
 > {
-  constructor(private repo: GetCalendarEventByIdRepo) {
+  constructor(
+    private repo: GetCalendarEventByIdRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @Validate(GetCalendarEventByIdSchema)
   @ValidateOutput(CalendarEventDtoSchema.nullable())
   async invoke(data: GetCalendarEventByIdData): Validated<CalendarEventDto | null> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const event = await this.repo.getCalendarEventById(data.id);
     return { ok: true as const, data: event };
   }

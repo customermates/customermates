@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -62,6 +63,7 @@ function makeInteractor(account: unknown, service: any, threadRepo: any = { pers
     } as never,
     service,
     threadRepo,
+    mockEntitlementService(),
   );
 }
 

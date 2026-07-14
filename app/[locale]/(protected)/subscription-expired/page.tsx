@@ -5,7 +5,7 @@ import { SubscriptionExpiredView } from "./components/subscription-expired-view"
 
 import { getGetSubscriptionInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { isSubscriptionExpired } from "@/ee/subscription/subscription-expiry";
+import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function SubscriptionExpiredPage() {
@@ -17,7 +17,7 @@ export default async function SubscriptionExpiredPage() {
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
   const subscription = subscriptionResult.data;
 
-  if (!isSubscriptionExpired(subscription)) redirect("/company/details");
+  if (!isSubscriptionExpired(subscription)) redirect("/company/subscription");
 
   return (
     <CenteredCardPage>

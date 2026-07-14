@@ -1,6 +1,7 @@
 import type * as InboxSchemaModule from "../../inbox/inbox.schema";
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -55,6 +56,7 @@ function makeChatInteractor(repo: any, service: any) {
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     service,
     new ValidateThreadIdsInteractor(getMessagingRepo()),
+    mockEntitlementService(),
   );
 }
 
@@ -63,6 +65,7 @@ function makeEmailInteractor(repo: any, service: any) {
     repo,
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     service,
+    mockEntitlementService(),
   );
 }
 

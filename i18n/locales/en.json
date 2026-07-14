@@ -1,4 +1,12 @@
 {
+  "AccountsRemovedNotice": {
+    "body": "Your plan changed to {plan}, so I removed the following connected account(s) to stay within your plan's limit: {accounts}. Your messages and contacts are all still there. Reconnect anytime from your connected accounts page.",
+    "cta": "View connected accounts",
+    "greeting": "Hi {firstName},",
+    "signoff": "Best regards,\nBen",
+    "subject": "Some of your connected accounts were removed",
+    "title": "Connected accounts removed"
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open source"
   },
@@ -122,6 +130,7 @@
     "ariaLabels": {
       "close": "Close",
       "closeMenu": "Close menu",
+      "collapseSearch": "Collapse search",
       "dataTable": "Data table",
       "dragToMove": "Drag to move",
       "footer": "Footer",
@@ -151,7 +160,6 @@
       "name": "Benjamin Wagner",
       "title": "Founder @ Customermates"
     },
-    "city": "City",
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -506,7 +514,6 @@
       "apiKey": "API Key",
       "assignedUserId": "Assigned User",
       "avatarUrl": "Avatar URL",
-      "city": "City",
       "company": "Company",
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
@@ -601,7 +608,6 @@
       },
       "phone": "Phone",
       "phones": "Phone",
-      "postalCode": "Postal Code",
       "presetId": "Saved filters",
       "provider": "Provider",
       "rememberMe": "Remember me",
@@ -612,7 +618,6 @@
       "startDate": "Start Date",
       "state": "State",
       "status": "Status",
-      "street": "Street",
       "taskIds": "Tasks",
       "template": "Template",
       "theme": "Theme",
@@ -645,7 +650,6 @@
       "updated": "Updated"
     },
     "options": "Options",
-    "postalCode": "Postal Code",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -774,7 +778,6 @@
       "direction": "Direction",
       "field": "Sort by"
     },
-    "street": "Street",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
@@ -902,8 +905,8 @@
     "cta": "Accept invitation",
     "fallback": "If the button does not work, copy and paste this link into your browser: ",
     "intro": "{inviterName} invited you to join their team on Customermates. Click the button below to accept the invitation and create your account.",
-    "preview": "{inviterName} invited you to {companyName} on Customermates",
-    "subject": "Join {companyName} on Customermates"
+    "preview": "{inviterName} invited you to their team on Customermates",
+    "subject": "Join your team on Customermates"
   },
   "CompanyInviteModal": {
     "description": "Share this link with users you want to invite to your company.",
@@ -912,14 +915,17 @@
     "label": "Invitation link",
     "title": "Invite User"
   },
+  "CompanySettings": {
+    "currencyDescription": "Used for all money values across the CRM, like deal and service values."
+  },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
     "title": "User"
   },
   "ConnectedAccountsCard": {
+    "accountLimitReached": "Business includes 3 connected accounts per user. Contact us about Enterprise for unlimited accounts.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
     "alreadyExistsToastTitle": "Account already connected",
-    "channelLimitReached": "Channel connections are limited to 2 per account during the preview. As this feature runs on significantly more expensive infrastructure, higher limits will be available with the paid Pro tier in the future.",
     "channels": {
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
@@ -949,8 +955,10 @@
     "invalidCredentialsToastDescription": "The login details were not accepted. Check your credentials and try again.",
     "invalidCredentialsToastTitle": "Invalid credentials",
     "lastSynced": "Last synced",
+    "messagingRequiresCloud": "Messaging is available on Customermates Cloud (Pro plan or higher).",
+    "messagingRequiresPro": "Messaging requires the Pro plan or higher. Upgrade to connect a channel.",
     "ownerLabel": "Owner",
-    "paidSubscriptionRequired": "Connecting channels requires a paid subscription and is not available during the free trial.",
+    "paidSubscriptionRequired": "Connecting channels requires an active subscription or a trial that hasn't expired.",
     "provider": "Provider",
     "reactivate": "Reactivate",
     "resync": "Resync",
@@ -958,9 +966,10 @@
     "resyncFailedTitle": "Resync failed",
     "resyncStartedDescription": "Re-importing history in the background. This usually takes 1 to 3 minutes.",
     "resyncStartedTitle": "Resync started",
+    "sharedAccountsRequiresBusiness": "Shared accounts require the Business plan or higher.",
+    "sharedAccountsRequiresCloud": "Shared accounts are available on Customermates Cloud (Business plan or higher).",
     "sharedOffToast": "Account is now private",
     "sharedOnToast": "Account shared with your workspace",
-    "sharedWithYou": "Shared with you",
     "status": "Status",
     "statusLabels": {
       "connecting": "Connecting",
@@ -977,6 +986,9 @@
     "syncing": "Syncing in background",
     "syncingTooltip": "Messages, emails and calendar events from this account are being imported in the background. This usually takes a few minutes, for large accounts up to an hour. You can keep working while it runs; new activity shows up as soon as it arrives.",
     "title": "Channels",
+    "upgradeToBusinessForMoreAccounts": "You've reached your included connected accounts for the Pro plan. Upgrade to Business to connect more.",
+    "upsellDialogTitle": "Upgrade to connect more accounts",
+    "viewPlansCta": "View plans",
     "visibility": "Visibility",
     "visibilityPrivate": "Private",
     "visibilityShared": "Shared",
@@ -1009,8 +1021,8 @@
       "submit": "Send message",
       "successBody": "I'll get back to you at the email you provided, usually within 24 hours.",
       "successCta": "Send another",
-      "successTitle": "Thanks — message received.",
-      "successToast": "Thanks — message received. I'll get back to you shortly."
+      "successTitle": "Thanks, message received.",
+      "successToast": "Thanks, message received. I'll get back to you shortly."
     },
     "highlights": {
       "direct": {
@@ -1302,21 +1314,20 @@
   "HomepagePricing": {
     "cloud": {
       "badge": "Popular",
+      "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureAudit": "Audit logs",
-      "featureEverything": "Everything in Self-Hosted",
-      "featureMcp": "Hosted MCP endpoint",
-      "featurePriority": "Priority support",
-      "featureSso": "SSO",
+      "featureBusiness": "Business: 3 accounts per user, shared accounts & priority support",
+      "featurePro": "Pro: unified inbox, 1 connected account per user",
+      "featureStarter": "Starter: the full CRM",
       "period": "/ user / month",
-      "price": "€7",
+      "price": "from €12",
       "tag": "Managed in Frankfurt. Start free, no credit card.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Cancel anytime",
       "gdpr": "GDPR compliant",
-      "noLimits": "No feature limits",
+      "noLimits": "Transparent tiers",
       "openSource": "Open source"
     },
     "eyebrow": "Pricing",
@@ -1332,7 +1343,7 @@
       "tag": "Run on your server with Docker Compose. Full source. AGPLv3.",
       "title": "Self-Hosted"
     },
-    "subtitle": "No hidden costs, no feature limits. Self-host free forever, or start on Cloud with no credit card.",
+    "subtitle": "Transparent tiers, no hidden costs. Self-host free forever, or start on Cloud with no credit card.",
     "title": "Simple, honest, European"
   },
   "HomepageStatsRow": {
@@ -1491,6 +1502,11 @@
     "subtitle": "{client} wants to connect to your account.",
     "title": "Authorize access"
   },
+  "MessagingUpsell": {
+    "cta": "Upgrade your plan",
+    "description": "Messaging is available on the Pro plan and higher. Upgrade to connect a channel and use the unified inbox.",
+    "title": "Upgrade to unlock messaging"
+  },
   "NavigationBar": {
     "addContact": "Add contact",
     "addDeal": "Add deal",
@@ -1508,11 +1524,9 @@
     "crm": "CRM",
     "dashboard": "Dashboard",
     "deals": "Deals",
-    "details": "Details",
     "docs": "Documentation",
     "faq": "FAQ",
     "features": "Features",
-    "general": "General",
     "inbox": "Inbox",
     "members": "Members",
     "mission": "Mission",
@@ -1522,6 +1536,7 @@
     "search": "Search",
     "services": "Services",
     "settings": "Settings",
+    "subscription": "Subscription",
     "tasks": "Tasks",
     "webhooks": "Webhooks",
     "workspace": "Workspace"
@@ -1569,9 +1584,8 @@
       },
       "skipHint": "You can set this up later from your profile."
     },
-    "avatarDescription": "Optional. Paste a link to a photo of yourself — it must be publicly accessible (so anyone with the link can see it). Leave it blank and we'll show your initials instead.",
+    "avatarDescription": "Optional. Paste a link to a photo of yourself. It must be publicly accessible (so anyone with the link can see it). Leave it blank and we'll show your initials instead.",
     "back": "Back",
-    "companyNameDescription": "This is shown to anyone you invite to your workspace.",
     "continue": "Continue",
     "demoData": {
       "cleanDescription": "Skip the example data. You'll begin with an empty workspace.",
@@ -1618,17 +1632,12 @@
         "subtitle": "Let Claude Code or Codex run your CRM for you.",
         "title": "Connect an AI agent"
       },
-      "company": {
-        "placeholder": "Company form placeholder",
-        "subtitle": "A few details so invites and emails look right.",
-        "title": "Your company"
-      },
       "demoData": {
         "subtitle": "Start with example contacts, deals and tasks, or begin with an empty workspace.",
         "title": "Demo data"
       },
       "entities": {
-        "subtitle": "Tell us what you sell — we'll set up your workspace to match.",
+        "subtitle": "Tell us what you sell, and we'll set up your workspace to match.",
         "title": "What do you sell?"
       },
       "invite": {
@@ -1716,7 +1725,7 @@
     "acceptInviteCta": "Accept invitation",
     "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
-    "inviteSubtitle": "You have been invited to join <bold>{company}</bold>. Choose your sign-in method to accept the invitation.",
+    "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
     "newCompanySubtitle": "Register a new company and test Customermates for free for 7 days. No credit card required.",
     "or": "OR",
@@ -1726,11 +1735,38 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Current period ends",
+    "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
+    "picker": {
+      "features": {
+        "business": ["Everything in Pro", "3 connected accounts per user", "Shared accounts and priority support"],
+        "pro": ["Everything in Starter", "Unified inbox", "1 connected account per user"],
+        "starter": [
+          "Full CRM: contacts, deals, organizations, tasks",
+          "Audit log",
+          "Full API access",
+          "MCP server access"
+        ]
+      },
+      "mostPopular": "Most popular",
+      "perUserMonth": "per user / month",
+      "price": {
+        "business": "€69",
+        "pro": "€29",
+        "starter": "€12"
+      }
+    },
     "plan": "Plan",
-    "prorationSubtitle": "Proration of active seats will be added to your next invoice",
+    "planNames": {
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "pro": "Pro",
+      "starter": "Starter"
+    },
     "quantity": "Active seats",
+    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
+    "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {
       "active": "Active",
       "cancelled": "Cancelled",
@@ -1738,17 +1774,13 @@
       "pastDue": "Past Due",
       "trial": "Trial",
       "trialDaysLeft": "Trial · {days, plural, =0 {ends today} one {# day left} other {# days left}}",
-      "trialExpired": "Trial Expired",
       "unPaid": "Unpaid"
     },
-    "subscribeWithLemonSqueezy": "Subscribe with Lemon Squeezy",
-    "title": "Current Subscription",
     "trialEnds": "Trial ends"
   },
   "SubscriptionExpiredView": {
     "contactSupportCta": "Contact Support",
     "description": "Your trial period has ended and your company is not currently subscribed. Please subscribe to continue using Customermates, or contact our support team if you have any questions.",
-    "subscribeCta": "Subscribe",
     "subtitle": "Your trial has expired",
     "supportEmailSubject": "Subscription Inquiry",
     "title": "Subscription Required"
@@ -1800,8 +1832,9 @@
   },
   "TrialWelcome": {
     "body": "Great to have you here. I'm Ben, founder of Customermates, and I'd love to help you get started quickly and make your first setup steps easy.",
-    "dismiss": "If you have any questions or would like a personal walkthrough, just reply to this email — it lands directly in my inbox.",
+    "dismiss": "If you have any questions or would like a personal walkthrough, just reply to this email. It lands directly in my inbox.",
     "greeting": "Hi {firstName},",
+    "planNote": "Your trial includes everything in the Pro plan, so you can try the full messaging experience right away.",
     "signoff": "Best regards,\nBen",
     "subject": "Welcome to Customermates",
     "title": "Welcome to your trial"
@@ -1819,7 +1852,7 @@
     "theme": "Theme"
   },
   "UserSettingsForm": {
-    "displayLanguageHint": "Controls the UI language — labels, buttons, etc.",
+    "displayLanguageHint": "Controls the UI language: labels, buttons, etc.",
     "formattingLocaleHint": "Controls how numbers, dates, and currencies are formatted."
   },
   "VerifyEmail": {

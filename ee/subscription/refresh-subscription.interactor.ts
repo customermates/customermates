@@ -1,10 +1,9 @@
 import type { SubscriptionService } from "./subscription.service";
+import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 
-import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 export abstract class RefreshSubscriptionRepo {
@@ -16,17 +15,22 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
   constructor(
     private repo: RefreshSubscriptionRepo,
     private subscriptionService: SubscriptionService,
+    private deleteAccountsForPlan: DeleteAccountsForPlanInteractor,
   ) {
     super();
   }
 
-  @ValidateOutput(z.null())
   async invoke(): Promise<{ ok: true; data: null }> {
     const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (!subscription.lemonSqueezyId) throw new Error("Subscription does not have a LemonSqueezy ID");
 
-    await this.subscriptionService.updateSubscriptionOrThrow(subscription.lemonSqueezyId, this.companyId);
+    const { companyId, changedPlan } = await this.subscriptionService.updateSubscriptionOrThrow(
+      subscription.lemonSqueezyId,
+      this.companyId,
+    );
+
+    if (changedPlan) await this.deleteAccountsForPlan.invoke({ companyId, plan: changedPlan });
 
     return { ok: true as const, data: null };
   }

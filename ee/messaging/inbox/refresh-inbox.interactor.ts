@@ -1,5 +1,6 @@
 import type { ConnectedAccountStatus } from "@/generated/prisma";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { PrepareBackfillInteractor } from "../ingest/backfill/prepare-backfill.interactor";
 import type { BackfillChatsInteractor } from "../ingest/backfill/backfill-chats.interactor";
 import type { BackfillEmailsInteractor } from "../ingest/backfill/backfill-emails.interactor";
@@ -37,12 +38,16 @@ export class RefreshInboxInteractor extends AuthenticatedInteractor<void, Refres
     private prepare: PrepareBackfillInteractor,
     private backfillChats: BackfillChatsInteractor,
     private backfillEmails: BackfillEmailsInteractor,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @ValidateOutput(RefreshInboxResultSchema)
   async invoke(): Validated<RefreshInboxResult> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const accounts = await this.repo.listAccountsForRefresh();
 
     let rateLimited = false;

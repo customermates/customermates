@@ -380,6 +380,20 @@ export class PrismaMessagingRepo
         ? safeTruncate(args.lastMessagePreview.replace(/\s+/g, " "), 200)
         : args.lastMessagePreview;
 
+    if (args.unipileThreadAltId) {
+      const altMatch = await this.prisma.messagingThread.findFirst({
+        where: { connectedAccountId: args.connectedAccountId, unipileThreadAltId: args.unipileThreadAltId },
+        select: { id: true, unipileThreadId: true },
+      });
+
+      if (altMatch && altMatch.unipileThreadId !== unipileThreadId) {
+        await this.prisma.messagingThread.update({
+          where: { id: altMatch.id },
+          data: { unipileThreadId },
+        });
+      }
+    }
+
     const row = await this.prisma.messagingThread.upsert({
       where: {
         connectedAccountId_unipileThreadId: {
@@ -1386,6 +1400,31 @@ export class PrismaMessagingRepo
       messagingThreadId: string;
     },
   ) {
+    const updateData = {
+      ...(args.sender.attendeeId.trim()
+        ? {
+            sender: args.sender,
+            senderIdentifier: args.sender.identifier || null,
+          }
+        : {}),
+      ...(args.attachmentsMeta.length > 0
+        ? {
+            attachmentsMeta: args.attachmentsMeta,
+            bodyText: args.bodyText,
+            bodyHtml: args.bodyHtml,
+            isHidden: args.isHidden,
+          }
+        : {}),
+      ...(args.editedAt
+        ? {
+            bodyText: args.bodyText,
+            bodyHtml: args.bodyHtml,
+            editedAt: args.editedAt,
+          }
+        : {}),
+      ...(args.folderIds && args.folderIds.length > 0 ? { folderIds: args.folderIds, isHidden: args.isHidden } : {}),
+    };
+
     const row = await this.prisma.messagingMessage.upsert({
       where: {
         connectedAccountId_unipileMessageId: {
@@ -1417,30 +1456,7 @@ export class PrismaMessagingRepo
         sentAt: args.sentAt,
         editedAt: args.editedAt ?? null,
       },
-      update: {
-        ...(args.sender.attendeeId.trim()
-          ? {
-              sender: args.sender,
-              senderIdentifier: args.sender.identifier || null,
-            }
-          : {}),
-        ...(args.attachmentsMeta.length > 0
-          ? {
-              attachmentsMeta: args.attachmentsMeta,
-              bodyText: args.bodyText,
-              bodyHtml: args.bodyHtml,
-              isHidden: args.isHidden,
-            }
-          : {}),
-        ...(args.editedAt
-          ? {
-              bodyText: args.bodyText,
-              bodyHtml: args.bodyHtml,
-              editedAt: args.editedAt,
-            }
-          : {}),
-        ...(args.folderIds && args.folderIds.length > 0 ? { folderIds: args.folderIds, isHidden: args.isHidden } : {}),
-      },
+      update: updateData,
     });
 
     return row as unknown as MessagingMessage;

@@ -4,12 +4,13 @@ import type { GetUsersRepo } from "@/features/user/get/get-users.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
 import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
-import type { UpdateUserSettingsRepo } from "@/features/user/upsert/update-user-settings.interactor";
 import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { SeedOnboardingDataRepo } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
+import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
+import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
@@ -63,13 +64,14 @@ export class PrismaUserRepo
     GetUserByIdRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,
-    UpdateUserSettingsRepo,
     AdminUpdateUserDetailsRepo,
     SendWelcomeAndDemoActionRepo,
     SendTrialExtensionOfferActionRepo,
     SendTrialInactivationReminderActionRepo,
     DeactivateTrialUsersAndSendNoticeRepo,
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
+    DeleteAccountsForPlanUserRepo,
+    CountActiveUsersRepo,
     SeedOnboardingDataRepo,
     CompleteOnboardingWizardRepo,
     WebhookUserRepo
@@ -200,24 +202,6 @@ export class PrismaUserRepo
   }
 
   @Transaction
-  async updateSettings(args: RepoArgs<UpdateUserSettingsRepo, "updateSettings">) {
-    const { id: userId } = this.user;
-
-    const { companyId } = this.user;
-
-    await this.prisma.user.updateMany({
-      data: {
-        theme: args.theme,
-        displayLanguage: args.displayLanguage,
-        formattingLocale: args.formattingLocale,
-      },
-      where: { id: userId, companyId },
-    });
-
-    return args;
-  }
-
-  @Transaction
   async updateDetails(args: RepoArgs<UpdateUserDetailsRepo, "updateDetails">) {
     const { id: userId, companyId } = this.user;
 
@@ -227,11 +211,25 @@ export class PrismaUserRepo
         lastName: args.lastName,
         country: args.country,
         avatarUrl: args.avatarUrl,
+        theme: args.theme,
+        displayLanguage: args.displayLanguage,
+        formattingLocale: args.formattingLocale,
       },
       where: { id: userId, companyId },
     });
 
-    return args;
+    return this.prisma.user.findUniqueOrThrow({
+      where: { id: userId, companyId },
+      select: {
+        firstName: true,
+        lastName: true,
+        country: true,
+        avatarUrl: true,
+        theme: true,
+        displayLanguage: true,
+        formattingLocale: true,
+      },
+    });
   }
 
   @Transaction
@@ -836,9 +834,7 @@ export class PrismaUserRepo
   async createCompanyAndUser(args: RepoArgs<RegisterUserRepo, "createCompanyAndUser">) {
     if (await this.prisma.user.findFirst({ where: { email: args.email } })) throw new Error("User already exists.");
 
-    const company = await this.prisma.company.create({
-      data: { country: args.country },
-    });
+    const company = await this.prisma.company.create({ data: {} });
 
     const adminRole = await this.prisma.userRole.create({
       data: {
@@ -972,6 +968,20 @@ export class PrismaUserRepo
     });
 
     return authUser?.companyId ?? null;
+  }
+
+  @BypassTenantGuard
+  async findCompanyAdminsUnscoped(companyId: string) {
+    return this.prisma.user.findMany({
+      where: { companyId, status: { not: Status.inactive }, role: { isSystemRole: true } },
+      select: { id: true, email: true, firstName: true, displayLanguage: true },
+    });
+  }
+
+  async countActiveUsers() {
+    return await this.prisma.user.count({
+      where: { companyId: this.companyId, status: Status.active },
+    });
   }
 
   async findProspectUsers() {

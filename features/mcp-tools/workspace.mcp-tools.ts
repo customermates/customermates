@@ -48,11 +48,6 @@ export const getWorkspaceContextTool = {
         user: userResult.data,
         company: {
           id: company.id,
-          name: company.name,
-          street: company.street,
-          city: company.city,
-          postalCode: company.postalCode,
-          country: company.country,
           currency: company.currency,
           createdAt: company.createdAt,
           updatedAt: company.updatedAt,

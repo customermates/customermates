@@ -4,6 +4,7 @@ import type { MessagingAttendee, MessagingMessage, MessagingThread } from "../me
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -49,6 +50,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
   constructor(
     private repo: SaveDraftRepo,
     private accountRepo: FindUsableAccountRepo,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -56,6 +58,9 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
   @Validate(SaveDraftSchema)
   @ValidateOutput(MessagingMessageDtoSchema)
   async invoke(data: SaveDraftData): Validated<MessagingMessageDto> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
     const isEmail = isEmailProvider(thread.provider);
 

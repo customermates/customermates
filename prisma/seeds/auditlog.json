@@ -16455,12 +16455,7 @@
       "companyId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
       "entityId": "b7de4dd8-5848-4347-84bc-f613a56f1f8f",
       "payload": {
-        "city": "Frankfurt am Main",
-        "country": "de",
-        "currency": "eur",
-        "name": "Customermates GmbH",
-        "postalCode": "60313",
-        "street": "Hans-Bunte-Straße 12"
+        "currency": "eur"
       },
       "userId": "f637539f-fa74-4af1-b473-b5d19ef4cbe7"
     },

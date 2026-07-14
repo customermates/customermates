@@ -13,7 +13,6 @@ import {
 import {
   getAdminUpdateUserDetailsInteractor,
   getGetUserByIdInteractor,
-  getGetUserDetailsInteractor,
   getInviteUsersByEmailInteractor,
   getUpdateCompanyDetailsInteractor,
   getUpdateUserDetailsInteractor,
@@ -29,27 +28,21 @@ const countryValues = Object.values(CountryCode);
 const currencyValues = Object.values(Currency);
 const memberStatusValues = AdminUpdateUserDetailsSchema.shape.status.options;
 
-const UpdateMyProfileSchema = UpdateUserDetailsSchema.extend({
-  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.optional(),
-});
-
 const UpdateWorkspaceSettingsSchema = z.object({
   target: z
     .enum(["profile", "company"])
     .describe("profile = the authenticated user's own profile, company = the company profile (admin rights required)"),
-  firstName: UpdateUserDetailsSchema.shape.firstName.optional().describe("profile target: required"),
-  lastName: UpdateUserDetailsSchema.shape.lastName.optional().describe("profile target: required"),
-  country: UpdateUserDetailsSchema.shape.country
+  firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
+  lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
+  country: UpdateUserDetailsSchema.shape.country.describe(
+    `profile target: ISO country code ${enumHint(countryValues)}. Omit to keep existing.`,
+  ),
+  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
+    "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
+  ),
+  currency: UpdateCompanyDetailsSchema.shape.currency
     .optional()
-    .describe(`ISO country code ${enumHint(countryValues)}. Required for both targets.`),
-  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl
-    .optional()
-    .describe("profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing."),
-  name: UpdateCompanyDetailsSchema.shape.name.optional().describe("company target: required"),
-  street: UpdateCompanyDetailsSchema.shape.street.optional().describe("company target: required"),
-  city: UpdateCompanyDetailsSchema.shape.city.optional().describe("company target: required"),
-  postalCode: UpdateCompanyDetailsSchema.shape.postalCode.optional().describe("company target: required"),
-  currency: UpdateCompanyDetailsSchema.shape.currency.describe(`company target: optional ${enumHint(currencyValues)}`),
+    .describe(`company target: required ${enumHint(currencyValues)}`),
 });
 
 export const updateWorkspaceSettingsTool = {
@@ -57,33 +50,22 @@ export const updateWorkspaceSettingsTool = {
   title: "Update workspace settings",
   description:
     "Use this when updating the current user's profile or the company profile. " +
-    "target profile requires firstName, lastName, country; avatarUrl optional, omit to keep the existing avatar. " +
-    "target company is a FULL overwrite and needs name, street, city, postalCode, country plus admin rights; currency optional. " +
-    "country serves both targets.",
+    "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
+    "target company needs currency plus admin rights.",
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: UpdateWorkspaceSettingsSchema,
   execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
     if (params.target === "profile") {
-      const parsed = UpdateMyProfileSchema.safeParse(params);
+      const parsed = UpdateUserDetailsSchema.safeParse(params);
       if (!parsed.success) return validationError(parsed.error);
-      const avatarUrl =
-        parsed.data.avatarUrl === undefined
-          ? ((await getGetUserDetailsInteractor().invoke()).data.avatarUrl ?? null)
-          : parsed.data.avatarUrl;
-      return runInteractor(
-        getUpdateUserDetailsInteractor().invoke({
-          firstName: parsed.data.firstName,
-          lastName: parsed.data.lastName,
-          country: parsed.data.country,
-          avatarUrl,
-        }),
-        (data) => encodeToToon({ firstName: data.firstName, lastName: data.lastName, message: "Profile updated" }),
+      return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
+        encodeToToon({ firstName: data.firstName, lastName: data.lastName, message: "Profile updated" }),
       );
     }
     const parsed = UpdateCompanyDetailsSchema.safeParse(params);
     if (!parsed.success) return validationError(parsed.error);
     return runInteractor(getUpdateCompanyDetailsInteractor().invoke(parsed.data), (data) =>
-      encodeToToon({ name: data.name, message: "Company profile updated" }),
+      encodeToToon({ currency: data.currency, message: "Company settings updated" }),
     );
   },
 };

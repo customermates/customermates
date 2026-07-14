@@ -1,7 +1,5 @@
 import type { Prisma, MessagingProvider } from "@/generated/prisma";
 
-import type { ConnectedAccountStatus } from "@/generated/prisma";
-
 import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-auth-link.interactor";
 import type { ThreadAccountOwnersRepo } from "../inbox/get-messaging-thread.interactor";
@@ -19,11 +17,18 @@ import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
 import type { FindAccountByUnipileIdUnscopedRepo } from "./find-account-by-unipile-id-unscoped.repo";
+import type { DeleteAccountForBillingRepo } from "../connect/delete-account-for-billing.service";
+import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan.interactor";
+import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
+import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
+import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
+import type { RefreshInboxRepo } from "../inbox/refresh-inbox.interactor";
+import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
 import type { RepoArgs } from "@/core/utils/types";
 
 import { randomUUID } from "node:crypto";
 
-import { AccountActivityKind } from "@/generated/prisma";
+import { AccountActivityKind, ConnectedAccountStatus, Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -46,7 +51,14 @@ export class PrismaConnectedAccountRepo
     FindUsableAccountRepo,
     FindAccountByUnipileIdUnscopedRepo,
     ThreadAccountOwnersRepo,
-    WebhookActivityRepo
+    WebhookActivityRepo,
+    DeleteAccountForBillingRepo,
+    DeleteAccountsForPlanConnectedAccountRepo,
+    DeleteConnectedAccountsForExpiredTrialsRepo,
+    DeleteConnectedAccountsForInactiveOwnersRepo,
+    DeleteOrphanedUnipileAccountsRepo,
+    RefreshInboxRepo,
+    SetSelectedFoldersRepo
 {
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
@@ -238,6 +250,83 @@ export class PrismaConnectedAccountRepo
     return this.prisma.connectedAccount.findUnique({ where: { id } });
   }
 
+  @BypassTenantGuard
+  async findAccountByIdOrThrowUnscoped(id: string) {
+    return this.prisma.connectedAccount.findUniqueOrThrow({ where: { id } });
+  }
+
+  @BypassTenantGuard
+  async markAccountDeletedUnscoped(id: string) {
+    await this.prisma.connectedAccount.update({
+      where: { id },
+      data: { status: ConnectedAccountStatus.deleted, syncing: false },
+    });
+  }
+
+  @BypassTenantGuard
+  async listActiveAccountsForCompanyUnscoped(companyId: string) {
+    return this.prisma.connectedAccount.findMany({
+      where: { companyId, status: { not: ConnectedAccountStatus.deleted } },
+      select: { id: true, userId: true, createdAt: true, provider: true, displayName: true, emailAddress: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async findConnectedAccountIdsForExpiredTrialsUnscoped() {
+    const before = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        status: { not: ConnectedAccountStatus.deleted },
+        company: { subscription: { status: SubscriptionStatus.trial, trialEndDate: { lt: before } } },
+      },
+      select: { id: true },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
+  @BypassTenantGuard
+  async findConnectedAccountIdsForInactiveOwnersUnscoped() {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        status: { not: ConnectedAccountStatus.deleted },
+        user: { status: Status.inactive },
+      },
+      select: { id: true },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
+  @BypassTenantGuard
+  async findActiveUnipileAccountIdsUnscoped() {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: { status: { not: ConnectedAccountStatus.deleted } },
+      select: { unipileAccountId: true },
+    });
+
+    return rows.map((row) => row.unipileAccountId);
+  }
+
+  @BypassTenantGuard
+  async findConnectedAccountIdsForLapsedSubscriptionsUnscoped() {
+    const before = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: {
+        status: { not: ConnectedAccountStatus.deleted },
+        company: {
+          subscription: {
+            status: { in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired] },
+            updatedAt: { lte: before },
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
   async listAccountOwnersByIds(accountIds: string[]) {
     if (accountIds.length === 0) return {};
 
@@ -302,18 +391,13 @@ export class PrismaConnectedAccountRepo
     };
   }
 
-  async getSubscriptionStatus() {
-    const subscription = await this.prisma.subscription.findUniqueOrThrow({
-      where: { companyId: this.companyId },
-      select: { status: true },
-    });
-
-    return subscription.status;
-  }
-
-  async countAccounts() {
+  async countActiveAccountsForUser() {
     return this.prisma.connectedAccount.count({
-      where: { companyId: this.companyId, userId: this.userId },
+      where: {
+        companyId: this.companyId,
+        userId: this.userId,
+        status: { not: ConnectedAccountStatus.deleted },
+      },
     });
   }
 

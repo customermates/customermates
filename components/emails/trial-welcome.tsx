@@ -5,18 +5,21 @@ import { EmailText } from "@/components/emails/base/email-text";
 type Props = {
   greeting: string;
   body: string;
+  planNote: string;
   dismiss: string;
   signoff: string;
   subject: string;
   title: string;
 };
 
-export default function TrialWelcome({ greeting, body, dismiss, signoff, subject, title }: Props) {
+export default function TrialWelcome({ greeting, body, planNote, dismiss, signoff, subject, title }: Props) {
   return (
     <EmailLayout preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
+
+      <EmailText>{planNote}</EmailText>
 
       <EmailText>{dismiss}</EmailText>
 
@@ -31,6 +34,7 @@ const previewFirstName = "Sofia";
 TrialWelcome.PreviewProps = {
   greeting: t.greeting.replace("{firstName}", previewFirstName),
   body: t.body,
+  planNote: t.planNote,
   dismiss: t.dismiss,
   signoff: t.signoff,
   subject: t.subject,

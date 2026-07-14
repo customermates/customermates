@@ -8,6 +8,7 @@ import type { CreateOrganizationRepo } from "./upsert/create-organization.repo";
 import type { UpdateOrganizationRepo } from "./upsert/update-organization.repo";
 import type { DeleteOrganizationRepo } from "./delete/delete-organization.repo";
 import type { FindOrganizationsByIdsRepo } from "./find-organizations-by-ids.repo";
+import type { ModifyRelationOrganizationRepo } from "@/features/relations/modify-entity-relation.interactor";
 
 import { EntityType, Resource } from "@/generated/prisma";
 
@@ -33,7 +34,8 @@ export class PrismaOrganizationRepo
     DeleteOrganizationRepo,
     GetWidgetFilterableFieldsOrganizationRepo,
     FindOrganizationsByIdsRepo,
-    GetCompanyWideOrganizationRepo
+    GetCompanyWideOrganizationRepo,
+    ModifyRelationOrganizationRepo
 {
   private get userScopedSelect() {
     return {

@@ -7,7 +7,7 @@ import { Action, Status } from "@/generated/prisma";
 import type { Resource, Subscription } from "@/generated/prisma";
 
 import { isRedirect, redirectTo } from "./auth-outcome";
-import { isSubscriptionExpired } from "@/ee/subscription/subscription-expiry";
+import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 
 export type AccessOptions = {

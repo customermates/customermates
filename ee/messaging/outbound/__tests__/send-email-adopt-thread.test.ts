@@ -1,6 +1,7 @@
 import type * as InboxSchemaModule from "../../inbox/inbox.schema";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -94,6 +95,7 @@ function makeInteractor(repo: any, service: any) {
     repo,
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     service,
+    mockEntitlementService(),
   );
 }
 

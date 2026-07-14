@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Currency } from "@/generated/prisma";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -24,21 +23,13 @@ describe("UpdateCompanyDetailsInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
 
-  const companyData = {
-    name: "Acme Corp",
-    street: "Main St 1",
-    city: "Berlin",
-    postalCode: "10115",
-    country: "de" as const,
-    currency: "eur" as const,
-  };
+  const companyData = { currency: "usd" as const };
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(undefined),
-      getCurrentCurrency: vi.fn().mockResolvedValue(Currency.eur),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -57,12 +48,7 @@ describe("UpdateCompanyDetailsInteractor", () => {
       DomainEvent.COMPANY_UPDATED,
       expect.objectContaining({
         entityId: COMPANY_ID,
-        payload: expect.objectContaining({
-          name: "Acme Corp",
-          city: "Berlin",
-          country: "de",
-          currency: "eur",
-        }),
+        payload: { currency: "usd" },
       }),
     );
   });
@@ -71,7 +57,7 @@ describe("UpdateCompanyDetailsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke(companyData);
 
-    expect(mockRepo.updateDetails).toHaveBeenCalledTimes(1);
+    expect(mockRepo.updateDetails).toHaveBeenCalledWith({ currency: "usd" });
   });
 
   it("returns { ok: true, data }", async () => {
@@ -79,26 +65,14 @@ describe("UpdateCompanyDetailsInteractor", () => {
     const result: any = await interactor.invoke(companyData);
 
     expect(result.ok).toBe(true);
-    expect(result.data).toEqual(expect.objectContaining({ name: "Acme Corp" }));
+    expect(result.data).toEqual({ currency: "usd" });
   });
 
-  it("preserves the stored currency when currency is omitted, never silently resetting to EUR", async () => {
-    mockRepo.getCurrentCurrency.mockResolvedValue(Currency.usd);
-    const withoutCurrency = {
-      name: companyData.name,
-      street: companyData.street,
-      city: companyData.city,
-      postalCode: companyData.postalCode,
-      country: companyData.country,
-    };
+  it("rejects an unknown currency", async () => {
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke({ currency: "xxx" } as never);
 
-    const result: any = await createInteractor().invoke(withoutCurrency);
-
-    expect(result.ok).toBe(true);
-    expect(mockRepo.updateDetails.mock.calls[0][0].currency).toBeUndefined();
-    expect(mockEventService.publish).toHaveBeenCalledWith(
-      DomainEvent.COMPANY_UPDATED,
-      expect.objectContaining({ payload: expect.objectContaining({ currency: "usd" }) }),
-    );
+    expect(result.ok).toBe(false);
+    expect(mockRepo.updateDetails).not.toHaveBeenCalled();
   });
 });

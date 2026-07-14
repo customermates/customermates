@@ -11,6 +11,7 @@ import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -119,6 +120,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     private repo: SendEmailRepo,
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -126,6 +128,9 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
   @Validate(SendEmailSchema)
   @ValidateOutput(z.union([MessagingMessageDtoSchema, z.null()]))
   async invoke(data: SendEmailData): Validated<MessagingMessageDto | null> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     let account: ConnectedAccount;
     let thread: MessagingThread | null = null;
     let inReplyTo: string | undefined;

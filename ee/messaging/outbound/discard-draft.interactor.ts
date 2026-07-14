@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -18,13 +19,19 @@ export abstract class DiscardDraftRepo {
 
 @TenantInteractor({ resource: Resource.inboxMessages, action: Action.delete })
 export class DiscardDraftInteractor extends AuthenticatedInteractor<DiscardDraftData, { threadId: string | null }> {
-  constructor(private repo: DiscardDraftRepo) {
+  constructor(
+    private repo: DiscardDraftRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @Validate(DiscardDraftSchema)
   @ValidateOutput(z.object({ threadId: z.string().nullable() }))
   async invoke(data: DiscardDraftData): Validated<{ threadId: string | null }> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const result = await this.repo.deleteDraft({ messageId: data.messageId });
 
     return { ok: true as const, data: { threadId: result?.messagingThreadId ?? null } };

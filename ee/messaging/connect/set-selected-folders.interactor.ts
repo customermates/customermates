@@ -1,7 +1,8 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EmailFolder } from "../email-folders";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -37,13 +38,17 @@ export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSel
   constructor(
     private repo: SetSelectedFoldersRepo,
     private backgroundTaskService: BackgroundTaskService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
   @ValidateOutput(ConnectedAccountDtoSchema)
-  async invoke(data: SetSelectedFoldersData): Promise<{ ok: true; data: ConnectedAccountDto }> {
+  async invoke(data: SetSelectedFoldersData): Validated<ConnectedAccountDto> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const ctx = await this.repo.getAccountFolderContextOrThrow(data.id);
     const byId = new Map(ctx.folders.map((folder) => [folder.id, folder]));
 

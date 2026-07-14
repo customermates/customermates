@@ -3,6 +3,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { SalesCompanyPage } from "./sales-navigator.schema";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -39,6 +40,7 @@ export class LinkedinSearchSalesCompaniesInteractor extends AuthenticatedInterac
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -46,6 +48,9 @@ export class LinkedinSearchSalesCompaniesInteractor extends AuthenticatedInterac
   @Validate(LinkedinSearchSalesCompaniesSchema)
   @ValidateOutput(SalesCompanyPageSchema)
   async invoke(data: LinkedinSearchSalesCompaniesData): Validated<SalesCompanyPage> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {

@@ -1,5 +1,6 @@
 import type { MessagingService } from "../messaging.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
@@ -46,12 +47,16 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
   constructor(
     private repo: GetMessageAttachmentMetaRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
-  async invoke(data: GetMessageAttachmentData): Promise<{ ok: true; data: MessageAttachment }> {
+  async invoke(data: GetMessageAttachmentData): Validated<MessageAttachment> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const meta = await this.repo.findAttachmentForMessageOrThrow(data);
 
     const { body, contentType } = await this.messagingService.downloadAttachment({

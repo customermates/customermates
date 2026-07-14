@@ -19,7 +19,7 @@ import { isRedirect } from "@/features/auth/auth-outcome";
 export async function startConnectAccountAction(channel: ConnectChannel) {
   const result = await getCreateAuthLinkInteractor().invoke({ channel });
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  return { ok: false as const, error: z.treeifyError(result.error) };
+  return { ok: false as const, error: z.treeifyError(result.error), code: result.code };
 }
 
 export async function disconnectConnectedAccountAction(id: string) {
@@ -40,7 +40,8 @@ export async function setSelectedFoldersAction(id: string, selectedFolderIds: st
 
 export async function startReconnectAccountAction(id: string) {
   const result = await getReconnectConnectedAccountInteractor().invoke({ id });
-  return { ok: true as const, data: { url: result.redirect } };
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  return { ok: false as const, error: z.treeifyError(result.error) };
 }
 
 export async function refreshConnectedAccountsAction() {

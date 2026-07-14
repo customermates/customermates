@@ -1,6 +1,7 @@
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EventService } from "@/features/event/event.service";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -33,13 +34,17 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   constructor(
     private repo: SetConnectedAccountVisibilityRepo,
     private eventService: EventService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
   @ValidateOutput(ConnectedAccountDtoSchema)
-  async invoke(data: SetConnectedAccountVisibilityData): Promise<{ ok: true; data: ConnectedAccountDto }> {
+  async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
+    const denied = await this.entitlements.require("sharedAccounts");
+    if (denied) return denied;
+
     const existing = await this.repo.getAccountByIdOrThrow(data.id);
 
     if (existing.shared === data.shared) return { ok: true as const, data: existing };

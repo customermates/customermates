@@ -3,6 +3,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
@@ -119,6 +120,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     private contactRepo: StartChatContactRepo,
     private messagingService: MessagingService,
     private threadRepo: StartChatThreadRepo,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -129,6 +131,9 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     tx: false,
   })
   async invoke(data: StartChatData): Validated<StartChatResult> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     const attendees = isHandleProvider(account.provider)

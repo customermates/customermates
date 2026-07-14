@@ -3,6 +3,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { LinkedinSaveToSalesListResult } from "./sales-navigator.schema";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -32,12 +33,16 @@ export class LinkedinSaveToSalesListInteractor extends AuthenticatedInteractor<
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Write({ input: LinkedinSaveToSalesListSchema, output: LinkedinSaveToSalesListResultSchema, tx: false })
   async invoke(data: LinkedinSaveToSalesListData): Validated<LinkedinSaveToSalesListResult> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(data.connectedAccountId);
 
     if (account.provider !== MessagingProvider.linkedin) {

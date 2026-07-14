@@ -1,4 +1,12 @@
 {
+  "AccountsRemovedNotice": {
+    "body": "Ihr Plan hat sich auf {plan} geändert, daher habe ich die folgenden verbundenen Konten entfernt, damit alles im Rahmen Ihres Plans bleibt: {accounts}. Ihre Nachrichten und Kontakte sind weiterhin vorhanden. Sie können jederzeit über Ihre Konten-Seite neu verbinden.",
+    "cta": "Verbundene Konten ansehen",
+    "greeting": "Hallo {firstName},",
+    "signoff": "Viele Grüße\nBen",
+    "subject": "Einige Ihrer verbundenen Konten wurden entfernt",
+    "title": "Verbundene Konten entfernt"
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open Source"
   },
@@ -122,6 +130,7 @@
     "ariaLabels": {
       "close": "Schließen",
       "closeMenu": "Menü schließen",
+      "collapseSearch": "Suche einklappen",
       "dataTable": "Datentabelle",
       "dragToMove": "Verschieben",
       "footer": "Fußzeile",
@@ -151,7 +160,6 @@
       "name": "Benjamin Wagner",
       "title": "Gründer @ Customermates"
     },
-    "city": "Stadt",
     "colors": {
       "default": "Blau",
       "destructive": "Rot",
@@ -506,7 +514,6 @@
       "apiKey": "API-Schlüssel",
       "assignedUserId": "Zugewiesener Benutzer",
       "avatarUrl": "Avatar URL",
-      "city": "Stadt",
       "company": "Unternehmen",
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
@@ -601,7 +608,6 @@
       },
       "phone": "Telefon",
       "phones": "Telefon",
-      "postalCode": "Postleitzahl",
       "presetId": "Gespeicherte Filter",
       "provider": "Anbieter",
       "rememberMe": "Angemeldet bleiben",
@@ -612,7 +618,6 @@
       "startDate": "Startdatum",
       "state": "Bundesland",
       "status": "Status",
-      "street": "Straße",
       "taskIds": "Aufgaben",
       "template": "Vorlage",
       "theme": "Darstellung",
@@ -645,7 +650,6 @@
       "updated": "Aktualisiert"
     },
     "options": "Optionen",
-    "postalCode": "Postleitzahl",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -774,7 +778,6 @@
       "direction": "Richtung",
       "field": "Sortieren nach"
     },
-    "street": "Straße",
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Bitte genehmigen Sie den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen.",
@@ -902,8 +905,8 @@
     "cta": "Einladung annehmen",
     "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "intro": "{inviterName} hat dich eingeladen, dem Team auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dein Konto zu erstellen.",
-    "preview": "{inviterName} hat dich zu {companyName} auf Customermates eingeladen",
-    "subject": "Tritt {companyName} auf Customermates bei"
+    "preview": "{inviterName} hat dich zu seinem Team auf Customermates eingeladen",
+    "subject": "Tritt deinem Team auf Customermates bei"
   },
   "CompanyInviteModal": {
     "description": "Teilen Sie diesen Link mit Benutzern, die Sie zu Ihrem Unternehmen einladen möchten.",
@@ -912,14 +915,17 @@
     "label": "Einladungslink",
     "title": "Benutzer einladen"
   },
+  "CompanySettings": {
+    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, etwa Deal- und Servicewerte."
+  },
   "CompanyUserModal": {
     "activeUserWarning": "Sie können Ihr eigenes Benutzerkonto in Ihren <settingsLink>Einstellungen</settingsLink> bearbeiten.",
     "title": "Benutzer"
   },
   "ConnectedAccountsCard": {
+    "accountLimitReached": "Business umfasst 3 verbundene Konten pro Nutzer. Kontaktieren Sie uns für unbegrenzte Konten im Enterprise-Tarif.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
-    "channelLimitReached": "Während der Vorschau sind maximal 2 verbundene Kanäle pro Konto möglich. Da diese Funktion auf deutlich teurerer Infrastruktur läuft, sind höhere Limits künftig mit dem kostenpflichtigen Pro-Tarif verfügbar.",
     "channels": {
       "imap": "IMAP",
       "linkedinClassic": "LinkedIn (Classic)",
@@ -949,8 +955,10 @@
     "invalidCredentialsToastDescription": "Die Anmeldedaten wurden nicht akzeptiert. Überprüfe sie und versuche es erneut.",
     "invalidCredentialsToastTitle": "Ungültige Anmeldedaten",
     "lastSynced": "Zuletzt synchronisiert",
+    "messagingRequiresCloud": "Messaging ist in Customermates Cloud verfügbar (ab dem Pro-Tarif).",
+    "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Aktualisiere dein Abo, um einen Kanal zu verbinden.",
     "ownerLabel": "Besitzer",
-    "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein kostenpflichtiges Abonnement und ist während der kostenlosen Testphase nicht verfügbar.",
+    "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "provider": "Anbieter",
     "reactivate": "Reaktivieren",
     "resync": "Neu synchronisieren",
@@ -958,9 +966,10 @@
     "resyncFailedTitle": "Resync fehlgeschlagen",
     "resyncStartedDescription": "Verlauf wird im Hintergrund neu importiert. Das dauert in der Regel 1 bis 3 Minuten.",
     "resyncStartedTitle": "Resync gestartet",
+    "sharedAccountsRequiresBusiness": "Geteilte Konten erfordern den Business-Tarif oder höher.",
+    "sharedAccountsRequiresCloud": "Geteilte Konten sind in Customermates Cloud verfügbar (ab dem Business-Tarif).",
     "sharedOffToast": "Konto ist jetzt privat",
     "sharedOnToast": "Konto mit deinem Workspace geteilt",
-    "sharedWithYou": "Mit dir geteilt",
     "status": "Status",
     "statusLabels": {
       "connecting": "Verbinde",
@@ -977,6 +986,9 @@
     "syncing": "Synchronisiert im Hintergrund",
     "syncingTooltip": "Nachrichten, E-Mails und Kalendereinträge dieses Kontos werden im Hintergrund importiert. Das dauert in der Regel wenige Minuten, bei großen Konten bis zu einer Stunde. Du kannst währenddessen normal weiterarbeiten; neue Aktivitäten erscheinen, sobald sie eingehen.",
     "title": "Kanäle",
+    "upgradeToBusinessForMoreAccounts": "Du hast die im Pro-Tarif enthaltenen verbundenen Konten erreicht. Wechsle zu Business, um weitere zu verbinden.",
+    "upsellDialogTitle": "Upgrade, um mehr Konten zu verbinden",
+    "viewPlansCta": "Tarife ansehen",
     "visibility": "Sichtbarkeit",
     "visibilityPrivate": "Privat",
     "visibilityShared": "Geteilt",
@@ -1009,12 +1021,12 @@
       "submit": "Nachricht senden",
       "successBody": "Ich melde mich unter der angegebenen E‑Mail, meist innerhalb von 24 Stunden.",
       "successCta": "Weitere senden",
-      "successTitle": "Danke — Nachricht erhalten.",
-      "successToast": "Danke — Nachricht erhalten. Ich melde mich bald."
+      "successTitle": "Danke, Nachricht erhalten.",
+      "successToast": "Danke, Nachricht erhalten. Ich melde mich bald."
     },
     "highlights": {
       "direct": {
-        "body": "Lieber E‑Mail? Schreib direkt — deine Nachricht landet an derselben Stelle.",
+        "body": "Lieber E‑Mail? Schreib direkt, deine Nachricht landet an derselben Stelle.",
         "title": "Mail: mail@customermates.com"
       },
       "fast": {
@@ -1302,21 +1314,20 @@
   "HomepagePricing": {
     "cloud": {
       "badge": "Beliebt",
+      "compareText": "Tarife vergleichen",
       "ctaText": "Kostenlos starten",
-      "featureAudit": "Audit-Logs",
-      "featureEverything": "Alles aus Self-Hosted",
-      "featureMcp": "Gehosteter MCP-Endpoint",
-      "featurePriority": "Priority-Support",
-      "featureSso": "SSO",
+      "featureBusiness": "Business: 3 Konten pro Nutzer, geteilte Konten & Priority-Support",
+      "featurePro": "Pro: zentraler Posteingang, 1 verbundenes Konto pro Nutzer",
+      "featureStarter": "Starter: das komplette CRM",
       "period": "/ Nutzer / Monat",
-      "price": "7 €",
+      "price": "ab 12 €",
       "tag": "Gehostet in Frankfurt. Kostenlos starten, keine Kreditkarte.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Jederzeit kündbar",
       "gdpr": "DSGVO-konform",
-      "noLimits": "Keine Feature-Limits",
+      "noLimits": "Transparente Tarife",
       "openSource": "Open Source"
     },
     "eyebrow": "Preise",
@@ -1329,10 +1340,10 @@
       "featureUsers": "Unbegrenzte Nutzer",
       "period": "für immer",
       "price": "Kostenlos",
-      "tag": "Auf deinem Server mit Docker Compose. Voller Source. AGPLv3.",
+      "tag": "Auf Ihrem Server mit Docker Compose. Voller Source. AGPLv3.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Keine versteckten Kosten, keine Feature-Limits. Self-host für immer kostenlos, oder starte mit der Cloud ohne Kreditkarte.",
+    "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-host für immer kostenlos, oder starte mit der Cloud ohne Kreditkarte.",
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageStatsRow": {
@@ -1491,6 +1502,11 @@
     "subtitle": "{client} möchte sich mit deinem Konto verbinden.",
     "title": "Zugriff autorisieren"
   },
+  "MessagingUpsell": {
+    "cta": "Abo aktualisieren",
+    "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt die gemeinsame Inbox.",
+    "title": "Upgrade nötig, um Messaging freizuschalten"
+  },
   "NavigationBar": {
     "addContact": "Kontakt hinzufügen",
     "addDeal": "Deal hinzufügen",
@@ -1508,11 +1524,9 @@
     "crm": "CRM",
     "dashboard": "Dashboard",
     "deals": "Deals",
-    "details": "Details",
     "docs": "Dokumentation",
     "faq": "FAQ",
     "features": "Features",
-    "general": "Allgemein",
     "inbox": "Posteingang",
     "members": "Mitglieder",
     "mission": "Mission",
@@ -1522,6 +1536,7 @@
     "search": "Suchen",
     "services": "Services",
     "settings": "Einstellungen",
+    "subscription": "Abonnement",
     "tasks": "Aufgaben",
     "webhooks": "Webhooks",
     "workspace": "Workspace"
@@ -1569,9 +1584,8 @@
       },
       "skipHint": "Du kannst das später in deinem Profil einrichten."
     },
-    "avatarDescription": "Optional. Füge einen Link zu einem Foto von dir ein — der Link muss öffentlich zugänglich sein (jede Person mit dem Link kann das Bild sehen). Lässt du das Feld leer, zeigen wir deine Initialen.",
+    "avatarDescription": "Optional. Füge einen Link zu einem Foto von dir ein. Der Link muss öffentlich zugänglich sein (jede Person mit dem Link kann das Bild sehen). Lässt du das Feld leer, zeigen wir deine Initialen.",
     "back": "Zurück",
-    "companyNameDescription": "Dieser Name wird jeder Person angezeigt, die du in deinen Workspace einlädst.",
     "continue": "Weiter",
     "demoData": {
       "cleanDescription": "Beispieldaten überspringen. Du startest mit einem leeren Workspace.",
@@ -1618,17 +1632,12 @@
         "subtitle": "Lass Claude Code oder Codex dein CRM für dich führen.",
         "title": "KI-Agent verbinden"
       },
-      "company": {
-        "placeholder": "Platzhalter Unternehmensformular",
-        "subtitle": "Ein paar Details, damit Einladungen und E-Mails richtig aussehen.",
-        "title": "Dein Unternehmen"
-      },
       "demoData": {
         "subtitle": "Mit Beispielkontakten, Deals und Aufgaben starten oder mit einem leeren Workspace.",
         "title": "Beispieldaten"
       },
       "entities": {
-        "subtitle": "Sag uns, was du verkaufst — wir richten den Workspace passend ein.",
+        "subtitle": "Sag uns, was du verkaufst, und wir richten den Workspace passend ein.",
         "title": "Was verkaufst du?"
       },
       "invite": {
@@ -1716,7 +1725,7 @@
     "acceptInviteCta": "Einladung annehmen",
     "agreeToTerms": "Beim Registrieren stimmst du unseren <termsOfServiceLink>AGBs</termsOfServiceLink> und der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zu",
     "buttonLabel": "Registrieren mit {provider}",
-    "inviteSubtitle": "Du wurdest eingeladen, <bold>{company}</bold> beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
+    "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",
     "newCompanySubtitle": "Registriere ein neues Unternehmen und teste Customermates kostenlos für 7 Tage. Keine Kreditkarte erforderlich.",
     "or": "ODER",
@@ -1726,11 +1735,38 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Aktuelle Periode endet",
+    "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
+    "picker": {
+      "features": {
+        "business": ["Alles aus Pro", "3 verbundene Konten pro Nutzer", "Geteilte Konten und priorisierter Support"],
+        "pro": ["Alles aus Starter", "Gemeinsamer Posteingang", "1 verbundenes Konto pro Nutzer"],
+        "starter": [
+          "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
+          "Audit-Log",
+          "Voller API-Zugriff",
+          "MCP-Server-Zugriff"
+        ]
+      },
+      "mostPopular": "Am beliebtesten",
+      "perUserMonth": "pro Nutzer / Monat",
+      "price": {
+        "business": "69 €",
+        "pro": "29 €",
+        "starter": "12 €"
+      }
+    },
     "plan": "Plan",
-    "prorationSubtitle": "Anteilige Abrechnung aktiver Plätze wird auf die nächste Rechnung angerechnet",
+    "planNames": {
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "pro": "Pro",
+      "starter": "Starter"
+    },
     "quantity": "Aktive Plätze",
+    "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
+    "seatBillingNote": "Sie zahlen pro aktivem Nutzer. Änderungen an den Plätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {
       "active": "Aktiv",
       "cancelled": "Gekündigt",
@@ -1738,17 +1774,13 @@
       "pastDue": "Überfällig",
       "trial": "Testphase",
       "trialDaysLeft": "Testphase · {days, plural, =0 {endet heute} one {noch # Tag} other {noch # Tage}}",
-      "trialExpired": "Testphase abgelaufen",
       "unPaid": "Unbezahlt"
     },
-    "subscribeWithLemonSqueezy": "Abonnieren mit Lemon Squeezy",
-    "title": "Aktuelles Abonnement",
     "trialEnds": "Testphase endet"
   },
   "SubscriptionExpiredView": {
     "contactSupportCta": "Support kontaktieren",
     "description": "Deine Testphase ist abgelaufen und dein Unternehmen ist derzeit nicht abonniert. Bitte abonniere Customermates, um weiterhin alle Funktionen nutzen zu können, oder kontaktiere unser Support-Team, wenn du Fragen hast.",
-    "subscribeCta": "Abonnieren",
     "subtitle": "Deine Testphase ist abgelaufen",
     "supportEmailSubject": "Abonnement-Anfrage",
     "title": "Abonnement erforderlich"
@@ -1800,8 +1832,9 @@
   },
   "TrialWelcome": {
     "body": "Schön, dass Sie da sind. Ich bin Ben, Gründer von Customermates, und helfe Ihnen gerne dabei, schnell loszulegen und die ersten Schritte so einfach wie möglich zu machen.",
-    "dismiss": "Wenn Sie Fragen oder Interesse an einem persönlichen Gespräch haben, antworten Sie einfach auf diese E-Mail — sie landet direkt in meinem Postfach.",
+    "dismiss": "Wenn Sie Fragen oder Interesse an einem persönlichen Gespräch haben, antworten Sie einfach auf diese E-Mail. Sie landet direkt in meinem Postfach.",
     "greeting": "Hallo {firstName},",
+    "planNote": "Ihre Testphase umfasst alle Funktionen des Pro-Tarifs, sodass Sie die komplette Messaging-Erfahrung von Anfang an testen können.",
     "signoff": "Viele Grüße\nBen",
     "subject": "Willkommen bei Customermates",
     "title": "Willkommen in Ihrer Testphase"
@@ -1819,7 +1852,7 @@
     "theme": "Darstellung"
   },
   "UserSettingsForm": {
-    "displayLanguageHint": "Steuert die UI-Sprache — Beschriftungen, Schaltflächen, etc.",
+    "displayLanguageHint": "Steuert die UI-Sprache: Beschriftungen, Schaltflächen, etc.",
     "formattingLocaleHint": "Steuert, wie Zahlen, Daten und Währungen formatiert werden."
   },
   "VerifyEmail": {

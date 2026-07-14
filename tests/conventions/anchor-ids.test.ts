@@ -24,9 +24,8 @@ const TOOLBAR_SCOPES_WITH_ADD = [
 ];
 const TOOLBAR_SCOPES_WITHOUT_ADD = ["company-audit-logs", "company-webhook-deliveries"];
 const FORM_SCOPES = [
-  "profile-details",
   "profile-settings",
-  "company-details",
+  "company-settings",
   "member-modal",
   "webhook-modal",
   "widget-modal",
@@ -40,12 +39,12 @@ const NAV_KEYS = [
   "deals",
   "services",
   "profile",
-  "profile-details",
   "profile-settings",
   "profile-api-keys",
   "profile-connected-accounts",
   "company",
-  "company-details",
+  "company-subscription",
+  "company-settings",
   "company-members",
   "company-roles",
   "company-audit-logs",
@@ -135,7 +134,17 @@ describe("app-guide anchor id fidelity", () => {
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("declares every nav key and scope it expands", () => {
     const sidebar = readFileSync(join(REPO_ROOT, "app", "components", "app-sidebar.tsx"), "utf8");
-    for (const key of NAV_KEYS) expect(sidebar, `nav key ${key} missing from app-sidebar.tsx`).toContain(`"${key}"`);
+    const workspaceSections = readFileSync(
+      join(REPO_ROOT, "app", "components", "navigation", "workspace-sections.ts"),
+      "utf8",
+    );
+    for (const key of NAV_KEYS) {
+      const sectionMatch = /^(profile|company)-(.+)$/.exec(key);
+      const declared = sectionMatch
+        ? workspaceSections.includes(`slug: "${sectionMatch[2]}"`)
+        : sidebar.includes(`"${key}"`);
+      expect(declared, `nav key ${key} missing from app-sidebar.tsx / workspace-sections.ts`).toBe(true);
+    }
 
     const allSource = sourceFiles()
       .map((file) => readFileSync(file, "utf8"))

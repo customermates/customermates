@@ -64,7 +64,6 @@ async function main(): Promise<void> {
         },
         select: {
           id: true,
-          name: true,
           createdAt: true,
           subscription: {
             select: {
@@ -110,7 +109,7 @@ async function main(): Promise<void> {
       const label = sub ? trialLabel(sub.trialEndDate, status) : status;
 
       console.log(sep);
-      console.log(`  ${company.name ?? "Unnamed company"}  [${label}]`);
+      console.log(`  ${company.id}  [${label}]`);
       console.log(`  Signed up: ${toHumanDate(company.createdAt)}`);
       if (sub?.currentPeriodEnd && status !== "trial")
         console.log(`  Current period ends: ${toHumanDate(sub.currentPeriodEnd)}`);

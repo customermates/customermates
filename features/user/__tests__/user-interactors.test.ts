@@ -154,11 +154,18 @@ describe("UpdateUserDetailsInteractor", () => {
     avatarUrl: null,
   };
 
+  const profileResult = {
+    ...detailsData,
+    theme: "system" as const,
+    displayLanguage: "en" as const,
+    formattingLocale: "en" as const,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockRepo = {
-      updateDetails: vi.fn().mockResolvedValue(detailsData),
+      updateDetails: vi.fn().mockResolvedValue(profileResult),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -193,11 +200,23 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockRepo.updateDetails).toHaveBeenCalledTimes(1);
   });
 
+  it("accepts a partial update and publishes the resulting profile", async () => {
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(mockRepo.updateDetails).toHaveBeenCalledWith({ theme: "dark" });
+    expect(mockEventService.publish).toHaveBeenCalledWith(
+      DomainEvent.USER_UPDATED,
+      expect.objectContaining({ payload: expect.objectContaining({ firstName: "Janet" }) }),
+    );
+  });
+
   it("returns { ok: true, data: details }", async () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke(detailsData);
 
     expect(result.ok).toBe(true);
-    expect(result.data).toEqual(expect.objectContaining({ firstName: "Janet" }));
+    expect(result.data).toEqual(expect.objectContaining({ firstName: "Janet", theme: "system" }));
   });
 });

@@ -36,6 +36,7 @@ export class SendWelcomeAndDemoInteractor {
         react: TrialWelcome({
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
+          planNote: t("planNote"),
           dismiss: t("dismiss"),
           signoff: t("signoff"),
           subject: t("subject"),

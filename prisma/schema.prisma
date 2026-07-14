@@ -9,14 +9,14 @@ datasource db {
 }
 
 model AuthUser {
-  id            String        @id
-  name          String
-  email         String
-  emailVerified Boolean       @default(false)
-  image         String?
-  companyId     String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @default(now()) @updatedAt
+  id                String             @id
+  name              String
+  email             String
+  emailVerified     Boolean            @default(false)
+  image             String?
+  companyId         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now()) @updatedAt
   authsessions      AuthSession[]
   authaccounts      AuthAccount[]
   oauthapplications OauthApplication[]
@@ -198,16 +198,7 @@ model User {
 
 model Company {
   id                          String                       @id @default(uuid())
-  name                        String?
-  country                     CountryCode                  @default(de)
   currency                    Currency                     @default(eur)
-  street                      String?
-  city                        String?
-  postalCode                  String?
-  vatNumber                   String?
-  website                     String?
-  phone                       String?
-  email                       String?
   salesType                   SalesType?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
@@ -799,6 +790,7 @@ model Subscription {
   lemonSqueezyId        String?            @unique
   lemonSqueezyVariantId String?
   status                SubscriptionStatus @default(trial)
+  plan                  SubscriptionPlan   @default(pro)
   quantity              Int?
   trialEndDate          DateTime?
   currentPeriodEnd      DateTime?
@@ -1138,43 +1130,50 @@ enum SubscriptionStatus {
   unPaid
 }
 
+enum SubscriptionPlan {
+  starter
+  pro
+  business
+  enterprise
+}
+
 enum SalesType {
   product
   service
 }
 
 model ConnectedAccount {
-  id                   String                  @id @default(uuid())
-  companyId            String
-  company              Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId               String
-  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unipileAccountId     String                  @unique
-  provider             MessagingProvider
-  status               ConnectedAccountStatus  @default(connecting)
-  hasMessaging         Boolean                 @default(false)
-  hasCalendar          Boolean                 @default(false)
-  emailAddress         String?
-  displayName          String?
-  sentFolderIds        String[]                @default([])
-  folders              Json                    @default("[]")
-  selectedFolderIds    String[]                @default([])
-  foldersSyncedAt      DateTime?
-  linkedinProducts     String[]                @default([])
-  shared               Boolean                 @default(false)
-  syncing              Boolean                 @default(false)
-  ownerAvatarUrl       String?
-  lastSyncedAt         DateTime?
-  backfillClaimedAt    DateTime?
-  backfillClaimToken   String?
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
-  threads              MessagingThread[]
-  messages             MessagingMessage[]
-  calendars            Calendar[]
-  calendarEvents       CalendarEvent[]
-  inboundEvents        MessagingInboundEvent[]
-  accountActivities    AccountActivity[]
+  id                 String                  @id @default(uuid())
+  companyId          String
+  company            Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unipileAccountId   String                  @unique
+  provider           MessagingProvider
+  status             ConnectedAccountStatus  @default(connecting)
+  hasMessaging       Boolean                 @default(false)
+  hasCalendar        Boolean                 @default(false)
+  emailAddress       String?
+  displayName        String?
+  sentFolderIds      String[]                @default([])
+  folders            Json                    @default("[]")
+  selectedFolderIds  String[]                @default([])
+  foldersSyncedAt    DateTime?
+  linkedinProducts   String[]                @default([])
+  shared             Boolean                 @default(false)
+  syncing            Boolean                 @default(false)
+  ownerAvatarUrl     String?
+  lastSyncedAt       DateTime?
+  backfillClaimedAt  DateTime?
+  backfillClaimToken String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  threads            MessagingThread[]
+  messages           MessagingMessage[]
+  calendars          Calendar[]
+  calendarEvents     CalendarEvent[]
+  inboundEvents      MessagingInboundEvent[]
+  accountActivities  AccountActivity[]
 
   @@index([companyId])
   @@index([userId])
@@ -1182,26 +1181,26 @@ model ConnectedAccount {
 }
 
 model MessagingThread {
-  id                 String                       @id @default(uuid())
-  companyId          String
-  company            Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  connectedAccountId String
-  connectedAccount   ConnectedAccount             @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
-  state              MessagingThreadState         @default(unread)
-  type               MessagingThreadType          @default(single)
-  name               String?
-  unipileThreadId    String
-  unipileThreadAltId String?
-  provider           MessagingProvider
-  subject            String?
-  lastMessageAt      DateTime?
-  lastMessagePreview String?
+  id                  String                       @id @default(uuid())
+  companyId           String
+  company             Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  connectedAccountId  String
+  connectedAccount    ConnectedAccount             @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  state               MessagingThreadState         @default(unread)
+  type                MessagingThreadType          @default(single)
+  name                String?
+  unipileThreadId     String
+  unipileThreadAltId  String?
+  provider            MessagingProvider
+  subject             String?
+  lastMessageAt       DateTime?
+  lastMessagePreview  String?
   lastMessageIsSender Boolean?
-  sharedToCrm        Boolean                      @default(false)
-  createdAt          DateTime                     @default(now())
-  updatedAt          DateTime                     @updatedAt
-  messages           MessagingMessage[]
-  participants       MessagingThreadParticipant[]
+  sharedToCrm         Boolean                      @default(false)
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+  messages            MessagingMessage[]
+  participants        MessagingThreadParticipant[]
 
   @@unique([connectedAccountId, unipileThreadId])
   @@index([companyId])
@@ -1401,18 +1400,18 @@ enum CalendarEventStatus {
 }
 
 model MessagingInboundEvent {
-  id                 String            @id @default(uuid())
+  id                 String                      @id @default(uuid())
   companyId          String?
   connectedAccountId String?
-  connectedAccount   ConnectedAccount? @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  connectedAccount   ConnectedAccount?           @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
   source             MessagingInboundEventSource
   unipileMessageId   String?
   payload            Json
-  processed          Boolean           @default(false)
+  processed          Boolean                     @default(false)
   error              String?
   lastErrorAt        DateTime?
-  attemptCount       Int               @default(0)
-  receivedAt         DateTime          @default(now())
+  attemptCount       Int                         @default(0)
+  receivedAt         DateTime                    @default(now())
   processedAt        DateTime?
 
   @@index([source, processed, receivedAt])

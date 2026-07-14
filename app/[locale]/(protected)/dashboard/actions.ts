@@ -4,7 +4,7 @@ import type { DeleteWidgetData } from "@/features/widget/delete-widget.interacto
 import type { GetWidgetByIdData } from "@/features/widget/get-widget-by-id.interactor";
 import type { UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
 import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
-import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-settings.interactor";
+import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
 
 import {
   getUpsertWidgetInteractor,
@@ -13,7 +13,7 @@ import {
   getGetWidgetByIdInteractor,
   getUpdateWidgetLayoutsInteractor,
   getGetWidgetsInteractor,
-  getUpdateUserSettingsInteractor,
+  getUpdateUserDetailsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -43,6 +43,6 @@ export async function refreshWidgetsAction() {
   return result.data;
 }
 
-export async function updateThemeAction(data: UpdateUserSettingsData) {
-  return serializeResult(getUpdateUserSettingsInteractor().invoke(data));
+export async function updateThemeAction(data: UpdateUserDetailsData) {
+  return serializeResult(getUpdateUserDetailsInteractor().invoke(data));
 }

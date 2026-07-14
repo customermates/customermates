@@ -8,6 +8,7 @@ import type { GetConfigurationRepo } from "@/core/base/base-get-configuration.in
 import type { GetDealByIdRepo } from "./get/get-deal-by-id.interactor";
 import type { DeleteDealRepo } from "./delete/delete-deal.repo";
 import type { FindDealsByIdsRepo } from "./find-deals-by-ids.repo";
+import type { ModifyRelationDealRepo } from "@/features/relations/modify-entity-relation.interactor";
 
 import { EntityType, Resource } from "@/generated/prisma";
 
@@ -33,7 +34,8 @@ export class PrismaDealRepo
     DeleteDealRepo,
     GetWidgetFilterableFieldsDealRepo,
     FindDealsByIdsRepo,
-    GetCompanyWideDealRepo
+    GetCompanyWideDealRepo,
+    ModifyRelationDealRepo
 {
   private get userScopedSelect() {
     return {

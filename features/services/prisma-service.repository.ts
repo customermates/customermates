@@ -8,6 +8,7 @@ import type { CreateServiceRepo } from "./upsert/create-service.repo";
 import type { UpdateServiceRepo } from "./upsert/update-service.repo";
 import type { DeleteServiceRepo } from "./delete/delete-service.repo";
 import type { FindServicesByIdsRepo } from "./find-services-by-ids.repo";
+import type { ModifyRelationServiceRepo } from "@/features/relations/modify-entity-relation.interactor";
 
 import { EntityType, Resource } from "@/generated/prisma";
 
@@ -33,7 +34,8 @@ export class PrismaServiceRepo
     DeleteServiceRepo,
     GetWidgetFilterableFieldsServiceRepo,
     FindServicesByIdsRepo,
-    GetCompanyWideServiceRepo
+    GetCompanyWideServiceRepo,
+    ModifyRelationServiceRepo
 {
   private get userScopedSelect() {
     return {

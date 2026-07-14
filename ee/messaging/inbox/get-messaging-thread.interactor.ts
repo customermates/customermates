@@ -1,4 +1,5 @@
 import type { MessagingMessage, MessagingThread } from "../messaging.schema";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -65,6 +66,7 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
   constructor(
     private repo: GetMessagingThreadRepo,
     private accountRepo: ThreadAccountOwnersRepo,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -72,6 +74,9 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
   @Validate(Schema)
   @ValidateOutput(GetMessagingThreadResultSchema)
   async invoke(data: GetMessagingThreadData): Validated<GetMessagingThreadResult> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const thread = await this.repo.findThreadById(data.threadId);
     if (!thread) return { ok: false as const, error: createZodError("Thread not found") };
 

@@ -1,17 +1,21 @@
 import type { FormEvent } from "react";
-import type { UpdateUserSettingsData } from "@/features/user/upsert/update-user-settings.interactor";
+import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, toJS } from "mobx";
-import { Locale, Theme } from "@/generated/prisma";
+import { CountryCode, Locale, Theme } from "@/generated/prisma";
 
-import { updateSettingsAction } from "../actions";
+import { updateUserAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 
-export class UserSettingsStore extends BaseFormStore<UpdateUserSettingsData> {
+export class ProfileSettingsStore extends BaseFormStore<UpdateUserDetailsData> {
   constructor(rootStore: RootStore) {
     super(rootStore, {
+      firstName: "",
+      lastName: "",
+      country: CountryCode.de,
+      avatarUrl: "",
       theme: Theme.system,
       displayLanguage: Locale.en,
       formattingLocale: Locale.en,
@@ -27,10 +31,10 @@ export class UserSettingsStore extends BaseFormStore<UpdateUserSettingsData> {
     this.setIsLoading(true);
 
     try {
-      const res = await updateSettingsAction(toJS(this.form));
+      const res = await updateUserAction(toJS(this.form));
 
       if (res.ok) {
-        this.rootStore.userStore.updateUserSettings(res.data);
+        this.rootStore.userStore.applyUserUpdate(res.data);
         this.onInitOrRefresh(res.data);
       } else this.setError(res.error);
     } finally {

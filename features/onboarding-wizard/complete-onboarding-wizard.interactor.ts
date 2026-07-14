@@ -1,8 +1,5 @@
-import { z } from "zod";
-
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 export abstract class CompleteOnboardingWizardRepo {
@@ -15,7 +12,6 @@ export class CompleteOnboardingWizardInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @ValidateOutput(z.null())
   async invoke(): Promise<{ ok: true; data: null }> {
     const { id } = getTenantUser();
     await this.repo.markOnboardingWizardCompleted({ userId: id });

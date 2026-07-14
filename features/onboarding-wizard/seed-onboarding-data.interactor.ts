@@ -6,7 +6,6 @@ import { SalesType } from "@/generated/prisma";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 const Schema = z.object({
@@ -31,7 +30,6 @@ export class SeedOnboardingDataInteractor extends AuthenticatedInteractor<SeedOn
   }
 
   @Validate(Schema)
-  @ValidateOutput(z.null())
   async invoke(data: SeedOnboardingData): Validated<null> {
     const { id } = getTenantUser();
     await this.repo.seedOnboardingData({

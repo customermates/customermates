@@ -32,5 +32,4 @@ export abstract class CalendarWriteRepo {
     connectedAccountId: string;
     unipileCalendarId: string;
   }): Promise<{ id: string } | null>;
-  abstract markAccountHasCalendarUnscoped(unipileAccountId: string): Promise<void>;
 }

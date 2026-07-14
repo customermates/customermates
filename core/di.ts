@@ -55,6 +55,7 @@ import { EventService } from "@/features/event/event.service";
 import { WidgetDataFetcher } from "@/features/widget/calculator/widget-data-fetcher.service";
 import { WidgetGroupingService } from "@/features/widget/calculator/widget-grouping.service";
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
+import { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
 // Task Listeners
 import { UserPendingAuthorizationTaskListener } from "@/features/tasks/listener/user-pending-authorization-task.listener";
@@ -140,7 +141,6 @@ import { RegisterUserInteractor } from "@/features/user/register/register-user.i
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import { SeedOnboardingDataInteractor } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
-import { UpdateUserSettingsInteractor } from "@/features/user/upsert/update-user-settings.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
@@ -181,6 +181,8 @@ import { ResyncThreadInteractor } from "@/ee/messaging/inbox/resync-thread.inter
 import { ReconnectConnectedAccountInteractor } from "@/ee/messaging/connect/reconnect-connected-account.interactor";
 import { SetConnectedAccountVisibilityInteractor } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 import { SetSelectedFoldersInteractor } from "@/ee/messaging/connect/set-selected-folders.interactor";
+import { DeleteAccountForBillingService } from "@/ee/messaging/connect/delete-account-for-billing.service";
+import { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import { ProcessUnipileWebhookInteractor } from "@/ee/messaging/webhooks/process-unipile-webhook.interactor";
 import type { UnipileWebhookHandlerMap } from "@/ee/messaging/webhooks/process-unipile-webhook.interactor";
 import { ProcessMessageNewWebhookInteractor } from "@/ee/messaging/webhooks/message/process-message-new-webhook.interactor";
@@ -276,6 +278,9 @@ import { SendTrialExtensionOfferInteractor } from "@/ee/lifecycle/send-trial-ext
 import { SendTrialInactivationReminderInteractor } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
+import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
+import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 // Webhook delivery interactor (workflow task consumer)
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
 // EE Audit Log interactors
@@ -346,7 +351,10 @@ export const getEventService = () => {
 export const getWidgetDataFetcher = () => new WidgetDataFetcher();
 export const getWidgetGroupingService = () => new WidgetGroupingService();
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
+export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
+export const getDeleteAccountForBillingService = () =>
+  new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService());
 export const getIngestUnipileWebhookInteractor = () =>
   new IngestUnipileWebhookInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
@@ -826,8 +834,6 @@ export const getSeedOnboardingDataInteractor = () => new SeedOnboardingDataInter
 
 export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
 
-export const getUpdateUserSettingsInteractor = () => new UpdateUserSettingsInteractor(getUserRepo());
-
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
 export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserRepo());
@@ -839,6 +845,7 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getEventService(),
     getSubscriptionService(),
     getCompanyRepo(),
+    getUserRepo(),
   );
 
 export const getGetUsersInteractor = () =>
@@ -874,11 +881,7 @@ export const getUpdateCompanyDetailsInteractor = () =>
 export const getGetOrCreateInviteTokenInteractor = () => new GetOrCreateInviteTokenInteractor(getCompanyRepo());
 
 export const getInviteUsersByEmailInteractor = () =>
-  new InviteUsersByEmailInteractor(
-    getEmailService(),
-    getGetOrCreateInviteTokenInteractor(),
-    getGetCompanyDetailsInteractor(),
-  );
+  new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor());
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
 
@@ -968,7 +971,12 @@ export const getResendWebhookDeliveryInteractor = () =>
 // --- Messaging ---
 
 export const getCreateAuthLinkInteractor = () =>
-  new CreateAuthLinkInteractor(getMessagingService(), getConnectedAccountRepo());
+  new CreateAuthLinkInteractor(
+    getMessagingService(),
+    getConnectedAccountRepo(),
+    getCompanyRepo(),
+    getEntitlementService(),
+  );
 
 export const getGetMyConnectedAccountsInteractor = () =>
   new GetMyConnectedAccountsInteractor(getConnectedAccountRepo());
@@ -977,18 +985,37 @@ export const getDeleteConnectedAccountInteractor = () =>
   new DeleteConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
 
 export const getResyncConnectedAccountInteractor = () =>
-  new ResyncConnectedAccountInteractor(getConnectedAccountRepo(), getBackgroundTaskService(), getEventService());
+  new ResyncConnectedAccountInteractor(
+    getConnectedAccountRepo(),
+    getBackgroundTaskService(),
+    getEventService(),
+    getEntitlementService(),
+  );
 
 export const getReconnectConnectedAccountInteractor = () =>
-  new ReconnectConnectedAccountInteractor(getConnectedAccountRepo(), getMessagingService(), getEventService());
+  new ReconnectConnectedAccountInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEventService(),
+    getEntitlementService(),
+  );
 
-export const getResyncThreadInteractor = () => new ResyncThreadInteractor(getMessagingRepo(), getMessagingService());
+export const getDeleteAccountsForPlanInteractor = () =>
+  new DeleteAccountsForPlanInteractor(
+    getConnectedAccountRepo(),
+    getUserRepo(),
+    getDeleteAccountForBillingService(),
+    getEmailService(),
+  );
+
+export const getResyncThreadInteractor = () =>
+  new ResyncThreadInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
 
 export const getSetConnectedAccountVisibilityInteractor = () =>
-  new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService());
+  new SetConnectedAccountVisibilityInteractor(getConnectedAccountRepo(), getEventService(), getEntitlementService());
 
 export const getSetSelectedFoldersInteractor = () =>
-  new SetSelectedFoldersInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
+  new SetSelectedFoldersInteractor(getConnectedAccountRepo(), getBackgroundTaskService(), getEntitlementService());
 
 export const getBackfillEmailsInteractor = () =>
   new BackfillEmailsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
@@ -1011,6 +1038,7 @@ export const getRefreshInboxInteractor = () =>
     getPrepareBackfillInteractor(),
     getBackfillChatsInteractor(),
     getBackfillEmailsInteractor(),
+    getEntitlementService(),
   );
 
 export const getProcessMessageNewWebhookInteractor = () =>
@@ -1046,11 +1074,25 @@ export const getProcessCalendarEventUpsertWebhookInteractor = () =>
 export const getProcessCalendarEventDeleteWebhookInteractor = () =>
   new ProcessCalendarEventDeleteWebhookInteractor(getCalendarRepo(), getConnectedAccountRepo(), getEventService());
 export const getGetCalendarsApiInteractor = () =>
-  new GetCalendarsInteractor(getCalendarRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
-export const getGetCalendarByIdInteractor = () => new GetCalendarByIdInteractor(getCalendarRepo());
+  new GetCalendarsInteractor(
+    getCalendarRepo(),
+    getP13nRepo(),
+    "api",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
+export const getGetCalendarByIdInteractor = () =>
+  new GetCalendarByIdInteractor(getCalendarRepo(), getEntitlementService());
 export const getGetCalendarEventsApiInteractor = () =>
-  new GetCalendarEventsInteractor(getCalendarEventsRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
-export const getGetCalendarEventByIdInteractor = () => new GetCalendarEventByIdInteractor(getCalendarEventsRepo());
+  new GetCalendarEventsInteractor(
+    getCalendarEventsRepo(),
+    getP13nRepo(),
+    "api",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
+export const getGetCalendarEventByIdInteractor = () =>
+  new GetCalendarEventByIdInteractor(getCalendarEventsRepo(), getEntitlementService());
 export const getProcessAccountAddWebhookInteractor = () =>
   new ProcessAccountAddWebhookInteractor(
     getMessagingService(),
@@ -1134,33 +1176,59 @@ export const getSendChatMessageInteractor = () =>
     getConnectedAccountRepo(),
     getMessagingService(),
     getThreadIdsValidator(),
+    getEntitlementService(),
   );
 
 export const getSendEmailInteractor = () =>
-  new SendEmailInteractor(getMessagingRepo(), getConnectedAccountRepo(), getMessagingService());
+  new SendEmailInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+  );
 
-export const getSaveDraftInteractor = () => new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo());
+export const getSaveDraftInteractor = () =>
+  new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
 
-export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo());
+export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo(), getEntitlementService());
 
 export const getStartChatInteractor = () =>
-  new StartChatInteractor(getConnectedAccountRepo(), getContactRepo(), getMessagingService(), getMessagingRepo());
+  new StartChatInteractor(
+    getConnectedAccountRepo(),
+    getContactRepo(),
+    getMessagingService(),
+    getMessagingRepo(),
+    getEntitlementService(),
+  );
 
 export const getResolveProviderProfileInteractor = () =>
-  new ResolveProviderProfileInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ResolveProviderProfileInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
-export const getSearchChannelCandidatesInteractor = () => new SearchChannelCandidatesInteractor(getMessagingRepo());
+export const getSearchChannelCandidatesInteractor = () =>
+  new SearchChannelCandidatesInteractor(getMessagingRepo(), getEntitlementService());
 
 export const getGetMessagingThreadsInteractor = () =>
-  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo(), "interactive", getQueryParamsPrecheck());
+  new GetMessagingThreadsInteractor(
+    getMessagingRepo(),
+    getP13nRepo(),
+    "interactive",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 export const getGetMessagingThreadsApiInteractor = () =>
-  new GetMessagingThreadsInteractor(getMessagingRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
+  new GetMessagingThreadsInteractor(
+    getMessagingRepo(),
+    getP13nRepo(),
+    "api",
+    getQueryParamsPrecheck(),
+    getEntitlementService(),
+  );
 
 export const getGetMessagingThreadInteractor = () =>
-  new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo());
+  new GetMessagingThreadInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
 
 export const getGetMessageAttachmentInteractor = () =>
-  new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService());
+  new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
 
 export const getGetUnreadThreadCountInteractor = () => new GetUnreadThreadCountInteractor(getMessagingRepo());
 
@@ -1170,60 +1238,65 @@ export const getGetActivitiesApiInteractor = () =>
   new GetActivitiesInteractor(new PrismaActivitiesRepo(), getP13nRepo(), "api", getQueryParamsPrecheck());
 
 export const getGetActivityThreadOptionsInteractor = () =>
-  new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo());
+  new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
 
-export const getUpdateThreadInteractor = () => new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator());
+export const getUpdateThreadInteractor = () =>
+  new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator(), getEntitlementService());
 
 export const getListSocialPostsInteractor = () =>
-  new ListSocialPostsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ListSocialPostsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getGetSocialPostInteractor = () =>
-  new GetSocialPostInteractor(getConnectedAccountRepo(), getMessagingService());
+  new GetSocialPostInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getListSocialPostCommentsInteractor = () =>
-  new ListSocialPostCommentsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ListSocialPostCommentsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getListSocialCommentReactionsInteractor = () =>
-  new ListSocialCommentReactionsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ListSocialCommentReactionsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getListSocialPostReactionsInteractor = () =>
-  new ListSocialPostReactionsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ListSocialPostReactionsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getGetSocialProfileInteractor = () =>
-  new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService());
+  new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinListSalesListsInteractor = () =>
-  new LinkedinListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinBrowseSalesListInteractor = () =>
-  new LinkedinBrowseSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinBrowseSalesListInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinSaveToSalesListInteractor = () =>
-  new LinkedinSaveToSalesListInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinSaveToSalesListInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinSearchSalesNavigatorInteractor = () =>
-  new LinkedinSearchSalesNavigatorInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinSearchSalesNavigatorInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinSearchSalesPeopleInteractor = () =>
-  new LinkedinSearchSalesPeopleInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinSearchSalesPeopleInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinSearchSalesCompaniesInteractor = () =>
-  new LinkedinSearchSalesCompaniesInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinSearchSalesCompaniesInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getLinkedinListSalesSearchParametersInteractor = () =>
-  new LinkedinListSalesSearchParametersInteractor(getConnectedAccountRepo(), getMessagingService());
+  new LinkedinListSalesSearchParametersInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+  );
 
 export const getListRelationRequestsInteractor = () =>
-  new ListRelationRequestsInteractor(getConnectedAccountRepo(), getMessagingService());
+  new ListRelationRequestsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getCreateRelationRequestInteractor = () =>
-  new CreateRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
+  new CreateRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getAcceptRelationRequestInteractor = () =>
-  new AcceptRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
+  new AcceptRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 export const getCancelRelationRequestInteractor = () =>
-  new CancelRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService());
+  new CancelRelationRequestInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
 // --- Custom Column ---
 
@@ -1279,13 +1352,13 @@ export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAut
 // --- EE Subscription ---
 
 export const getCreateCheckoutSessionInteractor = () =>
-  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo());
+  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
 
 export const getGetSubscriptionInteractor = () =>
-  new GetSubscriptionInteractor(getCompanyRepo(), getSubscriptionService());
+  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getSubscriptionService());
 
 export const getRefreshSubscriptionInteractor = () =>
-  new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService());
+  new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
 
 // --- EE Audit Log ---
 
@@ -1307,6 +1380,19 @@ export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
 export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
   new DeactivateUsersAfterSubscriptionGracePeriodInteractor(getUserRepo(), getEmailService());
 
+export const getDeleteConnectedAccountsForExpiredTrialsInteractor = () =>
+  new DeleteConnectedAccountsForExpiredTrialsInteractor(getConnectedAccountRepo(), getDeleteAccountForBillingService());
+
+export const getDeleteConnectedAccountsForInactiveOwnersInteractor = () =>
+  new DeleteConnectedAccountsForInactiveOwnersInteractor(
+    getConnectedAccountRepo(),
+    getDeleteAccountForBillingService(),
+  );
+
+export const getDeleteOrphanedUnipileAccountsInteractor = () =>
+  new DeleteOrphanedUnipileAccountsInteractor(getConnectedAccountRepo(), getMessagingService());
+
 // --- Webhook delivery (workflow task) ---
 
-export const getDeliverWebhookInteractor = () => new DeliverWebhookInteractor(getWebhookDeliveryRepo());
+export const getDeliverWebhookInteractor = () =>
+  new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getWebhookRepo());

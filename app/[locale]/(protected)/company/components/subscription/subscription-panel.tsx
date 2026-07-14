@@ -7,15 +7,15 @@ import type { ChipColor } from "@/constants/chip-colors";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
-import { RefreshCw } from "lucide-react";
-import { SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { Button } from "@/components/ui/button";
 import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
-import { Icon } from "@/components/shared/icon";
+import { Alert } from "@/components/shared/alert";
 import { cn } from "@/lib/utils";
+
+import { PlanPicker } from "./plan-picker";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
@@ -30,7 +30,17 @@ const STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
   [SubscriptionStatus.cancelled]: "secondary",
 };
 
-function ReadOnlyField({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
+function ReadOnlyField({
+  label,
+  description,
+  children,
+  className,
+}: {
+  label: string;
+  description?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("space-y-1.5", className)}>
       <FormLabel>{label}</FormLabel>
@@ -38,71 +48,69 @@ function ReadOnlyField({ label, children, className }: { label: string; children
       <div className="flex h-9 w-full items-center rounded-md border border-input bg-muted/30 px-3 py-1.5 text-sm shadow-xs">
         {children}
       </div>
+
+      {description && <p className="text-xs text-muted-foreground">{description}</p>}
     </div>
   );
 }
 
 export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
-  const { subscriptionStore, intlStore } = useRootStore();
+  const { subscriptionStore, intlStore, loadingOverlayStore } = useRootStore();
 
   useEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
 
-  const subscription = subscriptionStore.subscription;
-  const statusColor = subscription ? STATUS_COLOR_MAP[subscription.status] : "default";
-  const statusLabel = t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`);
-  const planLabel = "Pro";
-  const showSeats = Boolean(subscription?.quantity);
+  const subscription = subscriptionStore.subscription ?? initialSubscription;
+  const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
+  const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
+  const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
 
   return (
     <section className="flex w-full flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          {t("Subscription.title")}
-        </h3>
-
-        {subscription?.status !== SubscriptionStatus.trial && (
-          <Button
-            aria-label="Refresh subscription"
-            className="size-6"
-            size="icon-xs"
-            variant="ghost"
-            onClick={() => void subscriptionStore.handleRefresh()}
-          >
-            <Icon icon={RefreshCw} size="sm" />
-          </Button>
-        )}
-      </div>
+      {isManaged && <Alert color="primary" description={t("Subscription.managedExternallyNote")} />}
 
       <ReadOnlyField label={t("Subscription.plan")}>
         <span className="flex w-full items-center justify-between gap-2">
-          <span>{planLabel}</span>
+          <span>{t(`Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}`)}</span>
 
-          <AppChip className="shrink-0" size="sm" variant={statusColor}>
-            {statusLabel}
+          <AppChip
+            className="shrink-0"
+            size="sm"
+            variant={subscription ? STATUS_COLOR_MAP[subscription.status] : "default"}
+          >
+            {t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`)}
           </AppChip>
         </span>
       </ReadOnlyField>
 
-      <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-        {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
-          <ReadOnlyField label={t("Subscription.trialEnds")}>
-            {subscription.trialEndDate ? intlStore.formatDescriptiveLongDate(subscription.trialEndDate) : "-"}
-          </ReadOnlyField>
-        )}
+      {!isManaged && (
+        <>
+          <div className="grid w-full grid-cols-1 gap-3">
+            {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
+              <ReadOnlyField label={t("Subscription.trialEnds")}>
+                {intlStore.formatDescriptiveLongDate(subscription.trialEndDate)}
+              </ReadOnlyField>
+            )}
 
-        {subscription?.currentPeriodEnd && (
-          <ReadOnlyField label={t("Subscription.currentPeriodEnd")}>
-            {subscription.currentPeriodEnd ? intlStore.formatDescriptiveLongDate(subscription.currentPeriodEnd) : "-"}
-          </ReadOnlyField>
-        )}
+            {subscription?.currentPeriodEnd && (
+              <ReadOnlyField label={t("Subscription.currentPeriodEnd")}>
+                {intlStore.formatDescriptiveLongDate(subscription.currentPeriodEnd)}
+              </ReadOnlyField>
+            )}
 
-        {showSeats && (
-          <ReadOnlyField label={t("Subscription.quantity")}>{subscription?.quantity?.toString() ?? ""}</ReadOnlyField>
-        )}
-      </div>
+            <ReadOnlyField description={t("Subscription.seatBillingNote")} label={t("Subscription.quantity")}>
+              {seats.toString()}
+            </ReadOnlyField>
+          </div>
 
-      {showSeats && <p className="text-xs text-muted-foreground">{t("Subscription.prorationSubtitle")}</p>}
+          {!hasActiveSubscription && (
+            <PlanPicker
+              isLoading={loadingOverlayStore.isLoading}
+              onSelect={(plan) => void subscriptionStore.handleSubscribe(plan)}
+            />
+          )}
+        </>
+      )}
     </section>
   );
 });

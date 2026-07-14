@@ -9,7 +9,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { Status } from "@/generated/prisma";
 
-import type { SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
 import type { Company } from "@/generated/prisma";
 
@@ -132,7 +132,7 @@ export default async function RootLayout({ children }: Props) {
   let unreadThreadCount = 0;
   let channelsNeedingActionCount = 0;
   let company: Company | null = null;
-  let subscriptionStatus: SubscriptionStatus | null = null;
+  let subscription: SubscriptionDto | null = null;
   let trialDaysLeft: number | null = null;
   let emailVerified: boolean | null = null;
   let isAuthenticated = false;
@@ -156,7 +156,7 @@ export default async function RootLayout({ children }: Props) {
       systemTaskCount = systemTaskCountResult.data;
       unreadThreadCount = unreadThreadCountResult.data;
       channelsNeedingActionCount = accountsResult.ok ? accountsResult.data.filter(accountNeedsAction).length : 0;
-      subscriptionStatus = subscriptionResult.data?.status ?? null;
+      subscription = subscriptionResult.data;
       const trialEndDate = subscriptionResult.data?.trialEndDate ?? null;
       trialDaysLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000)) : null;
     }
@@ -187,7 +187,7 @@ export default async function RootLayout({ children }: Props) {
             emailVerified={emailVerified}
             isAuthenticated={isAuthenticated}
             onboardingComplete={onboardingComplete}
-            subscriptionStatus={subscriptionStatus}
+            subscription={subscription}
             systemTaskCount={systemTaskCount}
             trialDaysLeft={trialDaysLeft}
             unreadThreadCount={unreadThreadCount}

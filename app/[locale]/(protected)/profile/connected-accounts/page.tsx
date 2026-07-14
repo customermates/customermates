@@ -3,21 +3,50 @@ import { Resource } from "@/generated/prisma";
 import { ConnectedAccountsCard } from "../components/connected-accounts-card";
 import { ConnectedAccountsStatusToast } from "../components/connected-accounts-status-toast";
 
-import { getGetMyConnectedAccountsInteractor } from "@/core/di";
+import { redirect } from "next/navigation";
+
+import { getGetMyConnectedAccountsInteractor, getGetSubscriptionInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
+import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
+import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
+import { getEntitlements } from "@/ee/subscription/entitlements";
+import { env } from "@/env";
 
 export default async function ConnectedAccountsPage() {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  const result = await getGetMyConnectedAccountsInteractor().invoke();
-  const accounts = result.ok ? result.data : [];
+  if (!env.CLOUD_HOSTED) redirect("/dashboard");
+
+  const subscriptionResult = await getGetSubscriptionInteractor().invoke();
+  const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
+
+  const result = locked ? null : await getGetMyConnectedAccountsInteractor().invoke();
+
+  if (!locked) {
+    return (
+      <PageContainer>
+        <ConnectedAccountsStatusToast />
+
+        <ConnectedAccountsCard accounts={result?.ok ? result.data : []} />
+      </PageContainer>
+    );
+  }
+
+  const t = await getTranslations();
 
   return (
-    <PageContainer>
-      <ConnectedAccountsStatusToast />
-
-      <ConnectedAccountsCard accounts={accounts} />
+    <PageContainer padded={false}>
+      <LockedFeatureOverlay
+        ctaHref="/company/subscription"
+        ctaLabel={t("MessagingUpsell.cta")}
+        description={t("MessagingUpsell.description")}
+        title={t("MessagingUpsell.title")}
+      >
+        <div className="flex flex-col gap-6 p-4 md:p-6">
+          <ConnectedAccountsCard accounts={[]} />
+        </div>
+      </LockedFeatureOverlay>
     </PageContainer>
   );
 }

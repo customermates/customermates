@@ -7,7 +7,7 @@ import { SignUpForm } from "./sign-up-form";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getInviteTokenValidationInteractor } from "@/core/di";
 import { requireUnauthenticated } from "@/features/auth/next/require";
-import { env } from "@/env";
+import { enabledSocialProviders } from "@/core/auth/better-auth";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -21,11 +21,10 @@ export default async function SignUpPage() {
   const cookiesStore = await cookies();
   const token = cookiesStore.get("inviteToken")?.value;
   const result = await getInviteTokenValidationInteractor().invoke({ token });
-  const companyName = result.data.valid ? result.data.companyName : null;
 
   return (
     <CenteredCardPage>
-      <SignUpForm companyName={companyName} showSocialProviders={env.CLOUD_HOSTED} />
+      <SignUpForm isInvited={result.data.valid} socialProviders={enabledSocialProviders} />
     </CenteredCardPage>
   );
 }

@@ -5,6 +5,7 @@ import type { MessagingAttendee, MessagingMessage, MessagingThread, IngestMessag
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
@@ -75,6 +76,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
     private validator: ValidateThreadIdsInteractor,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
@@ -85,6 +87,9 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.threadId, path: ["threadId"] }], ctx),
   })
   async invoke(data: SendChatMessageData): Validated<MessagingMessageDto> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);

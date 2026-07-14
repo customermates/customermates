@@ -1,7 +1,8 @@
 "use client";
 
 import type { ExtendedUser } from "@/features/user/user.types";
-import type { Company, SubscriptionStatus } from "@/generated/prisma";
+import type { Company } from "@/generated/prisma";
+import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
 import { useLayoutEffect } from "react";
 
@@ -20,7 +21,7 @@ type Props = {
   isAuthenticated: boolean;
   onboardingComplete: boolean;
   company: Company | null;
-  subscriptionStatus: SubscriptionStatus | null;
+  subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
   unreadThreadCount: number;
@@ -35,7 +36,7 @@ export function NavigationSwitch({
   isAuthenticated,
   onboardingComplete,
   company,
-  subscriptionStatus,
+  subscription,
   trialDaysLeft,
   systemTaskCount,
   unreadThreadCount,
@@ -50,12 +51,13 @@ export function NavigationSwitch({
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
   const isAuthRoute = pathname.startsWith("/auth/");
   const hideAppShell = !isAuthenticated || isOnboardingWizard || isAuthRoute;
-  const { userStore, companyStore } = useRootStore();
+  const { userStore, companyStore, subscriptionStore } = useRootStore();
 
   useLayoutEffect(() => {
     userStore.setUser(user);
     if (company) companyStore.setCompany(company);
-  }, [user, company]);
+    subscriptionStore.setSubscription(subscription);
+  }, [user, company, subscription]);
 
   if (isDocsRoute) {
     return (
@@ -90,7 +92,7 @@ export function NavigationSwitch({
       <AppSidebar
         channelsNeedingActionCount={channelsNeedingActionCount}
         emailVerified={emailVerified}
-        subscriptionStatus={subscriptionStatus}
+        subscription={subscription}
         systemTaskCount={systemTaskCount}
         trialDaysLeft={trialDaysLeft}
         unreadThreadCount={unreadThreadCount}

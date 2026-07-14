@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -42,6 +43,7 @@ describe("UpdateThreadInteractor", () => {
     const result: any = await new UpdateThreadInteractor(
       repo,
       new ValidateThreadIdsInteractor(getMessagingRepo()),
+      mockEntitlementService(),
     ).invoke({
       threadId: THREAD_ID,
       sharedToCrm: true,
@@ -57,6 +59,7 @@ describe("UpdateThreadInteractor", () => {
     const result: any = await new UpdateThreadInteractor(
       repo,
       new ValidateThreadIdsInteractor(getMessagingRepo()),
+      mockEntitlementService(),
     ).invoke({
       threadId: THREAD_ID,
       sharedToCrm: true,

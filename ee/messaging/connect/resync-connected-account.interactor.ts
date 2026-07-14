@@ -1,7 +1,8 @@
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
@@ -25,12 +26,16 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
     private repo: ResyncConnectedAccountRepo,
     private backgroundTaskService: BackgroundTaskService,
     private eventService: EventService,
+    private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Enforce(Schema)
-  async invoke(data: ResyncConnectedAccountData): Promise<{ ok: true; data: null }> {
+  async invoke(data: ResyncConnectedAccountData): Validated<null> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const account = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.backgroundTaskService.dispatch("backfill-connected-account", { connectedAccountId: account.id });

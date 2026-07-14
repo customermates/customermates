@@ -3,23 +3,26 @@
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
 import type { SendFeedbackData } from "@/features/feedback/send-feedback.schema";
+import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
 import type { DeleteRoleData } from "@/features/role/delete-role.interactor";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import type { UpsertWebhookData } from "@/features/webhook/upsert-webhook.interactor";
 import type { DeleteWebhookData } from "@/features/webhook/delete-webhook.interactor";
 import type { ResendWebhookDeliveryData } from "@/features/webhook/resend-webhook-delivery.interactor";
 import type { InviteUsersByEmailData } from "@/features/company/invite-users-by-email.interactor";
+import type { CreateCheckoutSessionData } from "@/ee/subscription/create-checkout-session.interactor";
+
+import { z } from "zod";
 
 import {
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
   getGetCompanyDetailsInteractor,
+  getUpdateCompanyDetailsInteractor,
   getGetOrCreateInviteTokenInteractor,
   getInviteUsersByEmailInteractor,
-  getUpdateCompanyDetailsInteractor,
   getSendFeedbackInteractor,
   getGetRolesInteractor,
   getUpsertRoleInteractor,
@@ -35,10 +38,12 @@ import {
   getGetAuditLogsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { isRedirect } from "@/features/auth/auth-outcome";
 
-export async function createCheckoutSessionAction() {
-  const result = await getCreateCheckoutSessionInteractor().invoke();
-  return { ok: true as const, data: { url: result.redirect } };
+export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
+  const result = await getCreateCheckoutSessionInteractor().invoke(data);
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  return { ok: false as const, error: z.treeifyError(result.error) };
 }
 
 export async function refreshSubscriptionAction() {

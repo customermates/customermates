@@ -2,7 +2,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 
 import { z } from "zod";
-import { CountryCode } from "@/generated/prisma";
+import { CountryCode, Locale, Theme } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { zx, type Validated } from "@/core/validation/validation.utils";
@@ -14,19 +14,33 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
 export const UpdateUserDetailsSchema = z.object({
-  firstName: z.string().min(1).max(255),
-  lastName: z.string().min(1).max(255),
-  country: z.enum(CountryCode),
-  avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
+  firstName: z.string().min(1).max(255).optional(),
+  lastName: z.string().min(1).max(255).optional(),
+  country: z.enum(CountryCode).optional(),
+  avatarUrl: zx.secureUrl().or(z.literal("")).nullable().optional(),
+  theme: z.enum(Theme).optional(),
+  displayLanguage: z.enum(Locale).optional(),
+  formattingLocale: z.enum(Locale).optional(),
 });
 export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;
 
+const OutputSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  country: z.enum(CountryCode),
+  avatarUrl: z.string().nullable(),
+  theme: z.enum(Theme),
+  displayLanguage: z.enum(Locale),
+  formattingLocale: z.enum(Locale),
+});
+export type UserProfileData = Data<typeof OutputSchema>;
+
 export abstract class UpdateUserDetailsRepo {
-  abstract updateDetails(args: UpdateUserDetailsData): Promise<UpdateUserDetailsData>;
+  abstract updateDetails(args: UpdateUserDetailsData): Promise<UserProfileData>;
 }
 
 @TenantInteractor()
-export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UpdateUserDetailsData> {
+export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UserProfileData> {
   constructor(
     private repo: UpdateUserDetailsRepo,
     private eventService: EventService,
@@ -35,21 +49,21 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
   }
 
   @Validate(UpdateUserDetailsSchema)
-  @ValidateOutput(UpdateUserDetailsSchema)
+  @ValidateOutput(OutputSchema)
   @Transaction
-  async invoke(data: UpdateUserDetailsData): Validated<UpdateUserDetailsData> {
-    const details = await this.repo.updateDetails(data);
+  async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
+    const profile = await this.repo.updateDetails(data);
 
     await this.eventService.publish(DomainEvent.USER_UPDATED, {
       entityId: getTenantUser().id,
       payload: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        country: data.country,
-        avatarUrl: data.avatarUrl,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        country: profile.country,
+        avatarUrl: profile.avatarUrl,
       },
     });
 
-    return { ok: true as const, data: details };
+    return { ok: true as const, data: profile };
   }
 }

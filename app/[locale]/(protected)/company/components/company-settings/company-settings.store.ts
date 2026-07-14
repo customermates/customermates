@@ -3,26 +3,15 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
 
 import { action, makeObservable, toJS } from "mobx";
-import { CountryCode, Currency, Resource } from "@/generated/prisma";
+import { Currency, Resource } from "@/generated/prisma";
 
 import { updateCompanyAction } from "../../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 
-export class CompanyDetailsStore extends BaseFormStore<UpdateCompanyDetailsData> {
+export class CompanySettingsStore extends BaseFormStore<UpdateCompanyDetailsData> {
   constructor(rootStore: RootStore) {
-    super(
-      rootStore,
-      {
-        name: "",
-        street: "",
-        city: "",
-        country: CountryCode.de,
-        postalCode: "",
-        currency: Currency.eur,
-      },
-      Resource.company,
-    );
+    super(rootStore, { currency: Currency.eur }, Resource.company);
 
     makeObservable(this, {
       onSubmit: action,

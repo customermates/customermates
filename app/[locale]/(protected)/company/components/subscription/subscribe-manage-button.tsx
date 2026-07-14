@@ -26,23 +26,15 @@ export const SubscribeManageButton = observer(() => {
     />
   );
 
-  if (subscription?.customerPortalUrl) {
-    return (
-      <AppLink external href={subscription.customerPortalUrl}>
-        <Button className="h-8" size="sm">
-          {icon}
-
-          <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
-        </Button>
-      </AppLink>
-    );
-  }
+  if (!subscription?.customerPortalUrl) return null;
 
   return (
-    <Button className="h-8" size="sm" onClick={() => void subscriptionStore.handleSubscribe()}>
-      {icon}
+    <AppLink external href={subscription.customerPortalUrl}>
+      <Button className="h-8" size="sm">
+        {icon}
 
-      <span className="hidden sm:inline">{t("Subscription.subscribeWithLemonSqueezy")}</span>
-    </Button>
+        <span className="hidden sm:inline">{t("Subscription.manageWithLemonSqueezy")}</span>
+      </Button>
+    </AppLink>
   );
 });

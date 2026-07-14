@@ -4,13 +4,12 @@ import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { observer } from "mobx-react-lite";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Cable, Inbox, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,6 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 
 import { ThreadRow } from "./thread-row";
-import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
-import { refreshInboxAction } from "../actions";
 
 type Props = {
   threads: GetResult<MessagingThread>;
@@ -35,7 +32,6 @@ let savedListScrollTop = 0;
 
 export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
   const t = useTranslations();
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -46,24 +42,7 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
   useEffect(() => void connectedAccountsStore.ensureLoaded(), [connectedAccountsStore]);
   const channelsNeedingAction = connectedAccountsStore.needsActionCount;
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const result = await refreshInboxAction();
-      if (result.ok && result.data.rateLimited) {
-        toast.error(t("Inbox.refreshRateLimited"), {
-          action: {
-            label: t("Inbox.learnMore"),
-            onClick: () => window.open(`/${locale}${MESSAGING_RATE_LIMITS_DOCS_PATH}`, "_blank", "noopener,noreferrer"),
-          },
-        });
-      } else toast.success(t("Inbox.refreshDone"));
-      await messagingThreadsStore.refresh();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [messagingThreadsStore, t, locale]);
+  const isRefreshing = messagingThreadsStore.isRefreshingInbox;
 
   const searchPlaceholder = t("Common.table.search");
   const topBarNode = useMemo(
@@ -82,7 +61,7 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
           disabled={isRefreshing}
           size="sm"
           variant="secondary"
-          onClick={() => void handleRefresh()}
+          onClick={() => void messagingThreadsStore.refreshInbox()}
         >
           <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
 
@@ -104,7 +83,7 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
         </Button>
       </div>
     ),
-    [handleRefresh, isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction],
+    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction],
   );
   useSetTopBarActions(topBarNode);
 

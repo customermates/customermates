@@ -95,11 +95,6 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: {
-      name: string;
-      street: string;
-      city: string;
-      postalCode: string;
-      country: CountryCode;
       currency: Currency;
     };
   };

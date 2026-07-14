@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import type { CalendarDto } from "./calendar.schema";
 
@@ -29,13 +30,19 @@ export abstract class GetCalendarByIdRepo {
   condition: "OR",
 })
 export class GetCalendarByIdInteractor extends AuthenticatedInteractor<GetCalendarByIdData, CalendarDto | null> {
-  constructor(private repo: GetCalendarByIdRepo) {
+  constructor(
+    private repo: GetCalendarByIdRepo,
+    private entitlements: EntitlementService,
+  ) {
     super();
   }
 
   @Validate(GetCalendarByIdSchema)
   @ValidateOutput(CalendarDtoSchema.nullable())
   async invoke(data: GetCalendarByIdData): Validated<CalendarDto | null> {
+    const denied = await this.entitlements.require("messaging");
+    if (denied) return denied;
+
     const calendar = await this.repo.getCalendarById(data.id);
     return { ok: true as const, data: calendar };
   }

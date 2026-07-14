@@ -125,6 +125,10 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   reconnect = async (id: string): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await startReconnectAccountAction(id);
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
       window.location.assign(res.data.url);
     });
   };
@@ -132,11 +136,17 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   connectAccount = async (channel: ConnectChannel): Promise<void> => {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const res = await startConnectAccountAction(channel);
-      if (!res.ok) {
-        toastZodErrorTree(res.error);
+      if (res.ok) {
+        window.location.assign(res.data.url);
         return;
       }
-      window.location.assign(res.data.url);
+
+      if (res.code === "upgradeToBusinessForMoreAccounts") {
+        this.rootStore.connectUpsellModalStore.openWith({ message: res.error.errors[0] ?? "" });
+        return;
+      }
+
+      toastZodErrorTree(res.error);
     });
   };
 

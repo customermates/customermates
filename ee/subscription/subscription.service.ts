@@ -5,24 +5,49 @@ import {
   listSubscriptionItems,
   updateSubscriptionItem,
 } from "@lemonsqueezy/lemonsqueezy.js";
-import { SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
-import type { CountryCode } from "@/generated/prisma";
+import type { Subscription } from "@/generated/prisma";
 
 import { z } from "zod";
 
 import { env } from "@/env";
 
+export function variantToPlan(variantId: string): SubscriptionPlan | null {
+  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_STARTER) return SubscriptionPlan.starter;
+  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_BUSINESS) return SubscriptionPlan.business;
+  if (variantId === env.LEMONSQUEEZY_VARIANT_ID_PRO) return SubscriptionPlan.pro;
+  return null;
+}
+
+export function planToVariant(plan: SubscriptionPlan): string {
+  const variantId = {
+    [SubscriptionPlan.starter]: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
+    [SubscriptionPlan.pro]: env.LEMONSQUEEZY_VARIANT_ID_PRO,
+    [SubscriptionPlan.business]: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
+    [SubscriptionPlan.enterprise]: undefined,
+  }[plan];
+
+  if (!variantId) throw new Error(`No LemonSqueezy variant configured for plan ${plan}`);
+
+  return variantId;
+}
+
 export abstract class SubscriptionRepo {
+  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
+
   abstract upsertSubscriptionUnscoped(data: {
     companyId: string;
     lemonSqueezyId?: string;
     lemonSqueezyVariantId?: string;
     status?: SubscriptionStatus;
+    plan?: SubscriptionPlan;
     quantity?: number;
     trialEndDate?: Date;
     currentPeriodEnd?: Date;
   }): Promise<void>;
+
+  abstract findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string): Promise<string>;
 }
 
 export class SubscriptionService {
@@ -36,39 +61,20 @@ export class SubscriptionService {
   }
 
   async createCheckoutOrThrow(options: {
-    email?: string;
-    name?: string;
-    country?: CountryCode;
-    zip?: string;
-    taxNumber?: string;
+    variantId: string;
+    quantity: number;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
-    quantity: number;
   }) {
     this.ensureConfigured();
 
-    const monthlyVariantId = env.LEMONSQUEEZY_VARIANT_ID_MONTHLY;
-    const yearlyVariantId = env.LEMONSQUEEZY_VARIANT_ID_YEARLY;
     const storeId = env.LEMONSQUEEZY_STORE_ID;
-
     if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured");
-    if (!monthlyVariantId || !yearlyVariantId)
-      throw new Error("LEMONSQUEEZY_VARIANT_ID_MONTHLY or LEMONSQUEEZY_VARIANT_ID_YEARLY is not configured");
 
-    const result = await createCheckout(storeId, yearlyVariantId, {
+    const result = await createCheckout(storeId, options.variantId, {
       checkoutData: {
-        email: options.email,
-        name: options.name,
-        billingAddress: {
-          country: options.country?.toUpperCase() as any,
-          zip: options.zip,
-        },
-        taxNumber: options.taxNumber,
         custom: options.custom,
-        variantQuantities: [
-          { variantId: Number(monthlyVariantId), quantity: options.quantity },
-          { variantId: Number(yearlyVariantId), quantity: options.quantity },
-        ],
+        variantQuantities: [{ variantId: Number(options.variantId), quantity: options.quantity }],
       },
       productOptions: {
         redirectUrl: options.redirectUrl,
@@ -107,8 +113,14 @@ export class SubscriptionService {
       .parse(result.data);
   }
 
-  async updateSubscriptionOrThrow(subscriptionId: string, companyId: string): Promise<void> {
+  async updateSubscriptionOrThrow(
+    subscriptionId: string,
+    companyId?: string,
+  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null }> {
     this.ensureConfigured();
+
+    const resolvedCompanyId =
+      companyId ?? (await this.subscriptionRepo.findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId));
 
     const subscription = await this.getSubscriptionOrThrowUnscoped(subscriptionId);
 
@@ -120,18 +132,27 @@ export class SubscriptionService {
     const quantity = attributes.first_subscription_item?.quantity ?? undefined;
     const variantId = attributes.variant_id?.toString();
 
+    const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
+    const syncedPlan = variantId ? variantToPlan(variantId) : null;
+
     await this.subscriptionRepo.upsertSubscriptionUnscoped({
-      companyId,
+      companyId: resolvedCompanyId,
       lemonSqueezyId: subscription.data.id,
       lemonSqueezyVariantId: variantId,
       status,
+      plan: syncedPlan ?? existing.plan,
       quantity,
       trialEndDate: trialEndsAt,
       currentPeriodEnd: renewsAt || endsAt,
     });
+
+    return {
+      companyId: resolvedCompanyId,
+      changedPlan: syncedPlan !== null && syncedPlan !== existing.plan ? syncedPlan : null,
+    };
   }
 
-  async updateSubscriptionQuantityOrThrow(subscriptionId: string, variantId: string, quantity: number): Promise<void> {
+  async updateSubscriptionQuantityOrThrow(subscriptionId: string, quantity: number): Promise<void> {
     this.ensureConfigured();
 
     const subscriptionItemsResult = await listSubscriptionItems({
@@ -149,9 +170,7 @@ export class SubscriptionService {
 
     const subscriptionItem = items[0];
 
-    const updateResult = await updateSubscriptionItem(subscriptionItem.id, {
-      quantity,
-    });
+    const updateResult = await updateSubscriptionItem(subscriptionItem.id, { quantity });
 
     if (updateResult.error) throw new Error(updateResult.error.message || "Failed to update subscription quantity");
   }

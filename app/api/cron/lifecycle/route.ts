@@ -4,6 +4,9 @@ import {
   getSendTrialExtensionOfferInteractor,
   getSendTrialInactivationReminderInteractor,
   getSendWelcomeAndDemoInteractor,
+  getDeleteConnectedAccountsForExpiredTrialsInteractor,
+  getDeleteConnectedAccountsForInactiveOwnersInteractor,
+  getDeleteOrphanedUnipileAccountsInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -23,7 +26,11 @@ export async function GET(req: Request) {
     getSendTrialInactivationReminderInteractor().invoke(),
     getDeactivateTrialUsersAndSendNoticeInteractor().invoke(),
     getDeactivateUsersAfterSubscriptionGracePeriodInteractor().invoke(),
+    getDeleteConnectedAccountsForExpiredTrialsInteractor().invoke(),
+    getDeleteConnectedAccountsForInactiveOwnersInteractor().invoke(),
   ]);
+
+  await getDeleteOrphanedUnipileAccountsInteractor().invoke();
 
   return Response.json({ ok: true });
 }

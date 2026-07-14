@@ -2,6 +2,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { ExtendedUser } from "@/features/user/user.types";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
+import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
@@ -42,7 +43,6 @@ export abstract class UpdateUserRoleRepo {
 
 export abstract class AdminUpdateUserSubscriptionRepo {
   abstract getSubscriptionOrThrow(): Promise<Subscription>;
-  abstract countActiveUsers(): Promise<number>;
 }
 
 @TenantInteractor({ resource: Resource.users, action: Action.update })
@@ -56,6 +56,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     private eventService: EventService,
     private subscriptionService: SubscriptionService,
     private subscriptionRepo: AdminUpdateUserSubscriptionRepo,
+    private countUsersRepo: CountActiveUsersRepo,
   ) {
     super();
   }
@@ -116,15 +117,11 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   private async handleSubscriptionQuantityUpdate(): Promise<void> {
     const subscription = await this.subscriptionRepo.getSubscriptionOrThrow();
 
-    if (!subscription.lemonSqueezyId || !subscription.lemonSqueezyVariantId) return;
+    if (!subscription.lemonSqueezyId) return;
 
-    const activeUsersCount = await this.subscriptionRepo.countActiveUsers();
+    const activeUsersCount = await this.countUsersRepo.countActiveUsers();
 
-    await this.subscriptionService.updateSubscriptionQuantityOrThrow(
-      subscription.lemonSqueezyId,
-      subscription.lemonSqueezyVariantId,
-      activeUsersCount,
-    );
+    await this.subscriptionService.updateSubscriptionQuantityOrThrow(subscription.lemonSqueezyId, activeUsersCount);
   }
 
   private async precheck(data: AdminUpdateUserDetailsData, ctx: z.RefinementCtx) {
