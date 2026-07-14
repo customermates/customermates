@@ -19,11 +19,12 @@ const { RefreshSubscriptionInteractor } = await import("../refresh-subscription.
 
 function make(overrides: {
   lemonSqueezyId?: string | null;
+  plan?: string;
   updateResult?: { companyId: string; changedPlan: string | null };
 }) {
   const lemonSqueezyId = "lemonSqueezyId" in overrides ? overrides.lemonSqueezyId : "ls-1";
   const repo = {
-    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ lemonSqueezyId }),
+    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ lemonSqueezyId, plan: overrides.plan ?? "pro" }),
   };
   const subscriptionService = {
     updateSubscriptionOrThrow: vi
@@ -44,6 +45,15 @@ function make(overrides: {
 beforeEach(() => vi.clearAllMocks());
 
 describe("RefreshSubscriptionInteractor", () => {
+  it("is a no-op for an enterprise (managed) subscription", async () => {
+    const { interactor, subscriptionService, deleteAccountsForPlan } = make({ plan: "enterprise" });
+
+    await interactor.invoke();
+
+    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+  });
+
   it("syncs against the stored LemonSqueezy id under the current company", async () => {
     const { interactor, subscriptionService } = make({ updateResult: { companyId: "company-1", changedPlan: null } });
 

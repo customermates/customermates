@@ -62,7 +62,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
 
     let customerPortalUrl: string | null = null;
 
-    if (subscription.lemonSqueezyId) {
+    if (subscription.lemonSqueezyId && subscription.plan !== SubscriptionPlanEnum.enterprise) {
       const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
         subscription.lemonSqueezyId,
       );

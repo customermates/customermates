@@ -6,7 +6,7 @@ import type { CountActiveUsersRepo } from "@/features/user/count-active-users.re
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { CountryCode, Status, Resource, Action } from "@/generated/prisma";
+import { CountryCode, Status, Resource, Action, SubscriptionPlan } from "@/generated/prisma";
 
 import type { Subscription } from "@/generated/prisma";
 
@@ -117,6 +117,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   private async handleSubscriptionQuantityUpdate(): Promise<void> {
     const subscription = await this.subscriptionRepo.getSubscriptionOrThrow();
 
+    if (subscription.plan === SubscriptionPlan.enterprise) return;
     if (!subscription.lemonSqueezyId) return;
 
     const activeUsersCount = await this.countUsersRepo.countActiveUsers();
