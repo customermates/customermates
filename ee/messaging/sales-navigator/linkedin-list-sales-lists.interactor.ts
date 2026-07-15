@@ -63,6 +63,14 @@ export class LinkedinListSalesListsInteractor extends AuthenticatedInteractor<
       };
     }
 
+    if (account.linkedinProducts.length > 0 && !account.linkedinProducts.includes("sales_navigator")) {
+      const t = await getTranslations();
+      return {
+        ok: false,
+        error: createZodError<SalesListPage>(t("Common.errors.salesNavigatorNotAvailable")),
+      };
+    }
+
     const res = await this.messagingService.listSalesLists({
       accountId: account.unipileAccountId,
       kind: data.kind,
