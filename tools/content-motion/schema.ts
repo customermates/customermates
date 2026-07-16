@@ -95,7 +95,7 @@ const statusCell = z
     kind: z.literal("status"),
     initial: z.string(),
     updated: z.string(),
-    initialVariant: z.enum(["secondary", "outline", "warning", "info"]).default("secondary"),
+    initialVariant: z.enum(["default", "secondary", "outline", "warning", "info"]).default("secondary"),
     updatedVariant: z.enum(["success", "default"]).default("success"),
   })
   .strict();
