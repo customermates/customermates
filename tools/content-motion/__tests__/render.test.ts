@@ -76,6 +76,7 @@ describe("content motion kit", () => {
     expect(first).toContain('data-slot="badge"');
     expect(first).toContain('data-slot="table"');
     expect(first).toContain("@font-face");
+    expect(first).toContain("if(time<motion.start&&existing)continue");
     expect(first).toContain(productRef);
   }, 30_000);
 

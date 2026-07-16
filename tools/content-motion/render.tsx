@@ -276,9 +276,12 @@ window.renderFrame=(progress,frame,frameCount)=>{
   const time=progress*composition.duration;
   const states=new Map();
   for(const motion of composition.motions){
-    const value=ease(motion.easing,(time-motion.start)/(motion.end-motion.start));
-    const state=states.get(motion.target)??{x:0,y:0,scale:1,opacity:1};
-    for(const key of ['x','y','scale','opacity'])if(motion.from[key]!=null||motion.to[key]!=null)state[key]=mix(motion.from[key]??state[key],motion.to[key]??state[key],value);
+    const existing=states.get(motion.target);
+    if(time<motion.start&&existing)continue;
+    const state=existing??{x:0,y:0,scale:1,opacity:1};
+    if(time<motion.start){for(const key of ['x','y','scale','opacity'])if(motion.from[key]!=null)state[key]=motion.from[key];}
+    else if(time>=motion.end){for(const key of ['x','y','scale','opacity'])if(motion.to[key]!=null)state[key]=motion.to[key];}
+    else{const value=ease(motion.easing,(time-motion.start)/(motion.end-motion.start));for(const key of ['x','y','scale','opacity'])if(motion.from[key]!=null||motion.to[key]!=null)state[key]=mix(motion.from[key]??state[key],motion.to[key]??state[key],value);}
     states.set(motion.target,state);
   }
   for(const [target,state] of states){const element=document.querySelector('[data-motion-id="'+target+'"]');if(!element)continue;element.style.opacity=String(state.opacity);element.style.transform='translate3d('+state.x+'px,'+state.y+'px,0) scale('+state.scale+')';}
