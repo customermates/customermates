@@ -30,5 +30,6 @@ if (input?.meta?.productRef !== expectedRef) throw new Error("composition produc
 verifyProductAuthority(process.cwd(), expectedRef);
 const html = await buildCompositionHtml(input, roots);
 mkdirSync(dirname(output), { recursive: true });
-writeFileSync(output, html);
-process.stdout.write(`${JSON.stringify({ output, productRef: expectedRef, bytes: Buffer.byteLength(html) })}\n`);
+const outputHtml = `${html}\n`;
+writeFileSync(output, outputHtml);
+process.stdout.write(`${JSON.stringify({ output, productRef: expectedRef, bytes: Buffer.byteLength(outputHtml) })}\n`);
