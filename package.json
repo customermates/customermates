@@ -106,6 +106,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
+    "@fontsource/jetbrains-mono": "5.2.8",
     "@next/eslint-plugin-next": "15.0.4",
     "@react-email/preview-server": "4.3.2",
     "@tailwindcss/forms": "0.5.10",
@@ -164,6 +165,7 @@
   "scripts": {
     "build": "prisma generate && yarn openapi:generate && yarn raw-docs:generate && next build",
     "clean": "rm -rf node_modules .next tsconfig.tsbuildinfo generated && yarn install && prisma generate",
+    "content-motion:build": "tsx tools/content-motion/cli.ts",
     "db:clean-local": "bash ee/scripts/clean-local-db.sh",
     "db:get-user-stats": "yarn db:use-live-data && tsx ee/scripts/get-user-stats.ts",
     "db:reseed": "bash ee/scripts/reseed-db.sh",
