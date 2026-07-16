@@ -278,13 +278,14 @@ window.renderFrame=(progress,frame,frameCount)=>{
   for(const motion of composition.motions){
     const existing=states.get(motion.target);
     if(time<motion.start&&existing)continue;
-    const state=existing??{x:0,y:0,scale:1,opacity:1};
-    if(time<motion.start){for(const key of ['x','y','scale','opacity'])if(motion.from[key]!=null)state[key]=motion.from[key];}
-    else if(time>=motion.end){for(const key of ['x','y','scale','opacity'])if(motion.to[key]!=null)state[key]=motion.to[key];}
-    else{const value=ease(motion.easing,(time-motion.start)/(motion.end-motion.start));for(const key of ['x','y','scale','opacity'])if(motion.from[key]!=null||motion.to[key]!=null)state[key]=mix(motion.from[key]??state[key],motion.to[key]??state[key],value);}
+    const state=existing??{x:0,y:0,scale:1,opacity:1,rotate:0,rotateX:0,rotateY:0,blur:0,clipTop:0,clipRight:0,clipBottom:0,clipLeft:0,originX:50,originY:50};
+    const keys=['x','y','scale','opacity','rotate','rotateX','rotateY','blur','clipTop','clipRight','clipBottom','clipLeft','originX','originY'];
+    if(time<motion.start){for(const key of keys)if(motion.from[key]!=null)state[key]=motion.from[key];}
+    else if(time>=motion.end){for(const key of keys)if(motion.to[key]!=null)state[key]=motion.to[key];}
+    else{const value=ease(motion.easing,(time-motion.start)/(motion.end-motion.start));for(const key of keys)if(motion.from[key]!=null||motion.to[key]!=null)state[key]=mix(motion.from[key]??state[key],motion.to[key]??state[key],value);}
     states.set(motion.target,state);
   }
-  for(const [target,state] of states){const element=document.querySelector('[data-motion-id="'+target+'"]');if(!element)continue;element.style.opacity=String(state.opacity);element.style.transform='translate3d('+state.x+'px,'+state.y+'px,0) scale('+state.scale+')';}
+  for(const [target,state] of states){const element=document.querySelector('[data-motion-id="'+target+'"]');if(!element)continue;element.style.opacity=String(state.opacity);element.style.transformOrigin=state.originX+'% '+state.originY+'%';element.style.transform='perspective(1400px) translate3d('+state.x+'px,'+state.y+'px,0) rotateX('+state.rotateX+'deg) rotateY('+state.rotateY+'deg) rotateZ('+state.rotate+'deg) scale('+state.scale+')';element.style.filter=state.blur?'blur('+state.blur+'px)':'none';element.style.clipPath='inset('+state.clipTop+'% '+state.clipRight+'% '+state.clipBottom+'% '+state.clipLeft+'%)';}
   for(const action of composition.actions){
     const value=clamp((time-action.start)/(action.end-action.start));
     if(action.type==='typeText'){
@@ -325,7 +326,7 @@ export const buildCompositionHtml = async (input: unknown, roots: AssetRoots) =>
   const productMeta = JSON.stringify({
     productRef: composition.meta.productRef,
     componentSource: "customermates-product",
-    schemaVersion: 1,
+    schemaVersion: 2,
   });
   return `<!doctype html><html class="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=${composition.meta.width},initial-scale=1"><title>${htmlEscape(composition.meta.title)}</title><style>${css}\n*{box-sizing:border-box}html,body{width:${composition.meta.width}px;height:${composition.meta.height}px;margin:0;overflow:hidden}body{position:relative;font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-feature-settings:"cv11","ss01","ss03"}body>div[data-motion-id]{transform-origin:center}</style></head><body class="bg-background text-foreground"><script type="application/json" id="cm-video-meta">${meta}</script><script type="application/json" id="cm-product-meta">${productMeta}</script>${markup}<script>${runtime(composition)}</script></body></html>`;
 };

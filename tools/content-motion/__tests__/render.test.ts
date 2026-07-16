@@ -97,6 +97,34 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(overridden)).toThrow();
   });
 
+  it("supports bounded deterministic reveal, blur, and camera tilt primitives", async () => {
+    const cinematic = {
+      ...structuredClone(valid),
+      motions: [
+        {
+          target: "proof-card",
+          start: 0,
+          end: 0.8,
+          from: { x: 48, opacity: 0, blur: 12, clipLeft: 100, rotateY: 6, originX: 100, originY: 50 },
+          to: { x: 0, opacity: 1, blur: 0, clipLeft: 0, rotateY: 0, originX: 50, originY: 50 },
+          easing: "easeOut",
+        },
+      ],
+    };
+    const html = await buildCompositionHtml(cinematic, { product: productRoot });
+    expect(html).toContain("perspective(1400px)");
+    expect(html).toContain("element.style.clipPath");
+    expect(html).toContain('"blur":12');
+    expect(html).toContain('"clipLeft":100');
+
+    const unsafe = structuredClone(cinematic);
+    unsafe.motions[0].from.blur = 25;
+    expect(() => compositionSchema.parse(unsafe)).toThrow();
+    unsafe.motions[0].from.blur = 12;
+    unsafe.motions[0].from.rotateY = 13;
+    expect(() => compositionSchema.parse(unsafe)).toThrow();
+  }, 30_000);
+
   it("rejects missing assets and fonts", async () => {
     const missingAsset = structuredClone(valid);
     missingAsset.assets.brand.path = "public/images/dark/missing.svg";

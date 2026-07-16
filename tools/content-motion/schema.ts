@@ -184,6 +184,16 @@ const motionValue = z
     y: z.number().finite().optional(),
     scale: z.number().positive().max(4).optional(),
     opacity: z.number().min(0).max(1).optional(),
+    rotate: z.number().min(-12).max(12).optional(),
+    rotateX: z.number().min(-12).max(12).optional(),
+    rotateY: z.number().min(-12).max(12).optional(),
+    blur: z.number().min(0).max(24).optional(),
+    clipTop: z.number().min(0).max(100).optional(),
+    clipRight: z.number().min(0).max(100).optional(),
+    clipBottom: z.number().min(0).max(100).optional(),
+    clipLeft: z.number().min(0).max(100).optional(),
+    originX: z.number().min(0).max(100).optional(),
+    originY: z.number().min(0).max(100).optional(),
   })
   .strict();
 
