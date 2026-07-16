@@ -69,6 +69,7 @@ const layoutStyle = (layout: CompositionNode["layout"]): React.CSSProperties => 
   }
 
   if (layout.columns) style.gridTemplateColumns = `repeat(${layout.columns}, minmax(0, 1fr))`;
+  if (layout.textAlign) style.textAlign = layout.textAlign;
   return style;
 };
 

@@ -14,6 +14,7 @@ const layout = z
     gap: z.number().min(0).max(160).optional(),
     align: z.enum(["start", "center", "end", "stretch"]).optional(),
     justify: z.enum(["start", "center", "end", "between"]).optional(),
+    textAlign: z.enum(["left", "center", "right"]).optional(),
     columns: z.number().int().min(1).max(12).optional(),
   })
   .strict();
