@@ -337,6 +337,20 @@ describe("content motion kit", () => {
       ).size,
     ).toBe(catalog.components.length);
     expect(catalog.layout.spaceTokens.lg).toBe(24);
+    expect(
+      catalog.sceneRecipes.map((recipe: { id: string }) => recipe.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "channel-convergence",
+        "persistent-customer-action",
+      ]),
+    );
+    expect(
+      catalog.sceneRecipes.find(
+        (recipe: { id: string }) =>
+          recipe.id === "persistent-customer-action",
+      ).continuity,
+    ).toContain("remains mounted");
     expect(catalog.motions.map((motion: { id: string }) => motion.id)).toEqual(
       expect.arrayContaining([
         "fade",

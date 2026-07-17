@@ -17,6 +17,24 @@
     "widthTokens": ["full", "half", "third", "content"],
     "rule": "Only top-level stages may use free x/y geometry; component internals use slots and flow tokens."
   },
+  "sceneRecipes": [
+    {
+      "id": "channel-convergence",
+      "layer": "pattern",
+      "purpose": "Move several provider tiles toward one persistent customer context without rebuilding the destination UI.",
+      "requiredComponents": ["provider-tile", "card"],
+      "motionGrammar": ["slide", "fade", "zoom"],
+      "continuity": "Provider tiles and the destination card keep stable node ids for the full scene."
+    },
+    {
+      "id": "persistent-customer-action",
+      "layer": "story",
+      "purpose": "Show an agent command causing an observable product-state change on one customer record.",
+      "requiredComponents": ["card", "status-swap", "counter", "focus"],
+      "motionGrammar": ["zoom", "fade"],
+      "continuity": "The record remains mounted while focus, status, and action state change in place."
+    }
+  ],
   "components": [
     {
       "id": "text",
