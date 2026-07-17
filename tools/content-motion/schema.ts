@@ -2,6 +2,29 @@ import { z } from "zod";
 
 const id = z.string().regex(/^[a-z][a-z0-9-]*$/);
 
+const anchor = z.enum([
+  "top-left",
+  "top",
+  "top-right",
+  "left",
+  "center",
+  "right",
+  "bottom-left",
+  "bottom",
+  "bottom-right",
+]);
+
+const qa = z
+  .object({
+    critical: z.boolean().optional(),
+    checkPadding: z.boolean().optional(),
+    allowOverlapWith: z.array(id).max(12).optional(),
+    alignmentGroup: id.optional(),
+    alignment: z.enum(["left", "center", "right"]).optional(),
+    minPhonePx: z.number().min(7).max(24).optional(),
+  })
+  .strict();
+
 const layout = z
   .object({
     x: z.number().finite().optional(),
@@ -16,8 +39,23 @@ const layout = z
     justify: z.enum(["start", "center", "end", "between"]).optional(),
     textAlign: z.enum(["left", "center", "right"]).optional(),
     columns: z.number().int().min(1).max(12).optional(),
+    padding: z.number().min(0).max(160).optional(),
+    attach: z
+      .object({
+        target: id,
+        targetAnchor: anchor,
+        selfAnchor: anchor,
+        offsetX: z.number().min(-240).max(240).default(0),
+        offsetY: z.number().min(-240).max(240).default(0),
+      })
+      .strict()
+      .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.attach && (value.x != null || value.y != null))
+      context.addIssue({ code: "custom", message: "attached layout cannot set x or y" });
+  });
 
 const textNode = z
   .object({
@@ -27,6 +65,7 @@ const textNode = z
     text: z.string(),
     caret: z.boolean().optional(),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
 
@@ -37,6 +76,7 @@ const badgeNode = z
     variant: z.enum(["default", "secondary", "success", "warning", "info", "outline"]),
     text: z.string(),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
 
@@ -49,6 +89,7 @@ const chipNode = z
     text: z.string(),
     startAsset: id.optional(),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
 
@@ -60,6 +101,42 @@ const providerTileNode = z
     label: z.string().min(1),
     size: z.enum(["icon-sm", "icon", "icon-lg"]).default("icon-lg"),
     layout: layout.optional(),
+    qa: qa.optional(),
+  })
+  .strict();
+
+const inputNode = z
+  .object({
+    id,
+    type: z.literal("input"),
+    label: z.string().min(1),
+    value: z.string().optional(),
+    placeholder: z.string().optional(),
+    description: z.string().optional(),
+    layout: layout.optional(),
+    qa: qa.optional(),
+  })
+  .strict();
+
+const alertNode = z
+  .object({
+    id,
+    type: z.literal("alert"),
+    variant: z.enum(["default", "destructive"]).default("default"),
+    title: z.string().min(1),
+    description: z.string().optional(),
+    layout: layout.optional(),
+    qa: qa.optional(),
+  })
+  .strict();
+
+const separatorNode = z
+  .object({
+    id,
+    type: z.literal("separator"),
+    orientation: z.enum(["horizontal", "vertical"]).default("horizontal"),
+    layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
 
@@ -70,6 +147,7 @@ const logoNode = z
     asset: id,
     label: z.string(),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
 
@@ -81,6 +159,7 @@ const overlapStackNode = z
     labels: z.array(z.string()).min(1).max(8),
     size: z.enum(["default", "sm"]).default("default"),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -121,21 +200,63 @@ const tableNode = z
       .max(24),
     countLabel: z.string().optional(),
     layout: layout.optional(),
+    qa: qa.optional(),
   })
   .strict();
+
+const focusNode = z
+  .object({
+    id,
+    type: z.literal("focus"),
+    target: id,
+    variant: z.enum(["primary", "success", "warning"]).default("primary"),
+    inset: z.number().min(0).max(32).default(6),
+    radius: z.number().min(0).max(48).default(12),
+    label: z.string().optional(),
+    layout: layout.optional(),
+    qa: qa.optional(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.layout?.x != null || value.layout?.y != null || value.layout?.attach)
+      context.addIssue({ code: "custom", message: "focus geometry is derived from its target" });
+  });
+
+const connectorNode = z
+  .object({
+    id,
+    type: z.literal("connector"),
+    from: z.object({ target: id, anchor }).strict(),
+    to: z.object({ target: id, anchor }).strict(),
+    variant: z.enum(["primary", "muted", "success"]).default("primary"),
+    curve: z.enum(["horizontal", "vertical"]).default("horizontal"),
+    layout: layout.optional(),
+    qa: qa.optional(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.layout?.x != null || value.layout?.y != null || value.layout?.attach)
+      context.addIssue({ code: "custom", message: "connector geometry is derived from its endpoints" });
+  });
 
 type NodeInput =
   | z.infer<typeof textNode>
   | z.infer<typeof badgeNode>
   | z.infer<typeof chipNode>
   | z.infer<typeof providerTileNode>
+  | z.infer<typeof inputNode>
+  | z.infer<typeof alertNode>
+  | z.infer<typeof separatorNode>
   | z.infer<typeof logoNode>
   | z.infer<typeof overlapStackNode>
   | z.infer<typeof tableNode>
+  | z.infer<typeof focusNode>
+  | z.infer<typeof connectorNode>
   | {
       id: string;
       type: "group";
       layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
       children: NodeInput[];
     }
   | {
@@ -145,6 +266,7 @@ type NodeInput =
       description?: string;
       headerBadge?: { text: string; variant: "default" | "secondary" | "success" | "outline" };
       layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
       children: NodeInput[];
     };
 
@@ -154,10 +276,17 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
     badgeNode,
     chipNode,
     providerTileNode,
+    inputNode,
+    alertNode,
+    separatorNode,
     logoNode,
     overlapStackNode,
     tableNode,
-    z.object({ id, type: z.literal("group"), layout: layout.optional(), children: z.array(node).default([]) }).strict(),
+    focusNode,
+    connectorNode,
+    z
+      .object({ id, type: z.literal("group"), layout: layout.optional(), qa: qa.optional(), children: z.array(node).default([]) })
+      .strict(),
     z
       .object({
         id,
@@ -172,6 +301,7 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
           .strict()
           .optional(),
         layout: layout.optional(),
+        qa: qa.optional(),
         children: z.array(node).default([]),
       })
       .strict(),
@@ -261,14 +391,33 @@ export const compositionSchema = z
   .strict()
   .superRefine((value, context) => {
     const nodeIds = new Set<string>();
+    const attachedTargets: Array<{ source: string; target: string }> = [];
     const visit = (item: NodeInput) => {
       if (nodeIds.has(item.id)) context.addIssue({ code: "custom", message: `duplicate node id: ${item.id}` });
       nodeIds.add(item.id);
+      if (item.type === "table") {
+        for (const row of item.rows) {
+          if (nodeIds.has(row.id)) context.addIssue({ code: "custom", message: `duplicate node id: ${row.id}` });
+          nodeIds.add(row.id);
+        }
+      }
+      if (item.layout?.attach) attachedTargets.push({ source: item.id, target: item.layout.attach.target });
+      if (item.type === "focus") attachedTargets.push({ source: item.id, target: item.target });
+      if (item.type === "connector") {
+        attachedTargets.push({ source: item.id, target: item.from.target });
+        attachedTargets.push({ source: item.id, target: item.to.target });
+      }
       if (item.type === "group" || item.type === "card") item.children.forEach(visit);
     };
     value.nodes.forEach(visit);
     for (const item of [...value.motions, ...value.actions])
       if (!nodeIds.has(item.target)) context.addIssue({ code: "custom", message: `unknown target: ${item.target}` });
+    for (const item of attachedTargets) {
+      if (item.source === item.target)
+        context.addIssue({ code: "custom", message: `node cannot attach to itself: ${item.source}` });
+      else if (!nodeIds.has(item.target))
+        context.addIssue({ code: "custom", message: `unknown anchor target: ${item.target}` });
+    }
 
     for (const item of value.motions) {
       if (item.end > value.meta.duration)

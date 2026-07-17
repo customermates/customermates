@@ -27,6 +27,14 @@ const valid = {
       children: [
         { id: "provider", type: "providerTile", asset: "brand", label: "Customermates", size: "icon-lg" },
         {
+          id: "context-field",
+          type: "input",
+          label: "Customer context",
+          value: "Renewal risk",
+          description: "Attached to the current record",
+          qa: { critical: true, checkPadding: true, minPhonePx: 7 },
+        },
+        {
           id: "records",
           type: "table",
           columns: [
@@ -50,6 +58,7 @@ const valid = {
           ],
           countLabel: "1",
         },
+        { id: "records-focus", type: "focus", target: "maya", variant: "primary", inset: 4, radius: 10 },
       ],
     },
   ],
@@ -75,6 +84,10 @@ describe("content motion kit", () => {
     expect(first).toContain('data-slot="button"');
     expect(first).toContain('data-slot="badge"');
     expect(first).toContain('data-slot="table"');
+    expect(first).toContain('data-slot="input"');
+    expect(first).toContain('data-cm-id="records-focus"');
+    expect(first).toContain('data-cm-focus-target="maya"');
+    expect(first).toContain("window.cmAuditLayout");
     expect(first).toContain("@font-face");
     expect(first).toContain("if(time<motion.start&&existing)continue");
     expect(first).toContain(productRef);
@@ -95,6 +108,34 @@ describe("content motion kit", () => {
       nodes: [{ ...valid.nodes[0], style: { borderRadius: 24, boxShadow: "0 40px 80px black" } }],
     };
     expect(() => compositionSchema.parse(overridden)).toThrow();
+  });
+
+  it("requires anchor-derived overlay geometry", () => {
+    const unknown: any = structuredClone(valid);
+    unknown.nodes[0].children.push({ id: "bad-focus", type: "focus", target: "missing", variant: "primary" });
+    expect(() => compositionSchema.parse(unknown)).toThrow(/unknown anchor target/);
+
+    const positioned: any = structuredClone(valid);
+    positioned.nodes[0].children.push({
+      id: "positioned-focus",
+      type: "focus",
+      target: "maya",
+      variant: "primary",
+      layout: { x: 20, y: 20 },
+    });
+    expect(() => compositionSchema.parse(positioned)).toThrow(/focus geometry is derived/);
+
+    const attached: any = structuredClone(valid);
+    attached.nodes[0].children.push({
+      id: "attached-badge",
+      type: "badge",
+      variant: "success",
+      text: "Done",
+      layout: { attach: { target: "records", targetAnchor: "top-right", selfAnchor: "bottom-right" } },
+    });
+    expect(() => compositionSchema.parse(attached)).not.toThrow();
+    attached.nodes[0].children.at(-1)!.layout.x = 10;
+    expect(() => compositionSchema.parse(attached)).toThrow(/attached layout cannot set x or y/);
   });
 
   it("supports bounded deterministic reveal, blur, and camera tilt primitives", async () => {

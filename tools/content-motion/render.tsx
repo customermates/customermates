@@ -9,10 +9,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { compositionSchema, type Composition, type CompositionNode } from "./schema";
@@ -47,6 +51,7 @@ const layoutStyle = (layout: CompositionNode["layout"]): React.CSSProperties => 
   const style: React.CSSProperties = {};
   if (layout.x != null || layout.y != null || layout.width != null || layout.height != null)
     style.position = "absolute";
+  if (layout.attach) style.position = "absolute";
   if (layout.x != null) style.left = layout.x;
   if (layout.y != null) style.top = layout.y;
   if (layout.width != null) style.width = layout.width;
@@ -70,11 +75,25 @@ const layoutStyle = (layout: CompositionNode["layout"]): React.CSSProperties => 
 
   if (layout.columns) style.gridTemplateColumns = `repeat(${layout.columns}, minmax(0, 1fr))`;
   if (layout.textAlign) style.textAlign = layout.textAlign;
+  if (layout.padding != null) style.padding = layout.padding;
   return style;
 };
 
 const wrapper = (node: CompositionNode, content: React.ReactNode) => (
-  <div data-motion-id={node.id} style={layoutStyle(node.layout)}>
+  <div
+    data-cm-alignment={node.qa?.alignment}
+    data-cm-alignment-group={node.qa?.alignmentGroup}
+    data-cm-allow-overlap={node.qa?.allowOverlapWith?.join(",")}
+    data-cm-attach={node.layout?.attach ? JSON.stringify(node.layout.attach) : undefined}
+    data-cm-check-padding={node.qa?.checkPadding ? "true" : undefined}
+    data-cm-component={node.type}
+    data-cm-critical={node.qa?.critical ? "true" : undefined}
+    data-cm-id={node.id}
+    data-cm-min-phone-px={node.qa?.minPhonePx}
+    data-cm-qa-box={node.qa ? "true" : undefined}
+    data-motion-id={node.id}
+    style={layoutStyle(node.layout)}
+  >
     {content}
   </div>
 );
@@ -136,6 +155,29 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
       </Button>,
     );
   }
+  if (node.type === "input") {
+    return wrapper(
+      node,
+      <div className="grid gap-2">
+        <Label htmlFor={node.id}>{node.label}</Label>
+
+        <Input id={node.id} placeholder={node.placeholder} readOnly value={node.value ?? ""} />
+
+        {node.description && <div className="text-xs text-muted-foreground">{node.description}</div>}
+      </div>,
+    );
+  }
+  if (node.type === "alert") {
+    return wrapper(
+      node,
+      <Alert variant={node.variant}>
+        <AlertTitle>{node.title}</AlertTitle>
+
+        {node.description && <AlertDescription>{node.description}</AlertDescription>}
+      </Alert>,
+    );
+  }
+  if (node.type === "separator") return wrapper(node, <Separator orientation={node.orientation} />);
 
   if (node.type === "logo") return wrapper(node, assetImage(assets, node.asset, node.label));
   if (node.type === "overlapStack") {
@@ -153,6 +195,44 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
         renderOverflow={(count) => <Badge variant="secondary">+{count}</Badge>}
         size={node.size}
       />,
+    );
+  }
+  if (node.type === "focus") {
+    const classes = {
+      primary: "border-primary text-primary shadow-[0_0_28px_color-mix(in_oklab,var(--primary)_32%,transparent)]",
+      success: "border-success text-success shadow-[0_0_28px_color-mix(in_oklab,var(--success)_28%,transparent)]",
+      warning: "border-warning text-warning shadow-[0_0_28px_color-mix(in_oklab,var(--warning)_28%,transparent)]",
+    }[node.variant];
+    return wrapper(
+      node,
+      <div
+        className={`pointer-events-none absolute inset-0 rounded-[inherit] border-2 ${classes}`}
+        data-cm-focus-inset={node.inset}
+        data-cm-focus-radius={node.radius}
+        data-cm-focus-target={node.target}
+      >
+        {node.label && <span className="absolute -top-7 left-0 font-mono text-xs font-medium">{node.label}</span>}
+      </div>,
+    );
+  }
+  if (node.type === "connector") {
+    const classes = {
+      primary: "text-primary",
+      muted: "text-muted-foreground",
+      success: "text-success",
+    }[node.variant];
+    return wrapper(
+      node,
+      <svg
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 size-full overflow-visible ${classes}`}
+        data-cm-connector-curve={node.curve}
+        data-cm-connector-from={JSON.stringify(node.from)}
+        data-cm-connector-to={JSON.stringify(node.to)}
+        fill="none"
+      >
+        <path data-cm-connector-path stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+      </svg>,
     );
   }
   if (node.type === "table") {
@@ -180,7 +260,7 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
 
           <TableBody>
             {node.rows.map((row, rowIndex) => (
-              <TableRow key={row.id} data-row-index={rowIndex}>
+              <TableRow key={row.id} data-cm-component="table-row" data-cm-id={row.id} data-row-index={rowIndex}>
                 {node.columns.map((column) => {
                   const cell = row.cells[column.key];
                   if (!cell) throw new Error(`row ${row.id} misses cell ${column.key}`);
@@ -260,7 +340,7 @@ const inlineFontCss = (packageName: string, family: string, weights: number[]) =
     .join("\n");
 
 export const compileProductCss = async () => {
-  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
+  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/ui/input.tsx";\n@source "../../components/ui/label.tsx";\n@source "../../components/ui/alert.tsx";\n@source "../../components/ui/separator.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
   const result = await postcss([tailwindPostcss() as never]).process(source, {
     from: resolve("tools/content-motion/motion.css"),
   });
@@ -272,6 +352,44 @@ const composition=${JSON.stringify({ motions: composition.motions, actions: comp
 const clamp=(value,min=0,max=1)=>Math.max(min,Math.min(max,value));
 const ease=(name,value)=>{value=clamp(value);if(name==='linear')return value;if(name==='easeOut')return 1-Math.pow(1-value,3);return value<.5?4*value*value*value:1-Math.pow(-2*value+2,3)/2};
 const mix=(a,b,value)=>(a??0)+((b??0)-(a??0))*value;
+const cmNode=(id)=>document.querySelector('[data-cm-id="'+id+'"]');
+const cmAnchor=(rect,name)=>({
+  'top-left':[rect.left,rect.top],'top':[rect.left+rect.width/2,rect.top],'top-right':[rect.right,rect.top],
+  'left':[rect.left,rect.top+rect.height/2],'center':[rect.left+rect.width/2,rect.top+rect.height/2],'right':[rect.right,rect.top+rect.height/2],
+  'bottom-left':[rect.left,rect.bottom],'bottom':[rect.left+rect.width/2,rect.bottom],'bottom-right':[rect.right,rect.bottom]
+}[name]);
+const cmPlaceAttached=()=>{
+  const bodyRect=document.body.getBoundingClientRect();
+  for(const element of document.querySelectorAll('[data-cm-attach]')){
+    const spec=JSON.parse(element.dataset.cmAttach);const target=cmNode(spec.target);if(!target)continue;
+    const targetPoint=cmAnchor(target.getBoundingClientRect(),spec.targetAnchor);
+    const width=element.offsetWidth;const height=element.offsetHeight;
+    const local=cmAnchor({left:0,top:0,right:width,bottom:height,width,height},spec.selfAnchor);
+    element.style.left=(targetPoint[0]-bodyRect.left-local[0]+spec.offsetX)+'px';
+    element.style.top=(targetPoint[1]-bodyRect.top-local[1]+spec.offsetY)+'px';
+  }
+};
+const cmPlaceFocus=()=>{
+  const bodyRect=document.body.getBoundingClientRect();
+  for(const marker of document.querySelectorAll('[data-cm-focus-target]')){
+    const holder=marker.closest('[data-cm-id]');const target=cmNode(marker.dataset.cmFocusTarget);if(!holder||!target)continue;
+    const rect=target.getBoundingClientRect();const inset=Number(marker.dataset.cmFocusInset||0);const radius=Number(marker.dataset.cmFocusRadius||0);
+    holder.style.position='absolute';holder.style.left=(rect.left-bodyRect.left-inset)+'px';holder.style.top=(rect.top-bodyRect.top-inset)+'px';
+    holder.style.width=(rect.width+inset*2)+'px';holder.style.height=(rect.height+inset*2)+'px';holder.style.borderRadius=radius+'px';
+  }
+};
+const cmPlaceConnectors=()=>{
+  const bodyRect=document.body.getBoundingClientRect();
+  for(const svg of document.querySelectorAll('[data-cm-connector-from]')){
+    const holder=svg.closest('[data-cm-id]');const from=JSON.parse(svg.dataset.cmConnectorFrom);const to=JSON.parse(svg.dataset.cmConnectorTo);
+    const fromTarget=cmNode(from.target);const toTarget=cmNode(to.target);if(!holder||!fromTarget||!toTarget)continue;
+    holder.style.position='absolute';holder.style.left='0';holder.style.top='0';holder.style.width=bodyRect.width+'px';holder.style.height=bodyRect.height+'px';
+    const a=cmAnchor(fromTarget.getBoundingClientRect(),from.anchor);const b=cmAnchor(toTarget.getBoundingClientRect(),to.anchor);
+    const ax=a[0]-bodyRect.left,ay=a[1]-bodyRect.top,bx=b[0]-bodyRect.left,by=b[1]-bodyRect.top;
+    const horizontal=svg.dataset.cmConnectorCurve==='horizontal';const c1x=horizontal?(ax+bx)/2:ax;const c1y=horizontal?ay:(ay+by)/2;const c2x=horizontal?(ax+bx)/2:bx;const c2y=horizontal?by:(ay+by)/2;
+    svg.setAttribute('viewBox','0 0 '+bodyRect.width+' '+bodyRect.height);svg.querySelector('[data-cm-connector-path]')?.setAttribute('d','M '+ax+' '+ay+' C '+c1x+' '+c1y+', '+c2x+' '+c2y+', '+bx+' '+by);
+  }
+};
 window.renderFrame=(progress,frame,frameCount)=>{
   const time=progress*composition.duration;
   const states=new Map();
@@ -303,6 +421,33 @@ window.renderFrame=(progress,frame,frameCount)=>{
       const count=table.querySelector('[data-count-for="'+action.target+'"]');if(count)count.textContent=String(Math.floor(value*action.total));
     }
   }
+  cmPlaceAttached();cmPlaceFocus();cmPlaceConnectors();
+};
+window.cmAuditLayout=()=>{
+  const tolerance=1;const bodyRect=document.body.getBoundingClientRect();const findings=[];const elements=[];
+  const boxes=[...document.querySelectorAll('[data-cm-id]')];
+  const visible=(element)=>{const style=getComputedStyle(element);const rect=element.getBoundingClientRect();return style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity)>.01&&rect.width>.5&&rect.height>.5};
+  const record=(element)=>{const rect=element.getBoundingClientRect();const style=getComputedStyle(element);const scale=Math.min(rect.width/Math.max(element.offsetWidth,1),rect.height/Math.max(element.offsetHeight,1));return {id:element.dataset.cmId,component:element.dataset.cmComponent||'unknown',rect:{x:rect.x-bodyRect.x,y:rect.y-bodyRect.y,width:rect.width,height:rect.height,right:rect.right-bodyRect.x,bottom:rect.bottom-bodyRect.y},scale:Number.isFinite(scale)?scale:1,padding:{left:parseFloat(style.paddingLeft)||0,right:parseFloat(style.paddingRight)||0,top:parseFloat(style.paddingTop)||0,bottom:parseFloat(style.paddingBottom)||0}}};
+  for(const element of boxes){if(!visible(element))continue;const item=record(element);elements.push(item);
+    if(item.rect.x<-tolerance||item.rect.y<-tolerance||item.rect.right>bodyRect.width+tolerance||item.rect.bottom>bodyRect.height+tolerance)findings.push({code:'out-of-bounds',id:item.id});
+    if(element.scrollWidth>element.clientWidth+tolerance||element.scrollHeight>element.clientHeight+tolerance)findings.push({code:'content-clipped',id:item.id});
+    if(element.dataset.cmCheckPadding==='true'&&(Math.abs(item.padding.left-item.padding.right)>2||Math.abs(item.padding.top-item.padding.bottom)>2))findings.push({code:'asymmetric-padding',id:item.id,padding:item.padding});
+    if(element.dataset.cmCritical==='true'){
+      const min=Number(element.dataset.cmMinPhonePx||9);const textNodes=[element,...element.querySelectorAll('*')].filter((child)=>visible(child)&&child.textContent?.trim()&&child.children.length===0);
+      for(const textNode of textNodes){const textStyle=getComputedStyle(textNode);const effective=(parseFloat(textStyle.fontSize)||0)*item.scale*360/bodyRect.width;if(effective<min)findings.push({code:'phone-type-too-small',id:item.id,effective:Math.round(effective*10)/10,min});}
+    }
+  }
+  const qaBoxes=boxes.filter((element)=>element.dataset.cmQaBox==='true'&&visible(element));
+  for(let a=0;a<qaBoxes.length;a++)for(let b=a+1;b<qaBoxes.length;b++){
+    const first=qaBoxes[a],second=qaBoxes[b];if(first.contains(second)||second.contains(first))continue;
+    const allowed=new Set([...(first.dataset.cmAllowOverlap||'').split(','),...(second.dataset.cmAllowOverlap||'').split(',')]);if(allowed.has(first.dataset.cmId)||allowed.has(second.dataset.cmId))continue;
+    const x=first.getBoundingClientRect(),y=second.getBoundingClientRect();const overlap=Math.min(x.right,y.right)-Math.max(x.left,y.left)>tolerance&&Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)>tolerance;
+    if(overlap)findings.push({code:'unexpected-overlap',ids:[first.dataset.cmId,second.dataset.cmId]});
+  }
+  const groups=new Map();for(const element of qaBoxes){const group=element.dataset.cmAlignmentGroup;if(!group)continue;const key=group+':'+(element.dataset.cmAlignment||'left');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(element);}
+  for(const [key,members] of groups){if(members.length<2)continue;const alignment=key.split(':').at(-1);const rails=members.map((element)=>{const rect=element.getBoundingClientRect();return alignment==='right'?rect.right:alignment==='center'?rect.left+rect.width/2:rect.left});if(Math.max(...rails)-Math.min(...rails)>2)findings.push({code:'alignment-drift',group:key,ids:members.map((element)=>element.dataset.cmId)});}
+  for(const marker of document.querySelectorAll('[data-cm-focus-target]')){if(!visible(marker))continue;const holder=marker.closest('[data-cm-id]');const target=cmNode(marker.dataset.cmFocusTarget);if(!holder||!target){findings.push({code:'unknown-focus-target',id:holder?.dataset.cmId});continue;}const focus=holder.getBoundingClientRect(),rect=target.getBoundingClientRect();if(focus.left>rect.left+tolerance||focus.top>rect.top+tolerance||focus.right<rect.right-tolerance||focus.bottom<rect.bottom-tolerance)findings.push({code:'focus-misses-target',id:holder.dataset.cmId,target:marker.dataset.cmFocusTarget});}
+  return {ok:findings.length===0,findings,elements,canvas:{width:bodyRect.width,height:bodyRect.height}};
 };
 window.renderFrame(0,0,${Math.round(composition.meta.duration * composition.meta.fps)});`;
 
