@@ -242,7 +242,7 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
       <div data-table-id={node.id}>
         {node.countLabel && (
           <div className="mb-2 flex justify-end">
-            <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant="secondary">
+            <Badge className={social ? "px-3 py-1.5 text-[22px]" : undefined} variant="secondary">
               <span data-count-for={node.id}>0</span>
 
               <span>{`/${node.countLabel}`}</span>
@@ -254,7 +254,7 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
           <TableHeader>
             <TableRow>
               {node.columns.map((column) => (
-                <TableHead className={social ? "h-12 px-5 text-[21px]" : undefined} key={column.key}>
+                <TableHead className={social ? "h-12 px-5 text-[22px]" : undefined} key={column.key}>
                   {column.label}
                 </TableHead>
               ))}
@@ -272,7 +272,7 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
                       <TableCell className={social ? "px-5 py-4" : undefined} key={column.key}>
                         <div className={social ? "flex items-center gap-4" : "flex items-center gap-2"}>
                           <Avatar
-                            className={social ? "[&_[data-slot=avatar-fallback]]:text-[21px]" : undefined}
+                            className={social ? "[&_[data-slot=avatar-fallback]]:text-[22px]" : undefined}
                             name={cell.primary}
                             size={social ? "xl" : "lg"}
                           />
@@ -280,7 +280,7 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
                           <div>
                             <div className={social ? "text-[22px] font-medium" : "font-medium"}>{cell.primary}</div>
 
-                            <div className={social ? "text-[21px] text-muted-foreground" : "text-[11px] text-muted-foreground"}>
+                            <div className={social ? "text-[22px] text-muted-foreground" : "text-[11px] text-muted-foreground"}>
                               {cell.secondary}
                             </div>
                           </div>
@@ -298,13 +298,13 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
                     <TableCell className={social ? "px-5 py-4" : undefined} key={column.key}>
                       <div className={social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}>
                         <span data-state-initial className="absolute inset-0">
-                          <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant={cell.initialVariant}>
+                          <Badge className={social ? "px-3 py-1.5 text-[22px]" : undefined} variant={cell.initialVariant}>
                             {cell.initial}
                           </Badge>
                         </span>
 
                         <span data-state-updated className="absolute inset-0 opacity-0">
-                          <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant={cell.updatedVariant}>
+                          <Badge className={social ? "px-3 py-1.5 text-[22px]" : undefined} variant={cell.updatedVariant}>
                             {cell.updated}
                           </Badge>
                         </span>
