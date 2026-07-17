@@ -137,7 +137,7 @@
       "layer": "molecule",
       "nodeType": "providerTile",
       "source": "components/ui/button.tsx",
-      "variants": ["icon-sm", "icon", "icon-lg"],
+      "variants": ["icon-sm", "icon", "icon-lg", "hero"],
       "states": ["static"]
     },
     {

@@ -353,7 +353,12 @@ const renderNode = (
   if (node.type === "providerTile")
     return wrapper(
       node,
-      <Button aria-label={node.label} size={node.size} variant="outline">
+      <Button
+        aria-label={node.label}
+        className={node.size === "hero" ? "size-20 rounded-2xl p-4" : undefined}
+        size={node.size === "hero" ? "icon-lg" : node.size}
+        variant="outline"
+      >
         {assetImage(assets, node.asset, "")}
       </Button>,
     );

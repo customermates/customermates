@@ -50,7 +50,7 @@ const valid = {
           type: "providerTile",
           asset: "brand",
           label: "Customermates",
-          size: "icon-lg",
+          size: "hero",
         },
         {
           id: "context-field",
@@ -379,6 +379,7 @@ describe("content motion kit", () => {
     expect(first).toBe(second);
     expect(first).toContain('data-slot="card"');
     expect(first).toContain('data-slot="button"');
+    expect(first).toContain("size-20 rounded-2xl p-4");
     expect(first).toContain('data-slot="badge"');
     expect(first).toContain('data-slot="table"');
     expect(first).toContain('data-slot="input"');

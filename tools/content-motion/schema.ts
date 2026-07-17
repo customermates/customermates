@@ -195,7 +195,7 @@ const providerTileNode = z
     type: z.literal("providerTile"),
     asset: id,
     label: z.string().min(1),
-    size: z.enum(["icon-sm", "icon", "icon-lg"]).default("icon-lg"),
+    size: z.enum(["icon-sm", "icon", "icon-lg", "hero"]).default("icon-lg"),
   })
   .strict();
 
