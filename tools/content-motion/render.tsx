@@ -362,19 +362,21 @@ const cmPlaceAttached=()=>{
   const bodyRect=document.body.getBoundingClientRect();
   for(const element of document.querySelectorAll('[data-cm-attach]')){
     const spec=JSON.parse(element.dataset.cmAttach);const target=cmNode(spec.target);if(!target)continue;
+    const baseRect=element.offsetParent?.getBoundingClientRect()??bodyRect;
     const targetPoint=cmAnchor(target.getBoundingClientRect(),spec.targetAnchor);
     const width=element.offsetWidth;const height=element.offsetHeight;
     const local=cmAnchor({left:0,top:0,right:width,bottom:height,width,height},spec.selfAnchor);
-    element.style.left=(targetPoint[0]-bodyRect.left-local[0]+spec.offsetX)+'px';
-    element.style.top=(targetPoint[1]-bodyRect.top-local[1]+spec.offsetY)+'px';
+    element.style.left=(targetPoint[0]-baseRect.left-local[0]+spec.offsetX)+'px';
+    element.style.top=(targetPoint[1]-baseRect.top-local[1]+spec.offsetY)+'px';
   }
 };
 const cmPlaceFocus=()=>{
   const bodyRect=document.body.getBoundingClientRect();
   for(const marker of document.querySelectorAll('[data-cm-focus-target]')){
     const holder=marker.closest('[data-cm-id]');const target=cmNode(marker.dataset.cmFocusTarget);if(!holder||!target)continue;
+    const baseRect=holder.offsetParent?.getBoundingClientRect()??bodyRect;
     const rect=target.getBoundingClientRect();const inset=Number(marker.dataset.cmFocusInset||0);const radius=Number(marker.dataset.cmFocusRadius||0);
-    holder.style.position='absolute';holder.style.left=(rect.left-bodyRect.left-inset)+'px';holder.style.top=(rect.top-bodyRect.top-inset)+'px';
+    holder.style.position='absolute';holder.style.left=(rect.left-baseRect.left-inset)+'px';holder.style.top=(rect.top-baseRect.top-inset)+'px';
     holder.style.width=(rect.width+inset*2)+'px';holder.style.height=(rect.height+inset*2)+'px';holder.style.borderRadius=radius+'px';
   }
 };
@@ -383,11 +385,12 @@ const cmPlaceConnectors=()=>{
   for(const svg of document.querySelectorAll('[data-cm-connector-from]')){
     const holder=svg.closest('[data-cm-id]');const from=JSON.parse(svg.dataset.cmConnectorFrom);const to=JSON.parse(svg.dataset.cmConnectorTo);
     const fromTarget=cmNode(from.target);const toTarget=cmNode(to.target);if(!holder||!fromTarget||!toTarget)continue;
-    holder.style.position='absolute';holder.style.left='0';holder.style.top='0';holder.style.width=bodyRect.width+'px';holder.style.height=bodyRect.height+'px';
+    const base=holder.offsetParent??document.body;const baseRect=base.getBoundingClientRect();
+    holder.style.position='absolute';holder.style.left='0';holder.style.top='0';holder.style.width=baseRect.width+'px';holder.style.height=baseRect.height+'px';
     const a=cmAnchor(fromTarget.getBoundingClientRect(),from.anchor);const b=cmAnchor(toTarget.getBoundingClientRect(),to.anchor);
-    const ax=a[0]-bodyRect.left,ay=a[1]-bodyRect.top,bx=b[0]-bodyRect.left,by=b[1]-bodyRect.top;
+    const ax=a[0]-baseRect.left,ay=a[1]-baseRect.top,bx=b[0]-baseRect.left,by=b[1]-baseRect.top;
     const horizontal=svg.dataset.cmConnectorCurve==='horizontal';const c1x=horizontal?(ax+bx)/2:ax;const c1y=horizontal?ay:(ay+by)/2;const c2x=horizontal?(ax+bx)/2:bx;const c2y=horizontal?by:(ay+by)/2;
-    svg.setAttribute('viewBox','0 0 '+bodyRect.width+' '+bodyRect.height);svg.querySelector('[data-cm-connector-path]')?.setAttribute('d','M '+ax+' '+ay+' C '+c1x+' '+c1y+', '+c2x+' '+c2y+', '+bx+' '+by);
+    svg.setAttribute('viewBox','0 0 '+baseRect.width+' '+baseRect.height);svg.querySelector('[data-cm-connector-path]')?.setAttribute('d','M '+ax+' '+ay+' C '+c1x+' '+c1y+', '+c2x+' '+c2y+', '+bx+' '+by);
   }
 };
 window.renderFrame=(progress,frame,frameCount)=>{
