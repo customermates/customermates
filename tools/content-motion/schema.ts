@@ -14,32 +14,70 @@ const anchor = z.enum([
   "bottom-right",
 ]);
 
+export const spaceTokens = [
+  "none",
+  "2xs",
+  "xs",
+  "sm",
+  "md",
+  "lg",
+  "xl",
+  "2xl",
+] as const;
+const spaceToken = z.enum(spaceTokens);
+const space = z.union([spaceToken, z.number().min(0).max(160)]);
+
 const qa = z
   .object({
     critical: z.boolean().optional(),
     checkPadding: z.boolean().optional(),
+    insetParent: id.optional(),
+    inset: spaceToken.optional(),
+    insetAxis: z.enum(["x", "y", "both"]).default("x").optional(),
     allowOverlapWith: z.array(id).max(12).optional(),
     alignmentGroup: id.optional(),
     alignment: z.enum(["left", "center", "right"]).optional(),
     minPhonePx: z.number().min(7).max(24).optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if ((value.insetParent == null) !== (value.inset == null))
+      context.addIssue({
+        code: "custom",
+        message: "insetParent and inset must be declared together",
+      });
+  });
 
 const layout = z
   .object({
     x: z.number().finite().optional(),
     y: z.number().finite().optional(),
-    width: z.number().positive().optional(),
-    height: z.number().positive().optional(),
+    width: z
+      .union([
+        z.number().positive(),
+        z.enum(["full", "half", "third", "content"]),
+      ])
+      .optional(),
+    height: z
+      .union([z.number().positive(), z.enum(["full", "content"])])
+      .optional(),
+    minWidth: z.number().positive().optional(),
+    maxWidth: z.number().positive().optional(),
     z: z.number().int().min(0).max(100).optional(),
     display: z.enum(["block", "flex", "grid"]).optional(),
     direction: z.enum(["row", "column"]).optional(),
-    gap: z.number().min(0).max(160).optional(),
+    gap: space.optional(),
+    rowGap: space.optional(),
+    columnGap: space.optional(),
     align: z.enum(["start", "center", "end", "stretch"]).optional(),
     justify: z.enum(["start", "center", "end", "between"]).optional(),
+    alignSelf: z.enum(["start", "center", "end", "stretch"]).optional(),
+    grow: z.boolean().optional(),
     textAlign: z.enum(["left", "center", "right"]).optional(),
     columns: z.number().int().min(1).max(12).optional(),
-    padding: z.number().min(0).max(160).optional(),
+    padding: space.optional(),
+    paddingX: space.optional(),
+    paddingY: space.optional(),
     attach: z
       .object({
         target: id,
@@ -54,134 +92,202 @@ const layout = z
   .strict()
   .superRefine((value, context) => {
     if (value.attach && (value.x != null || value.y != null))
-      context.addIssue({ code: "custom", message: "attached layout cannot set x or y" });
+      context.addIssue({
+        code: "custom",
+        message: "attached layout cannot set x or y",
+      });
+    if (
+      (value.x != null || value.y != null) &&
+      (typeof value.width === "string" || typeof value.height === "string")
+    )
+      context.addIssue({
+        code: "custom",
+        message: "absolute layouts require numeric width and height",
+      });
   });
+
+const nodeBase = { id, layout: layout.optional(), qa: qa.optional() };
 
 const textNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("text"),
-    role: z.enum(["display", "title", "body", "muted", "eyebrow", "mono"]),
+    role: z.enum([
+      "display",
+      "title",
+      "body",
+      "muted",
+      "eyebrow",
+      "mono",
+      "label",
+      "ui",
+    ]),
     text: z.string(),
+    size: z.enum(["product", "social"]).default("product"),
+    maxLines: z.number().int().min(1).max(6).optional(),
     caret: z.boolean().optional(),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict();
 
 const badgeNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("badge"),
-    variant: z.enum(["default", "secondary", "success", "warning", "info", "outline"]),
+    variant: z.enum([
+      "default",
+      "secondary",
+      "success",
+      "warning",
+      "info",
+      "outline",
+    ]),
     text: z.string(),
-    layout: layout.optional(),
-    qa: qa.optional(),
+    size: z.enum(["product", "social"]).default("product"),
   })
   .strict();
 
 const chipNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("chip"),
-    variant: z.enum(["default", "secondary", "success", "warning", "info", "outline"]),
+    variant: z.enum([
+      "default",
+      "secondary",
+      "success",
+      "warning",
+      "info",
+      "outline",
+    ]),
     size: z.enum(["sm", "md", "lg"]),
     text: z.string(),
     startAsset: id.optional(),
-    layout: layout.optional(),
-    qa: qa.optional(),
+  })
+  .strict();
+
+const buttonNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("button"),
+    variant: z
+      .enum(["default", "destructive", "outline", "secondary", "ghost", "link"])
+      .default("default"),
+    size: z
+      .enum(["default", "sm", "lg", "icon", "icon-sm", "icon-lg"])
+      .default("default"),
+    text: z.string().min(1),
+    startAsset: id.optional(),
+  })
+  .strict();
+
+const avatarNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("avatar"),
+    name: z.string().min(1),
+    size: z.enum(["sm", "default", "lg", "xl"]).default("lg"),
   })
   .strict();
 
 const providerTileNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("providerTile"),
     asset: id,
     label: z.string().min(1),
     size: z.enum(["icon-sm", "icon", "icon-lg"]).default("icon-lg"),
-    layout: layout.optional(),
-    qa: qa.optional(),
+  })
+  .strict();
+
+const inputControlNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("inputControl"),
+    value: z.string().optional(),
+    placeholder: z.string().optional(),
+    presentation: z.enum(["product", "social"]).default("product"),
   })
   .strict();
 
 const inputNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("input"),
     label: z.string().min(1),
     value: z.string().optional(),
     placeholder: z.string().optional(),
     description: z.string().optional(),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict();
 
 const alertNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("alert"),
     variant: z.enum(["default", "destructive"]).default("default"),
     title: z.string().min(1),
     description: z.string().optional(),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict();
 
 const separatorNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("separator"),
     orientation: z.enum(["horizontal", "vertical"]).default("horizontal"),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict();
 
 const logoNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("logo"),
     asset: id,
     label: z.string(),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict();
 
 const overlapStackNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("overlapStack"),
     assets: z.array(id).min(1).max(8),
     labels: z.array(z.string()).min(1).max(8),
     size: z.enum(["default", "sm"]).default("default"),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict()
   .superRefine((value, context) => {
     if (value.assets.length !== value.labels.length)
-      context.addIssue({ code: "custom", message: "overlapStack assets and labels must have equal length" });
+      context.addIssue({
+        code: "custom",
+        message: "overlapStack assets and labels must have equal length",
+      });
   });
 
-const personCell = z.object({ kind: z.literal("person"), primary: z.string(), secondary: z.string() }).strict();
-const textCell = z.object({ kind: z.literal("text"), text: z.string() }).strict();
+const personCell = z
+  .object({
+    kind: z.literal("person"),
+    primary: z.string(),
+    secondary: z.string(),
+  })
+  .strict();
+const textCell = z
+  .object({ kind: z.literal("text"), text: z.string() })
+  .strict();
 const statusCell = z
   .object({
     kind: z.literal("status"),
     initial: z.string(),
     updated: z.string(),
-    initialVariant: z.enum(["default", "secondary", "outline", "warning", "info"]).default("secondary"),
+    initialVariant: z
+      .enum(["default", "secondary", "outline", "warning", "info"])
+      .default("secondary"),
     updatedVariant: z.enum(["success", "default"]).default("success"),
   })
   .strict();
 
 const tableNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("table"),
     columns: z
       .array(z.object({ key: id, label: z.string() }).strict())
@@ -192,7 +298,10 @@ const tableNode = z
         z
           .object({
             id,
-            cells: z.record(id, z.discriminatedUnion("kind", [personCell, textCell, statusCell])),
+            cells: z.record(
+              id,
+              z.discriminatedUnion("kind", [personCell, textCell, statusCell]),
+            ),
           })
           .strict(),
       )
@@ -200,62 +309,137 @@ const tableNode = z
       .max(24),
     countLabel: z.string().optional(),
     presentation: z.enum(["product", "social"]).default("product"),
-    layout: layout.optional(),
-    qa: qa.optional(),
+  })
+  .strict();
+
+const tableHeadNode = z
+  .object({ ...nodeBase, type: z.literal("tableHead"), text: z.string() })
+  .strict();
+const statusSwapNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("statusSwap"),
+    initial: z
+      .object({
+        text: z.string(),
+        variant: z.enum(["default", "secondary", "outline", "warning", "info"]),
+      })
+      .strict(),
+    updated: z
+      .object({
+        text: z.string(),
+        variant: z.enum(["success", "default", "secondary"]),
+      })
+      .strict(),
+    size: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const counterNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("counter"),
+    value: z.number().int().min(0),
+    total: z.number().int().positive(),
+    suffix: z.string().max(24).optional(),
+    variant: z.enum(["secondary", "outline"]).default("secondary"),
+    size: z.enum(["product", "social"]).default("product"),
   })
   .strict();
 
 const focusNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("focus"),
     target: id,
     variant: z.enum(["primary", "success", "warning"]).default("primary"),
     inset: z.number().min(0).max(32).default(6),
     radius: z.number().min(0).max(48).default(12),
     label: z.string().optional(),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.layout?.x != null || value.layout?.y != null || value.layout?.attach)
-      context.addIssue({ code: "custom", message: "focus geometry is derived from its target" });
+    if (
+      value.layout?.x != null ||
+      value.layout?.y != null ||
+      value.layout?.attach
+    )
+      context.addIssue({
+        code: "custom",
+        message: "focus geometry is derived from its target",
+      });
   });
 
 const connectorNode = z
   .object({
-    id,
+    ...nodeBase,
     type: z.literal("connector"),
     from: z.object({ target: id, anchor }).strict(),
     to: z.object({ target: id, anchor }).strict(),
     variant: z.enum(["primary", "muted", "success"]).default("primary"),
     curve: z.enum(["horizontal", "vertical"]).default("horizontal"),
-    layout: layout.optional(),
-    qa: qa.optional(),
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.layout?.x != null || value.layout?.y != null || value.layout?.attach)
-      context.addIssue({ code: "custom", message: "connector geometry is derived from its endpoints" });
+    if (
+      value.layout?.x != null ||
+      value.layout?.y != null ||
+      value.layout?.attach
+    )
+      context.addIssue({
+        code: "custom",
+        message: "connector geometry is derived from its endpoints",
+      });
   });
 
-type NodeInput =
+type LeafNode =
   | z.infer<typeof textNode>
   | z.infer<typeof badgeNode>
   | z.infer<typeof chipNode>
+  | z.infer<typeof buttonNode>
+  | z.infer<typeof avatarNode>
   | z.infer<typeof providerTileNode>
+  | z.infer<typeof inputControlNode>
   | z.infer<typeof inputNode>
   | z.infer<typeof alertNode>
   | z.infer<typeof separatorNode>
   | z.infer<typeof logoNode>
   | z.infer<typeof overlapStackNode>
   | z.infer<typeof tableNode>
+  | z.infer<typeof tableHeadNode>
+  | z.infer<typeof statusSwapNode>
+  | z.infer<typeof counterNode>
   | z.infer<typeof focusNode>
-  | z.infer<typeof connectorNode>
+  | z.infer<typeof connectorNode>;
+
+type ContainerType =
+  | "group"
+  | "stack"
+  | "inline"
+  | "grid"
+  | "field"
+  | "cardHeader"
+  | "cardAction"
+  | "cardContent"
+  | "cardFooter"
+  | "tableHeader"
+  | "tableBody"
+  | "tableRow"
+  | "tableCell";
+
+type NodeInput =
+  | LeafNode
   | {
       id: string;
-      type: "group";
+      type: ContainerType;
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "dataTable";
+      presentation: "product" | "social";
       layout?: z.infer<typeof layout>;
       qa?: z.infer<typeof qa>;
       children: NodeInput[];
@@ -265,32 +449,69 @@ type NodeInput =
       type: "card";
       title?: string;
       description?: string;
-      headerBadge?: { text: string; variant: "default" | "secondary" | "success" | "outline" };
+      headerBadge?: {
+        text: string;
+        variant: "default" | "secondary" | "success" | "outline";
+      };
       layout?: z.infer<typeof layout>;
       qa?: z.infer<typeof qa>;
       children: NodeInput[];
     };
+
+const containerType = z.enum([
+  "group",
+  "stack",
+  "inline",
+  "grid",
+  "field",
+  "cardHeader",
+  "cardAction",
+  "cardContent",
+  "cardFooter",
+  "tableHeader",
+  "tableBody",
+  "tableRow",
+  "tableCell",
+]);
 
 const node: z.ZodType<NodeInput> = z.lazy(() =>
   z.discriminatedUnion("type", [
     textNode,
     badgeNode,
     chipNode,
+    buttonNode,
+    avatarNode,
     providerTileNode,
+    inputControlNode,
     inputNode,
     alertNode,
     separatorNode,
     logoNode,
     overlapStackNode,
     tableNode,
+    tableHeadNode,
+    statusSwapNode,
+    counterNode,
     focusNode,
     connectorNode,
     z
-      .object({ id, type: z.literal("group"), layout: layout.optional(), qa: qa.optional(), children: z.array(node).default([]) })
+      .object({
+        ...nodeBase,
+        type: z.literal("dataTable"),
+        presentation: z.enum(["product", "social"]).default("product"),
+        children: z.array(node).default([]),
+      })
       .strict(),
     z
       .object({
-        id,
+        ...nodeBase,
+        type: containerType,
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
         type: z.literal("card"),
         title: z.string().optional(),
         description: z.string().optional(),
@@ -301,8 +522,6 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
           })
           .strict()
           .optional(),
-        layout: layout.optional(),
-        qa: qa.optional(),
         children: z.array(node).default([]),
       })
       .strict(),
@@ -360,7 +579,230 @@ const action = z.discriminatedUnion("type", [
       total: z.number().int().positive(),
     })
     .strict(),
+  z
+    .object({
+      type: z.literal("swapState"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("countTo"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: z.number().int().min(0),
+    })
+    .strict(),
 ]);
+
+const density = z
+  .object({
+    maxNodes: z.number().int().min(1).max(160).default(48),
+    maxTextLeaves: z.number().int().min(1).max(80).default(18),
+    maxCharacters: z.number().int().min(1).max(1200).default(320),
+    maxPrimaryRegions: z.number().int().min(1).max(8).default(3),
+  })
+  .strict();
+
+const scene = z
+  .object({
+    id,
+    name: z.string().min(1).max(80),
+    category: z.enum(["primitive", "molecule", "pattern", "story"]),
+    duration: z.number().min(0.2).max(60).optional(),
+    density: density.optional(),
+    nodes: z.array(node).min(1),
+    motions: z.array(motion).default([]),
+    actions: z.array(action).default([]),
+  })
+  .strict();
+
+type Motion = z.infer<typeof motion>;
+type Action = z.infer<typeof action>;
+
+const textContent = (item: NodeInput): string[] => {
+  const values: string[] = [];
+  if (
+    item.type === "text" ||
+    item.type === "badge" ||
+    item.type === "chip" ||
+    item.type === "button"
+  )
+    values.push(item.text);
+  if (item.type === "tableHead") values.push(item.text);
+  if (item.type === "statusSwap")
+    values.push(item.initial.text, item.updated.text);
+  if (item.type === "counter")
+    values.push(String(item.value), String(item.total), item.suffix ?? "");
+  if (item.type === "input")
+    values.push(
+      item.label,
+      item.value ?? "",
+      item.placeholder ?? "",
+      item.description ?? "",
+    );
+  if (item.type === "inputControl")
+    values.push(item.value ?? "", item.placeholder ?? "");
+  if (item.type === "alert") values.push(item.title, item.description ?? "");
+  if (item.type === "card")
+    values.push(
+      item.title ?? "",
+      item.description ?? "",
+      item.headerBadge?.text ?? "",
+    );
+  if (item.type === "table") {
+    values.push(...item.columns.map((column) => column.label));
+    for (const row of item.rows)
+      for (const cell of Object.values(row.cells)) {
+        if (cell.kind === "person") values.push(cell.primary, cell.secondary);
+        else if (cell.kind === "text") values.push(cell.text);
+        else values.push(cell.initial, cell.updated);
+      }
+  }
+  if ("children" in item)
+    for (const child of item.children) values.push(...textContent(child));
+  return values.filter(Boolean);
+};
+
+const validateGraph = (
+  nodes: NodeInput[],
+  motions: Motion[],
+  actions: Action[],
+  duration: number,
+  context: z.RefinementCtx,
+  scope: string,
+  strictFlow = false,
+) => {
+  const nodeIds = new Set<string>();
+  const attachedTargets: Array<{ source: string; target: string }> = [];
+  let nodeCount = 0;
+  const visit = (item: NodeInput, depth = 0, ancestors: string[] = []) => {
+    nodeCount += 1;
+    if (nodeIds.has(item.id))
+      context.addIssue({
+        code: "custom",
+        message: `${scope} duplicate node id: ${item.id}`,
+      });
+    nodeIds.add(item.id);
+    if (item.type === "table") {
+      for (const row of item.rows) {
+        if (nodeIds.has(row.id))
+          context.addIssue({
+            code: "custom",
+            message: `${scope} duplicate node id: ${row.id}`,
+          });
+        nodeIds.add(row.id);
+      }
+    }
+    if (
+      strictFlow &&
+      depth > 0 &&
+      (item.layout?.x != null || item.layout?.y != null) &&
+      item.type !== "focus" &&
+      item.type !== "connector"
+    )
+      context.addIssue({
+        code: "custom",
+        message: `${scope} nested node ${item.id} cannot use x/y; use flow and spacing tokens`,
+      });
+    if (item.layout?.attach)
+      attachedTargets.push({
+        source: item.id,
+        target: item.layout.attach.target,
+      });
+    if (item.qa?.insetParent) {
+      attachedTargets.push({ source: item.id, target: item.qa.insetParent });
+      if (!ancestors.includes(item.qa.insetParent))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} insetParent must be an ancestor: ${item.id} -> ${item.qa.insetParent}`,
+        });
+    }
+    if (item.type === "focus")
+      attachedTargets.push({ source: item.id, target: item.target });
+    if (item.type === "connector") {
+      attachedTargets.push({ source: item.id, target: item.from.target });
+      attachedTargets.push({ source: item.id, target: item.to.target });
+    }
+    if ("children" in item) {
+      const childTypes = item.children.map((child) => child.type);
+      const all = (allowed: string[]) =>
+        childTypes.every((type) => allowed.includes(type));
+      if (
+        item.type === "card" &&
+        childTypes.some((type) =>
+          ["cardHeader", "cardContent", "cardFooter"].includes(type),
+        ) &&
+        !all(["cardHeader", "cardContent", "cardFooter"])
+      )
+        context.addIssue({
+          code: "custom",
+          message: `${scope} explicit card slots cannot mix with unslotted children: ${item.id}`,
+        });
+      if (item.type === "dataTable" && !all(["tableHeader", "tableBody"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} dataTable children must be tableHeader or tableBody: ${item.id}`,
+        });
+      if (
+        (item.type === "tableHeader" || item.type === "tableBody") &&
+        !all(["tableRow"])
+      )
+        context.addIssue({
+          code: "custom",
+          message: `${scope} ${item.type} children must be tableRow: ${item.id}`,
+        });
+      if (item.type === "tableRow" && !all(["tableHead", "tableCell"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} tableRow children must be tableHead or tableCell: ${item.id}`,
+        });
+      if (item.type === "field" && !all(["text", "inputControl"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} field children must be text or inputControl: ${item.id}`,
+        });
+      item.children.forEach((child) =>
+        visit(child, depth + 1, [...ancestors, item.id]),
+      );
+    }
+  };
+  nodes.forEach((item) => visit(item));
+  for (const item of [...motions, ...actions])
+    if (!nodeIds.has(item.target))
+      context.addIssue({
+        code: "custom",
+        message: `${scope} unknown target: ${item.target}`,
+      });
+  for (const item of attachedTargets) {
+    if (item.source === item.target)
+      context.addIssue({
+        code: "custom",
+        message: `${scope} node cannot target itself: ${item.source}`,
+      });
+    else if (!nodeIds.has(item.target))
+      context.addIssue({
+        code: "custom",
+        message: `${scope} unknown anchor target: ${item.target}`,
+      });
+  }
+  for (const item of motions)
+    if (item.end > duration)
+      context.addIssue({
+        code: "custom",
+        message: `${scope} motion exceeds duration: ${item.target}`,
+      });
+  for (const item of actions)
+    if (item.end <= item.start || item.end > duration)
+      context.addIssue({
+        code: "custom",
+        message: `${scope} invalid action range: ${item.target}`,
+      });
+  return { nodeCount, text: nodes.flatMap(textContent) };
+};
 
 export const compositionSchema = z
   .object({
@@ -385,51 +827,94 @@ export const compositionSchema = z
         })
         .strict(),
     ),
-    nodes: z.array(node).min(1),
+    nodes: z.array(node).min(1).optional(),
     motions: z.array(motion).default([]),
     actions: z.array(action).default([]),
+    scenes: z.array(scene).min(1).max(64).optional(),
+    defaultScene: id.optional(),
   })
   .strict()
   .superRefine((value, context) => {
-    const nodeIds = new Set<string>();
-    const attachedTargets: Array<{ source: string; target: string }> = [];
-    const visit = (item: NodeInput) => {
-      if (nodeIds.has(item.id)) context.addIssue({ code: "custom", message: `duplicate node id: ${item.id}` });
-      nodeIds.add(item.id);
-      if (item.type === "table") {
-        for (const row of item.rows) {
-          if (nodeIds.has(row.id)) context.addIssue({ code: "custom", message: `duplicate node id: ${row.id}` });
-          nodeIds.add(row.id);
+    const hasLegacy = Boolean(value.nodes?.length);
+    const hasScenes = Boolean(value.scenes?.length);
+    if (hasLegacy === hasScenes)
+      context.addIssue({
+        code: "custom",
+        message: "composition must declare either nodes or scenes",
+      });
+    if (hasLegacy)
+      validateGraph(
+        value.nodes ?? [],
+        value.motions,
+        value.actions,
+        value.meta.duration,
+        context,
+        "composition",
+        false,
+      );
+    if (hasScenes) {
+      if (value.motions.length || value.actions.length)
+        context.addIssue({
+          code: "custom",
+          message:
+            "scene compositions keep motions and actions inside each scene",
+        });
+      const sceneIds = new Set<string>();
+      for (const item of value.scenes ?? []) {
+        if (sceneIds.has(item.id))
+          context.addIssue({
+            code: "custom",
+            message: `duplicate scene id: ${item.id}`,
+          });
+        sceneIds.add(item.id);
+        const duration = item.duration ?? value.meta.duration;
+        const graph = validateGraph(
+          item.nodes,
+          item.motions,
+          item.actions,
+          duration,
+          context,
+          `scene ${item.id}`,
+          true,
+        );
+        const budget = item.density;
+        if (budget) {
+          if (graph.nodeCount > budget.maxNodes)
+            context.addIssue({
+              code: "custom",
+              message: `scene ${item.id} exceeds maxNodes (${graph.nodeCount}/${budget.maxNodes})`,
+            });
+          if (graph.text.length > budget.maxTextLeaves)
+            context.addIssue({
+              code: "custom",
+              message: `scene ${item.id} exceeds maxTextLeaves (${graph.text.length}/${budget.maxTextLeaves})`,
+            });
+          const characters = graph.text.join("").length;
+          if (characters > budget.maxCharacters)
+            context.addIssue({
+              code: "custom",
+              message: `scene ${item.id} exceeds maxCharacters (${characters}/${budget.maxCharacters})`,
+            });
+          if (item.nodes.length > budget.maxPrimaryRegions)
+            context.addIssue({
+              code: "custom",
+              message: `scene ${item.id} exceeds maxPrimaryRegions (${item.nodes.length}/${budget.maxPrimaryRegions})`,
+            });
         }
       }
-      if (item.layout?.attach) attachedTargets.push({ source: item.id, target: item.layout.attach.target });
-      if (item.type === "focus") attachedTargets.push({ source: item.id, target: item.target });
-      if (item.type === "connector") {
-        attachedTargets.push({ source: item.id, target: item.from.target });
-        attachedTargets.push({ source: item.id, target: item.to.target });
-      }
-      if (item.type === "group" || item.type === "card") item.children.forEach(visit);
-    };
-    value.nodes.forEach(visit);
-    for (const item of [...value.motions, ...value.actions])
-      if (!nodeIds.has(item.target)) context.addIssue({ code: "custom", message: `unknown target: ${item.target}` });
-    for (const item of attachedTargets) {
-      if (item.source === item.target)
-        context.addIssue({ code: "custom", message: `node cannot attach to itself: ${item.source}` });
-      else if (!nodeIds.has(item.target))
-        context.addIssue({ code: "custom", message: `unknown anchor target: ${item.target}` });
-    }
-
-    for (const item of value.motions) {
-      if (item.end > value.meta.duration)
-        context.addIssue({ code: "custom", message: `motion exceeds duration: ${item.target}` });
-    }
-
-    for (const item of value.actions) {
-      if (item.end <= item.start || item.end > value.meta.duration)
-        context.addIssue({ code: "custom", message: `invalid action range: ${item.target}` });
-    }
+      if (value.defaultScene && !sceneIds.has(value.defaultScene))
+        context.addIssue({
+          code: "custom",
+          message: `unknown defaultScene: ${value.defaultScene}`,
+        });
+    } else if (value.defaultScene)
+      context.addIssue({
+        code: "custom",
+        message: "defaultScene requires scenes",
+      });
   });
 
 export type Composition = z.infer<typeof compositionSchema>;
 export type CompositionNode = NodeInput;
+export type CompositionScene = z.infer<typeof scene>;
+export type SpaceToken = (typeof spaceTokens)[number];

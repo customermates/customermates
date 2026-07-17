@@ -1,0 +1,327 @@
+{
+  "version": 2,
+  "schemaVersion": 3,
+  "layers": ["foundation", "primitive", "molecule", "pattern", "scene"],
+  "layout": {
+    "spaceTokens": {
+      "none": 0,
+      "2xs": 4,
+      "xs": 8,
+      "sm": 12,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "2xl": 48
+    },
+    "flowPrimitives": ["group", "stack", "inline", "grid"],
+    "widthTokens": ["full", "half", "third", "content"],
+    "rule": "Only top-level stages may use free x/y geometry; component internals use slots and flow tokens."
+  },
+  "components": [
+    {
+      "id": "text",
+      "layer": "primitive",
+      "nodeType": "text",
+      "source": "styles/globals.css",
+      "variants": [
+        "display",
+        "title",
+        "ui",
+        "body",
+        "muted",
+        "eyebrow",
+        "mono",
+        "label"
+      ],
+      "presentations": ["product", "social"],
+      "states": ["static", "typing"]
+    },
+    {
+      "id": "badge",
+      "layer": "primitive",
+      "nodeType": "badge",
+      "source": "components/ui/badge.tsx",
+      "variants": [
+        "default",
+        "secondary",
+        "success",
+        "warning",
+        "info",
+        "outline"
+      ],
+      "presentations": ["product", "social"],
+      "states": ["static"]
+    },
+    {
+      "id": "button",
+      "layer": "primitive",
+      "nodeType": "button",
+      "source": "components/ui/button.tsx",
+      "variants": [
+        "default",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link"
+      ],
+      "states": ["static"]
+    },
+    {
+      "id": "avatar",
+      "layer": "primitive",
+      "nodeType": "avatar",
+      "source": "components/ui/avatar.tsx",
+      "variants": ["sm", "default", "lg", "xl"],
+      "states": ["static"]
+    },
+    {
+      "id": "input-control",
+      "layer": "primitive",
+      "nodeType": "inputControl",
+      "source": "components/ui/input.tsx",
+      "presentations": ["product", "social"],
+      "states": ["value", "placeholder", "typing"]
+    },
+    {
+      "id": "separator",
+      "layer": "primitive",
+      "nodeType": "separator",
+      "source": "components/ui/separator.tsx",
+      "variants": ["horizontal", "vertical"],
+      "states": ["static"]
+    },
+    {
+      "id": "logo",
+      "layer": "primitive",
+      "nodeType": "logo",
+      "source": "approved local assets",
+      "states": ["static"]
+    },
+    {
+      "id": "chip",
+      "layer": "molecule",
+      "nodeType": "chip",
+      "source": "components/chip/app-chip.tsx",
+      "variants": [
+        "default",
+        "secondary",
+        "success",
+        "warning",
+        "info",
+        "outline"
+      ],
+      "states": ["static"]
+    },
+    {
+      "id": "provider-tile",
+      "layer": "molecule",
+      "nodeType": "providerTile",
+      "source": "components/ui/button.tsx",
+      "variants": ["icon-sm", "icon", "icon-lg"],
+      "states": ["static"]
+    },
+    {
+      "id": "overlap-stack",
+      "layer": "molecule",
+      "nodeType": "overlapStack",
+      "source": "components/shared/overlapping-stack.tsx",
+      "variants": ["default", "sm"],
+      "states": ["static", "overflow"]
+    },
+    {
+      "id": "alert",
+      "layer": "molecule",
+      "nodeType": "alert",
+      "source": "components/ui/alert.tsx",
+      "variants": ["default", "destructive"],
+      "states": ["static"]
+    },
+    {
+      "id": "field",
+      "layer": "molecule",
+      "nodeType": "field",
+      "source": "components/ui/label.tsx + components/ui/input.tsx",
+      "anatomy": ["text:label", "inputControl", "text:muted"],
+      "states": ["empty", "filled", "typing"]
+    },
+    {
+      "id": "status-swap",
+      "layer": "molecule",
+      "nodeType": "statusSwap",
+      "source": "components/ui/badge.tsx",
+      "presentations": ["product", "social"],
+      "states": ["initial", "updated", "transition"]
+    },
+    {
+      "id": "counter",
+      "layer": "molecule",
+      "nodeType": "counter",
+      "source": "components/ui/badge.tsx",
+      "presentations": ["product", "social"],
+      "states": ["initial", "counting", "complete"]
+    },
+    {
+      "id": "card",
+      "layer": "molecule",
+      "nodeType": "card",
+      "source": "components/ui/card.tsx",
+      "anatomy": ["cardHeader", "cardContent", "cardFooter"],
+      "states": ["static", "entering", "focused"]
+    },
+    {
+      "id": "card-header",
+      "layer": "primitive",
+      "nodeType": "cardHeader",
+      "source": "components/ui/card.tsx",
+      "allowedChildren": ["text", "cardAction", "badge"]
+    },
+    {
+      "id": "card-action",
+      "layer": "primitive",
+      "nodeType": "cardAction",
+      "source": "components/ui/card.tsx",
+      "allowedChildren": ["badge", "button", "counter"]
+    },
+    {
+      "id": "card-content",
+      "layer": "primitive",
+      "nodeType": "cardContent",
+      "source": "components/ui/card.tsx",
+      "allowedChildren": [
+        "group",
+        "stack",
+        "inline",
+        "grid",
+        "field",
+        "dataTable",
+        "alert"
+      ]
+    },
+    {
+      "id": "card-footer",
+      "layer": "primitive",
+      "nodeType": "cardFooter",
+      "source": "components/ui/card.tsx",
+      "allowedChildren": ["inline", "button", "badge", "text"]
+    },
+    {
+      "id": "data-table",
+      "layer": "pattern",
+      "nodeType": "dataTable",
+      "source": "components/ui/table.tsx",
+      "anatomy": [
+        "tableHeader",
+        "tableBody",
+        "tableRow",
+        "tableHead",
+        "tableCell"
+      ],
+      "presentations": ["product", "social"],
+      "states": ["static", "updating", "complete"]
+    },
+    {
+      "id": "table-header",
+      "layer": "primitive",
+      "nodeType": "tableHeader",
+      "source": "components/ui/table.tsx",
+      "allowedChildren": ["tableRow"]
+    },
+    {
+      "id": "table-body",
+      "layer": "primitive",
+      "nodeType": "tableBody",
+      "source": "components/ui/table.tsx",
+      "allowedChildren": ["tableRow"]
+    },
+    {
+      "id": "table-row",
+      "layer": "molecule",
+      "nodeType": "tableRow",
+      "source": "components/ui/table.tsx",
+      "allowedChildren": ["tableCell"]
+    },
+    {
+      "id": "table-head",
+      "layer": "primitive",
+      "nodeType": "tableHead",
+      "source": "components/ui/table.tsx",
+      "states": ["static"]
+    },
+    {
+      "id": "table-cell",
+      "layer": "primitive",
+      "nodeType": "tableCell",
+      "source": "components/ui/table.tsx",
+      "allowedChildren": [
+        "text",
+        "inline",
+        "stack",
+        "avatar",
+        "badge",
+        "statusSwap"
+      ]
+    },
+    {
+      "id": "focus",
+      "layer": "primitive",
+      "nodeType": "focus",
+      "source": "tools/content-motion/render.tsx",
+      "variants": ["primary", "success", "warning"],
+      "states": ["hidden", "entering", "visible", "exiting"]
+    },
+    {
+      "id": "connector",
+      "layer": "primitive",
+      "nodeType": "connector",
+      "source": "tools/content-motion/render.tsx",
+      "variants": ["primary", "muted", "success"],
+      "states": ["static", "revealing"]
+    },
+    {
+      "id": "legacy-input",
+      "layer": "molecule",
+      "nodeType": "input",
+      "source": "components/ui/label.tsx + components/ui/input.tsx",
+      "status": "legacy",
+      "replacement": "field + inputControl"
+    },
+    {
+      "id": "legacy-table",
+      "layer": "pattern",
+      "nodeType": "table",
+      "source": "components/ui/table.tsx",
+      "status": "legacy",
+      "replacement": "dataTable compound slots"
+    }
+  ],
+  "motions": [
+    { "id": "fade", "fields": ["opacity"], "bounded": true },
+    { "id": "slide", "fields": ["x", "y", "opacity"], "bounded": true },
+    {
+      "id": "zoom",
+      "fields": ["scale", "originX", "originY"],
+      "bounded": true
+    },
+    { "id": "blur-reveal", "fields": ["blur", "opacity"], "bounded": true },
+    {
+      "id": "directional-wipe",
+      "fields": ["clipTop", "clipRight", "clipBottom", "clipLeft"],
+      "bounded": true
+    },
+    { "id": "tilt", "fields": ["rotateX", "rotateY"], "bounded": true }
+  ],
+  "actions": ["typeText", "swapState", "countTo", "updateTable"],
+  "qa": [
+    "bounds",
+    "content-clipping",
+    "text-paint-clipping",
+    "phone-type-floor",
+    "symmetric-padding",
+    "declared-insets",
+    "alignment-rails",
+    "overlap-contracts",
+    "focus-target-geometry",
+    "scene-density-budget"
+  ]
+}

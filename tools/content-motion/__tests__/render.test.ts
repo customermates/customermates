@@ -9,12 +9,32 @@ import { buildCompositionHtml } from "../render";
 import { compositionSchema } from "../schema";
 
 const productRef = "681d2d59bf67c283cb30835aa1ec3a5f727c4226";
-const productRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const productRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../..",
+);
+const catalog = JSON.parse(
+  readFileSync(
+    resolve(productRoot, "tools/content-motion/catalog.json"),
+    "utf8",
+  ),
+);
 const valid = {
-  meta: { width: 1080, height: 1080, duration: 3, fps: 60, productRef, title: "Motion kit test" },
+  meta: {
+    width: 1080,
+    height: 1080,
+    duration: 3,
+    fps: 60,
+    productRef,
+    title: "Motion kit test",
+  },
   theme: "dark",
   assets: {
-    brand: { root: "product", path: "public/images/dark/customermates-square.svg", mediaType: "image/svg+xml" },
+    brand: {
+      root: "product",
+      path: "public/images/dark/customermates-square.svg",
+      mediaType: "image/svg+xml",
+    },
   },
   nodes: [
     {
@@ -25,7 +45,13 @@ const valid = {
       headerBadge: { text: "Verified", variant: "success" },
       layout: { x: 80, y: 80, width: 600, height: 500 },
       children: [
-        { id: "provider", type: "providerTile", asset: "brand", label: "Customermates", size: "icon-lg" },
+        {
+          id: "provider",
+          type: "providerTile",
+          asset: "brand",
+          label: "Customermates",
+          size: "icon-lg",
+        },
         {
           id: "context-field",
           type: "input",
@@ -45,7 +71,11 @@ const valid = {
             {
               id: "maya",
               cells: {
-                contact: { kind: "person", primary: "Maya Chen", secondary: "Northstar" },
+                contact: {
+                  kind: "person",
+                  primary: "Maya Chen",
+                  secondary: "Northstar",
+                },
                 status: {
                   kind: "status",
                   initial: "Open",
@@ -58,7 +88,14 @@ const valid = {
           ],
           countLabel: "1",
         },
-        { id: "records-focus", type: "focus", target: "maya", variant: "primary", inset: 4, radius: 10 },
+        {
+          id: "records-focus",
+          type: "focus",
+          target: "maya",
+          variant: "primary",
+          inset: 4,
+          radius: 10,
+        },
       ],
     },
   ],
@@ -72,10 +109,248 @@ const valid = {
       easing: "easeOut",
     },
   ],
-  actions: [{ type: "updateTable", target: "records", start: 1, end: 2, total: 1 }],
+  actions: [
+    { type: "updateTable", target: "records", start: 1, end: 2, total: 1 },
+  ],
+};
+
+const sceneComposition = {
+  meta: {
+    width: 1080,
+    height: 1350,
+    duration: 4,
+    fps: 60,
+    productRef,
+    title: "Reusable scene system",
+  },
+  theme: "dark",
+  assets: {},
+  defaultScene: "customer-context",
+  scenes: [
+    {
+      id: "customer-context",
+      name: "Customer context field",
+      category: "pattern",
+      density: {
+        maxNodes: 16,
+        maxTextLeaves: 8,
+        maxCharacters: 120,
+        maxPrimaryRegions: 1,
+      },
+      nodes: [
+        {
+          id: "context-card",
+          type: "card",
+          layout: { x: 120, y: 340, width: 840, height: 360 },
+          qa: { critical: true, minPhonePx: 7 },
+          children: [
+            {
+              id: "context-content",
+              type: "cardContent",
+              layout: { display: "flex", direction: "column", gap: "md" },
+              children: [
+                {
+                  id: "context-label",
+                  type: "text",
+                  role: "label",
+                  text: "Customer context",
+                },
+                {
+                  id: "context-input",
+                  type: "inputControl",
+                  value: "Renewal risk",
+                  qa: { insetParent: "context-content", inset: "lg" },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      motions: [
+        {
+          target: "context-card",
+          start: 0,
+          end: 0.8,
+          from: { y: 24, opacity: 0 },
+          to: { y: 0, opacity: 1 },
+          easing: "easeOut",
+        },
+      ],
+      actions: [
+        {
+          type: "typeText",
+          target: "context-label",
+          start: 0.2,
+          end: 1.2,
+          text: "Customer context",
+        },
+      ],
+    },
+    {
+      id: "integration-health",
+      name: "Integration health row",
+      category: "pattern",
+      density: {
+        maxNodes: 24,
+        maxTextLeaves: 12,
+        maxCharacters: 180,
+        maxPrimaryRegions: 1,
+      },
+      nodes: [
+        {
+          id: "health-table",
+          type: "dataTable",
+          presentation: "social",
+          layout: { x: 90, y: 420, width: 900 },
+          children: [
+            {
+              id: "health-body",
+              type: "tableBody",
+              children: [
+                {
+                  id: "health-row",
+                  type: "tableRow",
+                  qa: { critical: true, minPhonePx: 7 },
+                  children: [
+                    {
+                      id: "health-name-cell",
+                      type: "tableCell",
+                      children: [
+                        {
+                          id: "health-name",
+                          type: "inline",
+                          layout: { gap: "sm" },
+                          children: [
+                            {
+                              id: "health-avatar",
+                              type: "avatar",
+                              name: "HubSpot",
+                              size: "xl",
+                            },
+                            {
+                              id: "health-copy",
+                              type: "text",
+                              role: "body",
+                              text: "HubSpot sync",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      id: "health-status-cell",
+                      type: "tableCell",
+                      children: [
+                        {
+                          id: "health-status",
+                          type: "statusSwap",
+                          initial: { text: "Checking", variant: "secondary" },
+                          updated: { text: "Healthy", variant: "success" },
+                          size: "social",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      motions: [],
+      actions: [
+        { type: "swapState", target: "health-status", start: 1, end: 2 },
+      ],
+    },
+    {
+      id: "empty-state",
+      name: "Empty state",
+      category: "molecule",
+      density: {
+        maxNodes: 12,
+        maxTextLeaves: 6,
+        maxCharacters: 100,
+        maxPrimaryRegions: 1,
+      },
+      nodes: [
+        {
+          id: "empty-card",
+          type: "card",
+          layout: { x: 190, y: 420, width: 700 },
+          children: [
+            {
+              id: "empty-content",
+              type: "cardContent",
+              layout: {
+                display: "flex",
+                direction: "column",
+                gap: "md",
+                align: "center",
+              },
+              children: [
+                {
+                  id: "empty-title",
+                  type: "text",
+                  role: "title",
+                  text: "Nothing needs attention",
+                },
+                {
+                  id: "empty-body",
+                  type: "text",
+                  role: "muted",
+                  text: "Every customer signal is resolved.",
+                },
+                {
+                  id: "empty-action",
+                  type: "button",
+                  text: "View activity",
+                  variant: "outline",
+                  size: "default",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      motions: [],
+      actions: [],
+    },
+  ],
 };
 
 describe("content motion kit", () => {
+  it("publishes one layered reusable component, motion, action, and QA catalog", () => {
+    expect(catalog.version).toBe(2);
+    expect(catalog.schemaVersion).toBe(3);
+    expect(catalog.components.length).toBeGreaterThanOrEqual(28);
+    expect(
+      new Set(
+        catalog.components.map((component: { id: string }) => component.id),
+      ).size,
+    ).toBe(catalog.components.length);
+    expect(catalog.layout.spaceTokens.lg).toBe(24);
+    expect(catalog.motions.map((motion: { id: string }) => motion.id)).toEqual(
+      expect.arrayContaining([
+        "fade",
+        "slide",
+        "zoom",
+        "blur-reveal",
+        "directional-wipe",
+        "tilt",
+      ]),
+    );
+    expect(catalog.actions).toEqual(
+      expect.arrayContaining(["typeText", "swapState", "countTo"]),
+    );
+    expect(catalog.qa).toEqual(
+      expect.arrayContaining([
+        "text-paint-clipping",
+        "declared-insets",
+        "scene-density-budget",
+      ]),
+    );
+  });
+
   it("renders actual product component slots and deterministic output", async () => {
     const first = await buildCompositionHtml(valid, { product: productRoot });
     const second = await buildCompositionHtml(valid, { product: productRoot });
@@ -93,27 +368,116 @@ describe("content motion kit", () => {
     expect(first).toContain(productRef);
   }, 30_000);
 
+  it("composes reusable product scenes from granular slots and tokenized layout", async () => {
+    expect(() => compositionSchema.parse(sceneComposition)).not.toThrow();
+    const html = await buildCompositionHtml(sceneComposition, {
+      product: productRoot,
+    });
+    expect(html).toContain('data-cm-scene-id="customer-context"');
+    expect(html).toContain('data-cm-scene-id="integration-health"');
+    expect(html).toContain('data-cm-scene-id="empty-state"');
+    expect(html).toContain('data-slot="card-content"');
+    expect(html).toContain('data-slot="table-body"');
+    expect(html).toContain('data-slot="table-cell"');
+    expect(html).toContain('data-cm-inset-token="lg"');
+    expect(html).toContain("window.renderScene");
+    expect(html).toContain("window.getProductScenes");
+    expect(html).toContain("text-paint-clipped");
+    expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
+  }, 30_000);
+
+  it("enforces per-scene density budgets across unrelated content contexts", () => {
+    const overloaded: any = structuredClone(sceneComposition);
+    overloaded.scenes[2].density.maxCharacters = 10;
+    expect(() => compositionSchema.parse(overloaded)).toThrow(
+      /empty-state exceeds maxCharacters/,
+    );
+
+    const tooManyRegions: any = structuredClone(sceneComposition);
+    tooManyRegions.scenes[2].nodes.push({
+      id: "second-region",
+      type: "text",
+      role: "body",
+      text: "Extra",
+    });
+    expect(() => compositionSchema.parse(tooManyRegions)).toThrow(
+      /empty-state exceeds maxPrimaryRegions/,
+    );
+  });
+
+  it("keeps scene targets local and rejects free-positioned token dimensions", () => {
+    const crossScene: any = structuredClone(sceneComposition);
+    crossScene.scenes[0].actions[0].target = "health-status";
+    expect(() => compositionSchema.parse(crossScene)).toThrow(
+      /scene customer-context unknown target/,
+    );
+
+    const invalidAbsolute: any = structuredClone(sceneComposition);
+    invalidAbsolute.scenes[0].nodes[0].layout.width = "full";
+    expect(() => compositionSchema.parse(invalidAbsolute)).toThrow(
+      /absolute layouts require numeric width and height/,
+    );
+
+    const nestedAbsolute: any = structuredClone(sceneComposition);
+    nestedAbsolute.scenes[0].nodes[0].children[0].children[0].layout = {
+      x: 12,
+      y: 8,
+    };
+    expect(() => compositionSchema.parse(nestedAbsolute)).toThrow(
+      /nested node context-label cannot use x\/y/,
+    );
+
+    const mixedSlots: any = structuredClone(sceneComposition);
+    mixedSlots.scenes[0].nodes[0].children.push({
+      id: "unslotted",
+      type: "text",
+      role: "body",
+      text: "No",
+    });
+    expect(() => compositionSchema.parse(mixedSlots)).toThrow(
+      /explicit card slots cannot mix/,
+    );
+  });
+
   it("rejects unsupported components and variants", () => {
     expect(() =>
-      compositionSchema.parse({ ...valid, nodes: [{ id: "fake", type: "glassCard", style: { borderRadius: 99 } }] }),
+      compositionSchema.parse({
+        ...valid,
+        nodes: [{ id: "fake", type: "glassCard", style: { borderRadius: 99 } }],
+      }),
     ).toThrow();
     expect(() =>
-      compositionSchema.parse({ ...valid, nodes: [{ id: "badge", type: "badge", variant: "neon", text: "No" }] }),
+      compositionSchema.parse({
+        ...valid,
+        nodes: [{ id: "badge", type: "badge", variant: "neon", text: "No" }],
+      }),
     ).toThrow();
   });
 
   it("rejects visual overrides", () => {
     const overridden = {
       ...valid,
-      nodes: [{ ...valid.nodes[0], style: { borderRadius: 24, boxShadow: "0 40px 80px black" } }],
+      nodes: [
+        {
+          ...valid.nodes[0],
+          style: { borderRadius: 24, boxShadow: "0 40px 80px black" },
+        },
+      ],
     };
     expect(() => compositionSchema.parse(overridden)).toThrow();
   });
 
   it("requires anchor-derived overlay geometry", () => {
     const unknown: any = structuredClone(valid);
-    unknown.nodes[0].children.push({ id: "bad-focus", type: "focus", target: "missing", variant: "primary" });
-    expect(() => compositionSchema.parse(unknown)).toThrow(/unknown anchor target/);
+    unknown.nodes[0].children.push({
+      id: "bad-focus",
+      type: "focus",
+      target: "missing",
+      variant: "primary",
+    });
+    expect(() => compositionSchema.parse(unknown)).toThrow(
+      /unknown anchor target/,
+    );
 
     const positioned: any = structuredClone(valid);
     positioned.nodes[0].children.push({
@@ -123,7 +487,9 @@ describe("content motion kit", () => {
       variant: "primary",
       layout: { x: 20, y: 20 },
     });
-    expect(() => compositionSchema.parse(positioned)).toThrow(/focus geometry is derived/);
+    expect(() => compositionSchema.parse(positioned)).toThrow(
+      /focus geometry is derived/,
+    );
 
     const attached: any = structuredClone(valid);
     attached.nodes[0].children.push({
@@ -131,20 +497,34 @@ describe("content motion kit", () => {
       type: "badge",
       variant: "success",
       text: "Done",
-      layout: { attach: { target: "records", targetAnchor: "top-right", selfAnchor: "bottom-right" } },
+      layout: {
+        attach: {
+          target: "records",
+          targetAnchor: "top-right",
+          selfAnchor: "bottom-right",
+        },
+      },
     });
     expect(() => compositionSchema.parse(attached)).not.toThrow();
     attached.nodes[0].children.at(-1)!.layout.x = 10;
-    expect(() => compositionSchema.parse(attached)).toThrow(/attached layout cannot set x or y/);
+    expect(() => compositionSchema.parse(attached)).toThrow(
+      /attached layout cannot set x or y/,
+    );
   });
 
   it("offers one bounded social-scale table presentation without arbitrary classes", async () => {
     const social: any = structuredClone(valid);
-    social.nodes[0].children.find((child: any) => child.id === "records").presentation = "social";
+    social.nodes[0].children.find(
+      (child: any) => child.id === "records",
+    ).presentation = "social";
     const html = await buildCompositionHtml(social, { product: productRoot });
-    expect(html).toContain('class="w-max min-w-full caption-bottom text-[22px]"');
+    expect(html).toContain(
+      'class="w-max min-w-full caption-bottom text-[22px]"',
+    );
     expect(html).toContain("current=current.parentElement");
-    social.nodes[0].children.find((child: any) => child.id === "records").presentation = "billboard";
+    social.nodes[0].children.find(
+      (child: any) => child.id === "records",
+    ).presentation = "billboard";
     expect(() => compositionSchema.parse(social)).toThrow();
   }, 30_000);
 
@@ -156,13 +536,31 @@ describe("content motion kit", () => {
           target: "proof-card",
           start: 0,
           end: 0.8,
-          from: { x: 48, opacity: 0, blur: 12, clipLeft: 100, rotateY: 6, originX: 100, originY: 50 },
-          to: { x: 0, opacity: 1, blur: 0, clipLeft: 0, rotateY: 0, originX: 50, originY: 50 },
+          from: {
+            x: 48,
+            opacity: 0,
+            blur: 12,
+            clipLeft: 100,
+            rotateY: 6,
+            originX: 100,
+            originY: 50,
+          },
+          to: {
+            x: 0,
+            opacity: 1,
+            blur: 0,
+            clipLeft: 0,
+            rotateY: 0,
+            originX: 50,
+            originY: 50,
+          },
           easing: "easeOut",
         },
       ],
     };
-    const html = await buildCompositionHtml(cinematic, { product: productRoot });
+    const html = await buildCompositionHtml(cinematic, {
+      product: productRoot,
+    });
     expect(html).toContain("perspective(1400px)");
     expect(html).toContain("element.style.clipPath");
     expect(html).toContain('"blur":12');
@@ -179,8 +577,14 @@ describe("content motion kit", () => {
   it("rejects missing assets and fonts", async () => {
     const missingAsset = structuredClone(valid);
     missingAsset.assets.brand.path = "public/images/dark/missing.svg";
-    await expect(buildCompositionHtml(missingAsset, { product: productRoot })).rejects.toThrow();
+    await expect(
+      buildCompositionHtml(missingAsset, { product: productRoot }),
+    ).rejects.toThrow();
     const empty = mkdtempSync(resolve(tmpdir(), "cm-motion-empty-"));
-    expect(() => readFileSync(resolve(empty, "node_modules/@fontsource/inter/latin-400.css"))).toThrow();
+    expect(() =>
+      readFileSync(
+        resolve(empty, "node_modules/@fontsource/inter/latin-400.css"),
+      ),
+    ).toThrow();
   });
 });
