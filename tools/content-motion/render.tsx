@@ -338,7 +338,18 @@ const renderNode = (
       </Button>,
     );
   if (node.type === "avatar")
-    return wrapper(node, <Avatar name={node.name} size={node.size} />);
+    return wrapper(
+      node,
+      <Avatar
+        className={
+          node.presentation === "social"
+            ? "[&_[data-slot=avatar-fallback]]:text-[22px]"
+            : undefined
+        }
+        name={node.name}
+        size={node.size}
+      />,
+    );
   if (node.type === "providerTile")
     return wrapper(
       node,

@@ -233,6 +233,7 @@ const sceneComposition = {
                               type: "avatar",
                               name: "HubSpot",
                               size: "xl",
+                              presentation: "social",
                             },
                             {
                               id: "health-copy",

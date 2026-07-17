@@ -185,6 +185,7 @@ const avatarNode = z
     type: z.literal("avatar"),
     name: z.string().min(1),
     size: z.enum(["sm", "default", "lg", "xl"]).default("lg"),
+    presentation: z.enum(["product", "social"]).default("product"),
   })
   .strict();
 

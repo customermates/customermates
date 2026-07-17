@@ -73,6 +73,7 @@
       "nodeType": "avatar",
       "source": "components/ui/avatar.tsx",
       "variants": ["sm", "default", "lg", "xl"],
+      "presentations": ["product", "social"],
       "states": ["static"]
     },
     {
