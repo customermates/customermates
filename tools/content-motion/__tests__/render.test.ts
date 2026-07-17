@@ -392,6 +392,7 @@ describe("content motion kit", () => {
     expect(html).toContain("data-input-target");
     expect(html).toContain("window.getProductScenes");
     expect(html).toContain("text-paint-clipped");
+    expect(html).toContain("clipsX&&element.scrollWidth");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
   }, 30_000);
 
