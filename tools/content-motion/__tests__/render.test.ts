@@ -138,6 +138,16 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(attached)).toThrow(/attached layout cannot set x or y/);
   });
 
+  it("offers one bounded social-scale table presentation without arbitrary classes", async () => {
+    const social: any = structuredClone(valid);
+    social.nodes[0].children.find((child: any) => child.id === "records").presentation = "social";
+    const html = await buildCompositionHtml(social, { product: productRoot });
+    expect(html).toContain('class="w-max min-w-full caption-bottom text-[22px]"');
+    expect(html).toContain("current=current.parentElement");
+    social.nodes[0].children.find((child: any) => child.id === "records").presentation = "billboard";
+    expect(() => compositionSchema.parse(social)).toThrow();
+  }, 30_000);
+
   it("supports bounded deterministic reveal, blur, and camera tilt primitives", async () => {
     const cinematic = {
       ...structuredClone(valid),

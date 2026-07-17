@@ -90,7 +90,7 @@ const wrapper = (node: CompositionNode, content: React.ReactNode) => (
     data-cm-critical={node.qa?.critical ? "true" : undefined}
     data-cm-id={node.id}
     data-cm-min-phone-px={node.qa?.minPhonePx}
-    data-cm-qa-box={node.qa ? "true" : undefined}
+    data-cm-qa-box={node.qa?.allowOverlapWith || node.qa?.alignmentGroup || node.qa?.checkPadding ? "true" : undefined}
     data-motion-id={node.id}
     style={layoutStyle(node.layout)}
   >
@@ -236,12 +236,13 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
     );
   }
   if (node.type === "table") {
+    const social = node.presentation === "social";
     return wrapper(
       node,
       <div data-table-id={node.id}>
         {node.countLabel && (
           <div className="mb-2 flex justify-end">
-            <Badge variant="secondary">
+            <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant="secondary">
               <span data-count-for={node.id}>0</span>
 
               <span>{`/${node.countLabel}`}</span>
@@ -249,11 +250,13 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
           </div>
         )}
 
-        <Table>
+        <Table className={social ? "text-[22px]" : undefined}>
           <TableHeader>
             <TableRow>
               {node.columns.map((column) => (
-                <TableHead key={column.key}>{column.label}</TableHead>
+                <TableHead className={social ? "h-12 px-5 text-[21px]" : undefined} key={column.key}>
+                  {column.label}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -266,29 +269,44 @@ const renderNode = (node: CompositionNode, assets: AssetMap): React.ReactNode =>
                   if (!cell) throw new Error(`row ${row.id} misses cell ${column.key}`);
                   if (cell.kind === "person") {
                     return (
-                      <TableCell key={column.key}>
-                        <div className="flex items-center gap-2">
-                          <Avatar name={cell.primary} size="lg" />
+                      <TableCell className={social ? "px-5 py-4" : undefined} key={column.key}>
+                        <div className={social ? "flex items-center gap-4" : "flex items-center gap-2"}>
+                          <Avatar
+                            className={social ? "[&_[data-slot=avatar-fallback]]:text-[21px]" : undefined}
+                            name={cell.primary}
+                            size={social ? "xl" : "lg"}
+                          />
 
                           <div>
-                            <div className="font-medium">{cell.primary}</div>
+                            <div className={social ? "text-[22px] font-medium" : "font-medium"}>{cell.primary}</div>
 
-                            <div className="text-[11px] text-muted-foreground">{cell.secondary}</div>
+                            <div className={social ? "text-[21px] text-muted-foreground" : "text-[11px] text-muted-foreground"}>
+                              {cell.secondary}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
                     );
                   }
-                  if (cell.kind === "text") return <TableCell key={column.key}>{cell.text}</TableCell>;
+                  if (cell.kind === "text")
+                    return (
+                      <TableCell className={social ? "px-5 py-4 text-[22px]" : undefined} key={column.key}>
+                        {cell.text}
+                      </TableCell>
+                    );
                   return (
-                    <TableCell key={column.key}>
-                      <div className="relative h-5 min-w-20">
+                    <TableCell className={social ? "px-5 py-4" : undefined} key={column.key}>
+                      <div className={social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}>
                         <span data-state-initial className="absolute inset-0">
-                          <Badge variant={cell.initialVariant}>{cell.initial}</Badge>
+                          <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant={cell.initialVariant}>
+                            {cell.initial}
+                          </Badge>
                         </span>
 
                         <span data-state-updated className="absolute inset-0 opacity-0">
-                          <Badge variant={cell.updatedVariant}>{cell.updated}</Badge>
+                          <Badge className={social ? "px-3 py-1.5 text-[21px]" : undefined} variant={cell.updatedVariant}>
+                            {cell.updated}
+                          </Badge>
                         </span>
                       </div>
                     </TableCell>
@@ -429,7 +447,7 @@ window.renderFrame=(progress,frame,frameCount)=>{
 window.cmAuditLayout=()=>{
   const tolerance=1;const bodyRect=document.body.getBoundingClientRect();const findings=[];const elements=[];
   const boxes=[...document.querySelectorAll('[data-cm-id]')];
-  const visible=(element)=>{const style=getComputedStyle(element);const rect=element.getBoundingClientRect();return style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity)>.01&&rect.width>.5&&rect.height>.5};
+  const visible=(element)=>{const style=getComputedStyle(element);const rect=element.getBoundingClientRect();let opacity=1;for(let current=element;current&&current!==document.documentElement;current=current.parentElement)opacity*=Number(getComputedStyle(current).opacity);return style.display!=='none'&&style.visibility!=='hidden'&&opacity>.01&&rect.width>.5&&rect.height>.5};
   const record=(element)=>{const rect=element.getBoundingClientRect();const style=getComputedStyle(element);const scale=Math.min(rect.width/Math.max(element.offsetWidth,1),rect.height/Math.max(element.offsetHeight,1));return {id:element.dataset.cmId,component:element.dataset.cmComponent||'unknown',rect:{x:rect.x-bodyRect.x,y:rect.y-bodyRect.y,width:rect.width,height:rect.height,right:rect.right-bodyRect.x,bottom:rect.bottom-bodyRect.y},scale:Number.isFinite(scale)?scale:1,padding:{left:parseFloat(style.paddingLeft)||0,right:parseFloat(style.paddingRight)||0,top:parseFloat(style.paddingTop)||0,bottom:parseFloat(style.paddingBottom)||0}}};
   for(const element of boxes){if(!visible(element))continue;const item=record(element);elements.push(item);
     if(item.rect.x<-tolerance||item.rect.y<-tolerance||item.rect.right>bodyRect.width+tolerance||item.rect.bottom>bodyRect.height+tolerance)findings.push({code:'out-of-bounds',id:item.id});

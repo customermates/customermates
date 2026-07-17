@@ -199,6 +199,7 @@ const tableNode = z
       .min(1)
       .max(24),
     countLabel: z.string().optional(),
+    presentation: z.enum(["product", "social"]).default("product"),
     layout: layout.optional(),
     qa: qa.optional(),
   })
