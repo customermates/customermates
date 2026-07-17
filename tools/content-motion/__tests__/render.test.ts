@@ -184,6 +184,13 @@ const sceneComposition = {
           end: 1.2,
           text: "Customer context",
         },
+        {
+          type: "typeValue",
+          target: "context-input",
+          start: 1.2,
+          end: 2.4,
+          value: "Renewal risk",
+        },
       ],
     },
     {
@@ -340,7 +347,7 @@ describe("content motion kit", () => {
       ]),
     );
     expect(catalog.actions).toEqual(
-      expect.arrayContaining(["typeText", "swapState", "countTo"]),
+      expect.arrayContaining(["typeText", "typeValue", "swapState", "countTo"]),
     );
     expect(catalog.qa).toEqual(
       expect.arrayContaining([
@@ -381,6 +388,7 @@ describe("content motion kit", () => {
     expect(html).toContain('data-slot="table-cell"');
     expect(html).toContain('data-cm-inset-token="lg"');
     expect(html).toContain("window.renderScene");
+    expect(html).toContain("data-input-target");
     expect(html).toContain("window.getProductScenes");
     expect(html).toContain("text-paint-clipped");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');

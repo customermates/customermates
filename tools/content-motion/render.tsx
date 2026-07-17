@@ -354,6 +354,7 @@ const renderNode = (
         className={
           node.presentation === "social" ? "h-14 px-5 text-[22px]" : undefined
         }
+        data-input-target={node.id}
         placeholder={node.placeholder}
         readOnly
         value={node.value ?? ""}
@@ -851,6 +852,7 @@ window.renderScene=(sceneId,progress,frame,frameCount)=>{
   for(const action of scene.actions){
     const value=clamp((time-action.start)/(action.end-action.start));
     if(action.type==='typeText'){const holder=cmRoot().querySelector('[data-text-target="'+action.target+'"] > :first-child');if(holder)holder.textContent=action.text.slice(0,Math.floor(action.text.length*value));const caret=cmRoot().querySelector('[data-caret-for="'+action.target+'"]');if(caret)caret.style.opacity=value<1||Math.floor(time*1000/action.caretMs)%2===0?'1':'0';}
+    if(action.type==='typeValue'){const input=cmRoot().querySelector('[data-input-target="'+action.target+'"]');if(input)input.value=action.value.slice(0,Math.floor(action.value.length*value));}
     if(action.type==='updateTable'){const table=cmRoot().querySelector('[data-table-id="'+action.target+'"]');if(!table)continue;const rows=[...table.querySelectorAll('[data-row-index]')];const completed=Math.min(rows.length,Math.floor(value*rows.length+.0001));rows.forEach((row,index)=>{const done=index<completed;row.querySelector('[data-state-initial]')?.style.setProperty('opacity',done?'0':'1');row.querySelector('[data-state-updated]')?.style.setProperty('opacity',done?'1':'0');});const count=table.querySelector('[data-count-for="'+action.target+'"]');if(count)count.textContent=String(Math.floor(value*action.total));}
     if(action.type==='swapState'){const target=cmRoot().querySelector('[data-state-target="'+action.target+'"]');if(!target)continue;target.querySelector('[data-state-initial]')?.style.setProperty('opacity',String(1-value));target.querySelector('[data-state-updated]')?.style.setProperty('opacity',String(value));}
     if(action.type==='countTo'){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');if(target)target.textContent=String(Math.round(action.value*value));}

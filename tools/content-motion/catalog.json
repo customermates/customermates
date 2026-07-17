@@ -311,7 +311,7 @@
     },
     { "id": "tilt", "fields": ["rotateX", "rotateY"], "bounded": true }
   ],
-  "actions": ["typeText", "swapState", "countTo", "updateTable"],
+  "actions": ["typeText", "typeValue", "swapState", "countTo", "updateTable"],
   "qa": [
     "bounds",
     "content-clipping",

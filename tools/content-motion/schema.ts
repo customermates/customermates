@@ -572,6 +572,15 @@ const action = z.discriminatedUnion("type", [
     .strict(),
   z
     .object({
+      type: z.literal("typeValue"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: z.string(),
+    })
+    .strict(),
+  z
+    .object({
       type: z.literal("updateTable"),
       target: id,
       start: z.number().min(0),
@@ -677,6 +686,7 @@ const validateGraph = (
   strictFlow = false,
 ) => {
   const nodeIds = new Set<string>();
+  const nodeTypes = new Map<string, string>();
   const attachedTargets: Array<{ source: string; target: string }> = [];
   let nodeCount = 0;
   const visit = (item: NodeInput, depth = 0, ancestors: string[] = []) => {
@@ -687,6 +697,7 @@ const validateGraph = (
         message: `${scope} duplicate node id: ${item.id}`,
       });
     nodeIds.add(item.id);
+    nodeTypes.set(item.id, item.type);
     if (item.type === "table") {
       for (const row of item.rows) {
         if (nodeIds.has(row.id))
@@ -777,6 +788,24 @@ const validateGraph = (
         code: "custom",
         message: `${scope} unknown target: ${item.target}`,
       });
+  const actionTargets = {
+    typeText: ["text"],
+    typeValue: ["inputControl"],
+    updateTable: ["table"],
+    swapState: ["statusSwap"],
+    countTo: ["counter"],
+  } as const;
+  for (const item of actions) {
+    const targetType = nodeTypes.get(item.target);
+    if (
+      targetType &&
+      !(actionTargets[item.type] as readonly string[]).includes(targetType)
+    )
+      context.addIssue({
+        code: "custom",
+        message: `${scope} ${item.type} cannot target ${targetType}: ${item.target}`,
+      });
+  }
   for (const item of attachedTargets) {
     if (item.source === item.target)
       context.addIssue({
