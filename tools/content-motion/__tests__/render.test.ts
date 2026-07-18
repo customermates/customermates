@@ -560,10 +560,12 @@ describe("content motion kit", () => {
   it("allows a product-owned viewport to clip a moving compound table", async () => {
     const viewport: any = structuredClone(valid);
     viewport.nodes[0].layout.overflow = "hidden";
+    viewport.nodes[0].qa = { allowClipping: true };
     const html = await buildCompositionHtml(viewport, {
       product: productRoot,
     });
     expect(html).toContain("overflow:hidden");
+    expect(html).toContain('data-cm-allow-clipping="true"');
     viewport.nodes[0].layout.overflow = "scroll";
     expect(() => compositionSchema.parse(viewport)).toThrow();
   }, 30_000);

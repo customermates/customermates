@@ -38,6 +38,7 @@ const qa = z
     alignmentGroup: id.optional(),
     alignment: z.enum(["left", "center", "right"]).optional(),
     minPhonePx: z.number().min(7).max(24).optional(),
+    allowClipping: z.boolean().optional(),
   })
   .strict()
   .superRefine((value, context) => {

@@ -183,6 +183,7 @@ const nodeAttributes = (
   "data-cm-inset-parent": node.qa?.insetParent,
   "data-cm-inset-token": node.qa?.inset,
   "data-cm-min-phone-px": node.qa?.minPhonePx,
+  "data-cm-allow-clipping": node.qa?.allowClipping ? "true" : undefined,
   "data-cm-qa-box":
     node.qa?.allowOverlapWith ||
     node.qa?.alignmentGroup ||
@@ -889,7 +890,7 @@ window.cmAuditLayout=()=>{
   for(const element of boxes){if(!visible(element))continue;const item=record(element);elements.push(item);
     if(item.rect.x<-tolerance||item.rect.y<-tolerance||item.rect.right>bodyRect.width+tolerance||item.rect.bottom>bodyRect.height+tolerance)findings.push({code:'out-of-bounds',id:item.id});
     const boxStyle=getComputedStyle(element);const clipsX=['hidden','clip','auto','scroll'].includes(boxStyle.overflowX);const clipsY=['hidden','clip','auto','scroll'].includes(boxStyle.overflowY);
-    if((clipsX&&element.scrollWidth>element.clientWidth+tolerance)||(clipsY&&element.scrollHeight>element.clientHeight+tolerance))findings.push({code:'content-clipped',id:item.id});
+    if(element.dataset.cmAllowClipping!=='true'&&((clipsX&&element.scrollWidth>element.clientWidth+tolerance)||(clipsY&&element.scrollHeight>element.clientHeight+tolerance)))findings.push({code:'content-clipped',id:item.id});
     if(element.dataset.cmCheckPadding==='true'&&(Math.abs(item.padding.left-item.padding.right)>2||Math.abs(item.padding.top-item.padding.bottom)>2))findings.push({code:'asymmetric-padding',id:item.id,padding:item.padding});
     if(element.dataset.cmInsetParent){const parent=cmNode(element.dataset.cmInsetParent);if(!parent)findings.push({code:'unknown-inset-parent',id:item.id});else{const a=element.getBoundingClientRect(),b=parent.getBoundingClientRect(),expected=cmSpace[element.dataset.cmInsetToken]??0,axis=element.dataset.cmInsetAxis??'x';if((axis==='x'||axis==='both')&&(Math.abs((a.left-b.left)-expected)>2||Math.abs((b.right-a.right)-expected)>2))findings.push({code:'inset-drift-x',id:item.id,parent:element.dataset.cmInsetParent,expected});if((axis==='y'||axis==='both')&&(Math.abs((a.top-b.top)-expected)>2||Math.abs((b.bottom-a.bottom)-expected)>2))findings.push({code:'inset-drift-y',id:item.id,parent:element.dataset.cmInsetParent,expected});}}
     if(element.dataset.cmCritical==='true'){const min=Number(element.dataset.cmMinPhonePx||9);const textNodes=[element,...element.querySelectorAll('*')].filter((child)=>visible(child)&&child.textContent?.trim()&&child.children.length===0);for(const textNode of textNodes){const textStyle=getComputedStyle(textNode);const effective=(parseFloat(textStyle.fontSize)||0)*item.scale*360/bodyRect.width;if(effective<min)findings.push({code:'phone-type-too-small',id:item.id,effective:Math.round(effective*10)/10,min});}}
