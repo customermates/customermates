@@ -207,7 +207,7 @@ const sceneComposition = {
         {
           id: "health-table",
           type: "dataTable",
-          presentation: "social",
+          presentation: "social-hero",
           layout: { x: 90, y: 420, width: 900 },
           children: [
             {
@@ -409,6 +409,8 @@ describe("content motion kit", () => {
     expect(html).toContain("text-paint-clipped");
     expect(html).toContain("clipsX&&element.scrollWidth");
     expect(html).toContain("h-9 px-3 py-1.5 text-[22px] leading-none");
+    expect(html).toContain("text-[23px]");
+    expect(html).toContain("data-slot=table-cell]]:px-0");
     expect(html).toContain("absolute inset-0 flex items-center justify-end");
     expect(html).toContain("const switched=value>=.5");
     expect(html).toContain("const hasDepth=Math.abs(state.rotateX)>.001");

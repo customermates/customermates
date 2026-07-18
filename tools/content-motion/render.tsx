@@ -552,11 +552,14 @@ const renderNode = (
     );
   if (node.type === "dataTable") {
     const social = node.presentation === "social";
+    const socialHero = node.presentation === "social-hero";
     return (
       <div {...nodeAttributes(node)} data-table-id={node.id}>
         <Table
           className={
-            social
+            socialHero
+              ? "text-[23px] [&_[data-slot=table-cell]]:h-[72px] [&_[data-slot=table-cell]]:px-0 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-14 [&_[data-slot=table-head]]:px-0 [&_[data-slot=table-head]]:text-[20px]"
+              : social
               ? "text-[22px] [&_[data-slot=table-cell]]:px-5 [&_[data-slot=table-cell]]:py-4 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-5 [&_[data-slot=table-head]]:text-[22px]"
               : undefined
           }

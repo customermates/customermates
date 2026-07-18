@@ -442,7 +442,7 @@ type NodeInput =
   | {
       id: string;
       type: "dataTable";
-      presentation: "product" | "social";
+      presentation: "product" | "social" | "social-hero";
       layout?: z.infer<typeof layout>;
       qa?: z.infer<typeof qa>;
       children: NodeInput[];
@@ -501,7 +501,9 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
       .object({
         ...nodeBase,
         type: z.literal("dataTable"),
-        presentation: z.enum(["product", "social"]).default("product"),
+        presentation: z
+          .enum(["product", "social", "social-hero"])
+          .default("product"),
         children: z.array(node).default([]),
       })
       .strict(),
