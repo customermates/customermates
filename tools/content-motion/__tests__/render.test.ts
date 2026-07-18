@@ -671,6 +671,27 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(unsafe)).toThrow();
   }, 30_000);
 
+  it("supports a monotonic accelerating ease-in motion", async () => {
+    const accelerating = {
+      ...structuredClone(valid),
+      motions: [
+        {
+          target: "proof-card",
+          start: 0,
+          end: 1,
+          from: { y: 0 },
+          to: { y: -720 },
+          easing: "easeIn",
+        },
+      ],
+    };
+    const html = await buildCompositionHtml(accelerating, {
+      product: productRoot,
+    });
+    expect(html).toContain("if(name==='easeIn')return value*value*value");
+    expect(html).toContain('"easing":"easeIn"');
+  }, 30_000);
+
   it("rejects missing assets and fonts", async () => {
     const missingAsset = structuredClone(valid);
     missingAsset.assets.brand.path = "public/images/dark/missing.svg";
