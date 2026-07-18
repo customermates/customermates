@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import { fixtureId, upsertFixturesById } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_ORGANIZATION_DEFINITIONS = [
   {
@@ -89,9 +90,11 @@ export const SYNTHETIC_ORGANIZATION_NAMES = SYNTHETIC_ORGANIZATION_DEFINITIONS.m
 
 export type OrganizationFixture = {
   companyId: string;
+  createdAt: Date;
   emailDomain: (typeof SYNTHETIC_ORGANIZATION_DEFINITIONS)[number]["emailDomain"];
   id: string;
   name: (typeof SYNTHETIC_ORGANIZATION_DEFINITIONS)[number]["name"];
+  updatedAt: Date;
   website: (typeof SYNTHETIC_ORGANIZATION_DEFINITIONS)[number]["website"];
 };
 
@@ -107,6 +110,7 @@ export async function seedOrganizations(context: SeedContext): Promise<Organizat
         companyId: context.ids.company,
         emailDomain,
         name,
+        ...SYNTHETIC_SEED_TIMELINE.organization(index),
         website,
       }) satisfies OrganizationFixture,
   );
@@ -116,6 +120,8 @@ export async function seedOrganizations(context: SeedContext): Promise<Organizat
       companyId: organization.companyId,
       id: organization.id,
       name: organization.name,
+      createdAt: organization.createdAt,
+      updatedAt: organization.updatedAt,
     } satisfies Prisma.OrganizationCreateManyInput;
 
     return context.prisma.organization.upsert({

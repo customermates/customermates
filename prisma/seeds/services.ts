@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import { fixtureId, upsertFixturesById } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_SERVICE_NAMES = [
   "Data Migration",
@@ -63,8 +64,10 @@ export type ServiceDefinition = readonly [
 export type ServiceFixture = {
   amount: ServiceDefinition[1];
   companyId: string;
+  createdAt: Date;
   id: string;
   name: ServiceDefinition[0];
+  updatedAt: Date;
 };
 
 export type ServiceSeedData = {
@@ -82,6 +85,7 @@ export async function seedServices(context: SeedContext): Promise<ServiceSeedDat
         amount,
         companyId: context.ids.company,
         name,
+        ...SYNTHETIC_SEED_TIMELINE.service(index),
       }) satisfies Prisma.ServiceCreateManyInput,
   );
 

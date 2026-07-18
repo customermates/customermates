@@ -5,6 +5,7 @@ import type { SeedContext } from "./context";
 import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
 import type { OrganizationFixture } from "./organizations";
 import { SYNTHETIC_ORGANIZATION_DEFINITIONS } from "./organizations";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_CONTACT_NAMES = [
   ["Leon", "Becker"],
@@ -123,9 +124,11 @@ export type ContactDefinition = readonly [
 export type ContactFixture = {
   avatarUrl: string;
   companyId: string;
+  createdAt: Date;
   firstName: ContactDefinition[0];
   id: string;
   lastName: ContactDefinition[1];
+  updatedAt: Date;
 };
 
 export type ContactSeedData = {
@@ -155,6 +158,7 @@ export async function seedContacts(
       companyId: context.ids.company,
       firstName,
       lastName,
+      ...SYNTHETIC_SEED_TIMELINE.contact(index),
     } satisfies Prisma.ContactCreateManyInput;
   });
 

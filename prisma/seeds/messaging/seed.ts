@@ -4,6 +4,7 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
 import { SYNTHETIC_AVATAR_PATHS } from "../avatars";
 import { fixtureId } from "../helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
 import { people, threads, type PersonKey, type ThreadFixture } from "./fixtures";
 
 export type SeedContext = {
@@ -25,7 +26,6 @@ type DemoAttendee = {
 };
 
 const MINUTE = 60_000;
-const DAY = 24 * 60 * MINUTE;
 
 function emailHtml(text: string): string {
   const escaped = text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -84,14 +84,27 @@ function inputJson(value: unknown): Prisma.InputJsonValue {
 }
 
 export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: SeedContext): Promise<void> {
-  const anchorWindow = 5 * MINUTE;
-  const anchor = new Date(Math.floor(Date.now() / anchorWindow) * anchorWindow);
   const accountIds = {
     google: fixtureId("16000000", 1),
     linkedin: fixtureId("16000000", 2),
     whatsapp: fixtureId("16000000", 3),
   } as const;
   const desiredAccountIds = Object.values(accountIds);
+  const persistedAnchor = await prisma.connectedAccount.findFirst({
+    where: {
+      companyId: context.companyId,
+      unipileAccountId: {
+        in: ["demo-fixture-google-account", "demo-fixture-linkedin-account", "demo-fixture-whatsapp-account"],
+      },
+      lastSyncedAt: { not: null },
+    },
+    orderBy: { id: "asc" },
+    select: { lastSyncedAt: true },
+  });
+  const anchorWindow = 5 * MINUTE;
+  const anchor = persistedAnchor?.lastSyncedAt
+    ? new Date(persistedAnchor.lastSyncedAt.getTime() + 5 * MINUTE)
+    : new Date(Math.floor(Date.now() / anchorWindow) * anchorWindow);
   const desiredContactIdentifierIds: string[] = [];
   const desiredMessageIds: string[] = [];
   const desiredParticipantIds: string[] = [];
@@ -160,12 +173,23 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     },
   ];
 
-  for (const account of accounts) {
+  await prisma.connectedAccount.updateMany({
+    where: {
+      companyId: context.companyId,
+      unipileAccountId: { in: accounts.map(({ unipileAccountId }) => unipileAccountId) },
+      synthetic: false,
+    },
+    data: { synthetic: true },
+  });
+
+  for (const [index, account] of accounts.entries()) {
+    const accountTimeline = SYNTHETIC_SEED_TIMELINE.connectedAccount(index);
     const data = {
       companyId: context.companyId,
       userId: context.userId,
       provider: account.provider,
       status: "ok" as const,
+      synthetic: true,
       hasMessaging: true,
       hasCalendar: account.hasCalendar,
       emailAddress: account.emailAddress,
@@ -183,12 +207,16 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     await prisma.connectedAccount.upsert({
       where: { unipileAccountId: account.unipileAccountId },
-      update: data,
+      update: {
+        ...accountTimeline,
+        foldersSyncedAt: account.provider === "google" ? new Date(anchor.getTime() - 5 * MINUTE) : null,
+        lastSyncedAt: new Date(anchor.getTime() - 5 * MINUTE),
+      },
       create: {
         ...data,
         id: account.id,
         unipileAccountId: account.unipileAccountId,
-        createdAt: new Date(anchor.getTime() - 30 * DAY),
+        ...accountTimeline,
       },
     });
   }
@@ -223,9 +251,28 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const id = fixtureId("1a000000", index + 1);
     desiredContactIdentifierIds.push(id);
+    const existingIdentifier = await prisma.contactIdentifier.findFirst({
+      where: {
+        companyId: context.companyId,
+        OR: [
+          { id },
+          { channelClass: data.channelClass, value: data.value },
+          ...(data.messagingId ? [{ provider: data.provider, messagingId: data.messagingId }] : []),
+        ],
+      },
+      select: { id: true },
+    });
+    if (existingIdentifier) continue;
+
     await prisma.contactIdentifier.upsert({
-      where: { id },
-      update: data,
+      where: {
+        companyId_channelClass_value: {
+          companyId: context.companyId,
+          channelClass: data.channelClass,
+          value: data.value,
+        },
+      },
+      update: {},
       create: { ...data, id },
     });
   }
@@ -253,18 +300,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
           unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
         },
       },
-      update: {
-        companyId: context.companyId,
-        provider,
-        state: fixture.state,
-        type: fixture.type,
-        name: fixture.name,
-        subject: fixture.subject,
-        lastMessageAt: latestAt,
-        lastMessagePreview: lastMessage.text,
-        lastMessageIsSender: lastMessage.sender === "self",
-        sharedToCrm: true,
-      },
+      update: {},
       create: {
         id: threadId,
         companyId: context.companyId,
@@ -289,19 +325,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       desiredParticipantIds.push(participantId);
       await prisma.messagingThreadParticipant.upsert({
         where: { id: participantId },
-        update: {
-          companyId: context.companyId,
-          messagingThreadId: threadId,
-          provider,
-          providerUserId: attendee.attendeeId,
-          identifier: attendee.identifier,
-          displayName: attendee.displayName,
-          pictureUrl: attendee.pictureUrl,
-          profileUrl: attendee.profileUrl ?? null,
-          headline: attendee.headline ?? null,
-          occupation: attendee.occupation ?? null,
-          isSelf: attendee.isSelf,
-        },
+        update: {},
         create: {
           id: participantId,
           companyId: context.companyId,
@@ -372,7 +396,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
       await prisma.messagingMessage.upsert({
         where: { id: messageId },
-        update: data,
+        update: {},
         create: {
           ...data,
           id: messageId,

@@ -7,6 +7,7 @@ import type { OrganizationDto } from "@/features/organizations/organization.sche
 import type { UserRoleDto } from "@/features/role/role.types";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
+import type { WebhookDto } from "@/features/webhook/webhook.schema";
 
 import { ContactDtoSchema } from "@/features/contacts/contact.schema";
 import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
@@ -16,21 +17,29 @@ import { OrganizationDtoSchema } from "@/features/organizations/organization.sch
 import { RoleDtoSchema } from "@/features/role/role.schema";
 import { ServiceDtoSchema } from "@/features/services/service.schema";
 import { TaskDtoSchema } from "@/features/tasks/task.schema";
+import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import type { SeedContext } from "./context";
 import type { RelationshipSeedInput } from "./relationships";
 
 import { SYNTHETIC_CUSTOM_COLUMN_IDS } from "./custom-fields";
 import { fixtureId } from "./helpers";
-import { threads as messagingThreads } from "./messaging/fixtures";
+import {
+  SYNTHETIC_CONTACT_UPDATE_INDEXES,
+  SYNTHETIC_DEAL_UPDATE_INDEXES,
+  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
+  SYNTHETIC_TASK_UPDATE_INDEXES,
+} from "./timeline";
 
-export const SYNTHETIC_AUDIT_LOG_COUNT = 225;
+export {
+  SYNTHETIC_CONTACT_UPDATE_INDEXES,
+  SYNTHETIC_DEAL_UPDATE_INDEXES,
+  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
+  SYNTHETIC_TASK_UPDATE_INDEXES,
+} from "./timeline";
+
 export const SYNTHETIC_AUDIT_LOG_ID_PREFIX = "1e000000";
-export const SYNTHETIC_CONTACT_UPDATE_INDEXES = [0, 6, 7, 16, 19, 22, 23, 24, 26] as const;
-export const SYNTHETIC_CHAT_LINKED_CONTACT_INDEXES = [0, 6, 7, 19, 22, 23, 26] as const;
-
-const AUDIT_TIMELINE_START = Date.parse("2026-03-24T09:00:00.000Z");
-const AUDIT_TIMELINE_STEP = 30 * 60_000;
 
 type RegisteredUserSnapshot = {
   avatarUrl: string | null;
@@ -42,6 +51,7 @@ type RegisteredUserSnapshot = {
   lastName: string;
   roleId: string | null;
   status: DomainEventMap[DomainEvent.USER_REGISTERED]["payload"]["status"];
+  updatedAt: Date;
 };
 
 type CustomColumnSnapshot = {
@@ -59,10 +69,6 @@ type ConnectedAccountSnapshot = {
 };
 
 export type SyntheticAuditSnapshot = {
-  company: {
-    currency: DomainEventMap[DomainEvent.COMPANY_UPDATED]["payload"]["currency"];
-    updatedAt: Date;
-  };
   connectedAccounts: ConnectedAccountSnapshot[];
   contacts: ContactDto[];
   customColumns: CustomColumnSnapshot[];
@@ -72,6 +78,7 @@ export type SyntheticAuditSnapshot = {
   services: ServiceDto[];
   tasks: TaskDto[];
   users: RegisteredUserSnapshot[];
+  webhook: WebhookDto;
 };
 
 export type SyntheticAuditFixture = {
@@ -112,98 +119,85 @@ function assertSnapshotCount(label: string, actual: number, expected: number): v
   if (actual !== expected) throw new Error(`Expected ${expected} ${label} audit snapshots, received ${actual}`);
 }
 
-function deterministicAuditTimestamp(index: number, sourceTimestamp: Date): Date {
-  if (Number.isNaN(sourceTimestamp.getTime())) throw new Error(`Invalid source timestamp for audit fixture ${index}`);
-  return auditTimelineTimestamp(index);
-}
-
-function auditTimelineTimestamp(index: number): Date {
-  return new Date(AUDIT_TIMELINE_START + (index - 1) * AUDIT_TIMELINE_STEP);
-}
-
-function previousLowerValue(current: number, label: string): number {
-  if (!Number.isFinite(current) || current <= 0)
-    throw new Error(`Expected a positive ${label} for a meaningful synthetic audit change, received ${current}`);
-
-  return Math.max(0, current - Math.max(1, Math.round(current * 0.1)));
-}
-
-function previousOrganizationName(current: string): string {
-  const previousNames: Record<string, string> = {
-    ASML: "SAP",
-    PwC: "PWC",
-    "NRW.BANK": "NRW Bank",
-    Roche: "Bayer",
-  };
-  return previousNames[current] ?? `Legacy ${current}`;
-}
-
-function previousTaskName(current: string): string {
-  const previousNames: Record<string, string> = {
-    "Prepare and send a proposal for Wavestone": "Prepare and send a proposal for Contoso",
-    "Schedule discovery call with BMW": "Schedule discovery call with Contoso",
-    "User Pending Authorization (Sofia Rossi)": "User Pending Authorization (Julia Weber)",
-    "Follow up with legal on contract approval for Roche": "Follow up with legal on contract approval for Globex",
-    "Schedule discovery call with PwC": "Schedule discovery call with Contoso",
-    "Review follow-up notes from the Roche demo": "Follow up with John Doe from Acme Corp after demo",
-  };
-  return previousNames[current] ?? `Legacy ${current}`;
-}
-
-const contactIdentifierDomainChanges = new Map<number, { current: string; previous: string }>([
-  [16, { current: "roche.example", previous: "bayer.example" }],
-  [22, { current: "roche.example", previous: "bayer.example" }],
-  [23, { current: "asml.example", previous: "sap.example" }],
-  [24, { current: "roche.example", previous: "bayer.example" }],
+export const SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES = new Map<number, string>([
+  [5, "ASM Lithography"],
+  [10, "PricewaterhouseCoopers"],
+  [12, "NRW Bank"],
+  [13, "Hoffmann-La Roche"],
 ]);
 
-function previousContactIdentifiers(contact: ContactDto, contactIndex: number): ContactDto["identifiers"] {
-  const domains = contactIdentifierDomainChanges.get(contactIndex);
-  if (!domains) return contact.identifiers;
+export const SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES = new Map<number, string>([
+  [0, "Leo"],
+  [6, "Johannes"],
+  [7, "Ayman"],
+  [19, "Sophia"],
+  [22, "Annika"],
+  [23, "Jasmin"],
+  [26, "Rachid"],
+]);
 
-  let changed = false;
-  const identifiers = contact.identifiers.map((identifier) => {
-    const suffix = `@${domains.current}`;
-    if (identifier.provider !== "mail" || !identifier.value.endsWith(suffix)) return identifier;
+export const SYNTHETIC_PREVIOUS_DEAL_NAMES = new Map<number, string>([
+  [0, "Workflow Automation Program"],
+  [1, "Business Intelligence Transformation"],
+  [2, "CRM Implementation"],
+]);
 
-    changed = true;
-    return {
-      ...identifier,
-      value: `${identifier.value.slice(0, -suffix.length)}@${domains.previous}`,
-    };
-  });
-
-  if (!changed) throw new Error(`Contact ${contact.id} requires the expected synthetic email-domain audit change`);
-  return identifiers;
-}
+export const SYNTHETIC_PREVIOUS_TASK_NAMES = new Map<number, string>([
+  [0, "Draft the Wavestone proposal"],
+  [4, "Arrange a discovery call with BMW"],
+  [7, "Follow up with Roche legal"],
+  [8, "Arrange a discovery call with PwC"],
+  [13, "Review notes from the Roche demo"],
+]);
 
 function auditFixture<E extends DomainEvent>(args: {
   companyId: string;
   createdAt: Date;
   entityId: string;
   event: E;
-  eventUserId?: DomainEventMap[E]["userId"];
   index: number;
   payload: DomainEventMap[E]["payload"];
   userId: string;
 }): SyntheticAuditFixture {
-  const { companyId, createdAt, entityId, event, eventUserId, index, payload, userId } = args;
+  const { companyId, createdAt, entityId, event, index, payload, userId } = args;
+  if (Number.isNaN(createdAt.getTime())) throw new Error(`Invalid timestamp for synthetic audit fixture ${index}`);
   const eventData = {
     companyId,
     entityId,
     payload,
-    userId: eventUserId === undefined ? userId : eventUserId,
+    userId,
   } as DomainEventMap[E];
 
   return {
     id: fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, index),
     companyId,
-    createdAt: deterministicAuditTimestamp(index, createdAt),
+    createdAt,
     entityId,
     event,
     eventData: inputJson(eventData),
     userId,
   };
+}
+
+function creationState<T extends { createdAt: Date; updatedAt: Date }>(entity: T, changes: Partial<T> = {}): T {
+  return { ...entity, ...changes, updatedAt: entity.createdAt };
+}
+
+function updateState<T extends { createdAt: Date; updatedAt: Date }>(entity: T, changes: Partial<T> = {}): T {
+  if (entity.updatedAt.getTime() <= entity.createdAt.getTime())
+    throw new Error(`Synthetic update for ${"id" in entity ? String(entity.id) : "entity"} must follow its creation`);
+
+  return { ...entity, ...changes };
+}
+
+function assertDealTotals(deal: DealDto): void {
+  const totalValue = deal.services.reduce((sum, service) => sum + service.amount * service.quantity, 0);
+  const totalQuantity = deal.services.reduce((sum, service) => sum + service.quantity, 0);
+  if (deal.totalValue !== totalValue || deal.totalQuantity !== totalQuantity) {
+    throw new Error(
+      `Deal ${deal.id} totals do not match its services: expected ${totalQuantity}/${totalValue}, received ${deal.totalQuantity}/${deal.totalValue}`,
+    );
+  }
 }
 
 export function buildSyntheticAuditLogFixtures(args: {
@@ -213,35 +207,17 @@ export function buildSyntheticAuditLogFixtures(args: {
 }): SyntheticAuditFixture[] {
   const { companyId, primaryUserId, snapshot } = args;
   const fixtures: SyntheticAuditFixture[] = [];
-  const entityCreationTimestamps = new Map<string, Date>();
-  const chatLinkedContactIndexes = new Set<number>(SYNTHETIC_CHAT_LINKED_CONTACT_INDEXES);
-  const contactUpdateIndexes = new Set<number>(SYNTHETIC_CONTACT_UPDATE_INDEXES);
   const customColumnUpdates = [
     { index: 2, previousLabel: "Customer type" },
     { index: 5, previousLabel: "Deal status" },
     { index: 6, previousLabel: "Task status" },
   ] as const;
-  const nextTimelineTimestamp = () => auditTimelineTimestamp(fixtures.length + 1);
-  const creationState = <T extends { id: string; createdAt: Date; updatedAt: Date }>(
-    entity: T,
-    changes: Partial<T> = {},
-  ): T => {
-    const createdAt = nextTimelineTimestamp();
-    entityCreationTimestamps.set(entity.id, createdAt);
-    return { ...entity, ...changes, createdAt, updatedAt: createdAt };
-  };
-  const updateState = <T extends { id: string; createdAt: Date; updatedAt: Date }>(entity: T): T => {
-    const createdAt = entityCreationTimestamps.get(entity.id);
-    if (!createdAt) throw new Error(`Missing synthetic creation timestamp for ${entity.id}`);
-    return { ...entity, createdAt, updatedAt: nextTimelineTimestamp() };
-  };
   const push = <E extends DomainEvent>(
     event: E,
     entityId: string,
     payload: DomainEventMap[E]["payload"],
     createdAt: Date,
     userId = primaryUserId,
-    eventUserId?: DomainEventMap[E]["userId"],
   ) =>
     fixtures.push(
       auditFixture({
@@ -249,61 +225,69 @@ export function buildSyntheticAuditLogFixtures(args: {
         createdAt,
         entityId,
         event,
-        eventUserId,
         index: fixtures.length + 1,
         payload,
         userId,
       }),
     );
 
-  for (const user of snapshot.users) {
-    const isPrimaryUser = user.id === primaryUserId;
-    const isActivatedCustomMember = !isPrimaryUser && user.status === "active" && user.roleId !== null;
-    const previousName = isPrimaryUser
-      ? { firstName: "Max", lastName: "Mustermann" }
-      : isActivatedCustomMember
-        ? { firstName: user.firstName, lastName: user.lastName }
-        : { firstName: "Julia", lastName: "Weber" };
+  const primaryUser = snapshot.users.find(({ id }) => id === primaryUserId);
+  if (!primaryUser) throw new Error(`Missing primary synthetic user ${primaryUserId}`);
+
+  push(
+    DomainEvent.USER_REGISTERED,
+    primaryUser.id,
+    {
+      avatarUrl: primaryUser.avatarUrl,
+      country: primaryUser.country,
+      email: primaryUser.email,
+      firstName: primaryUser.firstName,
+      isNewCompany: true,
+      lastName: primaryUser.lastName,
+      roleId: primaryUser.roleId,
+      status: primaryUser.status,
+    },
+    primaryUser.createdAt,
+    primaryUser.id,
+  );
+
+  for (const role of snapshot.roles) push(DomainEvent.ROLE_CREATED, role.id, role, role.createdAt);
+
+  for (const user of snapshot.users.filter(({ id }) => id !== primaryUserId)) {
+    const wasActivated = user.status === "active" && user.roleId !== null;
     push(
       DomainEvent.USER_REGISTERED,
       user.id,
       {
-        avatarUrl: null,
-        country: user.country,
-        email: user.email,
-        firstName: previousName.firstName,
-        isNewCompany: isPrimaryUser,
-        lastName: previousName.lastName,
-        roleId: isActivatedCustomMember ? null : user.roleId,
-        status: isActivatedCustomMember ? "pendingAuthorization" : user.status,
-      },
-      nextTimelineTimestamp(),
-      user.id,
-    );
-  }
-
-  for (const role of snapshot.roles) {
-    const createdRole = creationState(role);
-    push(DomainEvent.ROLE_CREATED, role.id, createdRole, createdRole.createdAt);
-  }
-
-  for (const user of snapshot.users) {
-    push(
-      DomainEvent.USER_UPDATED,
-      user.id,
-      {
         avatarUrl: user.avatarUrl,
         country: user.country,
+        email: user.email,
         firstName: user.firstName,
+        isNewCompany: false,
         lastName: user.lastName,
-        ...(user.roleId ? { roleId: user.roleId } : {}),
-        status: user.status,
+        roleId: wasActivated ? null : user.roleId,
+        status: wasActivated ? "pendingAuthorization" : user.status,
       },
-      nextTimelineTimestamp(),
+      user.createdAt,
+      user.id,
     );
+    if (wasActivated) {
+      if (!user.roleId) throw new Error(`Activated synthetic user ${user.id} requires a role`);
+      push(
+        DomainEvent.USER_UPDATED,
+        user.id,
+        {
+          avatarUrl: user.avatarUrl,
+          country: user.country,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roleId: user.roleId,
+          status: user.status,
+        },
+        user.updatedAt,
+      );
+    }
   }
-
-  push(DomainEvent.COMPANY_UPDATED, companyId, { currency: snapshot.company.currency }, nextTimelineTimestamp());
 
   for (const [index, customColumn] of snapshot.customColumns.entries()) {
     const previousLabel = customColumnUpdates.find((update) => update.index === index)?.previousLabel;
@@ -311,145 +295,119 @@ export function buildSyntheticAuditLogFixtures(args: {
       throw new Error(`Synthetic custom-column audit change at index ${index} must change the label`);
 
     const initialCustomColumn = previousLabel ? { ...customColumn.dto, label: previousLabel } : customColumn.dto;
-    push(DomainEvent.CUSTOM_COLUMN_CREATED, customColumn.dto.id, initialCustomColumn, nextTimelineTimestamp());
+    push(DomainEvent.CUSTOM_COLUMN_CREATED, customColumn.dto.id, initialCustomColumn, customColumn.createdAt);
+  }
+
+  for (const { index, previousLabel } of customColumnUpdates) {
+    const customColumn = snapshot.customColumns[index];
+    if (!customColumn) throw new Error(`Missing custom-column audit snapshot at index ${index}`);
+    if (customColumn.updatedAt.getTime() <= customColumn.createdAt.getTime())
+      throw new Error(`Custom column ${customColumn.dto.id} update must follow its creation`);
+    push(
+      DomainEvent.CUSTOM_COLUMN_UPDATED,
+      customColumn.dto.id,
+      {
+        customColumn: customColumn.dto,
+        changes: { label: { previous: previousLabel, current: customColumn.dto.label } },
+      },
+      customColumn.updatedAt,
+    );
   }
 
   for (const organization of snapshot.organizations) {
-    const initialCustomFieldValues = organization.customFieldValues.filter(
-      ({ columnId }) => columnId !== SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-    );
-    if (initialCustomFieldValues.length === organization.customFieldValues.length)
-      throw new Error(`Organization ${organization.id} requires a Website custom field for its audit change`);
-
+    const organizationIndex = snapshot.organizations.indexOf(organization);
     const initialOrganization = creationState(organization, {
-      customFieldValues: initialCustomFieldValues,
-      name: previousOrganizationName(organization.name),
+      contacts: [],
+      deals: [],
+      name: SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES.get(organizationIndex) ?? organization.name,
+      tasks: [],
     });
     push(DomainEvent.ORGANIZATION_CREATED, organization.id, initialOrganization, initialOrganization.createdAt);
   }
 
-  for (const [contactIndex, contact] of snapshot.contacts.entries()) {
-    const isChatLinked = chatLinkedContactIndexes.has(contactIndex);
-    const hasIdentifierChange = contactIdentifierDomainChanges.has(contactIndex);
-    const isRenamed = contactUpdateIndexes.has(contactIndex) && !isChatLinked && !hasIdentifierChange;
-    if (isChatLinked && !contact.avatarUrl)
-      throw new Error(`Chat-linked contact at index ${contactIndex} requires an avatar for its audit change`);
-
-    const initialContact = creationState(contact, {
-      ...(isChatLinked ? { avatarUrl: null } : {}),
-      ...(hasIdentifierChange ? { identifiers: previousContactIdentifiers(contact, contactIndex) } : {}),
-      ...(isRenamed ? { firstName: `Legacy ${contact.firstName}` } : {}),
+  for (const organizationIndex of SYNTHETIC_ORGANIZATION_UPDATE_INDEXES) {
+    const organization = snapshot.organizations[organizationIndex];
+    const previousName = SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES.get(organizationIndex);
+    if (!organization || !previousName) throw new Error(`Missing organization update snapshot ${organizationIndex}`);
+    const updatedOrganization = updateState(organization, {
+      contacts: [],
+      deals: [],
+      tasks: [],
     });
-    push(DomainEvent.CONTACT_CREATED, contact.id, initialContact, initialContact.createdAt);
-  }
-
-  for (const [serviceIndex, service] of snapshot.services.entries()) {
-    const initialService = creationState(service, {
-      amount: serviceIndex < 5 ? previousLowerValue(service.amount, "service amount") : service.amount,
-    });
-    push(DomainEvent.SERVICE_CREATED, service.id, initialService, initialService.createdAt);
-  }
-
-  for (const deal of snapshot.deals) {
-    const initialDeal = creationState(deal, {
-      totalValue: previousLowerValue(deal.totalValue, "deal total value"),
-    });
-    push(DomainEvent.DEAL_CREATED, deal.id, initialDeal, initialDeal.createdAt);
-  }
-
-  for (const task of snapshot.tasks) {
-    const initialTask = creationState(task, {
-      name: previousTaskName(task.name),
-    });
-    push(DomainEvent.TASK_CREATED, task.id, initialTask, initialTask.createdAt);
-  }
-
-  for (const contactIndex of SYNTHETIC_CONTACT_UPDATE_INDEXES) {
-    const contact = snapshot.contacts[contactIndex];
-    if (!contact) throw new Error(`Missing contact audit snapshot at index ${contactIndex}`);
-    const updatedContact = updateState(contact);
-
-    const changes: Record<string, { previous: unknown; current: unknown }> = {};
-    if (chatLinkedContactIndexes.has(contactIndex))
-      changes.avatarUrl = { previous: null, current: updatedContact.avatarUrl };
-    if (contactIdentifierDomainChanges.has(contactIndex)) {
-      changes.identifiers = {
-        previous: previousContactIdentifiers(updatedContact, contactIndex),
-        current: updatedContact.identifiers,
-      };
-    }
-    if (!chatLinkedContactIndexes.has(contactIndex) && !contactIdentifierDomainChanges.has(contactIndex)) {
-      changes.firstName = {
-        previous: `Legacy ${updatedContact.firstName}`,
-        current: updatedContact.firstName,
-      };
-    }
-
-    push(DomainEvent.CONTACT_UPDATED, contact.id, { contact: updatedContact, changes }, updatedContact.updatedAt);
-  }
-
-  for (const organization of snapshot.organizations) {
-    const updatedOrganization = updateState(organization);
-    const previousCustomFieldValues = updatedOrganization.customFieldValues.filter(
-      ({ columnId }) => columnId !== SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-    );
     push(
       DomainEvent.ORGANIZATION_UPDATED,
       organization.id,
       {
         organization: updatedOrganization,
-        changes: {
-          name: {
-            previous: previousOrganizationName(updatedOrganization.name),
-            current: updatedOrganization.name,
-          },
-          customFieldValues: {
-            previous: previousCustomFieldValues,
-            current: updatedOrganization.customFieldValues,
-          },
-        },
+        changes: { name: { previous: previousName, current: updatedOrganization.name } },
       },
       updatedOrganization.updatedAt,
     );
   }
 
-  for (const deal of snapshot.deals) {
-    const updatedDeal = updateState(deal);
+  for (const [contactIndex, contact] of snapshot.contacts.entries()) {
+    const initialContact = creationState(contact, {
+      avatarUrl: null,
+      deals: [],
+      firstName: SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES.get(contactIndex) ?? contact.firstName,
+      tasks: [],
+    });
+    push(DomainEvent.CONTACT_CREATED, contact.id, initialContact, initialContact.createdAt);
+  }
+  for (const contactIndex of SYNTHETIC_CONTACT_UPDATE_INDEXES) {
+    const contact = snapshot.contacts[contactIndex];
+    const previousFirstName = SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES.get(contactIndex);
+    if (!contact || !previousFirstName) throw new Error(`Missing contact update snapshot ${contactIndex}`);
+    const updatedContact = updateState(contact, { deals: [], tasks: [] });
+    push(
+      DomainEvent.CONTACT_UPDATED,
+      contact.id,
+      {
+        contact: updatedContact,
+        changes: { firstName: { previous: previousFirstName, current: updatedContact.firstName } },
+      },
+      updatedContact.updatedAt,
+    );
+  }
+
+  for (const service of snapshot.services) {
+    const initialService = creationState(service, { deals: [], tasks: [] });
+    push(DomainEvent.SERVICE_CREATED, service.id, initialService, initialService.createdAt);
+  }
+
+  for (const [dealIndex, deal] of snapshot.deals.entries()) {
+    assertDealTotals(deal);
+    const initialDeal = creationState(deal, {
+      name: SYNTHETIC_PREVIOUS_DEAL_NAMES.get(dealIndex) ?? deal.name,
+      tasks: [],
+    });
+    push(DomainEvent.DEAL_CREATED, deal.id, initialDeal, initialDeal.createdAt);
+  }
+
+  for (const dealIndex of SYNTHETIC_DEAL_UPDATE_INDEXES) {
+    const deal = snapshot.deals[dealIndex];
+    const previousName = SYNTHETIC_PREVIOUS_DEAL_NAMES.get(dealIndex);
+    if (!deal || !previousName) throw new Error(`Missing deal update snapshot ${dealIndex}`);
+    const updatedDeal = updateState(deal, { tasks: [] });
+    assertDealTotals(updatedDeal);
     push(
       DomainEvent.DEAL_UPDATED,
       deal.id,
-      {
-        deal: updatedDeal,
-        changes: {
-          totalValue: {
-            previous: previousLowerValue(updatedDeal.totalValue, "deal total value"),
-            current: updatedDeal.totalValue,
-          },
-        },
-      },
+      { deal: updatedDeal, changes: { name: { previous: previousName, current: updatedDeal.name } } },
       updatedDeal.updatedAt,
     );
   }
 
-  for (const service of snapshot.services.slice(0, 5)) {
-    const updatedService = updateState(service);
-    push(
-      DomainEvent.SERVICE_UPDATED,
-      service.id,
-      {
-        service: updatedService,
-        changes: {
-          amount: {
-            previous: previousLowerValue(updatedService.amount, "service amount"),
-            current: updatedService.amount,
-          },
-        },
-      },
-      updatedService.updatedAt,
-    );
+  for (const [taskIndex, task] of snapshot.tasks.entries()) {
+    if (task.type !== "custom") continue;
+    const initialTask = creationState(task, { name: SYNTHETIC_PREVIOUS_TASK_NAMES.get(taskIndex) ?? task.name });
+    push(DomainEvent.TASK_CREATED, task.id, initialTask, initialTask.createdAt);
   }
 
-  for (const task of snapshot.tasks) {
+  for (const taskIndex of SYNTHETIC_TASK_UPDATE_INDEXES) {
+    const task = snapshot.tasks[taskIndex];
+    const previousName = SYNTHETIC_PREVIOUS_TASK_NAMES.get(taskIndex);
+    if (!task || task.type !== "custom" || !previousName) throw new Error(`Missing custom task update ${taskIndex}`);
     const updatedTask = updateState(task);
     push(
       DomainEvent.TASK_UPDATED,
@@ -458,28 +416,12 @@ export function buildSyntheticAuditLogFixtures(args: {
         task: updatedTask,
         changes: {
           name: {
-            previous: previousTaskName(updatedTask.name),
+            previous: previousName,
             current: updatedTask.name,
           },
         },
       },
       updatedTask.updatedAt,
-    );
-  }
-
-  for (const { index, previousLabel } of customColumnUpdates) {
-    const customColumn = snapshot.customColumns[index];
-    if (!customColumn) throw new Error(`Missing custom-column audit snapshot at index ${index}`);
-    push(
-      DomainEvent.CUSTOM_COLUMN_UPDATED,
-      customColumn.dto.id,
-      {
-        customColumn: customColumn.dto,
-        changes: {
-          label: { previous: previousLabel, current: customColumn.dto.label },
-        },
-      },
-      nextTimelineTimestamp(),
     );
   }
 
@@ -492,34 +434,25 @@ export function buildSyntheticAuditLogFixtures(args: {
         displayName: account.displayName,
         emailAddress: account.emailAddress,
       },
-      nextTimelineTimestamp(),
+      account.createdAt,
     );
   }
 
-  if (messagingThreads.length !== 25)
-    throw new Error(`Expected 25 synthetic messaging threads, received ${messagingThreads.length}`);
-
-  for (const [threadIndex, thread] of messagingThreads.entries()) {
-    const connectedAccount = snapshot.connectedAccounts.find(({ provider }) => provider === thread.account);
-    if (!connectedAccount)
-      throw new Error(`Missing ${thread.account} connected account for synthetic messaging audit fixture`);
-
-    push(
-      DomainEvent.MESSAGING_CHAT_UPDATED,
-      fixtureId("17000000", threadIndex + 1),
-      {
-        connectedAccountId: connectedAccount.id,
-        provider: connectedAccount.provider,
-        providerThreadId: `demo-fixture-thread-${threadIndex + 1}`,
-      },
-      nextTimelineTimestamp(),
-      primaryUserId,
-      null,
-    );
-  }
-
-  if (fixtures.length !== SYNTHETIC_AUDIT_LOG_COUNT)
-    throw new Error(`Expected ${SYNTHETIC_AUDIT_LOG_COUNT} synthetic audit fixtures, received ${fixtures.length}`);
+  const createdWebhook = creationState(snapshot.webhook, {
+    description: null,
+    enabled: true,
+  });
+  const updatedWebhook = updateState(snapshot.webhook);
+  push(DomainEvent.WEBHOOK_CREATED, createdWebhook.id, createdWebhook, createdWebhook.createdAt);
+  push(
+    DomainEvent.WEBHOOK_UPDATED,
+    updatedWebhook.id,
+    {
+      webhook: updatedWebhook,
+      changes: calculateChanges(createdWebhook, updatedWebhook),
+    },
+    updatedWebhook.updatedAt,
+  );
 
   return fixtures;
 }
@@ -555,7 +488,6 @@ async function loadSyntheticAuditSnapshot(
   context: SeedContext,
 ): Promise<SyntheticAuditSnapshot> {
   const [
-    company,
     users,
     roles,
     customColumnRows,
@@ -565,15 +497,12 @@ async function loadSyntheticAuditSnapshot(
     serviceRows,
     taskRows,
     connectedAccounts,
+    webhook,
   ] = await Promise.all([
-    prisma.company.findUniqueOrThrow({
-      where: { id: context.ids.company },
-      select: { currency: true, updatedAt: true },
-    }),
     prisma.user.findMany({
       where: {
         id: {
-          in: [context.ids.user, context.ids.pendingUser, context.ids.activeUser],
+          in: [context.ids.user, context.ids.sofiaRossiUser, context.ids.elenaHoffmannUser],
         },
         companyId: context.ids.company,
       },
@@ -588,6 +517,7 @@ async function loadSyntheticAuditSnapshot(
         avatarUrl: true,
         roleId: true,
         createdAt: true,
+        updatedAt: true,
       },
     }),
     prisma.userRole.findMany({
@@ -771,6 +701,19 @@ async function loadSyntheticAuditSnapshot(
         createdAt: true,
       },
     }),
+    prisma.webhook.findUniqueOrThrow({
+      where: { id: fixtureId("22000000", 1), companyId: context.ids.company },
+      select: {
+        id: true,
+        url: true,
+        description: true,
+        events: true,
+        secret: true,
+        enabled: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    }),
   ]);
 
   assertSnapshotCount("users", users.length, 3);
@@ -784,7 +727,6 @@ async function loadSyntheticAuditSnapshot(
   assertSnapshotCount("connected accounts", connectedAccounts.length, 3);
 
   return {
-    company,
     connectedAccounts,
     users,
     roles: roles.map((role) => RoleDtoSchema.parse(role)),
@@ -842,6 +784,7 @@ async function loadSyntheticAuditSnapshot(
         services: task.services.map(({ service }) => service),
       }),
     ),
+    webhook: WebhookDtoSchema.parse(webhook),
   };
 }
 

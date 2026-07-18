@@ -30,11 +30,17 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         value: contactDefinitions[index][2],
       }) satisfies Prisma.ContactIdentifierCreateManyInput,
   );
-  await upsertFixturesById(contactIdentifiers, (identifier) =>
+  await upsertFixturesById(contactIdentifiers, ({ id: _id, ...identifier }) =>
     prisma.contactIdentifier.upsert({
-      where: { id: identifier.id },
+      where: {
+        companyId_channelClass_value: {
+          companyId: identifier.companyId,
+          channelClass: identifier.channelClass,
+          value: identifier.value,
+        },
+      },
       update: identifier,
-      create: identifier,
+      create: { id: _id, ...identifier },
     }),
   );
 
@@ -47,11 +53,16 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         organizationId: organizations[contactDefinitions[index][3]].id,
       }) satisfies Prisma.ContactOrganizationCreateManyInput,
   );
-  await upsertFixturesById(contactOrganizations, (contactOrganization) =>
+  await upsertFixturesById(contactOrganizations, ({ id: _id, ...contactOrganization }) =>
     prisma.contactOrganization.upsert({
-      where: { id: contactOrganization.id },
+      where: {
+        contactId_organizationId: {
+          contactId: contactOrganization.contactId,
+          organizationId: contactOrganization.organizationId,
+        },
+      },
       update: contactOrganization,
-      create: contactOrganization,
+      create: { id: _id, ...contactOrganization },
     }),
   );
 
@@ -64,11 +75,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.ContactUserCreateManyInput,
   );
-  await upsertFixturesById(contactUsers, (contactUser) =>
+  await upsertFixturesById(contactUsers, ({ id: _id, ...contactUser }) =>
     prisma.contactUser.upsert({
-      where: { id: contactUser.id },
+      where: { contactId_userId: { contactId: contactUser.contactId, userId: contactUser.userId } },
       update: contactUser,
-      create: contactUser,
+      create: { id: _id, ...contactUser },
     }),
   );
 
@@ -81,11 +92,16 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.OrganizationUserCreateManyInput,
   );
-  await upsertFixturesById(organizationUsers, (organizationUser) =>
+  await upsertFixturesById(organizationUsers, ({ id: _id, ...organizationUser }) =>
     prisma.organizationUser.upsert({
-      where: { id: organizationUser.id },
+      where: {
+        organizationId_userId: {
+          organizationId: organizationUser.organizationId,
+          userId: organizationUser.userId,
+        },
+      },
       update: organizationUser,
-      create: organizationUser,
+      create: { id: _id, ...organizationUser },
     }),
   );
 
@@ -98,11 +114,16 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         organizationId: organizations[dealDefinitions[index][1]].id,
       }) satisfies Prisma.DealOrganizationCreateManyInput,
   );
-  await upsertFixturesById(dealOrganizations, (dealOrganization) =>
+  await upsertFixturesById(dealOrganizations, ({ id: _id, ...dealOrganization }) =>
     prisma.dealOrganization.upsert({
-      where: { id: dealOrganization.id },
+      where: {
+        dealId_organizationId: {
+          dealId: dealOrganization.dealId,
+          organizationId: dealOrganization.organizationId,
+        },
+      },
       update: dealOrganization,
-      create: dealOrganization,
+      create: { id: _id, ...dealOrganization },
     }),
   );
 
@@ -115,11 +136,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.DealUserCreateManyInput,
   );
-  await upsertFixturesById(dealUsers, (dealUser) =>
+  await upsertFixturesById(dealUsers, ({ id: _id, ...dealUser }) =>
     prisma.dealUser.upsert({
-      where: { id: dealUser.id },
+      where: { dealId_userId: { dealId: dealUser.dealId, userId: dealUser.userId } },
       update: dealUser,
-      create: dealUser,
+      create: { id: _id, ...dealUser },
     }),
   );
 
@@ -133,11 +154,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         serviceId: services[serviceIndex].id,
       }) satisfies Prisma.ServiceDealCreateManyInput,
   );
-  await upsertFixturesById(serviceDeals, (serviceDeal) =>
+  await upsertFixturesById(serviceDeals, ({ id: _id, ...serviceDeal }) =>
     prisma.serviceDeal.upsert({
-      where: { id: serviceDeal.id },
+      where: { serviceId_dealId: { serviceId: serviceDeal.serviceId, dealId: serviceDeal.dealId } },
       update: serviceDeal,
-      create: serviceDeal,
+      create: { id: _id, ...serviceDeal },
     }),
   );
   await prisma.serviceDeal.deleteMany({
@@ -158,11 +179,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.DealContactCreateManyInput,
     ),
   );
-  await upsertFixturesById(dealContacts, (dealContact) =>
+  await upsertFixturesById(dealContacts, ({ id: _id, ...dealContact }) =>
     prisma.dealContact.upsert({
-      where: { id: dealContact.id },
+      where: { dealId_contactId: { dealId: dealContact.dealId, contactId: dealContact.contactId } },
       update: dealContact,
-      create: dealContact,
+      create: { id: _id, ...dealContact },
     }),
   );
   await prisma.dealContact.deleteMany({
@@ -181,11 +202,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.ServiceUserCreateManyInput,
   );
-  await upsertFixturesById(serviceUsers, (serviceUser) =>
+  await upsertFixturesById(serviceUsers, ({ id: _id, ...serviceUser }) =>
     prisma.serviceUser.upsert({
-      where: { id: serviceUser.id },
+      where: { serviceId_userId: { serviceId: serviceUser.serviceId, userId: serviceUser.userId } },
       update: serviceUser,
-      create: serviceUser,
+      create: { id: _id, ...serviceUser },
     }),
   );
 
@@ -202,11 +223,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         ]
       : [],
   );
-  await upsertFixturesById(taskUsers, (taskUser) =>
+  await upsertFixturesById(taskUsers, ({ id: _id, ...taskUser }) =>
     prisma.taskUser.upsert({
-      where: { id: taskUser.id },
+      where: { taskId_userId: { taskId: taskUser.taskId, userId: taskUser.userId } },
       update: taskUser,
-      create: taskUser,
+      create: { id: _id, ...taskUser },
     }),
   );
   await prisma.taskUser.deleteMany({
@@ -227,11 +248,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskContactCreateManyInput,
     ),
   );
-  await upsertFixturesById(taskContacts, (taskContact) =>
+  await upsertFixturesById(taskContacts, ({ id: _id, ...taskContact }) =>
     prisma.taskContact.upsert({
-      where: { id: taskContact.id },
+      where: { taskId_contactId: { taskId: taskContact.taskId, contactId: taskContact.contactId } },
       update: taskContact,
-      create: taskContact,
+      create: { id: _id, ...taskContact },
     }),
   );
   await prisma.taskContact.deleteMany({
@@ -252,11 +273,16 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskOrganizationCreateManyInput,
     ),
   );
-  await upsertFixturesById(taskOrganizations, (taskOrganization) =>
+  await upsertFixturesById(taskOrganizations, ({ id: _id, ...taskOrganization }) =>
     prisma.taskOrganization.upsert({
-      where: { id: taskOrganization.id },
+      where: {
+        taskId_organizationId: {
+          taskId: taskOrganization.taskId,
+          organizationId: taskOrganization.organizationId,
+        },
+      },
       update: taskOrganization,
-      create: taskOrganization,
+      create: { id: _id, ...taskOrganization },
     }),
   );
   await prisma.taskOrganization.deleteMany({
@@ -280,11 +306,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskDealCreateManyInput,
     ),
   );
-  await upsertFixturesById(taskDeals, (taskDeal) =>
+  await upsertFixturesById(taskDeals, ({ id: _id, ...taskDeal }) =>
     prisma.taskDeal.upsert({
-      where: { id: taskDeal.id },
+      where: { taskId_dealId: { taskId: taskDeal.taskId, dealId: taskDeal.dealId } },
       update: taskDeal,
-      create: taskDeal,
+      create: { id: _id, ...taskDeal },
     }),
   );
   await prisma.taskDeal.deleteMany({
@@ -305,11 +331,11 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskServiceCreateManyInput,
     ),
   );
-  await upsertFixturesById(taskServices, (taskService) =>
+  await upsertFixturesById(taskServices, ({ id: _id, ...taskService }) =>
     prisma.taskService.upsert({
-      where: { id: taskService.id },
+      where: { taskId_serviceId: { taskId: taskService.taskId, serviceId: taskService.serviceId } },
       update: taskService,
-      create: taskService,
+      create: { id: _id, ...taskService },
     }),
   );
   await prisma.taskService.deleteMany({

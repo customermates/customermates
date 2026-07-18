@@ -8,6 +8,7 @@ import { seedDemoMessagingFixtures } from "../seeds/messaging/seed";
 import { people, threads as threadFixtures } from "../seeds/messaging/fixtures";
 import { SYNTHETIC_CONTACT_EMAIL_ADDRESSES, SYNTHETIC_CONTACT_NAMES } from "../seeds/contacts";
 import { fixtureId } from "../seeds/helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 
 type FixtureRow = Record<string, unknown>;
 type UpsertInput = {
@@ -32,6 +33,9 @@ function recordingDelegate() {
         deleteManyCalls.push(input);
         return Promise.resolve({ count: 0 });
       }),
+      findFirst: vi.fn((_input?: FixtureRow) => Promise.resolve(null as FixtureRow | null)),
+      findUnique: vi.fn((_input?: FixtureRow) => Promise.resolve(null as FixtureRow | null)),
+      updateMany: vi.fn(() => Promise.resolve({ count: 0 })),
       upsert: vi.fn((input: UpsertInput) => {
         calls.push(input);
         return Promise.resolve(input.create);
@@ -46,6 +50,12 @@ function recordingPrisma() {
   const messages = recordingDelegate();
   const participants = recordingDelegate();
   const threads = recordingDelegate();
+  connectedAccounts.delegate.findFirst.mockImplementation(() => {
+    const googleAccount = connectedAccounts.calls.find(
+      ({ create }) => create.unipileAccountId === "demo-fixture-google-account",
+    );
+    return Promise.resolve(googleAccount ? { lastSyncedAt: googleAccount.create.lastSyncedAt } : null);
+  });
 
   return {
     prisma: {
@@ -55,6 +65,10 @@ function recordingPrisma() {
       messagingThread: threads.delegate,
       messagingThreadParticipant: participants.delegate,
     } as unknown as PrismaClient,
+    delegates: {
+      connectedAccounts: connectedAccounts.delegate,
+      contactIdentifiers: contactIdentifiers.delegate,
+    },
     records: {
       connectedAccounts: connectedAccounts.calls,
       connectedAccountDeletes: connectedAccounts.deleteManyCalls,
@@ -90,6 +104,7 @@ const context = {
 };
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllEnvs();
 });
 
@@ -120,6 +135,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
           hasCalendar: true,
           hasMessaging: true,
           provider: "google",
+          synthetic: true,
         }),
         expect.objectContaining({
           displayName: "Max Bergmann · LinkedIn",
@@ -137,15 +153,14 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       ]),
     );
     for (const call of records.contactIdentifiers) {
-      expect(call.where).toEqual({ id: call.create.id });
-      expect(call.update).toMatchObject({
-        channelClass: call.create.channelClass,
-        companyId: context.companyId,
-        contactId: call.create.contactId,
-        displayName: call.create.displayName,
-        provider: call.create.provider,
-        value: call.create.value,
+      expect(call.where).toEqual({
+        companyId_channelClass_value: {
+          companyId: call.create.companyId,
+          channelClass: call.create.channelClass,
+          value: call.create.value,
+        },
       });
+      expect(call.update).toEqual({});
     }
     for (const account of accounts) {
       expect(account).toMatchObject({
@@ -153,6 +168,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         ownerAvatarUrl: "/demo/avatars/photos/max-bergmann.png",
         shared: false,
         status: "ok",
+        synthetic: true,
         syncing: false,
         userId: context.userId,
       });
@@ -371,14 +387,7 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
     }
     for (const call of records.participants) {
       expect(call.where).toEqual({ id: call.create.id });
-      expect(call.update).toMatchObject({
-        companyId: context.companyId,
-        identifier: call.create.identifier,
-        messagingThreadId: call.create.messagingThreadId,
-        pictureUrl: call.create.pictureUrl,
-        provider: call.create.provider,
-        providerUserId: call.create.providerUserId,
-      });
+      expect(call.update).toEqual({});
     }
 
     expect(messages).toHaveLength(126);
@@ -457,5 +466,63 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       expect(new Set(idFilter.notIn).size).toBe(expectedDesiredCount);
       expect(idFilter.notIn.every((id) => id.startsWith(idPrefix))).toBe(true);
     }
+  });
+
+  it("preserves synthetic inbox chronology when a persistent Preview database is reseeded", async () => {
+    vi.stubEnv("APP_MODE", appMode);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-18T10:02:00.000Z"));
+    const { prisma, records } = recordingPrisma();
+
+    await seedDemoMessagingFixtures(prisma, context);
+    const firstAccountCreatedAt = createdRows(records.connectedAccounts)[0]?.createdAt;
+    const firstThreadTimes = createdRows(records.threads).map(({ lastMessageAt }) => lastMessageAt);
+    const firstMessageTimes = createdRows(records.messages).map(({ sentAt }) => sentAt);
+    const newestMessageAt = Math.max(...firstMessageTimes.map((sentAt) => (sentAt as Date).getTime()));
+
+    expect(newestMessageAt).toBeLessThanOrEqual(Date.now());
+    expect(newestMessageAt).toBeGreaterThan(Date.now() - 15 * 60_000);
+
+    vi.setSystemTime(new Date("2026-07-18T12:47:00.000Z"));
+    await seedDemoMessagingFixtures(prisma, context);
+
+    const secondAccounts = createdRows(records.connectedAccounts).slice(3);
+    const secondThreads = createdRows(records.threads).slice(25);
+    const secondMessages = createdRows(records.messages).slice(126);
+
+    expect(secondAccounts[0]?.createdAt).toEqual(firstAccountCreatedAt);
+    expect(secondThreads.map(({ lastMessageAt }) => lastMessageAt)).toEqual(firstThreadTimes);
+    expect(secondMessages.map(({ sentAt }) => sentAt)).toEqual(firstMessageTimes);
+    for (const [index, { create, update }] of records.connectedAccounts.entries()) {
+      expect(update).toMatchObject(SYNTHETIC_SEED_TIMELINE.connectedAccount(index % 3));
+      expect(update.lastSyncedAt).toEqual(create.lastSyncedAt);
+    }
+    expect(records.threads.every(({ update }) => Object.keys(update).length === 0)).toBe(true);
+    expect(records.messages.every(({ update }) => Object.keys(update).length === 0)).toBe(true);
+  });
+
+  it("reuses a channel recreated by the UI under its natural key", async () => {
+    vi.stubEnv("APP_MODE", appMode);
+    const { delegates, prisma, records } = recordingPrisma();
+
+    await seedDemoMessagingFixtures(prisma, context);
+    delegates.contactIdentifiers.findFirst.mockImplementation((input?: FixtureRow) => {
+      const matchesLeon = JSON.stringify(input?.where).includes("leon-becker.linkedin.example");
+      return Promise.resolve(matchesLeon ? { id: "ui-recreated-linkedin-channel" } : null);
+    });
+
+    await expect(seedDemoMessagingFixtures(prisma, context)).resolves.toBeUndefined();
+
+    const secondSeedCreates = records.contactIdentifiers.slice(4).map(({ create }) => create);
+    expect(secondSeedCreates).toHaveLength(3);
+    expect(secondSeedCreates.some(({ value }) => value === "leon-becker.linkedin.example")).toBe(false);
+
+    const secondCleanup = records.contactIdentifierDeletes.at(-1)?.where.id as {
+      notIn: string[];
+      startsWith: string;
+    };
+    expect(secondCleanup.startsWith).toBe("1a000000-");
+    expect(secondCleanup.notIn).toHaveLength(4);
+    expect(secondCleanup.notIn).not.toContain("ui-recreated-linkedin-channel");
   });
 });

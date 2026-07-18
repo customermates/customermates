@@ -3,7 +3,6 @@ import type { ZodType } from "zod";
 
 import { SYNTHETIC_COMPANY_USERS, SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { DomainEvent } from "@/features/event/domain-events";
-import { WebhookContactDeletedSchema } from "@/features/contacts/delete/contact-deleted.openapi";
 import { WebhookContactCreatedSchema } from "@/features/contacts/upsert/contact-created.openapi";
 import { WebhookContactUpdatedSchema } from "@/features/contacts/upsert/contact-updated.openapi";
 import { WebhookDealCreatedSchema } from "@/features/deals/upsert/deal-created.openapi";
@@ -19,11 +18,11 @@ import { SEED_IDS } from "../seeds/context";
 import { SYNTHETIC_DEAL_NAMES } from "../seeds/deals";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_ORGANIZATION_NAMES } from "../seeds/organizations";
+import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 import { seedWebhooks, SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS, SYNTHETIC_WEBHOOK_URL } from "../seeds/webhooks";
 
 const DELIVERY_SCHEMAS = {
   [DomainEvent.CONTACT_CREATED]: WebhookContactCreatedSchema,
-  [DomainEvent.CONTACT_DELETED]: WebhookContactDeletedSchema,
   [DomainEvent.CONTACT_UPDATED]: WebhookContactUpdatedSchema,
   [DomainEvent.DEAL_CREATED]: WebhookDealCreatedSchema,
   [DomainEvent.DEAL_UPDATED]: WebhookDealUpdatedSchema,
@@ -175,6 +174,9 @@ describe("synthetic webhook fixtures", () => {
       url: SYNTHETIC_WEBHOOK_URL,
     });
     expect(new URL(webhook.url).hostname).toBe("receiver.example");
+    expect(new Set(webhook.events)).toEqual(new Set(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map(({ event }) => event)));
+    expect(webhook.createdAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.createdAt);
+    expect(webhook.updatedAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt);
   });
 
   it("restores 14 sanitized delivery examples with full payloads that satisfy their OpenAPI schemas", async () => {
@@ -217,21 +219,10 @@ describe("synthetic webhook fixtures", () => {
 
     expect(secondRun).toEqual(firstRun);
     expect(firstRun.every(({ createdAt }) => createdAt instanceof Date)).toBe(true);
-    expect(firstRun.map(({ createdAt }) => createdAt.toISOString())).toEqual([
-      "2026-04-02T11:51:00.000Z",
-      "2026-04-02T11:42:00.000Z",
-      "2026-04-02T11:33:00.000Z",
-      "2026-04-02T11:24:00.000Z",
-      "2026-04-02T11:15:00.000Z",
-      "2026-04-02T11:06:00.000Z",
-      "2026-04-02T10:57:00.000Z",
-      "2026-04-02T10:48:00.000Z",
-      "2026-04-02T10:39:00.000Z",
-      "2026-04-02T10:30:00.000Z",
-      "2026-04-02T10:21:00.000Z",
-      "2026-04-02T10:12:00.000Z",
-      "2026-04-02T10:03:00.000Z",
-      "2026-04-02T09:54:00.000Z",
-    ]);
+    expect(firstRun.map(({ createdAt }) => createdAt)).toEqual(
+      SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((_, index) => SYNTHETIC_SEED_TIMELINE.webhookDelivery(index)),
+    );
+    expect(firstRun[0].createdAt.getTime()).toBeGreaterThan(SYNTHETIC_SEED_TIMELINE.webhook.createdAt.getTime());
+    expect(firstRun.at(-1)?.createdAt.getTime()).toBeLessThan(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt.getTime());
   });
 });

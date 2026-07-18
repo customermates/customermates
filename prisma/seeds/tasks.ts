@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import { fixtureId, relationshipTargets, upsertFixturesById } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_TASK_NAMES = [
   "Prepare and send a proposal for Wavestone",
@@ -10,7 +11,7 @@ export const SYNTHETIC_TASK_NAMES = [
   "Update training materials",
   "Schedule discovery call with BMW",
   "Coordinate demo appointment",
-  "User Pending Authorization (Sofia Rossi)",
+  "Prepare Q3 sales pipeline review",
   "Follow up with legal on contract approval for Roche",
   "Schedule discovery call with PwC",
   "Follow up on cold call",
@@ -85,8 +86,9 @@ export async function seedTasks(context: SeedContext): Promise<TaskSeedData> {
         id: fixtureId("a0000000", index + 1),
         companyId: context.ids.company,
         name,
-        relatedUserId: index === 6 ? context.ids.pendingUser : context.ids.user,
-        type: index === 6 ? "userPendingAuthorization" : "custom",
+        relatedUserId: null,
+        type: "custom",
+        ...SYNTHETIC_SEED_TIMELINE.task(index),
       }) satisfies Prisma.TaskCreateManyInput,
   );
 

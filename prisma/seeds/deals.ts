@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/prisma";
 import type { SeedContext } from "./context";
 import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
 import type { ServiceSeedData } from "./services";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_DEAL_NAMES = [
   "Process Automation Program",
@@ -117,6 +118,7 @@ export async function seedDeals(context: SeedContext, serviceData: ServiceSeedDa
       name,
       totalQuantity,
       totalValue,
+      ...SYNTHETIC_SEED_TIMELINE.deal(index),
     } satisfies Prisma.DealCreateManyInput;
   });
 

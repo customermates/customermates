@@ -34,7 +34,7 @@ import {
 import { SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 
 const SYNTHETIC_FIXTURE_COUNTS = {
-  auditLogs: 200,
+  auditLogs: 161,
   authAccounts: 3,
   authUsers: 3,
   contacts: 30,
@@ -110,12 +110,12 @@ describe("canonical synthetic CRM fixture contract", () => {
       {
         credentialAccountId: SEED_IDS.sofiaRossiCredentialAccount,
         email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
-        userId: SEED_IDS.pendingUser,
+        userId: SEED_IDS.sofiaRossiUser,
       },
       {
         credentialAccountId: SEED_IDS.elenaHoffmannCredentialAccount,
         email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
-        userId: SEED_IDS.activeUser,
+        userId: SEED_IDS.elenaHoffmannUser,
       },
     ]);
     expect(new Set(SYNTHETIC_AUTH_IDENTITY_DEFINITIONS.map(({ userId }) => userId))).toHaveLength(
@@ -174,13 +174,13 @@ describe("canonical synthetic CRM fixture contract", () => {
         status: "active",
       },
       {
-        id: SEED_IDS.pendingUser,
+        id: SEED_IDS.sofiaRossiUser,
         email: "sofia.rossi@customermates.com",
-        roleId: null,
-        status: "pendingAuthorization",
+        roleId: SEED_IDS.salesManagerRole,
+        status: "active",
       },
       {
-        id: SEED_IDS.activeUser,
+        id: SEED_IDS.elenaHoffmannUser,
         email: "elena.hoffmann@customermates.com",
         roleId: SEED_IDS.customerSuccessRole,
         status: "active",
@@ -362,7 +362,7 @@ Review inbound lead from website and assign qualification score
 Update training materials
 Schedule discovery call with BMW
 Coordinate demo appointment
-User Pending Authorization (Sofia Rossi)
+Prepare Q3 sales pipeline review
 Follow up with legal on contract approval for Roche
 Schedule discovery call with PwC
 Follow up on cold call
@@ -402,7 +402,7 @@ Loop in legal team
 
   it("pins the canonical entity and relationship counts", () => {
     expect(SYNTHETIC_FIXTURE_COUNTS).toEqual({
-      auditLogs: 200,
+      auditLogs: 161,
       authAccounts: 3,
       authUsers: 3,
       contacts: 30,

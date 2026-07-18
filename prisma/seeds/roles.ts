@@ -1,9 +1,10 @@
-import { Action, Resource } from "@/generated/prisma";
+import { Action, Resource, type Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 
 import { SEED_IDS } from "./context";
 import { fixtureId } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 type RoleGrant = readonly [resource: Resource, actions: readonly Action[]];
 export type SyntheticRolePermissionDefinition = Readonly<{
@@ -93,33 +94,78 @@ export const SYNTHETIC_ROLE_PERMISSION_COUNT = SYNTHETIC_ROLE_DEFINITIONS.reduce
   0,
 );
 
+async function reconcileRoleId(
+  prisma: Prisma.TransactionClient,
+  role: Omit<SyntheticRoleDefinition, "permissions"> & { createdAt: Date; updatedAt: Date },
+): Promise<void> {
+  const [existingById, existingByName] = await Promise.all([
+    prisma.userRole.findUnique({ where: { id: role.id }, select: { id: true } }),
+    prisma.userRole.findUnique({
+      where: { name_companyId: { name: role.name, companyId: role.companyId } },
+      select: { id: true },
+    }),
+  ]);
+
+  if (existingByName && existingByName.id !== role.id) {
+    if (existingById) {
+      await prisma.user.updateMany({ where: { roleId: existingByName.id }, data: { roleId: role.id } });
+      await prisma.userRole.delete({ where: { id: existingByName.id } });
+    } else await prisma.userRole.update({ where: { id: existingByName.id }, data: { id: role.id } });
+  }
+
+  await prisma.userRole.upsert({
+    where: { id: role.id },
+    update: role,
+    create: role,
+  });
+}
+
+async function reconcilePermissionId(
+  prisma: Prisma.TransactionClient,
+  permission: SyntheticRolePermissionDefinition,
+): Promise<void> {
+  const [existingById, existingByGrant] = await Promise.all([
+    prisma.rolePermission.findUnique({ where: { id: permission.id }, select: { id: true } }),
+    prisma.rolePermission.findUnique({
+      where: {
+        roleId_resource_action: {
+          roleId: permission.roleId,
+          resource: permission.resource,
+          action: permission.action,
+        },
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  if (existingByGrant && existingByGrant.id !== permission.id) {
+    if (existingById) await prisma.rolePermission.delete({ where: { id: existingByGrant.id } });
+    else await prisma.rolePermission.update({ where: { id: existingByGrant.id }, data: { id: permission.id } });
+  }
+
+  await prisma.rolePermission.upsert({
+    where: { id: permission.id },
+    update: permission,
+    create: permission,
+  });
+}
+
 export async function seedRoles(context: SeedContext): Promise<void> {
   const roleIds = SYNTHETIC_ROLE_DEFINITIONS.map(({ id }) => id);
-  const roles = SYNTHETIC_ROLE_DEFINITIONS.map(({ id, companyId, description, isSystemRole, name }) => ({
+  const roles = SYNTHETIC_ROLE_DEFINITIONS.map(({ id, companyId, description, isSystemRole, name }, index) => ({
     id,
     companyId,
     description,
     isSystemRole,
     name,
+    ...(index === 0 ? SYNTHETIC_SEED_TIMELINE.systemRole : SYNTHETIC_SEED_TIMELINE.customRole(index - 1)),
   }));
   const desiredPermissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
 
   await context.prisma.$transaction(async (prisma) => {
-    for (const role of roles) {
-      await prisma.userRole.upsert({
-        where: { id: role.id },
-        update: role,
-        create: role,
-      });
-    }
+    for (const role of roles) await reconcileRoleId(prisma, role);
 
-    for (const permission of desiredPermissions) {
-      await prisma.rolePermission.upsert({
-        where: { id: permission.id },
-        update: permission,
-        create: permission,
-      });
-    }
+    for (const permission of desiredPermissions) await reconcilePermissionId(prisma, permission);
 
     await prisma.rolePermission.deleteMany({
       where: {

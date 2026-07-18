@@ -11,13 +11,16 @@ import { OrganizationDtoSchema } from "@/features/organizations/organization.sch
 
 import type { SeedContext } from "./context";
 
+import {
+  SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES,
+  SYNTHETIC_PREVIOUS_DEAL_NAMES,
+  SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES,
+} from "./audit-logs";
 import { fixtureId, upsertFixturesById } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_WEBHOOK_URL = "https://receiver.example/webhooks/customermates";
 export const SYNTHETIC_WEBHOOK_DESCRIPTION = "Webhook for demo";
-
-const WEBHOOK_TIMELINE_END = Date.parse("2026-04-02T12:00:00.000Z");
-const WEBHOOK_TIMELINE_STEP = 9 * 60_000;
 
 type DeliveryState = Readonly<{
   status: "failed" | "processing" | "success";
@@ -63,7 +66,7 @@ type WebhookSnapshots = Readonly<{
 
 export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
   {
-    entityIndex: 0,
+    entityIndex: 12,
     entityType: "organization",
     event: DomainEvent.ORGANIZATION_UPDATED,
     status: "success",
@@ -72,33 +75,33 @@ export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
   {
     entityIndex: 1,
     entityType: "contact",
-    event: DomainEvent.CONTACT_DELETED,
+    event: DomainEvent.CONTACT_CREATED,
     status: "success",
     statusCode: 200,
   },
   {
-    entityIndex: 2,
+    entityIndex: 0,
     entityType: "contact",
     event: DomainEvent.CONTACT_UPDATED,
     status: "success",
     statusCode: 200,
   },
   {
-    entityIndex: 0,
+    entityIndex: 3,
     entityType: "deal",
     event: DomainEvent.DEAL_CREATED,
     status: "success",
     statusCode: 200,
   },
   {
-    entityIndex: 3,
+    entityIndex: 5,
     entityType: "organization",
     event: DomainEvent.ORGANIZATION_UPDATED,
     status: "processing",
     statusCode: null,
   },
   {
-    entityIndex: 4,
+    entityIndex: 10,
     entityType: "organization",
     event: DomainEvent.ORGANIZATION_UPDATED,
     status: "success",
@@ -112,7 +115,7 @@ export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
     statusCode: 200,
   },
   {
-    entityIndex: 5,
+    entityIndex: 6,
     entityType: "contact",
     event: DomainEvent.CONTACT_UPDATED,
     status: "success",
@@ -133,7 +136,7 @@ export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
     statusCode: 404,
   },
   {
-    entityIndex: 8,
+    entityIndex: 19,
     entityType: "contact",
     event: DomainEvent.CONTACT_UPDATED,
     status: "failed",
@@ -154,7 +157,7 @@ export const SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS = [
     statusCode: 200,
   },
   {
-    entityIndex: 11,
+    entityIndex: 22,
     entityType: "contact",
     event: DomainEvent.CONTACT_UPDATED,
     status: "failed",
@@ -353,58 +356,83 @@ function eventData(
 
   if (definition.entityType === "contact") {
     const contact = snapshotOrThrow(snapshots.contacts, id, "contact");
+    const projectedContact = {
+      ...contact,
+      avatarUrl: definition.event === DomainEvent.CONTACT_CREATED ? null : contact.avatarUrl,
+      deals: [],
+      tasks: [],
+      ...(definition.event === DomainEvent.CONTACT_CREATED ? { updatedAt: contact.createdAt } : {}),
+    };
     if (definition.event === DomainEvent.CONTACT_UPDATED) {
+      const previousFirstName = SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES.get(definition.entityIndex);
+      if (!previousFirstName) throw new Error(`Missing previous contact name for webhook fixture ${id}`);
       return {
         ...base,
         payload: {
-          contact,
+          contact: projectedContact,
           changes: {
             firstName: {
-              previous: `Legacy ${contact.firstName}`,
+              previous: previousFirstName,
               current: contact.firstName,
             },
           },
         },
       };
     }
-    return { ...base, payload: contact };
+    return { ...base, payload: projectedContact };
   }
 
   if (definition.entityType === "deal") {
     const deal = snapshotOrThrow(snapshots.deals, id, "deal");
+    const projectedDeal = {
+      ...deal,
+      tasks: [],
+      ...(definition.event === DomainEvent.DEAL_CREATED ? { updatedAt: deal.createdAt } : {}),
+    };
     if (definition.event === DomainEvent.DEAL_UPDATED) {
+      const previousName = SYNTHETIC_PREVIOUS_DEAL_NAMES.get(definition.entityIndex);
+      if (!previousName) throw new Error(`Missing previous deal name for webhook fixture ${id}`);
       return {
         ...base,
         payload: {
-          deal,
+          deal: projectedDeal,
           changes: {
-            totalValue: {
-              previous: Math.max(0, deal.totalValue - 1_000),
-              current: deal.totalValue,
+            name: {
+              previous: previousName,
+              current: deal.name,
             },
           },
         },
       };
     }
-    return { ...base, payload: deal };
+    return { ...base, payload: projectedDeal };
   }
 
   const organization = snapshotOrThrow(snapshots.organizations, id, "organization");
+  const projectedOrganization = {
+    ...organization,
+    contacts: [],
+    deals: [],
+    tasks: [],
+    ...(definition.event === DomainEvent.ORGANIZATION_CREATED ? { updatedAt: organization.createdAt } : {}),
+  };
   if (definition.event === DomainEvent.ORGANIZATION_UPDATED) {
+    const previousName = SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES.get(definition.entityIndex);
+    if (!previousName) throw new Error(`Missing previous organization name for webhook fixture ${id}`);
     return {
       ...base,
       payload: {
-        organization,
+        organization: projectedOrganization,
         changes: {
           name: {
-            previous: `Legacy ${organization.name}`,
+            previous: previousName,
             current: organization.name,
           },
         },
       },
     };
   }
-  return { ...base, payload: organization };
+  return { ...base, payload: projectedOrganization };
 }
 
 function requestBody(
@@ -429,17 +457,21 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
     description: SYNTHETIC_WEBHOOK_DESCRIPTION,
     enabled: false,
     events: [
+      DomainEvent.CONTACT_CREATED,
       DomainEvent.CONTACT_UPDATED,
-      DomainEvent.CONTACT_DELETED,
+      DomainEvent.DEAL_CREATED,
+      DomainEvent.DEAL_UPDATED,
       DomainEvent.ORGANIZATION_CREATED,
       DomainEvent.ORGANIZATION_UPDATED,
     ],
+    createdAt: SYNTHETIC_SEED_TIMELINE.webhook.createdAt,
     secret: null,
     url: SYNTHETIC_WEBHOOK_URL,
+    updatedAt: SYNTHETIC_SEED_TIMELINE.webhook.updatedAt,
   } satisfies Prisma.WebhookCreateManyInput;
 
   const deliveries = SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition, index) => {
-    const createdAt = new Date(WEBHOOK_TIMELINE_END - (index + 1) * WEBHOOK_TIMELINE_STEP);
+    const createdAt = SYNTHETIC_SEED_TIMELINE.webhookDelivery(index);
     const terminal = definition.status !== "processing";
 
     return {

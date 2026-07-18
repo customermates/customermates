@@ -8,6 +8,7 @@ import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_TASK_PRIORITY_INDEXES, type TaskSeedData } from "./tasks";
 
 import { fixtureId, upsertFixturesById } from "./helpers";
+import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS = [
   { entityType: "contact", label: "Phones", optionLabels: [], type: "phone" },
@@ -137,6 +138,16 @@ export type CustomFieldSeedData = {
 type CustomFieldValueFixture = Prisma.CustomFieldValueCreateManyInput & {
   id: string;
 };
+
+function customFieldEntityWhere(value: CustomFieldValueFixture): Prisma.CustomFieldValueWhereInput {
+  if (value.contactId) return { contactId: value.contactId };
+  if (value.organizationId) return { organizationId: value.organizationId };
+  if (value.dealId) return { dealId: value.dealId };
+  if (value.serviceId) return { serviceId: value.serviceId };
+  if (value.taskId) return { taskId: value.taskId };
+
+  throw new Error(`Synthetic custom-field value ${value.id} has no entity`);
+}
 
 export async function seedCustomFields(
   context: SeedContext,
@@ -358,7 +369,10 @@ export async function seedCustomFields(
       options: { options: servicePricingOptions },
       type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].type,
     },
-  ] satisfies Prisma.CustomColumnCreateManyInput[];
+  ].map((customColumn, index) => ({
+    ...customColumn,
+    ...SYNTHETIC_SEED_TIMELINE.customColumn(index),
+  })) satisfies Prisma.CustomColumnCreateManyInput[];
 
   let customFieldValueIndex = 0;
   const customFieldValue = (input: Omit<Prisma.CustomFieldValueCreateManyInput, "id">): CustomFieldValueFixture => ({
@@ -475,13 +489,27 @@ export async function seedCustomFields(
       create: customColumn,
     }),
   );
-  await upsertFixturesById(customFieldValues, (value) =>
-    prisma.customFieldValue.upsert({
+  for (const value of customFieldValues) {
+    await prisma.customFieldValue.deleteMany({
+      where: {
+        companyId: ids.company,
+        columnId: value.columnId,
+        id: { not: value.id },
+        ...customFieldEntityWhere(value),
+      },
+    });
+    await prisma.customFieldValue.upsert({
       where: { id: value.id },
       update: value,
       create: value,
-    }),
-  );
+    });
+  }
+  await prisma.customFieldValue.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "18000000-", notIn: customFieldValues.map(({ id }) => id) },
+    },
+  });
 
   return {
     customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
