@@ -557,6 +557,17 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(social)).toThrow();
   }, 30_000);
 
+  it("allows a product-owned viewport to clip a moving compound table", async () => {
+    const viewport: any = structuredClone(valid);
+    viewport.nodes[0].layout.overflow = "hidden";
+    const html = await buildCompositionHtml(viewport, {
+      product: productRoot,
+    });
+    expect(html).toContain("overflow:hidden");
+    viewport.nodes[0].layout.overflow = "scroll";
+    expect(() => compositionSchema.parse(viewport)).toThrow();
+  }, 30_000);
+
   it("supports bounded deterministic reveal, blur, and camera tilt primitives", async () => {
     const cinematic = {
       ...structuredClone(valid),

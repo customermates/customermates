@@ -152,6 +152,7 @@ const layoutStyle = (
   if (layout.columns)
     style.gridTemplateColumns = `repeat(${layout.columns}, minmax(0, 1fr))`;
   if (layout.textAlign) style.textAlign = layout.textAlign;
+  if (layout.overflow) style.overflow = layout.overflow;
   if (layout.padding != null) style.padding = spaceValue(layout.padding);
   if (layout.paddingX != null) {
     style.paddingLeft = spaceValue(layout.paddingX);

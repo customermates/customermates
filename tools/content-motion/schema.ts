@@ -74,6 +74,7 @@ const layout = z
     alignSelf: z.enum(["start", "center", "end", "stretch"]).optional(),
     grow: z.boolean().optional(),
     textAlign: z.enum(["left", "center", "right"]).optional(),
+    overflow: z.enum(["visible", "hidden", "clip"]).optional(),
     columns: z.number().int().min(1).max(12).optional(),
     padding: space.optional(),
     paddingX: space.optional(),
