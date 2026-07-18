@@ -1,13 +1,28 @@
-import { resolveAppMode } from "@/core/config/environment";
+import {
+  normalizeBaseUrl,
+  resolveAppMode,
+  resolveAuthAllowedHosts,
+  resolveBaseUrl,
+  shouldUseSecureCookies,
+} from "@/core/config/environment";
+
+const BASE_URL = resolveBaseUrl(process.env);
+const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();
+const oauthProxySecret = process.env.OAUTH_PROXY_SECRET?.trim() ? process.env.OAUTH_PROXY_SECRET : undefined;
+if (Boolean(oauthProxyUrl) !== Boolean(oauthProxySecret))
+  throw new Error("OAUTH_PROXY_URL and OAUTH_PROXY_SECRET must be configured together");
 
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL as string,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
-  BASE_URL: process.env.BASE_URL ?? "http://localhost:4000",
+  BASE_URL,
+  AUTH_ALLOWED_HOSTS: resolveAuthAllowedHosts(process.env, BASE_URL),
+  AUTH_USE_SECURE_COOKIES: shouldUseSecureCookies(BASE_URL),
+  OAUTH_PROXY_URL: oauthProxyUrl ? normalizeBaseUrl(oauthProxyUrl, "OAUTH_PROXY_URL") : undefined,
+  OAUTH_PROXY_SECRET: oauthProxySecret,
 
   NODE_ENV: (process.env.NODE_ENV as "development" | "test" | "production" | undefined) ?? "development",
   VERCEL_ENV: process.env.VERCEL_ENV as "development" | "preview" | "production" | undefined,
-  VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
   NEXT_RUNTIME: process.env.NEXT_RUNTIME as "nodejs" | "edge" | undefined,
   CI: process.env.CI,
 

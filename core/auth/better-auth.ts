@@ -34,11 +34,24 @@ export const enabledSocialProviders = {
   microsoft: "microsoft" in socialProviders,
 };
 
+const oauthProxy =
+  env.OAUTH_PROXY_URL && env.OAUTH_PROXY_SECRET
+    ? oAuthProxy({
+        productionURL: env.OAUTH_PROXY_URL,
+        secret: env.OAUTH_PROXY_SECRET,
+      })
+    : null;
+
 export const auth = betterAuth({
-  baseURL: env.BASE_URL,
+  baseURL: {
+    allowedHosts: env.AUTH_ALLOWED_HOSTS,
+    fallback: env.BASE_URL,
+    protocol: "auto",
+  },
 
   advanced: {
     cookiePrefix: "app",
+    useSecureCookies: env.AUTH_USE_SECURE_COOKIES,
   },
 
   rateLimit: {
@@ -50,8 +63,6 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-
-  trustedOrigins: [env.BASE_URL, `https://*.${env.VERCEL_PROJECT_PRODUCTION_URL}`],
 
   databaseHooks: {
     user: {
@@ -149,7 +160,7 @@ export const auth = betterAuth({
   socialProviders,
 
   plugins: [
-    oAuthProxy({ currentURL: env.BASE_URL }),
+    ...(oauthProxy ? [oauthProxy] : []),
     apiKey({
       rateLimit: {
         enabled: false,

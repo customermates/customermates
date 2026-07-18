@@ -15,6 +15,15 @@ const mocks = vi.hoisted(() => ({
   signInEmail: vi.fn<(input: unknown) => Promise<Response>>(),
   signOut: vi.fn<(input: unknown) => Promise<Response>>(),
 }));
+const mockEnv = vi.hoisted(() => ({
+  APP_MODE: "demo" as "cloud" | "demo",
+  AUTH_ALLOWED_HOSTS: [
+    "localhost:4000",
+    "*.customermates.com",
+    "customermates-git-feat-inbox-customermates.vercel.app",
+  ],
+  BASE_URL: "http://localhost:4000",
+}));
 
 vi.mock("next-intl/middleware", () => ({
   default: () => mocks.intlMiddleware,
@@ -28,10 +37,7 @@ vi.mock("@/i18n/routing", () => ({
 }));
 
 vi.mock("@/env", () => ({
-  env: {
-    APP_MODE: "demo",
-    BASE_URL: "http://localhost:4000",
-  },
+  env: mockEnv,
 }));
 
 vi.mock("@/core/auth/better-auth", () => ({
@@ -51,8 +57,8 @@ const SESSION_TOKEN_COOKIE = "app.session_token=synthetic-token; Path=/; HttpOnl
 const SESSION_DATA_COOKIE = "app.session_data=synthetic-cache; Path=/; HttpOnly; SameSite=Lax";
 const CLEARED_SESSION_COOKIE = "app.session_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax";
 
-function request(pathname: string, cookie?: string): NextRequest {
-  return new NextRequestValue(`http://localhost:4000${pathname}`, {
+function request(pathname: string, cookie?: string, origin = "http://localhost:4000"): NextRequest {
+  return new NextRequestValue(`${origin}${pathname}`, {
     headers: cookie ? { cookie } : undefined,
   });
 }
@@ -73,6 +79,13 @@ function setCookieHeaders(response: Response): string[] {
 describe("automatic demo authentication proxy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockEnv.APP_MODE = "demo";
+    mockEnv.AUTH_ALLOWED_HOSTS = [
+      "localhost:4000",
+      "*.customermates.com",
+      "customermates-git-feat-inbox-customermates.vercel.app",
+    ];
+    mockEnv.BASE_URL = "http://localhost:4000";
     mocks.intlMiddleware.mockImplementation(() => NextResponse.next());
     mocks.isPublicPage.mockReturnValue(false);
   });
@@ -149,5 +162,31 @@ describe("automatic demo authentication proxy", () => {
 
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
     expect(mocks.isPublicPage).not.toHaveBeenCalled();
+  });
+
+  it.each(["https://customermates-git-feat-inbox-customermates.vercel.app", "https://feat-inbox.customermates.com"])(
+    "keeps an unauthenticated redirect on the validated Preview origin %s",
+    async (origin) => {
+      mockEnv.APP_MODE = "cloud";
+      mockEnv.BASE_URL = "https://customermates-git-feat-inbox-customermates.vercel.app";
+
+      const response = await proxy(request("/en/dashboard?view=board", undefined, origin));
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(
+        `${origin}/en/auth/signin?callbackURL=${encodeURIComponent(`${origin}/en/dashboard?view=board`)}`,
+      );
+    },
+  );
+
+  it("falls back to the configured deployment origin for an untrusted request host", async () => {
+    mockEnv.APP_MODE = "cloud";
+    mockEnv.BASE_URL = "https://customermates-git-feat-inbox-customermates.vercel.app";
+
+    const response = await proxy(request("/en/dashboard", undefined, "https://attacker.example"));
+
+    expect(response.headers.get("location")).toBe(
+      "https://customermates-git-feat-inbox-customermates.vercel.app/en/auth/signin?callbackURL=https%3A%2F%2Fcustomermates-git-feat-inbox-customermates.vercel.app%2Fen%2Fdashboard",
+    );
   });
 });

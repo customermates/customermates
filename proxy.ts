@@ -6,6 +6,7 @@ import createMiddleware from "next-intl/middleware";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
+import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 
 const intlMiddlewareRaw = createMiddleware(routing);
@@ -38,7 +39,7 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
 
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const base = env.BASE_URL;
+  const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
 
   const isApiRoute = pathname.startsWith("/api");
 

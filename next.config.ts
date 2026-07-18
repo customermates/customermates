@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors https://customermates.com https://test.customermates.com`,
+            value: "frame-ancestors 'self'",
           },
         ],
       },

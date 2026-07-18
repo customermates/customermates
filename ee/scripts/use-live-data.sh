@@ -11,8 +11,8 @@ else
   exit 1
 fi
 
-if [[ -z "$DATABASE_URL_PROD" || -z "$DATABASE_DIRECT_URL_PROD" || -z "$DATABASE_URL" ]]; then
-  echo "Error: DATABASE_URL_PROD, DATABASE_DIRECT_URL_PROD, or DATABASE_URL is not set."
+if [[ -z "$DATABASE_URL" ]]; then
+  echo "Error: DATABASE_URL is not set."
   exit 1
 fi
 
@@ -65,6 +65,14 @@ fi
 
 # Generate timestamp for new dump files (only if not using existing)
 if [ "$USE_EXISTING" = false ]; then
+  echo "Enter the direct production PostgreSQL URL. The value is hidden and is not saved."
+  read -r -s -p "Production database URL: " PRODUCTION_DATABASE_URL
+  echo ""
+  if [[ -z "$PRODUCTION_DATABASE_URL" ]]; then
+    echo "Error: A production database URL is required to download a fresh dump."
+    exit 1
+  fi
+
   TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
   SCHEMA_FILE="dumps/${TIMESTAMP}_prod_schema.sql"
   DATA_FILE="dumps/${TIMESTAMP}_prod_data.sql"
@@ -76,19 +84,21 @@ psql $(echo $DATABASE_URL | sed -E 's/\/[^\/]*(\?.*)?$/\/postgres\1/') -c "CREAT
 
 if [ "$USE_EXISTING" = false ]; then
   echo "📊 Exporting schema from production database..."
-  pg_dump "$DATABASE_URL_PROD" --schema-only --no-owner --no-comments \
+  pg_dump "$PRODUCTION_DATABASE_URL" --schema-only --no-owner --no-comments \
     --schema=public \
     --no-privileges \
     -f "$SCHEMA_FILE"
 
-  echo "📡 Exporting data from Supabase production database..."
-  pg_dump "$DATABASE_URL_PROD" --data-only --no-owner --no-comments \
+  echo "📡 Exporting data from the production database..."
+  pg_dump "$PRODUCTION_DATABASE_URL" --data-only --no-owner --no-comments \
     --schema=public \
     --column-inserts \
     -f "$DATA_FILE"
 else
   echo "📁 Using existing dump files..."
 fi
+
+unset PRODUCTION_DATABASE_URL
 
 echo "🔄 Applying production schema to local database..."
 psql "$DATABASE_URL" -f "$SCHEMA_FILE"

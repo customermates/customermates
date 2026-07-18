@@ -5,6 +5,7 @@ import type { Redirect } from "@/features/auth/auth-outcome";
 import type { Data } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -12,6 +13,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { UserAccessor } from "@/core/base/user-accessor";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { signHostedAuthState } from "../webhook-signature";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -44,7 +46,8 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
 
     const account = await this.repo.findAccountByIdOrThrow(data.id);
 
-    const baseUrl = env.BASE_URL.replace(/\/+$/, "");
+    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
+    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
     const state = signHostedAuthState(this.userId);
     const expiresOn = new Date(Date.now() + HOSTED_AUTH_EXPIRY_MINUTES * 60_000).toISOString();
 
