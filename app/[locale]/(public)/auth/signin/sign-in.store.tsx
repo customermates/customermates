@@ -40,7 +40,7 @@ export class SignInStore extends BaseFormStore<EmailSignInData> {
     try {
       const res = await signInWithEmailAction({ ...toJS(this.form), callbackURL: this.callbackURL });
 
-      if (!res.ok) this.setError(res.error);
+      if (res?.ok === false) this.setError(res.error);
     } finally {
       this.setIsLoading(false);
     }
