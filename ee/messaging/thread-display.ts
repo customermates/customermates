@@ -12,13 +12,21 @@ export function isGroupThread(thread: { type: MessagingThreadType }): boolean {
 }
 
 export function groupThreadName(
-  thread: { name: string | null; subject: string | null; participants: { length: number } },
+  thread: {
+    name: string | null;
+    subject: string | null;
+    participants: { length: number };
+  },
   t: (key: string, values?: Record<string, string | number>) => string,
 ): string {
   return thread.name?.trim() || thread.subject?.trim() || t("Inbox.groupThread", { count: thread.participants.length });
 }
 
-type LinkableAttendee = { isSelf?: boolean; identifier?: string | null; contact?: { id: string } | null };
+type LinkableAttendee = {
+  isSelf?: boolean;
+  identifier?: string | null;
+  contact?: { id: string } | null;
+};
 
 export function isAttendeeUnlinked(attendee: LinkableAttendee): boolean {
   return !attendee.isSelf && Boolean(attendee.identifier?.trim()) && !attendee.contact;
@@ -181,11 +189,23 @@ export function deriveThreadDisplay(
   const avatarUrl = isGroup ? undefined : (counterpart?.contact?.avatarUrl ?? counterpart?.pictureUrl ?? undefined);
   const isUnlinked = !isSelfChat && threadHasUnlinkedAttendee(thread.participants);
 
-  return { isGroup, isSelfChat, counterpart, displayName, displayNameSecondary, avatarUrl, isUnlinked };
+  return {
+    isGroup,
+    isSelfChat,
+    counterpart,
+    displayName,
+    displayNameSecondary,
+    avatarUrl,
+    isUnlinked,
+  };
 }
 
 export function deriveMessageSender(
-  message: { sender: MessagingAttendee; provider: MessagingProvider; direction: string },
+  message: {
+    sender: MessagingAttendee;
+    provider: MessagingProvider;
+    direction: string;
+  },
   accountOwner: { displayName: string; avatarUrl: string | null } | null,
   senderAvatarUrl: string | null | undefined,
   isMine: boolean,
@@ -206,8 +226,19 @@ export function deriveMessageSender(
       : accountName
     : senderLabel || t("Inbox.senderUnknown");
   const avatarName = isOutbound ? accountName : senderLabel || t("Inbox.senderUnknown");
-  const avatarUrl = message.sender.contact?.avatarUrl ?? senderAvatarUrl ?? message.sender.pictureUrl ?? undefined;
+  const avatarUrl =
+    message.sender.contact?.avatarUrl ??
+    senderAvatarUrl ??
+    message.sender.pictureUrl ??
+    (isOutbound ? accountOwner?.avatarUrl : undefined) ??
+    undefined;
   const isUnlinked = !isOutbound && isAttendeeUnlinked(message.sender);
 
-  return { resolvedName, avatarName, avatarUrl: avatarUrl ?? undefined, isUnlinked, isOutbound };
+  return {
+    resolvedName,
+    avatarName,
+    avatarUrl: avatarUrl ?? undefined,
+    isUnlinked,
+    isOutbound,
+  };
 }

@@ -4,6 +4,8 @@ import { env } from "@/env";
 import { PUBLIC_ROUTES_SEO, ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
+export const dynamic = "force-dynamic";
+
 function getLastModified(lastModified: Date | number | undefined) {
   if (!lastModified) return undefined;
   const date = lastModified instanceof Date ? lastModified : new Date(lastModified);
@@ -68,7 +70,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return {
       url: `${env.BASE_URL}${route}`,
-      lastModified: lastModified ?? new Date(),
+      ...(lastModified ? { lastModified } : {}),
       alternates: {
         languages,
       },

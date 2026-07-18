@@ -34,7 +34,7 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(
     const originalInvoke = constructor.prototype.invoke;
 
     constructor.prototype.invoke = async function (...args: any[]) {
-      if (env.DEMO_MODE && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
+      if (env.APP_MODE === "demo" && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
 
       const { getUserService } = await import("@/core/di");
       const user = await getUserService().getActiveUserOrThrow();

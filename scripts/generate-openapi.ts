@@ -6,7 +6,6 @@ import { join } from "path";
 import { generateFiles } from "fumadocs-openapi";
 import { createOpenAPI } from "fumadocs-openapi/server";
 
-import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 const spec = generateOpenApiSpec();
@@ -40,10 +39,7 @@ const files = readdirSync(apiEnDir).filter((file) => file.endsWith(".mdx"));
 for (const file of files) {
   const filePath = join(apiEnDir, file);
   let content = readFileSync(filePath, "utf-8");
-  content = content.replace(
-    /document=\{"[^"]*\/public\/v1\/openapi\.json"\}/g,
-    `document={"${env.BASE_URL}/v1/openapi.json"}`,
-  );
+  content = content.replace(/document=\{"[^"]*\/public\/v1\/openapi\.json"\}/g, `document={"/v1/openapi.json"}`);
   writeFileSync(filePath, content, "utf-8");
 }
 

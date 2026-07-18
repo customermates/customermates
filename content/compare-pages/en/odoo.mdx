@@ -134,7 +134,7 @@ A five-person team on Odoo Standard pays €99.50 per month yearly, but without 
 
 Odoo Online provisions in minutes, but configuring real sales workflows usually takes longer. Many companies bring in an Odoo implementation partner because the suite has depth that isn't trivial to navigate without prior experience: 80 modules, Studio customization, module dependencies. Self-hosting the Community Edition is possible but loses many Enterprise-only modules.
 
-Customermates is ready in two minutes. The Card view groups by any single-select column, so any entity (deals, contacts, organizations, tasks) becomes a Kanban board. Self-hosting runs through `docker compose up -d` with three containers (App, PostgreSQL 16, Webhook Worker). No implementation partner needed.
+Customermates is ready in two minutes. The Card view groups by any single-select column, so any entity (deals, contacts, organizations, tasks) becomes a Kanban board. Self-hosting runs through `docker compose up -d` with two containers (the app with its embedded workflow worker and PostgreSQL 16). No implementation partner needed.
 
 ## CRM depth
 
@@ -154,7 +154,7 @@ The difference matters when the CRM should update itself from emails, calls, tra
 
 Odoo splits cleanly between Community (LGPLv3, free) and Enterprise (proprietary, paid). The Community Edition covers core CRM but many specialty modules are Enterprise-only. Odoo Online runs on Odoo SA infrastructure in Belgium. Real data sovereignty in your country requires the Custom edition with self-hosting or the Community Edition on your own servers.
 
-Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source code lives on [GitHub](https://github.com/customermates/customermates). Self-hosting via `docker compose up -d` starts three containers. The cloud version runs in Germany, GDPR-native by default. If the project ever stops, your data and the code are still yours.
+Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source code lives on [GitHub](https://github.com/customermates/customermates). Self-hosting via `docker compose up -d` starts two containers: the app with its embedded workflow worker and PostgreSQL. The cloud version runs in Germany, GDPR-native by default. If the project ever stops, your data and the code are still yours.
 
 The license difference is subtle but real. AGPL-3.0 forces SaaS providers to publish source changes when they host the product. LGPLv3 (Odoo Community) allows proprietary extensions without giving back. Both are open source, but AGPL is friendlier to the community.
 

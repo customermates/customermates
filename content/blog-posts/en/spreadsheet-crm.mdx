@@ -263,7 +263,7 @@ Contacts tab: ID, First Name, Last Name, Email, Phone, Company, Role, Lead Sourc
 For multi-user setups yes, because Sheets is built for concurrent editing. Excel is more powerful at pivot tables, macros, and performance on large datasets. For solo founders without multi-user needs, they're roughly equivalent. For 2 to 5 people, I recommend Sheets.
 
 **Is there a free open-source CRM I can use instead?**
-Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Three containers, 30 minutes, the system is ready. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €12 per user per month (Starter) and is hosted in Germany.
+Yes. Customermates is licensed under AGPL-3.0 and free to self-host via `docker compose up -d`. Two containers—the app with its embedded workflow worker and PostgreSQL—are enough. Other options: EspoCRM, SuiteCRM, Krayin. The Customermates cloud version starts at €12 per user per month (Starter) and is hosted in Germany.
 
 **How many users can collaborate on a Google Sheets CRM?**
 Up to about 5 active editors, in practice. Google Sheets technically supports 100 simultaneous editors, but conflicts on filter views, pivot table refreshes, and concurrent cell edits get unpleasant past 5. For 2 to 3 editors it works smoothly. For 4 to 5 editors, set up protected ranges and clear ownership rules. Above 5, the spreadsheet has aged out and a real CRM saves more time than it costs.

@@ -4,10 +4,15 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    globals: true,
+    env: {
+      APP_MODE: "self-hosted",
+      BASE_URL: "http://localhost:4000",
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test",
+    },
     environment: "node",
-    include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
     exclude: ["node_modules", ".next", "generated"],
+    globals: true,
+    include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
   },
   resolve: {
     alias: {

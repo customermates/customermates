@@ -134,7 +134,7 @@ Ein Fünfer-Team auf Odoo Standard zahlt 99,50 € pro Monat im Jahresplan, alle
 
 Odoo lässt sich in der Cloud-Variante (Odoo Online) in wenigen Minuten anlegen, die Konfiguration für reale Vertriebsprozesse braucht aber meist mehr Zeit. Viele Unternehmen ziehen einen Odoo-Implementierungspartner hinzu, weil die Suite mit ihren 80 Modulen, Studio-Customizing und Modulabhängigkeiten Tiefe hat, die nicht jeder ohne Vorerfahrung navigiert. Self-Hosting der Community-Edition ist möglich, aber ohne Suite-Module ein deutlich abgespecktes Erlebnis.
 
-Customermates ist in zwei Minuten einsatzbereit. Die Card-View gruppiert nach jeder Single-Select-Spalte, also kann jede Entität (Deals, Kontakte, Unternehmen, Aufgaben) ein Kanban-Board sein. Self-Hosting läuft über `docker compose up -d` mit drei Containern (App, PostgreSQL 16, Webhook-Worker). Kein Implementierungspartner nötig.
+Customermates ist in zwei Minuten einsatzbereit. Die Card-View gruppiert nach jeder Single-Select-Spalte, also kann jede Entität (Deals, Kontakte, Unternehmen, Aufgaben) ein Kanban-Board sein. Self-Hosting läuft über `docker compose up -d` mit zwei Containern (der App mit eingebettetem Workflow-Worker und PostgreSQL 16). Kein Implementierungspartner nötig.
 
 ## CRM-Tiefe
 
@@ -154,7 +154,7 @@ Der Unterschied zählt, wenn das CRM sich selbst aus E-Mails, Anrufen, Transkrip
 
 Odoo trennt sauber zwischen Community (LGPLv3, frei) und Enterprise (proprietär, kostenpflichtig). Die Community-Edition deckt CRM-Grundfunktionen ab, viele Spezialmodule sind aber Enterprise-only. Wer Odoo Online nutzt, hostet bei Odoo SA in Belgien. Echte Datensouveränität in Deutschland erfordert die Custom-Edition mit Self-Host-Option oder die Community-Edition auf eigener Infrastruktur.
 
-Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Self-Hosting via `docker compose up -d` startet drei Container. Die Cloud-Version steht in Deutschland, DSGVO-nativ. Falls das Projekt jemals stoppt, gehören Ihnen Daten und Code immer noch.
+Customermates steht unter [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Der vollständige Quellcode liegt auf [GitHub](https://github.com/customermates/customermates). Self-Hosting via `docker compose up -d` startet zwei Container: die App mit eingebettetem Workflow-Worker und PostgreSQL. Die Cloud-Version steht in Deutschland, DSGVO-nativ. Falls das Projekt jemals stoppt, gehören Ihnen Daten und Code immer noch.
 
 Der Lizenz-Unterschied ist subtil, aber relevant. AGPL-3.0 zwingt SaaS-Anbieter, Änderungen am Quellcode offen zu legen, wenn sie das Produkt als Service hosten. LGPLv3 (Odoo Community) erlaubt proprietäre Erweiterungen ohne Rückgabepflicht. Beide sind Open Source, aber AGPL ist freundlicher zur Community.
 

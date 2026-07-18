@@ -34,8 +34,21 @@ export const enabledSocialProviders = {
   microsoft: "microsoft" in socialProviders,
 };
 
+const trustedOrigins = [
+  env.BASE_URL,
+  ...(env.VERCEL_BRANCH_ORIGIN && env.VERCEL_BRANCH_ORIGIN !== env.BASE_URL ? [env.VERCEL_BRANCH_ORIGIN] : []),
+];
+const authBaseURL =
+  trustedOrigins.length === 1
+    ? env.BASE_URL
+    : {
+        allowedHosts: trustedOrigins.map((origin) => new URL(origin).hostname),
+        fallback: env.BASE_URL,
+        protocol: "https" as const,
+      };
+
 export const auth = betterAuth({
-  baseURL: env.BASE_URL,
+  baseURL: authBaseURL,
 
   advanced: {
     cookiePrefix: "app",
@@ -51,7 +64,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [env.BASE_URL, `https://*.${env.VERCEL_PROJECT_PRODUCTION_URL}`],
+  trustedOrigins,
 
   databaseHooks: {
     user: {
@@ -62,7 +75,9 @@ export const auth = betterAuth({
           if (!inviteToken) return { data };
 
           const { getInviteTokenValidationInteractor } = await import("@/core/di");
-          const result = await getInviteTokenValidationInteractor().invoke({ token: inviteToken });
+          const result = await getInviteTokenValidationInteractor().invoke({
+            token: inviteToken,
+          });
           const res = result.data;
 
           if (!res.valid && res.errorMessage === "inviteLinkExpired") {
@@ -80,7 +95,9 @@ export const auth = betterAuth({
       create: {
         after: async (session) => {
           try {
-            const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
+            const authUser = await prisma.authUser.findUnique({
+              where: { id: session.userId },
+            });
             if (authUser) {
               await runWithoutTenant(() =>
                 prisma.user.updateMany({
@@ -117,7 +134,7 @@ export const auth = betterAuth({
     modelName: "AuthSession",
     cookieCache: {
       enabled: true,
-      maxAge: env.DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
+      maxAge: env.APP_MODE === "demo" ? 30 * 24 * 60 * 60 : 5 * 60,
     },
   },
 
@@ -142,14 +159,17 @@ export const auth = betterAuth({
       verificationUrl.searchParams.set("callbackURL", "/onboarding/wizard");
 
       const { getAuthService } = await import("@/core/di");
-      await getAuthService().sendVerificationEmail({ to: user.email, url: verificationUrl.toString() });
+      await getAuthService().sendVerificationEmail({
+        to: user.email,
+        url: verificationUrl.toString(),
+      });
     },
   },
 
   socialProviders,
 
   plugins: [
-    oAuthProxy({ currentURL: env.BASE_URL }),
+    oAuthProxy(),
     apiKey({
       rateLimit: {
         enabled: false,

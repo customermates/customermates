@@ -11,7 +11,11 @@ dist
 build
 *.log
 .DS_Store
-.env
-.env.local
-.env.*.local
+.env*
+*.pem
+*.ts.net.crt
+*.ts.net.key
+.mcp.json
+.vercel
+.claude
 dumps

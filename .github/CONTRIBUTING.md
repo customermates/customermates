@@ -15,7 +15,7 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    cd customermates
    ```
 
-3. **Create a New Branch:** Create a new branch for your changes from `develop` instead of working directly on `main` or `develop`.
+3. **Create a New Branch:** Create a new branch from the latest `main` instead of working directly on `main`.
 
    ```shell
    git checkout -b your-branch-name
@@ -37,7 +37,7 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    git push origin your-branch-name
    ```
 
-8. **Create a Pull Request:** Go to the original Customermates repository and create a pull request. Please provide a detailed description of your changes and target the correct base branch according to the branch policy below. Submitting a PR means you agree to the [CLA](./CLA.md).
+8. **Create a Pull Request:** Go to the original Customermates repository and create a pull request targeting `main`. Please provide a detailed description of your changes. Submitting a PR means you agree to the [CLA](./CLA.md).
 
 9. **Code Review:** Your pull request will undergo a code review.
 
@@ -63,12 +63,11 @@ If you add a commit body or footer, separate it from the subject with a blank li
 
 ## Branch Stability Policy
 
-Customermates uses a two-branch stability model:
+`main` is the protected stable branch and the base for pull requests. Development happens on short-lived topic branches, and a maintainer releases a change by merging its reviewed pull request into `main`.
 
-- `main` is the **stable release branch** and always reflects the latest stable version.
-- `develop` is the **integration branch** and contains the latest non-stable changes.
+Vercel's custom `demo` environment deploys `main` to `demo.customermates.com`. It is not a Git branch or a pull-request base.
 
-Unless maintainers specify otherwise, open pull requests against `develop`.
+Pushed branches in the canonical repository receive isolated Preview deployments and database branches. Committed Prisma migrations are applied automatically with `prisma migrate deploy`; migrations targeting `main` must remain compatible with the currently running application during deployment.
 
 ## Architecture Conventions
 

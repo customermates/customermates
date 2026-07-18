@@ -14,13 +14,45 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { UpsertWebhookInteractor } from "../upsert-webhook.interactor";
+import { UpsertWebhookInteractor, UpsertWebhookSchema } from "../upsert-webhook.interactor";
 import { DeleteWebhookInteractor } from "../delete-webhook.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 import { getWebhookRepo } from "@/core/di";
 
 const WEBHOOK_ID = "00000000-0000-4000-8000-000000000001";
+
+describe("webhook URL validation", () => {
+  it("normalizes a bare host to HTTPS", () => {
+    const result = UpsertWebhookSchema.parse({
+      url: "hooks.example.com/customermates",
+      events: ["contact.created"],
+    });
+
+    expect(result.url).toBe("https://hooks.example.com/customermates");
+  });
+
+  it.each(["http://hooks.example.com", "https://hooks.example.com"])("accepts an HTTP(S) target: %s", (url) => {
+    expect(
+      UpsertWebhookSchema.safeParse({
+        url,
+        events: ["contact.created"],
+      }).success,
+    ).toBe(true);
+  });
+
+  it.each(["mailto:ops@example.com", "tel:+491234", "ftp://hooks.example.com"])(
+    "rejects a non-HTTP target: %s",
+    (url) => {
+      expect(
+        UpsertWebhookSchema.safeParse({
+          url,
+          events: ["contact.created"],
+        }).success,
+      ).toBe(false);
+    },
+  );
+});
 
 function makeWebhookDto(overrides: Record<string, unknown> = {}) {
   return {

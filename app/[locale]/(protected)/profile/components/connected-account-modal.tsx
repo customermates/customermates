@@ -47,7 +47,7 @@ export const ConnectedAccountModal = observer(() => {
   const providerLabel = getProviderDisplayLabel(account, t);
   const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
   const canShareAccounts = getEffectiveEntitlements({
-    cloudHosted: rootStore.isCloudHosted,
+    appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
 

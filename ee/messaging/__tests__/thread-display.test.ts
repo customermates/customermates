@@ -3,7 +3,7 @@ import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma"
 
 import { describe, expect, it } from "vitest";
 
-import { deriveThreadDisplay } from "../thread-display";
+import { deriveMessageSender, deriveThreadDisplay } from "../thread-display";
 
 const t = (key: string) => key;
 
@@ -161,5 +161,135 @@ describe("deriveThreadDisplay self-chat ownership", () => {
     });
 
     expect(view.displayName).toBe("Inbox.senderUnknown");
+  });
+});
+
+describe("deriveThreadDisplay CRM linkage", () => {
+  const linkedAnna: MessagingAttendee = {
+    ...attendee("Anna Müller"),
+    contact: {
+      avatarUrl: "https://demo.example/demo/avatars/anna-mueller.svg",
+      firstName: "Anna",
+      id: "contact-anna",
+      lastName: "Müller",
+    },
+  };
+  const unlinkedClara = attendee("Clara Neumann");
+
+  it("marks a group as partially unlinked when only one participant lacks a CRM contact", () => {
+    const view = thread({
+      type: "group",
+      subject: "Customer operations roundtable",
+      name: "Customer operations working group",
+      provider: "google",
+      participants: [linkedAnna, unlinkedClara],
+    });
+
+    expect(view.isUnlinked).toBe(true);
+  });
+
+  it("does not mark a group as unlinked when every counterpart resolves to a CRM contact", () => {
+    const view = thread({
+      type: "group",
+      subject: "Customer operations roundtable",
+      name: "Customer operations working group",
+      provider: "google",
+      participants: [
+        linkedAnna,
+        {
+          ...attendee("Amin Hassan"),
+          contact: {
+            avatarUrl: "https://demo.example/demo/avatars/amin-hassan.svg",
+            firstName: "Amin",
+            id: "contact-amin",
+            lastName: "Hassan",
+          },
+        },
+      ],
+    });
+
+    expect(view.isUnlinked).toBe(false);
+  });
+});
+
+describe("deriveMessageSender avatar fallbacks", () => {
+  const accountOwner = {
+    avatarUrl: "https://demo.example/demo/avatars/max-mustermann.svg",
+    displayName: "Max Mustermann",
+  };
+
+  it("uses the account owner's identity and avatar for an otherwise anonymous outbound message", () => {
+    const sender: MessagingAttendee = {
+      ...attendee("self"),
+      displayName: null,
+      identifier: "",
+      isSelf: true,
+    };
+
+    const view = deriveMessageSender(
+      { direction: "outbound", provider: "google", sender },
+      accountOwner,
+      null,
+      true,
+      t,
+    );
+
+    expect(view).toMatchObject({
+      avatarName: "Max Mustermann",
+      avatarUrl: accountOwner.avatarUrl,
+      isOutbound: true,
+      resolvedName: "Inbox.senderYou",
+    });
+  });
+
+  it("prefers a resolved sender avatar over the payload and account-owner fallbacks", () => {
+    const sender: MessagingAttendee = {
+      ...attendee("Max Mustermann"),
+      isSelf: true,
+      pictureUrl: "https://demo.example/demo/avatars/payload-max.svg",
+    };
+
+    const view = deriveMessageSender(
+      { direction: "outbound", provider: "google", sender },
+      accountOwner,
+      "https://demo.example/demo/avatars/resolved-max.svg",
+      true,
+      t,
+    );
+
+    expect(view.avatarUrl).toBe("https://demo.example/demo/avatars/resolved-max.svg");
+  });
+
+  it("uses an inbound participant's local avatar without falling back to the account owner", () => {
+    const sender: MessagingAttendee = {
+      ...attendee("Clara Neumann"),
+      pictureUrl: "https://demo.example/demo/avatars/clara-neumann.svg",
+    };
+
+    const view = deriveMessageSender({ direction: "inbound", provider: "google", sender }, accountOwner, null, true, t);
+
+    expect(view).toMatchObject({
+      avatarName: "Clara Neumann",
+      avatarUrl: sender.pictureUrl,
+      isOutbound: false,
+      isUnlinked: true,
+      resolvedName: "Clara Neumann",
+    });
+  });
+
+  it("does not show the account owner's avatar for an inbound sender with no avatar", () => {
+    const view = deriveMessageSender(
+      {
+        direction: "inbound",
+        provider: "google",
+        sender: attendee("Clara Neumann"),
+      },
+      accountOwner,
+      null,
+      true,
+      t,
+    );
+
+    expect(view.avatarUrl).toBeUndefined();
   });
 });

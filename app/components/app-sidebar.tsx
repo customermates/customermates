@@ -95,8 +95,8 @@ export const AppSidebar = observer(
     }
 
     const navGroups: NavGroup[] = useMemo(() => {
-      const profileSubroutes = visibleSubroutes("profile", rootStore.isCloudHosted, userStore.canAccess);
-      const companySubroutes = visibleSubroutes("company", rootStore.isCloudHosted, userStore.canAccess);
+      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, userStore.canAccess);
+      const companySubroutes = visibleSubroutes("company", rootStore.appMode, userStore.canAccess);
 
       return [
         {
@@ -115,7 +115,7 @@ export const AppSidebar = observer(
               title: t("NavigationBar.inbox"),
               href: "/inbox",
               icon: Inbox,
-              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.isCloudHosted,
+              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: unreadThreadCount,
             },
             {
@@ -200,7 +200,7 @@ export const AppSidebar = observer(
       ].filter((g) => g.items.length > 0);
     }, [
       t,
-      rootStore.isCloudHosted,
+      rootStore.appMode,
       subscriptionStatus,
       userStore.user,
       systemTaskCount,
@@ -222,7 +222,10 @@ export const AppSidebar = observer(
           icon: MessageCircle,
           onSelect: () =>
             closeMobileSidebar(() => {
-              feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
+              feedbackModalStore.onInitOrRefresh({
+                type: FeedbackType.general,
+                feedback: "",
+              });
               feedbackModalStore.open();
             }),
         },
@@ -243,20 +246,30 @@ export const AppSidebar = observer(
         label: t("NavigationBar.addOrganization"),
         entity: EntityType.organization,
       },
-      { resource: Resource.deals, key: "add_deal", label: t("NavigationBar.addDeal"), entity: EntityType.deal },
+      {
+        resource: Resource.deals,
+        key: "add_deal",
+        label: t("NavigationBar.addDeal"),
+        entity: EntityType.deal,
+      },
       {
         resource: Resource.services,
         key: "add_service",
         label: t("NavigationBar.addService"),
         entity: EntityType.service,
       },
-      { resource: Resource.tasks, key: "add_task", label: t("NavigationBar.addTask"), entity: EntityType.task },
+      {
+        resource: Resource.tasks,
+        key: "add_task",
+        label: t("NavigationBar.addTask"),
+        entity: EntityType.task,
+      },
     ];
 
     if (isDocsRoute) return null;
 
     const planSubtitle = buildPlanSubtitle(
-      rootStore.isCloudHosted ? subscriptionStatus : null,
+      rootStore.appMode !== "self-hosted" ? subscriptionStatus : null,
       trialDaysLeft,
       emailVerified,
       t,
@@ -270,7 +283,7 @@ export const AppSidebar = observer(
             addLabel={t("Common.actions.add")}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
-            homeHref={rootStore.isDemoMode ? "https://customermates.com" : "/"}
+            homeHref="/"
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
             onAdd={() => closeMobileSidebar(() => setIsAddPickerOpen(true))}

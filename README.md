@@ -91,7 +91,7 @@ Self-hosting is two files (`docker-compose.yml` and `.env`) plus `docker compose
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.example -o .env
 # edit .env with real values
 docker compose up -d
 ```
@@ -99,11 +99,15 @@ docker compose up -d
 Required `.env` values:
 
 - `BETTER_AUTH_SECRET`: long random string (`openssl rand -hex 32`).
-- `POSTGRES_PASSWORD`: change the default.
-- `BASE_URL`: your public URL (e.g. `https://crm.example.com`).
+- `POSTGRES_PASSWORD`: a strong URL-safe password.
+- `BASE_URL`: your public origin (e.g. `https://crm.example.com`); include `APP_PORT` only when accessing that
+  host port directly.
 - `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: for signup verification, password reset, and invitation emails.
 
-First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `http://localhost:4000` (or your `APP_PORT`).
+Compose derives the application and embedded workflow-worker database connections from the same `POSTGRES_*`
+values. Self-hosters do not configure a second workflow database URL.
+
+First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open the configured `BASE_URL`.
 
 ### Day-to-day
 
@@ -115,6 +119,11 @@ docker compose logs -f app                     # logs
 
 Front the app with a reverse proxy (Caddy, nginx, Traefik) for TLS. Customermates sets secure cookies when `BASE_URL` uses `https://` — make sure the proxy forwards `X-Forwarded-Proto`.
 
+The published image allows only same-origin framing. If you intentionally embed a self-hosted instance,
+configure the reverse proxy to replace the upstream `Content-Security-Policy` header with a policy such as
+`frame-ancestors 'self' https://portal.example.com`. Appending a second policy will not broaden the original
+one, so the proxy must replace it.
+
 More docs:
 
 - [Self-Hosting (install and manage)](https://customermates.com/docs/self-hosting)
@@ -125,7 +134,15 @@ More docs:
 Run Customermates locally:
 
 ```bash
+cp .env.example .env
 yarn install
+docker run --name customermates-dev-postgres --rm \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=customermates \
+  -p 127.0.0.1:5433:5432 \
+  -d postgres:16-alpine
+yarn db:reset
 yarn dev
 ```
 
@@ -136,7 +153,12 @@ Useful scripts:
 - `yarn lint`
 - `yarn openapi:generate`
 - `yarn db:reset`
-- `yarn db:reseed`
+- `yarn db:use-live-data` (interactive incident reproduction)
+
+`yarn db:reset` replaces and seeds the configured database. `yarn db:use-live-data` prompts for the Production source
+URL instead of storing it, then replaces the configured destination database.
+Synthetic resets always create the public fixture login `max.bergmann@customermates.com` / `local-demo-password`; protect any
+non-demo remote testing deployment at the platform boundary.
 
 ## 📚 Documentation
 

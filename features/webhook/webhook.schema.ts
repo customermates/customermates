@@ -4,6 +4,10 @@ import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
 
+export const WebhookUrlSchema = zx.secureUrl().refine((url) => ["http:", "https:"].includes(new URL(url).protocol), {
+  message: "Webhook URL must use HTTP or HTTPS",
+});
+
 export const WebhookEventSchema = z.enum([
   "contact.created",
   "contact.updated",
@@ -35,7 +39,7 @@ export const WebhookEventSchema = z.enum([
 
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
-  url: zx.secureUrl(),
+  url: WebhookUrlSchema,
   description: z.string().nullable(),
   events: z.array(WebhookEventSchema),
   secret: z.string().nullable(),

@@ -1,5 +1,3 @@
-import type { $ZodRawIssue } from "zod/v4/core";
-
 export enum CustomErrorCode {
   apiKeyMaxExpiration = "apiKeyMaxExpiration",
   assigneeRequired = "assigneeRequired",
@@ -79,9 +77,3 @@ export enum CustomErrorCode {
   unipileUnknown = "unipileUnknown",
   generic = "generic",
 }
-
-export type ZodLocaleModule = {
-  default: () => {
-    localeError: (issue: $ZodRawIssue) => string;
-  };
-};

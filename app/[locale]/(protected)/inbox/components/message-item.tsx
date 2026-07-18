@@ -182,7 +182,14 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
         type="button"
         onClick={() => threadParticipantsStore.setOpen(true)}
       >
-        <Avatar name={avatarName} size="lg" src={pictureUrl} title={avatarTooltip} />
+        <Avatar
+          name={avatarName}
+          size="lg"
+          src={pictureUrl}
+          title={avatarTooltip}
+          unlinked={sender.isUnlinked}
+          unlinkedLabel={sender.isUnlinked ? t("Inbox.unlinkedParticipants") : undefined}
+        />
       </button>
 
       <div
@@ -256,14 +263,21 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
           {pendingFiles.length > 0 && (
             <div className="flex flex-col gap-1.5 p-1.5">
               {pendingFiles.map((file, fileIndex) => {
-                const { Icon: FileTypeIcon, accent } = describeFile({ mime: file.type, fileName: file.name });
+                const { Icon: FileTypeIcon, accent } = describeFile({
+                  mime: file.type,
+                  fileName: file.name,
+                });
                 return (
                   <AttachmentRow
                     key={`${file.name}-${fileIndex}`}
                     accent={accent}
                     fileIcon={FileTypeIcon}
                     name={file.name}
-                    subtitle={attachmentSubtitle(t, { mime: file.type, fileName: file.name, size: file.size })}
+                    subtitle={attachmentSubtitle(t, {
+                      mime: file.type,
+                      fileName: file.name,
+                      size: file.size,
+                    })}
                     onOpen={() => downloadLocalFile(file)}
                   />
                 );

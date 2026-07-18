@@ -1,17 +1,16 @@
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 import type { z as zType } from "zod";
 
 import z from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
-import { WebhookEventSchema, WebhookDtoSchema } from "./webhook.schema";
+import { WebhookEventSchema, WebhookDtoSchema, WebhookUrlSchema } from "./webhook.schema";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { zx, type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { Write } from "@/core/decorators/write.decorator";
@@ -20,7 +19,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 export const UpsertWebhookSchema = z
   .object({
     id: z.uuid().optional(),
-    url: zx.secureUrl().optional(),
+    url: WebhookUrlSchema.optional(),
     description: z.string().max(500).nullable().optional(),
     events: z
       .array(WebhookEventSchema)

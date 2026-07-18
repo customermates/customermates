@@ -1,0 +1,85 @@
+name: Preview branch domains
+
+on:
+  delete:
+  status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-domain-${{ github.event_name }}-${{ github.event_name == 'delete' && github.event.ref || github.event.sha }}
+  cancel-in-progress: false
+
+jobs:
+  manage-domain:
+    if: >-
+      github.repository == 'customermates/customermates' &&
+      (
+        (
+          github.event_name == 'status' &&
+          github.event.state == 'success' &&
+          startsWith(github.event.context, 'Vercel')
+        ) ||
+        (
+          github.event_name == 'delete' &&
+          github.event.ref_type == 'branch'
+        )
+      )
+    runs-on: ubuntu-latest
+    environment: preview-domain-control
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Create or remove the branch domain
+        env:
+          DELETED_BRANCH: ${{ github.event.ref }}
+          EVENT_ACTION: ${{ github.event_name == 'delete' && 'delete' || 'create' }}
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+          STATUS_SHA: ${{ github.event.sha }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          branches_file="$RUNNER_TEMP/preview-domain-branches"
+          : > "$branches_file"
+
+          if [[ "$EVENT_ACTION" == "delete" ]]; then
+            encoded_branch="$(jq -rn --arg branch "$DELETED_BRANCH" '$branch | @uri')"
+            branch_status="$(curl --silent --show-error --max-time 20 --retry 3 \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --output /dev/null \
+              --write-out '%{http_code}' \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/$encoded_branch")"
+
+            case "$branch_status" in
+              200)
+                echo "$DELETED_BRANCH was recreated; keeping its domain."
+                exit 0
+                ;;
+              404)
+                printf '%s\n' "$DELETED_BRANCH" > "$branches_file"
+                ;;
+              *)
+                echo "GitHub returned HTTP $branch_status while reading $DELETED_BRANCH." >&2
+                exit 1
+                ;;
+            esac
+          else
+            gh api \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              "repos/$GITHUB_REPOSITORY/commits/$STATUS_SHA/branches-where-head" \
+              --jq '.[].name' > "$branches_file"
+          fi
+
+          while IFS= read -r branch; do
+            [[ -n "$branch" ]] || continue
+            BRANCH_NAME="$branch" bash scripts/manage-preview-domain.sh
+          done < "$branches_file"

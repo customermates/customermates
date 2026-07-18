@@ -1,15 +1,22 @@
+import { parseOriginList, resolveAppMode, resolveBaseUrl, resolveVercelBranchOrigin } from "@/core/config/environment";
+
+const BASE_URL = resolveBaseUrl(process.env);
+const vercelBranchOrigin = resolveVercelBranchOrigin(process.env);
+const DATABASE_URL = process.env.DATABASE_URL?.trim();
+if (!DATABASE_URL) throw new Error("DATABASE_URL must be configured");
+
 export const env = {
-  DATABASE_URL: process.env.DATABASE_URL as string,
+  DATABASE_URL,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
-  BASE_URL: process.env.BASE_URL ?? "http://localhost:4000",
+  BASE_URL,
 
   NODE_ENV: (process.env.NODE_ENV as "development" | "test" | "production" | undefined) ?? "development",
-  VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  VERCEL_BRANCH_ORIGIN: vercelBranchOrigin,
   NEXT_RUNTIME: process.env.NEXT_RUNTIME as "nodejs" | "edge" | undefined,
   CI: process.env.CI,
 
-  DEMO_MODE: process.env.DEMO_MODE === "true",
-  CLOUD_HOSTED: process.env.CLOUD_HOSTED === "true",
+  APP_MODE: resolveAppMode(process.env),
+  FRAME_ANCESTORS: parseOriginList(process.env.FRAME_ANCESTORS),
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,
@@ -33,9 +40,6 @@ export const env = {
   LEMONSQUEEZY_VARIANT_ID_STARTER: process.env.LEMONSQUEEZY_VARIANT_ID_STARTER,
   LEMONSQUEEZY_VARIANT_ID_PRO: process.env.LEMONSQUEEZY_VARIANT_ID_PRO,
   LEMONSQUEEZY_VARIANT_ID_BUSINESS: process.env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
-
-  DEMO_USER_EMAIL: process.env.DEMO_USER_EMAIL,
-  DEMO_USER_PASSWORD: process.env.DEMO_USER_PASSWORD,
 
   UNIPILE_API_KEY: process.env.UNIPILE_API_KEY,
   UNIPILE_WEBHOOK_SECRET: process.env.UNIPILE_WEBHOOK_SECRET,

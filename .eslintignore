@@ -6,6 +6,13 @@ esm/*
 public/*
 tests/*
 scripts/*
+!tests/conventions/
+tests/conventions/*
+!tests/conventions/env-config.test.ts
+!scripts/__tests__/
+scripts/__tests__/*
+!scripts/__tests__/shell-scripts.test.ts
+!scripts/fire-test-webhook.ts
 *.config.js
 .DS_Store
 node_modules

@@ -51,15 +51,19 @@ You can migrate between them: export from one, import to the other. The data mod
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.example -o .env
 ```
 
 Then edit `.env` with real values:
 
 - `BETTER_AUTH_SECRET`: a long random string (`openssl rand -hex 32`).
-- `POSTGRES_PASSWORD`: change the default.
-- `BASE_URL`: your public URL (e.g. `https://crm.example.com`). Defaults to `http://localhost:4000` for local.
+- `POSTGRES_PASSWORD`: a strong URL-safe password.
+- `BASE_URL`: your public origin (e.g. `https://crm.example.com`); use `http://localhost:4000` locally and include
+  `APP_PORT` only when accessing that host port directly.
 - `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`: a free [Resend](https://resend.com) project. Required for signup verification, password reset, and invitation emails.
+
+Compose derives the application and embedded workflow-worker database connections from the same `POSTGRES_*`
+values. You do not configure a separate workflow database URL.
 
 ### 2. Start
 
@@ -73,7 +77,7 @@ First boot takes a minute while Prisma applies migrations. Watch the logs:
 docker compose logs -f app
 ```
 
-When the app is ready, open `http://localhost:4000` (or your custom `APP_PORT`).
+When the app is ready, open the configured `BASE_URL`.
 
 ### 3. First account
 
@@ -90,6 +94,10 @@ crm.example.com {
 ```
 
 Customermates sets secure cookies when `BASE_URL` uses `https://`. Make sure the proxy forwards `X-Forwarded-Proto` correctly.
+
+The published image allows only same-origin framing. If you intentionally embed the app, configure the reverse
+proxy to replace the upstream `Content-Security-Policy` header with your `frame-ancestors` policy. Do not append a
+second CSP header; an additional policy cannot broaden the original one.
 
 ### 5. Create an API key
 
@@ -139,7 +147,7 @@ docker compose up -d
 Back up Postgres with `pg_dump` on a schedule. The app container is stateless.
 
 ```bash
-docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" \
+docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
   | gzip > /var/backups/customermates-$(date +%Y%m%d).sql.gz
 ```
 

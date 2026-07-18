@@ -3,7 +3,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 type ManifestPage = { title: string; description: string; content: string };
 type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;

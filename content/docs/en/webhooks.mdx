@@ -3,7 +3,7 @@ title: Webhooks
 description: Subscribe to CRM events, verify signatures, inspect failed deliveries, and read the full event catalog in one place.
 ---
 
-Customermates sends a JSON POST to your HTTPS endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. Deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
+Customermates sends a JSON POST to your HTTP(S) endpoint whenever subscribed data changes. You choose the events and provide the URL. Failed deliveries can be re-sent from the UI or through MCP. Deliveries are signed with HMAC-SHA256 over the raw request body. Every event and its payload shape is listed in the catalog at the end of this page.
 
 ## Uses
 
@@ -29,7 +29,7 @@ Webhooks let other systems react to CRM changes without polling.
 }
 ```
 
-The URL must be HTTPS. HTTP is rejected.
+Use HTTPS for public endpoints. HTTP is also supported for receivers on a private self-hosted network.
 
 ## What you receive
 

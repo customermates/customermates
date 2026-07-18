@@ -35,7 +35,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const copy = useCopyToClipboard();
   const [composeKey, setComposeKey] = useState<string | null>(null);
   const canEditChannels = userStore.can(Resource.contacts, Action.update);
-  const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.isCloudHosted;
+  const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
   const identifiers = contactDetailStore.channels;
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
       <div className="flex items-center gap-1.5">
         <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
 
-        {identifiers.length > 0 && rootStore.isCloudHosted && (
+        {identifiers.length > 0 && rootStore.appMode !== "self-hosted" && (
           <IconButton
             href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
             icon={ExternalLink}
@@ -127,7 +127,9 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
                       <TooltipTrigger asChild>
                         <Button
                           aria-expanded={composing}
-                          aria-label={t("EntityChannels.ariaStartThread", { provider: providerLabel })}
+                          aria-label={t("EntityChannels.ariaStartThread", {
+                            provider: providerLabel,
+                          })}
                           className={cn(
                             "text-muted-foreground hover:text-foreground",
                             composing && "bg-accent text-foreground",

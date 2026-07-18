@@ -2,12 +2,13 @@ import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
+import { WebhookUrlSchema } from "@/features/webhook/webhook.schema";
 
 const HTTP_TIMEOUT_MS = 5000;
 
 const Schema = z.object({
   deliveryId: z.uuid(),
-  url: z.url(),
+  url: WebhookUrlSchema,
   companyId: z.uuid(),
   requestBody: z.record(z.string(), z.unknown()),
 });

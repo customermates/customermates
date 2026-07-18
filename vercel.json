@@ -1,5 +1,6 @@
 {
-  "buildCommand": "if [ \"$VERCEL_ENV\" == \"preview\" ]; then yarn vercel-preview-build; else yarn vercel-build; fi",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "yarn vercel-build",
   "crons": [
     {
       "path": "/api/cron/lifecycle",
@@ -11,11 +12,7 @@
     }
   ],
   "git": {
-    "deploymentEnabled": {
-      "development": false,
-      "main": true,
-      "preview": true
-    }
+    "deploymentEnabled": true
   },
   "headers": [
     {

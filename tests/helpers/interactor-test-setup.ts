@@ -32,9 +32,9 @@ import type { ExtendedUser } from "@/features/user/user.types";
 export const MOCK_ENV_MODULE = {
   env: {
     NODE_ENV: "test" as const,
-    DEMO_MODE: false,
-    CLOUD_HOSTED: false,
+    APP_MODE: "self-hosted" as const,
     BASE_URL: "http://localhost:4000",
+    FRAME_ANCESTORS: [],
     RESEND_OPERATOR_EMAIL: "test@test.com",
     DATABASE_URL: "postgresql://test:test@localhost:5432/test",
     BETTER_AUTH_SECRET: "0".repeat(32),
@@ -46,9 +46,11 @@ export const MOCK_ENV_MODULE = {
 // ---------------------------------------------------------------------------
 const makeFindIds = () => vi.fn().mockImplementation((ids: Set<string>) => Promise.resolve(new Set(ids)));
 const makeFindIdsMap = () =>
-  vi.fn().mockImplementation((ids: Set<string>) =>
-    Promise.resolve(new Map([...ids].map((id): [string, string] => [id, id]))),
-  );
+  vi
+    .fn()
+    .mockImplementation((ids: Set<string>) =>
+      Promise.resolve(new Map([...ids].map((id): [string, string] => [id, id]))),
+    );
 
 /**
  * Returns the mock DI module. Accepts a getter function `() => mockUser`
@@ -75,8 +77,14 @@ export function createMockDiModule(getMockUser: () => ExtendedUser) {
     getOrganizationRepo: () => ({ findIds: makeFindIds() }),
     getDealRepo: () => ({ findIds: makeFindIds() }),
     getCompanyRepo: () => ({ findIds: makeFindIds() }),
-    getUserRepo: () => ({ findIds: makeFindIds(), findExistingEmailsCompanyWide: makeFindIds() }),
-    getCustomColumnRepo: () => ({ findByEntityType: vi.fn().mockResolvedValue([]), findIds: makeFindIds() }),
+    getUserRepo: () => ({
+      findIds: makeFindIds(),
+      findExistingEmailsCompanyWide: makeFindIds(),
+    }),
+    getCustomColumnRepo: () => ({
+      findByEntityType: vi.fn().mockResolvedValue([]),
+      findIds: makeFindIds(),
+    }),
     getServiceRepo: () => ({ findIds: makeFindIds() }),
     getTaskRepo: () => ({
       findIds: makeFindIds(),
@@ -112,4 +120,3 @@ export const MOCK_PRISMA_DB_MODULE = {
     $extends: vi.fn().mockReturnThis(),
   },
 };
-

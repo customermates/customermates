@@ -51,15 +51,19 @@ Sie können zwischen beiden wechseln: Export von einem, Import ins andere. Das D
 ```bash
 mkdir customermates && cd customermates
 curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/docker-compose.yml -o docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.selfhost.template -o .env
+curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.env.example -o .env
 ```
 
 Anschließend `.env` mit echten Werten editieren:
 
 - `BETTER_AUTH_SECRET`: langer Zufallsstring (`openssl rand -hex 32`).
-- `POSTGRES_PASSWORD`: default ändern.
-- `BASE_URL`: Ihre Public-URL (z.B. `https://crm.example.com`). Lokal default `http://localhost:4000`.
+- `POSTGRES_PASSWORD`: ein starkes, URL-sicheres Passwort.
+- `BASE_URL`: Ihre öffentliche Origin (z.B. `https://crm.example.com`); lokal `http://localhost:4000` verwenden
+  und `APP_PORT` nur beim direkten Zugriff auf diesen Host-Port einschließen.
 - `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`: ein kostenloses [Resend](https://resend.com)-Projekt. Nötig für Signup-Verifizierung, Passwort-Reset und Einladungs-Mails.
+
+Compose leitet die Datenbankverbindungen der Anwendung und des eingebetteten Workflow-Workers aus denselben
+`POSTGRES_*`-Werten ab. Sie konfigurieren keine separate Workflow-Datenbank-URL.
 
 ### 2. Starten
 
@@ -73,7 +77,7 @@ First-Boot dauert eine Minute, während Prisma-Migrationen laufen. Logs ansehen:
 docker compose logs -f app
 ```
 
-Wenn die App ready ist, `http://localhost:4000` öffnen (oder Ihr eigenes `APP_PORT`).
+Wenn die App ready ist, die konfigurierte `BASE_URL` öffnen.
 
 ### 3. Erster Account
 
@@ -90,6 +94,10 @@ crm.example.com {
 ```
 
 Customermates setzt Secure-Cookies, wenn `BASE_URL` mit `https://` startet. Der Proxy muss `X-Forwarded-Proto` korrekt weiterreichen.
+
+Das veröffentlichte Image erlaubt Frames nur vom gleichen Origin. Wenn Sie die App bewusst einbetten, muss der
+Reverse-Proxy den vorhandenen `Content-Security-Policy`-Header durch Ihre `frame-ancestors`-Policy ersetzen. Ein
+zweiter CSP-Header erweitert die bestehende Policy nicht.
 
 ### 5. API-Key anlegen
 
@@ -139,7 +147,7 @@ docker compose up -d
 Postgres per `pg_dump` auf Zeitplan. Der App-Container ist stateless.
 
 ```bash
-docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" \
+docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
   | gzip > /var/backups/customermates-$(date +%Y%m%d).sql.gz
 ```
 

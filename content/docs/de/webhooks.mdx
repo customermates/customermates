@@ -3,7 +3,7 @@ title: Webhooks
 description: CRM-Events abonnieren, Signaturen verifizieren, fehlgeschlagene Deliveries prüfen und den vollständigen Event-Katalog auf einer Seite lesen.
 ---
 
-Customermates sendet einen JSON-POST an Ihren HTTPS-Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
+Customermates sendet einen JSON-POST an Ihren HTTP(S)-Endpunkt, sobald sich abonnierte Daten ändern. Sie wählen die Events und geben die URL an. Fehlgeschlagene Deliveries können Sie aus der UI oder per MCP erneut zustellen. Deliveries werden per HMAC-SHA256 über den rohen Request-Body signiert. Jedes Event und seine Payload-Struktur stehen im Katalog am Ende dieser Seite.
 
 ## Einsatzzwecke
 
@@ -29,7 +29,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen.
 }
 ```
 
-Die URL muss HTTPS sein. HTTP wird abgelehnt.
+Nutzen Sie HTTPS für öffentliche Endpunkte. HTTP wird auch für Empfänger in einem privaten Self-Hosting-Netzwerk unterstützt.
 
 ## Was Sie bekommen
 

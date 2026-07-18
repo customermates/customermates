@@ -1,4 +1,5 @@
 import type { SubscriptionPlan } from "@/generated/prisma";
+import type { AppMode } from "@/core/config/environment";
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
@@ -21,8 +22,8 @@ export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
   return PLAN_ENTITLEMENTS[plan];
 }
 
-export function getEffectiveEntitlements(input: { cloudHosted: boolean; plan: SubscriptionPlan }): PlanEntitlements {
-  if (!input.cloudHosted) return PLAN_ENTITLEMENTS.starter;
+export function getEffectiveEntitlements(input: { appMode: AppMode; plan: SubscriptionPlan }): PlanEntitlements {
+  if (input.appMode === "self-hosted") return PLAN_ENTITLEMENTS.starter;
 
   return getEntitlements(input.plan);
 }

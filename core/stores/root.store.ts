@@ -1,4 +1,5 @@
 import type { BaseModalStore } from "../base/base-modal.store";
+import type { AppMode } from "@/core/config/environment";
 
 import { SignInStore } from "@/app/[locale]/(public)/auth/signin/sign-in.store";
 import { SignUpStore } from "@/app/[locale]/(public)/auth/signup/sign-up.store";
@@ -134,12 +135,10 @@ export class RootStore {
   private _customColumnModalStore?: CustomColumnModalStore;
   private _editFiltersModalStore?: EditFiltersModalStore;
 
-  isDemoMode: boolean;
-  isCloudHosted: boolean;
+  readonly appMode: AppMode;
 
-  constructor(isDemoMode?: boolean, isCloudHosted?: boolean) {
-    this.isDemoMode = isDemoMode ?? false;
-    this.isCloudHosted = isCloudHosted ?? false;
+  constructor(appMode: AppMode) {
+    this.appMode = appMode;
   }
 
   get layoutStore() {

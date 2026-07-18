@@ -17,9 +17,8 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema, WebhookUrlSchema } from "@/features/webhook/webhook.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { zx } from "@/core/validation/validation.utils";
 import {
   getGetWebhooksApiInteractor,
   getGetWebhookByIdInteractor,
@@ -41,7 +40,7 @@ const ListWebhooksSchema = z.object({
 });
 
 const CreateWebhookSchema = z.object({
-  url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
+  url: WebhookUrlSchema.describe("HTTP(S) endpoint that will receive event POST requests"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
   events: z
     .array(WebhookEventSchema)
@@ -53,7 +52,7 @@ const CreateWebhookSchema = z.object({
 
 const UpdateWebhookSchema = z.object({
   id: z.uuid(),
-  url: zx.secureUrl().optional(),
+  url: WebhookUrlSchema.optional(),
   description: z.string().optional(),
   events: z
     .array(WebhookEventSchema)
@@ -102,10 +101,9 @@ const ManageWebhooksSchema = z.object({
       "Required for update, delete, get (webhook id) and for resend_delivery (delivery id from list_deliveries). " +
         "Optional for list_deliveries (webhook id): scopes deliveries to that webhook's CURRENT url; deliveries made while a different url was configured are not matched.",
     ),
-  url: zx
-    .secureUrl()
-    .optional()
-    .describe("Endpoint that will receive event POST requests (https recommended). Required for create."),
+  url: WebhookUrlSchema.optional().describe(
+    "HTTP(S) endpoint that will receive event POST requests. Required for create.",
+  ),
   description: z.string().optional().describe("create and update. Human-readable note about what this webhook does."),
   events: z
     .array(WebhookEventSchema)

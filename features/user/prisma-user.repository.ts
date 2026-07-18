@@ -849,17 +849,18 @@ export class PrismaUserRepo
     trialEndDate.setDate(trialEndDate.getDate() + 7);
 
     await this.prisma.subscription.create({
-      data: env.CLOUD_HOSTED
-        ? {
-            companyId: company.id,
-            status: SubscriptionStatus.trial,
-            trialEndDate,
-          }
-        : {
-            companyId: company.id,
-            status: SubscriptionStatus.active,
-            trialEndDate: null,
-          },
+      data:
+        env.APP_MODE !== "self-hosted"
+          ? {
+              companyId: company.id,
+              status: SubscriptionStatus.trial,
+              trialEndDate,
+            }
+          : {
+              companyId: company.id,
+              status: SubscriptionStatus.active,
+              trialEndDate: null,
+            },
     });
 
     const user = await this.prisma.user.create({

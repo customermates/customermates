@@ -32,8 +32,7 @@ yarn-error.log*
 # local env files
 .env*.local
 .env.*
-!.env.cloud.template
-!.env.selfhost.template
+!.env.example
 .env
 
 # vercel
