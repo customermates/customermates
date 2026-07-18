@@ -145,7 +145,7 @@ export abstract class BaseGetInteractor<T> {
     filters = keptFilters;
     sortDescriptor = this.repo.validateSortDescriptor({ sortDescriptor, sortableFields, customColumns });
 
-    if (p13nId && this.mode === "interactive" && !env.DEMO_MODE) {
+    if (p13nId && this.mode === "interactive" && env.APP_MODE !== "demo") {
       await this.p13nRepo.upsertP13n({
         p13nId,
         filters: filters ?? null,

@@ -9,7 +9,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: true } }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -142,7 +142,7 @@ describe("CreateAuthLinkInteractor", () => {
 
   it("blocks self-hosted with messagingRequiresCloud before any subscription lookup", async () => {
     vi.resetModules();
-    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: false } }));
+    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "self-hosted" } }));
     vi.doMock("@/core/di", () => createMockDiModule(() => mockUser));
     vi.doMock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
     vi.doMock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);

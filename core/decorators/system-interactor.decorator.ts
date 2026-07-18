@@ -8,7 +8,7 @@ export function SystemInteractor<T extends { new (...args: any[]): object }>(con
   const originalInvoke = constructor.prototype.invoke;
 
   constructor.prototype.invoke = function (...args: any[]) {
-    if (env.DEMO_MODE && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
+    if (env.APP_MODE === "demo" && !isAllowedInDemoMode(constructor)) throw new DemoModeError();
 
     return runWithoutTenant(() => originalInvoke.apply(this, args));
   };

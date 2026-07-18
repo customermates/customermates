@@ -5,17 +5,17 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useMemo } from "react";
 
 import { RootStore } from "@/core/stores/root.store";
+import type { AppMode } from "@/core/config/environment";
 
 const RootStoreContext = createContext<RootStore | null>(null);
 
 type Props = {
+  appMode: AppMode;
   children: ReactNode;
-  isDemoMode?: boolean;
-  isCloudHosted?: boolean;
 };
 
-export function RootStoreProvider({ children, isDemoMode, isCloudHosted }: Props) {
-  const rootStore = useMemo(() => new RootStore(isDemoMode, isCloudHosted), [isDemoMode, isCloudHosted]);
+export function RootStoreProvider({ appMode, children }: Props) {
+  const rootStore = useMemo(() => new RootStore(appMode), [appMode]);
 
   return <RootStoreContext.Provider value={rootStore}>{children}</RootStoreContext.Provider>;
 }

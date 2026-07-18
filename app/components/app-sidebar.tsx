@@ -95,8 +95,8 @@ export const AppSidebar = observer(
     }
 
     const navGroups: NavGroup[] = useMemo(() => {
-      const profileSubroutes = visibleSubroutes("profile", rootStore.isCloudHosted, userStore.canAccess);
-      const companySubroutes = visibleSubroutes("company", rootStore.isCloudHosted, userStore.canAccess);
+      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, userStore.canAccess);
+      const companySubroutes = visibleSubroutes("company", rootStore.appMode, userStore.canAccess);
 
       return [
         {
@@ -115,7 +115,7 @@ export const AppSidebar = observer(
               title: t("NavigationBar.inbox"),
               href: "/inbox",
               icon: Inbox,
-              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.isCloudHosted,
+              visible: userStore.canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: unreadThreadCount,
             },
             {
@@ -200,7 +200,7 @@ export const AppSidebar = observer(
       ].filter((g) => g.items.length > 0);
     }, [
       t,
-      rootStore.isCloudHosted,
+      rootStore.appMode,
       subscriptionStatus,
       userStore.user,
       systemTaskCount,
@@ -256,7 +256,7 @@ export const AppSidebar = observer(
     if (isDocsRoute) return null;
 
     const planSubtitle = buildPlanSubtitle(
-      rootStore.isCloudHosted ? subscriptionStatus : null,
+      rootStore.appMode !== "self-hosted" ? subscriptionStatus : null,
       trialDaysLeft,
       emailVerified,
       t,
@@ -270,7 +270,7 @@ export const AppSidebar = observer(
             addLabel={t("Common.actions.add")}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
-            homeHref={rootStore.isDemoMode ? "https://customermates.com" : "/"}
+            homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/"}
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
             onAdd={() => closeMobileSidebar(() => setIsAddPickerOpen(true))}

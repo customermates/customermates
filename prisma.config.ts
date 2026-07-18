@@ -1,14 +1,7 @@
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
-const databaseUrl = env("DATABASE_URL");
-const directUrl = env("DATABASE_DIRECT_URL");
-
-const datasourceConfig: { url: string; shadowDatabaseUrl?: string } = {
-  url: directUrl,
-};
-
-if (directUrl && directUrl !== databaseUrl) datasourceConfig.shadowDatabaseUrl = databaseUrl;
+const databaseUrl = process.env.DIRECT_URL?.trim() || env("DATABASE_URL");
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -16,5 +9,5 @@ export default defineConfig({
     path: "prisma/migrations",
     seed: "tsx prisma/seed.ts",
   },
-  datasource: datasourceConfig,
+  datasource: { url: databaseUrl },
 });

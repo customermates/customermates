@@ -8,7 +8,7 @@ vi.mock("@/core/di", () => ({
   getUserService: () => ({ getActiveUserOrThrow: mockGetActiveUserOrThrow }),
 }));
 
-vi.mock("@/env", () => ({ env: { DEMO_MODE: false, BASE_URL: "http://localhost:4000" } }));
+vi.mock("@/env", () => ({ env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" } }));
 
 const { TenantInteractor } = await import("../tenant-interactor.decorator");
 const { AllowInDemoMode } = await import("../allow-in-demo-mode.decorator");

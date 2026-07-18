@@ -117,7 +117,7 @@ export const auth = betterAuth({
     modelName: "AuthSession",
     cookieCache: {
       enabled: true,
-      maxAge: env.DEMO_MODE ? 30 * 24 * 60 * 60 : 5 * 60,
+      maxAge: env.APP_MODE === "demo" ? 30 * 24 * 60 * 60 : 5 * 60,
     },
   },
 
