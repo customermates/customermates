@@ -176,7 +176,7 @@ export class AuthService {
       body: {
         ...args,
         callbackURL: args.callbackURL ?? env.BASE_URL,
-        errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
+        errorCallbackURL: new URL(args.errorCallbackURL ?? "/auth/signin", env.BASE_URL).toString(),
       },
     });
 

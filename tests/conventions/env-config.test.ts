@@ -47,6 +47,7 @@ describe("environment configuration", () => {
     expect(resolveBaseUrl(defaultPreview)).toBe("https://customermates-git-feature.example.vercel.app");
     expect(resolveVercelBranchOrigin(defaultPreview)).toBe("https://customermates-git-feature.example.vercel.app");
     expect(resolveVercelBranchOrigin({ VERCEL_BRANCH_URL: defaultPreview.VERCEL_BRANCH_URL })).toBeUndefined();
+    expect(resolveVercelBranchOrigin({ ...defaultPreview, VERCEL_ENV: "production" })).toBeUndefined();
     expect(
       resolveBaseUrl({
         ...defaultPreview,

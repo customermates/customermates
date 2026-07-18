@@ -39,7 +39,7 @@ function resolveVercelEnvironment(source: Environment): "preview" | "production"
 }
 
 export function resolveVercelBranchOrigin(source: Environment): string | undefined {
-  if (source.VERCEL !== "1") return undefined;
+  if (source.VERCEL !== "1" || source.VERCEL_ENV !== "preview") return undefined;
   const branchUrl = source.VERCEL_BRANCH_URL?.trim();
   return branchUrl ? normalizeBaseUrl(`https://${branchUrl}`) : undefined;
 }

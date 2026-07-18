@@ -41,13 +41,11 @@ describe("Better Auth Preview configuration", () => {
       productionURL: "https://customermates.com",
       secret: "shared-proxy-secret",
     });
-    expect(mocks.betterAuth.mock.calls[0]?.[0]).toMatchObject({
-      trustedOrigins: [
-        "https://feat-oauth.customermates.com",
-        "https://customermates-git-feat-oauth.vercel.app",
-        "https://*.customermates.com",
-      ],
+    expect(mocks.betterAuth.mock.calls[0]?.[0].baseURL).toEqual({
+      allowedHosts: ["feat-oauth.customermates.com", "customermates-git-feat-oauth.vercel.app"],
+      protocol: "https",
     });
+    expect(mocks.betterAuth.mock.calls[0]?.[0].trustedOrigins).toEqual(["https://*.customermates.com"]);
   });
 
   it("identifies Production as the stable proxy endpoint", async () => {
@@ -62,6 +60,33 @@ describe("Better Auth Preview configuration", () => {
       currentURL: "https://customermates.com",
       productionURL: "https://customermates.com",
       secret: "shared-proxy-secret",
+    });
+    expect(mocks.betterAuth.mock.calls[0]?.[0]).toMatchObject({
+      baseURL: "https://customermates.com",
+      trustedOrigins: ["https://*.customermates.com"],
+    });
+  });
+
+  it("returns Demo OAuth to the Demo environment", async () => {
+    Object.assign(mocks.env, {
+      APP_MODE: "demo",
+      BASE_URL: "https://demo.customermates.com",
+      VERCEL_BRANCH_ORIGIN: "https://customermates-git-main-demo.vercel.app",
+    });
+
+    await import("../better-auth");
+
+    expect(mocks.oAuthProxy).toHaveBeenCalledWith({
+      currentURL: "https://demo.customermates.com",
+      productionURL: "https://customermates.com",
+      secret: "shared-proxy-secret",
+    });
+    expect(mocks.betterAuth.mock.calls[0]?.[0]).toMatchObject({
+      baseURL: {
+        allowedHosts: ["demo.customermates.com", "customermates-git-main-demo.vercel.app"],
+        protocol: "https",
+      },
+      trustedOrigins: ["https://*.customermates.com"],
     });
   });
 
@@ -78,6 +103,9 @@ describe("Better Auth Preview configuration", () => {
     await import("../better-auth");
 
     expect(mocks.oAuthProxy).not.toHaveBeenCalled();
-    expect(mocks.betterAuth.mock.calls[0]?.[0]).toMatchObject({ trustedOrigins: ["https://crm.example.com"] });
+    expect(mocks.betterAuth.mock.calls[0]?.[0]).toMatchObject({
+      baseURL: "https://crm.example.com",
+      trustedOrigins: [],
+    });
   });
 });

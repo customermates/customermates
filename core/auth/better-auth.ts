@@ -34,19 +34,13 @@ export const enabledSocialProviders = {
   microsoft: "microsoft" in socialProviders,
 };
 
-const requestOrigins = [
-  env.BASE_URL,
-  ...(env.VERCEL_BRANCH_ORIGIN && env.VERCEL_BRANCH_ORIGIN !== env.BASE_URL ? [env.VERCEL_BRANCH_ORIGIN] : []),
-];
-const trustedOrigins = [...requestOrigins, ...(env.PREVIEW_DOMAIN ? [`https://*.${env.PREVIEW_DOMAIN}`] : [])];
 const authBaseURL =
-  requestOrigins.length === 1
-    ? env.BASE_URL
-    : {
-        allowedHosts: requestOrigins.map((origin) => new URL(origin).hostname),
-        fallback: env.BASE_URL,
+  env.VERCEL_BRANCH_ORIGIN && env.VERCEL_BRANCH_ORIGIN !== env.BASE_URL
+    ? {
+        allowedHosts: [env.BASE_URL, env.VERCEL_BRANCH_ORIGIN].map((origin) => new URL(origin).host),
         protocol: "https" as const,
-      };
+      }
+    : env.BASE_URL;
 const oauthProxy =
   env.OAUTH_PROXY_URL && env.OAUTH_PROXY_SECRET
     ? oAuthProxy({
@@ -73,7 +67,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins,
+  trustedOrigins: env.PREVIEW_DOMAIN ? [`https://*.${env.PREVIEW_DOMAIN}`] : [],
 
   databaseHooks: {
     user: {
