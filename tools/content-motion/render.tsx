@@ -356,7 +356,7 @@ const renderNode = (
       node,
       <Button
         aria-label={node.label}
-        className={node.size === "hero" ? "size-24 rounded-[28px] p-5" : undefined}
+        className={node.size === "hero" ? "size-24 rounded-xl p-5" : undefined}
         size={node.size === "hero" ? "icon-lg" : node.size}
         variant="outline"
       >

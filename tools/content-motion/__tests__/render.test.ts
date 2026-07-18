@@ -379,7 +379,7 @@ describe("content motion kit", () => {
     expect(first).toBe(second);
     expect(first).toContain('data-slot="card"');
     expect(first).toContain('data-slot="button"');
-    expect(first).toContain("size-24 rounded-[28px] p-5");
+    expect(first).toContain("size-24 rounded-xl p-5");
     expect(first).toContain('data-slot="badge"');
     expect(first).toContain('data-slot="table"');
     expect(first).toContain('data-slot="input"');
