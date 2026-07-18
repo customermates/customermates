@@ -410,6 +410,8 @@ describe("content motion kit", () => {
     expect(html).toContain("clipsX&&element.scrollWidth");
     expect(html).toContain("h-9 px-3 py-1.5 text-[22px] leading-none");
     expect(html).toContain("absolute inset-0 flex items-center justify-end");
+    expect(html).toContain("const outgoing=1-clamp(value/.45)");
+    expect(html).toContain("const incoming=clamp((value-.55)/.45)");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
   }, 30_000);
 
