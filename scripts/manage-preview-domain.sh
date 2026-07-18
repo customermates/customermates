@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [[ ! "$BRANCH_NAME" =~ ^(build|chore|ci|docs|feat|feature|fix|perf|refactor|revert|sandbox|style|test)/([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)$ ]]; then
+if [[ ! "$BRANCH_NAME" =~ ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|sandbox|style|test)/([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)$ ]]; then
   echo "The branch has no managed Preview domain."
   exit 0
 fi
@@ -17,7 +17,7 @@ if [[ "$prefix" == "sandbox" ]]; then
       exit 0
       ;;
   esac
-  if [[ "$branch_label" =~ ^(build|chore|ci|docs|feat|feature|fix|perf|refactor|revert|sandbox|style|test)- ]]; then
+  if [[ "$branch_label" =~ ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|sandbox|style|test)- ]]; then
     echo "The sandbox name collides with an engineering branch."
     exit 0
   fi

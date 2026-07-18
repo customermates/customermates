@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   test:
+    name: ci
     runs-on: ubuntu-latest
     env:
       APP_MODE: self-hosted

@@ -142,6 +142,17 @@ printf '%s' "$status"
 }
 
 describe("Preview-domain management", () => {
+  it("ignores the obsolete feature branch prefix", () => {
+    const result = spawnSync("bash", [script], {
+      cwd: root,
+      encoding: "utf8",
+      env: { ...process.env, BRANCH_NAME: "feature/contact-import" },
+    });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain("no managed Preview domain");
+  });
+
   it("creates the branch mapping and aliases the ready deployment", () => {
     const result = runDomainScript({ action: "create" });
 

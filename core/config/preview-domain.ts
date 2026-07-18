@@ -10,7 +10,6 @@ const PREVIEW_BRANCH_PREFIXES = new Set([
   "ci",
   "docs",
   "feat",
-  "feature",
   "fix",
   "perf",
   "refactor",

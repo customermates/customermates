@@ -21,11 +21,12 @@ describe("Preview domains", () => {
       "main",
       "sandbox/demo",
       "sandbox/feat-rewe",
+      "feature/add-inbox",
       "feat/add/inbox",
       "feat/Add-Inbox",
       "feat/add_inbox",
       "feat/xn--preview",
-      `feature/${"a".repeat(60)}`,
+      `feat/${"a".repeat(60)}`,
     ])
       expect(resolvePreviewDomain(branch, "customermates.com")).toBeNull();
   });

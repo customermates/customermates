@@ -15,10 +15,10 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    cd customermates
    ```
 
-3. **Create a New Branch:** Create a new branch from the latest `main` instead of working directly on `main`.
+3. **Create a New Branch:** Create a short-lived branch from the latest `main` instead of working directly on `main`.
 
    ```shell
-   git checkout -b your-branch-name
+   git checkout -b feat/short-description
    ```
 
 4. **Make Changes:** Make your desired changes and ensure that your code adheres to Customermates' coding standards.
@@ -28,24 +28,24 @@ Please make sure to go through the [documentation](https://customermates.com/doc
 6. **Commit Changes:** Commit your changes with a clear and concise commit message.
 
    ```shell
-   git commit -m "Add your detailed description here"
+   git commit -m "feat: describe your change"
    ```
 
 7. **Push Changes:** Push your changes to your forked repository.
 
    ```shell
-   git push origin your-branch-name
+   git push origin feat/short-description
    ```
 
-8. **Create a Pull Request:** Go to the original Customermates repository and create a pull request targeting `main`. Please provide a detailed description of your changes. Submitting a PR means you agree to the [CLA](./CLA.md).
+8. **Create a Pull Request:** Go to the original Customermates repository and create a pull request targeting `main`. Use the Conventional Commit format for its title and complete every required section in the shared pull request template. CI validates the branch, commits, title, and description automatically. Submitting a PR means you agree to the [CLA](./CLA.md).
 
-9. **Code Review:** Your pull request will undergo a code review.
+9. **Code Review:** Pull requests from contributors outside the Code Owners require Code Owner approval. Code Owner-authored pull requests still require all policy and CI checks.
 
 10. **Merge:** Once approved, maintainers will merge your pull request into the main repository.
 
 ## Commit Message Convention
 
-This repository enforces Conventional Commits via commit linting.
+This repository follows the [shared CustomerMates contribution policy](https://github.com/customermates/.github/blob/main/CONTRIBUTING.md) and enforces Conventional Commits locally and on pull requests.
 
 Use commit messages in this format:
 
@@ -60,6 +60,10 @@ Examples:
 - `docs: update self-hosting setup instructions`
 
 If you add a commit body or footer, separate it from the subject with a blank line.
+
+Pull request titles use the same format. For example: `feat(auth): add reset password token validation`.
+
+Branch names use `<category>/<lowercase-kebab-case-description>`. The shared policy defines the allowed categories; examples include `feat/contact-import`, `fix/oauth-callback`, and `sandbox/rewe`.
 
 ## Branch Stability Policy
 

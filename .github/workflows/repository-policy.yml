@@ -1,0 +1,20 @@
+name: Repository policy
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: repository-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    uses: customermates/.github/.github/workflows/repository-policy.yml@433b80b67b38261116492c57c180ae9a32cb24a6
