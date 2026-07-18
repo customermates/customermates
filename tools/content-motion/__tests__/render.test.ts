@@ -566,7 +566,7 @@ describe("content motion kit", () => {
     });
     expect(html).toContain("overflow:hidden");
     expect(html).toContain('data-cm-allow-clipping="true"');
-    expect(html).toContain("ancestor.dataset.cmAllowClipping==='true'");
+    expect(html).toContain("leaf.closest('[data-cm-allow-clipping=\"true\"]')");
     viewport.nodes[0].layout.overflow = "scroll";
     expect(() => compositionSchema.parse(viewport)).toThrow();
   }, 30_000);
