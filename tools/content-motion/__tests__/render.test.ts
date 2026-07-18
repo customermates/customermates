@@ -412,6 +412,7 @@ describe("content motion kit", () => {
     expect(html).toContain("absolute inset-0 flex items-center justify-end");
     expect(html).toContain("const outgoing=1-clamp(value/.45)");
     expect(html).toContain("const incoming=clamp((value-.55)/.45)");
+    expect(html).toContain("const hasDepth=Math.abs(state.rotateX)>.001");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
   }, 30_000);
 
