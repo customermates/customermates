@@ -1,0 +1,96 @@
+name: Preview branch domains
+
+on:
+  workflow_run:
+    workflows: [Report ready Preview domain]
+    types: [completed]
+  delete:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Reconcile a ready deployment or remove a branch domain
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - delete
+      target:
+        description: Vercel deployment URL for deploy; conventional branch name for delete
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: preview-domain-control
+  cancel-in-progress: false
+
+jobs:
+  manage-domain:
+    if: >-
+      github.repository == 'customermates/customermates' &&
+      (
+        (
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'deployment_status' &&
+          github.event.workflow_run.path == '.github/workflows/preview-domain-request.yml'
+        ) ||
+        (github.event_name == 'delete' && github.event.ref_type == 'branch') ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Download the unprivileged deployment report
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: preview-domain-request
+          path: .preview-domain-request
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Reconcile the branch domain
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DELETED_BRANCH: ${{ github.event.ref }}
+          DISPATCH_ACTION: ${{ inputs.action }}
+          DISPATCH_TARGET: ${{ inputs.target }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          case "$EVENT_NAME" in
+            workflow_run)
+              export EVENT_ACTION=deploy
+              export DEPLOYMENT_URL="$(jq -er '.deploymentUrl' .preview-domain-request/preview-domain-request.json)"
+              export DEPLOYMENT_SHA="$(jq -er '.sha' .preview-domain-request/preview-domain-request.json)"
+              ;;
+            delete)
+              export EVENT_ACTION=delete
+              export BRANCH_NAME="$DELETED_BRANCH"
+              ;;
+            workflow_dispatch)
+              export EVENT_ACTION="$DISPATCH_ACTION"
+              if [[ "$EVENT_ACTION" == "deploy" ]]; then
+                export DEPLOYMENT_URL="$DISPATCH_TARGET"
+              else
+                export BRANCH_NAME="$DISPATCH_TARGET"
+              fi
+              ;;
+          esac
+
+          bash scripts/manage-preview-domain.sh
