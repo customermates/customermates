@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
 
-import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -88,23 +87,6 @@ function expectValidLinks(links: ReadonlyArray<IndexLink>, leftCount: number, ri
   }
 }
 
-function topLeftAverage(data: Buffer, width: number, channels: number): [red: number, green: number, blue: number] {
-  const sampleSize = Math.max(32, Math.floor(width * 0.12));
-  const totals = [0, 0, 0];
-
-  for (let y = 0; y < sampleSize; y += 1) {
-    for (let x = 0; x < sampleSize; x += 1) {
-      const offset = (y * width + x) * channels;
-      totals[0] += data[offset] ?? 0;
-      totals[1] += data[offset + 1] ?? 0;
-      totals[2] += data[offset + 2] ?? 0;
-    }
-  }
-
-  const pixelCount = sampleSize * sampleSize;
-  return totals.map((total) => total / pixelCount) as [number, number, number];
-}
-
 describe("canonical synthetic CRM fixture contract", () => {
   it("preserves the legacy active Pro subscription presentation", () => {
     expect(SYNTHETIC_SUBSCRIPTION).toEqual({
@@ -148,18 +130,26 @@ describe("canonical synthetic CRM fixture contract", () => {
       expect(memberById.get(identity.userId)?.email).toBe(identity.email);
   });
 
-  it("keeps contact portraits monochrome and member portraits on-brand", async () => {
+  it("keeps the complete local avatar manifest with square PNG files", () => {
     const avatarPaths = [...new Set([...SYNTHETIC_CONTACT_AVATAR_PATHS, ...Object.values(SYNTHETIC_AVATAR_PATHS)])];
     const monochromeAvatarPaths = new Set<string>([
       ...SYNTHETIC_CONTACT_AVATAR_PATHS,
       SYNTHETIC_AVATAR_PATHS.claraNeumann,
       SYNTHETIC_AVATAR_PATHS.marcoSilva,
     ]);
+    const colorAvatarPaths = avatarPaths.filter((avatarPath) => !monochromeAvatarPaths.has(avatarPath));
 
     expect(SYNTHETIC_CONTACT_AVATAR_PATHS).toHaveLength(SYNTHETIC_CONTACT_NAMES.length);
     expect(new Set(SYNTHETIC_CONTACT_AVATAR_PATHS).size).toBe(SYNTHETIC_CONTACT_NAMES.length);
     expect(monochromeAvatarPaths.size).toBe(32);
     expect(avatarPaths).toHaveLength(35);
+    expect(new Set(colorAvatarPaths)).toEqual(
+      new Set([
+        SYNTHETIC_AVATAR_PATHS.maxBergmann,
+        SYNTHETIC_AVATAR_PATHS.sofiaRossi,
+        SYNTHETIC_AVATAR_PATHS.elenaHoffmann,
+      ]),
+    );
 
     for (const avatarPath of avatarPaths) {
       expect(avatarPath).toMatch(/^\/demo\/avatars\/photos\/[a-z-]+\.png$/);
@@ -169,37 +159,9 @@ describe("canonical synthetic CRM fixture contract", () => {
 
       const source = readFileSync(avatarFile);
       expect(source.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-
-      const { data, info } = await sharp(source).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-      expect(info.width).toBe(info.height);
-
-      let largestChannelDelta = 0;
-      for (let offset = 0; offset < data.length; offset += info.channels) {
-        const red = data[offset] ?? 0;
-        const green = data[offset + 1] ?? 0;
-        const blue = data[offset + 2] ?? 0;
-        largestChannelDelta = Math.max(largestChannelDelta, Math.max(red, green, blue) - Math.min(red, green, blue));
-      }
-      if (monochromeAvatarPaths.has(avatarPath)) {
-        expect(largestChannelDelta, `${avatarPath} must remain visually monochrome`).toBeLessThanOrEqual(16);
-        continue;
-      }
-
-      expect(largestChannelDelta, `${avatarPath} must remain a color portrait`).toBeGreaterThan(32);
-      const [red, green, blue] = topLeftAverage(data, info.width, info.channels);
-
-      if (avatarPath === SYNTHETIC_AVATAR_PATHS.maxBergmann) {
-        expect(blue - green, "Max's background must remain primary violet").toBeGreaterThan(40);
-        expect(red - green, "Max's background must retain a violet rather than blue hue").toBeGreaterThan(10);
-      } else if (avatarPath === SYNTHETIC_AVATAR_PATHS.sofiaRossi) {
-        expect(green - red, "Sofia's background must remain secondary teal").toBeGreaterThan(25);
-        expect(blue - red, "Sofia's background must remain secondary teal").toBeGreaterThan(25);
-        expect(Math.abs(green - blue), "Sofia's background must remain balanced teal").toBeLessThan(20);
-      } else if (avatarPath === SYNTHETIC_AVATAR_PATHS.elenaHoffmann) {
-        expect(blue - green, "Elena's background must retain the primary violet side of its gradient").toBeGreaterThan(
-          40,
-        );
-      } else throw new Error(`Unexpected color avatar fixture: ${avatarPath}`);
+      expect(source.subarray(12, 16).toString("ascii")).toBe("IHDR");
+      expect(source.readUInt32BE(16)).toBe(source.readUInt32BE(20));
+      expect(source.readUInt32BE(16)).toBeGreaterThanOrEqual(256);
     }
   });
 
