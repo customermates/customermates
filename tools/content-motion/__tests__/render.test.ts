@@ -577,6 +577,41 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(viewport)).toThrow();
   }, 30_000);
 
+  it("renders a bounded progress counter with deterministic completion copy", async () => {
+    const progress: any = structuredClone(valid);
+    progress.nodes[0].children.unshift({
+      id: "sync-progress",
+      type: "counter",
+      value: 0,
+      total: 16,
+      variant: "outline",
+      size: "social",
+      presentation: "progress",
+      label: "Updating",
+      completeLabel: "All synced",
+    });
+    progress.actions = [
+      {
+        type: "countTo",
+        target: "sync-progress",
+        start: 1,
+        end: 2,
+        value: 16,
+      },
+    ];
+    const html = await buildCompositionHtml(progress, { product: productRoot });
+    expect(html).toContain('data-count-progress="sync-progress"');
+    expect(html).toContain('data-count-status="sync-progress"');
+    expect(html).toContain(
+      "count>=action.value?status.dataset.countCompleteLabel",
+    );
+
+    delete progress.nodes[0].children[0].completeLabel;
+    expect(() => compositionSchema.parse(progress)).toThrow(
+      /progress counter requires label and completeLabel/,
+    );
+  }, 30_000);
+
   it("supports bounded deterministic reveal, blur, and camera tilt primitives", async () => {
     const cinematic = {
       ...structuredClone(valid),

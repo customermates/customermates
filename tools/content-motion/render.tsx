@@ -431,6 +431,41 @@ const renderNode = (
       />,
     );
   }
+  if (node.type === "counter" && node.presentation === "progress") {
+    const percentage = Math.min(100, (node.value / node.total) * 100);
+    return wrapper(
+      node,
+      <Badge
+        className={`${
+          node.size === "social"
+            ? "h-12 min-w-64 px-4 text-[20px]"
+            : "h-9 min-w-48 px-3"
+        } relative justify-between gap-4 overflow-hidden tabular-nums`}
+        data-count-root={node.id}
+        variant={node.variant}
+      >
+        <span
+          className="absolute inset-y-0 left-0 bg-primary/15 transition-none"
+          data-count-progress={node.id}
+          style={{ width: `${percentage}%` }}
+        />
+        <span className="relative flex items-center gap-2 font-medium">
+          <span className="size-2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
+          <span
+            data-count-complete-label={node.completeLabel}
+            data-count-label={node.label}
+            data-count-status={node.id}
+          >
+            {node.value >= node.total ? node.completeLabel : node.label}
+          </span>
+        </span>
+        <span className="relative font-semibold">
+          <span data-count-target={node.id}>{node.value}</span>
+          <span>{`/${node.total}`}</span>
+        </span>
+      </Badge>,
+    );
+  }
   if (node.type === "counter")
     return wrapper(
       node,
@@ -881,7 +916,7 @@ window.renderScene=(sceneId,progress,frame,frameCount)=>{
     if(action.type==='typeValue'){const input=cmRoot().querySelector('[data-input-target="'+action.target+'"]');if(input)input.value=action.value.slice(0,Math.floor(action.value.length*value));}
     if(action.type==='updateTable'){const table=cmRoot().querySelector('[data-table-id="'+action.target+'"]');if(!table)continue;const rows=[...table.querySelectorAll('[data-row-index]')];const completed=Math.min(rows.length,Math.floor(value*rows.length+.0001));rows.forEach((row,index)=>{const done=index<completed;row.querySelector('[data-state-initial]')?.style.setProperty('opacity',done?'0':'1');row.querySelector('[data-state-updated]')?.style.setProperty('opacity',done?'1':'0');});const count=table.querySelector('[data-count-for="'+action.target+'"]');if(count)count.textContent=String(Math.floor(value*action.total));}
     if(action.type==='swapState'){const target=cmRoot().querySelector('[data-state-target="'+action.target+'"]');if(!target)continue;const initial=target.querySelector('[data-state-initial]');const updated=target.querySelector('[data-state-updated]');const switched=value>=.5;initial?.style.setProperty('visibility',switched?'hidden':'visible');initial?.style.setProperty('opacity','1');updated?.style.setProperty('visibility',switched?'visible':'hidden');updated?.style.setProperty('opacity','1');}
-    if(action.type==='countTo'&&time>=action.start){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');if(target)target.textContent=String(Math.round(action.value*value));}
+    if(action.type==='countTo'&&time>=action.start){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');const count=Math.round(action.value*value);if(target){target.textContent=String(count);const root=target.closest('[data-count-root]');const progress=root?.querySelector('[data-count-progress]');if(progress)progress.style.width=String(Math.min(100,count/action.value*100))+'%';const status=root?.querySelector('[data-count-status]');if(status)status.textContent=count>=action.value?status.dataset.countCompleteLabel:status.dataset.countLabel;}}
   }
   cmPlaceAttached();cmPlaceFocus();cmPlaceConnectors();
 };

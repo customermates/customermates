@@ -347,8 +347,22 @@ const counterNode = z
     suffix: z.string().max(24).optional(),
     variant: z.enum(["secondary", "outline"]).default("secondary"),
     size: z.enum(["product", "social"]).default("product"),
+    presentation: z.enum(["badge", "progress"]).default("badge"),
+    label: z.string().min(1).max(16).optional(),
+    completeLabel: z.string().min(1).max(16).optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (
+      value.presentation === "progress" &&
+      (!value.label || !value.completeLabel || value.suffix)
+    )
+      context.addIssue({
+        code: "custom",
+        message:
+          "progress counter requires label and completeLabel and forbids suffix",
+      });
+  });
 
 const focusNode = z
   .object({

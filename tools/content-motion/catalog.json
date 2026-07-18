@@ -179,6 +179,7 @@
       "nodeType": "counter",
       "source": "components/ui/badge.tsx",
       "presentations": ["product", "social"],
+      "variants": ["badge", "progress"],
       "states": ["initial", "counting", "complete"]
     },
     {
