@@ -1,17 +1,32 @@
-import { parseOriginList, resolveAppMode, resolveBaseUrl, resolveVercelBranchOrigin } from "@/core/config/environment";
+import {
+  normalizeBaseUrl,
+  parseOriginList,
+  resolveAppMode,
+  resolveBaseUrl,
+  resolveVercelBranchOrigin,
+} from "@/core/config/environment";
+import { normalizePreviewDomain } from "@/core/config/preview-domain";
 
 const BASE_URL = resolveBaseUrl(process.env);
 const vercelBranchOrigin = resolveVercelBranchOrigin(process.env);
 const DATABASE_URL = process.env.DATABASE_URL?.trim();
 if (!DATABASE_URL) throw new Error("DATABASE_URL must be configured");
+const previewDomain = process.env.PREVIEW_DOMAIN?.trim();
+const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();
+const oauthProxySecret = process.env.OAUTH_PROXY_SECRET;
+if (Boolean(oauthProxyUrl) !== Boolean(oauthProxySecret))
+  throw new Error("OAUTH_PROXY_URL and OAUTH_PROXY_SECRET must be configured together");
 
 export const env = {
   DATABASE_URL,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
   BASE_URL,
+  OAUTH_PROXY_URL: oauthProxyUrl ? normalizeBaseUrl(oauthProxyUrl) : undefined,
+  OAUTH_PROXY_SECRET: oauthProxySecret,
 
   NODE_ENV: (process.env.NODE_ENV as "development" | "test" | "production" | undefined) ?? "development",
   VERCEL_BRANCH_ORIGIN: vercelBranchOrigin,
+  PREVIEW_DOMAIN: previewDomain ? normalizePreviewDomain(previewDomain) : undefined,
   NEXT_RUNTIME: process.env.NEXT_RUNTIME as "nodejs" | "edge" | undefined,
   CI: process.env.CI,
 

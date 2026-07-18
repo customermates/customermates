@@ -77,26 +77,34 @@ describe("shell scripts", () => {
     expect(script).not.toMatch(/WORKFLOW_|workflow:setup/);
   });
 
-  it("uses Vercel branch domains instead of deployment aliases", () => {
+  it("keeps Vercel branch domains on the ready deployment", () => {
     const script = readFileSync(join(root, "scripts/manage-preview-domain.sh"), "utf8");
     const workflow = readFileSync(join(root, ".github/workflows/preview-domain.yml"), "utf8");
 
     expect(workflow).toContain("status:");
     expect(workflow).toContain("delete:");
+    expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).not.toContain("create:");
-    expect(workflow).toContain("startsWith(github.event.context, 'Vercel')");
+    expect(workflow).toContain("github.event.context == 'Vercel'");
+    expect(workflow).toContain(
+      "startsWith(github.event.target_url, 'https://vercel.com/customermates/customermates/')",
+    );
     expect(workflow).toContain("branches-where-head");
     expect(workflow).toContain("was recreated; keeping its domain");
     expect(workflow).toContain("github.repository == 'customermates/customermates'");
-    expect(workflow).toContain("group: preview-domain-${{ github.event_name }}-");
+    expect(workflow).toContain("group: preview-domain-control");
     expect(workflow).toContain("ref: ${{ github.event.repository.default_branch }}");
     expect(workflow).not.toContain("repository_dispatch");
-    expect(script).toContain("/v10/projects/${VERCEL_PROJECT_ID}/domains");
+    expect(script).toContain("/v10/projects/${encoded_project}/domains");
     expect(script).toContain('--arg branch "$BRANCH_NAME"');
     expect(script).toContain("gitBranch: $branch");
+    expect(script).toContain("/v7/deployments?");
+    expect(script).toContain("state=READY");
+    expect(script).toContain("&branch=${encoded_branch}");
+    expect(script).toContain("&sha=${encoded_sha}");
+    expect(script).toContain("/v2/deployments/${deployment_id}/aliases");
+    expect(script).toContain("/v2/aliases/${encoded_alias_id}");
     expect(script).toContain("--request DELETE");
-    expect(script).not.toContain("/aliases");
-    expect(script).not.toContain("/deployments");
   });
 
   it("skips an ambiguous sandbox name before any provider request", () => {

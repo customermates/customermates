@@ -3,29 +3,39 @@ name: Preview branch domains
 on:
   delete:
   status:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Existing branch whose Preview domain should be reconciled
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: preview-domain-${{ github.event_name }}-${{ github.event_name == 'delete' && github.event.ref || github.event.sha }}
+  group: preview-domain-control
   cancel-in-progress: false
 
 jobs:
   manage-domain:
     if: >-
       github.repository == 'customermates/customermates' &&
-      (
         (
-          github.event_name == 'status' &&
-          github.event.state == 'success' &&
-          startsWith(github.event.context, 'Vercel')
-        ) ||
-        (
-          github.event_name == 'delete' &&
-          github.event.ref_type == 'branch'
+          (
+            github.event_name == 'status' &&
+            github.event.state == 'success' &&
+            github.event.context == 'Vercel' &&
+            startsWith(github.event.target_url, 'https://vercel.com/customermates/customermates/')
+          ) ||
+          (
+            github.event_name == 'delete' &&
+            github.event.ref_type == 'branch'
+          ) ||
+          (
+            github.event_name == 'workflow_dispatch'
+          )
         )
-      )
     runs-on: ubuntu-latest
     environment: preview-domain-control
     steps:
@@ -38,6 +48,7 @@ jobs:
           DELETED_BRANCH: ${{ github.event.ref }}
           EVENT_ACTION: ${{ github.event_name == 'delete' && 'delete' || 'create' }}
           GH_TOKEN: ${{ github.token }}
+          MANUAL_BRANCH: ${{ inputs.branch }}
           PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
           STATUS_SHA: ${{ github.event.sha }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
@@ -72,6 +83,23 @@ jobs:
                 exit 1
                 ;;
             esac
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            encoded_branch="$(jq -rn --arg branch "$MANUAL_BRANCH" '$branch | @uri')"
+            branch_status="$(curl --silent --show-error --max-time 20 --retry 3 \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --output /dev/null \
+              --write-out '%{http_code}' \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/branches/$encoded_branch")"
+
+            if [[ "$branch_status" != "200" ]]; then
+              echo "GitHub returned HTTP $branch_status while reading $MANUAL_BRANCH." >&2
+              exit 1
+            fi
+            printf '%s\n' "$MANUAL_BRANCH" > "$branches_file"
+            STATUS_SHA=""
+            export STATUS_SHA
           else
             gh api \
               --header "X-GitHub-Api-Version: 2022-11-28" \

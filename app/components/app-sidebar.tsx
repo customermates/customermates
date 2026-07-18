@@ -283,7 +283,7 @@ export const AppSidebar = observer(
             addLabel={t("Common.actions.add")}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
-            homeHref="/"
+            homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/"}
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
             onAdd={() => closeMobileSidebar(() => setIsAddPickerOpen(true))}

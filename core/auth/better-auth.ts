@@ -34,18 +34,27 @@ export const enabledSocialProviders = {
   microsoft: "microsoft" in socialProviders,
 };
 
-const trustedOrigins = [
+const requestOrigins = [
   env.BASE_URL,
   ...(env.VERCEL_BRANCH_ORIGIN && env.VERCEL_BRANCH_ORIGIN !== env.BASE_URL ? [env.VERCEL_BRANCH_ORIGIN] : []),
 ];
+const trustedOrigins = [...requestOrigins, ...(env.PREVIEW_DOMAIN ? [`https://*.${env.PREVIEW_DOMAIN}`] : [])];
 const authBaseURL =
-  trustedOrigins.length === 1
+  requestOrigins.length === 1
     ? env.BASE_URL
     : {
-        allowedHosts: trustedOrigins.map((origin) => new URL(origin).hostname),
+        allowedHosts: requestOrigins.map((origin) => new URL(origin).hostname),
         fallback: env.BASE_URL,
         protocol: "https" as const,
       };
+const oauthProxy =
+  env.OAUTH_PROXY_URL && env.OAUTH_PROXY_SECRET
+    ? oAuthProxy({
+        currentURL: env.BASE_URL,
+        productionURL: env.OAUTH_PROXY_URL,
+        secret: env.OAUTH_PROXY_SECRET,
+      })
+    : null;
 
 export const auth = betterAuth({
   baseURL: authBaseURL,
@@ -169,7 +178,7 @@ export const auth = betterAuth({
   socialProviders,
 
   plugins: [
-    oAuthProxy(),
+    ...(oauthProxy ? [oauthProxy] : []),
     apiKey({
       rateLimit: {
         enabled: false,
