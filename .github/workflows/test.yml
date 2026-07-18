@@ -18,6 +18,7 @@ jobs:
           node-version: 22
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - run: yarn typecheck
       - run: yarn lint:check
