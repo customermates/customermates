@@ -110,7 +110,7 @@ export class MessagingThreadDetailStore extends BaseStore {
 
   markRead = async (): Promise<void> => {
     const thread = this.thread;
-    if (!thread || thread.state !== "unread") return;
+    if (!thread || this.rootStore.appMode === "demo" || thread.state !== "unread") return;
 
     const result = await updateThreadAction({
       threadId: thread.id,
@@ -164,7 +164,8 @@ export class MessagingThreadDetailStore extends BaseStore {
 
   loadOlderMessages = async (): Promise<void> => {
     const thread = this.thread;
-    if (!thread || this.loadingOlder || this.olderSyncAttempted.has(thread.id)) return;
+    if (!thread || this.rootStore.appMode === "demo" || this.loadingOlder || this.olderSyncAttempted.has(thread.id))
+      return;
 
     this.olderSyncAttempted.add(thread.id);
     this.loadingOlder = true;

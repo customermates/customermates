@@ -32,8 +32,7 @@ import type { ExtendedUser } from "@/features/user/user.types";
 export const MOCK_ENV_MODULE = {
   env: {
     NODE_ENV: "test" as const,
-    DEMO_MODE: false,
-    CLOUD_HOSTED: false,
+    APP_MODE: "self-hosted" as const,
     BASE_URL: "http://localhost:4000",
     RESEND_OPERATOR_EMAIL: "test@test.com",
     DATABASE_URL: "postgresql://test:test@localhost:5432/test",
@@ -112,4 +111,3 @@ export const MOCK_PRISMA_DB_MODULE = {
     $extends: vi.fn().mockReturnThis(),
   },
 };
-

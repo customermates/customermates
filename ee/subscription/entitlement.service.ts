@@ -35,7 +35,7 @@ export class EntitlementService {
   async require(feature: EntitlementFeature): Promise<EntitlementDenial | null> {
     const t = await getTranslations();
 
-    if (!env.CLOUD_HOSTED) return this.denial(t, FEATURE_DENIALS[feature].cloud);
+    if (env.APP_MODE === "self-hosted") return this.denial(t, FEATURE_DENIALS[feature].cloud);
 
     const subscription = await this.repo.getSubscriptionOrThrow();
 

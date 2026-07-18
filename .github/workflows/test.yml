@@ -9,8 +9,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      APP_MODE: self-hosted
       DATABASE_URL: "postgresql://localhost:5432/test"
-      DATABASE_DIRECT_URL: "postgresql://localhost:5432/test"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,6 +18,7 @@ jobs:
           node-version: 22
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - run: yarn typecheck
       - run: yarn lint:check

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: true } }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" } }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
   getLocale: () => Promise.resolve("en"),
@@ -74,7 +74,7 @@ describe("EntitlementService self-hosted", () => {
 
   it("denies with the cloud message before any subscription lookup", async () => {
     vi.resetModules();
-    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: false } }));
+    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "self-hosted" } }));
     vi.doMock("next-intl/server", () => ({
       getTranslations: () => Promise.resolve((key: string) => key),
       getLocale: () => Promise.resolve("en"),

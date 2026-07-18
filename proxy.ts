@@ -76,9 +76,9 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  if (env.DEMO_MODE) {
+  if (env.APP_MODE === "demo") {
     if (!env.DEMO_USER_EMAIL || !env.DEMO_USER_PASSWORD)
-      throw new Error("DEMO_USER_EMAIL and DEMO_USER_PASSWORD must be set when DEMO_MODE=true");
+      throw new Error("DEMO_USER_EMAIL and DEMO_USER_PASSWORD must be set when APP_MODE=demo");
 
     const isNonDemoUser = isAuthenticated && session?.user?.email !== env.DEMO_USER_EMAIL;
 

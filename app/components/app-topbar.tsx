@@ -29,6 +29,7 @@ import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
 import { WORKSPACE_SECTIONS, visibleSubroutes, type WorkspaceSection } from "./navigation/workspace-sections";
 
+import type { AppMode } from "@/core/config/environment";
 import type { Resource } from "@/generated/prisma";
 
 type Sibling = { slug: string; label: string };
@@ -66,7 +67,7 @@ export const AppTopBar = observer(() => {
         layoutStore.runtimeTitle,
         layoutStore.runtimePictureUrl,
         layoutStore.runtimeAvatarKind !== null,
-        rootStore.isCloudHosted,
+        rootStore.appMode,
         userStore.canAccess,
       ),
     [
@@ -75,7 +76,7 @@ export const AppTopBar = observer(() => {
       layoutStore.runtimeTitle,
       layoutStore.runtimePictureUrl,
       layoutStore.runtimeAvatarKind,
-      rootStore.isCloudHosted,
+      rootStore.appMode,
       userStore.user,
     ],
   );
@@ -143,7 +144,7 @@ function buildCrumbs(
   runtimeTitle: string | null,
   runtimePictureUrl: string | null,
   showLeafAvatar: boolean,
-  isCloudHosted: boolean,
+  appMode: AppMode,
   canAccess: (resource: Resource) => boolean,
 ): { crumbs: Crumb[]; section: string | null } {
   const segs = pathname.split("/").filter(Boolean);
@@ -155,7 +156,7 @@ function buildCrumbs(
   if (!entry) return { crumbs: [], section: null };
 
   const workspaceSection = isWorkspaceSection(first) ? first : null;
-  const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, isCloudHosted, canAccess) : [];
+  const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, appMode, canAccess) : [];
 
   const crumbs: Crumb[] = [];
   const leafKey = entry.group === "settings" ? `UserAvatar.${entry.label}` : `NavigationBar.${entry.label}`;

@@ -16,7 +16,7 @@ import { env } from "@/env";
 export default async function ConnectedAccountsPage() {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (!env.CLOUD_HOSTED) redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
   const locked = !getEntitlements(subscriptionResult.data.plan).messaging;

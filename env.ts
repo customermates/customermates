@@ -1,15 +1,17 @@
+import { resolveAppMode } from "@/core/config/environment";
+
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL as string,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
   BASE_URL: process.env.BASE_URL ?? "http://localhost:4000",
 
   NODE_ENV: (process.env.NODE_ENV as "development" | "test" | "production" | undefined) ?? "development",
+  VERCEL_ENV: process.env.VERCEL_ENV as "development" | "preview" | "production" | undefined,
   VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
   NEXT_RUNTIME: process.env.NEXT_RUNTIME as "nodejs" | "edge" | undefined,
   CI: process.env.CI,
 
-  DEMO_MODE: process.env.DEMO_MODE === "true",
-  CLOUD_HOSTED: process.env.CLOUD_HOSTED === "true",
+  APP_MODE: resolveAppMode(process.env),
 
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   RESEND_OPERATOR_EMAIL: process.env.RESEND_OPERATOR_EMAIL as string,
