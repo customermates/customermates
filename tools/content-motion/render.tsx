@@ -438,7 +438,7 @@ const renderNode = (
       <Badge
         className={`${
           node.size === "social"
-            ? "h-12 min-w-64 px-4 text-[20px]"
+            ? "h-12 min-w-64 px-4 text-[22px]"
             : "h-9 min-w-48 px-3"
         } relative justify-between gap-4 overflow-hidden tabular-nums`}
         data-count-root={node.id}
