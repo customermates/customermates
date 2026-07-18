@@ -162,16 +162,19 @@ export async function seedRoles(context: SeedContext): Promise<void> {
   }));
   const desiredPermissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
 
-  await context.prisma.$transaction(async (prisma) => {
-    for (const role of roles) await reconcileRoleId(prisma, role);
+  await context.prisma.$transaction(
+    async (prisma) => {
+      for (const role of roles) await reconcileRoleId(prisma, role);
 
-    for (const permission of desiredPermissions) await reconcilePermissionId(prisma, permission);
+      for (const permission of desiredPermissions) await reconcilePermissionId(prisma, permission);
 
-    await prisma.rolePermission.deleteMany({
-      where: {
-        roleId: { in: roleIds },
-        id: { notIn: desiredPermissions.map(({ id }) => id) },
-      },
-    });
-  });
+      await prisma.rolePermission.deleteMany({
+        where: {
+          roleId: { in: roleIds },
+          id: { notIn: desiredPermissions.map(({ id }) => id) },
+        },
+      });
+    },
+    { timeout: 60_000 },
+  );
 }
