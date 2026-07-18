@@ -379,7 +379,7 @@ describe("content motion kit", () => {
     expect(first).toBe(second);
     expect(first).toContain('data-slot="card"');
     expect(first).toContain('data-slot="button"');
-    expect(first).toContain("size-20 rounded-2xl p-4");
+    expect(first).toContain("size-24 rounded-[28px] p-5");
     expect(first).toContain('data-slot="badge"');
     expect(first).toContain('data-slot="table"');
     expect(first).toContain('data-slot="input"');
@@ -408,6 +408,8 @@ describe("content motion kit", () => {
     expect(html).toContain("window.getProductScenes");
     expect(html).toContain("text-paint-clipped");
     expect(html).toContain("clipsX&&element.scrollWidth");
+    expect(html).toContain("h-9 px-3 py-1.5 text-[22px] leading-none");
+    expect(html).toContain("absolute inset-0 flex items-center justify-end");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
   }, 30_000);
 

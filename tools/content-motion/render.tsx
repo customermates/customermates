@@ -45,6 +45,8 @@ import {
 type AssetRoots = Record<string, string>;
 type AssetMap = Record<string, { dataUri: string }>;
 
+const socialBadgeClassName = "h-9 px-3 py-1.5 text-[22px] leading-none";
+
 const htmlEscape = (value: string) =>
   value
     .replaceAll("&", "&amp;")
@@ -302,9 +304,7 @@ const renderNode = (
     return wrapper(
       node,
       <Badge
-        className={
-          node.size === "social" ? "px-3 py-1.5 text-[22px]" : undefined
-        }
+        className={node.size === "social" ? socialBadgeClassName : undefined}
         variant={node.variant}
       >
         {node.text}
@@ -317,7 +317,8 @@ const renderNode = (
     return wrapper(
       node,
       <AppChip
-        size={node.size}
+        className={node.size === "social" ? socialBadgeClassName : undefined}
+        size={node.size === "social" ? "lg" : node.size}
         startContent={startContent}
         variant={node.variant}
       >
@@ -355,7 +356,7 @@ const renderNode = (
       node,
       <Button
         aria-label={node.label}
-        className={node.size === "hero" ? "size-20 rounded-2xl p-4" : undefined}
+        className={node.size === "hero" ? "size-24 rounded-[28px] p-5" : undefined}
         size={node.size === "hero" ? "icon-lg" : node.size}
         variant="outline"
       >
@@ -432,9 +433,7 @@ const renderNode = (
     return wrapper(
       node,
       <Badge
-        className={
-          node.size === "social" ? "px-3 py-1.5 text-[22px]" : undefined
-        }
+        className={node.size === "social" ? socialBadgeClassName : undefined}
         variant={node.variant}
       >
         <span data-count-target={node.id}>{node.value}</span>
@@ -449,17 +448,23 @@ const renderNode = (
         className={social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}
         data-state-target={node.id}
       >
-        <span className="absolute inset-0" data-state-initial>
+        <span
+          className="absolute inset-0 flex items-center justify-end"
+          data-state-initial
+        >
           <Badge
-            className={social ? "px-3 py-1.5 text-[22px]" : undefined}
+            className={social ? socialBadgeClassName : undefined}
             variant={node.initial.variant}
           >
             {node.initial.text}
           </Badge>
         </span>
-        <span className="absolute inset-0 opacity-0" data-state-updated>
+        <span
+          className="absolute inset-0 flex items-center justify-end opacity-0"
+          data-state-updated
+        >
           <Badge
-            className={social ? "px-3 py-1.5 text-[22px]" : undefined}
+            className={social ? socialBadgeClassName : undefined}
             variant={node.updated.variant}
           >
             {node.updated.text}

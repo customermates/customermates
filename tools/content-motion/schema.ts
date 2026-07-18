@@ -158,7 +158,7 @@ const chipNode = z
       "info",
       "outline",
     ]),
-    size: z.enum(["sm", "md", "lg"]),
+    size: z.enum(["sm", "md", "lg", "social"]),
     text: z.string(),
     startAsset: id.optional(),
   })

@@ -122,6 +122,7 @@
       "layer": "molecule",
       "nodeType": "chip",
       "source": "components/chip/app-chip.tsx",
+      "presentations": ["product", "social"],
       "variants": [
         "default",
         "secondary",
