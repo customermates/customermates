@@ -174,7 +174,7 @@
     "test": "vitest run",
     "test:docker-runtime": "bash scripts/test-docker-runtime.sh",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "fumadocs-mdx core/fumadocs/source.config.ts && tsc --noEmit",
     "vercel-build": "bash scripts/vercel-build.sh",
     "workflow:setup": "workflow-postgres-setup"
   },
