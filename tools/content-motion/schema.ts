@@ -629,7 +629,7 @@ const action = z.discriminatedUnion("type", [
 const density = z
   .object({
     maxNodes: z.number().int().min(1).max(320).default(48),
-    maxTextLeaves: z.number().int().min(1).max(120).default(18),
+    maxTextLeaves: z.number().int().min(1).max(160).default(18),
     maxCharacters: z.number().int().min(1).max(1200).default(320),
     maxPrimaryRegions: z.number().int().min(1).max(8).default(3),
   })

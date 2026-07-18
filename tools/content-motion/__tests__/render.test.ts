@@ -420,7 +420,7 @@ describe("content motion kit", () => {
   it("enforces per-scene density budgets across unrelated content contexts", () => {
     const boundedStream: any = structuredClone(sceneComposition);
     boundedStream.scenes[0].density.maxNodes = 320;
-    boundedStream.scenes[0].density.maxTextLeaves = 120;
+    boundedStream.scenes[0].density.maxTextLeaves = 160;
     expect(() => compositionSchema.parse(boundedStream)).not.toThrow();
 
     const unboundedStream: any = structuredClone(sceneComposition);
@@ -428,7 +428,7 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(unboundedStream)).toThrow();
 
     const excessiveTextStream: any = structuredClone(sceneComposition);
-    excessiveTextStream.scenes[0].density.maxTextLeaves = 121;
+    excessiveTextStream.scenes[0].density.maxTextLeaves = 161;
     expect(() => compositionSchema.parse(excessiveTextStream)).toThrow();
 
     const overloaded: any = structuredClone(sceneComposition);
