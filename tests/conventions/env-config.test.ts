@@ -156,9 +156,11 @@ describe("environment configuration", () => {
     );
   });
 
-  it("allows only same-origin framing", () => {
+  it("allows only Production to frame Demo builds", () => {
     const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
-    expect(config).toContain(`value: "frame-ancestors 'self'"`);
+    expect(config).toContain('env.APP_MODE === "demo"');
+    expect(config).toContain(`? "frame-ancestors 'self' https://customermates.com"`);
+    expect(config).toContain(`: "frame-ancestors 'self'"`);
     expect(config).not.toContain("test.customermates.com");
   });
 
