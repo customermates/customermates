@@ -732,6 +732,7 @@ describe("content motion kit", () => {
     expect(html).toContain("text-[28px]");
     expect(html).toContain("control-metric-drift");
     expect(html).toContain("control-height-drift");
+    expect(html).toContain("height:element.offsetHeight");
     expect(html).toContain("spacing-recipe-drift");
     expect(html).toContain("data-slot=table-cell]]:px-0");
     expect(html).toContain("absolute inset-0 flex items-center justify-end");

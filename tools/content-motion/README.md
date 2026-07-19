@@ -24,6 +24,8 @@ Forms may opt into the named `layout.rhythm: "social-form"` recipe instead of re
 
 Use `social-hero-form` only for a phone-first macro proof. It retains the same spatial rhythm while raising single-line controls to 64 pixels and their text/line height to 28/36 pixels. The Select trigger overrides its product `data-size` height explicitly, so its rendered box remains equal to Input rather than merely sharing a nominal utility class.
 
+Control parity compares untransformed layout metrics. A declared focus or camera transform may scale a complete field temporarily, but it cannot conceal a different Input/Select `offsetHeight`, font size, line height, or horizontal inset in the underlying product layout.
+
 `catalog.json` is the product-owned capability manifest. It records supported layers, node types, variants, presentations, state actions, motion families, and QA contracts. Add a capability and its focused tests there before using it as a one-off composition workaround. Legacy aggregate `input` and `table` nodes remain temporarily readable, but new work should use their granular replacements.
 
 Outer-wrapper motion supports bounded translation, scale, opacity, 2D rotation, 2.5D tilt, blur, directional inset clipping, and transform-origin movement. The schema limits rotation and tilt to ±12 degrees, blur to 24 pixels, and clip/origin values to 0–100 percent. These controls are intended for short explanatory reveals and focus transitions; they do not change component internals or accept arbitrary filters, transforms, classes, or CSS.
