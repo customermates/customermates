@@ -274,6 +274,12 @@ const nodeAttributes = (
   "data-cm-alignment": node.qa?.alignment,
   "data-cm-alignment-group": node.qa?.alignmentGroup,
   "data-cm-allow-overlap": node.qa?.allowOverlapWith?.join(","),
+  "data-cm-adaptive-height": node.layout?.adaptiveHeight
+    ? JSON.stringify({
+        ...node.layout.adaptiveHeight,
+        inset: spaceValue(node.layout.adaptiveHeight.inset),
+      })
+    : undefined,
   "data-cm-attach": node.layout?.attach
     ? JSON.stringify(node.layout.attach)
     : undefined,
@@ -1225,6 +1231,12 @@ const cmPlaceConnectors=()=>{
     svg.setAttribute('viewBox','0 0 '+baseRect.width+' '+baseRect.height);svg.querySelector('[data-cm-connector-path]')?.setAttribute('d','M '+ax+' '+ay+' C '+c1x+' '+c1y+', '+c2x+' '+c2y+', '+bx+' '+by);
   }
 };
+const cmOpacityWithin=(element,stop)=>{let opacity=1;for(let current=element;current&&current!==stop;current=current.parentElement)opacity*=Number(getComputedStyle(current).opacity);return clamp(opacity);};
+const cmAdaptSurfaces=()=>{
+  for(const element of cmRoot().querySelectorAll('[data-cm-adaptive-height]')){
+    const config=JSON.parse(element.dataset.cmAdaptiveHeight);if(element.dataset.cmAdaptiveBaseTop==null){element.dataset.cmAdaptiveBaseTop=String(parseFloat(element.style.top)||0);element.dataset.cmAdaptiveBaseHeight=String(parseFloat(element.style.height)||element.offsetHeight);}const baseTop=Number(element.dataset.cmAdaptiveBaseTop),baseHeight=Number(element.dataset.cmAdaptiveBaseHeight);element.style.top=baseTop+'px';element.style.height=baseHeight+'px';const container=element.getBoundingClientRect();const ignored=new Set(['focus','connector']);const leaves=[...element.querySelectorAll('[data-cm-id]')].filter((child)=>!child.querySelector('[data-cm-id]')&&!ignored.has(child.dataset.cmComponent)&&getComputedStyle(child).display!=='none'&&getComputedStyle(child).visibility!=='hidden').sort((a,b)=>a.getBoundingClientRect().bottom-b.getBoundingClientRect().bottom);let bottom=container.top;for(const leaf of leaves){const rect=leaf.getBoundingClientRect();if(rect.width<.5||rect.height<.5||rect.bottom<=bottom)continue;bottom+=Math.max(0,rect.bottom-bottom)*cmOpacityWithin(leaf,element);}const height=Math.max(config.min,Math.min(config.max,bottom-container.top+config.inset));element.style.height=height+'px';if(config.anchor==='center')element.style.top=(baseTop+(baseHeight-height)/2)+'px';
+  }
+};
 window.getProductScenes=()=>composition.scenes.map(({id,duration})=>({id,duration}));
 window.setProductScene=(sceneId)=>{
   if(!sceneMap.has(sceneId))throw new Error('unknown product scene: '+sceneId);activeScene=sceneId;
@@ -1257,7 +1269,7 @@ window.renderScene=(sceneId,progress,frame,frameCount)=>{
     if(action.type==='swapState'){const target=cmRoot().querySelector('[data-state-target="'+action.target+'"]');if(!target)continue;const initial=target.querySelector('[data-state-initial]');const updated=target.querySelector('[data-state-updated]');const switched=value>=.5;initial?.style.setProperty('visibility',switched?'hidden':'visible');initial?.style.setProperty('opacity','1');updated?.style.setProperty('visibility',switched?'visible':'hidden');updated?.style.setProperty('opacity','1');}
     if(action.type==='countTo'&&time>=action.start){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');const count=Math.round(action.value*value);if(target){target.textContent=String(count);const root=target.closest('[data-count-root]');const progress=root?.querySelector('[data-count-progress]');if(progress)progress.style.width=String(Math.min(100,count/action.value*100))+'%';const status=root?.querySelector('[data-count-status]');if(status)status.textContent=count>=action.value?status.dataset.countCompleteLabel:status.dataset.countLabel;}}
   }
-  cmPlaceAttached();cmPlaceFocus();cmPlaceConnectors();
+  cmAdaptSurfaces();cmPlaceAttached();cmPlaceFocus();cmPlaceConnectors();
 };
 window.renderFrame=(progress,frame,frameCount)=>window.renderScene(composition.defaultScene,progress,frame,frameCount);
 window.cmAuditLayout=()=>{

@@ -79,6 +79,19 @@ const layout = z
     grow: z.boolean().optional(),
     textAlign: z.enum(["left", "center", "right"]).optional(),
     overflow: z.enum(["visible", "hidden", "clip"]).optional(),
+    adaptiveHeight: z
+      .object({
+        min: z.number().positive().max(2160),
+        max: z.number().positive().max(2160),
+        inset: space.default("xl"),
+        anchor: z.enum(["top", "center"]).default("center"),
+      })
+      .strict()
+      .refine(
+        (value) => value.max >= value.min,
+        "adaptive height max must be at least min",
+      )
+      .optional(),
     columns: z.number().int().min(1).max(12).optional(),
     padding: space.optional(),
     paddingX: space.optional(),
@@ -113,6 +126,20 @@ const layout = z
       context.addIssue({
         code: "custom",
         message: "absolute layouts require numeric width and height",
+      });
+    if (value.adaptiveHeight && typeof value.height !== "number")
+      context.addIssue({
+        code: "custom",
+        message: "adaptive height requires a numeric base height",
+      });
+    if (
+      value.adaptiveHeight &&
+      typeof value.height === "number" &&
+      value.adaptiveHeight.max > value.height
+    )
+      context.addIssue({
+        code: "custom",
+        message: "adaptive height max cannot exceed base height",
       });
   });
 
@@ -1030,6 +1057,7 @@ const validateGraph = (
   const nodeIds = new Set<string>();
   const nodeTypes = new Map<string, string>();
   const nodeOptions = new Map<string, Set<string>>();
+  const adaptiveHeightTargets = new Set<string>();
   const attachedTargets: Array<{ source: string; target: string }> = [];
   let nodeCount = 0;
   const visit = (item: NodeInput, depth = 0, ancestors: string[] = []) => {
@@ -1041,6 +1069,7 @@ const validateGraph = (
       });
     nodeIds.add(item.id);
     nodeTypes.set(item.id, item.type);
+    if (item.layout?.adaptiveHeight) adaptiveHeightTargets.add(item.id);
     if (item.type === "accordion")
       nodeOptions.set(
         item.id,
@@ -1249,7 +1278,15 @@ const validateGraph = (
       });
   }
   for (const item of motions)
-    if (item.end > duration)
+    if (
+      adaptiveHeightTargets.has(item.target) &&
+      (item.from.height != null || item.to.height != null)
+    )
+      context.addIssue({
+        code: "custom",
+        message: `${scope} adaptive height target cannot use height motion: ${item.target}`,
+      });
+    else if (item.end > duration)
       context.addIssue({
         code: "custom",
         message: `${scope} motion exceeds duration: ${item.target}`,

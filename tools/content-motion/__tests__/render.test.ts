@@ -1204,7 +1204,7 @@ describe("content motion kit", () => {
   }, 30_000);
 
   it("exposes a camera target independently from critical phone type QA", async () => {
-    const cameraTarget = structuredClone(valid);
+    const cameraTarget: any = structuredClone(valid);
     cameraTarget.nodes[0].qa = { cameraTarget: true };
     const html = await buildCompositionHtml(cameraTarget, {
       product: productRoot,
@@ -1216,7 +1216,7 @@ describe("content motion kit", () => {
   }, 30_000);
 
   it("emits a rendered content-fill contract for adaptive surfaces", async () => {
-    const adaptive = structuredClone(valid);
+    const adaptive: any = structuredClone(valid);
     adaptive.nodes[0].qa = { minContentFill: 0.68 };
     const html = await buildCompositionHtml(adaptive, {
       product: productRoot,
@@ -1226,6 +1226,43 @@ describe("content motion kit", () => {
 
     adaptive.nodes[0].qa.minContentFill = 0.19;
     expect(() => compositionSchema.parse(adaptive)).toThrow();
+  }, 30_000);
+
+  it("derives a bounded adaptive surface height from visible product leaves", async () => {
+    const adaptive: any = structuredClone(valid);
+    adaptive.nodes[0].layout.adaptiveHeight = {
+      min: 280,
+      max: 500,
+      inset: "xl",
+      anchor: "center",
+    };
+    const html = await buildCompositionHtml(adaptive, {
+      product: productRoot,
+    });
+    expect(html).toContain('data-cm-adaptive-height=');
+    expect(html).toContain("cmAdaptSurfaces();cmPlaceAttached()");
+    expect(html).toContain("const ignored=new Set(['focus','connector'])");
+
+    const conflicting: any = structuredClone(adaptive);
+    conflicting.motions = [
+      {
+        target: "proof-card",
+        start: 0,
+        end: 0.8,
+        from: { height: 280 },
+        to: { height: 500 },
+        easing: "easeInOut",
+      },
+    ];
+    expect(() => compositionSchema.parse(conflicting)).toThrow(
+      /adaptive height target cannot use height motion/,
+    );
+
+    const unbounded: any = structuredClone(adaptive);
+    unbounded.nodes[0].layout.adaptiveHeight.max = 501;
+    expect(() => compositionSchema.parse(unbounded)).toThrow(
+      /adaptive height max cannot exceed base height/,
+    );
   }, 30_000);
 
   it("supports a monotonic accelerating ease-in motion", async () => {

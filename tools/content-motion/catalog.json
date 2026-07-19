@@ -47,6 +47,12 @@
     },
     "flowPrimitives": ["group", "stack", "inline", "grid"],
     "widthTokens": ["full", "half", "third", "content"],
+    "adaptiveSurface": {
+      "axis": "height",
+      "anchors": ["top", "center"],
+      "bounds": ["min", "max", "inset"],
+      "rule": "Visible product leaves determine the rendered height inside declared bounds; focus and connectors do not affect sizing."
+    },
     "rule": "Only top-level stages may use free x/y geometry; component internals use slots, named rhythm recipes, and flow tokens."
   },
   "sceneRecipes": [
