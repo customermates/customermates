@@ -383,6 +383,7 @@ describe("content motion kit", () => {
       expect.arrayContaining([
         "text-paint-clipping",
         "camera-target-geometry",
+        "content-fill",
         "declared-insets",
         "scene-density-budget",
       ]),
@@ -1212,6 +1213,19 @@ describe("content motion kit", () => {
     const targetTag = html.match(/<[^>]+data-cm-id="proof-card"[^>]*>/)?.[0];
     expect(targetTag).toBeDefined();
     expect(targetTag).not.toContain('data-cm-critical="true"');
+  }, 30_000);
+
+  it("emits a rendered content-fill contract for adaptive surfaces", async () => {
+    const adaptive = structuredClone(valid);
+    adaptive.nodes[0].qa = { minContentFill: 0.68 };
+    const html = await buildCompositionHtml(adaptive, {
+      product: productRoot,
+    });
+    expect(html).toContain('data-cm-min-content-fill="0.68"');
+    expect(html).toContain("code:'content-underfill'");
+
+    adaptive.nodes[0].qa.minContentFill = 0.19;
+    expect(() => compositionSchema.parse(adaptive)).toThrow();
   }, 30_000);
 
   it("supports a monotonic accelerating ease-in motion", async () => {

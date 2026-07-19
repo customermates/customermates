@@ -611,6 +611,7 @@
     "text-paint-clipping",
     "phone-type-floor",
     "camera-target-geometry",
+    "content-fill",
     "symmetric-padding",
     "declared-insets",
     "alignment-rails",
