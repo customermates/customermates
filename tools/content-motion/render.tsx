@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardAction,
@@ -24,7 +25,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -33,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 import {
   compositionSchema,
@@ -46,6 +56,23 @@ type AssetRoots = Record<string, string>;
 type AssetMap = Record<string, { dataUri: string }>;
 
 const socialBadgeClassName = "h-9 px-3 py-1.5 text-[22px] leading-none";
+const tableColumnClassName = (
+  align: "left" | "center" | "right" = "left",
+  width: "narrow" | "standard" | "wide" | "fill" = "fill",
+) =>
+  [
+    align === "center"
+      ? "text-center [&>*]:mx-auto"
+      : align === "right"
+        ? "text-right [&>*]:ml-auto"
+        : "text-left",
+    {
+      narrow: "w-24",
+      standard: "w-40",
+      wide: "w-64",
+      fill: "w-auto",
+    }[width],
+  ].join(" ");
 
 const htmlEscape = (value: string) =>
   value
@@ -379,6 +406,74 @@ const renderNode = (
         value={node.value ?? ""}
       />,
     );
+  if (node.type === "textareaControl")
+    return wrapper(
+      node,
+      <Textarea
+        aria-label={node.id}
+        className={
+          node.presentation === "social"
+            ? "min-h-32 px-5 py-4 text-[22px]"
+            : undefined
+        }
+        data-input-target={node.id}
+        placeholder={node.placeholder}
+        readOnly
+        rows={node.rows}
+        value={node.value ?? ""}
+      />,
+    );
+  if (node.type === "selectControl")
+    return wrapper(
+      node,
+      <Select value="content-static-value">
+        <SelectTrigger
+          aria-label={node.id}
+          className={
+            node.presentation === "social"
+              ? "h-14 w-full px-5 text-[22px]"
+              : "w-full"
+          }
+        >
+          <span
+            className={node.value ? undefined : "text-muted-foreground"}
+            data-select-initial={node.value ?? node.placeholder ?? "Select"}
+            data-select-initial-placeholder={node.value ? "false" : "true"}
+            data-select-target={node.id}
+          >
+            {node.value ?? node.placeholder ?? "Select"}
+          </span>
+        </SelectTrigger>
+      </Select>,
+    );
+  if (node.type === "checkboxControl")
+    return wrapper(
+      node,
+      <Checkbox
+        aria-label={node.id}
+        checked={node.checked}
+        className={node.presentation === "social" ? "size-7" : undefined}
+        data-boolean-initial={String(node.checked)}
+        data-boolean-target={node.id}
+      />,
+    );
+  if (node.type === "switchControl")
+    return wrapper(
+      node,
+      <Switch
+        aria-label={node.id}
+        checked={node.checked}
+        className={node.presentation === "social" ? "h-7 w-12" : undefined}
+        data-boolean-initial={String(node.checked)}
+        data-boolean-target={node.id}
+      />,
+    );
+  if (node.type === "tabTrigger")
+    return (
+      <TabsTrigger {...nodeAttributes(node)} value={node.value}>
+        {node.text}
+      </TabsTrigger>
+    );
   if (node.type === "input")
     return wrapper(
       node,
@@ -588,6 +683,8 @@ const renderNode = (
   if (node.type === "dataTable") {
     const social = node.presentation === "social";
     const socialHero = node.presentation === "social-hero";
+    const compact = node.presentation === "compact";
+    const comfortable = node.presentation === "comfortable";
     return (
       <div {...nodeAttributes(node)} data-table-id={node.id}>
         <Table
@@ -596,6 +693,10 @@ const renderNode = (
               ? "text-[23px] [&_[data-slot=table-cell]]:h-[72px] [&_[data-slot=table-cell]]:px-0 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-14 [&_[data-slot=table-head]]:px-0 [&_[data-slot=table-head]]:text-[22px]"
               : social
               ? "text-[22px] [&_[data-slot=table-cell]]:px-5 [&_[data-slot=table-cell]]:py-4 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-5 [&_[data-slot=table-head]]:text-[22px]"
+              : compact
+                ? "text-xs [&_[data-slot=table-cell]]:h-8 [&_[data-slot=table-cell]]:px-2 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=table-head]]:px-2 [&_[data-slot=table-head]]:text-xs"
+                : comfortable
+                  ? "[&_[data-slot=table-cell]]:h-14 [&_[data-slot=table-cell]]:px-4 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-4"
               : undefined
           }
         >
@@ -618,15 +719,54 @@ const renderNode = (
     );
   if (node.type === "tableRow")
     return (
-      <TableRow {...nodeAttributes(node)}>{childrenFor(node, assets)}</TableRow>
+      <TableRow
+        {...nodeAttributes(node)}
+        className={node.state === "muted" ? "opacity-55" : undefined}
+        data-state={node.state === "selected" ? "selected" : undefined}
+      >
+        {childrenFor(node, assets)}
+      </TableRow>
     );
   if (node.type === "tableHead")
-    return <TableHead {...nodeAttributes(node)}>{node.text}</TableHead>;
+    return (
+      <TableHead
+        {...nodeAttributes(node)}
+        className={tableColumnClassName(node.align, node.width)}
+      >
+        {node.text}
+      </TableHead>
+    );
   if (node.type === "tableCell")
     return (
-      <TableCell {...nodeAttributes(node)}>
+      <TableCell
+        {...nodeAttributes(node)}
+        className={tableColumnClassName(node.align, node.width)}
+      >
         {childrenFor(node, assets)}
       </TableCell>
+    );
+
+  if (node.type === "tabs")
+    return (
+      <Tabs
+        {...nodeAttributes(node)}
+        orientation={node.orientation}
+        value={node.value}
+      >
+        {childrenFor(node, assets)}
+      </Tabs>
+    );
+  if (node.type === "tabsList")
+    return (
+      <TabsList {...nodeAttributes(node)} variant={node.variant}>
+        {childrenFor(node, assets)}
+      </TabsList>
+    );
+  if (node.type === "tabsContent")
+    return (
+      <TabsContent {...nodeAttributes(node)} value={node.value}>
+        {childrenFor(node, assets)}
+      </TabsContent>
     );
 
   if (node.type === "table") {
@@ -777,7 +917,16 @@ const renderNode = (
     ["cardHeader", "cardContent", "cardFooter"].includes(child.type),
   );
   return (
-    <Card {...nodeAttributes(node)}>
+    <Card
+      {...nodeAttributes(node)}
+      className={
+        node.presentation === "hero"
+          ? "gap-8 rounded-xl py-8 [&>[data-slot=card-header]]:px-8 [&>[data-slot=card-content]]:px-8 [&>[data-slot=card-footer]]:px-8"
+          : node.presentation === "social"
+            ? "gap-6 py-7 [&>[data-slot=card-header]]:px-7 [&>[data-slot=card-content]]:px-7 [&>[data-slot=card-footer]]:px-7"
+            : undefined
+      }
+    >
       {explicitSlots ? (
         childrenFor(node, assets)
       ) : (
@@ -826,7 +975,7 @@ const inlineFontCss = (
     .join("\n");
 
 export const compileProductCss = async () => {
-  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/ui/input.tsx";\n@source "../../components/ui/label.tsx";\n@source "../../components/ui/alert.tsx";\n@source "../../components/ui/separator.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
+  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/ui/input.tsx";\n@source "../../components/ui/textarea.tsx";\n@source "../../components/ui/select.tsx";\n@source "../../components/ui/checkbox.tsx";\n@source "../../components/ui/switch.tsx";\n@source "../../components/ui/tabs.tsx";\n@source "../../components/ui/label.tsx";\n@source "../../components/ui/alert.tsx";\n@source "../../components/ui/separator.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
   const result = await postcss([tailwindPostcss() as never]).process(source, {
     from: resolve("tools/content-motion/motion.css"),
   });
@@ -914,6 +1063,8 @@ window.renderScene=(sceneId,progress,frame,frameCount)=>{
     const value=clamp((time-action.start)/(action.end-action.start));
     if(action.type==='typeText'){const holder=cmRoot().querySelector('[data-text-target="'+action.target+'"] > :first-child');if(holder)holder.textContent=action.text.slice(0,Math.floor(action.text.length*value));const caret=cmRoot().querySelector('[data-caret-for="'+action.target+'"]');if(caret)caret.style.opacity=value<1||Math.floor(time*1000/action.caretMs)%2===0?'1':'0';}
     if(action.type==='typeValue'){const input=cmRoot().querySelector('[data-input-target="'+action.target+'"]');if(input)input.value=action.value.slice(0,Math.floor(action.value.length*value));}
+    if(action.type==='selectValue'){const select=cmRoot().querySelector('[data-select-target="'+action.target+'"]');if(select){const changed=value>=.5;select.textContent=changed?action.value:select.dataset.selectInitial;select.classList.toggle('text-muted-foreground',!changed&&select.dataset.selectInitialPlaceholder==='true');}}
+    if(action.type==='toggleBoolean'){const control=cmRoot().querySelector('[data-boolean-target="'+action.target+'"]');if(control){const checked=value>=.5?action.value:control.dataset.booleanInitial==='true';const state=checked?'checked':'unchecked';control.dataset.state=state;control.setAttribute('aria-checked',String(checked));const indicator=control.querySelector('[data-slot="checkbox-indicator"]');if(indicator)indicator.style.display=checked?'grid':'none';const thumb=control.querySelector('[data-slot="switch-thumb"]');if(thumb)thumb.dataset.state=state;}}
     if(action.type==='updateTable'){const table=cmRoot().querySelector('[data-table-id="'+action.target+'"]');if(!table)continue;const rows=[...table.querySelectorAll('[data-row-index]')];const completed=Math.min(rows.length,Math.floor(value*rows.length+.0001));rows.forEach((row,index)=>{const done=index<completed;row.querySelector('[data-state-initial]')?.style.setProperty('opacity',done?'0':'1');row.querySelector('[data-state-updated]')?.style.setProperty('opacity',done?'1':'0');});const count=table.querySelector('[data-count-for="'+action.target+'"]');if(count)count.textContent=String(Math.floor(value*action.total));}
     if(action.type==='swapState'){const target=cmRoot().querySelector('[data-state-target="'+action.target+'"]');if(!target)continue;const initial=target.querySelector('[data-state-initial]');const updated=target.querySelector('[data-state-updated]');const switched=value>=.5;initial?.style.setProperty('visibility',switched?'hidden':'visible');initial?.style.setProperty('opacity','1');updated?.style.setProperty('visibility',switched?'visible':'hidden');updated?.style.setProperty('opacity','1');}
     if(action.type==='countTo'&&time>=action.start){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');const count=Math.round(action.value*value);if(target){target.textContent=String(count);const root=target.closest('[data-count-root]');const progress=root?.querySelector('[data-count-progress]');if(progress)progress.style.width=String(Math.min(100,count/action.value*100))+'%';const status=root?.querySelector('[data-count-status]');if(status)status.textContent=count>=action.value?status.dataset.countCompleteLabel:status.dataset.countLabel;}}

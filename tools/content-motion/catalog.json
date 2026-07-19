@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "schemaVersion": 3,
   "layers": ["foundation", "primitive", "molecule", "pattern", "scene"],
   "layout": {
@@ -33,6 +33,37 @@
       "requiredComponents": ["card", "status-swap", "counter", "focus"],
       "motionGrammar": ["zoom", "fade"],
       "continuity": "The record remains mounted while focus, status, and action state change in place."
+    },
+    {
+      "id": "progressive-form",
+      "layer": "pattern",
+      "purpose": "Show a short product form being completed or configured without rebuilding its controls.",
+      "requiredComponents": [
+        "field",
+        "input-control",
+        "textarea-control",
+        "select-control",
+        "checkbox-control",
+        "switch-control"
+      ],
+      "motionGrammar": ["fade", "slide", "focus-pulse"],
+      "continuity": "Controls keep stable ids while typed, selected, and boolean values update in place."
+    },
+    {
+      "id": "data-density-switch",
+      "layer": "pattern",
+      "purpose": "Reuse one compound table anatomy for compact dashboards, comfortable product proof, or social-first rows.",
+      "requiredComponents": ["data-table", "table-row", "table-cell"],
+      "motionGrammar": ["fade", "zoom", "directional-wipe"],
+      "continuity": "The table recipe changes presentation and content, not cell geometry or component implementation."
+    },
+    {
+      "id": "tabbed-detail",
+      "layer": "pattern",
+      "purpose": "Show multiple bounded product views through product-native tabs while keeping one outer surface.",
+      "requiredComponents": ["tabs", "tabs-list", "tab-trigger", "tabs-content"],
+      "motionGrammar": ["fade", "slide"],
+      "continuity": "Each tab and content region is individually addressable and shares one Tabs root."
     }
   ],
   "components": [
@@ -101,6 +132,39 @@
       "source": "components/ui/input.tsx",
       "presentations": ["product", "social"],
       "states": ["value", "placeholder", "typing"]
+    },
+    {
+      "id": "textarea-control",
+      "layer": "primitive",
+      "nodeType": "textareaControl",
+      "source": "components/ui/textarea.tsx",
+      "presentations": ["product", "social"],
+      "variants": ["2-row", "3-row", "4-row", "5-row", "6-row", "7-row", "8-row"],
+      "states": ["value", "placeholder", "typing"]
+    },
+    {
+      "id": "select-control",
+      "layer": "primitive",
+      "nodeType": "selectControl",
+      "source": "components/ui/select.tsx",
+      "presentations": ["product", "social"],
+      "states": ["placeholder", "selected", "updating"]
+    },
+    {
+      "id": "checkbox-control",
+      "layer": "primitive",
+      "nodeType": "checkboxControl",
+      "source": "components/ui/checkbox.tsx",
+      "presentations": ["product", "social"],
+      "states": ["unchecked", "checked", "updating"]
+    },
+    {
+      "id": "switch-control",
+      "layer": "primitive",
+      "nodeType": "switchControl",
+      "source": "components/ui/switch.tsx",
+      "presentations": ["product", "social"],
+      "states": ["unchecked", "checked", "updating"]
     },
     {
       "id": "separator",
@@ -188,6 +252,7 @@
       "nodeType": "card",
       "source": "components/ui/card.tsx",
       "anatomy": ["cardHeader", "cardContent", "cardFooter"],
+      "presentations": ["product", "social", "hero"],
       "states": ["static", "entering", "focused"]
     },
     {
@@ -216,6 +281,7 @@
         "grid",
         "field",
         "dataTable",
+        "tabs",
         "alert"
       ]
     },
@@ -238,7 +304,13 @@
         "tableHead",
         "tableCell"
       ],
-      "presentations": ["product", "social"],
+      "presentations": [
+        "product",
+        "compact",
+        "comfortable",
+        "social",
+        "social-hero"
+      ],
       "states": ["static", "updating", "complete"]
     },
     {
@@ -260,13 +332,28 @@
       "layer": "molecule",
       "nodeType": "tableRow",
       "source": "components/ui/table.tsx",
-      "allowedChildren": ["tableCell"]
+      "allowedChildren": ["tableCell"],
+      "states": ["default", "selected", "muted"]
     },
     {
       "id": "table-head",
       "layer": "primitive",
       "nodeType": "tableHead",
       "source": "components/ui/table.tsx",
+      "variants": [
+        "left:narrow",
+        "left:standard",
+        "left:wide",
+        "left:fill",
+        "center:narrow",
+        "center:standard",
+        "center:wide",
+        "center:fill",
+        "right:narrow",
+        "right:standard",
+        "right:wide",
+        "right:fill"
+      ],
       "states": ["static"]
     },
     {
@@ -274,14 +361,63 @@
       "layer": "primitive",
       "nodeType": "tableCell",
       "source": "components/ui/table.tsx",
+      "variants": [
+        "left:narrow",
+        "left:standard",
+        "left:wide",
+        "left:fill",
+        "center:narrow",
+        "center:standard",
+        "center:wide",
+        "center:fill",
+        "right:narrow",
+        "right:standard",
+        "right:wide",
+        "right:fill"
+      ],
       "allowedChildren": [
         "text",
         "inline",
         "stack",
         "avatar",
+        "providerTile",
         "badge",
-        "statusSwap"
+        "statusSwap",
+        "button",
+        "checkboxControl",
+        "switchControl"
       ]
+    },
+    {
+      "id": "tabs",
+      "layer": "pattern",
+      "nodeType": "tabs",
+      "source": "components/ui/tabs.tsx",
+      "anatomy": ["tabsList", "tabTrigger", "tabsContent"],
+      "variants": ["horizontal", "vertical"],
+      "states": ["static"]
+    },
+    {
+      "id": "tabs-list",
+      "layer": "molecule",
+      "nodeType": "tabsList",
+      "source": "components/ui/tabs.tsx",
+      "variants": ["default", "line"],
+      "allowedChildren": ["tabTrigger"]
+    },
+    {
+      "id": "tab-trigger",
+      "layer": "primitive",
+      "nodeType": "tabTrigger",
+      "source": "components/ui/tabs.tsx",
+      "states": ["active", "inactive"]
+    },
+    {
+      "id": "tabs-content",
+      "layer": "primitive",
+      "nodeType": "tabsContent",
+      "source": "components/ui/tabs.tsx",
+      "states": ["active", "inactive"]
     },
     {
       "id": "focus",
@@ -332,7 +468,15 @@
     },
     { "id": "tilt", "fields": ["rotateX", "rotateY"], "bounded": true }
   ],
-  "actions": ["typeText", "typeValue", "swapState", "countTo", "updateTable"],
+  "actions": [
+    "typeText",
+    "typeValue",
+    "selectValue",
+    "toggleBoolean",
+    "swapState",
+    "countTo",
+    "updateTable"
+  ],
   "qa": [
     "bounds",
     "content-clipping",

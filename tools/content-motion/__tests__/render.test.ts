@@ -328,9 +328,9 @@ const sceneComposition = {
 
 describe("content motion kit", () => {
   it("publishes one layered reusable component, motion, action, and QA catalog", () => {
-    expect(catalog.version).toBe(2);
+    expect(catalog.version).toBe(3);
     expect(catalog.schemaVersion).toBe(3);
-    expect(catalog.components.length).toBeGreaterThanOrEqual(28);
+    expect(catalog.components.length).toBeGreaterThanOrEqual(36);
     expect(
       new Set(
         catalog.components.map((component: { id: string }) => component.id),
@@ -343,6 +343,9 @@ describe("content motion kit", () => {
       expect.arrayContaining([
         "channel-convergence",
         "persistent-customer-action",
+        "progressive-form",
+        "data-density-switch",
+        "tabbed-detail",
       ]),
     );
     expect(
@@ -362,7 +365,14 @@ describe("content motion kit", () => {
       ]),
     );
     expect(catalog.actions).toEqual(
-      expect.arrayContaining(["typeText", "typeValue", "swapState", "countTo"]),
+      expect.arrayContaining([
+        "typeText",
+        "typeValue",
+        "selectValue",
+        "toggleBoolean",
+        "swapState",
+        "countTo",
+      ]),
     );
     expect(catalog.qa).toEqual(
       expect.arrayContaining([
@@ -372,6 +382,307 @@ describe("content motion kit", () => {
       ]),
     );
   });
+
+  it("renders reusable form, tabs, card, and table variants", async () => {
+    const expanded = {
+      meta: {
+        width: 1080,
+        height: 1350,
+        duration: 12,
+        fps: 60,
+        productRef,
+        title: "Cross-format component variants",
+      },
+      theme: "dark",
+      assets: {},
+      defaultScene: "form-pattern",
+      scenes: [
+        {
+          id: "form-pattern",
+          name: "Configurable product form",
+          category: "pattern",
+          nodes: [
+            {
+              id: "form-card",
+              type: "card",
+              presentation: "hero",
+              layout: { x: 90, y: 140, width: 900, height: 1040 },
+              children: [
+                {
+                  id: "form-header",
+                  type: "cardHeader",
+                  children: [
+                    {
+                      id: "form-title",
+                      type: "text",
+                      role: "title",
+                      text: "Automation settings",
+                    },
+                  ],
+                },
+                {
+                  id: "form-content",
+                  type: "cardContent",
+                  layout: { display: "flex", direction: "column", gap: "lg" },
+                  children: [
+                    {
+                      id: "form-tabs",
+                      type: "tabs",
+                      value: "rules",
+                      children: [
+                        {
+                          id: "form-tabs-list",
+                          type: "tabsList",
+                          variant: "line",
+                          children: [
+                            {
+                              id: "rules-tab",
+                              type: "tabTrigger",
+                              value: "rules",
+                              text: "Rules",
+                            },
+                            {
+                              id: "delivery-tab",
+                              type: "tabTrigger",
+                              value: "delivery",
+                              text: "Delivery",
+                            },
+                          ],
+                        },
+                        {
+                          id: "rules-content",
+                          type: "tabsContent",
+                          value: "rules",
+                          children: [
+                            {
+                              id: "form-stack",
+                              type: "stack",
+                              layout: { gap: "md" },
+                              children: [
+                                {
+                                  id: "name-field",
+                                  type: "field",
+                                  children: [
+                                    {
+                                      id: "name-label",
+                                      type: "text",
+                                      role: "label",
+                                      text: "Automation name",
+                                    },
+                                    {
+                                      id: "name-control",
+                                      type: "inputControl",
+                                      value: "Priority routing",
+                                    },
+                                  ],
+                                },
+                                {
+                                  id: "channel-field",
+                                  type: "field",
+                                  children: [
+                                    {
+                                      id: "channel-label",
+                                      type: "text",
+                                      role: "label",
+                                      text: "Channel",
+                                    },
+                                    {
+                                      id: "channel-control",
+                                      type: "selectControl",
+                                      placeholder: "Choose channel",
+                                    },
+                                  ],
+                                },
+                                {
+                                  id: "instruction-field",
+                                  type: "field",
+                                  children: [
+                                    {
+                                      id: "instruction-label",
+                                      type: "text",
+                                      role: "label",
+                                      text: "Instruction",
+                                    },
+                                    {
+                                      id: "instruction-control",
+                                      type: "textareaControl",
+                                      rows: 4,
+                                      placeholder: "Describe the desired action",
+                                    },
+                                  ],
+                                },
+                                {
+                                  id: "enabled-field",
+                                  type: "field",
+                                  children: [
+                                    {
+                                      id: "enabled-inline",
+                                      type: "inline",
+                                      children: [
+                                        {
+                                          id: "enabled-control",
+                                          type: "switchControl",
+                                          checked: false,
+                                        },
+                                        {
+                                          id: "enabled-label",
+                                          type: "text",
+                                          role: "label",
+                                          text: "Enable automation",
+                                        },
+                                        {
+                                          id: "review-control",
+                                          type: "checkboxControl",
+                                          checked: true,
+                                        },
+                                        {
+                                          id: "review-label",
+                                          type: "text",
+                                          role: "label",
+                                          text: "Require review",
+                                        },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          id: "delivery-content",
+                          type: "tabsContent",
+                          value: "delivery",
+                          children: [],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          motions: [],
+          actions: [
+            {
+              type: "selectValue",
+              target: "channel-control",
+              start: 1,
+              end: 1.4,
+              value: "LinkedIn",
+            },
+            {
+              type: "typeValue",
+              target: "instruction-control",
+              start: 1.5,
+              end: 3,
+              value: "Route priority replies to the owner.",
+            },
+            {
+              type: "toggleBoolean",
+              target: "enabled-control",
+              start: 3.1,
+              end: 3.5,
+              value: true,
+            },
+          ],
+        },
+        {
+          id: "table-pattern",
+          name: "Compact selected table",
+          category: "pattern",
+          nodes: [
+            {
+              id: "compact-table",
+              type: "dataTable",
+              presentation: "compact",
+              layout: { x: 100, y: 300, width: 880, height: 420 },
+              children: [
+                {
+                  id: "compact-head",
+                  type: "tableHeader",
+                  children: [
+                    {
+                      id: "compact-heading-row",
+                      type: "tableRow",
+                      children: [
+                        {
+                          id: "account-heading",
+                          type: "tableHead",
+                          text: "Account",
+                        },
+                        {
+                          id: "state-heading",
+                          type: "tableHead",
+                          text: "State",
+                          align: "right",
+                          width: "standard",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  id: "compact-body",
+                  type: "tableBody",
+                  children: [
+                    {
+                      id: "selected-row",
+                      type: "tableRow",
+                      state: "selected",
+                      children: [
+                        {
+                          id: "account-cell",
+                          type: "tableCell",
+                          children: [
+                            {
+                              id: "account-name",
+                              type: "text",
+                              role: "body",
+                              text: "Northstar",
+                            },
+                          ],
+                        },
+                        {
+                          id: "state-cell",
+                          type: "tableCell",
+                          align: "right",
+                          width: "standard",
+                          children: [
+                            {
+                              id: "state-badge",
+                              type: "badge",
+                              variant: "success",
+                              text: "Ready",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          motions: [],
+          actions: [],
+        },
+      ],
+    };
+    const parsed = compositionSchema.parse(expanded);
+    expect(parsed.scenes).toHaveLength(2);
+    const html = await buildCompositionHtml(expanded, { product: productRoot });
+    expect(html).toContain('data-slot="textarea"');
+    expect(html).toContain('data-slot="select-trigger"');
+    expect(html).toContain('data-slot="checkbox"');
+    expect(html).toContain('data-slot="switch"');
+    expect(html).toContain('data-slot="tabs"');
+    expect(html).toContain('data-variant="line"');
+    expect(html).toContain('data-state="selected"');
+    expect(html).toContain("text-right");
+    expect(html).toContain("action.type==='selectValue'");
+    expect(html).toContain("action.type==='toggleBoolean'");
+  }, 30_000);
 
   it("renders actual product component slots and deterministic output", async () => {
     const first = await buildCompositionHtml(valid, { product: productRoot });

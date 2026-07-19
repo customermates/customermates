@@ -211,6 +211,54 @@ const inputControlNode = z
   })
   .strict();
 
+const textareaControlNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("textareaControl"),
+    value: z.string().optional(),
+    placeholder: z.string().optional(),
+    rows: z.number().int().min(2).max(8).default(3),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const selectControlNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("selectControl"),
+    value: z.string().optional(),
+    placeholder: z.string().optional(),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const checkboxControlNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("checkboxControl"),
+    checked: z.boolean().default(false),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const switchControlNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("switchControl"),
+    checked: z.boolean().default(false),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const tabTriggerNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("tabTrigger"),
+    value: id,
+    text: z.string().min(1),
+  })
+  .strict();
+
 const inputNode = z
   .object({
     ...nodeBase,
@@ -316,7 +364,13 @@ const tableNode = z
   .strict();
 
 const tableHeadNode = z
-  .object({ ...nodeBase, type: z.literal("tableHead"), text: z.string() })
+  .object({
+    ...nodeBase,
+    type: z.literal("tableHead"),
+    text: z.string(),
+    align: z.enum(["left", "center", "right"]).default("left"),
+    width: z.enum(["narrow", "standard", "wide", "fill"]).default("fill"),
+  })
   .strict();
 const statusSwapNode = z
   .object({
@@ -417,6 +471,11 @@ type LeafNode =
   | z.infer<typeof avatarNode>
   | z.infer<typeof providerTileNode>
   | z.infer<typeof inputControlNode>
+  | z.infer<typeof textareaControlNode>
+  | z.infer<typeof selectControlNode>
+  | z.infer<typeof checkboxControlNode>
+  | z.infer<typeof switchControlNode>
+  | z.infer<typeof tabTriggerNode>
   | z.infer<typeof inputNode>
   | z.infer<typeof alertNode>
   | z.infer<typeof separatorNode>
@@ -440,9 +499,7 @@ type ContainerType =
   | "cardContent"
   | "cardFooter"
   | "tableHeader"
-  | "tableBody"
-  | "tableRow"
-  | "tableCell";
+  | "tableBody";
 
 type NodeInput =
   | LeafNode
@@ -456,7 +513,54 @@ type NodeInput =
   | {
       id: string;
       type: "dataTable";
-      presentation: "product" | "social" | "social-hero";
+      presentation:
+        | "product"
+        | "compact"
+        | "comfortable"
+        | "social"
+        | "social-hero";
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "tableRow";
+      state?: "default" | "selected" | "muted";
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "tableCell";
+      align?: "left" | "center" | "right";
+      width?: "narrow" | "standard" | "wide" | "fill";
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "tabs";
+      value: string;
+      orientation?: "horizontal" | "vertical";
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "tabsList";
+      variant?: "default" | "line";
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "tabsContent";
+      value: string;
       layout?: z.infer<typeof layout>;
       qa?: z.infer<typeof qa>;
       children: NodeInput[];
@@ -470,6 +574,7 @@ type NodeInput =
         text: string;
         variant: "default" | "secondary" | "success" | "outline";
       };
+      presentation?: "product" | "social" | "hero";
       layout?: z.infer<typeof layout>;
       qa?: z.infer<typeof qa>;
       children: NodeInput[];
@@ -487,8 +592,6 @@ const containerType = z.enum([
   "cardFooter",
   "tableHeader",
   "tableBody",
-  "tableRow",
-  "tableCell",
 ]);
 
 const node: z.ZodType<NodeInput> = z.lazy(() =>
@@ -500,6 +603,11 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
     avatarNode,
     providerTileNode,
     inputControlNode,
+    textareaControlNode,
+    selectControlNode,
+    checkboxControlNode,
+    switchControlNode,
+    tabTriggerNode,
     inputNode,
     alertNode,
     separatorNode,
@@ -516,8 +624,58 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
         ...nodeBase,
         type: z.literal("dataTable"),
         presentation: z
-          .enum(["product", "social", "social-hero"])
+          .enum([
+            "product",
+            "compact",
+            "comfortable",
+            "social",
+            "social-hero",
+          ])
           .default("product"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("tableRow"),
+        state: z.enum(["default", "selected", "muted"]).default("default"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("tableCell"),
+        align: z.enum(["left", "center", "right"]).default("left"),
+        width: z
+          .enum(["narrow", "standard", "wide", "fill"])
+          .default("fill"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("tabs"),
+        value: id,
+        orientation: z.enum(["horizontal", "vertical"]).default("horizontal"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("tabsList"),
+        variant: z.enum(["default", "line"]).default("default"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("tabsContent"),
+        value: id,
         children: z.array(node).default([]),
       })
       .strict(),
@@ -541,6 +699,7 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
           })
           .strict()
           .optional(),
+        presentation: z.enum(["product", "social", "hero"]).default("product"),
         children: z.array(node).default([]),
       })
       .strict(),
@@ -602,6 +761,24 @@ const action = z.discriminatedUnion("type", [
       start: z.number().min(0),
       end: z.number().positive(),
       value: z.string(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("selectValue"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: z.string(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("toggleBoolean"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: z.boolean(),
     })
     .strict(),
   z
@@ -680,6 +857,9 @@ const textContent = (item: NodeInput): string[] => {
     );
   if (item.type === "inputControl")
     values.push(item.value ?? "", item.placeholder ?? "");
+  if (item.type === "textareaControl" || item.type === "selectControl")
+    values.push(item.value ?? "", item.placeholder ?? "");
+  if (item.type === "tabTrigger") values.push(item.text);
   if (item.type === "alert") values.push(item.title, item.description ?? "");
   if (item.type === "card")
     values.push(
@@ -796,10 +976,31 @@ const validateGraph = (
           code: "custom",
           message: `${scope} tableRow children must be tableHead or tableCell: ${item.id}`,
         });
-      if (item.type === "field" && !all(["text", "inputControl"]))
+      if (
+        item.type === "field" &&
+        !all([
+          "text",
+          "inputControl",
+          "textareaControl",
+          "selectControl",
+          "checkboxControl",
+          "switchControl",
+          "inline",
+        ])
+      )
         context.addIssue({
           code: "custom",
-          message: `${scope} field children must be text or inputControl: ${item.id}`,
+          message: `${scope} field contains an unsupported control: ${item.id}`,
+        });
+      if (item.type === "tabs" && !all(["tabsList", "tabsContent"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} tabs children must be tabsList or tabsContent: ${item.id}`,
+        });
+      if (item.type === "tabsList" && !all(["tabTrigger"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} tabsList children must be tabTrigger: ${item.id}`,
         });
       item.children.forEach((child) =>
         visit(child, depth + 1, [...ancestors, item.id]),
@@ -815,7 +1016,9 @@ const validateGraph = (
       });
   const actionTargets = {
     typeText: ["text"],
-    typeValue: ["inputControl"],
+    typeValue: ["inputControl", "textareaControl"],
+    selectValue: ["selectControl"],
+    toggleBoolean: ["checkboxControl", "switchControl"],
     updateTable: ["table"],
     swapState: ["statusSwap"],
     countTo: ["counter"],
