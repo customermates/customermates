@@ -42,16 +42,18 @@ const oauthProxy =
       })
     : null;
 
+const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
     fallback: env.BASE_URL,
-    protocol: "auto",
+    protocol: baseUrlProtocol,
   },
 
   advanced: {
     cookiePrefix: "app",
-    useSecureCookies: new URL(env.BASE_URL).protocol === "https:",
+    useSecureCookies: baseUrlProtocol === "https",
   },
 
   rateLimit: {

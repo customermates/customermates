@@ -8,7 +8,6 @@ import { REPO_ROOT } from "./walk";
 describe("Vercel build safety", () => {
   it("resets only the dedicated Demo preview and seeds every preview before building", () => {
     const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
-    const directUrl = script.indexOf('export DIRECT_URL="$DATABASE_URL_UNPOOLED"');
     const demo = script.indexOf(
       '"${VERCEL_ENV:-}" == "preview" && "${VERCEL_TARGET_ENV:-}" == "demo" && "${APP_MODE:-}" == "demo"',
     );
@@ -19,8 +18,7 @@ describe("Vercel build safety", () => {
     const previewSeed = script.lastIndexOf("npx --no-install tsx prisma/seed.ts");
     const build = script.indexOf("yarn build");
 
-    expect(directUrl).toBeGreaterThan(-1);
-    expect(demo).toBeGreaterThan(directUrl);
+    expect(demo).toBeGreaterThan(-1);
     expect(reset).toBeGreaterThan(demo);
     expect(demoSeed).toBeGreaterThan(reset);
     expect(migrate).toBeGreaterThan(demoSeed);
@@ -28,7 +26,15 @@ describe("Vercel build safety", () => {
     expect(preview).toBeGreaterThan(migrate);
     expect(previewSeed).toBeGreaterThan(preview);
     expect(build).toBeGreaterThan(previewSeed);
+    expect(script).not.toContain("DATABASE_URL_UNPOOLED");
     expect(script).not.toMatch(/unipile/i);
+  });
+
+  it("keeps migration connection configuration provider-neutral", () => {
+    const prismaConfig = readFileSync(join(REPO_ROOT, "prisma.config.ts"), "utf8");
+
+    expect(prismaConfig).toContain('process.env.DIRECT_URL?.trim() || env("DATABASE_URL")');
+    expect(prismaConfig).not.toContain("DATABASE_URL_UNPOOLED");
   });
 
   it("uses the same safe build command for every Vercel deployment", () => {

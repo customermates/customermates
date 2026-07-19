@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
 import { getAuthService, getInviteTokenValidationInteractor } from "@/core/di";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 
-export async function GET(_request: Request, context: { params: Promise<{ locale: string; token: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ locale: string; token: string }> }) {
   const { locale, token } = await context.params;
 
-  const base = env.BASE_URL;
+  const base = resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
 
   const session = await getAuthService().getSession();
   if (session) {
@@ -24,7 +25,7 @@ export async function GET(_request: Request, context: { params: Promise<{ locale
 
   response.cookies.set("inviteToken", token, {
     httpOnly: true,
-    secure: new URL(env.BASE_URL).protocol === "https:",
+    secure: new URL(base).protocol === "https:",
     path: "/",
   });
 

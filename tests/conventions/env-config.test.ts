@@ -174,9 +174,15 @@ describe("environment configuration", () => {
 
     expect(authConfig).toContain("allowedHosts: env.AUTH_ALLOWED_HOSTS");
     expect(authConfig).toContain("fallback: env.BASE_URL");
-    expect(authConfig).toContain('useSecureCookies: new URL(env.BASE_URL).protocol === "https:"');
+    expect(authConfig).toContain('const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : "http"');
+    expect(authConfig).toContain("protocol: baseUrlProtocol");
+    expect(authConfig).toContain('useSecureCookies: baseUrlProtocol === "https"');
+    expect(authConfig).not.toContain('protocol: "auto"');
     expect(authConfig).not.toContain("AUTH_USE_SECURE_COOKIES");
-    expect(invitationRoute).toContain('secure: new URL(env.BASE_URL).protocol === "https:"');
+    expect(invitationRoute).toContain(
+      "resolveRequestOrigin(request.url, env.AUTH_ALLOWED_HOSTS, env.BASE_URL)",
+    );
+    expect(invitationRoute).toContain('secure: new URL(base).protocol === "https:"');
     expect(authConfig).toContain("productionURL: env.OAUTH_PROXY_URL");
     expect(authConfig).toContain("secret: env.OAUTH_PROXY_SECRET");
     expect(authConfig).not.toContain("currentURL:");
