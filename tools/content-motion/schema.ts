@@ -70,7 +70,7 @@ const layout = z
     gap: space.optional(),
     rowGap: space.optional(),
     columnGap: space.optional(),
-    rhythm: z.enum(["product", "social-form"]).optional(),
+    rhythm: z.enum(["product", "social-form", "social-hero-form"]).optional(),
     align: z.enum(["start", "center", "end", "stretch"]).optional(),
     justify: z.enum(["start", "center", "end", "between"]).optional(),
     alignSelf: z.enum(["start", "center", "end", "stretch"]).optional(),
@@ -193,7 +193,9 @@ const avatarNode = z
     type: z.literal("avatar"),
     name: z.string().min(1),
     size: z.enum(["sm", "default", "lg", "xl"]).default("lg"),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
@@ -213,7 +215,9 @@ const inputControlNode = z
     type: z.literal("inputControl"),
     value: z.string().optional(),
     placeholder: z.string().optional(),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
@@ -224,7 +228,9 @@ const textareaControlNode = z
     value: z.string().optional(),
     placeholder: z.string().optional(),
     rows: z.number().int().min(2).max(8).default(3),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 

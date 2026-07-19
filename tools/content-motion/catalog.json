@@ -33,6 +33,16 @@
         "singleLineControlHeight": 56,
         "controlFontSize": 22,
         "controlLineHeight": 28
+      },
+      "social-hero-form": {
+        "surfaceInset": 48,
+        "sectionGap": 32,
+        "fieldGap": 24,
+        "labelGap": 8,
+        "inlineGap": 16,
+        "singleLineControlHeight": 64,
+        "controlFontSize": 28,
+        "controlLineHeight": 36
       }
     },
     "flowPrimitives": ["group", "stack", "inline", "grid"],
@@ -149,7 +159,7 @@
       "nodeType": "avatar",
       "source": "components/ui/avatar.tsx",
       "variants": ["sm", "default", "lg", "xl"],
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["static"]
     },
     {
@@ -157,7 +167,7 @@
       "layer": "primitive",
       "nodeType": "inputControl",
       "source": "components/ui/input.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["value", "placeholder", "typing"]
     },
     {
@@ -165,7 +175,7 @@
       "layer": "primitive",
       "nodeType": "textareaControl",
       "source": "components/ui/textarea.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "variants": [
         "2-row",
         "3-row",

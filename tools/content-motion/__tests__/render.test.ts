@@ -688,6 +688,7 @@ describe("content motion kit", () => {
     expect(html).toContain("action.type==='toggleBoolean'");
     expect(html).toContain("md:text-[22px]");
     expect(html).toContain("py-3");
+    expect(html).toContain("data-[size=default]:h-14");
     expect(html).toContain('data-cm-control-presentation="social"');
     expect(html).toContain('data-cm-spacing-recipe="social-form"');
   }, 30_000);
@@ -746,6 +747,18 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(ambiguous)).toThrow(
       /layout rhythm and gap cannot be declared together/,
     );
+  });
+
+  it("accepts a phone-first social hero form without free geometry", () => {
+    const hero: any = structuredClone(sceneComposition);
+    const control = hero.scenes[0].nodes[0].children[0].children[1];
+    control.presentation = "social-hero";
+    hero.scenes[0].nodes[0].children[0].layout = {
+      display: "flex",
+      direction: "column",
+      rhythm: "social-hero-form",
+    };
+    expect(() => compositionSchema.parse(hero)).not.toThrow();
   });
 
   it("enforces per-scene density budgets across unrelated content contexts", () => {
