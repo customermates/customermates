@@ -30,6 +30,7 @@ const space = z.union([spaceToken, z.number().min(0).max(160)]);
 const qa = z
   .object({
     critical: z.boolean().optional(),
+    cameraTarget: z.boolean().optional(),
     checkPadding: z.boolean().optional(),
     insetParent: id.optional(),
     inset: spaceToken.optional(),

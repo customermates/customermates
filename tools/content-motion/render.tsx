@@ -279,6 +279,7 @@ const nodeAttributes = (
     : undefined,
   "data-cm-check-padding": node.qa?.checkPadding ? "true" : undefined,
   "data-cm-component": node.type,
+  "data-cm-camera-target": node.qa?.cameraTarget ? "true" : undefined,
   "data-cm-critical": node.qa?.critical ? "true" : undefined,
   "data-cm-id": node.id,
   "data-cm-inset-axis": node.qa?.insetAxis,

@@ -610,6 +610,7 @@
     "content-clipping",
     "text-paint-clipping",
     "phone-type-floor",
+    "camera-target-geometry",
     "symmetric-padding",
     "declared-insets",
     "alignment-rails",

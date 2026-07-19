@@ -382,6 +382,7 @@ describe("content motion kit", () => {
     expect(catalog.qa).toEqual(
       expect.arrayContaining([
         "text-paint-clipping",
+        "camera-target-geometry",
         "declared-insets",
         "scene-density-budget",
       ]),
@@ -1199,6 +1200,18 @@ describe("content motion kit", () => {
     const unsafe = structuredClone(resizing);
     unsafe.motions[0].to.height = 2161;
     expect(() => compositionSchema.parse(unsafe)).toThrow();
+  }, 30_000);
+
+  it("exposes a camera target independently from critical phone type QA", async () => {
+    const cameraTarget = structuredClone(valid);
+    cameraTarget.nodes[0].qa = { cameraTarget: true };
+    const html = await buildCompositionHtml(cameraTarget, {
+      product: productRoot,
+    });
+    expect(html).toContain('data-cm-camera-target="true"');
+    const targetTag = html.match(/<[^>]+data-cm-id="proof-card"[^>]*>/)?.[0];
+    expect(targetTag).toBeDefined();
+    expect(targetTag).not.toContain('data-cm-critical="true"');
   }, 30_000);
 
   it("supports a monotonic accelerating ease-in motion", async () => {
