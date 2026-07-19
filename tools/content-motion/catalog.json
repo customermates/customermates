@@ -213,7 +213,7 @@
       "layer": "primitive",
       "nodeType": "selectControl",
       "source": "components/ui/select.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["placeholder", "selected", "updating"]
     },
     {
@@ -505,7 +505,7 @@
       "layer": "primitive",
       "nodeType": "accordionTrigger",
       "source": "components/ui/accordion.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["open", "closed"]
     },
     {
@@ -528,7 +528,7 @@
       "layer": "primitive",
       "nodeType": "radioItem",
       "source": "components/ui/radio-group.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["checked", "unchecked"]
     },
     {
@@ -537,7 +537,7 @@
       "nodeType": "toggle",
       "source": "components/ui/toggle.tsx",
       "variants": ["default", "outline"],
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["off", "on"]
     },
     {

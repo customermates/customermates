@@ -277,7 +277,9 @@ const accordionTriggerNode = z
     type: z.literal("accordionTrigger"),
     value: id,
     text: z.string().min(1),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
@@ -287,7 +289,9 @@ const radioItemNode = z
     type: z.literal("radioItem"),
     value: id,
     label: z.string().min(1),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
@@ -299,7 +303,9 @@ const toggleNode = z
     text: z.string().min(1),
     variant: z.enum(["default", "outline"]).default("outline"),
     size: z.enum(["default", "sm", "lg"]).default("default"),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
