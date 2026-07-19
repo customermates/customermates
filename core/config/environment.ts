@@ -67,10 +67,6 @@ export function normalizeBaseUrl(rawValue: string, variableName = "BASE_URL"): s
   return url.origin;
 }
 
-export function shouldUseSecureCookies(baseUrl: string): boolean {
-  return new URL(normalizeBaseUrl(baseUrl)).protocol === "https:";
-}
-
 export function resolveVercelBranchOrigin(source: Environment): string | undefined {
   if (!isVercelDeployment(source) || source.VERCEL_ENV !== "preview") return undefined;
   const hostname = normalizeVercelHostname(source.VERCEL_BRANCH_URL, "VERCEL_BRANCH_URL");

@@ -9,7 +9,6 @@ import {
   resolveBaseUrl,
   resolveRequestOrigin,
   resolveVercelBranchOrigin,
-  shouldUseSecureCookies,
 } from "@/core/config/environment";
 
 const previewEnvironment = {
@@ -35,11 +34,6 @@ describe("environment configuration", () => {
     expect(normalizeBaseUrl("https://crm.example.com/")).toBe("https://crm.example.com");
     expect(() => normalizeBaseUrl("https://crm.example.com/path")).toThrow("must be an origin");
     expect(() => normalizeBaseUrl("ftp://crm.example.com")).toThrow("must use http or https");
-  });
-
-  it("uses secure cookies only when the configured public origin is HTTPS", () => {
-    expect(shouldUseSecureCookies("http://localhost:4000")).toBe(false);
-    expect(shouldUseSecureCookies("https://crm.example.com")).toBe(true);
   });
 
   it("uses localhost only for local development or a self-hosted image build", () => {
@@ -120,16 +114,23 @@ describe("environment configuration", () => {
     expect(allowedHosts).not.toContain("*.vercel.app");
   });
 
-  it("never stores the production database URL in environment files", () => {
+  it("keeps live-data credentials ephemeral and restores fail-closed", () => {
     const template = readFileSync(new URL("../../.env.cloud.template", import.meta.url), "utf8");
-    const useLiveData = readFileSync(new URL("../../ee/scripts/use-live-data.sh", import.meta.url), "utf8");
+    const useLiveData = readFileSync(new URL("../../scripts/use-live-data.sh", import.meta.url), "utf8");
 
     expect(template).not.toContain("DATABASE_URL_PROD");
     expect(template).not.toContain("DATABASE_DIRECT_URL_PROD");
     expect(useLiveData).not.toContain("DATABASE_URL_PROD");
     expect(useLiveData).not.toContain("DATABASE_DIRECT_URL_PROD");
-    expect(useLiveData).toContain('read -r -s -p "Production database URL: " PRODUCTION_DATABASE_URL');
-    expect(useLiveData).toContain('pg_dump "$PRODUCTION_DATABASE_URL"');
+    expect(useLiveData).toContain('read -r -s -p "Paste the Production direct database URL (input hidden): "');
+    expect(useLiveData).toContain('PGOPTIONS=\'-c default_transaction_read_only=on\' pg_dump "$production_url"');
+    expect(useLiveData).toContain('pg_restore --list "$archive"');
+    expect(useLiveData.indexOf('pg_restore --list "$archive"')).toBeLessThan(
+      useLiveData.indexOf('dropdb --if-exists --force "$database_name"'),
+    );
+    expect(useLiveData).toContain("--exit-on-error");
+    expect(useLiveData).toContain('SET "enabled" = false');
+    expect(useLiveData).not.toContain("dumps/");
   });
 
   it("preserves validated request and vanity origins in redirects", () => {
@@ -166,10 +167,16 @@ describe("environment configuration", () => {
 
   it("uses the Better Auth host allowlist and dedicated OAuth proxy secret", () => {
     const authConfig = readFileSync(new URL("../../core/auth/better-auth.ts", import.meta.url), "utf8");
+    const invitationRoute = readFileSync(
+      new URL("../../app/[locale]/(public)/invitation/[token]/route.ts", import.meta.url),
+      "utf8",
+    );
 
     expect(authConfig).toContain("allowedHosts: env.AUTH_ALLOWED_HOSTS");
     expect(authConfig).toContain("fallback: env.BASE_URL");
-    expect(authConfig).toContain("useSecureCookies: env.AUTH_USE_SECURE_COOKIES");
+    expect(authConfig).toContain('useSecureCookies: new URL(env.BASE_URL).protocol === "https:"');
+    expect(authConfig).not.toContain("AUTH_USE_SECURE_COOKIES");
+    expect(invitationRoute).toContain('secure: new URL(env.BASE_URL).protocol === "https:"');
     expect(authConfig).toContain("productionURL: env.OAUTH_PROXY_URL");
     expect(authConfig).toContain("secret: env.OAUTH_PROXY_SECRET");
     expect(authConfig).not.toContain("currentURL:");

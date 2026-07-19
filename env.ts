@@ -1,10 +1,4 @@
-import {
-  normalizeBaseUrl,
-  resolveAppMode,
-  resolveAuthAllowedHosts,
-  resolveBaseUrl,
-  shouldUseSecureCookies,
-} from "@/core/config/environment";
+import { normalizeBaseUrl, resolveAppMode, resolveAuthAllowedHosts, resolveBaseUrl } from "@/core/config/environment";
 
 const BASE_URL = resolveBaseUrl(process.env);
 const oauthProxyUrl = process.env.OAUTH_PROXY_URL?.trim();
@@ -17,7 +11,6 @@ export const env = {
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
   BASE_URL,
   AUTH_ALLOWED_HOSTS: resolveAuthAllowedHosts(process.env, BASE_URL),
-  AUTH_USE_SECURE_COOKIES: shouldUseSecureCookies(BASE_URL),
   OAUTH_PROXY_URL: oauthProxyUrl ? normalizeBaseUrl(oauthProxyUrl, "OAUTH_PROXY_URL") : undefined,
   OAUTH_PROXY_SECRET: oauthProxySecret,
 

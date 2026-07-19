@@ -24,7 +24,7 @@ export async function GET(_request: Request, context: { params: Promise<{ locale
 
   response.cookies.set("inviteToken", token, {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
+    secure: new URL(env.BASE_URL).protocol === "https:",
     path: "/",
   });
 

@@ -51,7 +51,7 @@ export const auth = betterAuth({
 
   advanced: {
     cookiePrefix: "app",
-    useSecureCookies: env.AUTH_USE_SECURE_COOKIES,
+    useSecureCookies: new URL(env.BASE_URL).protocol === "https:",
   },
 
   rateLimit: {
