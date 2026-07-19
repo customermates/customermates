@@ -822,6 +822,8 @@ const motionValue = z
   .object({
     x: z.number().finite().optional(),
     y: z.number().finite().optional(),
+    width: z.number().positive().max(2160).optional(),
+    height: z.number().positive().max(2160).optional(),
     scale: z.number().positive().max(4).optional(),
     opacity: z.number().min(0).max(1).optional(),
     rotate: z.number().min(-12).max(12).optional(),

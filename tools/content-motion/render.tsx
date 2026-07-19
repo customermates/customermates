@@ -1230,17 +1230,19 @@ window.setProductScene=(sceneId)=>{
 };
 window.renderScene=(sceneId,progress,frame,frameCount)=>{
   window.setProductScene(sceneId);const scene=sceneMap.get(sceneId);const time=clamp(progress)*scene.duration;const states=new Map();
+  for(const element of cmRoot().querySelectorAll('[data-motion-id]')){if(element.dataset.cmMotionBaseWidth==null){element.dataset.cmMotionBaseWidth=element.style.width||'';element.dataset.cmMotionBaseHeight=element.style.height||'';}element.style.width=element.dataset.cmMotionBaseWidth;element.style.height=element.dataset.cmMotionBaseHeight;}
   for(const motion of scene.motions){
     const existing=states.get(motion.target);if(time<motion.start&&existing)continue;
-    const state=existing??{x:0,y:0,scale:1,opacity:1,rotate:0,rotateX:0,rotateY:0,blur:0,clipTop:0,clipRight:0,clipBottom:0,clipLeft:0,originX:50,originY:50};
-    const keys=['x','y','scale','opacity','rotate','rotateX','rotateY','blur','clipTop','clipRight','clipBottom','clipLeft','originX','originY'];
+    const targetElement=cmRoot().querySelector('[data-motion-id="'+motion.target+'"]');
+    const state=existing??{x:0,y:0,width:targetElement?.offsetWidth??0,height:targetElement?.offsetHeight??0,scale:1,opacity:1,rotate:0,rotateX:0,rotateY:0,blur:0,clipTop:0,clipRight:0,clipBottom:0,clipLeft:0,originX:50,originY:50};
+    const keys=['x','y','width','height','scale','opacity','rotate','rotateX','rotateY','blur','clipTop','clipRight','clipBottom','clipLeft','originX','originY'];
     if(time<motion.start){for(const key of keys)if(motion.from[key]!=null)state[key]=motion.from[key];}
     else if(time>=motion.end){for(const key of keys)if(motion.to[key]!=null)state[key]=motion.to[key];}
     else{const value=ease(motion.easing,(time-motion.start)/(motion.end-motion.start));for(const key of keys)if(motion.from[key]!=null||motion.to[key]!=null)state[key]=mix(motion.from[key]??state[key],motion.to[key]??state[key],value);}
     states.set(motion.target,state);
   }
   for(const element of cmRoot().querySelectorAll('[data-motion-id]')){if(!states.has(element.dataset.motionId)){element.style.opacity='';element.style.transform='';element.style.filter='';element.style.clipPath='';}}
-  for(const [target,state] of states){const element=cmRoot().querySelector('[data-motion-id="'+target+'"]');if(!element)continue;element.style.opacity=String(state.opacity);element.style.transformOrigin=state.originX+'% '+state.originY+'%';const hasDepth=Math.abs(state.rotateX)>.001||Math.abs(state.rotateY)>.001;element.style.transform=hasDepth?'perspective(1400px) translate3d('+state.x+'px,'+state.y+'px,0) rotateX('+state.rotateX+'deg) rotateY('+state.rotateY+'deg) rotateZ('+state.rotate+'deg) scale('+state.scale+')':'translate('+state.x+'px,'+state.y+'px) rotate('+state.rotate+'deg) scale('+state.scale+')';element.style.filter=state.blur?'blur('+state.blur+'px)':'none';element.style.clipPath='inset('+state.clipTop+'% '+state.clipRight+'% '+state.clipBottom+'% '+state.clipLeft+'%)';}
+  for(const [target,state] of states){const element=cmRoot().querySelector('[data-motion-id="'+target+'"]');if(!element)continue;element.style.width=state.width+'px';element.style.height=state.height+'px';element.style.opacity=String(state.opacity);element.style.transformOrigin=state.originX+'% '+state.originY+'%';const hasDepth=Math.abs(state.rotateX)>.001||Math.abs(state.rotateY)>.001;element.style.transform=hasDepth?'perspective(1400px) translate3d('+state.x+'px,'+state.y+'px,0) rotateX('+state.rotateX+'deg) rotateY('+state.rotateY+'deg) rotateZ('+state.rotate+'deg) scale('+state.scale+')':'translate('+state.x+'px,'+state.y+'px) rotate('+state.rotate+'deg) scale('+state.scale+')';element.style.filter=state.blur?'blur('+state.blur+'px)':'none';element.style.clipPath='inset('+state.clipTop+'% '+state.clipRight+'% '+state.clipBottom+'% '+state.clipLeft+'%)';}
   for(const action of scene.actions){
     const value=clamp((time-action.start)/(action.end-action.start));
     if(action.type==='typeText'){const holder=cmRoot().querySelector('[data-text-target="'+action.target+'"] > :first-child');if(holder)holder.textContent=action.text.slice(0,Math.floor(action.text.length*value));const caret=cmRoot().querySelector('[data-caret-for="'+action.target+'"]');if(caret)caret.style.opacity=value<1||Math.floor(time*1000/action.caretMs)%2===0?'1':'0';}

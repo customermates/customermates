@@ -362,6 +362,7 @@ describe("content motion kit", () => {
         "slide",
         "zoom",
         "blur-reveal",
+        "content-resize",
         "directional-wipe",
         "tilt",
       ]),
@@ -1171,6 +1172,32 @@ describe("content motion kit", () => {
     expect(() => compositionSchema.parse(unsafe)).toThrow();
     unsafe.motions[0].from.blur = 12;
     unsafe.motions[0].from.rotateY = 13;
+    expect(() => compositionSchema.parse(unsafe)).toThrow();
+  }, 30_000);
+
+  it("supports deterministic content-driven width and height motion", async () => {
+    const resizing = {
+      ...structuredClone(valid),
+      motions: [
+        {
+          target: "proof-card",
+          start: 0,
+          end: 0.8,
+          from: { width: 520, height: 280, y: 110 },
+          to: { width: 600, height: 500, y: 0 },
+          easing: "easeInOut",
+        },
+      ],
+    };
+    const html = await buildCompositionHtml(resizing, {
+      product: productRoot,
+    });
+    expect(html).toContain("'width','height'");
+    expect(html).toContain("element.style.width=state.width+'px'");
+    expect(html).toContain('"height":280');
+
+    const unsafe = structuredClone(resizing);
+    unsafe.motions[0].to.height = 2161;
     expect(() => compositionSchema.parse(unsafe)).toThrow();
   }, 30_000);
 

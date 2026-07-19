@@ -583,6 +583,11 @@
     },
     { "id": "blur-reveal", "fields": ["blur", "opacity"], "bounded": true },
     {
+      "id": "content-resize",
+      "fields": ["width", "height", "x", "y"],
+      "bounded": true
+    },
+    {
       "id": "directional-wipe",
       "fields": ["clipTop", "clipRight", "clipBottom", "clipLeft"],
       "bounded": true
