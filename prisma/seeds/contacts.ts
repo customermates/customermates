@@ -169,6 +169,12 @@ export async function seedContacts(
       create: contact,
     }),
   );
+  await context.prisma.contact.deleteMany({
+    where: {
+      companyId: context.ids.company,
+      id: { startsWith: "60000000-", notIn: contacts.map(({ id }) => id) },
+    },
+  });
 
   return { contactDefinitions, contacts };
 }

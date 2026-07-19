@@ -510,6 +510,12 @@ export async function seedCustomFields(
       id: { startsWith: "18000000-", notIn: customFieldValues.map(({ id }) => id) },
     },
   });
+  await prisma.customColumn.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "16000000-", notIn: customColumns.map(({ id }) => id) },
+    },
+  });
 
   return {
     customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,

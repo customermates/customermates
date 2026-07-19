@@ -99,6 +99,12 @@ export async function seedTasks(context: SeedContext): Promise<TaskSeedData> {
       create: task,
     }),
   );
+  await context.prisma.task.deleteMany({
+    where: {
+      companyId: context.ids.company,
+      id: { startsWith: "a0000000-", notIn: tasks.map(({ id }) => id) },
+    },
+  });
 
   return { taskDefinitions, tasks };
 }

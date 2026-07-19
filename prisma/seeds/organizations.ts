@@ -130,6 +130,12 @@ export async function seedOrganizations(context: SeedContext): Promise<Organizat
       create: data,
     });
   });
+  await context.prisma.organization.deleteMany({
+    where: {
+      companyId: context.ids.company,
+      id: { startsWith: "70000000-", notIn: organizations.map(({ id }) => id) },
+    },
+  });
 
   return { organizations };
 }

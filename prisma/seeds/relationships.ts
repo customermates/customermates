@@ -30,6 +30,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         value: contactDefinitions[index][2],
       }) satisfies Prisma.ContactIdentifierCreateManyInput,
   );
+  await prisma.contactIdentifier.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "b0000000-" },
+    },
+  });
   await upsertFixturesById(contactIdentifiers, ({ id: _id, ...identifier }) =>
     prisma.contactIdentifier.upsert({
       where: {
@@ -53,6 +59,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         organizationId: organizations[contactDefinitions[index][3]].id,
       }) satisfies Prisma.ContactOrganizationCreateManyInput,
   );
+  await prisma.contactOrganization.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "c0000000-" },
+    },
+  });
   await upsertFixturesById(contactOrganizations, ({ id: _id, ...contactOrganization }) =>
     prisma.contactOrganization.upsert({
       where: {
@@ -75,6 +87,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.ContactUserCreateManyInput,
   );
+  await prisma.contactUser.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "d0000000-" },
+    },
+  });
   await upsertFixturesById(contactUsers, ({ id: _id, ...contactUser }) =>
     prisma.contactUser.upsert({
       where: { contactId_userId: { contactId: contactUser.contactId, userId: contactUser.userId } },
@@ -92,6 +110,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.OrganizationUserCreateManyInput,
   );
+  await prisma.organizationUser.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "e0000000-" },
+    },
+  });
   await upsertFixturesById(organizationUsers, ({ id: _id, ...organizationUser }) =>
     prisma.organizationUser.upsert({
       where: {
@@ -114,6 +138,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         organizationId: organizations[dealDefinitions[index][1]].id,
       }) satisfies Prisma.DealOrganizationCreateManyInput,
   );
+  await prisma.dealOrganization.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "f0000000-" },
+    },
+  });
   await upsertFixturesById(dealOrganizations, ({ id: _id, ...dealOrganization }) =>
     prisma.dealOrganization.upsert({
       where: {
@@ -136,6 +166,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.DealUserCreateManyInput,
   );
+  await prisma.dealUser.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "11000000-" },
+    },
+  });
   await upsertFixturesById(dealUsers, ({ id: _id, ...dealUser }) =>
     prisma.dealUser.upsert({
       where: { dealId_userId: { dealId: dealUser.dealId, userId: dealUser.userId } },
@@ -154,6 +190,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         serviceId: services[serviceIndex].id,
       }) satisfies Prisma.ServiceDealCreateManyInput,
   );
+  await prisma.serviceDeal.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "12000000-" },
+    },
+  });
   await upsertFixturesById(serviceDeals, ({ id: _id, ...serviceDeal }) =>
     prisma.serviceDeal.upsert({
       where: { serviceId_dealId: { serviceId: serviceDeal.serviceId, dealId: serviceDeal.dealId } },
@@ -161,12 +203,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...serviceDeal },
     }),
   );
-  await prisma.serviceDeal.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "12000000-", notIn: serviceDeals.map(({ id }) => id) },
-    },
-  });
 
   const dealContacts = dealDefinitions.flatMap(([, , contactIndexes], dealIndex) =>
     contactIndexes.map(
@@ -179,6 +215,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.DealContactCreateManyInput,
     ),
   );
+  await prisma.dealContact.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "19000000-" },
+    },
+  });
   await upsertFixturesById(dealContacts, ({ id: _id, ...dealContact }) =>
     prisma.dealContact.upsert({
       where: { dealId_contactId: { dealId: dealContact.dealId, contactId: dealContact.contactId } },
@@ -186,12 +228,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...dealContact },
     }),
   );
-  await prisma.dealContact.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "19000000-", notIn: dealContacts.map(({ id }) => id) },
-    },
-  });
 
   const serviceUsers = services.map(
     (service, index) =>
@@ -202,6 +238,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         userId: ids.user,
       }) satisfies Prisma.ServiceUserCreateManyInput,
   );
+  await prisma.serviceUser.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "13000000-" },
+    },
+  });
   await upsertFixturesById(serviceUsers, ({ id: _id, ...serviceUser }) =>
     prisma.serviceUser.upsert({
       where: { serviceId_userId: { serviceId: serviceUser.serviceId, userId: serviceUser.userId } },
@@ -223,6 +265,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         ]
       : [],
   );
+  await prisma.taskUser.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "14000000-" },
+    },
+  });
   await upsertFixturesById(taskUsers, ({ id: _id, ...taskUser }) =>
     prisma.taskUser.upsert({
       where: { taskId_userId: { taskId: taskUser.taskId, userId: taskUser.userId } },
@@ -230,12 +278,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...taskUser },
     }),
   );
-  await prisma.taskUser.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "14000000-", notIn: taskUsers.map(({ id }) => id) },
-    },
-  });
 
   const taskContacts = taskDefinitions.flatMap(([, contactIndexes], taskIndex) =>
     contactIndexes.map(
@@ -248,6 +290,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskContactCreateManyInput,
     ),
   );
+  await prisma.taskContact.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "1a000000-" },
+    },
+  });
   await upsertFixturesById(taskContacts, ({ id: _id, ...taskContact }) =>
     prisma.taskContact.upsert({
       where: { taskId_contactId: { taskId: taskContact.taskId, contactId: taskContact.contactId } },
@@ -255,12 +303,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...taskContact },
     }),
   );
-  await prisma.taskContact.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "1a000000-", notIn: taskContacts.map(({ id }) => id) },
-    },
-  });
 
   const taskOrganizations = taskDefinitions.flatMap(([, , organizationIndexes], taskIndex) =>
     organizationIndexes.map(
@@ -273,6 +315,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskOrganizationCreateManyInput,
     ),
   );
+  await prisma.taskOrganization.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "1b000000-" },
+    },
+  });
   await upsertFixturesById(taskOrganizations, ({ id: _id, ...taskOrganization }) =>
     prisma.taskOrganization.upsert({
       where: {
@@ -285,15 +333,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...taskOrganization },
     }),
   );
-  await prisma.taskOrganization.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: {
-        startsWith: "1b000000-",
-        notIn: taskOrganizations.map(({ id }) => id),
-      },
-    },
-  });
 
   const taskDeals = taskDefinitions.flatMap(([, , , dealIndexes], taskIndex) =>
     dealIndexes.map(
@@ -306,6 +345,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskDealCreateManyInput,
     ),
   );
+  await prisma.taskDeal.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "1c000000-" },
+    },
+  });
   await upsertFixturesById(taskDeals, ({ id: _id, ...taskDeal }) =>
     prisma.taskDeal.upsert({
       where: { taskId_dealId: { taskId: taskDeal.taskId, dealId: taskDeal.dealId } },
@@ -313,12 +358,6 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...taskDeal },
     }),
   );
-  await prisma.taskDeal.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "1c000000-", notIn: taskDeals.map(({ id }) => id) },
-    },
-  });
 
   const taskServices = taskDefinitions.flatMap(([, , , , serviceIndexes], taskIndex) =>
     serviceIndexes.map(
@@ -331,6 +370,12 @@ export async function seedRelationships(context: SeedContext, entities: Relation
         }) satisfies Prisma.TaskServiceCreateManyInput,
     ),
   );
+  await prisma.taskService.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "1d000000-" },
+    },
+  });
   await upsertFixturesById(taskServices, ({ id: _id, ...taskService }) =>
     prisma.taskService.upsert({
       where: { taskId_serviceId: { taskId: taskService.taskId, serviceId: taskService.serviceId } },
@@ -338,10 +383,4 @@ export async function seedRelationships(context: SeedContext, entities: Relation
       create: { id: _id, ...taskService },
     }),
   );
-  await prisma.taskService.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "1d000000-", notIn: taskServices.map(({ id }) => id) },
-    },
-  });
 }

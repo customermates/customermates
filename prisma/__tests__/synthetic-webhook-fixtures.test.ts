@@ -115,6 +115,7 @@ function organizationRows() {
 
 function context() {
   const webhookUpsert = vi.fn().mockResolvedValue(undefined);
+  const webhookDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
   const deliveryUpsert = vi.fn().mockResolvedValue(undefined);
   const deliveryDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
   const contactFindMany = vi.fn().mockResolvedValue(contactRows());
@@ -128,6 +129,7 @@ function context() {
       deliveryDeleteMany,
       deliveryUpsert,
       organizationFindMany,
+      webhookDeleteMany,
       webhookUpsert,
     },
     seedContext: {
@@ -136,7 +138,7 @@ function context() {
         contact: { findMany: contactFindMany },
         deal: { findMany: dealFindMany },
         organization: { findMany: organizationFindMany },
-        webhook: { upsert: webhookUpsert },
+        webhook: { deleteMany: webhookDeleteMany, upsert: webhookUpsert },
         webhookDelivery: {
           deleteMany: deliveryDeleteMany,
           upsert: deliveryUpsert,
@@ -177,6 +179,16 @@ describe("synthetic webhook fixtures", () => {
     expect(new Set(webhook.events)).toEqual(new Set(SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map(({ event }) => event)));
     expect(webhook.createdAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.createdAt);
     expect(webhook.updatedAt).toEqual(SYNTHETIC_SEED_TIMELINE.webhook.updatedAt);
+    expect(calls.webhookDeleteMany).toHaveBeenCalledOnce();
+    expect(calls.webhookDeleteMany).toHaveBeenCalledWith({
+      where: {
+        companyId: SEED_IDS.company,
+        id: {
+          startsWith: "22000000-",
+          notIn: [fixtureId("22000000", 1)],
+        },
+      },
+    });
   });
 
   it("restores 14 sanitized delivery examples with full payloads that satisfy their OpenAPI schemas", async () => {

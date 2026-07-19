@@ -11,8 +11,10 @@ import { seedWidgets, SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 describe("synthetic widget filters", () => {
   it("restores the three legacy option filters with deterministic current IDs", async () => {
     const calls: Array<{ create: Record<string, unknown> }> = [];
+    const deleteMany = vi.fn().mockResolvedValue({ count: 0 });
     const prisma = {
       widget: {
+        deleteMany,
         upsert: vi.fn((input: { create: Record<string, unknown> }) => {
           calls.push(input);
           return Promise.resolve(input.create);
@@ -34,6 +36,16 @@ describe("synthetic widget filters", () => {
     const widgets = calls.map(({ create }) => create);
     expect(widgets).toHaveLength(7);
     expect(widgets.map(({ name }) => name)).toEqual(SYNTHETIC_WIDGET_NAMES);
+    expect(deleteMany).toHaveBeenCalledOnce();
+    expect(deleteMany).toHaveBeenCalledWith({
+      where: {
+        companyId: SEED_IDS.company,
+        id: {
+          startsWith: "15000000-",
+          notIn: widgets.map(({ id }) => id),
+        },
+      },
+    });
     expect(widgets.map(({ entityFilters }) => entityFilters)).toEqual([
       [
         {

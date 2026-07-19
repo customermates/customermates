@@ -89,7 +89,8 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     linkedin: fixtureId("16000000", 2),
     whatsapp: fixtureId("16000000", 3),
   } as const;
-  const desiredAccountIds = Object.values(accountIds);
+  const seededAccountIds: Record<keyof typeof accountIds, string> = { ...accountIds };
+  const desiredAccountIds: string[] = [];
   const persistedAnchor = await prisma.connectedAccount.findFirst({
     where: {
       companyId: context.companyId,
@@ -105,10 +106,6 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
   const anchor = persistedAnchor?.lastSyncedAt
     ? new Date(persistedAnchor.lastSyncedAt.getTime() + 5 * MINUTE)
     : new Date(Math.floor(Date.now() / anchorWindow) * anchorWindow);
-  const desiredContactIdentifierIds: string[] = [];
-  const desiredMessageIds: string[] = [];
-  const desiredParticipantIds: string[] = [];
-  const desiredThreadIds: string[] = [];
   const googleThreads = threads.filter((thread) => thread.account === "google");
   const googleInboundCount = googleThreads.reduce(
     (count, thread) => count + thread.messages.filter((message) => message.sender !== "self").length,
@@ -195,12 +192,11 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       lastSyncedAt: new Date(anchor.getTime() - 5 * MINUTE),
     };
 
-    await prisma.connectedAccount.upsert({
+    const seededAccount = await prisma.connectedAccount.upsert({
       where: { unipileAccountId: account.unipileAccountId },
       update: {
+        ...data,
         ...accountTimeline,
-        foldersSyncedAt: account.provider === "google" ? new Date(anchor.getTime() - 5 * MINUTE) : null,
-        lastSyncedAt: new Date(anchor.getTime() - 5 * MINUTE),
       },
       create: {
         ...data,
@@ -209,7 +205,30 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         ...accountTimeline,
       },
     });
+    seededAccountIds[account.provider] = seededAccount.id;
+    desiredAccountIds.push(seededAccount.id);
   }
+
+  // Positional fixture IDs can point at different natural keys after fixtures are
+  // inserted or reordered. Rebuild only rows in the reserved synthetic namespaces
+  // before reconciling natural-key rows that may have been recreated by the UI.
+  await prisma.messagingMessage.deleteMany({
+    where: { companyId: context.companyId, id: { startsWith: "19000000-" } },
+  });
+  await prisma.messagingThreadParticipant.deleteMany({
+    where: { companyId: context.companyId, id: { startsWith: "18000000-" } },
+  });
+  await prisma.messagingThread.deleteMany({
+    where: {
+      companyId: context.companyId,
+      id: { startsWith: "17000000-" },
+      messages: { none: {} },
+      participants: { none: {} },
+    },
+  });
+  await prisma.contactIdentifier.deleteMany({
+    where: { companyId: context.companyId, id: { startsWith: "1a000000-" } },
+  });
 
   const channelPeople: Array<{
     key: PersonKey;
@@ -240,31 +259,34 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     if (!data.contactId) throw new Error(`Missing demo contact for ${channel.key}`);
 
     const id = fixtureId("1a000000", index + 1);
-    desiredContactIdentifierIds.push(id);
-    const existingIdentifier = await prisma.contactIdentifier.findFirst({
+    const existingIdentifiers = await prisma.contactIdentifier.findMany({
       where: {
         companyId: context.companyId,
         OR: [
-          { id },
           { channelClass: data.channelClass, value: data.value },
           ...(data.messagingId ? [{ provider: data.provider, messagingId: data.messagingId }] : []),
         ],
       },
       select: { id: true },
     });
-    if (existingIdentifier) continue;
+    if (existingIdentifiers.length > 1)
+      throw new Error(`Conflicting demo contact identifiers for ${channel.key} (${channel.provider})`);
 
-    await prisma.contactIdentifier.upsert({
-      where: {
-        companyId_channelClass_value: {
-          companyId: context.companyId,
-          channelClass: data.channelClass,
-          value: data.value,
+    const existingIdentifier = existingIdentifiers[0];
+    if (existingIdentifier) await prisma.contactIdentifier.update({ where: { id: existingIdentifier.id }, data });
+    else {
+      await prisma.contactIdentifier.upsert({
+        where: {
+          companyId_channelClass_value: {
+            companyId: context.companyId,
+            channelClass: data.channelClass,
+            value: data.value,
+          },
         },
-      },
-      update: {},
-      create: { ...data, id },
-    });
+        update: data,
+        create: { ...data, id },
+      });
+    }
   }
 
   let participantIndex = 0;
@@ -272,9 +294,8 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
   for (const [threadIndex, fixture] of threads.entries()) {
     const provider = providerFor(fixture.account);
-    const connectedAccountId = accountIds[fixture.account];
+    const connectedAccountId = seededAccountIds[fixture.account];
     const threadId = fixtureId("17000000", threadIndex + 1);
-    desiredThreadIds.push(threadId);
     const self = selfAttendee(provider, context.seedUserEmail);
     const counterparts = fixture.participants.map((key) => personAttendee(key, provider));
     const attendees = [self, ...counterparts];
@@ -283,60 +304,95 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     if (!lastMessage) throw new Error("Every demo thread must contain a message");
 
-    await prisma.messagingThread.upsert({
+    const threadData = {
+      companyId: context.companyId,
+      connectedAccountId,
+      state: fixture.state,
+      type: fixture.type,
+      name: fixture.name,
+      unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
+      unipileThreadAltId: null,
+      provider,
+      subject: fixture.subject,
+      lastMessageAt: latestAt,
+      lastMessagePreview: lastMessage.text,
+      lastMessageIsSender: lastMessage.sender === "self",
+      sharedToCrm: true,
+      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * 45 * MINUTE),
+    };
+    const occupiedThreadId = await prisma.messagingThread.findUnique({
+      where: { id: threadId },
+      select: { id: true },
+    });
+    const seededThread = await prisma.messagingThread.upsert({
       where: {
         connectedAccountId_unipileThreadId: {
           connectedAccountId,
           unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
         },
       },
-      update: {},
+      update: threadData,
       create: {
-        id: threadId,
-        companyId: context.companyId,
-        connectedAccountId,
-        state: fixture.state,
-        type: fixture.type,
-        name: fixture.name,
-        unipileThreadId: `demo-fixture-thread-${threadIndex + 1}`,
-        provider,
-        subject: fixture.subject,
-        lastMessageAt: latestAt,
-        lastMessagePreview: lastMessage.text,
-        lastMessageIsSender: lastMessage.sender === "self",
-        sharedToCrm: true,
-        createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * 45 * MINUTE),
+        ...(occupiedThreadId ? {} : { id: threadId }),
+        ...threadData,
       },
     });
-
     for (const attendee of attendees) {
       participantIndex += 1;
       const participantId = fixtureId("18000000", participantIndex);
-      desiredParticipantIds.push(participantId);
-      await prisma.messagingThreadParticipant.upsert({
-        where: { id: participantId },
-        update: {},
-        create: {
-          id: participantId,
+      const participantData = {
+        companyId: context.companyId,
+        messagingThreadId: seededThread.id,
+        provider,
+        providerUserId: attendee.attendeeId,
+        identifier: attendee.identifier,
+        displayName: attendee.displayName,
+        pictureUrl: attendee.pictureUrl,
+        profileUrl: attendee.profileUrl ?? null,
+        headline: attendee.headline ?? null,
+        occupation: attendee.occupation ?? null,
+        isSelf: attendee.isSelf,
+      };
+      const existingParticipants = await prisma.messagingThreadParticipant.findMany({
+        where: {
           companyId: context.companyId,
-          messagingThreadId: threadId,
-          provider,
-          providerUserId: attendee.attendeeId,
-          identifier: attendee.identifier,
-          displayName: attendee.displayName,
-          pictureUrl: attendee.pictureUrl,
-          profileUrl: attendee.profileUrl ?? null,
-          headline: attendee.headline ?? null,
-          occupation: attendee.occupation ?? null,
-          isSelf: attendee.isSelf,
+          messagingThreadId: seededThread.id,
+          OR: [{ providerUserId: attendee.attendeeId }, { identifier: attendee.identifier }],
         },
+        select: { id: true },
       });
+      if (existingParticipants.length > 1) {
+        throw new Error(
+          `Conflicting demo participants for ${attendee.displayName} in ${fixture.name ?? fixture.subject ?? fixture.account}`,
+        );
+      }
+
+      const existingParticipant = existingParticipants[0];
+      if (existingParticipant) {
+        await prisma.messagingThreadParticipant.update({
+          where: { id: existingParticipant.id },
+          data: participantData,
+        });
+      } else {
+        await prisma.messagingThreadParticipant.upsert({
+          where: {
+            messagingThreadId_providerUserId: {
+              messagingThreadId: seededThread.id,
+              providerUserId: attendee.attendeeId,
+            },
+          },
+          update: participantData,
+          create: {
+            id: participantId,
+            ...participantData,
+          },
+        });
+      }
     }
 
     for (const [localMessageIndex, message] of fixture.messages.entries()) {
       messageIndex += 1;
       const messageId = fixtureId("19000000", messageIndex);
-      desiredMessageIds.push(messageId);
       const sender = message.sender === "self" ? self : personAttendee(message.sender, provider);
       const recipientAttendees = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentAt = new Date(latestAt.getTime() - (fixture.messages.length - 1 - localMessageIndex) * 45 * MINUTE);
@@ -349,7 +405,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       const data = {
         companyId: context.companyId,
         connectedAccountId,
-        messagingThreadId: threadId,
+        messagingThreadId: seededThread.id,
         provider,
         providerMessageId: provider === "google" ? `demo-provider-message-${messageIndex}` : null,
         direction: message.sender === "self" ? ("outbound" as const) : ("inbound" as const),
@@ -382,44 +438,24 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         sentAt,
         editedAt: null,
         unipileMessageId,
+        createdAt: sentAt,
       };
 
       await prisma.messagingMessage.upsert({
-        where: { id: messageId },
-        update: {},
+        where: {
+          connectedAccountId_unipileMessageId: {
+            connectedAccountId,
+            unipileMessageId,
+          },
+        },
+        update: data,
         create: {
           ...data,
           id: messageId,
-          createdAt: sentAt,
         },
       });
     }
   }
-
-  await prisma.messagingMessage.deleteMany({
-    where: {
-      companyId: context.companyId,
-      id: { startsWith: "19000000-", notIn: desiredMessageIds },
-    },
-  });
-  await prisma.messagingThreadParticipant.deleteMany({
-    where: {
-      companyId: context.companyId,
-      id: { startsWith: "18000000-", notIn: desiredParticipantIds },
-    },
-  });
-  await prisma.messagingThread.deleteMany({
-    where: {
-      companyId: context.companyId,
-      id: { startsWith: "17000000-", notIn: desiredThreadIds },
-    },
-  });
-  await prisma.contactIdentifier.deleteMany({
-    where: {
-      companyId: context.companyId,
-      id: { startsWith: "1a000000-", notIn: desiredContactIdentifierIds },
-    },
-  });
   await prisma.connectedAccount.deleteMany({
     where: {
       companyId: context.companyId,

@@ -514,4 +514,10 @@ export async function seedWebhooks(context: SeedContext): Promise<void> {
       id: { startsWith: "23000000-", notIn: deliveries.map(({ id }) => id) },
     },
   });
+  await prisma.webhook.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "22000000-", notIn: [webhook.id] },
+    },
+  });
 }

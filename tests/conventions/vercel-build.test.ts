@@ -6,21 +6,29 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT } from "./walk";
 
 describe("Vercel build safety", () => {
-  it("migrates forward and seeds only previews before building", () => {
+  it("resets only the dedicated Demo preview and seeds every preview before building", () => {
     const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
     const directUrl = script.indexOf('export DIRECT_URL="$DATABASE_URL_UNPOOLED"');
+    const demo = script.indexOf(
+      '"${VERCEL_ENV:-}" == "preview" && "${VERCEL_TARGET_ENV:-}" == "demo" && "${APP_MODE:-}" == "demo"',
+    );
+    const reset = script.indexOf("npx --no-install prisma migrate reset --force");
+    const demoSeed = script.indexOf("npx --no-install tsx prisma/seed.ts");
     const migrate = script.indexOf("npx --no-install prisma migrate deploy");
-    const preview = script.indexOf('[[ "${VERCEL_ENV:-}" == "preview" ]]');
-    const seed = script.indexOf("npx --no-install tsx prisma/seed.ts");
+    const preview = script.lastIndexOf('[[ "${VERCEL_ENV:-}" == "preview" ]]');
+    const previewSeed = script.lastIndexOf("npx --no-install tsx prisma/seed.ts");
     const build = script.indexOf("yarn build");
 
     expect(directUrl).toBeGreaterThan(-1);
-    expect(migrate).toBeGreaterThan(directUrl);
+    expect(demo).toBeGreaterThan(directUrl);
+    expect(reset).toBeGreaterThan(demo);
+    expect(demoSeed).toBeGreaterThan(reset);
+    expect(migrate).toBeGreaterThan(demoSeed);
     expect(migrate).toBeGreaterThan(-1);
     expect(preview).toBeGreaterThan(migrate);
-    expect(seed).toBeGreaterThan(preview);
-    expect(build).toBeGreaterThan(seed);
-    expect(script).not.toMatch(/reset|unipile/i);
+    expect(previewSeed).toBeGreaterThan(preview);
+    expect(build).toBeGreaterThan(previewSeed);
+    expect(script).not.toMatch(/unipile/i);
   });
 
   it("uses the same safe build command for every Vercel deployment", () => {

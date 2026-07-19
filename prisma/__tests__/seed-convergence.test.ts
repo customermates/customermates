@@ -2,9 +2,22 @@ import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
 
+import { seedContacts } from "../seeds/contacts";
 import { SEED_IDS } from "../seeds/context";
-import { seedCustomFields, SYNTHETIC_CUSTOM_COLUMN_IDS } from "../seeds/custom-fields";
+import { seedCustomFields, SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import { seedDeals } from "../seeds/deals";
+import { relationshipTargets } from "../seeds/helpers";
+import { seedOrganizations } from "../seeds/organizations";
 import { seedRelationships } from "../seeds/relationships";
+import { seedServices } from "../seeds/services";
+import {
+  seedTasks,
+  SYNTHETIC_TASK_CONTACT_LINKS,
+  SYNTHETIC_TASK_DEAL_LINKS,
+  SYNTHETIC_TASK_ORGANIZATION_LINKS,
+  SYNTHETIC_TASK_SERVICE_LINKS,
+} from "../seeds/tasks";
+import { seedWidgets } from "../seeds/widgets";
 
 function entities() {
   const organizations = Array.from({ length: 19 }, (_, index) => ({
@@ -13,7 +26,7 @@ function entities() {
   }));
   const contacts = Array.from({ length: 30 }, (_, index) => ({ id: `contact-${index}` }));
   const deals = Array.from({ length: 10 }, (_, index) => ({ id: `deal-${index}` }));
-  const services = Array.from({ length: 43 }, (_, index) => ({ id: `service-${index}` }));
+  const services = Array.from({ length: 43 }, (_, index) => ({ id: `service-${index}`, amount: index + 1 }));
   const tasks = Array.from({ length: 15 }, (_, index) => ({ id: `task-${index}` }));
 
   return {
@@ -24,8 +37,15 @@ function entities() {
     tasks,
     contactDefinitions: contacts.map((_, index) => ["First", "Last", `person-${index}@example.com`, 0]),
     dealDefinitions: deals.map(() => ["Deal", 0, [], 0]),
-    taskDefinitions: tasks.map(() => ["Task", [], [], [], [], 0]),
-  } as never;
+    taskDefinitions: tasks.map((_, index) => [
+      "Task",
+      relationshipTargets(SYNTHETIC_TASK_CONTACT_LINKS, index),
+      relationshipTargets(SYNTHETIC_TASK_ORGANIZATION_LINKS, index),
+      relationshipTargets(SYNTHETIC_TASK_DEAL_LINKS, index),
+      relationshipTargets(SYNTHETIC_TASK_SERVICE_LINKS, index),
+      0,
+    ]),
+  };
 }
 
 function context(prisma: PrismaClient) {
@@ -52,34 +72,72 @@ function relationDelegate() {
   };
 }
 
+function relationshipPrisma() {
+  const delegates = {
+    contactIdentifier: relationDelegate(),
+    contactOrganization: relationDelegate(),
+    contactUser: relationDelegate(),
+    organizationUser: relationDelegate(),
+    dealOrganization: relationDelegate(),
+    dealUser: relationDelegate(),
+    serviceDeal: relationDelegate(),
+    dealContact: relationDelegate(),
+    serviceUser: relationDelegate(),
+    taskUser: relationDelegate(),
+    taskContact: relationDelegate(),
+    taskOrganization: relationDelegate(),
+    taskDeal: relationDelegate(),
+    taskService: relationDelegate(),
+  };
+
+  return { delegates, prisma: delegates as unknown as PrismaClient };
+}
+
+type DeleteManyInput = {
+  where: {
+    companyId: string;
+    id: {
+      notIn?: string[];
+      startsWith?: string;
+    };
+  };
+};
+
+function deleteManyInputs(delegate: ReturnType<typeof relationDelegate>): DeleteManyInput[] {
+  return delegate.deleteMany.mock.calls.map(([input]) => input as DeleteManyInput);
+}
+
+function expectStalePrune(delegate: ReturnType<typeof relationDelegate>, prefix: string, expectedCount: number): void {
+  const input = deleteManyInputs(delegate).find(({ where }) => where.id.startsWith === prefix);
+  expect(input).toBeDefined();
+  expect(input?.where.companyId).toBe(SEED_IDS.company);
+  expect(input?.where.id.notIn).toHaveLength(expectedCount);
+  expect(input?.where.id.notIn?.every((id) => id.startsWith(prefix))).toBe(true);
+}
+
 describe("synthetic seed convergence after UI edits", () => {
   it("reuses a recreated relationship by its natural key instead of colliding on the fixture id", async () => {
-    const contactOrganization = relationDelegate();
+    const { delegates, prisma } = relationshipPrisma();
+    const { contactOrganization } = delegates;
     contactOrganization.upsert.mockImplementation(
       ({ where, create }: { where: Record<string, unknown>; create: Record<string, unknown> }) => {
         if ("id" in where) throw new Error("duplicate key value violates contactId_organizationId");
         return Promise.resolve({ ...create, id: "ui-recreated-relation" });
       },
     );
-    const generic = relationDelegate();
-    const prisma = {
-      contactIdentifier: relationDelegate(),
-      contactOrganization,
-      contactUser: generic,
-      organizationUser: generic,
-      dealOrganization: generic,
-      dealUser: generic,
-      serviceDeal: generic,
-      dealContact: generic,
-      serviceUser: generic,
-      taskUser: generic,
-      taskContact: generic,
-      taskOrganization: generic,
-      taskDeal: generic,
-      taskService: generic,
-    } as unknown as PrismaClient;
+    await expect(seedRelationships(context(prisma), entities() as never)).resolves.toBeUndefined();
 
-    await expect(seedRelationships(context(prisma), entities())).resolves.toBeUndefined();
+    expect(deleteManyInputs(contactOrganization)).toEqual([
+      {
+        where: {
+          companyId: SEED_IDS.company,
+          id: { startsWith: "c0000000-" },
+        },
+      },
+    ]);
+    expect(contactOrganization.deleteMany.mock.invocationCallOrder[0]).toBeLessThan(
+      contactOrganization.upsert.mock.invocationCallOrder[0],
+    );
 
     expect(contactOrganization.upsert).toHaveBeenCalledWith({
       where: {
@@ -97,6 +155,68 @@ describe("synthetic seed convergence after UI edits", () => {
         id: "c0000000-0000-4000-8000-000000000001",
       }),
     });
+  });
+
+  it("rebuilds every reserved relationship namespace before natural-key upserts", async () => {
+    const { delegates, prisma } = relationshipPrisma();
+
+    await seedRelationships(context(prisma), entities() as never);
+
+    const contracts = [
+      ["contactIdentifier", "b0000000-"],
+      ["contactOrganization", "c0000000-"],
+      ["contactUser", "d0000000-"],
+      ["organizationUser", "e0000000-"],
+      ["dealOrganization", "f0000000-"],
+      ["dealUser", "11000000-"],
+      ["serviceDeal", "12000000-"],
+      ["dealContact", "19000000-"],
+      ["serviceUser", "13000000-"],
+      ["taskUser", "14000000-"],
+      ["taskContact", "1a000000-"],
+      ["taskOrganization", "1b000000-"],
+      ["taskDeal", "1c000000-"],
+      ["taskService", "1d000000-"],
+    ] as const;
+
+    for (const [name, prefix] of contracts) {
+      const delegate = delegates[name];
+      expect(deleteManyInputs(delegate), `${name} must clear only its reserved namespace`).toEqual([
+        { where: { companyId: SEED_IDS.company, id: { startsWith: prefix } } },
+      ]);
+      if (delegate.upsert.mock.calls.length > 0) {
+        expect(delegate.deleteMany.mock.invocationCallOrder[0]).toBeLessThan(
+          delegate.upsert.mock.invocationCallOrder[0],
+        );
+      }
+    }
+  });
+
+  it("prunes stale deterministic top-level fixtures without selecting unrelated IDs", async () => {
+    const fixtureData = entities();
+    const organization = relationDelegate();
+    const contact = relationDelegate();
+    const service = relationDelegate();
+    const deal = relationDelegate();
+    const task = relationDelegate();
+    const widget = relationDelegate();
+
+    await seedOrganizations(context({ organization } as unknown as PrismaClient));
+    await seedContacts(context({ contact } as unknown as PrismaClient), fixtureData.organizations as never);
+    await seedServices(context({ service } as unknown as PrismaClient));
+    await seedDeals(context({ deal } as unknown as PrismaClient), { services: fixtureData.services } as never);
+    await seedTasks(context({ task } as unknown as PrismaClient));
+    await seedWidgets(context({ widget } as unknown as PrismaClient), {
+      customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
+      customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
+    });
+
+    expectStalePrune(organization, "70000000-", 19);
+    expectStalePrune(contact, "60000000-", 30);
+    expectStalePrune(service, "90000000-", 43);
+    expectStalePrune(deal, "80000000-", 10);
+    expectStalePrune(task, "a0000000-", 15);
+    expectStalePrune(widget, "15000000-", 7);
   });
 
   it("removes a recreated duplicate custom-field row before restoring the canonical fixture", async () => {
@@ -124,12 +244,13 @@ describe("synthetic seed convergence after UI edits", () => {
         return Promise.resolve(existing ?? create);
       }),
     };
+    const customColumn = relationDelegate();
     const prisma = {
-      customColumn: relationDelegate(),
+      customColumn,
       customFieldValue,
     } as unknown as PrismaClient;
 
-    await seedCustomFields(context(prisma), entities());
+    await seedCustomFields(context(prisma), entities() as never);
 
     const reconciled = rows.filter(
       (row) => row.columnId === firstTarget.columnId && row.contactId === firstTarget.contactId,
@@ -140,5 +261,6 @@ describe("synthetic seed convergence after UI edits", () => {
         value: "+1 202-555-0100",
       }),
     ]);
+    expectStalePrune(customColumn, "16000000-", Object.values(SYNTHETIC_CUSTOM_COLUMN_IDS).length);
   });
 });

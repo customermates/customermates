@@ -96,6 +96,12 @@ export async function seedServices(context: SeedContext): Promise<ServiceSeedDat
       create: service,
     }),
   );
+  await context.prisma.service.deleteMany({
+    where: {
+      companyId: context.ids.company,
+      id: { startsWith: "90000000-", notIn: services.map(({ id }) => id) },
+    },
+  });
 
   return { services };
 }

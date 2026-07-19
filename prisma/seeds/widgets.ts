@@ -202,4 +202,10 @@ export async function seedWidgets(context: SeedContext, customFields: CustomFiel
       create: widget,
     }),
   );
+  await prisma.widget.deleteMany({
+    where: {
+      companyId: ids.company,
+      id: { startsWith: "15000000-", notIn: widgets.map(({ id }) => id) },
+    },
+  });
 }
