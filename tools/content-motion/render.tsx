@@ -28,12 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -57,6 +52,24 @@ type AssetMap = Record<string, { dataUri: string }>;
 
 const socialBadgeClassName = "h-9 px-3 py-1.5 text-[22px] leading-none";
 const socialHeroBadgeClassName = "h-11 px-4 py-2 text-[28px] leading-none";
+const socialControlTypographyClassName = "text-[22px] leading-7 md:text-[22px]";
+const socialSingleLineControlClassName = `h-14 px-5 py-3 ${socialControlTypographyClassName}`;
+const socialTextareaControlClassName = `min-h-32 px-5 py-4 ${socialControlTypographyClassName}`;
+
+export const spacingRecipes = {
+  product: {
+    field: 8,
+    grid: 16,
+    inline: 12,
+    stack: 16,
+  },
+  "social-form": {
+    field: 8,
+    grid: 24,
+    inline: 16,
+    stack: 24,
+  },
+} as const;
 const badgeClassForSize = (size: "product" | "social" | "social-hero") =>
   size === "social-hero"
     ? socialHeroBadgeClassName
@@ -147,6 +160,7 @@ const alignment = (
 
 const layoutStyle = (
   layout: CompositionNode["layout"],
+  nodeType?: CompositionNode["type"],
 ): React.CSSProperties => {
   if (!layout) return {};
   const style: React.CSSProperties = {};
@@ -168,6 +182,15 @@ const layoutStyle = (
   if (layout.display) style.display = layout.display;
   if (layout.direction) style.flexDirection = layout.direction;
   if (layout.gap != null) style.gap = spaceValue(layout.gap);
+  else if (
+    layout.rhythm &&
+    nodeType &&
+    nodeType in spacingRecipes[layout.rhythm]
+  )
+    style.gap =
+      spacingRecipes[layout.rhythm][
+        nodeType as keyof (typeof spacingRecipes)[typeof layout.rhythm]
+      ];
   if (layout.rowGap != null) style.rowGap = spaceValue(layout.rowGap);
   if (layout.columnGap != null) style.columnGap = spaceValue(layout.columnGap);
   if (layout.align) style.alignItems = alignment(layout.align);
@@ -217,6 +240,7 @@ const nodeAttributes = (
   "data-cm-inset-parent": node.qa?.insetParent,
   "data-cm-inset-token": node.qa?.inset,
   "data-cm-min-phone-px": node.qa?.minPhonePx,
+  "data-cm-spacing-recipe": node.layout?.rhythm,
   "data-cm-allow-clipping": node.qa?.allowClipping ? "true" : undefined,
   "data-cm-qa-box":
     node.qa?.allowOverlapWith ||
@@ -226,7 +250,7 @@ const nodeAttributes = (
       ? "true"
       : undefined,
   "data-motion-id": node.id,
-  style: { ...baseStyle, ...layoutStyle(node.layout) },
+  style: { ...baseStyle, ...layoutStyle(node.layout, node.type) },
 });
 
 const wrapper = (
@@ -339,10 +363,7 @@ const renderNode = (
   if (node.type === "badge")
     return wrapper(
       node,
-      <Badge
-        className={badgeClassForSize(node.size)}
-        variant={node.variant}
-      >
+      <Badge className={badgeClassForSize(node.size)} variant={node.variant}>
         {node.text}
       </Badge>,
     );
@@ -405,8 +426,13 @@ const renderNode = (
       <Input
         aria-label={node.id}
         className={
-          node.presentation === "social" ? "h-14 px-5 text-[22px]" : undefined
+          node.presentation === "social"
+            ? socialSingleLineControlClassName
+            : undefined
         }
+        data-cm-control-id={node.id}
+        data-cm-control-kind="single-line"
+        data-cm-control-presentation={node.presentation}
         data-input-target={node.id}
         placeholder={node.placeholder}
         readOnly
@@ -420,9 +446,12 @@ const renderNode = (
         aria-label={node.id}
         className={
           node.presentation === "social"
-            ? "min-h-32 px-5 py-4 text-[22px]"
+            ? socialTextareaControlClassName
             : undefined
         }
+        data-cm-control-id={node.id}
+        data-cm-control-kind="multiline"
+        data-cm-control-presentation={node.presentation}
         data-input-target={node.id}
         placeholder={node.placeholder}
         readOnly
@@ -438,9 +467,12 @@ const renderNode = (
           aria-label={node.id}
           className={
             node.presentation === "social"
-              ? "h-14 w-full px-5 text-[22px]"
+              ? `w-full ${socialSingleLineControlClassName}`
               : "w-full"
           }
+          data-cm-control-id={node.id}
+          data-cm-control-kind="single-line"
+          data-cm-control-presentation={node.presentation}
         >
           <span
             className={node.value ? undefined : "text-muted-foreground"}
@@ -543,7 +575,7 @@ const renderNode = (
             ? "h-14 min-w-72 px-5 text-[28px]"
             : node.size === "social"
               ? "h-12 min-w-64 px-4 text-[22px]"
-            : "h-9 min-w-48 px-3"
+              : "h-9 min-w-48 px-3"
         } relative justify-between gap-4 overflow-hidden tabular-nums`}
         data-count-root={node.id}
         variant={node.variant}
@@ -573,10 +605,7 @@ const renderNode = (
   if (node.type === "counter")
     return wrapper(
       node,
-      <Badge
-        className={badgeClassForSize(node.size)}
-        variant={node.variant}
-      >
+      <Badge className={badgeClassForSize(node.size)} variant={node.variant}>
         <span data-count-target={node.id}>{node.value}</span>
         <span>{`/${node.total}${node.suffix ?? ""}`}</span>
       </Badge>,
@@ -587,17 +616,20 @@ const renderNode = (
     return wrapper(
       node,
       <div
-        className={node.size === "social-hero" ? "relative h-11 min-w-40" : social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}
+        className={
+          node.size === "social-hero"
+            ? "relative h-11 min-w-40"
+            : social
+              ? "relative h-9 min-w-32"
+              : "relative h-5 min-w-20"
+        }
         data-state-target={node.id}
       >
         <span
           className="absolute inset-0 flex items-center justify-end"
           data-state-initial
         >
-          <Badge
-            className={statusClassName}
-            variant={node.initial.variant}
-          >
+          <Badge className={statusClassName} variant={node.initial.variant}>
             {node.initial.text}
           </Badge>
         </span>
@@ -605,10 +637,7 @@ const renderNode = (
           className="absolute inset-0 flex items-center justify-end opacity-0"
           data-state-updated
         >
-          <Badge
-            className={statusClassName}
-            variant={node.updated.variant}
-          >
+          <Badge className={statusClassName} variant={node.updated.variant}>
             {node.updated.text}
           </Badge>
         </span>
@@ -702,12 +731,12 @@ const renderNode = (
             socialHero
               ? "text-[28px] [&_[data-slot=table-cell]]:h-[76px] [&_[data-slot=table-cell]]:px-0 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-14 [&_[data-slot=table-head]]:px-0 [&_[data-slot=table-head]]:text-[28px]"
               : social
-              ? "text-[22px] [&_[data-slot=table-cell]]:px-5 [&_[data-slot=table-cell]]:py-4 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-5 [&_[data-slot=table-head]]:text-[22px]"
-              : compact
-                ? "text-xs [&_[data-slot=table-cell]]:h-8 [&_[data-slot=table-cell]]:px-2 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=table-head]]:px-2 [&_[data-slot=table-head]]:text-xs"
-                : comfortable
-                  ? "[&_[data-slot=table-cell]]:h-14 [&_[data-slot=table-cell]]:px-4 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-4"
-              : undefined
+                ? "text-[22px] [&_[data-slot=table-cell]]:px-5 [&_[data-slot=table-cell]]:py-4 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-5 [&_[data-slot=table-head]]:text-[22px]"
+                : compact
+                  ? "text-xs [&_[data-slot=table-cell]]:h-8 [&_[data-slot=table-cell]]:px-2 [&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=table-head]]:px-2 [&_[data-slot=table-head]]:text-xs"
+                  : comfortable
+                    ? "[&_[data-slot=table-cell]]:h-14 [&_[data-slot=table-cell]]:px-4 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-4"
+                    : undefined
           }
         >
           {childrenFor(node, assets)}
@@ -933,7 +962,7 @@ const renderNode = (
         node.presentation === "hero"
           ? "gap-8 rounded-xl py-8 [&>[data-slot=card-header]]:px-8 [&>[data-slot=card-content]]:px-8 [&>[data-slot=card-footer]]:px-8"
           : node.presentation === "social"
-            ? "gap-6 py-7 [&>[data-slot=card-header]]:px-7 [&>[data-slot=card-content]]:px-7 [&>[data-slot=card-footer]]:px-7"
+            ? "gap-8 py-12 [&>[data-slot=card-header]]:px-12 [&>[data-slot=card-content]]:px-12 [&>[data-slot=card-footer]]:px-12"
             : undefined
       }
     >
@@ -1099,6 +1128,8 @@ window.cmAuditLayout=()=>{
   const qaBoxes=boxes.filter((element)=>element.dataset.cmQaBox==='true'&&visible(element));
   for(let a=0;a<qaBoxes.length;a++)for(let b=a+1;b<qaBoxes.length;b++){const first=qaBoxes[a],second=qaBoxes[b];if(first.contains(second)||second.contains(first))continue;const allowed=new Set([...(first.dataset.cmAllowOverlap||'').split(','),...(second.dataset.cmAllowOverlap||'').split(',')]);if(allowed.has(first.dataset.cmId)||allowed.has(second.dataset.cmId))continue;const x=first.getBoundingClientRect(),y=second.getBoundingClientRect();const overlap=Math.min(x.right,y.right)-Math.max(x.left,y.left)>tolerance&&Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)>tolerance;if(overlap)findings.push({code:'unexpected-overlap',ids:[first.dataset.cmId,second.dataset.cmId]});}
   const groups=new Map();for(const element of qaBoxes){const group=element.dataset.cmAlignmentGroup;if(!group)continue;const key=group+':'+(element.dataset.cmAlignment||'left');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(element);}for(const [key,members] of groups){if(members.length<2)continue;const axis=key.split(':').at(-1);const rails=members.map((element)=>{const rect=element.getBoundingClientRect();return axis==='right'?rect.right:axis==='center'?rect.left+rect.width/2:rect.left});if(Math.max(...rails)-Math.min(...rails)>2)findings.push({code:'alignment-drift',group:key,ids:members.map((element)=>element.dataset.cmId)});}
+  const controlGroups=new Map();for(const element of root.querySelectorAll('[data-cm-control-presentation]')){if(!visible(element))continue;const key=element.dataset.cmControlPresentation;if(!controlGroups.has(key))controlGroups.set(key,[]);controlGroups.get(key).push(element);}const controlMetrics=(element)=>{const style=getComputedStyle(element),rect=element.getBoundingClientRect();return {height:rect.height,fontSize:parseFloat(style.fontSize)||0,lineHeight:parseFloat(style.lineHeight)||0,paddingLeft:parseFloat(style.paddingLeft)||0,paddingRight:parseFloat(style.paddingRight)||0};};for(const [presentation,members] of controlGroups){if(members.length<2)continue;const reference=controlMetrics(members[0]);for(const element of members.slice(1)){const metrics=controlMetrics(element),shared=['fontSize','lineHeight','paddingLeft','paddingRight'];const drift=shared.filter((key)=>Math.abs(metrics[key]-reference[key])>1);if(drift.length)findings.push({code:'control-metric-drift',presentation,id:element.dataset.cmControlId,reference:members[0].dataset.cmControlId,metrics:drift});}const single=members.filter((element)=>element.dataset.cmControlKind==='single-line');if(single.length>1){const height=controlMetrics(single[0]).height;for(const element of single.slice(1))if(Math.abs(controlMetrics(element).height-height)>1)findings.push({code:'control-height-drift',presentation,id:element.dataset.cmControlId,reference:single[0].dataset.cmControlId});}}
+  for(const element of root.querySelectorAll('[data-cm-spacing-recipe]')){if(!visible(element))continue;const recipe=element.dataset.cmSpacingRecipe,component=element.dataset.cmComponent,expected={product:{field:8,grid:16,inline:12,stack:16},'social-form':{field:8,grid:24,inline:16,stack:24}}[recipe]?.[component];if(expected==null)continue;const actual=parseFloat(getComputedStyle(element).gap)||0;if(Math.abs(actual-expected)>1)findings.push({code:'spacing-recipe-drift',id:element.dataset.cmId,recipe,component,expected,actual});}
   for(const marker of root.querySelectorAll('[data-cm-focus-target]')){if(!visible(marker))continue;const holder=marker.closest('[data-cm-id]');const target=cmNode(marker.dataset.cmFocusTarget);if(!holder||!target){findings.push({code:'unknown-focus-target',id:holder?.dataset.cmId});continue;}const focus=holder.getBoundingClientRect(),rect=target.getBoundingClientRect();if(focus.left>rect.left+tolerance||focus.top>rect.top+tolerance||focus.right<rect.right-tolerance||focus.bottom<rect.bottom-tolerance)findings.push({code:'focus-misses-target',id:holder.dataset.cmId,target:marker.dataset.cmFocusTarget});}
   return {ok:findings.length===0,findings,elements,scene:activeScene,canvas:{width:bodyRect.width,height:bodyRect.height}};
 };

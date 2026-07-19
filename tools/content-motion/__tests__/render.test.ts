@@ -351,8 +351,7 @@ describe("content motion kit", () => {
     );
     expect(
       catalog.sceneRecipes.find(
-        (recipe: { id: string }) =>
-          recipe.id === "persistent-customer-action",
+        (recipe: { id: string }) => recipe.id === "persistent-customer-action",
       ).continuity,
     ).toContain("remains mounted");
     expect(catalog.motions.map((motion: { id: string }) => motion.id)).toEqual(
@@ -458,7 +457,7 @@ describe("content motion kit", () => {
                             {
                               id: "form-stack",
                               type: "stack",
-                              layout: { gap: "md" },
+                              layout: { rhythm: "social-form" },
                               children: [
                                 {
                                   id: "name-field",
@@ -473,6 +472,7 @@ describe("content motion kit", () => {
                                     {
                                       id: "name-control",
                                       type: "inputControl",
+                                      presentation: "social",
                                       value: "Priority routing",
                                     },
                                   ],
@@ -490,6 +490,7 @@ describe("content motion kit", () => {
                                     {
                                       id: "channel-control",
                                       type: "selectControl",
+                                      presentation: "social",
                                       placeholder: "Choose channel",
                                     },
                                   ],
@@ -507,8 +508,10 @@ describe("content motion kit", () => {
                                     {
                                       id: "instruction-control",
                                       type: "textareaControl",
+                                      presentation: "social",
                                       rows: 4,
-                                      placeholder: "Describe the desired action",
+                                      placeholder:
+                                        "Describe the desired action",
                                     },
                                   ],
                                 },
@@ -683,6 +686,10 @@ describe("content motion kit", () => {
     expect(html).toContain("text-right");
     expect(html).toContain("action.type==='selectValue'");
     expect(html).toContain("action.type==='toggleBoolean'");
+    expect(html).toContain("md:text-[22px]");
+    expect(html).toContain("py-3");
+    expect(html).toContain('data-cm-control-presentation="social"');
+    expect(html).toContain('data-cm-spacing-recipe="social-form"');
   }, 30_000);
 
   it("renders actual product component slots and deterministic output", async () => {
@@ -722,12 +729,24 @@ describe("content motion kit", () => {
     expect(html).toContain("clipsX&&element.scrollWidth");
     expect(html).toContain("h-11 px-4 py-2 text-[28px] leading-none");
     expect(html).toContain("text-[28px]");
+    expect(html).toContain("control-metric-drift");
+    expect(html).toContain("control-height-drift");
+    expect(html).toContain("spacing-recipe-drift");
     expect(html).toContain("data-slot=table-cell]]:px-0");
     expect(html).toContain("absolute inset-0 flex items-center justify-end");
     expect(html).toContain("const switched=value>=.5");
     expect(html).toContain("const hasDepth=Math.abs(state.rotateX)>.001");
     expect(html).toContain('"layoutSystem":"tokenized-compound-scenes"');
   }, 30_000);
+
+  it("rejects ambiguous rhythm and explicit gap declarations", () => {
+    const ambiguous: any = structuredClone(sceneComposition);
+    const stack = ambiguous.scenes[0].nodes[0].children[0];
+    stack.layout = { rhythm: "social-form", gap: "md" };
+    expect(() => compositionSchema.parse(ambiguous)).toThrow(
+      /layout rhythm and gap cannot be declared together/,
+    );
+  });
 
   it("enforces per-scene density budgets across unrelated content contexts", () => {
     const boundedStream: any = structuredClone(sceneComposition);

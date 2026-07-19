@@ -70,6 +70,7 @@ const layout = z
     gap: space.optional(),
     rowGap: space.optional(),
     columnGap: space.optional(),
+    rhythm: z.enum(["product", "social-form"]).optional(),
     align: z.enum(["start", "center", "end", "stretch"]).optional(),
     justify: z.enum(["start", "center", "end", "between"]).optional(),
     alignSelf: z.enum(["start", "center", "end", "stretch"]).optional(),
@@ -93,6 +94,11 @@ const layout = z
   })
   .strict()
   .superRefine((value, context) => {
+    if (value.rhythm && value.gap != null)
+      context.addIssue({
+        code: "custom",
+        message: "layout rhythm and gap cannot be declared together",
+      });
     if (value.attach && (value.x != null || value.y != null))
       context.addIssue({
         code: "custom",
@@ -624,13 +630,7 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
         ...nodeBase,
         type: z.literal("dataTable"),
         presentation: z
-          .enum([
-            "product",
-            "compact",
-            "comfortable",
-            "social",
-            "social-hero",
-          ])
+          .enum(["product", "compact", "comfortable", "social", "social-hero"])
           .default("product"),
         children: z.array(node).default([]),
       })
@@ -648,9 +648,7 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
         ...nodeBase,
         type: z.literal("tableCell"),
         align: z.enum(["left", "center", "right"]).default("left"),
-        width: z
-          .enum(["narrow", "standard", "wide", "fill"])
-          .default("fill"),
+        width: z.enum(["narrow", "standard", "wide", "fill"]).default("fill"),
         children: z.array(node).default([]),
       })
       .strict(),

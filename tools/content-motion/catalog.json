@@ -13,9 +13,31 @@
       "xl": 32,
       "2xl": 48
     },
+    "spacingRecipes": {
+      "product": {
+        "surfaceInset": 24,
+        "sectionGap": 24,
+        "fieldGap": 16,
+        "labelGap": 8,
+        "inlineGap": 12,
+        "singleLineControlHeight": 36,
+        "controlFontSize": 14,
+        "controlLineHeight": 20
+      },
+      "social-form": {
+        "surfaceInset": 48,
+        "sectionGap": 32,
+        "fieldGap": 24,
+        "labelGap": 8,
+        "inlineGap": 16,
+        "singleLineControlHeight": 56,
+        "controlFontSize": 22,
+        "controlLineHeight": 28
+      }
+    },
     "flowPrimitives": ["group", "stack", "inline", "grid"],
     "widthTokens": ["full", "half", "third", "content"],
-    "rule": "Only top-level stages may use free x/y geometry; component internals use slots and flow tokens."
+    "rule": "Only top-level stages may use free x/y geometry; component internals use slots, named rhythm recipes, and flow tokens."
   },
   "sceneRecipes": [
     {
@@ -61,7 +83,12 @@
       "id": "tabbed-detail",
       "layer": "pattern",
       "purpose": "Show multiple bounded product views through product-native tabs while keeping one outer surface.",
-      "requiredComponents": ["tabs", "tabs-list", "tab-trigger", "tabs-content"],
+      "requiredComponents": [
+        "tabs",
+        "tabs-list",
+        "tab-trigger",
+        "tabs-content"
+      ],
       "motionGrammar": ["fade", "slide"],
       "continuity": "Each tab and content region is individually addressable and shares one Tabs root."
     }
@@ -139,7 +166,15 @@
       "nodeType": "textareaControl",
       "source": "components/ui/textarea.tsx",
       "presentations": ["product", "social"],
-      "variants": ["2-row", "3-row", "4-row", "5-row", "6-row", "7-row", "8-row"],
+      "variants": [
+        "2-row",
+        "3-row",
+        "4-row",
+        "5-row",
+        "6-row",
+        "7-row",
+        "8-row"
+      ],
       "states": ["value", "placeholder", "typing"]
     },
     {
