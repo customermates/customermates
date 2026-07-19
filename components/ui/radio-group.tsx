@@ -6,11 +6,26 @@ import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
-function RadioGroup({ className, ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
-  return <RadioGroupPrimitive.Root className={cn("grid gap-3", className)} data-slot="radio-group" {...props} />;
+function RadioGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
+  return (
+    <RadioGroupPrimitive.Root
+      className={cn("grid gap-3", className)}
+      data-slot="radio-group"
+      {...props}
+    />
+  );
 }
 
-function RadioGroupItem({ className, ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
+function RadioGroupItem({
+  className,
+  forceMountIndicator = false,
+  ...props
+}: React.ComponentProps<typeof RadioGroupPrimitive.Item> & {
+  forceMountIndicator?: boolean;
+}) {
   return (
     <RadioGroupPrimitive.Item
       className={cn(
@@ -21,8 +36,9 @@ function RadioGroupItem({ className, ...props }: React.ComponentProps<typeof Rad
       {...props}
     >
       <RadioGroupPrimitive.Indicator
-        className="relative flex items-center justify-center"
+        className="relative flex items-center justify-center data-[state=unchecked]:hidden"
         data-slot="radio-group-indicator"
+        forceMount={forceMountIndicator ? true : undefined}
       >
         <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-1/2 fill-primary" />
       </RadioGroupPrimitive.Indicator>

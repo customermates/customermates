@@ -528,9 +528,11 @@ describe("content motion kit", () => {
     });
     expect(html).toContain('data-accordion-target="evidence"');
     expect(html).toContain('data-radio-target="motion-choice"');
+    expect(html).toContain('data-slot="radio-group-indicator"');
     expect(html).toContain('data-boolean-kind="toggle"');
     expect(html).toContain("action.type==='setAccordion'");
     expect(html).toContain("action.type==='selectRadio'");
+    expect(html).toContain("indicator.style.display=checked?'flex':'none'");
 
     const invalid: any = structuredClone(controlled);
     invalid.scenes[0].actions[0].target = "motion-choice";
