@@ -1,25 +1,47 @@
 name: Tests
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
       APP_MODE: self-hosted
-      DATABASE_URL: "postgresql://localhost:5432/test"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: customermates_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d customermates_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: yarn
       - run: yarn install --frozen-lockfile
+      - name: Verify the synthetic seed against Postgres
+        run: |
+          npx --no-install prisma migrate deploy
+          npx --no-install prisma db seed
+          npx --no-install prisma db seed
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
       - run: yarn typecheck
-      - run: yarn lint:check
+      - run: yarn lint
       - run: yarn test

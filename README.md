@@ -136,7 +136,6 @@ Useful scripts:
 - `yarn lint`
 - `yarn openapi:generate`
 - `yarn db:reset`
-- `yarn db:reseed`
 
 ## 📚 Documentation
 

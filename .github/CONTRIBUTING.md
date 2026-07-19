@@ -15,10 +15,12 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    cd customermates
    ```
 
-3. **Create a New Branch:** Create a new branch for your changes from `develop` instead of working directly on `main` or `develop`.
+3. **Create a New Branch:** Create a conventional branch from the latest `main` instead of working directly on `main`.
 
    ```shell
-   git checkout -b your-branch-name
+   git checkout main
+   git pull --ff-only
+   git checkout -b feat/your-change
    ```
 
 4. **Make Changes:** Make your desired changes and ensure that your code adheres to Customermates' coding standards.
@@ -61,14 +63,15 @@ Examples:
 
 If you add a commit body or footer, separate it from the subject with a blank line.
 
-## Branch Stability Policy
+## Branch Policy
 
-Customermates uses a two-branch stability model:
+Customermates uses a main-only integration model:
 
-- `main` is the **stable release branch** and always reflects the latest stable version.
-- `develop` is the **integration branch** and contains the latest non-stable changes.
+- `main` is the stable release branch.
+- All changes arrive through a pull request from a conventional branch such as `feat/contact-import`, `fix/oauth-callback`, or `sandbox/customer-demo`.
+- Open pull requests against `main`.
 
-Unless maintainers specify otherwise, open pull requests against `develop`.
+Branch protection and automated checks enforce the merge policy.
 
 ## Architecture Conventions
 

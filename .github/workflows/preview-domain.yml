@@ -1,0 +1,86 @@
+name: Preview branch domains
+
+on:
+  repository_dispatch:
+    types: [vercel.deployment.success]
+  delete:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Reconcile a deployment or remove a branch domain
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - delete
+      target:
+        description: Vercel deployment URL for deploy; conventional branch name otherwise
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  manage-domain:
+    if: >-
+      github.repository == 'customermates/customermates' &&
+      (
+        github.event_name == 'repository_dispatch' ||
+        (github.event_name == 'delete' && github.event.ref_type == 'branch') ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    concurrency:
+      group: >-
+        preview-domain-${{
+          github.event_name == 'repository_dispatch' && github.event.client_payload.git.ref ||
+          github.event_name == 'delete' && github.event.ref ||
+          inputs.target
+        }}
+      cancel-in-progress: false
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Reconcile the branch domain
+        env:
+          DEPLOYMENT_SHA: ${{ github.event.client_payload.git.sha }}
+          DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
+          EVENT_NAME: ${{ github.event_name }}
+          DELETED_BRANCH: ${{ github.event.ref }}
+          DISPATCH_ACTION: ${{ inputs.action }}
+          DISPATCH_TARGET: ${{ inputs.target }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          case "$EVENT_NAME" in
+            repository_dispatch)
+              export EVENT_ACTION=deploy
+              export DEPLOYMENT_URL="https://${DEPLOYMENT_URL#https://}"
+              ;;
+            delete)
+              export EVENT_ACTION=delete
+              export BRANCH_NAME="$DELETED_BRANCH"
+              ;;
+            workflow_dispatch)
+              export EVENT_ACTION="$DISPATCH_ACTION"
+              if [[ "$EVENT_ACTION" == "deploy" ]]; then
+                export DEPLOYMENT_URL="$DISPATCH_TARGET"
+              else
+                export BRANCH_NAME="$DISPATCH_TARGET"
+              fi
+              ;;
+          esac
+
+          bash scripts/manage-preview-domain.sh
