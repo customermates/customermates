@@ -271,6 +271,38 @@ const tabTriggerNode = z
   })
   .strict();
 
+const accordionTriggerNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("accordionTrigger"),
+    value: id,
+    text: z.string().min(1),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const radioItemNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("radioItem"),
+    value: id,
+    label: z.string().min(1),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
+const toggleNode = z
+  .object({
+    ...nodeBase,
+    type: z.literal("toggle"),
+    pressed: z.boolean().default(false),
+    text: z.string().min(1),
+    variant: z.enum(["default", "outline"]).default("outline"),
+    size: z.enum(["default", "sm", "lg"]).default("default"),
+    presentation: z.enum(["product", "social"]).default("product"),
+  })
+  .strict();
+
 const inputNode = z
   .object({
     ...nodeBase,
@@ -488,6 +520,9 @@ type LeafNode =
   | z.infer<typeof checkboxControlNode>
   | z.infer<typeof switchControlNode>
   | z.infer<typeof tabTriggerNode>
+  | z.infer<typeof accordionTriggerNode>
+  | z.infer<typeof radioItemNode>
+  | z.infer<typeof toggleNode>
   | z.infer<typeof inputNode>
   | z.infer<typeof alertNode>
   | z.infer<typeof separatorNode>
@@ -579,6 +614,38 @@ type NodeInput =
     }
   | {
       id: string;
+      type: "accordion";
+      value?: string;
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "accordionItem";
+      value: string;
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "accordionContent";
+      value: string;
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
+      type: "radioGroup";
+      value: string;
+      layout?: z.infer<typeof layout>;
+      qa?: z.infer<typeof qa>;
+      children: NodeInput[];
+    }
+  | {
+      id: string;
       type: "card";
       title?: string;
       description?: string;
@@ -620,6 +687,9 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
     checkboxControlNode,
     switchControlNode,
     tabTriggerNode,
+    accordionTriggerNode,
+    radioItemNode,
+    toggleNode,
     inputNode,
     alertNode,
     separatorNode,
@@ -638,6 +708,38 @@ const node: z.ZodType<NodeInput> = z.lazy(() =>
         presentation: z
           .enum(["product", "compact", "comfortable", "social", "social-hero"])
           .default("product"),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("accordion"),
+        value: id.optional(),
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("accordionItem"),
+        value: id,
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("accordionContent"),
+        value: id,
+        children: z.array(node).default([]),
+      })
+      .strict(),
+    z
+      .object({
+        ...nodeBase,
+        type: z.literal("radioGroup"),
+        value: id,
         children: z.array(node).default([]),
       })
       .strict(),
@@ -787,6 +889,24 @@ const action = z.discriminatedUnion("type", [
     .strict(),
   z
     .object({
+      type: z.literal("setAccordion"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: id,
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("selectRadio"),
+      target: id,
+      start: z.number().min(0),
+      end: z.number().positive(),
+      value: id,
+    })
+    .strict(),
+  z
+    .object({
       type: z.literal("updateTable"),
       target: id,
       start: z.number().min(0),
@@ -864,6 +984,9 @@ const textContent = (item: NodeInput): string[] => {
   if (item.type === "textareaControl" || item.type === "selectControl")
     values.push(item.value ?? "", item.placeholder ?? "");
   if (item.type === "tabTrigger") values.push(item.text);
+  if (item.type === "accordionTrigger" || item.type === "toggle")
+    values.push(item.text);
+  if (item.type === "radioItem") values.push(item.label);
   if (item.type === "alert") values.push(item.title, item.description ?? "");
   if (item.type === "card")
     values.push(
@@ -896,6 +1019,7 @@ const validateGraph = (
 ) => {
   const nodeIds = new Set<string>();
   const nodeTypes = new Map<string, string>();
+  const nodeOptions = new Map<string, Set<string>>();
   const attachedTargets: Array<{ source: string; target: string }> = [];
   let nodeCount = 0;
   const visit = (item: NodeInput, depth = 0, ancestors: string[] = []) => {
@@ -907,6 +1031,24 @@ const validateGraph = (
       });
     nodeIds.add(item.id);
     nodeTypes.set(item.id, item.type);
+    if (item.type === "accordion")
+      nodeOptions.set(
+        item.id,
+        new Set(
+          item.children
+            .filter((child) => child.type === "accordionItem")
+            .map((child) => child.value),
+        ),
+      );
+    if (item.type === "radioGroup")
+      nodeOptions.set(
+        item.id,
+        new Set(
+          item.children
+            .filter((child) => child.type === "radioItem")
+            .map((child) => child.value),
+        ),
+      );
     if (item.type === "table") {
       for (const row of item.rows) {
         if (nodeIds.has(row.id))
@@ -1006,6 +1148,42 @@ const validateGraph = (
           code: "custom",
           message: `${scope} tabsList children must be tabTrigger: ${item.id}`,
         });
+      if (item.type === "accordion" && !all(["accordionItem"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} accordion children must be accordionItem: ${item.id}`,
+        });
+      if (
+        item.type === "accordionItem" &&
+        !all(["accordionTrigger", "accordionContent"])
+      )
+        context.addIssue({
+          code: "custom",
+          message: `${scope} accordionItem children must be accordionTrigger or accordionContent: ${item.id}`,
+        });
+      if (item.type === "accordionItem") {
+        const triggers = item.children.filter(
+          (child) => child.type === "accordionTrigger",
+        );
+        const contents = item.children.filter(
+          (child) => child.type === "accordionContent",
+        );
+        if (
+          triggers.length !== 1 ||
+          contents.length !== 1 ||
+          triggers[0]?.value !== item.value ||
+          contents[0]?.value !== item.value
+        )
+          context.addIssue({
+            code: "custom",
+            message: `${scope} accordionItem requires one matching trigger and content: ${item.id}`,
+          });
+      }
+      if (item.type === "radioGroup" && !all(["radioItem"]))
+        context.addIssue({
+          code: "custom",
+          message: `${scope} radioGroup children must be radioItem: ${item.id}`,
+        });
       item.children.forEach((child) =>
         visit(child, depth + 1, [...ancestors, item.id]),
       );
@@ -1022,7 +1200,9 @@ const validateGraph = (
     typeText: ["text"],
     typeValue: ["inputControl", "textareaControl"],
     selectValue: ["selectControl"],
-    toggleBoolean: ["checkboxControl", "switchControl"],
+    toggleBoolean: ["checkboxControl", "switchControl", "toggle"],
+    setAccordion: ["accordion"],
+    selectRadio: ["radioGroup"],
     updateTable: ["table"],
     swapState: ["statusSwap"],
     countTo: ["counter"],
@@ -1036,6 +1216,14 @@ const validateGraph = (
       context.addIssue({
         code: "custom",
         message: `${scope} ${item.type} cannot target ${targetType}: ${item.target}`,
+      });
+    if (
+      (item.type === "setAccordion" || item.type === "selectRadio") &&
+      !nodeOptions.get(item.target)?.has(item.value)
+    )
+      context.addIssue({
+        code: "custom",
+        message: `${scope} ${item.type} uses unknown value ${item.value}: ${item.target}`,
       });
   }
   for (const item of attachedTargets) {

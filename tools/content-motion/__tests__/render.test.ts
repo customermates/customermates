@@ -347,6 +347,8 @@ describe("content motion kit", () => {
         "progressive-form",
         "data-density-switch",
         "tabbed-detail",
+        "progressive-disclosure",
+        "bounded-decision",
       ]),
     );
     expect(
@@ -370,6 +372,8 @@ describe("content motion kit", () => {
         "typeValue",
         "selectValue",
         "toggleBoolean",
+        "setAccordion",
+        "selectRadio",
         "swapState",
         "countTo",
       ]),
@@ -382,6 +386,158 @@ describe("content motion kit", () => {
       ]),
     );
   });
+
+  it("renders controlled disclosure and decision primitives from product components", async () => {
+    const controlled = {
+      meta: {
+        width: 1080,
+        height: 1350,
+        duration: 6,
+        fps: 60,
+        productRef,
+        title: "Controlled sales decision",
+      },
+      theme: "dark",
+      assets: {},
+      defaultScene: "decision-proof",
+      scenes: [
+        {
+          id: "decision-proof",
+          name: "Decision proof",
+          category: "story",
+          nodes: [
+            {
+              id: "evidence",
+              type: "accordion",
+              value: "intent",
+              children: [
+                {
+                  id: "intent-item",
+                  type: "accordionItem",
+                  value: "intent",
+                  children: [
+                    {
+                      id: "intent-trigger",
+                      type: "accordionTrigger",
+                      value: "intent",
+                      text: "Intent signals",
+                      presentation: "social",
+                    },
+                    {
+                      id: "intent-content",
+                      type: "accordionContent",
+                      value: "intent",
+                      children: [
+                        {
+                          id: "intent-copy",
+                          type: "text",
+                          role: "body",
+                          size: "social",
+                          text: "Security and rollout questions detected.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  id: "route-item",
+                  type: "accordionItem",
+                  value: "route",
+                  children: [
+                    {
+                      id: "route-trigger",
+                      type: "accordionTrigger",
+                      value: "route",
+                      text: "Recommended route",
+                    },
+                    {
+                      id: "route-content",
+                      type: "accordionContent",
+                      value: "route",
+                      children: [
+                        {
+                          id: "route-copy",
+                          type: "text",
+                          role: "body",
+                          text: "Bring in Sales Engineering.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "motion-choice",
+              type: "radioGroup",
+              value: "standard",
+              children: [
+                {
+                  id: "standard-choice",
+                  type: "radioItem",
+                  value: "standard",
+                  label: "Standard follow-up",
+                },
+                {
+                  id: "se-choice",
+                  type: "radioItem",
+                  value: "sales-engineering",
+                  label: "Sales Engineering",
+                  presentation: "social",
+                },
+              ],
+            },
+            {
+              id: "auto-brief",
+              type: "toggle",
+              pressed: false,
+              text: "Auto-create technical brief",
+              presentation: "social",
+            },
+          ],
+          motions: [],
+          actions: [
+            {
+              type: "setAccordion",
+              target: "evidence",
+              start: 1,
+              end: 2,
+              value: "route",
+            },
+            {
+              type: "selectRadio",
+              target: "motion-choice",
+              start: 2,
+              end: 3,
+              value: "sales-engineering",
+            },
+            {
+              type: "toggleBoolean",
+              target: "auto-brief",
+              start: 3,
+              end: 4,
+              value: true,
+            },
+          ],
+        },
+      ],
+    };
+    expect(() => compositionSchema.parse(controlled)).not.toThrow();
+    const html = await buildCompositionHtml(controlled, {
+      product: productRoot,
+    });
+    expect(html).toContain('data-accordion-target="evidence"');
+    expect(html).toContain('data-radio-target="motion-choice"');
+    expect(html).toContain('data-boolean-kind="toggle"');
+    expect(html).toContain("action.type==='setAccordion'");
+    expect(html).toContain("action.type==='selectRadio'");
+
+    const invalid: any = structuredClone(controlled);
+    invalid.scenes[0].actions[0].target = "motion-choice";
+    expect(() => compositionSchema.parse(invalid)).toThrow(
+      /setAccordion cannot target radioGroup/,
+    );
+  }, 30_000);
 
   it("renders reusable form, tabs, card, and table variants", async () => {
     const expanded = {

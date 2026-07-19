@@ -101,6 +101,27 @@
       ],
       "motionGrammar": ["fade", "slide"],
       "continuity": "Each tab and content region is individually addressable and shares one Tabs root."
+    },
+    {
+      "id": "progressive-disclosure",
+      "layer": "pattern",
+      "purpose": "Compress supporting account evidence into one controlled product-native disclosure surface.",
+      "requiredComponents": [
+        "accordion",
+        "accordion-item",
+        "accordion-trigger",
+        "accordion-content"
+      ],
+      "motionGrammar": ["fade", "slide", "focus-pulse"],
+      "continuity": "Accordion items remain mounted while one controlled value reveals the selected evidence."
+    },
+    {
+      "id": "bounded-decision",
+      "layer": "pattern",
+      "purpose": "Make one routing choice and one enabled rule legible without creating a custom settings card.",
+      "requiredComponents": ["radio-group", "radio-item", "toggle"],
+      "motionGrammar": ["fade", "focus-pulse"],
+      "continuity": "Selection and pressed state derive from frame actions on stable product controls."
     }
   ],
   "components": [
@@ -465,6 +486,61 @@
       "states": ["active", "inactive"]
     },
     {
+      "id": "accordion",
+      "layer": "pattern",
+      "nodeType": "accordion",
+      "source": "components/ui/accordion.tsx",
+      "anatomy": ["accordionItem", "accordionTrigger", "accordionContent"],
+      "states": ["controlled", "collapsed", "expanded"]
+    },
+    {
+      "id": "accordion-item",
+      "layer": "molecule",
+      "nodeType": "accordionItem",
+      "source": "components/ui/accordion.tsx",
+      "allowedChildren": ["accordionTrigger", "accordionContent"]
+    },
+    {
+      "id": "accordion-trigger",
+      "layer": "primitive",
+      "nodeType": "accordionTrigger",
+      "source": "components/ui/accordion.tsx",
+      "presentations": ["product", "social"],
+      "states": ["open", "closed"]
+    },
+    {
+      "id": "accordion-content",
+      "layer": "primitive",
+      "nodeType": "accordionContent",
+      "source": "components/ui/accordion.tsx",
+      "states": ["open", "closed"]
+    },
+    {
+      "id": "radio-group",
+      "layer": "molecule",
+      "nodeType": "radioGroup",
+      "source": "components/ui/radio-group.tsx",
+      "allowedChildren": ["radioItem"],
+      "states": ["controlled"]
+    },
+    {
+      "id": "radio-item",
+      "layer": "primitive",
+      "nodeType": "radioItem",
+      "source": "components/ui/radio-group.tsx",
+      "presentations": ["product", "social"],
+      "states": ["checked", "unchecked"]
+    },
+    {
+      "id": "toggle",
+      "layer": "primitive",
+      "nodeType": "toggle",
+      "source": "components/ui/toggle.tsx",
+      "variants": ["default", "outline"],
+      "presentations": ["product", "social"],
+      "states": ["off", "on"]
+    },
+    {
       "id": "focus",
       "layer": "primitive",
       "nodeType": "focus",
@@ -518,6 +594,8 @@
     "typeValue",
     "selectValue",
     "toggleBoolean",
+    "setAccordion",
+    "selectRadio",
     "swapState",
     "countTo",
     "updateTable"

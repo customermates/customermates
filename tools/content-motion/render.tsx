@@ -9,6 +9,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +31,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectTrigger } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -38,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
 
 import {
   compositionSchema,
@@ -532,11 +540,63 @@ const renderNode = (
         data-boolean-target={node.id}
       />,
     );
+  if (node.type === "toggle")
+    return wrapper(
+      node,
+      <Toggle
+        aria-label={node.text}
+        className={
+          node.presentation === "social"
+            ? "h-14 min-w-14 px-5 text-[22px]"
+            : undefined
+        }
+        data-boolean-initial={String(node.pressed)}
+        data-boolean-kind="toggle"
+        data-boolean-target={node.id}
+        pressed={node.pressed}
+        size={node.size}
+        variant={node.variant}
+      >
+        {node.text}
+      </Toggle>,
+    );
   if (node.type === "tabTrigger")
     return (
       <TabsTrigger {...nodeAttributes(node)} value={node.value}>
         {node.text}
       </TabsTrigger>
+    );
+  if (node.type === "accordionTrigger")
+    return (
+      <AccordionTrigger
+        {...nodeAttributes(node)}
+        className={
+          node.presentation === "social" ? "py-5 text-[22px]" : undefined
+        }
+        data-accordion-trigger-value={node.value}
+      >
+        {node.text}
+      </AccordionTrigger>
+    );
+  if (node.type === "radioItem")
+    return wrapper(
+      node,
+      <label
+        className={`flex items-center gap-3 ${
+          node.presentation === "social" ? "text-[22px]" : "text-sm"
+        }`}
+      >
+        <RadioGroupItem
+          className={
+            node.presentation === "social"
+              ? "size-7 [&_svg]:size-3.5"
+              : undefined
+          }
+          data-radio-value={node.value}
+          value={node.value}
+        />
+        <span data-cm-text-leaf>{node.label}</span>
+      </label>,
     );
   if (node.type === "input")
     return wrapper(
@@ -833,6 +893,51 @@ const renderNode = (
       </TabsContent>
     );
 
+  if (node.type === "accordion")
+    return (
+      <Accordion
+        {...nodeAttributes(node)}
+        collapsible
+        data-accordion-initial={node.value ?? ""}
+        data-accordion-target={node.id}
+        type="single"
+        value={node.value}
+      >
+        {childrenFor(node, assets)}
+      </Accordion>
+    );
+  if (node.type === "accordionItem")
+    return (
+      <AccordionItem
+        {...nodeAttributes(node)}
+        data-accordion-item-value={node.value}
+        value={node.value}
+      >
+        {childrenFor(node, assets)}
+      </AccordionItem>
+    );
+  if (node.type === "accordionContent")
+    return (
+      <AccordionContent
+        {...nodeAttributes(node)}
+        data-accordion-content-value={node.value}
+        forceMount
+      >
+        {childrenFor(node, assets)}
+      </AccordionContent>
+    );
+  if (node.type === "radioGroup")
+    return (
+      <RadioGroup
+        {...nodeAttributes(node)}
+        data-radio-initial={node.value}
+        data-radio-target={node.id}
+        value={node.value}
+      >
+        {childrenFor(node, assets)}
+      </RadioGroup>
+    );
+
   if (node.type === "table") {
     const social = node.presentation === "social";
     return wrapper(
@@ -1039,7 +1144,7 @@ const inlineFontCss = (
     .join("\n");
 
 export const compileProductCss = async () => {
-  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/ui/input.tsx";\n@source "../../components/ui/textarea.tsx";\n@source "../../components/ui/select.tsx";\n@source "../../components/ui/checkbox.tsx";\n@source "../../components/ui/switch.tsx";\n@source "../../components/ui/tabs.tsx";\n@source "../../components/ui/label.tsx";\n@source "../../components/ui/alert.tsx";\n@source "../../components/ui/separator.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
+  const source = `@import "../../styles/globals.css";\n@source "../../components/ui/card.tsx";\n@source "../../components/ui/button.tsx";\n@source "../../components/ui/badge.tsx";\n@source "../../components/ui/table.tsx";\n@source "../../components/ui/avatar.tsx";\n@source "../../components/ui/input.tsx";\n@source "../../components/ui/textarea.tsx";\n@source "../../components/ui/select.tsx";\n@source "../../components/ui/checkbox.tsx";\n@source "../../components/ui/switch.tsx";\n@source "../../components/ui/tabs.tsx";\n@source "../../components/ui/accordion.tsx";\n@source "../../components/ui/radio-group.tsx";\n@source "../../components/ui/toggle.tsx";\n@source "../../components/ui/label.tsx";\n@source "../../components/ui/alert.tsx";\n@source "../../components/ui/separator.tsx";\n@source "../../components/chip/app-chip.tsx";\n@source "../../components/shared/overlapping-stack.tsx";\n@source "./render.tsx";`;
   const result = await postcss([tailwindPostcss() as never]).process(source, {
     from: resolve("tools/content-motion/motion.css"),
   });
@@ -1128,7 +1233,9 @@ window.renderScene=(sceneId,progress,frame,frameCount)=>{
     if(action.type==='typeText'){const holder=cmRoot().querySelector('[data-text-target="'+action.target+'"] > :first-child');if(holder)holder.textContent=action.text.slice(0,Math.floor(action.text.length*value));const caret=cmRoot().querySelector('[data-caret-for="'+action.target+'"]');if(caret)caret.style.opacity=value<1||Math.floor(time*1000/action.caretMs)%2===0?'1':'0';}
     if(action.type==='typeValue'){const input=cmRoot().querySelector('[data-input-target="'+action.target+'"]');if(input)input.value=action.value.slice(0,Math.floor(action.value.length*value));}
     if(action.type==='selectValue'){const select=cmRoot().querySelector('[data-select-target="'+action.target+'"]');if(select){const changed=value>=.5;select.textContent=changed?action.value:select.dataset.selectInitial;select.classList.toggle('text-muted-foreground',!changed&&select.dataset.selectInitialPlaceholder==='true');}}
-    if(action.type==='toggleBoolean'){const control=cmRoot().querySelector('[data-boolean-target="'+action.target+'"]');if(control){const checked=value>=.5?action.value:control.dataset.booleanInitial==='true';const state=checked?'checked':'unchecked';control.dataset.state=state;control.setAttribute('aria-checked',String(checked));const indicator=control.querySelector('[data-slot="checkbox-indicator"]');if(indicator)indicator.style.display=checked?'grid':'none';const thumb=control.querySelector('[data-slot="switch-thumb"]');if(thumb)thumb.dataset.state=state;}}
+    if(action.type==='toggleBoolean'){const control=cmRoot().querySelector('[data-boolean-target="'+action.target+'"]');if(control){const checked=value>=.5?action.value:control.dataset.booleanInitial==='true';const toggle=control.dataset.booleanKind==='toggle';const state=toggle?(checked?'on':'off'):(checked?'checked':'unchecked');control.dataset.state=state;control.setAttribute(toggle?'aria-pressed':'aria-checked',String(checked));const indicator=control.querySelector('[data-slot="checkbox-indicator"]');if(indicator)indicator.style.display=checked?'grid':'none';const thumb=control.querySelector('[data-slot="switch-thumb"]');if(thumb)thumb.dataset.state=state;}}
+    if(action.type==='setAccordion'){const root=cmRoot().querySelector('[data-accordion-target="'+action.target+'"]');if(root){const selected=value>=.5?action.value:root.dataset.accordionInitial;for(const item of root.querySelectorAll('[data-accordion-item-value]')){const open=item.dataset.accordionItemValue===selected;item.dataset.state=open?'open':'closed';const trigger=item.querySelector('[data-accordion-trigger-value]');if(trigger){trigger.dataset.state=open?'open':'closed';trigger.setAttribute('aria-expanded',String(open));}const content=item.querySelector('[data-accordion-content-value]');if(content){content.dataset.state=open?'open':'closed';content.hidden=!open;content.style.display=open?'block':'none';}}}}
+    if(action.type==='selectRadio'){const root=cmRoot().querySelector('[data-radio-target="'+action.target+'"]');if(root){const selected=value>=.5?action.value:root.dataset.radioInitial;root.dataset.value=selected;for(const item of root.querySelectorAll('[data-radio-value]')){const checked=item.dataset.radioValue===selected;item.dataset.state=checked?'checked':'unchecked';item.setAttribute('aria-checked',String(checked));}}}
     if(action.type==='updateTable'){const table=cmRoot().querySelector('[data-table-id="'+action.target+'"]');if(!table)continue;const rows=[...table.querySelectorAll('[data-row-index]')];const completed=Math.min(rows.length,Math.floor(value*rows.length+.0001));rows.forEach((row,index)=>{const done=index<completed;row.querySelector('[data-state-initial]')?.style.setProperty('opacity',done?'0':'1');row.querySelector('[data-state-updated]')?.style.setProperty('opacity',done?'1':'0');});const count=table.querySelector('[data-count-for="'+action.target+'"]');if(count)count.textContent=String(Math.floor(value*action.total));}
     if(action.type==='swapState'){const target=cmRoot().querySelector('[data-state-target="'+action.target+'"]');if(!target)continue;const initial=target.querySelector('[data-state-initial]');const updated=target.querySelector('[data-state-updated]');const switched=value>=.5;initial?.style.setProperty('visibility',switched?'hidden':'visible');initial?.style.setProperty('opacity','1');updated?.style.setProperty('visibility',switched?'visible':'hidden');updated?.style.setProperty('opacity','1');}
     if(action.type==='countTo'&&time>=action.start){const target=cmRoot().querySelector('[data-count-target="'+action.target+'"]');const count=Math.round(action.value*value);if(target){target.textContent=String(count);const root=target.closest('[data-count-root]');const progress=root?.querySelector('[data-count-progress]');if(progress)progress.style.width=String(Math.min(100,count/action.value*100))+'%';const status=root?.querySelector('[data-count-status]');if(status)status.textContent=count>=action.value?status.dataset.countCompleteLabel:status.dataset.countLabel;}}
