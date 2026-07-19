@@ -193,9 +193,7 @@ const avatarNode = z
     type: z.literal("avatar"),
     name: z.string().min(1),
     size: z.enum(["sm", "default", "lg", "xl"]).default("lg"),
-    presentation: z
-      .enum(["product", "social", "social-hero"])
-      .default("product"),
+    presentation: z.enum(["product", "social"]).default("product"),
   })
   .strict();
 
@@ -240,7 +238,9 @@ const selectControlNode = z
     type: z.literal("selectControl"),
     value: z.string().optional(),
     placeholder: z.string().optional(),
-    presentation: z.enum(["product", "social"]).default("product"),
+    presentation: z
+      .enum(["product", "social", "social-hero"])
+      .default("product"),
   })
   .strict();
 
