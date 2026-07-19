@@ -34,14 +34,8 @@ function runDomainScript({
   domainStatus = "404",
   domainVerified = true,
   previewDomain = "customermates.com",
-  existingComments,
-  existingCommentBody = "",
-  pullRequestBase = "main",
-  pullRequestBranch = branch,
-  pullRequestRepo = "customermates/customermates",
-  pullRequestState = "open",
 }: {
-  action?: "deploy" | "delete" | "comment";
+  action?: "deploy" | "delete";
   aliasDeploymentId?: string;
   aliasProject?: string;
   aliasStatus?: "200" | "404";
@@ -60,18 +54,11 @@ function runDomainScript({
   domainStatus?: "200" | "404";
   domainVerified?: boolean;
   previewDomain?: string;
-  existingComments?: Array<{ body: string; id: number; login: string }>;
-  existingCommentBody?: string;
-  pullRequestBase?: string;
-  pullRequestBranch?: string;
-  pullRequestRepo?: string;
-  pullRequestState?: string;
 } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "customermates-preview-domain-test-"));
   temporaryDirectories.push(directory);
   const domainBody = join(directory, "domain-body.json");
   const aliasBody = join(directory, "alias-body.json");
-  const commentBody = join(directory, "comment-body.json");
   const log = join(directory, "curl.log");
   const curl = join(directory, "curl");
   writeFileSync(log, "");
@@ -140,37 +127,6 @@ case "$url" in
       response="$(jq -cn --arg sha "$MOCK_BRANCH_SHA" '{object: {type: "commit", sha: $sha}}')"
     fi
     ;;
-  https://api.github.com/repos/customermates/customermates/pulls/*)
-    status="200"
-    response="$(jq -cn \
-      --arg state "$MOCK_PULL_REQUEST_STATE" \
-      --arg base "$MOCK_PULL_REQUEST_BASE" \
-      --arg branch "$MOCK_PULL_REQUEST_BRANCH" \
-      --arg repo "$MOCK_PULL_REQUEST_REPO" \
-      '{state: $state, base: {ref: $base}, head: {ref: $branch, repo: {full_name: $repo}}}')"
-    ;;
-  https://api.github.com/repos/customermates/customermates/issues/comments/*)
-    if [[ "$request" == "DELETE" ]]; then
-      status="204"
-      response=''
-    else
-      status="200"
-      cp "\${data#@}" "$MOCK_COMMENT_BODY"
-      response="$(jq -c '. + {id: 42, user: {login: "github-actions[bot]"}}' "\${data#@}")"
-    fi
-    ;;
-  https://api.github.com/repos/customermates/customermates/issues/*/comments\?*)
-    status="200"
-    page="\${url##*page=}"
-    start=$(( (page - 1) * 100 ))
-    response="$(printf '%s' "$MOCK_COMMENTS_JSON" | jq -c --argjson start "$start" \
-      '.[$start:($start + 100)]')"
-    ;;
-  https://api.github.com/repos/customermates/customermates/issues/*/comments)
-    status="201"
-    cp "\${data#@}" "$MOCK_COMMENT_BODY"
-    response="$(jq -c '. + {id: 42, user: {login: "github-actions[bot]"}}' "\${data#@}")"
-    ;;
   https://api.vercel.com/v9/projects/*/domains/*)
     if [[ "$request" == "DELETE" ]]; then
       status="200"
@@ -226,11 +182,6 @@ printf '%s' "$status"
 
   const [prefix, label] = branch.split("/");
   const hostname = `${prefix === "sandbox" ? label : `${prefix}-${label}`}.customermates.com`;
-  const comments =
-    existingComments ??
-    (existingCommentBody
-      ? [{ body: existingCommentBody, id: 42, login: "github-actions[bot]" }]
-      : []);
   const result = spawnSync("bash", [script], {
     cwd: root,
     encoding: "utf8",
@@ -249,10 +200,6 @@ printf '%s' "$status"
       MOCK_BRANCH_SHA: branchSha,
       MOCK_BRANCH_STATUS: branchStatus,
       MOCK_CREATE_VERIFIED: String(createVerified),
-      MOCK_COMMENT_BODY: commentBody,
-      MOCK_COMMENTS_JSON: JSON.stringify(
-        comments.map(({ body, id, login }) => ({ body, id, user: { login } })),
-      ),
       MOCK_CURL_LOG: log,
       MOCK_DEPLOYMENT_PROJECT: deploymentProject,
       MOCK_DEPLOYMENT_READY_STATE: deploymentReadyState,
@@ -265,12 +212,7 @@ printf '%s' "$status"
       MOCK_DOMAIN_STATUS: domainStatus,
       MOCK_DOMAIN_VERIFIED: String(domainVerified),
       MOCK_HOSTNAME: hostname,
-      MOCK_PULL_REQUEST_BASE: pullRequestBase,
-      MOCK_PULL_REQUEST_BRANCH: pullRequestBranch,
-      MOCK_PULL_REQUEST_REPO: pullRequestRepo,
-      MOCK_PULL_REQUEST_STATE: pullRequestState,
       PREVIEW_DOMAIN: previewDomain,
-      PR_NUMBER: "10",
       VERCEL_PROJECT_ID: "prj_test",
       VERCEL_TEAM_ID: "team_test",
       VERCEL_TOKEN: "vercel-test-token",
@@ -280,7 +222,6 @@ printf '%s' "$status"
   return {
     ...result,
     aliasBody: readFileSync(aliasBody, { encoding: "utf8", flag: "a+" }),
-    commentBody: readFileSync(commentBody, { encoding: "utf8", flag: "a+" }),
     domainBody: readFileSync(domainBody, { encoding: "utf8", flag: "a+" }),
     requests: readFileSync(log, "utf8").trim().split("\n").filter(Boolean),
   };
@@ -451,113 +392,6 @@ describe("Preview-domain management", () => {
     expect(result.requests).toHaveLength(0);
   });
 
-  it("creates one stable Preview comment for a pull request", () => {
-    const result = runDomainScript({ action: "comment" });
-
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("Pull request 10 now links feat-oauth.customermates.com");
-    expect(result.requests).toEqual([
-      "GET\thttps://api.github.com/repos/customermates/customermates/pulls/10",
-      "GET\thttps://api.github.com/repos/customermates/customermates/issues/10/comments?per_page=100&page=1",
-      "POST\thttps://api.github.com/repos/customermates/customermates/issues/10/comments",
-    ]);
-    expect(JSON.parse(result.commentBody)).toEqual({
-      body: [
-        "<!-- customermates-preview-domain -->",
-        "### Preview",
-        "",
-        "[feat-oauth.customermates.com](https://feat-oauth.customermates.com)",
-        "",
-        "This stable URL follows `feat/oauth` and updates after every successful Vercel Preview deployment.",
-      ].join("\n"),
-    });
-  });
-
-  it("does not create a duplicate Preview comment", () => {
-    const existingCommentBody = [
-      "<!-- customermates-preview-domain -->",
-      "### Preview",
-      "",
-      "[feat-oauth.customermates.com](https://feat-oauth.customermates.com)",
-      "",
-      "This stable URL follows `feat/oauth` and updates after every successful Vercel Preview deployment.",
-    ].join("\n");
-    const result = runDomainScript({ action: "comment", existingCommentBody });
-
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("already links feat-oauth.customermates.com");
-    expect(result.requests).toEqual([
-      "GET\thttps://api.github.com/repos/customermates/customermates/pulls/10",
-      "GET\thttps://api.github.com/repos/customermates/customermates/issues/10/comments?per_page=100&page=1",
-    ]);
-    expect(result.commentBody).toBe("");
-  });
-
-  it("finds the managed comment after the first 100 comments", () => {
-    const existingCommentBody = [
-      "<!-- customermates-preview-domain -->",
-      "### Preview",
-      "",
-      "[feat-oauth.customermates.com](https://feat-oauth.customermates.com)",
-      "",
-      "This stable URL follows `feat/oauth` and updates after every successful Vercel Preview deployment.",
-    ].join("\n");
-    const existingComments = [
-      ...Array.from({ length: 100 }, (_, index) => ({
-        body: `Regular comment ${index + 1}`,
-        id: index + 1,
-        login: "reviewer",
-      })),
-      { body: existingCommentBody, id: 101, login: "github-actions[bot]" },
-    ];
-    const result = runDomainScript({ action: "comment", existingComments });
-
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("already links feat-oauth.customermates.com");
-    expect(result.requests).toEqual([
-      "GET\thttps://api.github.com/repos/customermates/customermates/pulls/10",
-      "GET\thttps://api.github.com/repos/customermates/customermates/issues/10/comments?per_page=100&page=1",
-      "GET\thttps://api.github.com/repos/customermates/customermates/issues/10/comments?per_page=100&page=2",
-    ]);
-  });
-
-  it("removes duplicate managed comments", () => {
-    const existingCommentBody = [
-      "<!-- customermates-preview-domain -->",
-      "### Preview",
-      "",
-      "[feat-oauth.customermates.com](https://feat-oauth.customermates.com)",
-      "",
-      "This stable URL follows `feat/oauth` and updates after every successful Vercel Preview deployment.",
-    ].join("\n");
-    const result = runDomainScript({
-      action: "comment",
-      existingComments: [
-        { body: existingCommentBody, id: 42, login: "github-actions[bot]" },
-        { body: "<!-- customermates-preview-domain -->\nDuplicate", id: 43, login: "github-actions[bot]" },
-      ],
-    });
-
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.requests.at(-1)).toBe(
-      "DELETE\thttps://api.github.com/repos/customermates/customermates/issues/comments/43",
-    );
-    expect(result.commentBody).toBe("");
-  });
-
-  it("updates the existing managed comment instead of adding another one", () => {
-    const result = runDomainScript({
-      action: "comment",
-      existingCommentBody: "<!-- customermates-preview-domain -->\nOld Preview URL",
-    });
-
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.requests.at(-1)).toBe(
-      "PATCH\thttps://api.github.com/repos/customermates/customermates/issues/comments/42",
-    );
-    expect(JSON.parse(result.commentBody).body).toContain("https://feat-oauth.customermates.com");
-  });
-
   it.each([
     ["build/example", "build-example.customermates.com"],
     ["chore/example", "chore-example.customermates.com"],
@@ -571,34 +405,13 @@ describe("Preview-domain management", () => {
     ["sandbox/rewe", "rewe.customermates.com"],
     ["style/example", "style-example.customermates.com"],
     ["test/example", "test-example.customermates.com"],
-  ])("links the conventional branch %s at %s", (branch, hostname) => {
-    const result = runDomainScript({ action: "comment", branch });
+  ])("maps the conventional branch %s to %s", (branch, hostname) => {
+    const result = runDomainScript({ branch });
 
     expect(result.status, result.stderr).toBe(0);
-    expect(JSON.parse(result.commentBody).body).toContain(`[${hostname}](https://${hostname})`);
+    expect(JSON.parse(result.domainBody)).toEqual({ name: hostname, gitBranch: branch });
+    expect(JSON.parse(result.aliasBody)).toEqual({ alias: hostname });
   });
-
-  it.each([
-    ["closed", "main", "feat/oauth", "customermates/customermates"],
-    ["open", "develop", "feat/oauth", "customermates/customermates"],
-    ["open", "main", "feat/other", "customermates/customermates"],
-    ["open", "main", "feat/oauth", "external/customermates"],
-  ])(
-    "rejects a PR outside the trusted same-repository main flow",
-    (pullRequestState, pullRequestBase, pullRequestBranch, pullRequestRepo) => {
-      const result = runDomainScript({
-        action: "comment",
-        pullRequestBase,
-        pullRequestBranch,
-        pullRequestRepo,
-        pullRequestState,
-      });
-
-      expect(result.status).toBe(1);
-      expect(result.stderr).toContain("not an open, same-repository PR");
-      expect(result.requests).toHaveLength(1);
-    },
-  );
 
   it("uses trusted Vercel events and default-branch code for protected mutations", () => {
     const controlWorkflow = readFileSync(join(root, ".github/workflows/preview-domain.yml"), "utf8");
@@ -607,11 +420,7 @@ describe("Preview-domain management", () => {
     expect(controlWorkflow).toContain("  repository_dispatch:");
     expect(controlWorkflow).toContain("types: [vercel.deployment.success]");
     expect(controlWorkflow).toContain("  delete:");
-    expect(controlWorkflow).toContain("  pull_request_target:");
-    expect(controlWorkflow).toContain("types: [opened, reopened, synchronize]");
-    expect(controlWorkflow).toContain("issues: write");
     expect(controlWorkflow).toContain("preview-domain-${{");
-    expect(controlWorkflow).toContain("preview-comment-${{");
     expect(controlWorkflow).not.toContain("group: preview-domain-control");
     expect(controlWorkflow).toContain("environment:");
     expect(controlWorkflow).toContain("name: preview-domain-control");
@@ -621,5 +430,9 @@ describe("Preview-domain management", () => {
     expect(controlWorkflow).not.toContain("actions/upload-artifact");
     expect(controlWorkflow).not.toContain("actions/download-artifact");
     expect(controlWorkflow).not.toContain("  create:");
+    expect(controlWorkflow).not.toContain("  pull_request_target:");
+    expect(controlWorkflow).not.toContain("issues: write");
+    expect(controlWorkflow).not.toContain("preview-comment-${{");
+    expect(controlWorkflow).not.toContain("- comment");
   });
 });

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-: "${EVENT_ACTION:?EVENT_ACTION must be deploy, delete, or comment}"
+: "${EVENT_ACTION:?EVENT_ACTION must be deploy or delete}"
 
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-preview-domain.XXXXXX")"
 trap 'rm -rf "$temporary_directory"' EXIT
@@ -80,11 +80,8 @@ case "$EVENT_ACTION" in
   delete)
     : "${BRANCH_NAME:?BRANCH_NAME must identify the deleted branch}"
     ;;
-  comment)
-    : "${BRANCH_NAME:?BRANCH_NAME must identify the pull request branch}"
-    ;;
   *)
-    echo "EVENT_ACTION must be deploy, delete, or comment." >&2
+    echo "EVENT_ACTION must be deploy or delete." >&2
     exit 1
     ;;
 esac
@@ -134,122 +131,6 @@ hostname="${domain_label}.${PREVIEW_DOMAIN}"
 if [[ ${#hostname} -gt 253 ]]; then
   echo "The generated Preview domain is too long." >&2
   exit 1
-fi
-
-if [[ "$EVENT_ACTION" == "comment" ]]; then
-  : "${GITHUB_TOKEN:?GITHUB_TOKEN must be configured}"
-  : "${PR_NUMBER:?PR_NUMBER must identify the pull request}"
-
-  if [[ ! "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
-    echo "PR_NUMBER must be a positive integer." >&2
-    exit 1
-  fi
-
-  pull_request_status="$(curl --silent --show-error --max-time 20 --retry 3 \
-    --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-    --header "Accept: application/vnd.github+json" \
-    --output "$temporary_directory/pull-request.json" \
-    --write-out '%{http_code}' \
-    "https://api.github.com/repos/customermates/customermates/pulls/${PR_NUMBER}")"
-  if [[ "$pull_request_status" != "200" ]] || ! jq -e --arg branch "$BRANCH_NAME" \
-    '.state == "open" and .base.ref == "main" and .head.ref == $branch and
-     .head.repo.full_name == "customermates/customermates"' \
-    "$temporary_directory/pull-request.json" >/dev/null; then
-    echo "Pull request ${PR_NUMBER} is not an open, same-repository PR from ${BRANCH_NAME} into main." >&2
-    exit 1
-  fi
-
-  marker='<!-- customermates-preview-domain -->'
-  printf -v comment_body '%s\n### Preview\n\n[%s](https://%s)\n\nThis stable URL follows `%s` and updates after every successful Vercel Preview deployment.' \
-    "$marker" "$hostname" "$hostname" "$BRANCH_NAME"
-
-  comments_url="https://api.github.com/repos/customermates/customermates/issues/${PR_NUMBER}/comments"
-  printf '[]' > "$temporary_directory/comments.json"
-  comments_page=1
-  while true; do
-    page_file="$temporary_directory/comments-page-${comments_page}.json"
-    comments_status="$(curl --silent --show-error --max-time 20 --retry 3 \
-      --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-      --header "Accept: application/vnd.github+json" \
-      --output "$page_file" \
-      --write-out '%{http_code}' \
-      "${comments_url}?per_page=100&page=${comments_page}")"
-    if [[ "$comments_status" != "200" ]] || ! jq -e 'type == "array"' "$page_file" >/dev/null; then
-      echo "GitHub returned HTTP $comments_status while reading comments for pull request ${PR_NUMBER}." >&2
-      exit 1
-    fi
-
-    jq -s '.[0] + .[1]' "$temporary_directory/comments.json" "$page_file" \
-      > "$temporary_directory/combined-comments.json"
-    mv "$temporary_directory/combined-comments.json" "$temporary_directory/comments.json"
-    if [[ "$(jq 'length' "$page_file")" -lt 100 ]]; then
-      break
-    fi
-    comments_page=$((comments_page + 1))
-  done
-
-  existing_comment_id="$(jq -r --arg marker "$marker" '
-    [.[] | select(.user.login == "github-actions[bot]" and (.body | contains($marker)))] |
-    first.id // ""
-  ' "$temporary_directory/comments.json")"
-  jq -cn --arg body "$comment_body" '{body: $body}' > "$temporary_directory/comment.json"
-
-  if [[ -n "$existing_comment_id" ]]; then
-    jq -r --arg marker "$marker" '
-      [.[] | select(.user.login == "github-actions[bot]" and (.body | contains($marker)))] |
-      .[1:][]?.id
-    ' "$temporary_directory/comments.json" | while IFS= read -r duplicate_comment_id; do
-      delete_comment_status="$(curl --silent --show-error --max-time 20 --retry 3 \
-        --request DELETE \
-        --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-        --header "Accept: application/vnd.github+json" \
-        --output "$temporary_directory/delete-comment-${duplicate_comment_id}.json" \
-        --write-out '%{http_code}' \
-        "https://api.github.com/repos/customermates/customermates/issues/comments/${duplicate_comment_id}")"
-      if [[ "$delete_comment_status" != "204" ]]; then
-        echo "GitHub returned HTTP $delete_comment_status while removing a duplicate Preview comment." >&2
-        exit 1
-      fi
-    done
-
-    existing_comment_body="$(jq -r --argjson id "$existing_comment_id" '.[] | select(.id == $id) | .body' \
-      "$temporary_directory/comments.json")"
-    if [[ "$existing_comment_body" == "$comment_body" ]]; then
-      echo "Pull request ${PR_NUMBER} already links $hostname."
-      exit 0
-    fi
-
-    comment_status="$(curl --silent --show-error --max-time 20 --retry 3 \
-      --request PATCH \
-      --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-      --header "Accept: application/vnd.github+json" \
-      --header "Content-Type: application/json" \
-      --data-binary "@$temporary_directory/comment.json" \
-      --output "$temporary_directory/comment-response.json" \
-      --write-out '%{http_code}' \
-      "https://api.github.com/repos/customermates/customermates/issues/comments/${existing_comment_id}")"
-    expected_comment_status=200
-  else
-    comment_status="$(curl --silent --show-error --max-time 20 \
-      --request POST \
-      --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-      --header "Accept: application/vnd.github+json" \
-      --header "Content-Type: application/json" \
-      --data-binary "@$temporary_directory/comment.json" \
-      --output "$temporary_directory/comment-response.json" \
-      --write-out '%{http_code}' \
-      "$comments_url")"
-    expected_comment_status=201
-  fi
-
-  if [[ "$comment_status" != "$expected_comment_status" ]] || ! jq -e --arg body "$comment_body" \
-    '.body == $body' "$temporary_directory/comment-response.json" >/dev/null; then
-    echo "GitHub did not save the Preview comment for pull request ${PR_NUMBER} (HTTP $comment_status)." >&2
-    exit 1
-  fi
-
-  echo "Pull request ${PR_NUMBER} now links $hostname."
-  exit 0
 fi
 
 : "${VERCEL_PROJECT_ID:?VERCEL_PROJECT_ID must be configured}"
