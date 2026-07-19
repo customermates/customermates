@@ -573,7 +573,13 @@ const motion = z
     end: z.number().positive(),
     from: motionValue,
     to: motionValue,
-    easing: z.enum(["linear", "easeIn", "easeOut", "easeInOut"]),
+    easing: z.enum([
+      "linear",
+      "easeIn",
+      "easeInStrong",
+      "easeOut",
+      "easeInOut",
+    ]),
   })
   .strict()
   .refine((value) => value.end > value.start, "motion end must be after start");

@@ -857,7 +857,7 @@ const composition=${JSON.stringify({ scenes: scenePayload(composition), defaultS
 const sceneMap=new Map(composition.scenes.map((scene)=>[scene.id,scene]));
 let activeScene=composition.defaultScene;
 const clamp=(value,min=0,max=1)=>Math.max(min,Math.min(max,value));
-const ease=(name,value)=>{value=clamp(value);if(name==='linear')return value;if(name==='easeIn')return value*value*value;if(name==='easeOut')return 1-Math.pow(1-value,3);return value<.5?4*value*value*value:1-Math.pow(-2*value+2,3)/2};
+const ease=(name,value)=>{value=clamp(value);if(name==='linear')return value;if(name==='easeIn')return value*value*value;if(name==='easeInStrong')return value*value*value*value*value;if(name==='easeOut')return 1-Math.pow(1-value,3);return value<.5?4*value*value*value:1-Math.pow(-2*value+2,3)/2};
 const mix=(a,b,value)=>(a??0)+((b??0)-(a??0))*value;
 const cmRoot=()=>document.querySelector('[data-cm-scene-id="'+activeScene+'"]')??document;
 const cmNode=(id)=>cmRoot().querySelector('[data-cm-id="'+id+'"]');

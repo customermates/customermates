@@ -692,6 +692,29 @@ describe("content motion kit", () => {
     expect(html).toContain('"easing":"easeIn"');
   }, 30_000);
 
+  it("supports a strongly end-weighted accelerating motion", async () => {
+    const accelerating = {
+      ...structuredClone(valid),
+      motions: [
+        {
+          target: "proof-card",
+          start: 0,
+          end: 1,
+          from: { y: 0 },
+          to: { y: -1440 },
+          easing: "easeInStrong",
+        },
+      ],
+    };
+    const html = await buildCompositionHtml(accelerating, {
+      product: productRoot,
+    });
+    expect(html).toContain(
+      "if(name==='easeInStrong')return value*value*value*value*value",
+    );
+    expect(html).toContain('"easing":"easeInStrong"');
+  }, 30_000);
+
   it("rejects missing assets and fonts", async () => {
     const missingAsset = structuredClone(valid);
     missingAsset.assets.brand.path = "public/images/dark/missing.svg";
