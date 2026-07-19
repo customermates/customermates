@@ -1,48 +1,52 @@
 name: Preview branch domains
 
 on:
-  workflow_run:
-    workflows: [Report ready Preview domain]
-    types: [completed]
+  repository_dispatch:
+    types: [vercel.deployment.success]
   delete:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
   workflow_dispatch:
     inputs:
       action:
-        description: Reconcile a ready deployment or remove a branch domain
+        description: Reconcile a deployment, remove a branch domain, or add its PR comment
         required: true
         default: deploy
         type: choice
         options:
           - deploy
           - delete
+          - comment
       target:
-        description: Vercel deployment URL for deploy; conventional branch name for delete
+        description: Vercel deployment URL for deploy; conventional branch name otherwise
         required: true
+        type: string
+      pull_request:
+        description: Pull request number for comment
+        required: false
         type: string
 
 permissions:
-  actions: read
   contents: read
-
-concurrency:
-  group: preview-domain-control
-  cancel-in-progress: false
 
 jobs:
   manage-domain:
     if: >-
       github.repository == 'customermates/customermates' &&
       (
-        (
-          github.event_name == 'workflow_run' &&
-          github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.event == 'deployment_status' &&
-          github.event.workflow_run.path == '.github/workflows/preview-domain-request.yml'
-        ) ||
+        github.event_name == 'repository_dispatch' ||
         (github.event_name == 'delete' && github.event.ref_type == 'branch') ||
-        github.event_name == 'workflow_dispatch'
+        (github.event_name == 'workflow_dispatch' && inputs.action != 'comment')
       )
     runs-on: ubuntu-latest
+    concurrency:
+      group: >-
+        preview-domain-${{
+          github.event_name == 'repository_dispatch' && github.event.client_payload.git.ref ||
+          github.event_name == 'delete' && github.event.ref ||
+          inputs.target
+        }}
+      cancel-in-progress: false
     environment:
       name: preview-domain-control
       deployment: false
@@ -50,17 +54,11 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
-          ref: ${{ github.sha }}
-      - name: Download the unprivileged deployment report
-        if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: preview-domain-request
-          path: .preview-domain-request
-          github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          ref: ${{ github.event.repository.default_branch }}
       - name: Reconcile the branch domain
         env:
+          DEPLOYMENT_SHA: ${{ github.event.client_payload.git.sha }}
+          DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
           EVENT_NAME: ${{ github.event_name }}
           DELETED_BRANCH: ${{ github.event.ref }}
           DISPATCH_ACTION: ${{ inputs.action }}
@@ -74,10 +72,9 @@ jobs:
           set -euo pipefail
 
           case "$EVENT_NAME" in
-            workflow_run)
+            repository_dispatch)
               export EVENT_ACTION=deploy
-              export DEPLOYMENT_URL="$(jq -er '.deploymentUrl' .preview-domain-request/preview-domain-request.json)"
-              export DEPLOYMENT_SHA="$(jq -er '.sha' .preview-domain-request/preview-domain-request.json)"
+              export DEPLOYMENT_URL="https://${DEPLOYMENT_URL#https://}"
               ;;
             delete)
               export EVENT_ACTION=delete
@@ -92,5 +89,59 @@ jobs:
               fi
               ;;
           esac
+
+          bash scripts/manage-preview-domain.sh
+
+  comment-on-pull-request:
+    if: >-
+      github.repository == 'customermates/customermates' &&
+      (
+        (
+          github.event_name == 'pull_request_target' &&
+          github.event.pull_request.base.ref == github.event.repository.default_branch &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        ) ||
+        (github.event_name == 'workflow_dispatch' && inputs.action == 'comment')
+      )
+    runs-on: ubuntu-latest
+    concurrency:
+      group: >-
+        preview-comment-${{
+          github.event_name == 'pull_request_target' && github.event.pull_request.head.ref ||
+          inputs.target
+        }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Add the stable Preview URL to the pull request
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_BRANCH: ${{ github.event.pull_request.head.ref }}
+          EVENT_PULL_REQUEST: ${{ github.event.pull_request.number }}
+          DISPATCH_BRANCH: ${{ inputs.target }}
+          DISPATCH_PULL_REQUEST: ${{ inputs.pull_request }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PREVIEW_DOMAIN: ${{ vars.PREVIEW_DOMAIN }}
+        run: |
+          set -euo pipefail
+
+          export EVENT_ACTION=comment
+          if [[ "$EVENT_NAME" == "pull_request_target" ]]; then
+            export BRANCH_NAME="$EVENT_BRANCH"
+            export PR_NUMBER="$EVENT_PULL_REQUEST"
+          else
+            export BRANCH_NAME="$DISPATCH_BRANCH"
+            export PR_NUMBER="$DISPATCH_PULL_REQUEST"
+          fi
 
           bash scripts/manage-preview-domain.sh
