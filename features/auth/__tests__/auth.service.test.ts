@@ -9,6 +9,7 @@ vi.mock("next/headers", () => ({
   headers: () =>
     new Headers({
       host: "feat-inbox.customermates.com",
+      origin: "https://feat-inbox.customermates.com",
       "x-forwarded-proto": "https",
     }),
 }));
@@ -87,16 +88,22 @@ describe("AuthService callback URLs", () => {
     );
   });
 
-  it("lets the OAuth proxy infer Preview origin when social sign-in has no callback", async () => {
+  it("gives the OAuth proxy the current request origin and a safe default callback", async () => {
     await service.continueWithSocials({ provider: "google" });
 
     expect(mocks.signInSocial).toHaveBeenCalledWith({
+      request: expect.any(Request),
       headers: expect.any(Headers),
+      asResponse: false,
       body: {
         provider: "google",
+        callbackURL: "/",
         errorCallbackURL: "/auth/signin",
       },
     });
+    expect(mocks.signInSocial.mock.calls[0][0].request.url).toBe(
+      "https://feat-inbox.customermates.com/api/auth/sign-in/social",
+    );
   });
 
   it("preserves explicit social callback and error URLs", async () => {
@@ -108,6 +115,7 @@ describe("AuthService callback URLs", () => {
 
     expect(mocks.signInSocial).toHaveBeenCalledWith(
       expect.objectContaining({
+        request: expect.any(Request),
         body: {
           provider: "microsoft",
           callbackURL: "https://feat-inbox.customermates.com/en/inbox",
