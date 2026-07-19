@@ -137,7 +137,7 @@ export class PrismaConnectedAccountRepo
     const { unipileAccountId } = args;
 
     const row = await this.prisma.connectedAccount.update({
-      where: { unipileAccountId, synthetic: false },
+      where: { unipileAccountId },
       data: {
         status: args.status,
         displayName: args.displayName,
@@ -162,7 +162,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async markAccountSyncingUnscoped(args: RepoArgs<ClaimBackfillRepo, "markAccountSyncingUnscoped">) {
     await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId: args.unipileAccountId, synthetic: false },
+      where: { unipileAccountId: args.unipileAccountId },
       data: { syncing: args.syncing },
     });
   }
@@ -174,7 +174,6 @@ export class PrismaConnectedAccountRepo
     const result = await this.prisma.connectedAccount.updateMany({
       where: {
         unipileAccountId,
-        synthetic: false,
         OR: [{ backfillClaimedAt: null }, { backfillClaimedAt: { lt: staleBefore } }],
       },
       data: { backfillClaimedAt: new Date(), backfillClaimToken: token },
@@ -186,7 +185,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async releaseBackfillClaimUnscoped(unipileAccountId: string, token: string) {
     await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId, backfillClaimToken: token, synthetic: false },
+      where: { unipileAccountId, backfillClaimToken: token },
       data: {
         backfillClaimedAt: null,
         backfillClaimToken: null,
@@ -199,7 +198,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async markAccountHasCalendarUnscoped(unipileAccountId: string) {
     await this.prisma.connectedAccount.updateMany({
-      where: { unipileAccountId, synthetic: false },
+      where: { unipileAccountId },
       data: { hasCalendar: true },
     });
   }
@@ -207,7 +206,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async findAccountByUnipileIdUnscoped(unipileAccountId: string) {
     const row = await this.prisma.connectedAccount.findUnique({
-      where: { unipileAccountId, synthetic: false },
+      where: { unipileAccountId },
     });
 
     return row;
@@ -216,7 +215,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async findAccountByUnipileIdOrThrowUnscoped(unipileAccountId: string) {
     return this.prisma.connectedAccount.findUniqueOrThrow({
-      where: { unipileAccountId, synthetic: false },
+      where: { unipileAccountId },
     });
   }
 
@@ -225,7 +224,6 @@ export class PrismaConnectedAccountRepo
       where: {
         id,
         companyId: this.companyId,
-        synthetic: false,
         OR: [{ userId: this.userId }, { shared: true }],
       },
     });
@@ -249,18 +247,18 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async findAccountByIdUnscoped(id: string) {
-    return this.prisma.connectedAccount.findUnique({ where: { id, synthetic: false } });
+    return this.prisma.connectedAccount.findUnique({ where: { id } });
   }
 
   @BypassTenantGuard
   async findAccountByIdOrThrowUnscoped(id: string) {
-    return this.prisma.connectedAccount.findUniqueOrThrow({ where: { id, synthetic: false } });
+    return this.prisma.connectedAccount.findUniqueOrThrow({ where: { id } });
   }
 
   @BypassTenantGuard
   async markAccountDeletedUnscoped(id: string) {
     await this.prisma.connectedAccount.update({
-      where: { id, synthetic: false },
+      where: { id },
       data: { status: ConnectedAccountStatus.deleted, syncing: false },
     });
   }
@@ -268,7 +266,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async listActiveAccountsForCompanyUnscoped(companyId: string) {
     return this.prisma.connectedAccount.findMany({
-      where: { companyId, synthetic: false, status: { not: ConnectedAccountStatus.deleted } },
+      where: { companyId, status: { not: ConnectedAccountStatus.deleted } },
       select: { id: true, userId: true, createdAt: true, provider: true, displayName: true, emailAddress: true },
     });
   }
@@ -278,7 +276,6 @@ export class PrismaConnectedAccountRepo
     const before = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
-        synthetic: false,
         status: { not: ConnectedAccountStatus.deleted },
         company: { subscription: { status: SubscriptionStatus.trial, trialEndDate: { lt: before } } },
       },
@@ -292,7 +289,6 @@ export class PrismaConnectedAccountRepo
   async findConnectedAccountIdsForInactiveOwnersUnscoped() {
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
-        synthetic: false,
         status: { not: ConnectedAccountStatus.deleted },
         user: { status: Status.inactive },
       },
@@ -305,7 +301,7 @@ export class PrismaConnectedAccountRepo
   @BypassTenantGuard
   async findActiveUnipileAccountIdsUnscoped() {
     const rows = await this.prisma.connectedAccount.findMany({
-      where: { synthetic: false, status: { not: ConnectedAccountStatus.deleted } },
+      where: { status: { not: ConnectedAccountStatus.deleted } },
       select: { unipileAccountId: true },
     });
 
@@ -317,7 +313,6 @@ export class PrismaConnectedAccountRepo
     const before = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
-        synthetic: false,
         status: { not: ConnectedAccountStatus.deleted },
         company: {
           subscription: {
@@ -401,7 +396,6 @@ export class PrismaConnectedAccountRepo
       where: {
         companyId: this.companyId,
         userId: this.userId,
-        synthetic: false,
         status: { not: ConnectedAccountStatus.deleted },
       },
     });
@@ -426,7 +420,6 @@ export class PrismaConnectedAccountRepo
     return this.prisma.connectedAccount.findMany({
       where: {
         companyId: this.companyId,
-        synthetic: false,
         OR: [{ userId: this.userId }, { shared: true }],
       },
       select: { id: true, unipileAccountId: true, status: true },
@@ -435,13 +428,13 @@ export class PrismaConnectedAccountRepo
 
   async findAccountByIdOrThrow(id: string) {
     return this.prisma.connectedAccount.findFirstOrThrow({
-      where: { id, companyId: this.companyId, userId: this.userId, synthetic: false },
+      where: { id, companyId: this.companyId, userId: this.userId },
     });
   }
 
   async getAccountByIdOrThrow(id: string) {
     const row = await this.prisma.connectedAccount.findFirstOrThrow({
-      where: { id, companyId: this.companyId, userId: this.userId, synthetic: false },
+      where: { id, companyId: this.companyId, userId: this.userId },
       select: this.dtoSelect,
     });
 
@@ -452,7 +445,7 @@ export class PrismaConnectedAccountRepo
     const existing = await this.getAccountByIdOrThrow(args.id);
 
     await this.prisma.connectedAccount.updateMany({
-      where: { id: args.id, companyId: this.companyId, userId: this.userId, synthetic: false },
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
       data: { shared: args.shared },
     });
 
@@ -461,7 +454,7 @@ export class PrismaConnectedAccountRepo
 
   async getAccountFolderContextOrThrow(id: string) {
     const row = await this.prisma.connectedAccount.findFirstOrThrow({
-      where: { id, companyId: this.companyId, userId: this.userId, synthetic: false },
+      where: { id, companyId: this.companyId, userId: this.userId },
       select: { id: true, unipileAccountId: true, folders: true, selectedFolderIds: true, sentFolderIds: true },
     });
 
@@ -476,7 +469,7 @@ export class PrismaConnectedAccountRepo
 
   async setSelectedFoldersOrThrow(args: { id: string; selectedFolderIds: string[] }) {
     await this.prisma.connectedAccount.updateMany({
-      where: { id: args.id, companyId: this.companyId, userId: this.userId, synthetic: false },
+      where: { id: args.id, companyId: this.companyId, userId: this.userId },
       data: { selectedFolderIds: args.selectedFolderIds },
     });
 
@@ -484,8 +477,6 @@ export class PrismaConnectedAccountRepo
   }
 
   async deleteAccount(id: string) {
-    await this.prisma.connectedAccount.deleteMany({
-      where: { id, companyId: this.companyId, userId: this.userId, synthetic: false },
-    });
+    await this.prisma.connectedAccount.deleteMany({ where: { id, companyId: this.companyId, userId: this.userId } });
   }
 }

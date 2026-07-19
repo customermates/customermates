@@ -135,7 +135,6 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
           hasCalendar: true,
           hasMessaging: true,
           provider: "google",
-          synthetic: true,
         }),
         expect.objectContaining({
           displayName: "Max Bergmann · LinkedIn",
@@ -168,7 +167,6 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
         ownerAvatarUrl: "/demo/avatars/photos/max-bergmann.png",
         shared: false,
         status: "ok",
-        synthetic: true,
         syncing: false,
         userId: context.userId,
       });

@@ -37,7 +37,6 @@ type ResyncThread = {
   id: string;
   unipileThreadId: string;
   connectedAccountId: string;
-  synthetic: boolean;
   provider: MessagingProvider;
   type: MessagingThreadType;
   companyId: string;
@@ -84,8 +83,6 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
     if (denied) return denied;
 
     const thread = await this.repo.findThreadForResyncOrThrow(data.threadId);
-
-    if (thread.synthetic) return { ok: true as const, data: { fetched: false, participantCount: 0, messageCount: 0 } };
 
     try {
       const participantCount =

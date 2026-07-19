@@ -173,15 +173,6 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
     },
   ];
 
-  await prisma.connectedAccount.updateMany({
-    where: {
-      companyId: context.companyId,
-      unipileAccountId: { in: accounts.map(({ unipileAccountId }) => unipileAccountId) },
-      synthetic: false,
-    },
-    data: { synthetic: true },
-  });
-
   for (const [index, account] of accounts.entries()) {
     const accountTimeline = SYNTHETIC_SEED_TIMELINE.connectedAccount(index);
     const data = {
@@ -189,7 +180,6 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       userId: context.userId,
       provider: account.provider,
       status: "ok" as const,
-      synthetic: true,
       hasMessaging: true,
       hasCalendar: account.hasCalendar,
       emailAddress: account.emailAddress,

@@ -663,10 +663,7 @@ export class PrismaMessagingRepo
 
   async findThreadForResyncOrThrow(threadId: string) {
     const row = await this.prisma.messagingThread.findFirstOrThrow({
-      where: {
-        id: threadId,
-        ...threadAccessWhere(this.companyId, this.userId),
-      },
+      where: { id: threadId, ...threadAccessWhere(this.companyId, this.userId) },
       select: {
         id: true,
         unipileThreadId: true,
@@ -674,9 +671,7 @@ export class PrismaMessagingRepo
         provider: true,
         type: true,
         companyId: true,
-        connectedAccount: {
-          select: { unipileAccountId: true, emailAddress: true, sentFolderIds: true, synthetic: true },
-        },
+        connectedAccount: { select: { unipileAccountId: true, emailAddress: true, sentFolderIds: true } },
       },
     });
 
@@ -684,7 +679,6 @@ export class PrismaMessagingRepo
 
     return {
       ...rest,
-      synthetic: connectedAccount.synthetic,
       unipileAccountId: connectedAccount.unipileAccountId,
       emailAddress: connectedAccount.emailAddress,
       sentFolderIds: connectedAccount.sentFolderIds,
@@ -1037,7 +1031,6 @@ export class PrismaMessagingRepo
       where: {
         id: args.messageId,
         companyId: this.companyId,
-        connectedAccount: { is: { synthetic: false } },
         thread: threadAccessWhere(this.companyId, this.userId),
       },
       select: {
