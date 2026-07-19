@@ -125,7 +125,7 @@ const textNode = z
       "ui",
     ]),
     text: z.string(),
-    size: z.enum(["product", "social"]).default("product"),
+    size: z.enum(["product", "social", "social-hero"]).default("product"),
     maxLines: z.number().int().min(1).max(6).optional(),
     caret: z.boolean().optional(),
   })
@@ -144,7 +144,7 @@ const badgeNode = z
       "outline",
     ]),
     text: z.string(),
-    size: z.enum(["product", "social"]).default("product"),
+    size: z.enum(["product", "social", "social-hero"]).default("product"),
   })
   .strict();
 
@@ -388,7 +388,7 @@ const statusSwapNode = z
         variant: z.enum(["success", "default", "secondary"]),
       })
       .strict(),
-    size: z.enum(["product", "social"]).default("product"),
+    size: z.enum(["product", "social", "social-hero"]).default("product"),
   })
   .strict();
 
@@ -400,7 +400,7 @@ const counterNode = z
     total: z.number().int().positive(),
     suffix: z.string().max(24).optional(),
     variant: z.enum(["secondary", "outline"]).default("secondary"),
-    size: z.enum(["product", "social"]).default("product"),
+    size: z.enum(["product", "social", "social-hero"]).default("product"),
     presentation: z.enum(["badge", "progress"]).default("badge"),
     label: z.string().min(1).max(16).optional(),
     completeLabel: z.string().min(1).max(16).optional(),

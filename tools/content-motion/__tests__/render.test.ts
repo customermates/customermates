@@ -240,6 +240,7 @@ const sceneComposition = {
                               type: "text",
                               role: "body",
                               text: "HubSpot sync",
+                              size: "social-hero",
                             },
                           ],
                         },
@@ -254,7 +255,7 @@ const sceneComposition = {
                           type: "statusSwap",
                           initial: { text: "Checking", variant: "secondary" },
                           updated: { text: "Healthy", variant: "success" },
-                          size: "social",
+                          size: "social-hero",
                         },
                       ],
                     },
@@ -719,8 +720,8 @@ describe("content motion kit", () => {
     expect(html).toContain("window.getProductScenes");
     expect(html).toContain("text-paint-clipped");
     expect(html).toContain("clipsX&&element.scrollWidth");
-    expect(html).toContain("h-9 px-3 py-1.5 text-[22px] leading-none");
-    expect(html).toContain("text-[23px]");
+    expect(html).toContain("h-11 px-4 py-2 text-[28px] leading-none");
+    expect(html).toContain("text-[28px]");
     expect(html).toContain("data-slot=table-cell]]:px-0");
     expect(html).toContain("absolute inset-0 flex items-center justify-end");
     expect(html).toContain("const switched=value>=.5");

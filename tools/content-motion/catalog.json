@@ -82,7 +82,7 @@
         "mono",
         "label"
       ],
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["static", "typing"]
     },
     {
@@ -98,7 +98,7 @@
         "info",
         "outline"
       ],
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["static"]
     },
     {
@@ -234,7 +234,7 @@
       "layer": "molecule",
       "nodeType": "statusSwap",
       "source": "components/ui/badge.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "states": ["initial", "updated", "transition"]
     },
     {
@@ -242,7 +242,7 @@
       "layer": "molecule",
       "nodeType": "counter",
       "source": "components/ui/badge.tsx",
-      "presentations": ["product", "social"],
+      "presentations": ["product", "social", "social-hero"],
       "variants": ["badge", "progress"],
       "states": ["initial", "counting", "complete"]
     },

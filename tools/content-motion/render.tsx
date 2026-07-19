@@ -56,6 +56,13 @@ type AssetRoots = Record<string, string>;
 type AssetMap = Record<string, { dataUri: string }>;
 
 const socialBadgeClassName = "h-9 px-3 py-1.5 text-[22px] leading-none";
+const socialHeroBadgeClassName = "h-11 px-4 py-2 text-[28px] leading-none";
+const badgeClassForSize = (size: "product" | "social" | "social-hero") =>
+  size === "social-hero"
+    ? socialHeroBadgeClassName
+    : size === "social"
+      ? socialBadgeClassName
+      : undefined;
 const tableColumnClassName = (
   align: "left" | "center" | "right" = "left",
   width: "narrow" | "standard" | "wide" | "fill" = "fill",
@@ -286,7 +293,7 @@ const renderNode = (
       label: "text-sm font-medium text-foreground",
       ui: "text-[22px] font-medium text-foreground",
     }[node.role];
-    const resolvedClasses = `${classes}${node.size === "social" ? " text-[22px]" : ""}`;
+    const resolvedClasses = `${classes}${node.size === "social-hero" ? " text-[28px]" : node.size === "social" ? " text-[22px]" : ""}`;
     const textStyle: React.CSSProperties | undefined = node.maxLines
       ? {
           display: "-webkit-box",
@@ -333,7 +340,7 @@ const renderNode = (
     return wrapper(
       node,
       <Badge
-        className={node.size === "social" ? socialBadgeClassName : undefined}
+        className={badgeClassForSize(node.size)}
         variant={node.variant}
       >
         {node.text}
@@ -532,8 +539,10 @@ const renderNode = (
       node,
       <Badge
         className={`${
-          node.size === "social"
-            ? "h-12 min-w-64 px-4 text-[22px]"
+          node.size === "social-hero"
+            ? "h-14 min-w-72 px-5 text-[28px]"
+            : node.size === "social"
+              ? "h-12 min-w-64 px-4 text-[22px]"
             : "h-9 min-w-48 px-3"
         } relative justify-between gap-4 overflow-hidden tabular-nums`}
         data-count-root={node.id}
@@ -565,7 +574,7 @@ const renderNode = (
     return wrapper(
       node,
       <Badge
-        className={node.size === "social" ? socialBadgeClassName : undefined}
+        className={badgeClassForSize(node.size)}
         variant={node.variant}
       >
         <span data-count-target={node.id}>{node.value}</span>
@@ -573,11 +582,12 @@ const renderNode = (
       </Badge>,
     );
   if (node.type === "statusSwap") {
-    const social = node.size === "social";
+    const social = node.size === "social" || node.size === "social-hero";
+    const statusClassName = badgeClassForSize(node.size);
     return wrapper(
       node,
       <div
-        className={social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}
+        className={node.size === "social-hero" ? "relative h-11 min-w-40" : social ? "relative h-9 min-w-32" : "relative h-5 min-w-20"}
         data-state-target={node.id}
       >
         <span
@@ -585,7 +595,7 @@ const renderNode = (
           data-state-initial
         >
           <Badge
-            className={social ? socialBadgeClassName : undefined}
+            className={statusClassName}
             variant={node.initial.variant}
           >
             {node.initial.text}
@@ -596,7 +606,7 @@ const renderNode = (
           data-state-updated
         >
           <Badge
-            className={social ? socialBadgeClassName : undefined}
+            className={statusClassName}
             variant={node.updated.variant}
           >
             {node.updated.text}
@@ -690,7 +700,7 @@ const renderNode = (
         <Table
           className={
             socialHero
-              ? "text-[23px] [&_[data-slot=table-cell]]:h-[72px] [&_[data-slot=table-cell]]:px-0 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-14 [&_[data-slot=table-head]]:px-0 [&_[data-slot=table-head]]:text-[22px]"
+              ? "text-[28px] [&_[data-slot=table-cell]]:h-[76px] [&_[data-slot=table-cell]]:px-0 [&_[data-slot=table-cell]]:py-3 [&_[data-slot=table-head]]:h-14 [&_[data-slot=table-head]]:px-0 [&_[data-slot=table-head]]:text-[28px]"
               : social
               ? "text-[22px] [&_[data-slot=table-cell]]:px-5 [&_[data-slot=table-cell]]:py-4 [&_[data-slot=table-head]]:h-12 [&_[data-slot=table-head]]:px-5 [&_[data-slot=table-head]]:text-[22px]"
               : compact
