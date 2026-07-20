@@ -59,7 +59,7 @@ type AssetRoots = Record<string, string>;
 type AssetMap = Record<string, { dataUri: string }>;
 
 const socialBadgeClassName = "h-9 px-3 py-1.5 text-[22px] leading-none";
-const socialHeroBadgeClassName = "h-11 px-4 py-2 text-[28px] leading-none";
+const socialHeroBadgeClassName = "h-14 px-5 py-2.5 text-[28px] leading-none";
 const socialControlTypographyClassName = "text-[22px] leading-7 md:text-[22px]";
 const socialHeroControlTypographyClassName =
   "text-[28px] leading-9 md:text-[28px]";
@@ -273,6 +273,7 @@ const nodeAttributes = (
 ) => ({
   "data-cm-alignment": node.qa?.alignment,
   "data-cm-alignment-group": node.qa?.alignmentGroup,
+  "data-cm-height-group": node.qa?.heightGroup,
   "data-cm-allow-overlap": node.qa?.allowOverlapWith?.join(","),
   "data-cm-adaptive-height": node.layout?.adaptiveHeight
     ? JSON.stringify({
@@ -298,6 +299,7 @@ const nodeAttributes = (
   "data-cm-qa-box":
     node.qa?.allowOverlapWith ||
     node.qa?.alignmentGroup ||
+    node.qa?.heightGroup ||
     node.qa?.checkPadding ||
     node.qa?.insetParent
       ? "true"
@@ -724,7 +726,7 @@ const renderNode = (
       <div
         className={
           node.size === "social-hero"
-            ? "relative h-11 min-w-40"
+            ? "relative h-14 min-w-40"
             : social
               ? "relative h-9 min-w-32"
               : "relative h-5 min-w-20"
@@ -1290,6 +1292,7 @@ window.cmAuditLayout=()=>{
   const qaBoxes=boxes.filter((element)=>element.dataset.cmQaBox==='true'&&visible(element));
   for(let a=0;a<qaBoxes.length;a++)for(let b=a+1;b<qaBoxes.length;b++){const first=qaBoxes[a],second=qaBoxes[b];if(first.contains(second)||second.contains(first))continue;const allowed=new Set([...(first.dataset.cmAllowOverlap||'').split(','),...(second.dataset.cmAllowOverlap||'').split(',')]);if(allowed.has(first.dataset.cmId)||allowed.has(second.dataset.cmId))continue;const x=first.getBoundingClientRect(),y=second.getBoundingClientRect();const overlap=Math.min(x.right,y.right)-Math.max(x.left,y.left)>tolerance&&Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top)>tolerance;if(overlap)findings.push({code:'unexpected-overlap',ids:[first.dataset.cmId,second.dataset.cmId]});}
   const groups=new Map();for(const element of qaBoxes){const group=element.dataset.cmAlignmentGroup;if(!group)continue;const key=group+':'+(element.dataset.cmAlignment||'left');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(element);}for(const [key,members] of groups){if(members.length<2)continue;const axis=key.split(':').at(-1);const rails=members.map((element)=>{const rect=element.getBoundingClientRect();return axis==='right'?rect.right:axis==='center'?rect.left+rect.width/2:rect.left});if(Math.max(...rails)-Math.min(...rails)>2)findings.push({code:'alignment-drift',group:key,ids:members.map((element)=>element.dataset.cmId)});}
+  const heightGroups=new Map();for(const element of qaBoxes){const group=element.dataset.cmHeightGroup;if(!group)continue;if(!heightGroups.has(group))heightGroups.set(group,[]);heightGroups.get(group).push(element);}for(const [group,members] of heightGroups){if(members.length<2)continue;const heights=members.map((element)=>element.getBoundingClientRect().height);if(Math.max(...heights)-Math.min(...heights)>2)findings.push({code:'height-drift',group,ids:members.map((element)=>element.dataset.cmId),heights:heights.map((height)=>Math.round(height*10)/10)});}
   const controlGroups=new Map();for(const element of root.querySelectorAll('[data-cm-control-presentation]')){if(!visible(element))continue;const key=element.dataset.cmControlPresentation;if(!controlGroups.has(key))controlGroups.set(key,[]);controlGroups.get(key).push(element);}const controlMetrics=(element)=>{const style=getComputedStyle(element);return {height:element.offsetHeight,fontSize:parseFloat(style.fontSize)||0,lineHeight:parseFloat(style.lineHeight)||0,paddingLeft:parseFloat(style.paddingLeft)||0,paddingRight:parseFloat(style.paddingRight)||0};};for(const [presentation,members] of controlGroups){if(members.length<2)continue;const reference=controlMetrics(members[0]);for(const element of members.slice(1)){const metrics=controlMetrics(element),shared=['fontSize','lineHeight','paddingLeft','paddingRight'];const drift=shared.filter((key)=>Math.abs(metrics[key]-reference[key])>1);if(drift.length)findings.push({code:'control-metric-drift',presentation,id:element.dataset.cmControlId,reference:members[0].dataset.cmControlId,metrics:drift});}const single=members.filter((element)=>element.dataset.cmControlKind==='single-line');if(single.length>1){const height=controlMetrics(single[0]).height;for(const element of single.slice(1))if(Math.abs(controlMetrics(element).height-height)>1)findings.push({code:'control-height-drift',presentation,id:element.dataset.cmControlId,reference:single[0].dataset.cmControlId});}}
   for(const element of root.querySelectorAll('[data-cm-spacing-recipe]')){if(!visible(element))continue;const recipe=element.dataset.cmSpacingRecipe,component=element.dataset.cmComponent,expected={product:{field:8,grid:16,inline:12,stack:16},'social-form':{field:8,grid:24,inline:16,stack:24},'social-hero-form':{field:8,grid:24,inline:16,stack:24}}[recipe]?.[component];if(expected==null)continue;const actual=parseFloat(getComputedStyle(element).gap)||0;if(Math.abs(actual-expected)>1)findings.push({code:'spacing-recipe-drift',id:element.dataset.cmId,recipe,component,expected,actual});}
   for(const marker of root.querySelectorAll('[data-cm-focus-target]')){if(!visible(marker))continue;const holder=marker.closest('[data-cm-id]');const target=cmNode(marker.dataset.cmFocusTarget);if(!holder||!target){findings.push({code:'unknown-focus-target',id:holder?.dataset.cmId});continue;}const focus=holder.getBoundingClientRect(),rect=target.getBoundingClientRect();if(focus.left>rect.left+tolerance||focus.top>rect.top+tolerance||focus.right<rect.right-tolerance||focus.bottom<rect.bottom-tolerance)findings.push({code:'focus-misses-target',id:holder.dataset.cmId,target:marker.dataset.cmFocusTarget});}

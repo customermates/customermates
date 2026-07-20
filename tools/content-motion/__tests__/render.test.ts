@@ -256,6 +256,7 @@ const sceneComposition = {
                           initial: { text: "Checking", variant: "secondary" },
                           updated: { text: "Healthy", variant: "success" },
                           size: "social-hero",
+                          qa: { heightGroup: "compact-status" },
                         },
                       ],
                     },
@@ -889,8 +890,10 @@ describe("content motion kit", () => {
     expect(html).toContain("window.getProductScenes");
     expect(html).toContain("text-paint-clipped");
     expect(html).toContain("clipsX&&element.scrollWidth");
-    expect(html).toContain("h-11 px-4 py-2 text-[28px] leading-none");
+    expect(html).toContain("h-14 px-5 py-2.5 text-[28px] leading-none");
     expect(html).toContain("text-[28px]");
+    expect(html).toContain('data-cm-height-group="compact-status"');
+    expect(html).toContain("height-drift");
     expect(html).toContain("control-metric-drift");
     expect(html).toContain("control-height-drift");
     expect(html).toContain("height:element.offsetHeight");
