@@ -27,10 +27,10 @@ Please make sure to go through the [documentation](https://customermates.com/doc
 
 5. **Test Locally:** Test your changes locally to ensure they work as expected.
 
-6. **Commit Changes:** Commit your changes with a clear and concise commit message.
+6. **Commit Changes:** Commit your changes using a Conventional Commit header.
 
    ```shell
-   git commit -m "Add your detailed description here"
+   git commit -m "feat(contacts): import contacts from a csv file"
    ```
 
 7. **Push Changes:** Push your changes to your forked repository.
@@ -39,20 +39,29 @@ Please make sure to go through the [documentation](https://customermates.com/doc
    git push origin your-branch-name
    ```
 
-8. **Create a Pull Request:** Go to the original Customermates repository and create a pull request. Please provide a detailed description of your changes and target the correct base branch according to the branch policy below. Submitting a PR means you agree to the [CLA](./CLA.md).
+8. **Create a Pull Request:** Open a pull request against `main` in the Customermates repository. Use a Conventional Commit header as the pull-request title and fill in every required description section. Submitting a pull request means you agree to the [CLA](./CLA.md).
 
-9. **Code Review:** Your pull request will undergo a code review.
+9. **Code Review:** Your pull request runs the automated checks and is reviewed by a Code Owner.
 
-10. **Merge:** Once approved, maintainers will merge your pull request into the main repository.
+10. **Merge:** Once the checks pass and the review is approved, the pull request is squash-merged into `main` and its branch is deleted automatically.
 
-## Commit Message Convention
+## Branch Policy
 
-This repository enforces Conventional Commits via commit linting.
+Customermates uses a main-only integration model:
 
-Use commit messages in this format:
+- `main` is the only long-lived branch and always holds the latest stable state. There is no integration or release branch.
+- Every change arrives through a pull request that targets `main`. Direct pushes, force pushes, and branch deletion are blocked for everyone.
+- Pull requests are squash-merged, and the branch is deleted automatically afterwards.
+
+Branch names use `<type>/<lowercase-kebab-case-description>`, for example `feat/contact-import`, `fix/oauth-callback`, or `sandbox/customer-demo`. The permitted types are `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, and `test`, plus `sandbox` for throwaway exploration.
+
+## Commit, Title, and Description Conventions
+
+Commit headers and the pull-request title both use the Conventional Commit format:
 
 ```text
 type(scope): short summary
+type: short summary
 ```
 
 Examples:
@@ -61,17 +70,32 @@ Examples:
 - `fix(api): handle missing webhook signature`
 - `docs: update self-hosting setup instructions`
 
-If you add a commit body or footer, separate it from the subject with a blank line.
+The header is at most 100 characters, the scope is lowercase, the summary starts in lowercase, and it carries no trailing period. If you add a commit body or footer, separate it from the subject with a blank line.
 
-## Branch Policy
+Every pull-request description must contain these sections, in this order:
 
-Customermates uses a main-only integration model:
+```text
+## Summary
+## Context
+## Validation
+## Impact and rollback
+```
 
-- `main` is the stable release branch.
-- All changes arrive through a pull request from a conventional branch such as `feat/contact-import`, `fix/oauth-callback`, or `sandbox/customer-demo`.
-- Open pull requests against `main`.
+The organization pull-request template pre-fills them, so open the pull request and replace the guidance text.
 
-Branch protection and automated checks enforce the merge policy.
+Because every pull request is squash-merged, avoid updating your branch with a merge commit — the generated `Merge branch main into …` header does not satisfy the convention. Rebase onto `main` instead.
+
+### Automatic Validation
+
+Formatting is checked for you: local commit linting enforces the commit header, and the shared `repository-policy` check re-validates the branch name, every commit header, the pull-request title, and the required description sections on each pull request. A pull request cannot merge until that check and the repository CI both pass.
+
+## Review and Approval
+
+Reviews follow the Code Owners listed in [CODEOWNERS](./CODEOWNERS):
+
+- A pull request from an external contributor, or from anyone who is not a Code Owner, requires an approving review from a Code Owner.
+- A Code Owner does not need a second person to approve their own pull request.
+- In every case, all CI and policy checks still apply, and no one can merge a pull request whose checks are failing or whose conversations are unresolved.
 
 ## Architecture Conventions
 
@@ -82,4 +106,4 @@ Customermates is **backend-first**: every read and write goes through an interac
 
 ## Reporting Issues
 
-If you face any issues or have suggestions, please feel free to [create an issue on Customermates' GitHub repository](https://github.com/customermates/customermates/issues/new). Please provide as much detail as possible.
+GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md) — never through a public channel.
