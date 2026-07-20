@@ -199,6 +199,23 @@ describe("editor markdown round-trip", () => {
     );
   });
 
+  it("escapes a backslash in an image src so it cannot terminate the destination early", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "image", attrs: { src: "https://example.com/a\\)b.png", alt: "x", title: null } }],
+        },
+      ],
+    };
+
+    const reparsed = JSON.parse(JSON.stringify(parseMarkdownToJSON(serializeJSONToMarkdown(doc))));
+
+    expect(reparsed.content[0].content[0].type).toBe("image");
+    expect(reparsed.content[0].content[0].attrs.src).toContain(")b.png");
+  });
+
   it("keeps an image whose src contains a space instead of degrading it to text", () => {
     const md = "![a](<https://example.com/two words.png>)";
     const reparsed = JSON.stringify(parseMarkdownToJSON(roundTrip(md)));

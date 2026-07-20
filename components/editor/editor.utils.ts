@@ -194,11 +194,16 @@ const markdownSerializer = new MarkdownSerializer(
       state.text(node.text ?? "");
     },
     image: (state, node) => {
+      const escapeWithBackslash = (value: string, specials: RegExp) =>
+        value.replace(/\\/g, "\\\\").replace(specials, "\\$&");
+
       const alt = state.esc((node.attrs.alt as string) || "");
       const rawSrc = (node.attrs.src as string) || "";
       const srcNeedsAngleBrackets = /\s/.test(rawSrc);
-      const src = srcNeedsAngleBrackets ? `<${rawSrc.replace(/[<>]/g, "\\$&")}>` : rawSrc.replace(/[()]/g, "\\$&");
-      const title = node.attrs.title ? ` "${(node.attrs.title as string).replace(/"/g, '\\"')}"` : "";
+      const src = srcNeedsAngleBrackets
+        ? `<${escapeWithBackslash(rawSrc, /[<>]/g)}>`
+        : escapeWithBackslash(rawSrc, /[()]/g);
+      const title = node.attrs.title ? ` "${escapeWithBackslash(node.attrs.title as string, /"/g)}"` : "";
       state.write(`![${alt}](${src}${title})`);
     },
     table: (state, node) => {
