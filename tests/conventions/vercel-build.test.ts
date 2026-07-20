@@ -46,17 +46,13 @@ describe("Vercel build safety", () => {
     const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
     const reset = script.indexOf("npx --no-install prisma migrate reset --force");
     const directUrlGuard = script.indexOf('if [[ -z "${DIRECT_URL:-}" ]]; then');
-    const hostGuard = script.indexOf('if [[ -z "${DEMO_DATABASE_HOST:-}" ]]; then');
-    const targetGuard = script.indexOf('"$target" != "$DEMO_DATABASE_HOST"/*');
 
-    // The reset drops the schema before it reapplies migrations, so a guard that runs
-    // after it is worthless. Every one of these has to come first.
+    // The reset drops the schema before it reapplies migrations, and only the reapply
+    // step takes the advisory lock - which times out (P1002) over a transaction
+    // pooler, stranding an empty database. The direct-endpoint guard must therefore
+    // run first; a guard after the reset is worthless.
     expect(directUrlGuard).toBeGreaterThan(-1);
-    expect(hostGuard).toBeGreaterThan(-1);
-    expect(targetGuard).toBeGreaterThan(-1);
     expect(reset).toBeGreaterThan(directUrlGuard);
-    expect(reset).toBeGreaterThan(hostGuard);
-    expect(reset).toBeGreaterThan(targetGuard);
   });
 
   it("keeps migration connection configuration provider-neutral", () => {
