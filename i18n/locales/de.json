@@ -1772,6 +1772,7 @@
       "pro": "Pro",
       "starter": "Starter"
     },
+    "planStatusLabel": "{plan} · {status}",
     "quantity": "Aktive Plätze",
     "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",

@@ -1772,6 +1772,7 @@
       "pro": "Pro",
       "starter": "Starter"
     },
+    "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
     "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",

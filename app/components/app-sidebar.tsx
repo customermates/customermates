@@ -2,7 +2,7 @@
 
 import type { ExtendedUser } from "@/features/user/user.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-import type { SubscriptionStatus } from "@/generated/prisma";
+import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
@@ -40,6 +40,7 @@ import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { EntityType } from "@/generated/prisma";
 
 import { NavHeader } from "./navigation/nav-header";
+import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
 import { NavSecondary } from "./navigation/nav-secondary";
@@ -77,6 +78,7 @@ export const AppSidebar = observer(
     const { resolvedTheme, setTheme } = useTheme();
     const openEntity = useOpenEntity();
     const subscriptionStatus = subscription?.status ?? null;
+    const subscriptionPlan = subscription?.plan ?? null;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
     const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
@@ -255,8 +257,10 @@ export const AppSidebar = observer(
 
     if (isDocsRoute) return null;
 
+    const isCloudHosted = rootStore.appMode !== "self-hosted";
     const planSubtitle = buildPlanSubtitle(
-      rootStore.appMode !== "self-hosted" ? subscriptionStatus : null,
+      isCloudHosted ? subscriptionStatus : null,
+      isCloudHosted ? subscriptionPlan : null,
       trialDaysLeft,
       emailVerified,
       t,
@@ -371,6 +375,7 @@ function AddPickerDrawer({
 
 function buildPlanSubtitle(
   status: SubscriptionStatus | null,
+  plan: SubscriptionPlan | null,
   trialDaysLeft: number | null,
   emailVerified: boolean | null,
   t: (key: string, values?: Record<string, string | number>) => string,
@@ -390,39 +395,15 @@ function buildPlanSubtitle(
     </button>
   );
 
-  const planChip = (() => {
-    if (!status) return null;
-
-    if (status === "active") {
-      return chipButton(
-        "/company/subscription",
-        <AppChip className="h-[16px] px-1 text-[10px]" variant="success">
-          {t("Subscription.status.active")}
+  const planModel = resolvePlanChip({ status, plan, trialDaysLeft }, t);
+  const planChip = planModel
+    ? chipButton(
+        planModel.href,
+        <AppChip className="h-[16px] px-1 text-[10px]" variant={planModel.variant}>
+          {planModel.label}
         </AppChip>,
-      );
-    }
-
-    if (status === "trial") {
-      const text =
-        trialDaysLeft != null
-          ? t("Subscription.status.trialDaysLeft", { days: trialDaysLeft })
-          : t("Subscription.status.trial");
-      const variant = trialDaysLeft != null && trialDaysLeft <= 3 ? "warning" : "success";
-      return chipButton(
-        "/company/subscription",
-        <AppChip className="h-[16px] px-1 text-[10px]" variant={variant}>
-          {text}
-        </AppChip>,
-      );
-    }
-
-    return chipButton(
-      "/company/subscription",
-      <AppChip className="h-[16px] px-1 text-[10px]" variant="destructive">
-        {t(`Subscription.status.${status}`)}
-      </AppChip>,
-    );
-  })();
+      )
+    : null;
 
   const verificationChip =
     emailVerified === false
