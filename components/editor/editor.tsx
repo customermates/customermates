@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { baseExtensions } from "./editor-extensions";
+import { findPastedImageUrl } from "./image-extension";
 import { parseMarkdownToJSON } from "./editor.utils";
 import { calculateMenuPosition } from "./editor-positioning.utils";
 
@@ -96,6 +97,13 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
           "tiptap prose prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
       },
       handlePaste: (view, event) => {
+        const pastedImageUrl = findPastedImageUrl(event.clipboardData);
+        if (pastedImageUrl) {
+          const image = view.state.schema.nodes.image.create({ src: pastedImageUrl });
+          view.dispatch(view.state.tr.replaceSelectionWith(image));
+          return true;
+        }
+
         const text = event.clipboardData?.getData("text/plain");
         if (!text || event.clipboardData?.types.includes("text/html")) return false;
 

@@ -133,7 +133,7 @@
   table {
     border-collapse: collapse;
     margin: 0.75rem 0;
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
 
     td,
@@ -173,5 +173,11 @@
     &.ProseMirror-selectednode {
       outline: 2px solid var(--primary);
     }
+  }
+
+  .editor-image-fallback {
+    color: var(--primary);
+    text-decoration: underline;
+    word-break: break-all;
   }
 }

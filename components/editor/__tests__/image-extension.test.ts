@@ -1,0 +1,71 @@
+import { describe, it, expect } from "vitest";
+
+import { findPastedImageUrl, isImageUrl } from "../image-extension";
+
+class FakeClipboard {
+  private readonly data: Record<string, string>;
+
+  constructor(data: Record<string, string>) {
+    this.data = data;
+  }
+
+  getData(type: string): string {
+    return this.data[type] ?? "";
+  }
+}
+
+const clipboard = (data: Record<string, string>) => new FakeClipboard(data) as unknown as DataTransfer;
+
+describe("isImageUrl", () => {
+  it.each([
+    "https://example.com/a.png",
+    "http://example.com/a.JPEG",
+    "https://example.com/a.svg?v=2",
+    "https://cdn.example.com/path/to/a.webp",
+  ])("accepts %s", (value) => {
+    expect(isImageUrl(value)).toBe(true);
+  });
+
+  it.each(["https://example.com/page", "javascript:alert(1)", "/relative/a.png", "not a url", ""])(
+    "rejects %s",
+    (value) => {
+      expect(isImageUrl(value)).toBe(false);
+    },
+  );
+});
+
+describe("findPastedImageUrl", () => {
+  it("takes the src of an image copied from a web page", () => {
+    const html = '<meta charset="utf-8"><img src="https://example.com/copied.png" alt="copied">';
+
+    expect(findPastedImageUrl(clipboard({ "text/html": html }))).toBe("https://example.com/copied.png");
+  });
+
+  it("ignores an image with a relative src that would not load", () => {
+    expect(findPastedImageUrl(clipboard({ "text/html": '<img src="/local/a.png">' }))).toBeNull();
+  });
+
+  it("falls back to a uri-list entry that points at an image", () => {
+    const uriList = "# comment\nhttps://example.com/from-uri-list.gif";
+
+    expect(findPastedImageUrl(clipboard({ "text/uri-list": uriList }))).toBe("https://example.com/from-uri-list.gif");
+  });
+
+  it("treats a bare image url pasted as text as an image", () => {
+    expect(findPastedImageUrl(clipboard({ "text/plain": "https://example.com/bare.png" }))).toBe(
+      "https://example.com/bare.png",
+    );
+  });
+
+  it("leaves ordinary pasted text alone", () => {
+    expect(findPastedImageUrl(clipboard({ "text/plain": "just some notes" }))).toBeNull();
+  });
+
+  it("leaves a non-image link alone so it stays a link", () => {
+    expect(findPastedImageUrl(clipboard({ "text/plain": "https://example.com/article" }))).toBeNull();
+  });
+
+  it("returns null when there is no clipboard", () => {
+    expect(findPastedImageUrl(null)).toBeNull();
+  });
+});
