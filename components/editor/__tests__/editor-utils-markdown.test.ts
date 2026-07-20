@@ -199,6 +199,33 @@ describe("editor markdown round-trip", () => {
     );
   });
 
+  it.each(["a|b", "a\\b", "a\\|b", "back\\slash and | pipe"])("round-trips cell text %j", (text) => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "table",
+          content: [
+            {
+              type: "tableRow",
+              content: [
+                { type: "tableHeader", content: [{ type: "paragraph", content: [{ type: "text", text: "H" }] }] },
+              ],
+            },
+            {
+              type: "tableRow",
+              content: [{ type: "tableCell", content: [{ type: "paragraph", content: [{ type: "text", text }] }] }],
+            },
+          ],
+        },
+      ],
+    };
+
+    const back = JSON.parse(JSON.stringify(parseMarkdownToJSON(serializeJSONToMarkdown(doc))));
+
+    expect(back.content[0].content[1].content[0].content[0].content[0].text).toBe(text);
+  });
+
   it("escapes a backslash in an image src so it cannot terminate the destination early", () => {
     const doc = {
       type: "doc",
