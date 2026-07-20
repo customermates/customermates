@@ -2,6 +2,7 @@ import type { SubscriptionService } from "./subscription.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
+import { headers } from "next/headers";
 import { Resource, Action, SubscriptionPlan } from "@/generated/prisma";
 
 import type { Subscription } from "@/generated/prisma";
@@ -11,6 +12,7 @@ import type { CountActiveUsersRepo } from "@/features/user/count-active-users.re
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 
@@ -42,7 +44,9 @@ export class CreateCheckoutSessionInteractor {
 
     const activeUsersCount = await this.userRepo.countActiveUsers();
 
-    const redirectUrl = `${env.BASE_URL}/company/subscription`;
+    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
+    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
+    const redirectUrl = `${baseUrl}/company/subscription`;
 
     const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
       variantId: planToVariant(data.plan),

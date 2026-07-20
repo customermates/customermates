@@ -11,7 +11,7 @@ import { env } from "@/env";
 export default async function CompanySubscriptionPage() {
   await requireAccess({ resource: Resource.company });
 
-  if (!env.CLOUD_HOSTED) redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
 

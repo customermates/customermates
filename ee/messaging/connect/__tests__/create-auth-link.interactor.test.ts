@@ -8,11 +8,22 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const request = vi.hoisted(() => ({ origin: "https://feat-inbox.customermates.com" }));
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: true } }));
+vi.mock("@/env", () => ({
+  env: {
+    ...MOCK_ENV_MODULE.env,
+    APP_MODE: "cloud",
+    AUTH_ALLOWED_HOSTS: ["customermates-git-feat-inbox-customermates.vercel.app", "*.customermates.com"],
+    BASE_URL: "https://customermates-git-feat-inbox-customermates.vercel.app",
+  },
+}));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: request.origin }),
+}));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
   getLocale: () => Promise.resolve("en"),
@@ -50,7 +61,10 @@ function makeInteractor(repo: ReturnType<typeof makeRepo>) {
 }
 
 describe("CreateAuthLinkInteractor", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    request.origin = "https://feat-inbox.customermates.com";
+  });
 
   it("blocks starter plan with messagingRequiresPro", async () => {
     const repo = makeRepo({ status: "active", trialEndDate: null, plan: "starter" });
@@ -72,6 +86,33 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(result.redirect).toBe("https://auth.example.com/link");
     expect(messagingService.createAuthLink).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns from hosted auth to the validated Preview vanity origin", async () => {
+    const repo = makeRepo({ status: "active", trialEndDate: null, plan: "pro", activeAccountsForUser: 0 });
+    const { interactor, messagingService } = makeInteractor(repo);
+
+    await interactor.invoke({ channel: "google" });
+
+    expect(messagingService.createAuthLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
+      }),
+    );
+  });
+
+  it("falls back to the stable branch origin for an untrusted request origin", async () => {
+    request.origin = "https://attacker.example";
+    const repo = makeRepo({ status: "active", trialEndDate: null, plan: "pro", activeAccountsForUser: 0 });
+    const { interactor, messagingService } = makeInteractor(repo);
+
+    await interactor.invoke({ channel: "google" });
+
+    expect(messagingService.createAuthLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/profile/connected-accounts",
+      }),
+    );
   });
 
   it("blocks a pro plan at its included cap with upgradeToBusinessForMoreAccounts", async () => {
@@ -142,7 +183,7 @@ describe("CreateAuthLinkInteractor", () => {
 
   it("blocks self-hosted with messagingRequiresCloud before any subscription lookup", async () => {
     vi.resetModules();
-    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: false } }));
+    vi.doMock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "self-hosted" } }));
     vi.doMock("@/core/di", () => createMockDiModule(() => mockUser));
     vi.doMock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
     vi.doMock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);

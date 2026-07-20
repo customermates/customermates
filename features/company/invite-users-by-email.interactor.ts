@@ -5,6 +5,7 @@ import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or
 import { z } from "zod";
 
 import { createElement } from "react";
+import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
@@ -13,6 +14,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 
@@ -45,7 +47,9 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const user = getTenantUser();
     const tokenResult = await this.getOrCreateInviteToken.invoke();
 
-    const inviteLink = `${env.BASE_URL}/invitation/${tokenResult.data.token}`;
+    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
+    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
+    const inviteLink = `${baseUrl}/invitation/${tokenResult.data.token}`;
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();

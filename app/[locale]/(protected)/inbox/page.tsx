@@ -25,7 +25,7 @@ type Props = {
 export default async function InboxPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (!env.CLOUD_HOSTED) redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
   const locked = !getEntitlements(subscriptionResult.data.plan).messaging;

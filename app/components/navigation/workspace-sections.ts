@@ -1,4 +1,5 @@
 import { Resource } from "@/generated/prisma";
+import type { AppMode } from "@/core/config/environment";
 
 export type WorkspaceSection = "profile" | "company";
 
@@ -33,10 +34,11 @@ export const WORKSPACE_SECTIONS: Record<WorkspaceSection, WorkspaceSubroute[]> =
 
 export function visibleSubroutes(
   section: WorkspaceSection,
-  isCloudHosted: boolean,
+  appMode: AppMode,
   canAccess: (resource: Resource) => boolean,
 ): WorkspaceSubroute[] {
   return WORKSPACE_SECTIONS[section].filter(
-    (subroute) => (isCloudHosted || !subroute.cloudOnly) && (!subroute.resource || canAccess(subroute.resource)),
+    (subroute) =>
+      (appMode !== "self-hosted" || !subroute.cloudOnly) && (!subroute.resource || canAccess(subroute.resource)),
   );
 }

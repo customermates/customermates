@@ -3,6 +3,7 @@ import type { Redirect } from "@/features/auth/auth-outcome";
 import type { SubscriptionStatus } from "@/generated/prisma";
 import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscription/entitlement.service";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -12,6 +13,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { createZodError } from "@/core/validation/validation.utils";
+import { resolveRequestOrigin } from "@/core/config/environment";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
@@ -63,7 +65,8 @@ export class CreateAuthLinkInteractor extends UserAccessor {
       return { ok: false, error: createZodError(t(denial.key)), code: denial.code };
     }
 
-    const baseUrl = env.BASE_URL.replace(/\/+$/, "");
+    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
+    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
     const state = signHostedAuthState(this.userId);
     const expiresOn = new Date(Date.now() + HOSTED_AUTH_EXPIRY_MINUTES * 60_000).toISOString();
 

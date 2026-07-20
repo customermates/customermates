@@ -82,7 +82,12 @@ export class AuthService {
     try {
       const res = await auth.api.signInEmail({
         headers: await headers(),
-        body: { ...args, callbackURL: args.callbackURL ?? env.BASE_URL },
+        body: {
+          email: args.email,
+          password: args.password,
+          rememberMe: args.rememberMe,
+          ...(args.callbackURL ? { callbackURL: args.callbackURL } : {}),
+        },
       });
 
       return { ok: true, user: res.user } as const;
@@ -171,11 +176,20 @@ export class AuthService {
     callbackURL?: string;
     errorCallbackURL?: string;
   }) {
+    const requestHeaders = await headers();
+    const requestOrigin = requestHeaders.get("origin") ?? env.BASE_URL;
+    const request = new Request(new URL("/api/auth/sign-in/social", requestOrigin), {
+      method: "POST",
+      headers: requestHeaders,
+    });
+
     const res = await auth.api.signInSocial({
-      headers: await headers(),
+      request,
+      headers: requestHeaders,
+      asResponse: false,
       body: {
-        ...args,
-        callbackURL: args.callbackURL ?? env.BASE_URL,
+        provider: args.provider,
+        callbackURL: args.callbackURL ?? "/",
         errorCallbackURL: args.errorCallbackURL ?? "/auth/signin",
       },
     });

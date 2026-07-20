@@ -10,7 +10,7 @@ import {
 
 const mockUser = createMockUser();
 
-vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, CLOUD_HOSTED: true } }));
+vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" } }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);

@@ -8,6 +8,10 @@ export default defineConfig({
     environment: "node",
     include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
     exclude: ["node_modules", ".next", "generated"],
+    env: {
+      APP_MODE: "self-hosted",
+      BASE_URL: "http://localhost:4000",
+    },
   },
   resolve: {
     alias: {

@@ -17,8 +17,8 @@ services:
       - postgres
     restart: unless-stopped
     environment:
+      APP_MODE: self-hosted
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      DATABASE_DIRECT_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       NODE_ENV: production
       BASE_URL: ${BASE_URL}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}

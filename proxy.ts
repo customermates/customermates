@@ -6,6 +6,8 @@ import createMiddleware from "next-intl/middleware";
 import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
+import { resolveRequestOrigin } from "./core/config/environment";
+import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 
 const intlMiddlewareRaw = createMiddleware(routing);
 
@@ -24,9 +26,20 @@ function hasSessionCookie(req: NextRequest): boolean {
   return cookieHeader.includes("app.session_token=");
 }
 
+function appendSetCookieHeaders(response: NextResponse, authResponse: Response): void {
+  const headers = authResponse.headers as Headers & {
+    getSetCookie?: () => string[];
+  };
+  const setCookies = headers.getSetCookie?.();
+
+  if (!setCookies) throw new Error("The runtime must support Headers.getSetCookie() for automatic demo authentication");
+
+  for (const cookie of setCookies) response.headers.append("set-cookie", cookie);
+}
+
 export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const base = env.BASE_URL;
+  const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
 
   const isApiRoute = pathname.startsWith("/api");
 
@@ -76,25 +89,29 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  if (env.DEMO_MODE) {
-    if (!env.DEMO_USER_EMAIL || !env.DEMO_USER_PASSWORD)
-      throw new Error("DEMO_USER_EMAIL and DEMO_USER_PASSWORD must be set when DEMO_MODE=true");
-
-    const isNonDemoUser = isAuthenticated && session?.user?.email !== env.DEMO_USER_EMAIL;
-
-    if (isNonDemoUser) await auth.api.signOut({ headers: req.headers });
+  if (env.APP_MODE === "demo") {
+    const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;
 
     if (isNonDemoUser || !isAuthenticated) {
-      await auth.api.signInEmail({
+      const signOutResponse = isNonDemoUser ? await auth.api.signOut({ headers: req.headers, asResponse: true }) : null;
+      const signInResponse = await auth.api.signInEmail({
         headers: req.headers,
         body: {
-          email: env.DEMO_USER_EMAIL,
-          password: env.DEMO_USER_PASSWORD,
+          email: SYNTHETIC_SEED_USER.email,
+          password: SYNTHETIC_SEED_USER.password,
           rememberMe: true,
         },
+        asResponse: true,
       });
 
-      isAuthenticated = true;
+      if (!signInResponse.ok) throw new Error("Automatic demo authentication failed");
+
+      // Authentication changes the request's cookie state. Redirect once so the
+      // protected route is rendered from a fresh request with the new session.
+      const response = NextResponse.redirect(req.nextUrl);
+      if (signOutResponse) appendSetCookieHeaders(response, signOutResponse);
+      appendSetCookieHeaders(response, signInResponse);
+      return response;
     }
   }
 

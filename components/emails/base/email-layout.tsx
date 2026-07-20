@@ -55,7 +55,7 @@ export function EmailLayout({ preview, title, children }: Props) {
                 © {year} Customermates · The agentic, open-source CRM
               </Text>
 
-              {env.NODE_ENV !== "production" || env.CLOUD_HOSTED ? (
+              {env.NODE_ENV !== "production" || env.APP_MODE !== "self-hosted" ? (
                 <Text className="mt-2 text-xs text-default-700">
                   <span>Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim, Germany · </span>
 

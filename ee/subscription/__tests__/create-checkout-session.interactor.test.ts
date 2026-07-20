@@ -9,10 +9,13 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const request = vi.hoisted(() => ({ origin: "https://feat-inbox.customermates.com" }));
 
 vi.mock("@/env", () => ({
   env: {
     ...MOCK_ENV_MODULE.env,
+    BASE_URL: "https://customermates-git-feat-inbox-customermates.vercel.app",
+    AUTH_ALLOWED_HOSTS: ["customermates-git-feat-inbox-customermates.vercel.app", "*.customermates.com"],
     LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
     LEMONSQUEEZY_VARIANT_ID_PRO: "2002",
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: "2003",
@@ -21,6 +24,9 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next/headers", () => ({
+  headers: () => new Headers({ origin: request.origin }),
+}));
 
 const { CreateCheckoutSessionInteractor } = await import("../create-checkout-session.interactor");
 
@@ -38,7 +44,10 @@ function makeSubscriptionService() {
   };
 }
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  request.origin = "https://feat-inbox.customermates.com";
+});
 
 describe("CreateCheckoutSessionInteractor", () => {
   it("creates a seat checkout for the selected plan with the active user count", async () => {
@@ -54,6 +63,20 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(args.variantId).toBe("2003");
     expect(args.quantity).toBe(4);
     expect(args.custom).toEqual({ company_id: mockUser.companyId });
+    expect(args.redirectUrl).toBe("https://feat-inbox.customermates.com/company/subscription");
+  });
+
+  it("falls back to the stable branch origin for an untrusted request origin", async () => {
+    request.origin = "https://attacker.example";
+    const repo = makeRepo();
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(subscriptionService as never, repo as never, repo as never);
+
+    await interactor.invoke({ plan: "business" } as never);
+
+    expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
+      "https://customermates-git-feat-inbox-customermates.vercel.app/company/subscription",
+    );
   });
 
   it("refuses a self-serve checkout for a manually billed enterprise workspace", async () => {

@@ -168,16 +168,11 @@ export default async function RootLayout({ children }: Props) {
       className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
       lang={displayLanguage}
     >
-      <head>
-        <link href="https://demo.customermates.com" rel="preconnect" />
-      </head>
-
       <body className="h-screen flex flex-col font-sans antialiased">
         <Providers
+          appMode={env.APP_MODE}
           defaultTheme={themeCookie}
           displayLanguage={displayLanguage}
-          isCloudHosted={env.CLOUD_HOSTED}
-          isDemoMode={env.DEMO_MODE}
           messages={messages}
         >
           <NavigationSwitch

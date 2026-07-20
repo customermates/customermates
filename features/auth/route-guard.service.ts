@@ -46,7 +46,7 @@ export class RouteGuardService {
     if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
       return redirectTo("/onboarding/wizard");
 
-    if (!options?.skipSubscriptionCheck && !env.DEMO_MODE) {
+    if (!options?.skipSubscriptionCheck && env.APP_MODE !== "demo") {
       const subRedirect = await this.checkSubscription(user.companyId);
       if (subRedirect) return subRedirect;
     }
