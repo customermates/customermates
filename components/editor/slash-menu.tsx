@@ -2,7 +2,19 @@
 
 import type { Editor } from "@tiptap/react";
 
-import { CheckCircle, List, ListOrdered, FileText, Minus, Quote, Heading1, Heading2 } from "lucide-react";
+import {
+  CheckCircle,
+  List,
+  ListOrdered,
+  FileText,
+  Minus,
+  Quote,
+  Heading1,
+  Heading2,
+  Table as TableIcon,
+  Image as ImageIcon,
+} from "lucide-react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 
@@ -77,6 +89,21 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
         icon: Minus,
         run: () => chain().setHorizontalRule().run(),
       },
+      {
+        key: "table",
+        title: t("Editor.table"),
+        icon: TableIcon,
+        run: () => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+      },
+      {
+        key: "image",
+        title: t("Editor.image"),
+        icon: ImageIcon,
+        run: () => {
+          const src = window.prompt(t("Editor.imageUrlPrompt"))?.trim();
+          if (src) chain().setImage({ src }).run();
+        },
+      },
     ];
   }, [editor, t]);
 
@@ -89,7 +116,9 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose, slashMenuRef]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       ref={slashMenuRef}
       className="fixed z-50 w-72 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
@@ -119,6 +148,7 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
           </CommandGroup>
         </CommandList>
       </Command>
-    </div>
+    </div>,
+    document.body,
   );
 }

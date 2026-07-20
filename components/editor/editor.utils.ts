@@ -1,7 +1,7 @@
 import markdownit from "markdown-it";
 // @ts-expect-error no type declarations available for markdown-it-task-lists
 import taskListsPlugin from "markdown-it-task-lists";
-import { MarkdownParser, MarkdownSerializer } from "prosemirror-markdown";
+import { MarkdownParser, MarkdownSerializer, MarkdownSerializerState } from "prosemirror-markdown";
 import { Node } from "@tiptap/pm/model";
 
 import { editorSchema } from "@/components/editor/editor-extensions";
@@ -15,7 +15,7 @@ type MdToken = {
   attrSet(name: string, value: string): void;
 };
 
-type MdState = { tokens: MdToken[] };
+type MdState = { tokens: MdToken[]; Token: new (type: string, tag: string, nesting: 1 | 0 | -1) => MdToken };
 
 function rewriteTaskListTokens(state: MdState) {
   const taskListStack: boolean[] = [];
@@ -56,9 +56,40 @@ function rewriteTaskListTokens(state: MdState) {
   }
 }
 
+function normalizeTableTokens(state: MdState) {
+  if (!state.tokens.some((token) => token.type === "table_open")) return;
+
+  const result: MdToken[] = [];
+
+  for (const token of state.tokens) {
+    if (
+      token.type === "thead_open" ||
+      token.type === "thead_close" ||
+      token.type === "tbody_open" ||
+      token.type === "tbody_close"
+    )
+      continue;
+
+    if (token.type === "th_open" || token.type === "td_open") {
+      result.push(token, new state.Token("paragraph_open", "p", 1));
+      continue;
+    }
+
+    if (token.type === "th_close" || token.type === "td_close") {
+      result.push(new state.Token("paragraph_close", "p", -1), token);
+      continue;
+    }
+
+    result.push(token);
+  }
+
+  state.tokens = result;
+}
+
 function createMarkdownParser() {
   const md = markdownit({ html: false }).use(taskListsPlugin);
   md.core.ruler.push("rewrite_task_list_tokens", rewriteTaskListTokens);
+  md.core.ruler.push("normalize_table_tokens", normalizeTableTokens);
 
   // @ts-expect-error markdown-it type mismatch between project @types/markdown-it and prosemirror-markdown bundled types
   return new MarkdownParser(editorSchema, md, {
@@ -83,6 +114,18 @@ function createMarkdownParser() {
     },
     code_inline: { mark: "code" },
     html_inline: { ignore: true },
+    image: {
+      node: "image",
+      getAttrs: (tok) => ({
+        src: tok.attrGet("src"),
+        alt: tok.children?.[0]?.content || null,
+        title: tok.attrGet("title") || null,
+      }),
+    },
+    table: { block: "table" },
+    tr: { block: "tableRow" },
+    th: { block: "tableHeader" },
+    td: { block: "tableCell" },
   });
 }
 
@@ -93,6 +136,12 @@ export function parseMarkdownToJSON(markdown: string): object {
   if (!doc) throw new Error("Failed to parse markdown");
   return doc.toJSON();
 }
+
+const InlineSerializerState = MarkdownSerializerState as unknown as new (
+  nodes: ConstructorParameters<typeof MarkdownSerializer>[0],
+  marks: ConstructorParameters<typeof MarkdownSerializer>[1],
+  options: Record<string, unknown>,
+) => { renderInline(node: Node): void; text(text: string, escape?: boolean): void; out: string };
 
 const markdownSerializer = new MarkdownSerializer(
   {
@@ -143,6 +192,66 @@ const markdownSerializer = new MarkdownSerializer(
     },
     text: (state, node) => {
       state.text(node.text ?? "");
+    },
+    image: (state, node) => {
+      const alt = state.esc((node.attrs.alt as string) || "");
+      const rawSrc = (node.attrs.src as string) || "";
+      const srcNeedsAngleBrackets = /\s/.test(rawSrc);
+      const src = srcNeedsAngleBrackets ? `<${rawSrc.replace(/[<>]/g, "\\$&")}>` : rawSrc.replace(/[()]/g, "\\$&");
+      const title = node.attrs.title ? ` "${(node.attrs.title as string).replace(/"/g, '\\"')}"` : "";
+      state.write(`![${alt}](${src}${title})`);
+    },
+    table: (state, node) => {
+      const serializeCellToSingleLine = (cell: Node) => {
+        const sub = new InlineSerializerState(markdownSerializer.nodes, markdownSerializer.marks, {});
+        const blockTexts: string[] = [];
+
+        cell.forEach((block) => {
+          const lengthBeforeBlock = sub.out.length;
+          if (block.isTextblock) sub.renderInline(block);
+          else sub.text(block.textContent);
+          blockTexts.push(sub.out.slice(lengthBeforeBlock));
+        });
+
+        return blockTexts
+          .join(" ")
+          .replace(/\\\n/g, " ")
+          .replace(/\n+/g, " ")
+          .replace(/\|/g, "\\|")
+          .replace(/\s+/g, " ")
+          .trim();
+      };
+
+      const rows: string[][] = [];
+      let columnCount = 0;
+
+      node.forEach((row) => {
+        const cells: string[] = [];
+        row.forEach((cell) => {
+          const spannedColumns = Math.max(1, (cell.attrs.colspan as number) || 1);
+          const text = serializeCellToSingleLine(cell);
+          for (let column = 0; column < spannedColumns; column++) cells.push(column === 0 ? text : "");
+        });
+        columnCount = Math.max(columnCount, cells.length);
+        rows.push(cells);
+      });
+      if (rows.length === 0) return;
+
+      const toLine = (row: string[]) =>
+        `| ${Array.from({ length: columnCount }, (_, i) => row[i] ?? "").join(" | ")} |`;
+      const separatorLine = `| ${Array.from({ length: columnCount }, () => "---").join(" | ")} |`;
+      const emptyHeaderLine = toLine(Array.from({ length: columnCount }, () => ""));
+
+      const firstRowIsHeader = node.firstChild?.firstChild?.type.name === "tableHeader";
+      const lines = firstRowIsHeader
+        ? [toLine(rows[0]), separatorLine, ...rows.slice(1).map(toLine)]
+        : [emptyHeaderLine, separatorLine, ...rows.map(toLine)];
+
+      lines.forEach((line, index) => {
+        if (index > 0) state.ensureNewLine();
+        state.write(line);
+      });
+      state.closeBlock(node);
     },
   },
   {

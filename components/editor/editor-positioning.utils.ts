@@ -34,6 +34,9 @@ export function calculateMenuPosition({
   if (top < 0 && spaceBelow > spaceAbove) top = cursorBottom + gap;
   else if (top < 0) top = gap;
 
+  if (top + menuHeight > viewportHeight) top = viewportHeight - menuHeight - gap;
+  if (top < 0) top = gap;
+
   let left = centered && cursorRight !== undefined ? (cursorLeft + cursorRight) / 2 - menuWidth / 2 : cursorLeft;
 
   if (left + menuWidth > viewportWidth) left = viewportWidth - menuWidth - gap;

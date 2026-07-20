@@ -4842,6 +4842,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-horizontal-rule/-/extension-horizontal-rule-3.19.0.tgz#0e77078fcd53beca786277ce83d259e2103cc361"
   integrity sha512-iqUHmgMGhMgYGwG6L/4JdelVQ5Mstb4qHcgTGd/4dkcUOepILvhdxajPle7OEdf9sRgjQO6uoAU5BVZVC26+ng==
 
+"@tiptap/extension-image@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-image/-/extension-image-3.19.0.tgz#995d49e229a4c3d5511ec506b616b084cd972c64"
+  integrity sha512-/rGl8nBziBPVJJ/9639eQWFDKcI3RQsDM3s+cqYQMFQfMqc7sQB9h4o4sHCBpmKxk3Y0FV/0NjnjLbBVm8OKdQ==
+
 "@tiptap/extension-italic@^3.19.0":
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-italic/-/extension-italic-3.19.0.tgz#af2a9c095ec846e379041f3e17e1dd101a5a4bf8"
@@ -4888,6 +4893,11 @@
   version "3.19.0"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-strike/-/extension-strike-3.19.0.tgz#eac7712cc791488f4c1c48baf3aed1a8d95f398c"
   integrity sha512-xYpabHsv7PccLUBQaP8AYiFCnYbx6P93RHPd0lgNwhdOjYFd931Zy38RyoxPHAgbYVmhf1iyx7lpuLtBnhS5dA==
+
+"@tiptap/extension-table@3.19.0":
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-table/-/extension-table-3.19.0.tgz#a5f9be88e319f60dc7b8df1321f95a31b20fe991"
+  integrity sha512-Lg8DlkkDUMYE/CcGOxoCWF98B2i7VWh+AGgqlF+XWrHjhlKHfENLRXm1a0vWuyyP3NknRYILoaaZ1s7QzmXKRA==
 
 "@tiptap/extension-task-item@^3.19.0":
   version "3.19.0"
@@ -5486,19 +5496,19 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-19.0.4.tgz#bedba97f9346bd4c0fe5d39e689713804ec9ac89"
   integrity sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg==
 
-"@types/react@*", "@types/react@19.0.10":
-  version "19.0.10"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-19.0.10.tgz#d0c66dafd862474190fe95ce11a68de69ed2b0eb"
-  integrity sha512-JuRQ9KXLEjaUNjTWpzuR231Z2WpIwczOkBEIvbHNCzQefFIT0L8IqE6NV6ULLyC1SI/i234JnDoMkfg+RjQj2g==
-  dependencies:
-    csstype "^3.0.2"
-
-"@types/react@18.3.3":
+"@types/react@*", "@types/react@18.3.3":
   version "18.3.3"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.3.3.tgz#9679020895318b0915d7a3ab004d92d33375c45f"
   integrity sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==
   dependencies:
     "@types/prop-types" "*"
+    csstype "^3.0.2"
+
+"@types/react@19.0.10":
+  version "19.0.10"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-19.0.10.tgz#d0c66dafd862474190fe95ce11a68de69ed2b0eb"
+  integrity sha512-JuRQ9KXLEjaUNjTWpzuR231Z2WpIwczOkBEIvbHNCzQefFIT0L8IqE6NV6ULLyC1SI/i234JnDoMkfg+RjQj2g==
+  dependencies:
     csstype "^3.0.2"
 
 "@types/recharts@^2.0.1":
@@ -11169,12 +11179,12 @@ markdown-extensions@^2.0.0:
   resolved "https://registry.yarnpkg.com/markdown-extensions/-/markdown-extensions-2.0.0.tgz#34bebc83e9938cae16e0e017e4a9814a8330d3c4"
   integrity sha512-o5vL7aDWatOTX8LzaS1WMoaoxIiLRQJuIKKe2wAw6IeULDHaqbiqiggmx+pKvZDb1Sj+pE46Sn1T7lCqfFtg1Q==
 
-markdown-it-task-lists@^2.1.1:
+markdown-it-task-lists@2.1.1, markdown-it-task-lists@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/markdown-it-task-lists/-/markdown-it-task-lists-2.1.1.tgz#f68f4d2ac2bad5a2c373ba93081a1a6848417088"
   integrity sha512-TxFAc76Jnhb2OUu+n3yz9RMu4CwGfaT788br6HhEDlvWfdeJcLUsxk1Hgw2yJio0OXsxv7pyIPmvECY7bMbluA==
 
-markdown-it@^14.0.0, markdown-it@^14.1.0:
+markdown-it@14.1.0, markdown-it@^14.0.0, markdown-it@^14.1.0:
   version "14.1.0"
   resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-14.1.0.tgz#3c3c5992883c633db4714ccb4d7b5935d98b7d45"
   integrity sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==
@@ -13088,7 +13098,7 @@ prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.2.2, prosemirror-keymap@^1.2.3:
     prosemirror-state "^1.0.0"
     w3c-keyname "^2.2.0"
 
-prosemirror-markdown@^1.11.1, prosemirror-markdown@^1.13.1:
+prosemirror-markdown@1.13.4, prosemirror-markdown@^1.11.1, prosemirror-markdown@^1.13.1:
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/prosemirror-markdown/-/prosemirror-markdown-1.13.4.tgz#4620e6a0580cd52b5fc8e352c7e04830cd4b3048"
   integrity sha512-D98dm4cQ3Hs6EmjK500TdAOew4Z03EV71ajEFiWra3Upr7diytJsjF4mPV2dW+eK5uNectiRj0xFxYI9NLXDbw==
