@@ -17,4 +17,4 @@ jobs:
       contents: read
       pull-requests: read
       statuses: write
-    uses: customermates/.github/.github/workflows/repository-policy.yml@33b086c450fb512493227ebb465bee15de792b2e
+    uses: customermates/.github/.github/workflows/repository-policy.yml@2af0536c426fd2f2d9353b63e97a5ddf8e639520
