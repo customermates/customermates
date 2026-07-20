@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { parseMarkdownToJSON, serializeJSONToMarkdown } from "../editor.utils";
+import { hasMarkdownBlockStructure, parseMarkdownToJSON, serializeJSONToMarkdown } from "../editor.utils";
 
 const roundTrip = (markdown: string) => serializeJSONToMarkdown(parseMarkdownToJSON(markdown));
 
@@ -249,5 +249,28 @@ describe("editor markdown round-trip", () => {
 
     expect(reparsed).toContain('"type":"image"');
     expect(reparsed).toContain("two%20words.png");
+  });
+});
+
+describe("hasMarkdownBlockStructure", () => {
+  it.each([
+    ["a table", "| a | b |\n| --- | --- |\n| c | d |"],
+    ["an image", "![alt](https://example.com/a.png)"],
+    ["a heading", "# Title"],
+    ["a bullet list", "- one\n- two"],
+    ["a task list", "- [ ] one"],
+    ["a code block", "```js\nconst a = 1;\n```"],
+    ["a blockquote", "> quoted"],
+    ["a horizontal rule", "---"],
+  ])("reports %s as markdown worth preferring over pasted html", (_label, markdown) => {
+    expect(hasMarkdownBlockStructure(parseMarkdownToJSON(markdown))).toBe(true);
+  });
+
+  it.each([
+    ["plain prose", "just some notes about the account"],
+    ["inline marks only", "**bold** and *italic* text"],
+    ["a bare link", "see https://example.com/article for details"],
+  ])("reports %s as ordinary text so pasted html still wins", (_label, markdown) => {
+    expect(hasMarkdownBlockStructure(parseMarkdownToJSON(markdown))).toBe(false);
   });
 });

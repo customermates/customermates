@@ -276,3 +276,33 @@ export function serializeJSONToMarkdown(json: object): string {
   const doc = Node.fromJSON(editorSchema, json);
   return markdownSerializer.serialize(doc);
 }
+
+const MARKDOWN_ONLY_BLOCK_TYPES = new Set([
+  "blockquote",
+  "bulletList",
+  "codeBlock",
+  "heading",
+  "horizontalRule",
+  "image",
+  "orderedList",
+  "table",
+  "taskList",
+]);
+
+export function hasMarkdownBlockStructure(json: object): boolean {
+  let found = false;
+
+  const walk = (node: { type?: string; content?: unknown[] }) => {
+    if (found || !node) return;
+    if (node.type && MARKDOWN_ONLY_BLOCK_TYPES.has(node.type)) {
+      found = true;
+      return;
+    }
+
+    for (const child of node.content ?? []) walk(child as { type?: string; content?: unknown[] });
+  };
+
+  walk(json as { type?: string; content?: unknown[] });
+
+  return found;
+}

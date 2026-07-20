@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 
 import { baseExtensions } from "./editor-extensions";
 import { findPastedImageUrl } from "./image-extension";
-import { parseMarkdownToJSON } from "./editor.utils";
+import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
 import { calculateMenuPosition } from "./editor-positioning.utils";
 
 import { BubbleMenu } from "./bubble-menu";
@@ -105,10 +105,13 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         }
 
         const text = event.clipboardData?.getData("text/plain");
-        if (!text || event.clipboardData?.types.includes("text/html")) return false;
+        if (!text) return false;
 
         try {
           const json = parseMarkdownToJSON(text);
+          const hasHtmlFlavour = event.clipboardData?.types.includes("text/html") ?? false;
+          if (hasHtmlFlavour && !hasMarkdownBlockStructure(json)) return false;
+
           const doc = view.state.schema.nodeFromJSON(json);
           const slice = new Slice(doc.content, 0, 0);
           view.dispatch(view.state.tr.replaceSelection(slice));
