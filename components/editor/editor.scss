@@ -139,7 +139,8 @@
     td,
     th {
       border: 1px solid var(--border);
-      padding: 0.375rem 0.5rem;
+      padding-block: 0.375rem;
+      padding-inline: 0.5rem;
       position: relative;
       vertical-align: top;
 
@@ -149,9 +150,17 @@
     }
 
     th {
-      background-color: var(--muted);
-      font-weight: 500;
+      background-color: transparent;
+      font-weight: inherit;
       text-align: left;
+
+      &:first-child {
+        padding-inline-start: 1em;
+      }
+
+      &:last-child {
+        padding-inline-end: 1em;
+      }
     }
 
     .selectedCell::after {
