@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Migrations need a direct (session-mode) connection: the advisory lock Prisma takes
+# is session-scoped and does not survive a transaction pooler, which times out as
+# P1002. DIRECT_URL is the provider-neutral override; when it is not set explicitly,
+# fall back to the unpooled URL the Neon integration provisions. The application
+# config (prisma.config.ts) stays provider-neutral - this shim exists only here.
+if [[ -z "${DIRECT_URL:-}" && -n "${DATABASE_URL_UNPOOLED:-}" ]]; then
+  export DIRECT_URL="$DATABASE_URL_UNPOOLED"
+fi
+
 # Host and database of the endpoint Prisma will actually migrate against, with the
 # scheme and credentials stripped off. Mirrors the precedence in prisma.config.ts:
 # DIRECT_URL wins, DATABASE_URL is the fallback.
@@ -25,9 +34,10 @@ if [[ "${VERCEL_ENV:-}" == "preview" && "${VERCEL_TARGET_ENV:-}" == "demo" && "$
   # while the database is still intact. VERCEL_ENV/VERCEL_TARGET_ENV/APP_MODE above are
   # only labels - none of them says anything about which database we are pointed at.
   if [[ -z "${DIRECT_URL:-}" ]]; then
-    echo "ERROR: DIRECT_URL is not set on the Demo environment." >&2
-    echo "Migrations take a session-scoped advisory lock, which does not survive a" >&2
-    echo "transaction pooler. Point DIRECT_URL at the unpooled Demo endpoint." >&2
+    echo "ERROR: no direct database endpoint on the Demo environment." >&2
+    echo "Neither DIRECT_URL nor DATABASE_URL_UNPOOLED is set, so the reset would run" >&2
+    echo "over the pooled endpoint, where the migration advisory lock times out (P1002)." >&2
+    echo "Set DIRECT_URL to the unpooled Demo endpoint, or restore the Neon integration." >&2
     exit 1
   fi
 
@@ -48,9 +58,9 @@ if [[ "${VERCEL_ENV:-}" == "preview" && "${VERCEL_TARGET_ENV:-}" == "demo" && "$
   npx --no-install tsx prisma/seed.ts
 else
   if [[ -z "${DIRECT_URL:-}" ]]; then
-    echo "WARNING: DIRECT_URL is not set; migrating over the DATABASE_URL endpoint." >&2
-    echo "If that endpoint is a transaction pooler, the advisory lock this takes can" >&2
-    echo "time out (P1002). Point DIRECT_URL at the unpooled endpoint." >&2
+    echo "WARNING: no direct database endpoint (DIRECT_URL / DATABASE_URL_UNPOOLED);" >&2
+    echo "migrating over the DATABASE_URL endpoint. If that is a transaction pooler," >&2
+    echo "the advisory lock this takes can time out (P1002)." >&2
   fi
   npx --no-install prisma migrate deploy
   if [[ "${VERCEL_ENV:-}" == "preview" ]]; then

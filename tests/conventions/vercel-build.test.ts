@@ -26,8 +26,20 @@ describe("Vercel build safety", () => {
     expect(preview).toBeGreaterThan(migrate);
     expect(previewSeed).toBeGreaterThan(preview);
     expect(build).toBeGreaterThan(previewSeed);
-    expect(script).not.toContain("DATABASE_URL_UNPOOLED");
     expect(script).not.toMatch(/unipile/i);
+  });
+
+  it("resolves a direct migration endpoint before touching any database", () => {
+    const script = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
+    // Prisma's migration advisory lock is session-scoped and does not survive a
+    // transaction pooler (P1002). DIRECT_URL stays the provider-neutral override;
+    // the unpooled fallback is a build-script shim only and must never leak into
+    // prisma.config.ts (asserted below).
+    const fallback = script.indexOf('export DIRECT_URL="$DATABASE_URL_UNPOOLED"');
+    const firstPrisma = script.indexOf("npx --no-install prisma");
+
+    expect(fallback).toBeGreaterThan(-1);
+    expect(firstPrisma).toBeGreaterThan(fallback);
   });
 
   it("fails closed before the destructive Demo reset", () => {
