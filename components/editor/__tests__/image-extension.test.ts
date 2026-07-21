@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { findPastedImageUrl, isImageUrl } from "../image-extension";
+import { findPastedImageUrl, isImageUrl, isSafeLinkHref } from "../image-extension";
 
 class FakeClipboard {
   private readonly data: Record<string, string>;
@@ -64,4 +64,25 @@ describe("findPastedImageUrl", () => {
   it("returns null when there is no clipboard", () => {
     expect(findPastedImageUrl(null)).toBeNull();
   });
+});
+
+describe("isSafeLinkHref", () => {
+  it.each([
+    "javascript:alert(1)",
+    "JaVaScRiPt:alert(1)",
+    "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+    "vbscript:msgbox(1)",
+    "file:///etc/passwd",
+    "/relative/path.png",
+    "",
+  ])("refuses to build a clickable fallback for %j", (src) => {
+    expect(isSafeLinkHref(src)).toBe(false);
+  });
+
+  it.each(["https://example.com/a.png", "http://example.com/broken", "https://example.com/x?y=1"])(
+    "allows a fallback link for %j",
+    (src) => {
+      expect(isSafeLinkHref(src)).toBe(true);
+    },
+  );
 });

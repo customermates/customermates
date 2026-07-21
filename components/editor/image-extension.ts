@@ -9,6 +9,10 @@ export function isImageUrl(value: string): boolean {
   return IMAGE_URL_PATTERN.test(candidate) && IMAGE_PATH_PATTERN.test(candidate);
 }
 
+export function isSafeLinkHref(value: string): boolean {
+  return IMAGE_URL_PATTERN.test(value.trim());
+}
+
 export function findPastedImageUrl(clipboard: DataTransfer | null): string | null {
   if (!clipboard) return null;
 
@@ -41,12 +45,22 @@ export const ImageWithLinkFallback = Image.extend({
       if (title) image.title = title;
 
       image.addEventListener("error", () => {
+        const label = alt || src;
+
+        if (!isSafeLinkHref(src)) {
+          const inert = document.createElement("span");
+          inert.className = "editor-image-fallback";
+          inert.textContent = label;
+          dom.replaceChildren(inert);
+          return;
+        }
+
         const fallback = document.createElement("a");
         fallback.className = "editor-image-fallback";
         fallback.href = src;
         fallback.rel = "noreferrer noopener";
         fallback.target = "_blank";
-        fallback.textContent = alt || src;
+        fallback.textContent = label;
         dom.replaceChildren(fallback);
       });
 
