@@ -35,14 +35,10 @@ describe("isImageUrl", () => {
 });
 
 describe("findPastedImageUrl", () => {
-  it("takes the src of an image copied from a web page", () => {
+  it("leaves html clipboards alone; the image extension's own parseHTML handles pasted <img> markup", () => {
     const html = '<meta charset="utf-8"><img src="https://example.com/copied.png" alt="copied">';
 
-    expect(findPastedImageUrl(clipboard({ "text/html": html }))).toBe("https://example.com/copied.png");
-  });
-
-  it("ignores an image with a relative src that would not load", () => {
-    expect(findPastedImageUrl(clipboard({ "text/html": '<img src="/local/a.png">' }))).toBeNull();
+    expect(findPastedImageUrl(clipboard({ "text/html": html }))).toBeNull();
   });
 
   it("falls back to a uri-list entry that points at an image", () => {

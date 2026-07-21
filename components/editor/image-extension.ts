@@ -9,17 +9,8 @@ export function isImageUrl(value: string): boolean {
   return IMAGE_URL_PATTERN.test(candidate) && IMAGE_PATH_PATTERN.test(candidate);
 }
 
-const IMG_SRC_PATTERN = /<img\b[^>]*?\ssrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
-
 export function findPastedImageUrl(clipboard: DataTransfer | null): string | null {
   if (!clipboard) return null;
-
-  const html = clipboard.getData("text/html");
-  if (html) {
-    const match = html.match(IMG_SRC_PATTERN);
-    const src = (match?.[1] ?? match?.[2] ?? match?.[3] ?? "").trim();
-    if (src && IMAGE_URL_PATTERN.test(src)) return src;
-  }
 
   const uriList = clipboard
     .getData("text/uri-list")

@@ -1,7 +1,7 @@
 import markdownit from "markdown-it";
 // @ts-expect-error no type declarations available for markdown-it-task-lists
 import taskListsPlugin from "markdown-it-task-lists";
-import { MarkdownParser, MarkdownSerializer, MarkdownSerializerState } from "prosemirror-markdown";
+import { MarkdownParser, MarkdownSerializer } from "prosemirror-markdown";
 import { Node } from "@tiptap/pm/model";
 
 import { editorSchema } from "@/components/editor/editor-extensions";
@@ -56,20 +56,12 @@ function rewriteTaskListTokens(state: MdState) {
   }
 }
 
-function normalizeTableTokens(state: MdState) {
+function wrapTableCellContentInParagraphs(state: MdState) {
   if (!state.tokens.some((token) => token.type === "table_open")) return;
 
   const result: MdToken[] = [];
 
   for (const token of state.tokens) {
-    if (
-      token.type === "thead_open" ||
-      token.type === "thead_close" ||
-      token.type === "tbody_open" ||
-      token.type === "tbody_close"
-    )
-      continue;
-
     if (token.type === "th_open" || token.type === "td_open") {
       result.push(token, new state.Token("paragraph_open", "p", 1));
       continue;
@@ -89,7 +81,7 @@ function normalizeTableTokens(state: MdState) {
 function createMarkdownParser() {
   const md = markdownit({ html: false }).use(taskListsPlugin);
   md.core.ruler.push("rewrite_task_list_tokens", rewriteTaskListTokens);
-  md.core.ruler.push("normalize_table_tokens", normalizeTableTokens);
+  md.core.ruler.push("wrap_table_cell_content", wrapTableCellContentInParagraphs);
 
   // @ts-expect-error markdown-it type mismatch between project @types/markdown-it and prosemirror-markdown bundled types
   return new MarkdownParser(editorSchema, md, {
@@ -114,6 +106,8 @@ function createMarkdownParser() {
     },
     code_inline: { mark: "code" },
     html_inline: { ignore: true },
+    thead: { ignore: true },
+    tbody: { ignore: true },
     image: {
       node: "image",
       getAttrs: (tok) => ({
@@ -136,12 +130,6 @@ export function parseMarkdownToJSON(markdown: string): object {
   if (!doc) throw new Error("Failed to parse markdown");
   return doc.toJSON();
 }
-
-const InlineSerializerState = MarkdownSerializerState as unknown as new (
-  nodes: ConstructorParameters<typeof MarkdownSerializer>[0],
-  marks: ConstructorParameters<typeof MarkdownSerializer>[1],
-  options: Record<string, unknown>,
-) => { renderInline(node: Node): void; text(text: string, escape?: boolean): void; out: string };
 
 const markdownSerializer = new MarkdownSerializer(
   {
@@ -207,25 +195,14 @@ const markdownSerializer = new MarkdownSerializer(
       state.write(`![${alt}](${src}${title})`);
     },
     table: (state, node) => {
-      const serializeCellToSingleLine = (cell: Node) => {
-        const sub = new InlineSerializerState(markdownSerializer.nodes, markdownSerializer.marks, {});
-        const blockTexts: string[] = [];
-
-        cell.forEach((block) => {
-          const lengthBeforeBlock = sub.out.length;
-          if (block.isTextblock) sub.renderInline(block);
-          else sub.text(block.textContent);
-          blockTexts.push(sub.out.slice(lengthBeforeBlock));
-        });
-
-        return blockTexts
-          .join(" ")
+      const serializeCellToSingleLine = (cell: Node) =>
+        markdownSerializer
+          .serialize(cell)
           .replace(/\\\n/g, " ")
           .replace(/\n+/g, " ")
           .replace(/\|/g, "\\|")
           .replace(/\s+/g, " ")
           .trim();
-      };
 
       const rows: string[][] = [];
       let columnCount = 0;
