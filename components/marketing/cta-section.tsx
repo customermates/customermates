@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import { AppImage } from "@/components/shared/app-image";
+import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
   action: string;
@@ -96,13 +95,13 @@ export function CTASection({
 
               <div className="mb-6 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row md:mb-8 md:gap-6">
                 <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-                  <Link href={buttonLeftHref}>{buttonLeftText}</Link>
+                  <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
                 </Button>
 
                 <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
-                  <Link href={buttonRightHref} target="_blank">
+                  <IntlLink href={buttonRightHref} target="_blank">
                     {buttonRightText}
-                  </Link>
+                  </IntlLink>
                 </Button>
               </div>
 
