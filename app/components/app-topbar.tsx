@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { IntlLink } from "@/i18n/navigation";
 
 import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
@@ -114,13 +114,15 @@ export const AppTopBar = observer(() => {
                       <DropdownMenuContent align="start">
                         {c.siblings.map((s) => (
                           <DropdownMenuItem key={s.slug} asChild>
-                            <NextLink href={`/${section}/${s.slug}`}>{s.label}</NextLink>
+                            <IntlLink href={`/${section}/${s.slug}`}>{s.label}</IntlLink>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : c.href && !isLeaf ? (
-                    <BreadcrumbLink href={c.href}>{c.label}</BreadcrumbLink>
+                    <BreadcrumbLink asChild>
+                      <IntlLink href={c.href}>{c.label}</IntlLink>
+                    </BreadcrumbLink>
                   ) : (
                     <BreadcrumbPage className="flex min-w-0 items-center gap-1.5 truncate">
                       {isLeaf && c.isEntity && <Avatar name={c.label} size="sm" src={c.pictureUrl ?? null} />}

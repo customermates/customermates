@@ -1,7 +1,5 @@
 import type { ComponentPropsWithoutRef, SVGProps } from "react";
 
-import NextLink from "next/link";
-
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Icon } from "@/components/shared/icon";
+import { IntlLink } from "@/i18n/navigation";
 
 export type NavSecondaryItem = {
   key: string;
@@ -32,11 +31,11 @@ export function NavSecondary({ items, ...props }: Props) {
             <SidebarMenuItem key={item.key}>
               {item.href ? (
                 <SidebarMenuButton asChild size="sm" tooltip={item.title}>
-                  <NextLink href={item.href} id={`nav-${item.key}`}>
+                  <IntlLink href={item.href} id={`nav-${item.key}`}>
                     <Icon icon={item.icon} />
 
                     <span>{item.title}</span>
-                  </NextLink>
+                  </IntlLink>
                 </SidebarMenuButton>
               ) : (
                 <SidebarMenuButton id={`nav-${item.key}`} size="sm" tooltip={item.title} onClick={item.onSelect}>
