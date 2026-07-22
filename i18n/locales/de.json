@@ -431,6 +431,7 @@
       "activeFilters": "Aktive Filter",
       "apply": "Anwenden",
       "clearAll": "Alle entfernen",
+      "clearSearch": "Suche löschen",
       "closeFilters": "Filter schließen",
       "daysPlaceholder": "Tage",
       "daysPreset": "{count, plural, =1 {1 Tag} other {# Tage}}",
@@ -491,6 +492,7 @@
         "none": "Kein Preset",
         "select": "Gespeicherte Filter"
       },
+      "searchLabel": "Suche",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
     },

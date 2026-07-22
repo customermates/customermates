@@ -6,10 +6,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { getEntityName } from "@/features/event/entity-name.utils";
-import { DataViewContainer } from "@/components/data-view";
+import { DataViewContainer, useDataViewSync } from "@/components/data-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 import { CopyableChip } from "@/components/chip/copyable-chip";
@@ -23,7 +23,7 @@ export const AuditLogsCard = observer(({ initialAuditLogs }: Props) => {
   const t = useTranslations();
   const { auditLogModalStore, auditLogsStore, intlStore, userModalStore } = useRootStore();
 
-  useEffect(() => auditLogsStore.setItems(initialAuditLogs), [initialAuditLogs]);
+  useDataViewSync(auditLogsStore, initialAuditLogs);
 
   const columns = useMemo<ColumnDef<AuditLogDto>[]>(() => {
     return [

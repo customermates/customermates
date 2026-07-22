@@ -431,6 +431,7 @@
       "activeFilters": "Active Filters",
       "apply": "Apply",
       "clearAll": "Clear All",
+      "clearSearch": "Clear search",
       "closeFilters": "Close Filters",
       "daysPlaceholder": "Days",
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
@@ -491,6 +492,7 @@
         "none": "No preset",
         "select": "Saved filters"
       },
+      "searchLabel": "Search",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
     },
