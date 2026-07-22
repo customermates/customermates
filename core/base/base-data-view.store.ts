@@ -707,6 +707,17 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.urlSyncUpdateTimer = undefined;
     }
 
+    const boundPathname = window.location.pathname;
+
+    const syncUrlToState = () => {
+      if (window.location.pathname !== boundPathname) return;
+
+      const currentSearch = window.location.search.slice(1);
+      if (!this.needsUrlUpdate(currentSearch)) return;
+
+      window.history.replaceState(null, "", this.buildUrl(boundPathname));
+    };
+
     this.urlSyncDisposer = reaction(
       () => ({
         filters: toJS(this.filters),
@@ -721,19 +732,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
         if (this.urlSyncUpdateTimer) clearTimeout(this.urlSyncUpdateTimer);
 
-        this.urlSyncUpdateTimer = window.setTimeout(() => {
-          const currentSearch = window.location.search.slice(1);
-
-          const doesNotNeedUrlUpdate = !this.needsUrlUpdate(currentSearch);
-
-          if (doesNotNeedUrlUpdate) return;
-
-          const currentPathname = window.location.pathname;
-          const newUrl = this.buildUrl(currentPathname);
-          window.history.replaceState(null, "", newUrl);
-        }, 100);
+        this.urlSyncUpdateTimer = window.setTimeout(syncUrlToState, 100);
       },
     );
+
+    if ((this.filters?.length ?? 0) > 0 || Boolean(this.searchTerm)) syncUrlToState();
   };
 
   private getQueryString(): string {
