@@ -3,6 +3,7 @@
 import type { Editor } from "@tiptap/react";
 
 import { Bold, Italic, Strikethrough, Code, Heading1, Heading2, Underline } from "lucide-react";
+import { createPortal } from "react-dom";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,9 @@ export function BubbleMenu({ editor, position, bubbleMenuRef }: Props) {
     },
   ];
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       ref={bubbleMenuRef}
       className="fixed z-50 flex items-center gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
@@ -85,13 +88,22 @@ export function BubbleMenu({ editor, position, bubbleMenuRef }: Props) {
           size="icon-sm"
           type="button"
           variant="ghost"
-          onClick={action.onClick}
+          onClick={(event) => {
+            if (event.detail === 0) action.onClick();
+          }}
+          onMouseDown={(event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();
+            action.onClick();
+          }}
         >
           <action.icon />
         </Button>
       ))}
 
       <LinkPopover editor={editor} open={linkPopoverOpen} onOpenChange={setLinkPopoverOpen} />
-    </div>
+    </div>,
+    document.body,
   );
 }

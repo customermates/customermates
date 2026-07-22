@@ -2,11 +2,29 @@
 
 import type { Editor } from "@tiptap/react";
 
-import { CheckCircle, List, ListOrdered, FileText, Minus, Quote, Heading1, Heading2 } from "lucide-react";
+import {
+  CheckCircle,
+  Check,
+  List,
+  ListOrdered,
+  FileText,
+  Link as LinkIcon,
+  Minus,
+  Quote,
+  Heading1,
+  Heading2,
+  Table as TableIcon,
+  Image as ImageIcon,
+} from "lucide-react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+
+type UrlCommandKey = "image" | "link";
 
 type SlashCommand = {
   key: string;
@@ -24,6 +42,25 @@ type Props = {
 
 export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
   const t = useTranslations();
+  const [urlCommand, setUrlCommand] = useState<UrlCommandKey | null>(null);
+  const [url, setUrl] = useState("");
+
+  const trimmedUrl = url.trim();
+
+  function applyUrlCommand() {
+    if (!trimmedUrl) return;
+
+    const chain = editor.chain().focus();
+
+    if (urlCommand === "image") chain.setImage({ src: trimmedUrl }).run();
+    else if (editor.state.selection.empty) {
+      chain
+        .insertContent({ type: "text", text: trimmedUrl, marks: [{ type: "link", attrs: { href: trimmedUrl } }] })
+        .run();
+    } else chain.extendMarkRange("link").setLink({ href: trimmedUrl }).run();
+
+    onClose();
+  }
 
   const commands = useMemo((): SlashCommand[] => {
     const chain = () => editor.chain().focus();
@@ -77,6 +114,24 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
         icon: Minus,
         run: () => chain().setHorizontalRule().run(),
       },
+      {
+        key: "table",
+        title: t("Editor.table"),
+        icon: TableIcon,
+        run: () => chain().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+      },
+      {
+        key: "image",
+        title: t("Editor.image"),
+        icon: ImageIcon,
+        run: () => setUrlCommand("image"),
+      },
+      {
+        key: "link",
+        title: t("Editor.link"),
+        icon: LinkIcon,
+        run: () => setUrlCommand("link"),
+      },
     ];
   }, [editor, t]);
 
@@ -89,36 +144,74 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose, slashMenuRef]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       ref={slashMenuRef}
       className="fixed z-50 w-72 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
       style={{ top: position.top, left: position.left }}
     >
-      <Command>
-        <CommandInput autoFocus placeholder={t("Editor.placeholder")} />
+      {urlCommand ? (
+        <div className="flex w-full items-center gap-1 p-2">
+          <Input
+            autoFocus
+            placeholder={urlCommand === "image" ? t("Editor.imageUrlPrompt") : t("Editor.urlPlaceholder")}
+            type="url"
+            value={url}
+            onChange={(event) => setUrl(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                applyUrlCommand();
+              }
 
-        <CommandList>
-          <CommandEmpty>{t("Editor.noResults")}</CommandEmpty>
+              if (event.key === "Escape") {
+                event.preventDefault();
+                setUrlCommand(null);
+                setUrl("");
+              }
+            }}
+          />
 
-          <CommandGroup>
-            {commands.map((command) => (
-              <CommandItem
-                key={command.key}
-                value={command.title}
-                onSelect={() => {
-                  command.run();
-                  onClose();
-                }}
-              >
-                <command.icon className="size-4" />
+          <Button
+            aria-label={t("Editor.confirm")}
+            disabled={!trimmedUrl}
+            size="icon-sm"
+            type="button"
+            variant="default"
+            onClick={applyUrlCommand}
+          >
+            <Check />
+          </Button>
+        </div>
+      ) : (
+        <Command>
+          <CommandInput autoFocus placeholder={t("Editor.placeholder")} />
 
-                <span>{command.title}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </div>
+          <CommandList>
+            <CommandEmpty>{t("Editor.noResults")}</CommandEmpty>
+
+            <CommandGroup>
+              {commands.map((command) => (
+                <CommandItem
+                  key={command.key}
+                  value={command.title}
+                  onSelect={() => {
+                    command.run();
+                    if (command.key !== "image" && command.key !== "link") onClose();
+                  }}
+                >
+                  <command.icon className="size-4" />
+
+                  <span>{command.title}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      )}
+    </div>,
+    document.body,
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import type { EditorView } from "@tiptap/pm/view";
+import type { ResolvedPos } from "@tiptap/pm/model";
 
 import { Slice } from "@tiptap/pm/model";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -10,11 +11,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { baseExtensions } from "./editor-extensions";
-import { parseMarkdownToJSON } from "./editor.utils";
+import { findPastedImageUrl } from "./image-extension";
+import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
 import { calculateMenuPosition } from "./editor-positioning.utils";
 
 import { BubbleMenu } from "./bubble-menu";
 import { SlashMenu } from "./slash-menu";
+import { TableMenu } from "./table-menu";
 
 import "./editor.scss";
 
@@ -23,6 +26,13 @@ type Props = {
   onChange?: (data: object) => void;
   readOnly?: boolean;
 };
+
+function findEnclosingTableStart($pos: ResolvedPos): number | null {
+  for (let depth = $pos.depth; depth > 0; depth--)
+    if ($pos.node(depth).type.name === "table") return $pos.before(depth);
+
+  return null;
+}
 
 export function Editor({ data, onChange, readOnly = false }: Props) {
   const t = useTranslations();
@@ -36,8 +46,12 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
     top: 0,
     left: 0,
   });
+  const [showTableMenu, setShowTableMenu] = useState(false);
+  const [tableMenuPosition, setTableMenuPosition] = useState({ top: 0, left: 0 });
+  const [tableAnchorPos, setTableAnchorPos] = useState<number | null>(null);
   const bubbleMenuRef = useRef<HTMLDivElement>(null);
   const slashMenuRef = useRef<HTMLDivElement>(null);
+  const tableMenuRef = useRef<HTMLDivElement>(null);
   const isSettingContentRef = useRef(false);
 
   const showBubbleMenuForSelection = useCallback(
@@ -72,6 +86,10 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
       const hasSelection = from !== to;
 
       if (!hasSelection || editor.state.selection.empty) setShowBubbleMenu(false);
+
+      const showsTableMenu = editor.isActive("table") && !hasSelection;
+      setShowTableMenu(showsTableMenu);
+      setTableAnchorPos(showsTableMenu ? findEnclosingTableStart(editor.state.selection.$from) : null);
     },
     editorProps: {
       attributes: {
@@ -79,11 +97,21 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
           "tiptap prose prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
       },
       handlePaste: (view, event) => {
+        const pastedImageUrl = findPastedImageUrl(event.clipboardData);
+        if (pastedImageUrl) {
+          const image = view.state.schema.nodes.image.create({ src: pastedImageUrl });
+          view.dispatch(view.state.tr.replaceSelectionWith(image));
+          return true;
+        }
+
         const text = event.clipboardData?.getData("text/plain");
-        if (!text || event.clipboardData?.types.includes("text/html")) return false;
+        if (!text) return false;
 
         try {
           const json = parseMarkdownToJSON(text);
+          const hasHtmlFlavour = event.clipboardData?.types.includes("text/html") ?? false;
+          if (hasHtmlFlavour && !hasMarkdownBlockStructure(json)) return false;
+
           const doc = view.state.schema.nodeFromJSON(json);
           const slice = new Slice(doc.content, 0, 0);
           view.dispatch(view.state.tr.replaceSelection(slice));
@@ -172,7 +200,43 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
 
       setBubbleMenuPosition(position);
     }
-  }, [showBubbleMenu, editor]);
+  }, [showBubbleMenu, showTableMenu, editor]);
+
+  useEffect(() => {
+    if (showTableMenu && tableMenuRef.current && editor) {
+      const { from } = editor.state.selection;
+      const domNode = editor.view.domAtPos(from).node;
+      const element = domNode instanceof Element ? domNode : domNode.parentElement;
+      const tableElement = element?.closest("table");
+      const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(from);
+      const menuRect = tableMenuRef.current.getBoundingClientRect();
+
+      const position = calculateMenuPosition({
+        cursorTop: anchor.top,
+        cursorBottom: anchor.bottom,
+        cursorLeft: anchor.left,
+        menuWidth: menuRect.width,
+        menuHeight: menuRect.height,
+      });
+
+      setTableMenuPosition(position);
+    }
+  }, [showTableMenu, tableAnchorPos, editor]);
+
+  useEffect(() => {
+    if (!showTableMenu || !editor) return;
+    const editorView = editor.view;
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (tableMenuRef.current?.contains(target)) return;
+      if (editorView.dom.contains(target)) return;
+      setShowTableMenu(false);
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [showTableMenu, editor]);
 
   useEffect(() => {
     if (showSlashMenu && slashMenuRef.current && editor) {
@@ -196,7 +260,13 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
 
   return (
     <div className="relative min-h-52">
-      {showBubbleMenu && <BubbleMenu bubbleMenuRef={bubbleMenuRef} editor={editor} position={bubbleMenuPosition} />}
+      {showBubbleMenu && !showTableMenu && (
+        <BubbleMenu bubbleMenuRef={bubbleMenuRef} editor={editor} position={bubbleMenuPosition} />
+      )}
+
+      {showTableMenu && !readOnly && (
+        <TableMenu editor={editor} position={tableMenuPosition} tableMenuRef={tableMenuRef} />
+      )}
 
       {showSlashMenu && (
         <SlashMenu

@@ -33,6 +33,7 @@ export const EntityNotesPanel = observer(function EntityNotesPanel<Form extends 
   function handleContainerMouseDown(event: React.MouseEvent<HTMLDivElement>) {
     if (readOnly) return;
     const target = event.target as HTMLElement;
+    if (!event.currentTarget.contains(target)) return;
     if (target.closest(".ProseMirror")) return;
 
     const editorEl = containerRef.current?.querySelector<HTMLElement>(".ProseMirror");
