@@ -2,11 +2,11 @@
 
 import type { ReactNode } from "react";
 
-import NextLink from "next/link";
 import { Plus, Search } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
   homeHref: string;
@@ -34,7 +34,7 @@ export function NavHeader({
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton asChild size="lg">
-            <NextLink href={homeHref}>
+            <IntlLink href={homeHref}>
               <AppImage
                 alt={logoAlt}
                 className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
@@ -51,7 +51,7 @@ export function NavHeader({
                   {brandSubtitle}
                 </span>
               </span>
-            </NextLink>
+            </IntlLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
