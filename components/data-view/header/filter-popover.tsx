@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";

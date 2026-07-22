@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { Fragment, useState } from "react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const STACK_CLASSES = {
   default:

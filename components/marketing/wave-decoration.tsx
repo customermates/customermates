@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Variant = "wave-1" | "wave-2" | "elements";
 

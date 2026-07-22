@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Pause, Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useClassifyMediaLoadError } from "./lazy-media";
 

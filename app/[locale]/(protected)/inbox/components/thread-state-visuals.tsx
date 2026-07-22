@@ -1,7 +1,7 @@
 import type { ChipColor } from "@/constants/chip-colors";
 import type { MessagingThreadState } from "@/generated/prisma";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export const THREAD_STATE_DOT: Record<MessagingThreadState, string> = {
   unread: "bg-warning",

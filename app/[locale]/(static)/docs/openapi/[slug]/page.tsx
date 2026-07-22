@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../../docs.utils";
 import { apiDocsSource } from "@/core/fumadocs/source";

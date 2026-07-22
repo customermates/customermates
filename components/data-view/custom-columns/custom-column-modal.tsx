@@ -54,7 +54,7 @@ import { CURRENCIES } from "@/constants/currencies";
 import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const COLOR_DOT_CLASSES: Record<ChipColor, string> = {
   default: "bg-primary",

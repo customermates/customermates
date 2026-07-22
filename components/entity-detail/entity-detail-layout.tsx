@@ -23,7 +23,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";

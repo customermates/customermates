@@ -11,7 +11,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;

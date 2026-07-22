@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 100] as const;
 

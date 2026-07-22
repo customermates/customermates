@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
 

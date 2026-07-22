@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 
 import { Input } from "@/components/ui/input";
 import { FormLabel } from "./form-label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";

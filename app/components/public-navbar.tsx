@@ -11,7 +11,7 @@ import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   isAuthenticated: boolean;

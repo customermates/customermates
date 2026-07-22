@@ -13,7 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { PlanPicker } from "./plan-picker";
 

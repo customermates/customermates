@@ -9,7 +9,7 @@ import { XIcon } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { useAppForm } from "./form-context";
 import { useResolvedFieldLabel } from "./use-form-field";
 

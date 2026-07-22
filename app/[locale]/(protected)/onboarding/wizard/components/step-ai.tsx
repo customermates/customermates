@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CopyableCode } from "@/components/shared/copyable-code";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
 

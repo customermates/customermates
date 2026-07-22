@@ -3,7 +3,7 @@ import { File as FileIcon, FileImage, FileSpreadsheet, FileText, type LucideIcon
 import type { MessagingMessageDto } from "@/ee/messaging/inbox/inbox.schema";
 
 import { classifyAttachment, isMediaKind, type AttachmentKind } from "@/ee/messaging/attachment-kind";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export { classifyAttachment, isMediaKind };
 export type { AttachmentKind };

@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 import { FormLabel } from "./form-label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors } from "./use-form-field";

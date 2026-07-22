@@ -22,7 +22,7 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type NavItem = {
   key: string;

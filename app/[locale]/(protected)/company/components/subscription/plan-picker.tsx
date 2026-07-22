@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export type SelectablePlan = "starter" | "pro" | "business";
 

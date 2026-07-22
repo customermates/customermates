@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAppForm } from "@/components/forms/form-context";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   customColumns?: CustomColumnDto[];

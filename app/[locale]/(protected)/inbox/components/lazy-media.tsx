@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Ban, Loader2, RotateCw } from "lucide-react";
 
 import { formatRetryAfter } from "@/ee/messaging/retry-after";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export const MESSAGING_RATE_LIMITS_DOCS_PATH = "/docs/messaging-rate-limits";
 

@@ -10,7 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const BADGE_BASE =
   "ring-background bg-background absolute -right-px -bottom-px size-3.5 overflow-hidden rounded-full ring-2";

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
 import { isPlainTextEmailBody, splitQuotedText } from "@/ee/messaging/email-quote";
 import { deriveMessageSender, displayableIdentifier, isUnipileUnsupportedBody } from "@/ee/messaging/thread-display";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { attachmentSubtitle, classifyAttachment, describeFile, downloadLocalFile } from "./attachment-classify";

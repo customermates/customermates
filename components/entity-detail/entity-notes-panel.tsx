@@ -13,7 +13,7 @@ import { useRef } from "react";
 
 import { Editor } from "@/components/editor/editor";
 import { Icon } from "@/components/shared/icon";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   store: BaseCustomColumnEntityModalStore<Form, Dto>;

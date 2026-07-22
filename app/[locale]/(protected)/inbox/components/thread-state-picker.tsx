@@ -12,7 +12,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { badgeVariants } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { THREAD_STATE_CHIP_COLOR, ThreadStateDot } from "./thread-state-visuals";
 

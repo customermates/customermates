@@ -2,7 +2,7 @@ import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { Alert as UiAlert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const alertColorVariants = cva("[&_a]:text-inherit [&_a]:underline", {
   variants: {

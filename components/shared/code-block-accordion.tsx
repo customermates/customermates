@@ -3,7 +3,7 @@
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   title: string;

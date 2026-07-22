@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormLabel } from "./form-label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors } from "./use-form-field";

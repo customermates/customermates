@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
 import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";

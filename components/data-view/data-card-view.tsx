@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { isInteractiveClick } from "./is-interactive-click";
 

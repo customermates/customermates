@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { FormLabel } from "./form-label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";

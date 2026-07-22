@@ -23,7 +23,7 @@ import { messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AuditDetail } from "./audit-detail";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const RESPONSE_LABEL_KEYS: Record<string, string> = {
   yes: "ContactHistory.calendarResponseYes",

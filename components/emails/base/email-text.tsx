@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 
 import { Text } from "@react-email/components";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = PropsWithChildren<{ className?: string }>;
 
