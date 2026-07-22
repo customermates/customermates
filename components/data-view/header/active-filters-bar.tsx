@@ -73,9 +73,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
           variant="default"
         >
           <span className="truncate text-[11px]">
-            <span className="font-medium">{t("Common.filters.searchLabel")}</span>
-
-            <span className="mx-1 font-normal">:</span>
+            <span className="sr-only">{t("Common.filters.searchLabel")}: </span>
 
             {searchTerm}
           </span>
