@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
+import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
 import { WaveDecoration } from "./wave-decoration";
@@ -73,13 +72,13 @@ export function PageHero({
         <div className="my-8 flex flex-col items-center px-4 md:my-10">
           <div className="flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row md:gap-6">
             <Button asChild className="w-full sm:w-auto" size="lg" variant="default">
-              <Link href={buttonLeftHref}>{buttonLeftText}</Link>
+              <IntlLink href={buttonLeftHref}>{buttonLeftText}</IntlLink>
             </Button>
 
             <Button asChild className="w-full sm:w-auto" size="lg" variant="outline">
-              <Link href={buttonRightHref} target="_blank">
+              <IntlLink href={buttonRightHref} target="_blank">
                 {buttonRightText}
-              </Link>
+              </IntlLink>
             </Button>
           </div>
 

@@ -71,6 +71,12 @@
       }
     },
     {
+      "files": ["components/shared/app-link.tsx"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
       "files": [
         "components/shared/language-selector.tsx",
         "**/profile-settings-form.tsx",
@@ -130,6 +136,11 @@
           {
             "message": "Use <AppModal> from '@/components/modal' so every modal shares the AppCard chrome, sizing, and unsaved-changes guard. The raw Dialog primitives are only allowed inside components/modal/app-modal.tsx (where AppModal wraps them) and components/ui/command.tsx (cmdk plumbing).",
             "name": "@/components/ui/dialog"
+          },
+          {
+            "importNames": ["default"],
+            "message": "Use <AppLink> from '@/components/shared/app-link' for text links, or IntlLink from '@/i18n/navigation' inside styled or asChild wrappers, so internal links keep the active locale (next-intl localePrefix is 'always'). next/link's default Link export is only allowed in components/shared/app-link.tsx, the external-link wrapper; the named useLinkStatus hook is unaffected.",
+            "name": "next/link"
           }
         ]
       }
