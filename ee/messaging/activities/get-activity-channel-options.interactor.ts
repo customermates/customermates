@@ -11,18 +11,17 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-import type { ActivityThreadOptionDto } from "./activities.schema";
-import { ActivityThreadOptionDtoSchema } from "./activities.schema";
+import type { ActivityChannelOptionDto } from "./activities.schema";
+import { ActivityChannelOptionDtoSchema } from "./activities.schema";
 
 const Schema = z.object({
   entityType: z.enum(EntityType).optional(),
   entityId: z.uuid().optional(),
-  connectedAccountId: z.array(z.uuid()).optional(),
 });
-export type ActivityThreadOptionsData = Data<typeof Schema>;
+export type ActivityChannelOptionsData = Data<typeof Schema>;
 
-export abstract class ActivityThreadOptionsRepo {
-  abstract listThreadOptions(args: ActivityThreadOptionsData): Promise<ActivityThreadOptionDto[]>;
+export abstract class ActivityChannelOptionsRepo {
+  abstract listChannelOptions(args: ActivityChannelOptionsData): Promise<ActivityChannelOptionDto[]>;
 }
 
 @AllowInDemoMode
@@ -33,24 +32,24 @@ export abstract class ActivityThreadOptionsRepo {
   ],
   condition: "OR",
 })
-export class GetActivityThreadOptionsInteractor extends AuthenticatedInteractor<
-  ActivityThreadOptionsData,
-  ActivityThreadOptionDto[]
+export class GetActivityChannelOptionsInteractor extends AuthenticatedInteractor<
+  ActivityChannelOptionsData,
+  ActivityChannelOptionDto[]
 > {
   constructor(
-    private repo: ActivityThreadOptionsRepo,
+    private repo: ActivityChannelOptionsRepo,
     private entitlements: EntitlementService,
   ) {
     super();
   }
 
   @Validate(Schema)
-  @ValidateOutput(ActivityThreadOptionDtoSchema)
-  async invoke(data: ActivityThreadOptionsData): Validated<ActivityThreadOptionDto[]> {
+  @ValidateOutput(ActivityChannelOptionDtoSchema)
+  async invoke(data: ActivityChannelOptionsData): Validated<ActivityChannelOptionDto[]> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const options = await this.repo.listThreadOptions(data);
+    const options = await this.repo.listChannelOptions(data);
 
     return { ok: true as const, data: options };
   }

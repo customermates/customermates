@@ -3,7 +3,15 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "./filter-field-operators";
 
 import { MessagingProvider, MessagingThreadState, Status } from "@/generated/prisma";
 
-export type FilterEntityKind = "organization" | "contact" | "user" | "deal" | "service" | "task" | "thread";
+export type FilterEntityKind =
+  | "organization"
+  | "contact"
+  | "user"
+  | "deal"
+  | "service"
+  | "task"
+  | "thread"
+  | "connectedAccount";
 
 export type FilterValueKind =
   | { kind: "entityId"; entity: FilterEntityKind }
@@ -35,7 +43,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },
   [FilterFieldKey.timelineKind]: { kind: "enum", values: TIMELINE_KINDS },
   [FilterFieldKey.participants]: { kind: "linkStatus" },
-  [FilterFieldKey.connectedAccountId]: { kind: "string" },
+  [FilterFieldKey.connectedAccountId]: { kind: "entityId", entity: "connectedAccount" },
   [FilterFieldKey.calendarId]: { kind: "string" },
   [FilterFieldKey.startsAt]: { kind: "date" },
 };

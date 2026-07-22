@@ -20,7 +20,7 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import { getActivityThreadOptionsAction } from "@/app/[locale]/(protected)/actions";
+import { getActivityThreadOptionsAction, getActivityChannelOptionsAction } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import {
   THREAD_STATE_CHIP_COLOR,
@@ -58,6 +58,14 @@ const contactItems: GetItemsFunction = (params) =>
 function renderProviderIcon(provider: string, label: string) {
   const ProviderIcon = getProviderIcon(provider as MessagingProvider);
   return <ProviderIcon aria-label={label} className="size-4 shrink-0" />;
+}
+
+function selectedChannelIds(filters: Filter[] | undefined): string[] | undefined {
+  const filter = filters?.find(
+    (f) => (f.field as FilterFieldKey) === FilterFieldKey.connectedAccountId && f.operator === FilterOperatorKey.in,
+  );
+  if (!filter || !("value" in filter) || !Array.isArray(filter.value) || filter.value.length === 0) return undefined;
+  return filter.value;
 }
 
 export function useFilterSelectItems(
@@ -135,6 +143,7 @@ export function useFilterSelectItems(
         return getActivityThreadOptionsAction({
           entityType: timelineEntityType ?? undefined,
           entityId: timelineEntityId || undefined,
+          connectedAccountId: selectedChannelIds(activitiesStore.filters),
         }).then((threads) => ({
           items: threads.map((thread) => ({
             key: thread.id,
@@ -142,6 +151,25 @@ export function useFilterSelectItems(
             textValue: thread.label || t(`Common.providers.${thread.provider}`),
             startContent: renderProviderIcon(thread.provider, t(`Common.providers.${thread.provider}`)),
           })),
+        }));
+      },
+      [FilterFieldKey.connectedAccountId]: () => {
+        const { timelineEntityType, timelineEntityId } = activitiesStore;
+
+        return getActivityChannelOptionsAction({
+          entityType: timelineEntityType ?? undefined,
+          entityId: timelineEntityId || undefined,
+        }).then((channels) => ({
+          items: channels.map((channel) => {
+            const providerLabel = t(`Common.providers.${channel.provider}`);
+            const base = channel.label || providerLabel;
+            return {
+              key: channel.id,
+              value: channel.id,
+              textValue: channel.ownerName ? `${base} · ${channel.ownerName}` : base,
+              startContent: renderProviderIcon(channel.provider, providerLabel),
+            };
+          }),
         }));
       },
     };
@@ -215,7 +243,8 @@ export function useFilterSelectItems(
       case FilterFieldKey.contactIds:
       case FilterFieldKey.participantContactId:
       case FilterFieldKey.taskIds:
-      case FilterFieldKey.timelineThreadId: {
+      case FilterFieldKey.timelineThreadId:
+      case FilterFieldKey.connectedAccountId: {
         return fetchedItems;
       }
 

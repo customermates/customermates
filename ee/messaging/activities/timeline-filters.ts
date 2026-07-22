@@ -12,11 +12,14 @@ export type ActivityQuery = {
   providers?: Set<string>;
   threadIdsIn?: Set<string>;
   threadIdsNotIn?: Set<string>;
+  connectedAccountIdsIn?: Set<string>;
+  connectedAccountIdsNotIn?: Set<string>;
 };
 
 const FIELD_KIND: string = FilterFieldKey.timelineKind;
 const FIELD_PROVIDER: string = FilterFieldKey.provider;
 const FIELD_THREAD: string = FilterFieldKey.timelineThreadId;
+const FIELD_CHANNEL: string = FilterFieldKey.connectedAccountId;
 
 const TYPE_TO_KINDS: Record<string, readonly ActivityKind[]> = {
   changes: ["audit"],
@@ -55,6 +58,11 @@ export function interpretFilters(filters: Filter[] | undefined): ActivityQuery {
       if (filter.operator === FilterOperatorKey.in && filter.value.length) query.threadIdsIn = new Set(filter.value);
       else if (filter.operator === FilterOperatorKey.notIn && filter.value.length)
         query.threadIdsNotIn = new Set(filter.value);
+    } else if (filter.field === FIELD_CHANNEL) {
+      if (filter.operator === FilterOperatorKey.in && filter.value.length)
+        query.connectedAccountIdsIn = new Set(filter.value);
+      else if (filter.operator === FilterOperatorKey.notIn && filter.value.length)
+        query.connectedAccountIdsNotIn = new Set(filter.value);
     }
   }
 

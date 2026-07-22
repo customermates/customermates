@@ -264,6 +264,7 @@
       "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
+      "connectedAccountNotFound": "Channel not found or not accessible.",
       "contactNotFound": "Contact ID not found or not accessible.",
       "contactRefRequired": "id must be a contact UUID, an email or phone, or 'provider:value' for a handle (e.g. 'linkedin:jdoe').",
       "customColumnIdNotFound": "Custom column ID not found or not accessible.",
@@ -439,6 +440,7 @@
       "editCurrent": "Edit filters",
       "fields": {
         "assignedUserId": "Assigned",
+        "connectedAccountId": "Channel",
         "contactIds": "Contact",
         "createdAt": "Created at",
         "dealIds": "Deal",

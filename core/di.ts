@@ -83,6 +83,7 @@ import { ValidateRoleIdsInteractor } from "@/core/validation/validators/validate
 import { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
 import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
 import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
+import { ValidateConnectedAccountIdsInteractor } from "@/core/validation/validators/validate-connected-account-ids.interactor";
 import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
 import { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validators/validate-webhook-delivery-ids.interactor";
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
@@ -223,6 +224,7 @@ import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message
 import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-thread-count.interactor";
 import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activities.interactor";
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
+import { GetActivityChannelOptionsInteractor } from "@/ee/messaging/activities/get-activity-channel-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
 import { ListSocialPostsInteractor } from "@/ee/messaging/posts/list-social-posts.interactor";
@@ -395,6 +397,7 @@ export const getQueryParamsPrecheck = () =>
     getServiceIdsValidator(),
     getTaskIdsValidator(),
     getThreadIdsValidator(),
+    getConnectedAccountIdsValidator(),
     getCustomColumnRepo(),
   );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
@@ -403,6 +406,8 @@ export const getWebhookIdsValidator = () => new ValidateWebhookIdsInteractor(get
 export const getWebhookDeliveryIdsValidator = () => new ValidateWebhookDeliveryIdsInteractor(getWebhookDeliveryRepo());
 export const getRoleIdsValidator = () => new ValidateRoleIdsInteractor(getRoleRepo());
 export const getThreadIdsValidator = () => new ValidateThreadIdsInteractor(getMessagingRepo());
+export const getConnectedAccountIdsValidator = () =>
+  new ValidateConnectedAccountIdsInteractor(getConnectedAccountRepo());
 
 export const getContactWritePrecheck = () =>
   new ContactWritePrecheckInteractor(
@@ -1242,6 +1247,9 @@ export const getGetActivitiesApiInteractor = () =>
 
 export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
+
+export const getGetActivityChannelOptionsInteractor = () =>
+  new GetActivityChannelOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
 
 export const getUpdateThreadInteractor = () =>
   new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator(), getEntitlementService());

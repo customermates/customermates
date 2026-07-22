@@ -96,6 +96,7 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
       FilterFieldKey.state,
       FilterFieldKey.timelineKind,
       FilterFieldKey.timelineThreadId,
+      FilterFieldKey.connectedAccountId,
       FilterFieldKey.participants,
     ];
 

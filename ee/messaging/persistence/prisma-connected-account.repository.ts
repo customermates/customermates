@@ -24,6 +24,7 @@ import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycl
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import type { RefreshInboxRepo } from "../inbox/refresh-inbox.interactor";
 import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
+import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
 
 import { randomUUID } from "node:crypto";
@@ -32,6 +33,7 @@ import { AccountActivityKind, ConnectedAccountStatus, Status, SubscriptionStatus
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { accessibleConnectedAccountWhere } from "../messaging-access";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -58,7 +60,8 @@ export class PrismaConnectedAccountRepo
     DeleteConnectedAccountsForInactiveOwnersRepo,
     DeleteOrphanedUnipileAccountsRepo,
     RefreshInboxRepo,
-    SetSelectedFoldersRepo
+    SetSelectedFoldersRepo,
+    FindConnectedAccountsByIdsRepo
 {
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
@@ -355,6 +358,17 @@ export class PrismaConnectedAccountRepo
         ];
       }),
     );
+  }
+
+  async findIds(ids: Set<string>): Promise<Set<string>> {
+    if (ids.size === 0) return new Set();
+
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: { id: { in: [...ids] }, ...accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      select: { id: true },
+    });
+
+    return new Set(rows.map((row) => row.id));
   }
 
   private get dtoSelect() {

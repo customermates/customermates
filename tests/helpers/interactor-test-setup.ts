@@ -86,6 +86,7 @@ export function createMockDiModule(getMockUser: () => ExtendedUser) {
     getWebhookDeliveryRepo: () => ({ findIds: makeFindIds() }),
     getRoleRepo: () => ({ findIds: makeFindIds() }),
     getMessagingRepo: () => ({ findThreadIds: makeFindIds() }),
+    getConnectedAccountRepo: () => ({ findIds: makeFindIds() }),
   };
 }
 
