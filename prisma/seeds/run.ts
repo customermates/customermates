@@ -18,6 +18,7 @@ import { seedServices } from "./services";
 import { seedTasks } from "./tasks";
 import { seedWebhooks } from "./webhooks";
 import { seedWidgets } from "./widgets";
+import { applyRvSengOverrides, resolveProfileKey, RV_SENG_PROFILE_KEY } from "./profiles/rv-seng-overrides";
 
 export type SyntheticSeedData = OrganizationSeedData & ContactSeedData & DealSeedData & ServiceSeedData & TaskSeedData;
 
@@ -49,6 +50,10 @@ export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticS
     userId: context.ids.user,
   });
   await seedSyntheticAuditLogs(context, entities);
+
+  if (resolveProfileKey() === RV_SENG_PROFILE_KEY) {
+    await applyRvSengOverrides(context);
+  }
 
   return entities;
 }
