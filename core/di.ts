@@ -287,7 +287,6 @@ import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.int
 import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
 import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
-import { ListSupportTicketsInteractor } from "@/features/support/list-support-tickets.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -1403,5 +1402,3 @@ export const getDeliverWebhookInteractor = () =>
 
 export const getCreateSupportTicketInteractor = () =>
   new CreateSupportTicketInteractor(getSupportRepo(), getEmailService());
-
-export const getListSupportTicketsInteractor = () => new ListSupportTicketsInteractor(getSupportRepo());

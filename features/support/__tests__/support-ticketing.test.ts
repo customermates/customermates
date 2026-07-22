@@ -15,7 +15,6 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { CreateSupportTicketInteractor } from "../create-support-ticket.interactor";
-import { ListSupportTicketsInteractor } from "../list-support-tickets.interactor";
 
 describe("CreateSupportTicketInteractor", () => {
   let repo: any;
@@ -54,20 +53,5 @@ describe("CreateSupportTicketInteractor", () => {
     expect(result.ok).toBe(false);
     expect(repo.createSupportTicket).not.toHaveBeenCalled();
     expect(emailService.send).not.toHaveBeenCalled();
-  });
-});
-
-describe("ListSupportTicketsInteractor", () => {
-  it("returns the current user's tickets from the repository", async () => {
-    const tickets = [
-      { number: 7, subject: "s", status: "open", source: "mcp", createdAt: new Date(), resolvedAt: null },
-    ];
-    const repo: any = { listMySupportTickets: vi.fn().mockResolvedValue(tickets) };
-
-    const result: any = await new ListSupportTicketsInteractor(repo).invoke();
-
-    expect(result.ok).toBe(true);
-    expect(result.data).toBe(tickets);
-    expect(repo.listMySupportTickets).toHaveBeenCalledTimes(1);
   });
 });

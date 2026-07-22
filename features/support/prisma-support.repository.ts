@@ -15,13 +15,4 @@ export class PrismaSupportRepo extends BaseRepository {
       select: { id: true, number: true },
     });
   }
-
-  async listMySupportTickets() {
-    return this.prisma.supportTicket.findMany({
-      where: { companyId: this.companyId, userId: this.userId },
-      orderBy: { createdAt: "desc" },
-      select: { number: true, subject: true, status: true, source: true, createdAt: true, resolvedAt: true },
-      take: 50,
-    });
-  }
 }

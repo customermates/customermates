@@ -1,7 +1,7 @@
 import React from "react";
 import { z } from "zod";
 
-import { Resource, Action, SupportTicketSource } from "@/generated/prisma";
+import { SupportTicketSource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -25,7 +25,7 @@ export type CreateSupportTicketData = Data<typeof CreateSupportTicketSchema>;
 
 type CreatedTicket = { id: string; number: number };
 
-@TenantInteractor({ resource: Resource.api, action: Action.create })
+@TenantInteractor()
 export class CreateSupportTicketInteractor extends AuthenticatedInteractor<CreateSupportTicketData, CreatedTicket> {
   constructor(
     private repo: PrismaSupportRepo,
