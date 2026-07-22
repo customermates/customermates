@@ -1430,3 +1430,29 @@ enum UnipileWebhookSource {
   calendar
   users
 }
+
+model SupportTicket {
+  id         String              @id @default(uuid())
+  number     Int                 @unique @default(autoincrement())
+  companyId  String
+  userId     String
+  subject    String
+  body       String
+  status     SupportTicketStatus @default(open)
+  source     SupportTicketSource
+  createdAt  DateTime            @default(now())
+  resolvedAt DateTime?
+
+  @@index([companyId, status])
+  @@index([status, createdAt])
+}
+
+enum SupportTicketStatus {
+  open
+  resolved
+}
+
+enum SupportTicketSource {
+  chat
+  mcp
+}

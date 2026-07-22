@@ -285,6 +285,9 @@ import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-o
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
 // EE Audit Log interactors
 import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
+import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
+import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
+import { ListSupportTicketsInteractor } from "@/features/support/list-support-tickets.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -309,6 +312,7 @@ export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo();
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
+export const getSupportRepo = () => new PrismaSupportRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -1396,3 +1400,8 @@ export const getDeleteOrphanedUnipileAccountsInteractor = () =>
 
 export const getDeliverWebhookInteractor = () =>
   new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getWebhookRepo());
+
+export const getCreateSupportTicketInteractor = () =>
+  new CreateSupportTicketInteractor(getSupportRepo(), getEmailService());
+
+export const getListSupportTicketsInteractor = () => new ListSupportTicketsInteractor(getSupportRepo());

@@ -42,6 +42,7 @@ import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { updateWorkspaceSettingsTool, manageTeamTool } from "@/features/mcp-tools/admin.mcp-tools";
+import { requestSupportTool, listSupportTicketsTool } from "@/features/mcp-tools/support.mcp-tools";
 
 import { createMcpRoute, type McpTool } from "./mcp-route-utils";
 
@@ -92,6 +93,7 @@ const TOOL_GROUPS: Record<string, McpTool[]> = {
   widgets: [manageWidgetsTool],
   webhooks: [manageWebhooksTool],
   admin: [updateWorkspaceSettingsTool, manageTeamTool],
+  support: [requestSupportTool, listSupportTicketsTool],
 };
 
 const ALWAYS_ON: McpTool[] = [searchTool, fetchTool];

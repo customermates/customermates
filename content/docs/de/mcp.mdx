@@ -3,7 +3,7 @@ title: Model Context Protocol (MCP)
 description: Customermates exponiert einen nativen MCP-Endpoint unter /api/v1/mcp, damit Claude, ChatGPT, Cursor und andere Agent-Clients das CRM direkt lesen und schreiben können.
 ---
 
-Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 45 CRM-Tools. Es gibt zwei Wege zu verbinden:
+Customermates exponiert einen MCP-Endpoint unter `https://customermates.com/api/v1/mcp`. Ein verbundener Client entdeckt automatisch alle 47 CRM-Tools. Es gibt zwei Wege zu verbinden:
 
 - **Custom Connector (OAuth):** für Claude (Web, Desktop, Mobile) und ChatGPT. URL einfügen, anmelden, freigeben. Kein Key zu verwalten. Starten Sie auf [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 - **API-Key:** für CLI- und Editor-Clients (Claude Code, Codex, Cursor, Gemini CLI) und rohe HTTP-Aufrufe. Den 64-Zeichen-Key im Header `x-api-key` oder einer Konfigurationsdatei senden.
@@ -52,7 +52,7 @@ Der Server brieft das Modell automatisch, sobald sich ein Client verbindet. Clie
 
 Sie müssen dem Modell nicht beibringen, wie es das CRM nutzt. Der Server sendet beim Verbinden Instructions, sodass das Modell den Workflow automatisch befolgt: erst das Schema lesen, IDs vor dem Schreiben suchen, Beziehungen nur über `manage_record_links` ändern und vor Löschen oder Senden rückfragen. In Clients, die MCP-Prompts unterstützen (Claude Code, Cursor), gibt es zusätzlich einen eingebauten Get-Started-Prompt; er interviewt Sie kurz und fasst Ihren Workspace zusammen, um den Start zu personalisieren.
 
-Die volle 45-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
+Die volle 47-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`. Keys und Details stehen unter [Eingrenzen mit ?toolsets=](/docs/mcp#eingrenzen-mit-toolsets).
 
 ## Wie die Tool-Oberfläche gebaut ist
 
@@ -76,7 +76,7 @@ Beide liegen an derselben Base-URL. MCP auf `/api/v1/mcp`; die OpenAPI-Spec auf 
 
 ## Tool-Katalog
 
-Customermates exponiert 45 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks und Admin ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
+Customermates exponiert 47 MCP-Tools, alle standardmäßig aktiviert. Sie decken Records, Workspace, Messaging, Social Posts, Dokumentation und Deep Research, Custom Columns, Widgets, Webhooks, Admin und Support ab. Jedes destruktive Tool ist geflaggt und startet die Beschreibung mit `IRREVERSIBLE`. Beziehungen ändern sich nur über `manage_record_links`; die Update-Tools fassen sie nie an.
 
 Zwei Flags pro Tool:
 
@@ -181,15 +181,22 @@ Die Messaging-Tools sind ab dem Pro-Tarif verfügbar.
 | `update_workspace_settings` | | | `target` profile aktualisiert Ihren Namen, Ihr Land und Ihren Avatar; `target` company aktualisiert die Workspace-Währung (nur Admins). |
 | `manage_team` | | | Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). |
 
+### Support
+
+| Tool | Read | Destructive | Zweck |
+|---|---|---|---|
+| `request_support` | | | Öffnet ein Support-Ticket beim Customermates-Team (Betreff plus Beschreibung). Benjamin meldet sich per E-Mail und im In-App-Chat. Gibt die Ticketnummer zurück. |
+| `list_support_tickets` | ✓ | | Listet Ihre Support-Tickets mit Nummer, Betreff, Status, Quelle und Daten, neueste zuerst. |
+
 ### Eingrenzen mit ?toolsets=
 
-Alle 45 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
+Alle 47 Tools sind standardmäßig an. Um nur einen Teil der Oberfläche zu exponieren, hängen Sie `?toolsets=` mit kommagetrennten Gruppen-Keys an die Endpoint-URL:
 
 ```
 https://customermates.com/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+Keys: records, workspace, messaging, social, docs, custom-columns, widgets, webhooks, admin, support. Kein Parameter heißt alles; unbekannte Keys werden ignoriert. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
 ### Eingebaute Sicherheitsregeln
 
