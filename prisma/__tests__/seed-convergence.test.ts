@@ -258,7 +258,7 @@ describe("synthetic seed convergence after UI edits", () => {
     expect(reconciled).toEqual([
       expect.objectContaining({
         id: "18000000-0000-4000-8000-000000000001",
-        value: "+1 202-555-0100",
+        value: "+12025550100",
       }),
     ]);
     expectStalePrune(customColumn, "16000000-", Object.values(SYNTHETIC_CUSTOM_COLUMN_IDS).length);

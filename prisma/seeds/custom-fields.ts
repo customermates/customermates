@@ -396,7 +396,9 @@ export async function seedCustomFields(
         contactId: contact.id,
         entityType: "contact",
         type: "phone",
-        value: `+1 202-555-${String(100 + index).padStart(4, "0")}`,
+        // Phone custom fields validate against E.164 (`z.e164()`): a leading `+` and digits only,
+        // no spaces or dashes. Keep this value E.164 or every seeded contact fails to save.
+        value: `+1202555${String(100 + index).padStart(4, "0")}`,
       }),
       customFieldValue({
         columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
