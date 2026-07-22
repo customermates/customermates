@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "@/i18n/navigation";
 import { ROUTING_LOCALES } from "@/i18n/routing";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Locale = (typeof ROUTING_LOCALES)[number];
 

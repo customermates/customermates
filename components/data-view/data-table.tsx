@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import type { Prisma } from "@/generated/prisma";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { isInteractiveClick } from "./is-interactive-click";
 

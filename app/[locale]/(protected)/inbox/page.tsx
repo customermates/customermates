@@ -16,7 +16,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

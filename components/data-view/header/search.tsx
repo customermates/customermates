@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;

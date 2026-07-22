@@ -26,7 +26,7 @@ import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type HasCustomFieldValues = HasId & {
   customFieldValues?: Array<{ columnId: string; value: unknown }>;

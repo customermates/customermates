@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { LinkPopover } from "./link-popover";
 

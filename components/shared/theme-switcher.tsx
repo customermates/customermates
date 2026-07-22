@@ -7,7 +7,7 @@ import { Monitor, Moon, Sun } from "lucide-react";
 
 import { Theme } from "@/generated/prisma";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { Icon } from "./icon";
 

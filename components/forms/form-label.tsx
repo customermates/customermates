@@ -5,7 +5,7 @@ import type { ComponentProps } from "react";
 import { observer } from "mobx-react-lite";
 
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 

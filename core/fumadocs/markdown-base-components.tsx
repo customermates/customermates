@@ -6,7 +6,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AppLink } from "@/components/shared/app-link";
 import { MarketingTableFrame } from "@/components/marketing/marketing-table-frame";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export const markdownBaseComponents: Pick<
   MDXComponents,

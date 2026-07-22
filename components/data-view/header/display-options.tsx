@@ -21,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { PopoverSection as Section } from "./popover-section";
 

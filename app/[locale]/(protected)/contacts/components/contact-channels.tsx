@@ -18,7 +18,7 @@ import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel, channelUrl } from "@/ee/messaging/thread-display";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { AddChannelPopover } from "./add-channel-popover";
 import { ContactComposePopover } from "./contact-compose-popover";

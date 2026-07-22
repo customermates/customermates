@@ -14,7 +14,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";

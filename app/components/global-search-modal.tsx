@@ -17,7 +17,7 @@ import { AppModal } from "@/components/modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/shared/icon";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { initialsFor } from "@/core/utils/initials";
 
 const TYPE_META: Record<

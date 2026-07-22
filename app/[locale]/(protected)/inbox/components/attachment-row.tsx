@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { Download, X } from "lucide-react";
 
 import { Icon } from "@/components/shared/icon";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { attachmentRowClass } from "./attachment-classify";
 

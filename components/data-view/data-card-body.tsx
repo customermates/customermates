@@ -5,7 +5,7 @@ import type { HasId } from "@/core/base/base-data-view.store";
 
 import { flexRender } from "@tanstack/react-table";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const IDENTITY_COLUMN_ID = "name";
 

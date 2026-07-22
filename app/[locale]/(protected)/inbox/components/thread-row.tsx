@@ -14,7 +14,7 @@ import { deriveThreadDisplay, isUnipileUnsupportedBody } from "@/ee/messaging/th
 import { THREAD_STATE_DOT } from "./thread-state-visuals";
 import { Avatar } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {

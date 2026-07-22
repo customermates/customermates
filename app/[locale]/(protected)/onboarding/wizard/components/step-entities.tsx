@@ -6,7 +6,7 @@ import { Box, Sparkles } from "lucide-react";
 import { SalesType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const CHOICES = [
   {

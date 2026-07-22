@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { IntlLink } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 export const iconButtonClass =
   "inline-flex shrink-0 items-center justify-center rounded-sm text-muted-foreground outline-none transition-[color,transform] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] motion-reduce:transition-none";

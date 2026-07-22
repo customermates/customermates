@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = ComponentProps<typeof CardHeader>;
 

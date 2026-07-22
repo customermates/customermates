@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 
 import { useAppForm } from "@/components/forms/form-context";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   id: string;

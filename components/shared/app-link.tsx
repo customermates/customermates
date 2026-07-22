@@ -5,7 +5,7 @@ import type { ComponentProps } from "react";
 import NextLink from "next/link";
 
 import { IntlLink } from "@/i18n/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
   external?: boolean;

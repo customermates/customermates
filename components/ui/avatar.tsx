@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Avatar as AvatarPrimitive } from "radix-ui";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { initialsFor, personInitials } from "@/core/utils/initials";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 

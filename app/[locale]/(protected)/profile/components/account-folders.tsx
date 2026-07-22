@@ -7,7 +7,7 @@ import { Folder } from "lucide-react";
 
 import { Switch } from "@/components/ui/switch";
 import { Icon } from "@/components/shared/icon";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   account: ConnectedAccountDto;

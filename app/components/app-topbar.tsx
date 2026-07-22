@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
 

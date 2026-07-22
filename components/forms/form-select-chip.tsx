@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";

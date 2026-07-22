@@ -7,7 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 const chipVariants = cva("", {
   variants: {

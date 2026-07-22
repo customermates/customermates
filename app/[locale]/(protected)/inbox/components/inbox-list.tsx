@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
 import { useDataViewSync } from "@/components/data-view";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";

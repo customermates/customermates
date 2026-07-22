@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ClockIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   id?: string;

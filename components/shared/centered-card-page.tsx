@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { DotPattern } from "./dot-pattern";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   children: ReactNode;

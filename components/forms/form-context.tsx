@@ -7,7 +7,7 @@ import { createContext, useContext } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
   store: BaseFormStore;

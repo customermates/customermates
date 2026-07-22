@@ -1,6 +1,6 @@
 import { Globe } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/utils/cn";
 
 import { Icon } from "./icon";
 
