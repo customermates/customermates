@@ -117,7 +117,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
 
       {(hasFilters || hasSearch) && (
         <Button
-          className="h-auto py-0.5 px-2 text-[11px]"
+          className="h-[22px] py-0.5 px-2 text-[11px]"
           size="xs"
           type="button"
           variant="secondary"
