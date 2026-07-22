@@ -69,7 +69,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
               <XIcon className="size-3" />
             </button>
           }
-          startContent={<SearchIcon className="size-3 opacity-70" />}
+          startContent={<SearchIcon className="size-2.5! opacity-70" />}
           variant="default"
         >
           <span className="truncate text-[11px]">
