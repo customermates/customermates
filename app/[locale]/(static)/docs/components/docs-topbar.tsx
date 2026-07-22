@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+import { IntlLink } from "@/i18n/navigation";
 
 import {
   Breadcrumb,
@@ -40,7 +41,7 @@ export function DocsTopBar() {
           <BreadcrumbItem className="shrink-0">
             {activeTitle ? (
               <BreadcrumbLink asChild>
-                <NextLink href="/docs">{rootLabel}</NextLink>
+                <IntlLink href="/docs">{rootLabel}</IntlLink>
               </BreadcrumbLink>
             ) : (
               <BreadcrumbPage>{rootLabel}</BreadcrumbPage>

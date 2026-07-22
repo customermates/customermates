@@ -2,7 +2,6 @@
 
 import type { ReactNode, SVGProps } from "react";
 
-import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
@@ -25,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { IntlLink } from "@/i18n/navigation";
 import { ROUTING_LOCALES } from "@/i18n/routing";
 
 export type DocSidebarItem = {
@@ -78,7 +78,7 @@ function DocItemRow({ item, isActive }: { item: DocSidebarItem; isActive: boolea
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-        <NextLink href={item.url}>
+        <IntlLink href={item.url}>
           <Icon icon={item.icon} />
 
           <span className="truncate">{item.title}</span>
@@ -88,7 +88,7 @@ function DocItemRow({ item, isActive }: { item: DocSidebarItem; isActive: boolea
               {item.method}
             </AppChip>
           )}
-        </NextLink>
+        </IntlLink>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -110,7 +110,7 @@ export const DocsSidebar = observer(() => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg">
-              <NextLink href="/">
+              <IntlLink href="/">
                 <AppImage
                   alt={logoAlt}
                   className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
@@ -125,7 +125,7 @@ export const DocsSidebar = observer(() => {
 
                   <span className="truncate text-xs text-muted-foreground">Documentation</span>
                 </div>
-              </NextLink>
+              </IntlLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -176,11 +176,11 @@ export const DocsSidebar = observer(() => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={t("DocsSidebar.goBack")}>
-              <NextLink href="/">
+              <IntlLink href="/">
                 <Icon icon={ArrowLeft} />
 
                 <span>{t("DocsSidebar.goBack")}</span>
-              </NextLink>
+              </IntlLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

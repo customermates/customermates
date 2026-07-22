@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { Calendar, ChevronLeft } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { BlogPostCard } from "../blog-post-card";
 
+import { IntlLink } from "@/i18n/navigation";
 import { blogPostsSource } from "@/core/fumadocs/source";
 import { ShowcaseFrame } from "@/components/marketing/showcase-frame";
 import { Footer } from "@/app/components/footer";
@@ -81,11 +81,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
         <article className="max-w-6xl mx-auto px-4 flex-1">
-          <Link className="inline-flex items-center text-subdued mb-8" href={`/${locale}/blog`}>
+          <IntlLink className="inline-flex items-center text-subdued mb-8" href="/blog">
             <Icon className="mr-2" icon={ChevronLeft} size="sm" />
 
             {backToBlog}
-          </Link>
+          </IntlLink>
 
           <header>
             <ShowcaseFrame className="mb-8">

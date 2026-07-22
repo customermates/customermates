@@ -3,10 +3,9 @@
 import { Github, Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import NextLink from "next/link";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { usePathname } from "@/i18n/navigation";
+import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
@@ -65,13 +64,13 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
   const showCta = pathname !== ctaTarget;
   const ctaButton = showCta ? (
     <Button asChild size="sm" variant="softPrimary" onClick={closeMenu}>
-      <NextLink href={ctaTarget}>{ctaLabel}</NextLink>
+      <IntlLink href={ctaTarget}>{ctaLabel}</IntlLink>
     </Button>
   ) : null;
 
   const contactButton = (
     <Button asChild className="bg-transparent shadow-none" size="sm" variant="outline" onClick={closeMenu}>
-      <NextLink href="/contact">{t("Common.actions.contact")}</NextLink>
+      <IntlLink href="/contact">{t("Common.actions.contact")}</IntlLink>
     </Button>
   );
 

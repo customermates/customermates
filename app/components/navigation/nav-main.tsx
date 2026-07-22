@@ -2,7 +2,7 @@
 
 import type { SVGProps } from "react";
 
-import NextLink, { useLinkStatus } from "next/link";
+import { useLinkStatus } from "next/link";
 import { ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ import {
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -109,13 +110,13 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                   )}
 
                   <SidebarMenuSubButton asChild isActive={subActive}>
-                    <NextLink href={sub.href} id={`nav-${sub.key}`} onClick={() => onNavigate(sub.key)}>
+                    <IntlLink href={sub.href} id={`nav-${sub.key}`} onClick={() => onNavigate(sub.key)}>
                       <NavLinkOverlayBridge />
 
                       <span>{sub.title}</span>
 
                       <NavBadge count={sub.badge ?? 0} />
-                    </NextLink>
+                    </IntlLink>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               );
@@ -162,7 +163,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
     return (
       <SidebarMenuItem key={item.key}>
         <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-          <NextLink href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
+          <IntlLink href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
             <NavLinkOverlayBridge />
 
             <Icon icon={item.icon} />
@@ -170,7 +171,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
             <span className="min-w-0 truncate">{item.title}</span>
 
             <NavBadge count={item.badge ?? 0} />
-          </NextLink>
+          </IntlLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
