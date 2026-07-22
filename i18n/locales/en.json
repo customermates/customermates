@@ -940,6 +940,7 @@
     "checkpointToastDescription": "The security verification could not be completed. Start the connection again, and contact support if it keeps happening.",
     "checkpointToastTitle": "Verification failed",
     "connectAccount": "Connect channel",
+    "connectDisclosure": "By connecting a channel, you authorize Customermates to process that account's messages, contacts, and calendar through our messaging provider on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink>, and <termsOfServiceLink>Terms</termsOfServiceLink>.",
     "connectedAt": "Connected",
     "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
     "connectedToastTitle": "Channel connected",
@@ -1286,6 +1287,7 @@
     "compare": "Compare",
     "compareViewAll": "View all comparisons",
     "copyrightText": "© {year} Customermates. All rights reserved.",
+    "dpa": "DPA",
     "features": "Features",
     "featuresViewAll": "View all features",
     "helpAndFeedback": "Help",
@@ -1296,6 +1298,7 @@
     "resources": "Resources",
     "solutions": "Solutions",
     "solutionsViewAll": "View all industries",
+    "subprocessors": "Subprocessors",
     "terms": "Terms"
   },
   "ForgotPasswordForm": {

@@ -16,6 +16,8 @@ export const PUBLIC_ROUTES_SEO = [
   "/imprint",
   "/privacy",
   "/terms",
+  "/subprocessors",
+  "/dpa",
   "/blog",
   "/blog/:slug",
   "/features",

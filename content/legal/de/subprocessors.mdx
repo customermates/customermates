@@ -1,0 +1,70 @@
+---
+title: Unterauftragsverarbeiter
+description: Die Unterauftragsverarbeiter, die Customermates zur Erbringung seiner Dienste einsetzt, einschließlich der von Unipile bereitgestellten Funktion für verbundene Konten, mit dem jeweiligen Zweck und der Übermittlungsgrundlage jedes Anbieters.
+---
+
+{/* ENTWURF — CUS-56. Vorbehaltlich der Freigabe durch qualifizierten Rechtsbeistand (EN+DE) und des abgeschlossenen Unipile-AVV. Nicht veröffentlichen, bevor die nachstehenden Reviewer-Hinweise ausgeräumt sind. */}
+
+# Unterauftragsverarbeiter
+
+_Stand: 22. Juli 2026_
+
+## 1. Über diese Liste
+
+Ein Unterauftragsverarbeiter ist ein externer Dienstleister, den Customermates einsetzt, um im Rahmen der Bereitstellung der Customermates-Plattform personenbezogene Daten im Auftrag von Customermates zu verarbeiten.
+
+Diese Liste ist durch Verweis Bestandteil unserer Datenschutzerklärung (/privacy) und unseres Auftragsverarbeitungsvertrags (/dpa). Wir halten sie aktuell und überprüfen sie, sobald wir einen Unterauftragsverarbeiter hinzufügen, ersetzen oder entfernen.
+
+## 2. Rollen
+
+Unsere Unterauftragsverarbeiter unterstützen zwei verschiedene Arten der Verarbeitung:
+
+- Für Website-, Konto-, Abrechnungs-, Sicherheits- und Support-Daten ist Customermates Verantwortlicher und setzt die nachstehend aufgeführten Unterauftragsverarbeiter ein, um diese Daten in seinem Auftrag zu verarbeiten.
+- Für Inhalte verbundener Konten — die verbundenen Postfächer, Nachrichten, Kontakte und Kalender eines Kunden sowie die personenbezogenen Daten der Personen, mit denen er kommuniziert — ist der Kunde Verantwortlicher, Customermates handelt als Auftragsverarbeiter im Auftrag des Kunden, und die betreffenden nachstehenden Anbieter (insbesondere Unipile sowie unser Datenbank-Hoster, soweit er diese Inhalte speichert) handeln als Unterauftragsverarbeiter. Die zugrunde liegenden Kommunikationsplattformen (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram, Telegram) handeln als eigenständige Verantwortliche für ihre eigenen Dienste.
+
+{/* REVIEWER: Zuordnung Verantwortlicher/Auftragsverarbeiter/Unterauftragsverarbeiter je Zweck mit Rechtsbeistand bestätigen. */}
+
+Soweit ein Unterauftragsverarbeiter personenbezogene Daten im Auftrag von Customermates verarbeitet, schließt Customermates mit diesem Unterauftragsverarbeiter einen Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO. Soweit personenbezogene Daten in ein Drittland übermittelt werden, stützt sich Customermates auf einen geeigneten Übermittlungsmechanismus wie die EU-Standardvertragsklauseln (Art. 46 DSGVO) oder eine Zertifizierung nach dem EU-US Data Privacy Framework, wie nachstehend für jeden Anbieter und in unserer Datenschutzerklärung dargelegt.
+
+## 3. Aktuelle Unterauftragsverarbeiter
+
+| Unterauftragsverarbeiter | Dienst und Zweck | Datenstandort und Übermittlungsgrundlage |
+| --- | --- | --- |
+| **Unipile** — UNIPILE SAS, 168 rue de la Rotonde, 42153 Riorges, Frankreich (RCS Roanne 885265595) | Funktion für verbundene Konten: Transport für verbundene E-Mail-, Messaging- und Kalenderkonten. Die Authentifizierung erfolgt auf den gehosteten Seiten von Unipile; Customermates erhält keine Anbieter-Passwörter oder OAuth-Token. | Unipile gibt an, dass die Daten verbundener Konten in der EU (Frankreich) gespeichert werden. |
+| **Vercel** — Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA | Hosting der Website und der Webanwendung. | USA. EU-Standardvertragsklauseln; Vercel ist nach dem EU-US Data Privacy Framework zertifiziert. |
+| **Supabase** — Supabase Inc., 970 Toa Payoh North, #07-04, Singapore 318992 | Datenbank- und Backend-Plattform: Speicherung und Verarbeitung von Anwendungsdaten, einschließlich gespeicherter Inhalte verbundener Konten. | Server können außerhalb der EU liegen; nach Möglichkeit erfolgt die Speicherung innerhalb der EU. EU-Standardvertragsklauseln. |
+| **Forward Email** — Forward Email, LLC, 16192 Coastal Hwy, Lewes, DE 19958, USA | E-Mail-Infrastruktur: Verarbeitung und Weiterleitung von E-Mails. | USA. EU-Standardvertragsklauseln (Art. 46 DSGVO) sowie verschlüsselte Übertragung. |
+| **Sentry** — Functional Software, Inc. (firmierend als Sentry), 45 Fremont Street, 8th Floor, San Francisco, CA 94105, USA (EU-Vertreter: Sentry Software Netherlands B.V., Amsterdam) | Fehler- und Leistungsüberwachung über Browser, Server und Hintergrund-Worker hinweg. | Fehler-Ereignisdaten werden in der EU (Frankfurt) gespeichert; Konto-, Authentifizierungs-, Integrations-, Audit-Log- und Support-Daten werden in den USA gespeichert. Zertifizierung nach dem EU-US Data Privacy Framework und EU-Standardvertragsklauseln. |
+| **Lemon Squeezy** — Lemon Squeezy LLC, 330 N. Brand Blvd., Suite 700, Glendale, CA 91203, USA | Zahlungsabwicklung als Merchant of Record sowie Affiliate-Programm-Tracking. | USA. EU-Standardvertragsklauseln (Art. 46 DSGVO). |
+| **Resend** — Plus Five Five, Inc. (firmierend als Resend), 2261 Market Street #5039, San Francisco, CA 94114, USA | Newsletter-Versand. | USA. EU-Standardvertragsklauseln und Zertifizierung nach dem EU-US Data Privacy Framework. |
+| **Zoom** — Zoom Communications Inc., 55 Almaden Boulevard, 6th Floor, San Jose, CA 95113, USA | Audio- und Videokonferenzen. | USA. EU-Standardvertragsklauseln; Zoom ist nach dem EU-US Data Privacy Framework zertifiziert. |
+| **OpenAI** — OpenAI, L.L.C., 3180 18th St, San Francisco, CA 94110, USA | Optionaler KI-gestützter Chatbot innerhalb des CRM. | USA. EU-Standardvertragsklauseln (Art. 46 DSGVO). |
+| **Cloudflare** — Cloudflare (nationale Flaggenbilder über flagcdn.com / flagpedia.net) | Content Delivery Network für Flaggen und netzseitige Sicherheitsfilterung. | USA. EU-Standardvertragsklauseln; der Anbieter ist nach dem EU-US Data Privacy Framework zertifiziert. |
+
+{/* REVIEWER: Angaben des Anbieters; Speicherorte und etwaige Übermittlungen außerhalb des EWR (die Unterauftragsverarbeiter-Liste von Unipile enthält das US-Unternehmen Stripe) vor Veröffentlichung anhand des abgeschlossenen AVV + der aktuellen Unterauftragsverarbeiter-Liste bestätigen. */}
+
+{/* REVIEWER: BLOCKER — den Unipile-AVV nach Art. 28 vor Veröffentlichung abschließen; dieser Abschnitt setzt voraus, dass er in Kraft ist. */}
+
+{/* REVIEWER: aktuellen Datenbank-Hoster bestätigen — siehe CUS-94 Neon-Umstellung */}
+
+{/* REVIEWER: die Datenschutzerklärung nennt nur „Cloudflare“ (Flaggen-CDN über flagcdn.com / flagpedia.net); vor Veröffentlichung die vertragschließende juristische Person bestätigen sowie, ob es sich um einen Unterauftragsverarbeiter oder einen eigenständigen dritten Inhalteanbieter handelt. */}
+
+{/* REVIEWER: diese Liste mit privacy.mdx und dem AVV (dpa.mdx) synchron halten; bei jedem Hinzufügen, Ersetzen oder Entfernen eines Unterauftragsverarbeiters aktualisieren. */}
+
+Weitere Informationen zu Unipile finden Sie in dessen Datenschutzerklärung unter https://www.unipile.com/privacy-policy/ , den Nutzungsbedingungen unter https://www.unipile.com/terms-of-use/ sowie den Informationen zu Sicherheit und Compliance unter https://www.unipile.com/security-compliance/ .
+
+## 4. Änderungen dieser Liste
+
+Bevor wir einen neuen Unterauftragsverarbeiter einsetzen oder einen bestehenden für eine im Auftrag eines Kunden durchgeführte Verarbeitung ersetzen, informieren wir die betroffenen Kunden im Voraus und geben ihnen Gelegenheit zum Widerspruch, gemäß unserem Auftragsverarbeitungsvertrag (/dpa). Widerspricht ein Kunde aus berechtigten Datenschutzgründen und können wir dem Widerspruch nicht abhelfen, kann jede Partei die betroffenen Dienste nach Maßgabe des Auftragsverarbeitungsvertrags kündigen.
+
+## 5. Kontakt
+
+Bei Fragen zu dieser Liste oder zum Datenschutz allgemein können Sie sich an die verantwortliche Stelle wenden:
+
+Benjamin Wagner  
+An den Kasernen 25  
+68167 Mannheim  
+Deutschland  
+E-Mail: mail@customermates.com
+
+*Stand: 22.07.2026*

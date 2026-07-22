@@ -3,6 +3,8 @@ title: "Datenschutz & Datenschutzrichtlinie"
 description: Informationen zum Datenschutz bei Customermates. Erfahren Sie, wie wir personenbezogene Daten schützen, verarbeiten und DSGVO-konform verwalten.
 ---
 
+{/* ENTWURF — CUS-56. Vorbehaltlich der Freigabe durch qualifizierte Rechtsberatung (EN+DE) und des abgeschlossenen Unipile-AVV. Nicht veröffentlichen, bis die nachstehenden Prüfhinweise ausgeräumt sind. */}
+
 # Datenschutz
 
 _Stand: 13. Mai 2026_
@@ -322,7 +324,53 @@ Wir nutzen Zoom. Anbieter dieses Dienstes ist die Zoom Communications Inc., San 
 
 Das Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll. Jedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/participant/5728.
 
-## 9. Einsatz von KI-gestütztem Chatbot (OpenAI)
+## 9. Verbundene Konten (E-Mail, Messaging und Kalender)
+
+Unser CRM-System bietet eine optionale Funktion für verbundene Konten, mit der Sie Ihre eigenen E-Mail-Postfächer (Gmail/Google, Microsoft/Outlook und IMAP), Messaging-Konten (LinkedIn, einschließlich der Varianten Sales Navigator und Recruiter, sowie WhatsApp, Instagram und Telegram) und Kalender verbinden können, um Ihre geschäftliche Kommunikation und Ihre Termine direkt innerhalb des CRM zu senden, zu empfangen und zu verwalten. Die Nutzung dieser Funktion ist optional und wird nur wirksam, wenn Sie sich aktiv dafür entscheiden, ein Konto zu verbinden.
+
+Der technische Transport der Daten verbundener Konten erfolgt durch unseren Dienstleister **UNIPILE SAS**, RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, Frankreich (nachfolgend „Unipile“).
+
+Die Authentifizierung erfolgt über eine von Unipile gehostete Authentifizierungsseite, auf der Sie Ihre Anmeldedaten beim jeweiligen Anbieter eingeben oder die OAuth-Anmeldung des Anbieters durchführen. Ihre Anbieter-Passwörter und OAuth-Token werden von Unipile verwahrt; Customermates erhält oder speichert diese nicht und speichert lediglich eine opake Konto-Kennung zusammen mit nicht geheimen Konto-Metadaten.
+
+### Verarbeitete Daten
+
+Bei Nutzung der Funktion für verbundene Konten können abhängig von den von Ihnen verbundenen Konten folgende personenbezogene Daten verarbeitet werden:
+- Metadaten des verbundenen Kontos (z. B. die verbundene Adresse oder der verbundene Handle, der Anzeigename und der Verbindungsstatus);
+- E-Mail-Inhalte, einschließlich Betreff, Nachrichtentext, Absender- und Empfängeradressen sowie Anhänge;
+- Inhalte von Chats und Direktnachrichten über die verbundenen Messaging-Kanäle;
+- Kontakt- und Teilnehmer-Profildaten (Name, Avatar, LinkedIn-Überschrift/-Berufsbezeichnung, Profil-URL sowie die jeweilige E-Mail-Adresse, Telefonnummer oder der jeweilige Handle);
+- Kalendereinträge, einschließlich der E-Mail-Adressen von Teilnehmern und des Zu-/Absagestatus (RSVP);
+- Nachrichten- und Konto-Metadaten.
+
+Anhänge werden bei Bedarf übertragen und von Customermates nicht gespeichert; gespeichert werden lediglich die Metadaten der Anhänge. Zusätzlich zur Verarbeitung bei Unipile speichert Customermates eine Kopie der Inhalte verbundener Konten in seiner eigenen Datenbank (siehe Abschnitt 2, „Supabase“), insbesondere Nachrichtentexte (Text und HTML), Betreffzeilen, Absender- und Empfängerkennungen, Profile der Thread-Teilnehmer, Kalendereinträge mit den E-Mail-Adressen der Teilnehmer sowie die von den Anbietern empfangenen rohen Eingangsdaten.
+
+Die über die Funktion für verbundene Konten verarbeiteten Daten umfassen sowohl personenbezogene Daten Ihrer eigenen Nutzer als auch personenbezogene Daten Dritter, mit denen Sie kommunizieren (Ihrer Korrespondenzpartner) und deren Daten in Nachrichten, Kontakten und Kalendereinträgen erscheinen.
+
+### Rollen und Auftragsverarbeitung
+
+Für die Inhalte verbundener Konten (Ihre Postfächer, Nachrichten, Kontakte und Kalender, einschließlich der personenbezogenen Daten Ihrer Korrespondenzpartner) sind Sie Verantwortlicher im Sinne des Art. 4 Nr. 7 DSGVO. Customermates verarbeitet diese Daten ausschließlich in Ihrem Auftrag und nach Ihren Weisungen als Auftragsverarbeiter gemäß Art. 28 DSGVO. Customermates zieht hierfür Unipile als Unterauftragsverarbeiter hinzu. Die zugrunde liegenden Kommunikationsplattformen (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram und Telegram) handeln als eigenständige Verantwortliche für ihre jeweiligen eigenen Dienste. {/* REVIEWER: Zuordnung von Verantwortlichem/Auftragsverarbeiter/Unterauftragsverarbeiter je Zweck mit der Rechtsberatung bestätigen. */}
+
+Eine Liste der von uns eingesetzten Unterauftragsverarbeiter ist unter /subprocessors verfügbar, weitere Informationen zum Auftragsverarbeitungsvertrag sind unter /dpa verfügbar. {/* REVIEWER: BLOCKER — den Unipile-Auftragsverarbeitungsvertrag nach Art. 28 DSGVO vor der Veröffentlichung abschließen; dieser Abschnitt setzt voraus, dass er in Kraft ist. */}
+
+### Rechtsgrundlage
+
+Die Verarbeitung der Daten verbundener Konten erfolgt zur Erfüllung unseres Vertrags mit Ihnen (Art. 6 Abs. 1 lit. b DSGVO) sowie auf Grundlage Ihrer dokumentierten Weisungen als Verantwortlicher im Rahmen des Auftragsverarbeitungsvertrags gemäß Art. 28 DSGVO. Diese Verarbeitung beruht nicht auf einer Einwilligung im Sinne des Art. 6 Abs. 1 lit. a DSGVO.
+
+### Speicherung und Drittlandübermittlung
+
+Die Daten verbundener Konten werden bei Unipile verarbeitet und zusätzlich in der eigenen Datenbank von Customermates gespeichert (siehe Abschnitt 2). Unipile gibt an, dass die Daten verbundener Konten in der EU (Frankreich) gespeichert werden. {/* REVIEWER: Angabe des Anbieters; Speicherorte und etwaige Übermittlungen außerhalb des EWR (die Unterauftragsverarbeiter-Liste von Unipile enthält das US-Unternehmen Stripe) vor der Veröffentlichung anhand des abgeschlossenen AVV und der aktuellen Unterauftragsverarbeiter-Liste bestätigen. */}
+
+Weitere Informationen finden Sie in der Datenschutzerklärung von Unipile unter https://www.unipile.com/privacy-policy/, in den Nutzungsbedingungen unter https://www.unipile.com/terms-of-use/ sowie in den Informationen zu Sicherheit und Compliance unter https://www.unipile.com/security-compliance/.
+
+### Aufbewahrung und Löschung
+
+Wenn Sie ein verbundenes Konto trennen, löscht Customermates die zu diesem Konto gespeicherten Threads, Nachrichten, Teilnehmerprofile und Kalenderdaten und fordert Unipile auf, das Konto zu entfernen. Gesetzliche Aufbewahrungspflichten bleiben unberührt.
+
+### Anfragen betroffener Personen
+
+Anfragen betroffener Personen zu Inhalten verbundener Konten werden an Customermates gerichtet und an Sie als verantwortliche Stelle weitergeleitet; im Rahmen seiner Rolle als Auftragsverarbeiter unterstützt Customermates Sie bei der Beantwortung solcher Anfragen. Soweit Sie im CRM personenbezogene Daten Dritter verarbeiten, erfolgt dies in Ihrer eigenen datenschutzrechtlichen Verantwortung.
+
+## 10. Einsatz von KI-gestütztem Chatbot (OpenAI)
 
 In unserem CRM-System setzen wir einen optionalen KI-gestützten Chatbot ein, der Modelle der OpenAI, L.L.C., 3180 18th St, San Francisco, CA 94110, USA verwendet (https://openai.com).
 
@@ -363,7 +411,7 @@ Weitere Informationen:
 
 Für die Datenverarbeitung im Rahmen der Bereitstellung und technischen Nutzung des CRM-Systems einschließlich des KI-gestützten Chatbots sind wir Verantwortlicher im Sinne der DSGVO. Soweit Nutzer im CRM personenbezogene Daten Dritter verarbeiten, erfolgt dies in deren eigener datenschutzrechtlicher Verantwortung.
 
-## 10. Sonstiges
+## 11. Sonstiges
 
 ### Einbindung von Flaggen über https://flagcdn.com/
 

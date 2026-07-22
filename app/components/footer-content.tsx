@@ -215,6 +215,18 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
                   {t("Footer.terms")}
                 </AppLink>
               </li>
+
+              <li>
+                <AppLink className="text-subdued" href="/subprocessors">
+                  {t("Footer.subprocessors")}
+                </AppLink>
+              </li>
+
+              <li>
+                <AppLink className="text-subdued" href="/dpa">
+                  {t("Footer.dpa")}
+                </AppLink>
+              </li>
             </ul>
           </div>
         </div>

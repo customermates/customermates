@@ -3,6 +3,8 @@ title: "Privacy Policy & Data Protection"
 description: Learn how Customermates protects and processes personal data. Full details on privacy measures, data security, and GDPR-compliant handling.
 ---
 
+{/* DRAFT — CUS-56. Pending qualified-counsel approval (EN+DE) and the executed Unipile DPA. Do not publish until the reviewer notes below are cleared. */}
+
 # Privacy Policy
 
 _Last updated: 13 May 2026_
@@ -322,7 +324,53 @@ We use Zoom. The provider of this service is Zoom Communications Inc., San Jose,
 
 The company is certified under the "EU-US Data Privacy Framework" (DPF). The DPF is an agreement between the European Union and the USA that is intended to ensure compliance with European data protection standards for data processing in the USA. Each company certified under the DPF undertakes to comply with these data protection standards. For more information, please contact the provider at the following link: https://www.dataprivacyframework.gov/participant/5728.
 
-## 9. Use of AI-Powered Chatbot (OpenAI)
+## 9. Connected Accounts (Email, Messaging, and Calendar)
+
+Our CRM system offers an optional connected-account feature that lets you connect your own email mailboxes (Gmail/Google, Microsoft/Outlook, and IMAP), messaging accounts (LinkedIn, including its Sales Navigator and Recruiter variants, as well as WhatsApp, Instagram, and Telegram), and calendars, so that you can send, receive, and manage your business communications and appointments directly within the CRM. The use of this feature is optional and only takes effect if you actively choose to connect an account.
+
+The technical transport of connected-account data is provided by our service provider **UNIPILE SAS**, RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, France (hereinafter "Unipile").
+
+Authentication takes place via a Unipile-hosted authentication page on which you enter your provider credentials or complete the provider's OAuth login. Your provider passwords and OAuth tokens are held by Unipile; Customermates does not receive or store them and stores only an opaque account identifier together with non-secret account metadata.
+
+### Processed Data
+
+When you use the connected-account feature, the following personal data may be processed, depending on the accounts you connect:
+- connected-account metadata (e.g., the connected address or handle, display name, and connection status);
+- email content, including subject, body, sender and recipient addresses, and attachments;
+- chat and direct-message content across the connected messaging channels;
+- contact and participant profile data (name, avatar, LinkedIn headline/occupation, profile URL, and the relevant email address, phone number, or handle);
+- calendar events, including attendee email addresses and RSVP status;
+- message and account metadata.
+
+Attachment files are transmitted on demand and are not stored by Customermates; only attachment metadata is stored. In addition to the processing at Unipile, Customermates stores a copy of the connected-account content in its own database (see section 2, "Supabase"), in particular message bodies (text and HTML), subjects, sender and recipient identifiers, thread participant profiles, calendar events with attendee email addresses, and the raw inbound data received from the providers.
+
+The data processed via the connected-account feature includes personal data of your own users as well as of third parties with whom you communicate (your correspondents) whose data appears in messages, contacts, and calendar entries.
+
+### Roles and Data Processing on Behalf
+
+For the content of connected accounts (your mailboxes, messages, contacts, and calendars, including the personal data of your correspondents), you are the controller within the meaning of Art. 4 no. 7 GDPR. Customermates processes this data exclusively on your behalf and according to your instructions as a processor pursuant to Art. 28 GDPR. Customermates engages Unipile as a subprocessor for this purpose. The underlying communication platforms (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram, and Telegram) act as independent controllers for their own respective services. {/* REVIEWER: confirm controller/processor/subprocessor allocation per purpose with counsel. */}
+
+A list of the subprocessors we engage is available at /subprocessors, and further information on the data processing agreement is available at /dpa. {/* REVIEWER: BLOCKER — execute the Unipile Art. 28 DPA before publishing; this section presumes it is in force. */}
+
+### Legal Basis
+
+The processing of connected-account data is carried out for the performance of our contract with you (Art. 6 para. 1 lit. b GDPR) and on the basis of your documented instructions as controller under the data processing agreement pursuant to Art. 28 GDPR. This processing is not based on consent within the meaning of Art. 6 para. 1 lit. a GDPR.
+
+### Storage and Transfer to Third Countries
+
+Connected-account data is processed at Unipile and is additionally stored in Customermates' own database (see section 2). Unipile states that connected-account data is stored in the EU (France). {/* REVIEWER: vendor-stated; confirm storage locations and any non-EEA transfer (Unipile's subprocessor list includes US Stripe) against the executed DPA + current subprocessor list before publishing. */}
+
+Further information can be found in Unipile's privacy policy at https://www.unipile.com/privacy-policy/, its terms of use at https://www.unipile.com/terms-of-use/, and its security and compliance information at https://www.unipile.com/security-compliance/.
+
+### Retention and Deletion
+
+When you disconnect a connected account, Customermates deletes the stored threads, messages, participant profiles, and calendar data associated with that account and requests Unipile to remove the account. Statutory retention obligations remain unaffected.
+
+### Data Subject Requests
+
+Requests from data subjects concerning connected-account content are directed to Customermates and forwarded to you as the responsible controller; within the scope of its role as processor, Customermates supports you in responding to such requests. Where you process the personal data of third parties within the CRM, this is done under your own data protection responsibility.
+
+## 10. Use of AI-Powered Chatbot (OpenAI)
 
 Within our CRM system, we use an optional AI-powered chatbot that utilizes models from OpenAI, L.L.C., 3180 18th St, San Francisco, CA 94110, USA (https://openai.com).
 
@@ -363,7 +411,7 @@ Further information:
 
 We are responsible under the GDPR for data processing in connection with the provision and technical use of the CRM system, including the AI-powered chatbot. If users process personal data of third parties within the CRM, this is done under their own data protection responsibility.
 
-## 10. Other
+## 11. Other
 
 ### Integration of flags via https://flagcdn.com/
 

@@ -940,6 +940,7 @@
     "checkpointToastDescription": "Die Sicherheitsüberprüfung konnte nicht abgeschlossen werden. Starte die Verbindung erneut und kontaktiere den Support, falls das Problem bestehen bleibt.",
     "checkpointToastTitle": "Verifizierung fehlgeschlagen",
     "connectAccount": "Kanal verbinden",
+    "connectDisclosure": "Mit dem Verbinden eines Kanals beauftragen Sie Customermates, die Nachrichten, Kontakte und Kalender dieses Kontos in Ihrem Auftrag über unseren Messaging-Dienstleister zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "connectedAt": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
@@ -1286,6 +1287,7 @@
     "compare": "Vergleich",
     "compareViewAll": "Alle Vergleiche ansehen",
     "copyrightText": "© {year} Customermates. Alle Rechte vorbehalten.",
+    "dpa": "AVV",
     "features": "Features",
     "featuresViewAll": "Alle Features ansehen",
     "helpAndFeedback": "Hilfe",
@@ -1296,6 +1298,7 @@
     "resources": "Ressourcen",
     "solutions": "Lösungen",
     "solutionsViewAll": "Alle Branchen ansehen",
+    "subprocessors": "Unterauftragsverarbeiter",
     "terms": "AGB"
   },
   "ForgotPasswordForm": {
