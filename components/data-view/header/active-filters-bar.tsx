@@ -2,11 +2,12 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { BookmarkIcon, XIcon } from "lucide-react";
+import { BookmarkIcon, SearchIcon, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
@@ -28,8 +29,11 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
 
   const filters = store.filters ?? [];
   const presets = store.savedFilterPresets ?? [];
+  const searchTerm = store.searchTerm?.trim() ? store.searchTerm : undefined;
+  const hasFilters = filters.length > 0;
+  const hasSearch = Boolean(searchTerm);
 
-  if (filters.length === 0) {
+  if (!hasFilters && !hasSearch) {
     if (presets.length === 0) return null;
 
     return (
@@ -51,6 +55,33 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
 
   return (
     <div className="flex flex-wrap gap-1.5 items-center px-4 py-2 border-b border-border">
+      {hasSearch && (
+        <AppChip
+          className="max-w-md"
+          endContent={
+            <button
+              aria-label={t("Common.filters.clearSearch")}
+              className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
+              tabIndex={-1}
+              type="button"
+              onClick={() => store.setQueryOptions({ searchTerm: "" })}
+            >
+              <XIcon className="size-3" />
+            </button>
+          }
+          startContent={<SearchIcon className="size-3 opacity-70" />}
+          variant="default"
+        >
+          <span className="truncate text-[11px]">
+            <span className="font-medium">{t("Common.filters.searchLabel")}</span>
+
+            <span className="mx-1 font-normal">:</span>
+
+            {searchTerm}
+          </span>
+        </AppChip>
+      )}
+
       {filters.map((filter, index) => {
         const label = getFilterLabel(filter, store.customColumns, t);
         const operator = t(`Common.filters.operators.${filter.operator}`);
@@ -86,15 +117,17 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
         );
       })}
 
-      <Button
-        className="h-auto py-0.5 px-2 text-[11px]"
-        size="xs"
-        type="button"
-        variant="secondary"
-        onClick={() => store.changeFilterPreset(undefined)}
-      >
-        {t("Common.filters.clearAll")}
-      </Button>
+      {(hasFilters || hasSearch) && (
+        <Button
+          className="h-auto py-0.5 px-2 text-[11px]"
+          size="xs"
+          type="button"
+          variant="secondary"
+          onClick={() => store.setQueryOptions({ filters: [], searchTerm: "" })}
+        >
+          {t("Common.filters.clearAll")}
+        </Button>
+      )}
     </div>
   );
 });

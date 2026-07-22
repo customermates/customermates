@@ -6,9 +6,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
-import { DataViewContainer } from "@/components/data-view";
+import { DataViewContainer, useDataViewSync } from "@/components/data-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { AppChip } from "@/components/chip/app-chip";
@@ -21,7 +21,7 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
   const t = useTranslations();
   const { webhookModalStore, webhooksStore, intlStore } = useRootStore();
 
-  useEffect(() => webhooksStore.setItems(initialWebhooks), [initialWebhooks]);
+  useDataViewSync(webhooksStore, initialWebhooks);
 
   const columns = useMemo<ColumnDef<WebhookDto>[]>(() => {
     return [

@@ -6,11 +6,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { getEntityName } from "@/features/event/entity-name.utils";
-import { DataViewContainer } from "@/components/data-view";
+import { DataViewContainer, useDataViewSync } from "@/components/data-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 type Props = {
@@ -21,7 +21,7 @@ export const WebhookDeliveriesCard = observer(({ initialDeliveries }: Props) => 
   const t = useTranslations();
   const { webhookDeliveryModalStore, webhookDeliveriesStore, intlStore } = useRootStore();
 
-  useEffect(() => webhookDeliveriesStore.setItems(initialDeliveries), [initialDeliveries]);
+  useDataViewSync(webhookDeliveriesStore, initialDeliveries);
 
   const columns = useMemo<ColumnDef<WebhookDeliveryDto>[]>(() => {
     return [
