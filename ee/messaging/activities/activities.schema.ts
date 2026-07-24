@@ -2,7 +2,7 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { z } from "zod";
 
-import { ConnectedAccountStatus, EntityType, MessagingThreadType } from "@/generated/prisma";
+import { EntityType, MessagingThreadType } from "@/generated/prisma";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -90,15 +90,6 @@ export const ActivityThreadOptionDtoSchema = z.object({
   provider: z.string(),
 });
 export type ActivityThreadOptionDto = z.infer<typeof ActivityThreadOptionDtoSchema>;
-
-export const ActivityChannelOptionDtoSchema = z.object({
-  id: z.uuid(),
-  label: z.string(),
-  provider: z.string(),
-  status: z.enum(ConnectedAccountStatus),
-  ownerName: z.string().nullable(),
-});
-export type ActivityChannelOptionDto = z.infer<typeof ActivityChannelOptionDtoSchema>;
 
 export const ActivitiesParamsSchema = GetQueryParamsSchema.extend({
   entityType: z.enum(EntityType).optional(),

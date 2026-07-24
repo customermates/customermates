@@ -15,14 +15,12 @@ const { fake } = vi.hoisted(() => {
     messagingMessage: [],
     accountActivity: [],
     calendarEvent: [],
-    connectedAccount: [],
   };
-  const channelRows: any[] = [];
 
-  const model = (name: string, rows?: () => any[]) => ({
+  const model = (name: string) => ({
     findMany: (args: any) => {
       calls[name].push({ op: "findMany", args });
-      return Promise.resolve(rows ? rows() : []);
+      return Promise.resolve([]);
     },
     count: (args: any) => {
       calls[name].push({ op: "count", args });
@@ -33,17 +31,14 @@ const { fake } = vi.hoisted(() => {
   return {
     fake: {
       calls,
-      channelRows,
       reset() {
         for (const key of Object.keys(calls)) calls[key].length = 0;
-        channelRows.length = 0;
       },
       prisma: {
         auditLog: model("auditLog"),
         messagingMessage: model("messagingMessage"),
         accountActivity: model("accountActivity"),
         calendarEvent: model("calendarEvent"),
-        connectedAccount: model("connectedAccount", () => channelRows),
       },
     },
   };
@@ -58,7 +53,6 @@ vi.mock("@/core/di", () => ({
 import { PrismaActivitiesRepo } from "../prisma-activities.repository";
 
 const A = "16000000-0000-4000-8000-000000000001";
-const B = "16000000-0000-4000-8000-000000000002";
 
 const messagesAndAudit = () =>
   createMockUserWithPermissions([
@@ -170,40 +164,5 @@ describe("PrismaActivitiesRepo — provider consistency across channel-backed so
     expect(whereOf("messagingMessage", "count").provider.in).toEqual(["google"]);
     expect(providerRelation(whereOf("accountActivity", "count"))).toEqual(["google"]);
     expect(providerRelation(whereOf("calendarEvent", "count"))).toEqual(["google"]);
-  });
-});
-
-describe("PrismaActivitiesRepo.listChannelOptions", () => {
-  it("lists accessible, non-deleted channels with safe labels and owner context", async () => {
-    fake.channelRows.push(
-      {
-        id: A,
-        provider: "google",
-        status: "ok",
-        displayName: "Sales Inbox",
-        emailAddress: "sales@acme.test",
-        userId: "test-user-id",
-        user: { firstName: "Jane", lastName: "Doe" },
-      },
-      {
-        id: B,
-        provider: "linkedin",
-        status: "ok",
-        displayName: null,
-        emailAddress: null,
-        userId: "other-user-id",
-        user: { firstName: "Sam", lastName: "Lee" },
-      },
-    );
-
-    const options = await runWithTenant(messagesAndAudit(), () => new PrismaActivitiesRepo().listChannelOptions({}));
-
-    const where = whereOf("connectedAccount", "findMany");
-    expect(where.companyId).toBe("test-company-id");
-    expect(where.OR).toEqual([{ userId: "test-user-id" }, { shared: true }]);
-    expect(where.status).toEqual({ not: "deleted" });
-
-    expect(options[0]).toMatchObject({ id: A, provider: "google", label: "Sales Inbox", ownerName: null });
-    expect(options[1]).toMatchObject({ id: B, provider: "linkedin", label: "", ownerName: "Sam Lee" });
   });
 });

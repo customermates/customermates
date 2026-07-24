@@ -2,12 +2,11 @@
 
 import type { ActivitiesParams } from "@/ee/messaging/activities/activities.schema";
 import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
-import type { ActivityChannelOptionsData } from "@/ee/messaging/activities/get-activity-channel-options.interactor";
 
 import {
   getGetActivitiesInteractor,
   getGetActivityThreadOptionsInteractor,
-  getGetActivityChannelOptionsInteractor,
+  getGetMyConnectedAccountsInteractor,
 } from "@/core/di";
 
 export async function getActivitiesAction(input: ActivitiesParams) {
@@ -20,7 +19,7 @@ export async function getActivityThreadOptionsAction(input: ActivityThreadOption
   return result.ok ? result.data : [];
 }
 
-export async function getActivityChannelOptionsAction(input: ActivityChannelOptionsData) {
-  const result = await getGetActivityChannelOptionsInteractor().invoke(input);
+export async function getConnectedAccountsAction() {
+  const result = await getGetMyConnectedAccountsInteractor().invoke();
   return result.ok ? result.data : [];
 }

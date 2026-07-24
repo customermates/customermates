@@ -4,7 +4,14 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CustomColumnType, MessagingProvider, MessagingThreadState, Status, TaskType } from "@/generated/prisma";
+import {
+  ConnectedAccountStatus,
+  CustomColumnType,
+  MessagingProvider,
+  MessagingThreadState,
+  Status,
+  TaskType,
+} from "@/generated/prisma";
 
 import { isCustomField } from "@/components/data-view/table-view.utils";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -20,7 +27,7 @@ import { getOrganizationsAction } from "@/app/[locale]/(protected)/organizations
 import { getDealsAction } from "@/app/[locale]/(protected)/deals/actions";
 import { getServicesAction } from "@/app/[locale]/(protected)/services/actions";
 import { getTasksAction } from "@/app/[locale]/(protected)/tasks/actions";
-import { getActivityThreadOptionsAction, getActivityChannelOptionsAction } from "@/app/[locale]/(protected)/actions";
+import { getActivityThreadOptionsAction, getConnectedAccountsAction } from "@/app/[locale]/(protected)/actions";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
 import {
   THREAD_STATE_CHIP_COLOR,
@@ -153,25 +160,22 @@ export function useFilterSelectItems(
           })),
         }));
       },
-      [FilterFieldKey.connectedAccountId]: () => {
-        const { timelineEntityType, timelineEntityId } = activitiesStore;
-
-        return getActivityChannelOptionsAction({
-          entityType: timelineEntityType ?? undefined,
-          entityId: timelineEntityId || undefined,
-        }).then((channels) => ({
-          items: channels.map((channel) => {
-            const providerLabel = t(`Common.providers.${channel.provider}`);
-            const base = channel.label || providerLabel;
-            return {
-              key: channel.id,
-              value: channel.id,
-              textValue: channel.ownerName ? `${base} · ${channel.ownerName}` : base,
-              startContent: renderProviderIcon(channel.provider, providerLabel),
-            };
-          }),
-        }));
-      },
+      [FilterFieldKey.connectedAccountId]: () =>
+        getConnectedAccountsAction().then((accounts) => ({
+          items: accounts
+            .filter((account) => account.status !== ConnectedAccountStatus.deleted)
+            .map((account) => {
+              const providerLabel = t(`Common.providers.${account.provider}`);
+              const base = account.displayName?.trim() || account.emailAddress?.trim() || providerLabel;
+              const ownerName = account.isOwner ? null : `${account.owner.firstName} ${account.owner.lastName}`.trim();
+              return {
+                key: account.id,
+                value: account.id,
+                textValue: ownerName ? `${base} · ${ownerName}` : base,
+                startContent: renderProviderIcon(account.provider, providerLabel),
+              };
+            }),
+        })),
     };
 
     if (isCustom) return undefined;

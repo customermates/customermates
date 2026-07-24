@@ -224,7 +224,6 @@ import { GetMessageAttachmentInteractor } from "@/ee/messaging/inbox/get-message
 import { GetUnreadThreadCountInteractor } from "@/ee/messaging/inbox/get-unread-thread-count.interactor";
 import { GetActivitiesInteractor } from "@/ee/messaging/activities/get-activities.interactor";
 import { GetActivityThreadOptionsInteractor } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
-import { GetActivityChannelOptionsInteractor } from "@/ee/messaging/activities/get-activity-channel-options.interactor";
 import { PrismaActivitiesRepo } from "@/ee/messaging/activities/prisma-activities.repository";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
 import { ListSocialPostsInteractor } from "@/ee/messaging/posts/list-social-posts.interactor";
@@ -1247,9 +1246,6 @@ export const getGetActivitiesApiInteractor = () =>
 
 export const getGetActivityThreadOptionsInteractor = () =>
   new GetActivityThreadOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
-
-export const getGetActivityChannelOptionsInteractor = () =>
-  new GetActivityChannelOptionsInteractor(new PrismaActivitiesRepo(), getEntitlementService());
 
 export const getUpdateThreadInteractor = () =>
   new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator(), getEntitlementService());

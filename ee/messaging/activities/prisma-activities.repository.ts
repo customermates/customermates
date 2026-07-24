@@ -4,14 +4,7 @@ import type { MessagingMessage } from "../messaging.schema";
 import type { CalendarAttendee } from "@/ee/calendar/calendar.schema";
 import type { ActivityEntryDto, ActivityKind } from "./activities.schema";
 
-import {
-  type Prisma,
-  type EntityType,
-  Action,
-  ConnectedAccountStatus,
-  MessagingProvider,
-  Resource,
-} from "@/generated/prisma";
+import { type Prisma, type EntityType, Action, MessagingProvider, Resource } from "@/generated/prisma";
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { getContactRepo, getCustomColumnRepo } from "@/core/di";
@@ -21,17 +14,10 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { contactFullName, formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import { EMAIL_PROVIDERS } from "../provider";
-import {
-  threadAccessWhere,
-  calendarEventAccessWhere,
-  accountActivityAccessWhere,
-  accessibleConnectedAccountWhere,
-} from "../messaging-access";
+import { threadAccessWhere, calendarEventAccessWhere, accountActivityAccessWhere } from "../messaging-access";
 
 import type { GetActivitiesRepo } from "./get-activities.interactor";
 import type { ActivityThreadOptionsData, ActivityThreadOptionsRepo } from "./get-activity-thread-options.interactor";
-import type { ActivityChannelOptionsData, ActivityChannelOptionsRepo } from "./get-activity-channel-options.interactor";
-import type { ActivityChannelOptionDto } from "./activities.schema";
 
 import { interpretFilters } from "./timeline-filters";
 
@@ -80,10 +66,7 @@ type ThreadLabelInput = {
   }>;
 };
 
-export class PrismaActivitiesRepo
-  extends BaseRepository
-  implements GetActivitiesRepo, ActivityThreadOptionsRepo, ActivityChannelOptionsRepo
-{
+export class PrismaActivitiesRepo extends BaseRepository implements GetActivitiesRepo, ActivityThreadOptionsRepo {
   private scope: { entityType?: EntityType; entityId?: string } = {};
 
   setScope(entityType?: EntityType, entityId?: string) {
@@ -136,34 +119,6 @@ export class PrismaActivitiesRepo
     if (!contactIds.length) return [];
 
     return this.listThreads(contactIds, connectedAccountIds);
-  }
-
-  async listChannelOptions(_args: ActivityChannelOptionsData): Promise<ActivityChannelOptionDto[]> {
-    const rows = await this.prisma.connectedAccount.findMany({
-      where: {
-        ...accessibleConnectedAccountWhere(this.companyId, this.userId),
-        status: { not: ConnectedAccountStatus.deleted },
-      },
-      select: {
-        id: true,
-        provider: true,
-        status: true,
-        displayName: true,
-        emailAddress: true,
-        userId: true,
-        user: { select: { firstName: true, lastName: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-    });
-
-    return rows.map((row) => ({
-      id: row.id,
-      provider: row.provider,
-      status: row.status,
-      label: row.displayName?.trim() || row.emailAddress?.trim() || "",
-      ownerName: row.userId === this.userId ? null : `${row.user.firstName} ${row.user.lastName}`.trim() || null,
-    }));
   }
 
   async getItems(params: GetQueryParams) {
