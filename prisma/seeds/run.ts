@@ -8,7 +8,7 @@ import type { TaskSeedData } from "./tasks";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDeals } from "./deals";
-import { isEmptyDemo } from "./empty-demo";
+import { EMPTY_DEMO_IDENTITY_PROFILE, isEmptyDemo, purgeToEmptyDemo } from "./empty-demo";
 import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedSyntheticAuditLogs } from "./audit-logs";
@@ -34,10 +34,15 @@ const EMPTY_SEED_DATA: SyntheticSeedData = {
 };
 
 export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticSeedData> {
-  await seedIdentity(context);
+  // Empty-demo sandboxes converge to a single-admin, record-free workspace: purge
+  // anything a prior deploy left behind, then seed only Julian Wagner as Admin.
+  if (isEmptyDemo()) {
+    await purgeToEmptyDemo(context);
+    await seedIdentity(context, EMPTY_DEMO_IDENTITY_PROFILE);
+    return EMPTY_SEED_DATA;
+  }
 
-  // Empty-demo sandboxes get a signable-in company with no business records.
-  if (isEmptyDemo()) return EMPTY_SEED_DATA;
+  await seedIdentity(context);
 
   const organizationData = await seedOrganizations(context);
   const contactData = await seedContacts(context, organizationData.organizations);

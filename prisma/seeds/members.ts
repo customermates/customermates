@@ -68,8 +68,11 @@ async function reconcileMemberId(context: SeedContext, id: string, email: string
   else await context.prisma.user.update({ where: { id: existingByEmail.id }, data: { id } });
 }
 
-export async function seedCompanyMembers(context: SeedContext): Promise<void> {
-  for (const [index, { avatarPath, ...definition }] of SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.entries()) {
+export async function seedCompanyMembers(
+  context: SeedContext,
+  members: readonly SyntheticCompanyMemberDefinition[] = SYNTHETIC_COMPANY_MEMBER_DEFINITIONS,
+): Promise<void> {
+  for (const [index, { avatarPath, ...definition }] of members.entries()) {
     const timeline = SYNTHETIC_SEED_TIMELINE.user(index);
     const user = {
       ...definition,
