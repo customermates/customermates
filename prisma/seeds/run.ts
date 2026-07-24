@@ -8,6 +8,7 @@ import type { TaskSeedData } from "./tasks";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDeals } from "./deals";
+import { isEmptyDemo } from "./empty-demo";
 import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedSyntheticAuditLogs } from "./audit-logs";
@@ -21,8 +22,22 @@ import { seedWidgets } from "./widgets";
 
 export type SyntheticSeedData = OrganizationSeedData & ContactSeedData & DealSeedData & ServiceSeedData & TaskSeedData;
 
+const EMPTY_SEED_DATA: SyntheticSeedData = {
+  contactDefinitions: [],
+  contacts: [],
+  dealDefinitions: [],
+  deals: [],
+  organizations: [],
+  services: [],
+  taskDefinitions: [],
+  tasks: [],
+};
+
 export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticSeedData> {
   await seedIdentity(context);
+
+  // Empty-demo sandboxes get a signable-in company with no business records.
+  if (isEmptyDemo()) return EMPTY_SEED_DATA;
 
   const organizationData = await seedOrganizations(context);
   const contactData = await seedContacts(context, organizationData.organizations);
