@@ -8,7 +8,7 @@ import type { TaskSeedData } from "./tasks";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDeals } from "./deals";
-import { EMPTY_DEMO_IDENTITY_PROFILE, isEmptyDemo, purgeToEmptyDemo } from "./empty-demo";
+import { EMPTY_DEMO_IDENTITY_SHELL, isEmptyDemo, purgeEmptyDemo, seedEmptyDemoAdmin } from "./empty-demo";
 import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedSyntheticAuditLogs } from "./audit-logs";
@@ -34,11 +34,15 @@ const EMPTY_SEED_DATA: SyntheticSeedData = {
 };
 
 export async function runSyntheticSeed(context: SeedContext): Promise<SyntheticSeedData> {
-  // Empty-demo sandboxes converge to a single-admin, record-free workspace: purge
-  // anything a prior deploy left behind, then seed only Julian Wagner as Admin.
+  // Empty-demo sandboxes converge to a single-admin, record-free workspace: wipe
+  // everything except the retained admin login, then reseed an empty company and
+  // relink that admin. If the admin login is missing, purge is skipped (no-op) so the
+  // workspace is never left without a way in.
   if (isEmptyDemo()) {
-    await purgeToEmptyDemo(context);
-    await seedIdentity(context, EMPTY_DEMO_IDENTITY_PROFILE);
+    if (await purgeEmptyDemo(context)) {
+      await seedIdentity(context, EMPTY_DEMO_IDENTITY_SHELL);
+      await seedEmptyDemoAdmin(context);
+    }
     return EMPTY_SEED_DATA;
   }
 
