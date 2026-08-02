@@ -264,7 +264,7 @@
       "assigneeRequired": "Sie müssen sich diesem Element zuweisen. Bitte beachten Sie, dass Sie nur Elemente sehen können, die Ihnen zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
-      "connectedAccountNotFound": "Kanal nicht gefunden oder nicht zugänglich.",
+      "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "contactNotFound": "Kontakt-ID nicht gefunden oder nicht zugänglich.",
       "contactRefRequired": "id muss eine Kontakt-UUID, eine E-Mail oder Telefonnummer oder 'provider:value' für ein Handle sein (z. B. 'linkedin:jdoe').",
       "customColumnIdNotFound": "Benutzerdefinierte Spalten-ID nicht gefunden oder nicht zugänglich.",

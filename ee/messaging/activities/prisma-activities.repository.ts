@@ -108,7 +108,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   }
 
   async listThreadOptions(args: ActivityThreadOptionsData) {
-    const connectedAccountIds = args.connectedAccountId?.length ? args.connectedAccountId : undefined;
+    const connectedAccountIds = args.connectedAccountIds?.length ? args.connectedAccountIds : undefined;
 
     if (!args.entityType || !args.entityId) return this.listThreads(undefined, connectedAccountIds);
 

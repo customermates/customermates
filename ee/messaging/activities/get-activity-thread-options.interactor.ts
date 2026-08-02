@@ -17,7 +17,7 @@ import { ActivityThreadOptionDtoSchema } from "./activities.schema";
 const Schema = z.object({
   entityType: z.enum(EntityType).optional(),
   entityId: z.uuid().optional(),
-  connectedAccountId: z.array(z.uuid()).optional(),
+  connectedAccountIds: z.array(z.uuid()).optional(),
 });
 export type ActivityThreadOptionsData = Data<typeof Schema>;
 

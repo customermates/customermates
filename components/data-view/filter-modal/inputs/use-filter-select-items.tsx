@@ -150,7 +150,7 @@ export function useFilterSelectItems(
         return getActivityThreadOptionsAction({
           entityType: timelineEntityType ?? undefined,
           entityId: timelineEntityId || undefined,
-          connectedAccountId: selectedChannelIds(activitiesStore.filters),
+          connectedAccountIds: selectedChannelIds(activitiesStore.filters),
         }).then((threads) => ({
           items: threads.map((thread) => ({
             key: thread.id,
