@@ -83,7 +83,7 @@ beforeEach(() => {
   fake.reset();
 });
 
-describe("PrismaActivitiesRepo.getFilterableFields — permission visibility", () => {
+describe("PrismaActivitiesRepo.getFilterableFields permission visibility", () => {
   it("exposes the channel filter to message-permitted viewers", async () => {
     const fields = await runWithTenant(
       createMockUserWithPermissions([{ resource: Resource.inboxMessages, action: Action.readAll }]),
@@ -111,7 +111,7 @@ describe("PrismaActivitiesRepo.getFilterableFields — permission visibility", (
   });
 });
 
-describe("PrismaActivitiesRepo — channel filter application", () => {
+describe("PrismaActivitiesRepo channel filter application", () => {
   const channelFilter: Filter[] = [
     { field: FilterFieldKey.connectedAccountId, operator: FilterOperatorKey.in, value: [A] },
   ];
@@ -152,7 +152,7 @@ describe("PrismaActivitiesRepo — channel filter application", () => {
   });
 });
 
-describe("PrismaActivitiesRepo — provider consistency across channel-backed sources", () => {
+describe("PrismaActivitiesRepo provider consistency across channel-backed sources", () => {
   it("applies the provider filter to messages (direct), account-activity + calendar (relation), and suppresses audit", async () => {
     await runWithTenant(messagesAndAudit(), () =>
       new PrismaActivitiesRepo().getCount({
