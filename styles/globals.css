@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
@@ -43,7 +44,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --breakpoint-xs: 480px;
   --font-family-sans: var(--font-sans), 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -74,6 +74,45 @@
 @keyframes collapsible-up {
   from { height: var(--radix-collapsible-content-height); }
   to { height: 0; }
+}
+
+/* Overlay contract (CUS-60).
+   Every overlay derives its block-size budget, viewport gutter and safe-area padding
+   from these. Do not write raw vh/dvh or env(safe-area-inset-*) at a call site.
+
+   --viewport-block is upgraded to dvh via @supports rather than a two-declaration
+   fallback: a custom property accepts any token sequence, so `100dvh` would be stored
+   even where it is unsupported and then fail as invalid-at-computed-value-time on
+   max-height, which resolves to `none` — worse than no fallback at all.
+
+   --keyboard-inset stays 0px unless a visual-viewport listener sets it. Baking it in
+   now means iOS keyboard handling is additive later with no CSS change. */
+:root {
+  --viewport-block: 100vh;
+  --viewport-gutter: 1rem;
+  --keyboard-inset: 0px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Centred overlays pay a gutter on both block edges. */
+  --overlay-block-budget: calc(
+    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) - var(--safe-bottom) - 2 * var(--viewport-gutter)
+  );
+
+  /* Edge-anchored overlays are flush against their near edge, so they pay a gutter on
+     the far edge only and absorb the near safe inset as padding rather than budget. */
+  --sheet-block-budget: calc(
+    var(--viewport-block) - var(--keyboard-inset) - var(--safe-top) - var(--viewport-gutter)
+  );
+}
+
+@supports (height: 1dvh) {
+  :root {
+    --viewport-block: 100dvh;
+  }
 }
 
 :root {
