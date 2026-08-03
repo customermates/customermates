@@ -975,7 +975,7 @@
       "verticalBarChart": "Vertikales Balkendiagramm",
       "verticalBarChartWithLabels": "Vertikales Balkendiagramm mit Beschriftungen"
     },
-    "endDate": "End Datum",
+    "endDate": "Enddatum",
     "entityType": "Element",
     "entityTypes": {
       "contact": "Kontakt",

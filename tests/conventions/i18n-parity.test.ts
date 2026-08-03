@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { icuArgumentNames } from "@/scripts/lib/icu";
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const ENFORCED = true;
@@ -30,59 +31,6 @@ function collectLeaves(value: unknown, prefix: string, into: Map<string, string>
   }
 
   into.set(prefix, String(value));
-}
-
-function icuArgumentNames(message: string): string {
-  const names = new Set<string>();
-  parseIcuMessage(message, 0, names);
-  return [...names].sort().join(",");
-}
-
-function parseIcuMessage(text: string, start: number, names: Set<string>): number {
-  let index = start;
-  while (index < text.length) {
-    if (text[index] === "}") return index;
-    if (text[index] !== "{") {
-      index += 1;
-      continue;
-    }
-    index = parseIcuArgument(text, index + 1, names);
-  }
-  return index;
-}
-
-function parseIcuArgument(text: string, start: number, names: Set<string>): number {
-  let index = start;
-  while (index < text.length && text[index] !== "," && text[index] !== "}") index += 1;
-  const name = text.slice(start, index).trim();
-  if (name) names.add(name);
-  if (text[index] !== ",") return index + 1;
-
-  index += 1;
-  const typeStart = index;
-  while (index < text.length && text[index] !== "," && text[index] !== "}") index += 1;
-  const type = text.slice(typeStart, index).trim();
-  if (text[index] !== ",") return index + 1;
-
-  index += 1;
-  if (type === "plural" || type === "select" || type === "selectordinal") {
-    while (index < text.length && text[index] !== "}") {
-      if (text[index] === "{") {
-        index = parseIcuMessage(text, index + 1, names) + 1;
-        continue;
-      }
-      index += 1;
-    }
-    return index + 1;
-  }
-
-  let depth = 1;
-  while (index < text.length && depth > 0) {
-    if (text[index] === "{") depth += 1;
-    if (text[index] === "}") depth -= 1;
-    index += 1;
-  }
-  return index;
 }
 
 function listContentFiles(root: string): string[] {

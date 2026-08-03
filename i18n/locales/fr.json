@@ -1606,7 +1606,7 @@
       "cleanLabel": "Démarrer à vide",
       "description": "Faut-il préparer votre espace de travail avec des données d'exemple, ou démarrer entièrement à vide ?",
       "keepDescription": "Démarrez avec des contacts, affaires, services et tâches d'exemple pour explorer l'application immédiatement.",
-      "keepLabel": "Conserver les données de démonstration",
+      "keepLabel": "Conserver les données démo",
       "recommended": "Recommandé",
       "title": "Données de démonstration"
     },
