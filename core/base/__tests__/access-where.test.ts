@@ -1,4 +1,4 @@
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { ModelWhereInputMap } from "../base-repository";
 
 import { describe, it, expect } from "vitest";
@@ -14,7 +14,7 @@ class TestRepo extends BaseRepository {
   }
 }
 
-function makeUser(permissions: Array<{ resource: Resource; action: Action }>): ExtendedUser {
+function makeUser(permissions: Array<{ resource: Resource; action: Action }>): TenantUser {
   return {
     id: "user-1",
     email: "test@test.com",
@@ -27,7 +27,7 @@ function makeUser(permissions: Array<{ resource: Resource; action: Action }>): E
       companyId: "company-1",
       permissions: permissions.map((p, i) => ({ id: `p${i}`, roleId: "role-1", ...p })),
     },
-  } as unknown as ExtendedUser;
+  } as unknown as TenantUser;
 }
 
 describe("accessWhere", () => {

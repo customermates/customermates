@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ExtendedUser } from "@/features/user/user.service";
+import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
@@ -40,8 +40,8 @@ export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
-  abstract createCompanyAndUser(args: RegisterUserData): Promise<ExtendedUser>;
-  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<ExtendedUser>;
+  abstract createCompanyAndUser(args: RegisterUserData): Promise<TenantUser>;
+  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
 }
 
 @SystemInteractor

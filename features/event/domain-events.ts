@@ -3,7 +3,7 @@ import type { OrganizationDto } from "@/features/organizations/organization.sche
 import type { DealDto } from "@/features/deals/deal.schema";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
-import type { UserRoleDto } from "@/features/role/get-roles.interactor";
+import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
@@ -207,14 +207,14 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: UserRoleDto;
+    payload: RoleDto;
   };
   [DomainEvent.ROLE_UPDATED]: {
     userId: string;
     companyId: string;
     entityId: string;
     payload: {
-      role: UserRoleDto;
+      role: RoleDto;
       changes: Record<string, { previous: unknown; current: unknown }>;
     };
   };
@@ -222,7 +222,7 @@ export type DomainEventMap = {
     userId: string;
     companyId: string;
     entityId: string;
-    payload: UserRoleDto;
+    payload: RoleDto;
   };
   [DomainEvent.WEBHOOK_CREATED]: {
     userId: string;

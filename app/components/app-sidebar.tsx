@@ -1,6 +1,6 @@
 "use client";
 
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
@@ -51,7 +51,7 @@ type Props = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
-  user: ExtendedUser | null;
+  user: TenantUser | null;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   emailVerified: boolean | null;

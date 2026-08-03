@@ -1,7 +1,7 @@
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { Resource, Action } from "@/generated/prisma";
 
-export function createMockUser(overrides: Partial<ExtendedUser> = {}): ExtendedUser {
+export function createMockUser(overrides: Partial<TenantUser> = {}): TenantUser {
   return {
     id: "test-user-id",
     email: "test@example.com",
@@ -20,12 +20,12 @@ export function createMockUser(overrides: Partial<ExtendedUser> = {}): ExtendedU
       permissions: [],
     },
     ...overrides,
-  } as ExtendedUser;
+  } as TenantUser;
 }
 
 export function createMockUserWithPermissions(
   permissions: Array<{ resource: Resource; action: Action }>,
-): ExtendedUser {
+): TenantUser {
   return createMockUser({
     role: {
       id: "test-role-id",

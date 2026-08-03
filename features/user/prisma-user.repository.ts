@@ -77,14 +77,14 @@ export class PrismaUserRepo
     WebhookUserRepo
 {
   @BypassTenantGuard
-  async findExtendedUserByIdOrThrowUnscoped(userId: string) {
+  async findUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
   }
 
-  private get extendedUserSelect() {
+  private get tenantUserSelect() {
     return {
       id: true,
       email: true,
@@ -880,7 +880,7 @@ export class PrismaUserRepo
 
     const extendedUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return extendedUser;
@@ -911,7 +911,7 @@ export class PrismaUserRepo
 
     const extendedUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return extendedUser;
@@ -922,7 +922,7 @@ export class PrismaUserRepo
 
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { email, companyId },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;
@@ -945,7 +945,7 @@ export class PrismaUserRepo
   async findCurrentUserOrThrowUnscoped(email: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { email },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;
@@ -955,7 +955,7 @@ export class PrismaUserRepo
   async findCurrentUserUnscoped(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;

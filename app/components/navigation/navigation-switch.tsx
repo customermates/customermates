@@ -1,6 +1,6 @@
 "use client";
 
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { Company } from "@/generated/prisma";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
@@ -26,7 +26,7 @@ type Props = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
-  user: ExtendedUser | null;
+  user: TenantUser | null;
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
   children: React.ReactNode;

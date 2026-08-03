@@ -1,5 +1,5 @@
 import type { UserProfileData } from "@/features/user/upsert/update-user-details.interactor";
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
 import type { Theme } from "@/generated/prisma";
@@ -13,7 +13,7 @@ import { resendVerificationEmailFromAppAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class UserStore extends BaseStore {
-  public user: ExtendedUser | null = null;
+  public user: TenantUser | null = null;
   public permissions: Map<string, boolean> = new Map();
 
   constructor(rootStore: RootStore) {
@@ -65,7 +65,7 @@ export class UserStore extends BaseStore {
     return this.can(resource, Action.readOwn) || this.can(resource, Action.readAll);
   };
 
-  setUser = (user: ExtendedUser | null) => {
+  setUser = (user: TenantUser | null) => {
     this.user = user;
 
     if (user) this.permissions = this.createPermissionsMap(user);
@@ -88,7 +88,7 @@ export class UserStore extends BaseStore {
     if (this.user) this.setUser({ ...this.user, ...profile });
   };
 
-  private createPermissionsMap(user: ExtendedUser): Map<string, boolean> {
+  private createPermissionsMap(user: TenantUser): Map<string, boolean> {
     const permissionsMap = new Map<string, boolean>();
 
     const allResources = Object.values(Resource);
@@ -106,7 +106,7 @@ export class UserStore extends BaseStore {
     return permissionsMap;
   }
 
-  private hasPermission(user: ExtendedUser, resource: Resource, action: Action): boolean {
+  private hasPermission(user: TenantUser, resource: Resource, action: Action): boolean {
     if (!user.role) return false;
 
     if (user.role?.isSystemRole) return true;

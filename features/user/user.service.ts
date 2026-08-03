@@ -1,4 +1,4 @@
-import type { ExtendedUser } from "./user.types";
+import type { TenantUser } from "./user.schema";
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { Status } from "@/generated/prisma";
@@ -7,11 +7,11 @@ import type { Action, Resource } from "@/generated/prisma";
 
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
 
-export type { ExtendedUser } from "./user.types";
+export type { TenantUser } from "./user.schema";
 
 export abstract class FindUserRepo {
-  abstract findCurrentUserUnscoped(email: string): Promise<ExtendedUser | null>;
-  abstract findCurrentUserOrThrowUnscoped(email: string): Promise<ExtendedUser>;
+  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
+  abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
 }
 
 export class UserService {

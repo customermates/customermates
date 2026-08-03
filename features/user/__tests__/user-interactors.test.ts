@@ -20,7 +20,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 
 const USER_ID = "test-user-id";
 
-const mockExtendedUser = {
+const mockTenantUser = {
   id: USER_ID,
   email: "jane@example.com",
   firstName: "Jane",
@@ -53,8 +53,8 @@ describe("RegisterUserInteractor", () => {
     };
     mockRepo = {
       findCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
-      createCompanyAndUser: vi.fn().mockResolvedValue(mockExtendedUser),
-      registerExistingCompany: vi.fn().mockResolvedValue(mockExtendedUser),
+      createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
+      registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),

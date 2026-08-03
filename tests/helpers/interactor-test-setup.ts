@@ -24,7 +24,7 @@
 import { vi } from "vitest";
 
 import type { Action, Resource } from "@/generated/prisma";
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 
 // ---------------------------------------------------------------------------
 // @/env
@@ -55,7 +55,7 @@ const makeFindIdsMap = () =>
  * variable declarations -- the user won't be initialized when the factory runs.
  * The getter is only called inside lazy repo/service functions at test runtime.
  */
-export function createMockDiModule(getMockUser: () => ExtendedUser) {
+export function createMockDiModule(getMockUser: () => TenantUser) {
   return {
     getUserService: () => ({
       getActiveUserOrThrow: vi.fn().mockResolvedValue(getMockUser()),
