@@ -64,7 +64,7 @@ export function createMockDiModule(getMockUser: () => TenantUser) {
         const user = getMockUser();
         if (!user.role) return false;
         if (user.role.isSystemRole) return true;
-        return user.role.permissions?.some((p) => p.resource === resource && p.action === action) ?? false;
+        return user.role.permissions.some((p) => p.resource === resource && p.action === action);
       }),
     }),
     getContactRepo: () => ({
