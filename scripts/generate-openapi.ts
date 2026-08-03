@@ -10,8 +10,10 @@ import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 const spec = generateOpenApiSpec();
-const specPath = join(process.cwd(), "public", "v1", "openapi.json");
+const specDir = join(process.cwd(), "public", "v1");
+const specPath = join(specDir, "openapi.json");
 
+mkdirSync(specDir, { recursive: true });
 writeFileSync(specPath, JSON.stringify(spec, null, 2));
 
 const buildOpenapi = createOpenAPI({

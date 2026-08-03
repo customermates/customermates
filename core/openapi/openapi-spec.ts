@@ -114,7 +114,6 @@ import { webhookMessagingRelationCreatedOperation } from "@/ee/messaging/webhook
 import { WebhookContactCreatedSchema } from "@/features/contacts/upsert/contact-created.openapi";
 import { WebhookContactUpdatedSchema } from "@/features/contacts/upsert/contact-updated.openapi";
 import { WebhookContactDeletedSchema } from "@/features/contacts/delete/contact-deleted.openapi";
-import { env } from "@/env";
 import { DeleteDealSchema } from "@/features/deals/delete/delete-deal.interactor";
 import { DeleteOrganizationSchema } from "@/features/organizations/delete/delete-organization.interactor";
 import { DeleteServiceSchema } from "@/features/services/delete/delete-service.interactor";
@@ -184,7 +183,7 @@ export function generateOpenApiSpec() {
     },
     servers: [
       {
-        url: `${env.BASE_URL}/api`,
+        url: "/api",
         description: "API Server",
       },
     ],
