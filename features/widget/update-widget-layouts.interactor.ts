@@ -2,30 +2,18 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
+import { WidgetLayoutItemSchema } from "./widget.schema";
+
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 
-const LayoutBreakpointSchema = z.object({
-  i: z.string(),
-  x: z.number(),
-  y: z.number().nullish(),
-  w: z.number(),
-  h: z.number(),
-  minW: z.number().optional(),
-  maxW: z.number().optional(),
-  minH: z.number().optional(),
-  maxH: z.number().optional(),
-});
-export type WidgetLayoutBreakpoint = Data<typeof LayoutBreakpointSchema>;
-
 const LayoutSchema = z.object({
-  xs: z.array(LayoutBreakpointSchema),
-  sm: z.array(LayoutBreakpointSchema),
-  md: z.array(LayoutBreakpointSchema),
-  lg: z.array(LayoutBreakpointSchema),
+  xs: z.array(WidgetLayoutItemSchema),
+  sm: z.array(WidgetLayoutItemSchema),
+  md: z.array(WidgetLayoutItemSchema),
+  lg: z.array(WidgetLayoutItemSchema),
 });
-export type LayoutsData = Data<typeof LayoutSchema>;
 
 const Schema = z.object({
   layouts: LayoutSchema,

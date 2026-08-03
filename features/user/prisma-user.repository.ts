@@ -33,7 +33,7 @@ import {
 
 import { type UserDto } from "./user.schema";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { getSeedData, PIPELINE_STAGES, type StageKey } from "@/features/onboarding-wizard/seed-data";
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";

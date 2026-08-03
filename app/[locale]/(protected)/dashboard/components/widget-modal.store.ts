@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
-import type { UpsertWidgetData, DisplayOptions } from "@/features/widget/upsert-widget.interactor";
+import type { UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
 import type { RootStore } from "@/core/stores/root.store";
-import type { CompanyWidget } from "@/features/widget/get-company-widgets.interactor";
+import type { CompanyWidget, WidgetDisplayOptions } from "@/features/widget/widget.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
@@ -11,7 +11,7 @@ import { EntityType, WidgetGroupByType, AggregationType, Resource } from "@/gene
 
 import { upsertWidgetAction, deleteWidgetAction, getWidgetByIdAction, getCompanyWidgetsAction } from "../actions";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
@@ -78,7 +78,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
         useGroupColors: true,
         showLegend: true,
         showFilters: true,
-      } as DisplayOptions,
+      } as WidgetDisplayOptions,
       groupByType: WidgetGroupByType.none,
       groupByCustomColumnId: undefined,
       aggregationType: AggregationType.count,

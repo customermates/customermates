@@ -1,4 +1,4 @@
-import type { ChartColor } from "@/features/widget/widget.types";
+import type { ChartColor } from "@/features/widget/widget.schema";
 
 import { colorPalettes } from "@/styles/color-palettes";
 

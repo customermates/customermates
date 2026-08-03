@@ -33,8 +33,8 @@ import {
 import { ChevronsUpDownIcon } from "lucide-react";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
-import type { ChartColor } from "@/features/widget/widget.types";
-import { DisplayType } from "@/features/widget/widget.types";
+import type { ChartColor } from "@/features/widget/widget.schema";
+import { DisplayType } from "@/features/widget/widget.schema";
 import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";

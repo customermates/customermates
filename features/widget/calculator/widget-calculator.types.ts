@@ -1,4 +1,15 @@
-import type { DiagramDataPoint } from "../widget.types";
+import type { DiagramDataPoint } from "../widget.schema";
+import type { Filter } from "@/core/base/base-get.schema";
+
+import type { Widget } from "@/generated/prisma";
+
+export type WidgetForCalculation = Pick<
+  Widget,
+  "entityType" | "groupByType" | "groupByCustomColumnId" | "aggregationType"
+> & {
+  entityFilters: Filter[];
+  dealFilters: Filter[];
+};
 
 export type GroupAccumulator = Map<string, DiagramDataPoint>;
 

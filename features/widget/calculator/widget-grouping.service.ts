@@ -1,5 +1,5 @@
-import type { ExtendedWidget, DiagramDataPoint } from "../widget.types";
-import type { DealRecord, GroupAccumulator, EntityForGrouping } from "./widget-calculator.types";
+import type { DiagramDataPoint } from "../widget.schema";
+import type { WidgetForCalculation, DealRecord, GroupAccumulator, EntityForGrouping } from "./widget-calculator.types";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
@@ -8,7 +8,7 @@ import { getCustomColumnRepo } from "@/core/di";
 import { BaseRepository } from "@/core/base/base-repository";
 
 export class WidgetGroupingService extends BaseRepository {
-  groupDealsByEntityType(widget: ExtendedWidget, deals: DealRecord[]): DiagramDataPoint[] {
+  groupDealsByEntityType(widget: WidgetForCalculation, deals: DealRecord[]): DiagramDataPoint[] {
     const { groupByType, aggregationType } = widget;
     const acc: GroupAccumulator = new Map();
 
@@ -99,7 +99,7 @@ export class WidgetGroupingService extends BaseRepository {
     }
   }
 
-  async groupDealsByCustomColumn(widget: ExtendedWidget, deals: DealRecord[]): Promise<DiagramDataPoint[]> {
+  async groupDealsByCustomColumn(widget: WidgetForCalculation, deals: DealRecord[]): Promise<DiagramDataPoint[]> {
     const { groupByCustomColumnId, entityType, aggregationType } = widget;
 
     if (!groupByCustomColumnId) return [];

@@ -1,4 +1,4 @@
-import type { DiagramDataPoint } from "@/features/widget/widget.types";
+import type { DiagramDataPoint } from "@/features/widget/widget.schema";
 
 export type ChartDataPoint = DiagramDataPoint & {
   fill: string;

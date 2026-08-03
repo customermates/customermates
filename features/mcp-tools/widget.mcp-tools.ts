@@ -19,7 +19,7 @@ import {
 } from "@/core/di";
 import { type UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
 const entityTypeValues = Object.values(EntityType);
@@ -229,10 +229,11 @@ export const manageWidgetsTool = {
       if (Array.isArray(updateParams.dealFilters)) updates.dealFilters = updateParams.dealFilters;
       if (displayOptionsChanged) {
         updates.displayOptions = {
-          displayType: updateParams.displayType ?? widget.displayOptions.displayType,
-          reverseXAxis: updateParams.reverseXAxis ?? widget.displayOptions.reverseXAxis,
-          reverseYAxis: updateParams.reverseYAxis ?? widget.displayOptions.reverseYAxis,
-          barColors: updateParams.barColors ?? widget.displayOptions.barColors,
+          ...(widget.displayOptions ?? {}),
+          displayType: updateParams.displayType ?? widget.displayOptions?.displayType ?? DisplayType.verticalBarChart,
+          reverseXAxis: updateParams.reverseXAxis ?? widget.displayOptions?.reverseXAxis,
+          reverseYAxis: updateParams.reverseYAxis ?? widget.displayOptions?.reverseYAxis,
+          barColors: updateParams.barColors ?? widget.displayOptions?.barColors,
         };
       }
 
@@ -245,7 +246,7 @@ export const manageWidgetsTool = {
         aggregationType: widget.aggregationType,
         entityFilters: widget.entityFilters,
         dealFilters: widget.dealFilters,
-        displayOptions: widget.displayOptions,
+        displayOptions: widget.displayOptions ?? undefined,
         isTemplate: widget.isTemplate,
         ...updates,
       });

@@ -1,4 +1,4 @@
-import type { ExtendedWidget } from "./widget.types";
+import type { WidgetDto } from "./widget.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { ValidateCustomColumnIdsInteractor } from "@/core/validation/validators/validate-custom-column-ids.interactor";
 import type { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
@@ -6,28 +6,13 @@ import type { ValidateWidgetIdsInteractor } from "@/core/validation/validators/v
 import { z } from "zod";
 import { EntityType, WidgetGroupByType, AggregationType } from "@/generated/prisma";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
-import { WidgetDtoSchema } from "./widget.schema";
+import { WidgetDtoSchema, WidgetDisplayOptionsSchema } from "./widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { FilterSchema } from "@/core/base/base-get.schema";
-
-const DisplayOptionsSchema = z
-  .object({
-    barColors: z.array(z.enum(ChartColor)).optional(),
-    displayType: z.enum(DisplayType),
-    reverseXAxis: z.boolean().optional(),
-    reverseYAxis: z.boolean().optional(),
-    useGroupColors: z.boolean().optional(),
-    showLegend: z.boolean().optional(),
-    showFilters: z.boolean().optional(),
-  })
-  .optional();
-
-export type DisplayOptions = Data<typeof DisplayOptionsSchema>;
 
 const Schema = z
   .object({
@@ -36,7 +21,7 @@ const Schema = z
     entityType: z.enum(EntityType),
     entityFilters: z.array(FilterSchema).optional(),
     dealFilters: z.array(FilterSchema).optional(),
-    displayOptions: DisplayOptionsSchema,
+    displayOptions: WidgetDisplayOptionsSchema.optional(),
     groupByType: z.enum(WidgetGroupByType),
     groupByCustomColumnId: z.uuid().optional(),
     aggregationType: z.enum(AggregationType),
@@ -125,11 +110,11 @@ const Schema = z
 export type UpsertWidgetData = Data<typeof Schema>;
 
 export abstract class UpsertWidgetRepo {
-  abstract upsertWidget(data: { data: UpsertWidgetData }): Promise<ExtendedWidget>;
+  abstract upsertWidget(data: { data: UpsertWidgetData }): Promise<WidgetDto>;
 }
 
 @TenantInteractor()
-export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidgetData, ExtendedWidget> {
+export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidgetData, WidgetDto> {
   constructor(
     private repo: UpsertWidgetRepo,
     private widgetValidator: ValidateWidgetIdsInteractor,
@@ -144,7 +129,7 @@ export class UpsertWidgetInteractor extends AuthenticatedInteractor<UpsertWidget
     tx: false,
     precheck: (self, data, ctx) => self.precheck(data, ctx),
   })
-  async invoke(data: UpsertWidgetData): Validated<ExtendedWidget> {
+  async invoke(data: UpsertWidgetData): Validated<WidgetDto> {
     return { ok: true as const, data: await this.repo.upsertWidget({ data }) };
   }
 
