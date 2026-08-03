@@ -143,7 +143,7 @@ export const RoleModal = observer(({ store }: Props) => {
             </div>
           </AppCardBody>
 
-          <FormActions overrideDisabled={isDisabledOrSystemRole} store={store} />
+          <FormActions showInitially overrideDisabled={isDisabledOrSystemRole} store={store} />
         </AppCard>
       </AppForm>
     </AppModal>

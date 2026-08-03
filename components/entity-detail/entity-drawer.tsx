@@ -3,7 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "radix-ui";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
@@ -36,12 +36,12 @@ export const EntityDrawer = observer(() => {
 
   return (
     <Sheet open={Boolean(top)} onOpenChange={handleOpenChange}>
-      <SheetContent className="p-0 overflow-y-auto" side="right">
+      <SheetContent className="gap-0 sm:max-w-[640px]" side="right">
         <VisuallyHidden.Root>
           <SheetTitle>{top ? top.entityType : "Detail"}</SheetTitle>
         </VisuallyHidden.Root>
 
-        {DetailView && <DetailView layout="drawer" />}
+        <SheetBody className="px-0">{DetailView && <DetailView layout="drawer" />}</SheetBody>
       </SheetContent>
     </Sheet>
   );

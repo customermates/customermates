@@ -32,13 +32,13 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
-
       <DialogContent className={cn("overflow-hidden p-0", className)} showCloseButton={showCloseButton}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+
         <Command className="**:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
           {children}
         </Command>
@@ -54,7 +54,7 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
 
       <CommandPrimitive.Input
         className={cn(
-          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full rounded-md bg-transparent py-3 text-base outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           className,
         )}
         data-slot="command-input"
@@ -67,7 +67,10 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
 function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
-      className={cn("max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto", className)}
+      className={cn(
+        "max-h-[min(300px,var(--overlay-block-budget))] scroll-py-1 overflow-x-hidden overflow-y-auto overscroll-contain",
+        className,
+      )}
       data-slot="command-list"
       {...props}
     />

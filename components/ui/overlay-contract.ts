@@ -1,0 +1,1 @@
+export const OVERLAY_COLLISION_PADDING = 8;

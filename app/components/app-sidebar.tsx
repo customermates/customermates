@@ -33,7 +33,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Icon } from "@/components/shared/icon";
 import { signOutAction } from "@/app/[locale]/actions";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
@@ -347,14 +347,14 @@ function AddPickerDrawer({
   const t = useTranslations();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[420px]" side="right">
+      <SheetContent className="gap-0 sm:max-w-[420px]" side="right">
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
           <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col gap-1 p-4">
+        <SheetBody className="flex flex-col gap-1 py-4">
           {items.map((item) => (
             <button
               key={item.key}
@@ -367,7 +367,7 @@ function AddPickerDrawer({
               <Icon className="size-3.5 opacity-50" icon={Plus} />
             </button>
           ))}
-        </div>
+        </SheetBody>
       </SheetContent>
     </Sheet>
   );
