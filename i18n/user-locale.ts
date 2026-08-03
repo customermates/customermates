@@ -1,7 +1,8 @@
 import type { Locale } from "@/generated/prisma";
+import type { AppLocale } from "@/i18n/locale-registry";
 
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
-export function resolveUserLocale(user: { displayLanguage: Locale | null }): Exclude<Locale, "system"> {
-  return !user.displayLanguage || user.displayLanguage === "system" ? ROUTING_DEFAULT_LOCALE : user.displayLanguage;
+export function resolveUserLocale(user: { displayLanguage: Locale | null }): AppLocale {
+  return appLocaleOrDefault(user.displayLanguage);
 }

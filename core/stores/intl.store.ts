@@ -5,7 +5,9 @@ import { makeAutoObservable } from "mobx";
 import { format, register } from "timeago.js";
 import de from "timeago.js/lib/lang/de";
 import en from "timeago.js/lib/lang/en_US";
-import { Currency, Locale } from "@/generated/prisma";
+import { Currency } from "@/generated/prisma";
+
+import { formattingTagFor, isRoutingLocale } from "@/i18n/locale-registry";
 
 register("de", de);
 register("en", en);
@@ -26,14 +28,7 @@ export class IntlStore {
 
     const locale = user.formattingLocale;
 
-    switch (locale) {
-      case Locale.de:
-        return "de-DE";
-      case Locale.en:
-        return "en-US";
-      default:
-        return undefined;
-    }
+    return isRoutingLocale(locale) ? formattingTagFor(locale) : undefined;
   }
 
   get use12Hour(): boolean {

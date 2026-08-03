@@ -3,22 +3,35 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
+import {
+  DEFAULT_LOCALE,
+  isContentLocale,
+  isRoutingLocale,
+  routingLocaleFromPathname,
+  stripLocalePrefix,
+} from "./i18n/locale-registry";
+import { contentRouting, isContentPage, isPublicPage, routing } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 
-const intlMiddlewareRaw = createMiddleware(routing);
+const intlMiddleware = createMiddleware(routing);
+const intlNegotiatingMiddleware = createMiddleware(contentRouting);
 
-function intlMiddleware(req: NextRequest) {
-  const response = intlMiddlewareRaw(req);
-  if (response.status !== 307) return response;
-  const location = response.headers.get("location");
-  if (!location) return response;
-  const permanent = NextResponse.redirect(location, 308);
-  for (const cookie of response.cookies.getAll()) permanent.cookies.set(cookie);
-  return permanent;
+const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
+
+function negotiateLocale(req: NextRequest) {
+  const response = intlNegotiatingMiddleware(req);
+  if (response.headers.has("location")) response.headers.set("vary", "accept-language, cookie");
+  return response;
+}
+
+// A locale-shaped prefix we do not serve must 404 rather than redirect: a redirect
+// would be cached against a URL we may later want to serve for real.
+function isUnsupportedLocalePrefix(pathname: string): boolean {
+  const firstSegment = pathname.split("/")[1] ?? "";
+  return LOCALE_SHAPED_SEGMENT.test(firstSegment) && !isRoutingLocale(firstSegment.toLowerCase());
 }
 
 function hasSessionCookie(req: NextRequest): boolean {
@@ -69,11 +82,12 @@ export default async function proxy(req: NextRequest) {
 
   if (isApiRoute) return NextResponse.next();
 
-  const currentLocale = ROUTING_LOCALES.find(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
-  );
+  const currentLocale = routingLocaleFromPathname(pathname);
 
-  if (!currentLocale) return intlMiddleware(req);
+  if (currentLocale === null) {
+    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
+    return negotiateLocale(req);
+  }
 
   let session;
   let isAuthenticated = false;
@@ -115,14 +129,24 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  const isRootOrLocaleOnly = ROUTING_LOCALES.some((locale) => pathname === `/${locale}`);
+  const isLocaleRootPage = pathname === `/${currentLocale}`;
 
-  if (isAuthenticated && isRootOrLocaleOnly) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
+  if (isAuthenticated && isLocaleRootPage) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
+
+  // An application-only locale publishes no marketing, blog or docs pages. Send
+  // those URLs to the default locale instead of rendering an untranslated page.
+  // Temporary, because whether a locale has content is a configuration value.
+  if (!isContentLocale(currentLocale) && isContentPage(req)) {
+    const unprefixed = stripLocalePrefix(pathname);
+    const target = new URL(unprefixed === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${unprefixed}`, base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
 
   if (isPublicPage(req)) return intlMiddleware(req);
 
   if (!isAuthenticated) {
-    const redirectLocale = currentLocale !== undefined ? currentLocale : ROUTING_DEFAULT_LOCALE;
+    const redirectLocale = currentLocale ?? DEFAULT_LOCALE;
     const signInPath = `/${redirectLocale}/auth/signin`;
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());

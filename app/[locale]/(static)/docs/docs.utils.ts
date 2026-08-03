@@ -1,4 +1,4 @@
-import { ROUTING_LOCALES } from "@/i18n/routing";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 type DocWithOpenApi = {
   data: {
@@ -41,6 +41,5 @@ export function getDocMethodColor(method: string | undefined) {
 }
 
 export function toLocaleRelativeHref(url: string) {
-  const localePattern = ROUTING_LOCALES.join("|");
-  return url.replace(new RegExp(`^/(?:${localePattern})(?=/|$)`), "") || "/";
+  return stripLocalePrefix(url);
 }

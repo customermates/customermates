@@ -1,16 +1,26 @@
 import { z } from "zod";
 
+import type { ContentLocale } from "@/i18n/locale-registry";
+
 import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { encodeToToon, VALIDATION_ERROR_PREFIX } from "./utils";
 
 import { env } from "@/env";
 import { getMcpInstallSnippet, type McpTool } from "@/features/docs/mcp-install-snippet";
+import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 type ManifestPage = { title: string; description: string; content: string };
 type Manifest = Record<DocsSource, Record<DocsLocale, Record<string, ManifestPage>>>;
 type DocsSource = "docs" | "api";
-type DocsLocale = "en" | "de";
+type DocsLocale = ContentLocale;
+
+const [firstDocsLocale, ...otherDocsLocales] = CONTENT_LOCALES;
+const docsLocaleList = CONTENT_LOCALES.join(", ");
+const docsLocaleSchema = z
+  .enum([firstDocsLocale, ...otherDocsLocales])
+  .default(DEFAULT_LOCALE)
+  .describe(`Documentation language (one of: ${docsLocaleList})`);
 
 type IndexEntry = {
   slug: string;
@@ -167,12 +177,12 @@ export const searchDocsTool = {
   title: "Search documentation",
   description:
     "Use this when you need to search the Customermates documentation (product guides and REST API reference). " +
-    "Required: query. Optional: locale (one of: en, de; default en), source (one of: docs, api, all; default docs). " +
+    `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns up to 5 matches as {slug, source, title, url, snippet}. Follow up with get_docs_page for the full page.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text search, e.g. 'webhook signature' or 'filter operators'"),
-    locale: z.enum(["en", "de"]).default("en").describe("Documentation language (one of: en, de)"),
+    locale: docsLocaleSchema,
     source: z
       .enum(["docs", "api", "all"])
       .default("docs")
@@ -198,12 +208,12 @@ export const getDocsPageTool = {
   title: "Get documentation page",
   description:
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
-    "Required: slug (as returned by search_docs). Optional: locale (one of: en, de; default en), source (one of: docs, api; default docs). " +
+    `Required: slug (as returned by search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
     "Unknown slugs return the full list of valid slugs. Use search_docs first when you don't know the slug.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
     slug: z.string().min(1).describe("Docs page slug, e.g. 'quickstart' or 'mcp-tool-catalog'"),
-    locale: z.enum(["en", "de"]).default("en").describe("Documentation language (one of: en, de)"),
+    locale: docsLocaleSchema,
     source: z.enum(["docs", "api"]).default("docs").describe("docs = product guides, api = REST endpoint reference"),
   }),
   execute: ({ slug, locale, source }: { slug: string; locale: DocsLocale; source: DocsSource }) => {

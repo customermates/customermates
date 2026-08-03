@@ -1,8 +1,8 @@
 import { loader } from "fumadocs-core/source";
-import { defineI18n } from "fumadocs-core/i18n";
 import { toFumadocsSource } from "fumadocs-mdx/runtime/server";
 
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
+import { i18n } from "./i18n";
+
 import {
   apiDocs,
   apiOverview,
@@ -25,11 +25,7 @@ import {
   pricing,
 } from "@/.source/server";
 
-export const i18n = defineI18n({
-  defaultLanguage: ROUTING_DEFAULT_LOCALE,
-  languages: ROUTING_LOCALES as unknown as string[],
-  parser: "dir",
-});
+export { i18n };
 
 export const blogSource = loader({
   baseUrl: "/blog",

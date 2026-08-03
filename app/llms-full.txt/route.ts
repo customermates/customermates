@@ -2,6 +2,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export const dynamic = "force-static";
 
@@ -11,11 +12,11 @@ type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;
 const manifest = rawManifest as Manifest;
 
 export function GET() {
-  const pages = manifest.docs.en;
+  const pages = manifest.docs[DEFAULT_LOCALE];
   const sections: string[] = [
     "# Customermates documentation (full text)",
     "",
-    `> Customermates is an open-source, AI-native CRM. This file concatenates every English docs page in reading order. Per-page markdown: ${env.BASE_URL}/en/raw/docs/<slug>.md - index: ${env.BASE_URL}/llms.txt`,
+    `> Customermates is an open-source, AI-native CRM. This file concatenates every English docs page in reading order. Per-page markdown: ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/docs/<slug>.md - index: ${env.BASE_URL}/llms.txt`,
   ];
 
   for (const group of DOC_NAV_GROUPS) {
@@ -24,7 +25,16 @@ export function GET() {
       const page = pages[slug];
       if (!page) continue;
       const body = page.content.replace(/^---\n[\s\S]*?\n---\n?/, "").trim();
-      sections.push("", "---", "", `# ${page.title}`, "", `Source: ${env.BASE_URL}/en/docs/${slug}`, "", body);
+      sections.push(
+        "",
+        "---",
+        "",
+        `# ${page.title}`,
+        "",
+        `Source: ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/${slug}`,
+        "",
+        body,
+      );
     }
   }
 

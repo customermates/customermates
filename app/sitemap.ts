@@ -1,7 +1,11 @@
 import type { MetadataRoute } from "next";
+import type { ContentLocale } from "@/i18n/locale-registry";
+import type { LocalizedRoute } from "@/core/seo/sitemap";
 
 import { env } from "@/env";
-import { PUBLIC_ROUTES_SEO, ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
+import { assembleSitemap } from "@/core/seo/sitemap";
+import { CONTENT_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
+import { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
 
 function getLastModified(lastModified: Date | number | undefined) {
@@ -10,68 +14,36 @@ function getLastModified(lastModified: Date | number | undefined) {
   return isNaN(date.getTime()) ? undefined : date;
 }
 
-function generateRoutes() {
-  const routes: Array<{ route: string; lastModified?: Date }> = [];
+export function collectLocalizedRoutes(locales: readonly ContentLocale[] = CONTENT_LOCALES): LocalizedRoute[] {
+  const localizedRoutes: LocalizedRoute[] = [];
 
-  for (const locale of ROUTING_LOCALES) {
+  for (const locale of locales) {
     for (const route of PUBLIC_ROUTES_SEO) {
       const routeMapping = ROUTE_SOURCE_MAP[route];
+      if (!routeMapping) continue;
 
       if (route.includes(":")) {
-        if (routeMapping) {
-          const pages = routeMapping.source.getPages(locale);
-
-          for (const page of pages) {
-            const url = page.url;
-            if (url) {
-              const lastModified = getLastModified(page.data.lastModified);
-
-              routes.push({
-                route: url,
-                lastModified,
-              });
-            }
-          }
+        for (const page of routeMapping.source.getPages(locale)) {
+          if (!page.url) continue;
+          localizedRoutes.push({
+            locale,
+            routePath: stripLocalePrefix(page.url),
+            lastModified: getLastModified(page.data.lastModified),
+          });
         }
-      } else {
-        const lastModified = routeMapping
-          ? getLastModified(routeMapping.source.getPage(routeMapping.path, locale)?.data.lastModified)
-          : undefined;
-
-        const localeRoute = route === "/" ? `/${locale}` : `/${locale}${route}`;
-
-        routes.push({
-          route: localeRoute,
-          lastModified,
-        });
+        continue;
       }
+
+      const page = routeMapping.source.getPage(routeMapping.path, locale);
+      if (!page) continue;
+
+      localizedRoutes.push({ locale, routePath: route, lastModified: getLastModified(page.data.lastModified) });
     }
   }
 
-  return routes;
+  return localizedRoutes;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const allRoutes = generateRoutes();
-
-  return allRoutes.map((routeData) => {
-    const { route, lastModified } = routeData;
-    const isOpenApiRoute = /^\/[^/]+\/docs\/openapi(\/|$)/.test(route);
-    const languages = isOpenApiRoute
-      ? { [ROUTING_DEFAULT_LOCALE]: `${env.BASE_URL}${route}` }
-      : Object.fromEntries(
-          ROUTING_LOCALES.map((locale) => {
-            const path = route.replace(/^\/[^/]+/, `/${locale}`);
-            return [locale, `${env.BASE_URL}${path}`];
-          }),
-        );
-
-    return {
-      url: `${env.BASE_URL}${route}`,
-      lastModified: lastModified ?? new Date(),
-      alternates: {
-        languages,
-      },
-    };
-  });
+  return assembleSitemap(collectLocalizedRoutes(), env.BASE_URL, new Date());
 }

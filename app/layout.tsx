@@ -31,7 +31,8 @@ import {
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { homepageSource } from "@/core/fumadocs/source";
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
+import { buildAlternateLanguages } from "@/core/seo/alternates";
+import { CONTENT_LOCALES, contentLocaleOrDefault, isContentLocale } from "@/i18n/locale-registry";
 
 const latin = Inter({
   subsets: ["latin"],
@@ -57,15 +58,13 @@ const serif = Lora({
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
-  const page = homepageSource.getPage(["homepage"], locale);
+  const page = homepageSource.getPage(["homepage"], contentLocaleOrDefault(locale));
 
   if (!page) return {};
 
   const { rootMetadata } = page.data;
-  const alternates: Record<string, string> = Object.fromEntries(
-    ROUTING_LOCALES.map((loc) => [loc, `${env.BASE_URL}/${loc}`]),
-  );
-  alternates["x-default"] = `${env.BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
+  const homepageLocales = CONTENT_LOCALES.filter((loc) => homepageSource.getPage(["homepage"], loc) !== undefined);
+  const alternates = buildAlternateLanguages("/", homepageLocales, env.BASE_URL);
 
   const canonical = `${env.BASE_URL}/${locale}`;
   const params = new URLSearchParams({
@@ -92,10 +91,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       url: canonical,
     },
-    alternates: {
-      canonical,
-      languages: alternates,
-    },
+    alternates: isContentLocale(locale) && alternates ? { canonical, languages: alternates } : {},
     twitter: {
       card: "summary_large_image",
       description: rootMetadata.defaultDescription,

@@ -12,6 +12,9 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
+const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 
 export const UpdateUserDetailsSchema = z.object({
   firstName: z.string().min(1).max(255).optional(),
@@ -19,7 +22,7 @@ export const UpdateUserDetailsSchema = z.object({
   country: z.enum(CountryCode).optional(),
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable().optional(),
   theme: z.enum(Theme).optional(),
-  displayLanguage: z.enum(Locale).optional(),
+  displayLanguage: z.enum([firstAppLocale, ...otherAppLocales, Locale.system]).optional(),
   formattingLocale: z.enum(Locale).optional(),
 });
 export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;

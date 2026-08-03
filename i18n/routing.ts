@@ -2,9 +2,11 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-export const ROUTING_LOCALES = ["en", "de"] as const;
+import { CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
 
-export const ROUTING_DEFAULT_LOCALE = "en";
+export { ROUTING_LOCALES };
+
+export const ROUTING_DEFAULT_LOCALE = DEFAULT_LOCALE;
 
 export const PUBLIC_ROUTES_SEO = [
   "/",
@@ -45,13 +47,25 @@ export const PUBLIC_ROUTES = [
   "/docs/openapi",
 ] as const;
 
+export const CONTENT_ROUTES = [
+  ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
+  "/docs/openapi/:slug",
+  "/docs/openapi",
+] as const;
+
 export const routing = defineRouting({
   locales: ROUTING_LOCALES,
   defaultLocale: ROUTING_DEFAULT_LOCALE,
   localePrefix: "always",
+  alternateLinks: false,
 });
 
-export type RouterLocale = (typeof routing.locales)[number];
+export const contentRouting = defineRouting({
+  locales: CONTENT_LOCALES,
+  defaultLocale: ROUTING_DEFAULT_LOCALE,
+  localePrefix: "always",
+  alternateLinks: false,
+});
 
 export function isPublicPage(req: NextRequest) {
   return isPublicPathname(req.nextUrl.pathname);
@@ -63,10 +77,24 @@ export function isPublicPathname(pathname: string) {
   return false;
 }
 
+export function isContentPage(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  for (const p of CONTENT_ROUTES) if (buildLocaleAwareRegex(p).test(pathname)) return true;
+
+  return false;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function buildLocaleAwareRegex(pathWithLeadingSlash: string): RegExp {
-  if (pathWithLeadingSlash === "/") return new RegExp(`^(/(${ROUTING_LOCALES.join("|")}))?/?$`, "i");
+  const localePrefix = `(/(${ROUTING_LOCALES.map(escapeRegExp).join("|")}))?`;
 
-  const escaped = pathWithLeadingSlash.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/:(\w+)/g, "([^/]+)");
+  if (pathWithLeadingSlash === "/") return new RegExp(`^${localePrefix}/?$`);
 
-  return new RegExp(`^(/(${ROUTING_LOCALES.join("|")}))?${escaped}/?$`, "i");
+  const escaped = escapeRegExp(pathWithLeadingSlash).replace(/:(\w+)/g, "([^/]+)");
+
+  return new RegExp(`^${localePrefix}${escaped}/?$`);
 }

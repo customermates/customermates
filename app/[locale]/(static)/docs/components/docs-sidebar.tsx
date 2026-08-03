@@ -25,7 +25,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { IntlLink } from "@/i18n/navigation";
-import { ROUTING_LOCALES } from "@/i18n/routing";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 export type DocSidebarItem = {
   key: string;
@@ -45,10 +45,7 @@ export function normalizeDocsPath(path: string): string {
   let normalized = path;
   if (normalized.length > 1 && normalized.endsWith("/")) normalized = normalized.slice(0, -1);
 
-  const localePattern = ROUTING_LOCALES.join("|");
-  normalized = normalized.replace(new RegExp(`^/(?:${localePattern})(?=/|$)`), "") || "/";
-
-  return normalized;
+  return stripLocalePrefix(normalized);
 }
 
 export function isDocItemActive(item: DocSidebarItem, normalizedPathname: string): boolean {

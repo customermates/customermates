@@ -34,6 +34,7 @@ vi.mock("@/i18n/routing", () => ({
   ROUTING_LOCALES: ["en", "de"],
   isPublicPage: mocks.isPublicPage,
   routing: {},
+  contentRouting: {},
 }));
 
 vi.mock("@/env", () => ({

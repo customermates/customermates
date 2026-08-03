@@ -6,9 +6,11 @@ import { z } from "zod";
 import { createErrorHandler } from "./validation.utils";
 import { CustomErrorCode } from "./validation.types";
 
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
+
 export async function configureZodLocale(): Promise<void> {
   const locale = await getLocale();
-  const zodLocale = locale === "de" ? "de" : "en";
+  const zodLocale = appLocaleOrDefault(locale);
   const t = await getTranslations();
 
   const customErrorTranslations = Object.fromEntries(

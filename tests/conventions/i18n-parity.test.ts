@@ -1,13 +1,20 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
+
 const ENFORCED = true;
 
-const CONTENT_SECTIONS = ["docs", "blog", "features", "compare", "for", "legal"];
+function contentCollections(): string[] {
+  return readdirSync(join(REPO_ROOT, "content"), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+}
 
 function loadLocaleLeaves(locale: string): Map<string, string> {
   const raw = readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8");
@@ -85,42 +92,73 @@ function listContentFiles(root: string): string[] {
 }
 
 describe("i18n parity", () => {
-  const enLeaves = loadLocaleLeaves("en");
-  const deLeaves = loadLocaleLeaves("de");
+  const referenceLeaves = loadLocaleLeaves(DEFAULT_LOCALE);
+  const otherAppLocales = APP_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every en leaf key in de", () => {
-    const missingInDe = [...enLeaves.keys()].filter((key) => !deLeaves.has(key));
-    expect(missingInDe, `leaf keys missing in de.json:\n${missingInDe.join("\n")}`).toEqual([]);
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every default-locale leaf key in every app locale", () => {
+    const problems: string[] = [];
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const key of referenceLeaves.keys()) if (!leaves.has(key)) problems.push(`${locale}.json is missing ${key}`);
+    }
+    expect(problems, `leaf keys missing from an app locale:\n${problems.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every de leaf key in en", () => {
-    const missingInEn = [...deLeaves.keys()].filter((key) => !enLeaves.has(key));
-    expect(missingInEn, `leaf keys missing in en.json:\n${missingInEn.join("\n")}`).toEqual([]);
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no leaf key outside the default locale catalog", () => {
+    const problems: string[] = [];
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const key of leaves.keys()) {
+        if (!referenceLeaves.has(key)) problems.push(`${DEFAULT_LOCALE}.json is missing ${key} (present in ${locale})`);
+      }
+    }
+    expect(problems, `leaf keys missing from the default locale:\n${problems.join("\n")}`).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps ICU placeholder names aligned per shared key", () => {
     const mismatches: string[] = [];
-    for (const [key, enValue] of enLeaves) {
-      const deValue = deLeaves.get(key);
-      if (deValue === undefined) continue;
-      const enArguments = icuArgumentNames(enValue);
-      const deArguments = icuArgumentNames(deValue);
-      if (enArguments !== deArguments) mismatches.push(`${key}: en={${enArguments}} de={${deArguments}}`);
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const [key, referenceValue] of referenceLeaves) {
+        const value = leaves.get(key);
+        if (value === undefined) continue;
+        const referenceArguments = icuArgumentNames(referenceValue);
+        const localeArguments = icuArgumentNames(value);
+        if (referenceArguments !== localeArguments) {
+          mismatches.push(`${key}: ${DEFAULT_LOCALE}={${referenceArguments}} ${locale}={${localeArguments}}`);
+        }
+      }
     }
     expect(mismatches, `ICU placeholder mismatches:\n${mismatches.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("mirrors the content file tree across both locales", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("mirrors every content collection across content locales", () => {
     const problems: string[] = [];
-    for (const section of CONTENT_SECTIONS) {
-      const enDir = join(REPO_ROOT, "content", section, "en");
-      const deDir = join(REPO_ROOT, "content", section, "de");
-      if (!existsSync(enDir) || !existsSync(deDir)) continue;
-      const enFiles = new Set(listContentFiles(enDir));
-      const deFiles = new Set(listContentFiles(deDir));
-      for (const file of enFiles) if (!deFiles.has(file)) problems.push(`content/${section}/de is missing ${file}`);
-      for (const file of deFiles) if (!enFiles.has(file)) problems.push(`content/${section}/en is missing ${file}`);
+    const collections = contentCollections();
+
+    expect(collections.length, "expected content collections on disk").toBeGreaterThan(0);
+
+    for (const collection of collections) {
+      const referenceDir = join(REPO_ROOT, "content", collection, DEFAULT_LOCALE);
+      if (!existsSync(referenceDir)) continue;
+      const referenceFiles = new Set(listContentFiles(referenceDir));
+
+      for (const locale of CONTENT_LOCALES) {
+        if (locale === DEFAULT_LOCALE) continue;
+        const localeDir = join(REPO_ROOT, "content", collection, locale);
+        const localeFiles = new Set(existsSync(localeDir) ? listContentFiles(localeDir) : []);
+
+        for (const file of referenceFiles) {
+          if (!localeFiles.has(file)) problems.push(`content/${collection}/${locale} is missing ${file}`);
+        }
+        for (const file of localeFiles) {
+          if (!referenceFiles.has(file)) {
+            problems.push(`content/${collection}/${DEFAULT_LOCALE} is missing ${file} (present in ${locale})`);
+          }
+        }
+      }
     }
+
     expect(problems, `content tree locale mismatches:\n${problems.join("\n")}`).toEqual([]);
   });
 });

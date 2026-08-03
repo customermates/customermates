@@ -3,6 +3,7 @@ import { getLocale } from "next-intl/server";
 import { FooterContent } from "./footer-content";
 
 import { blogPostsSource, comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 const FOOTER_COMPARE = new Set([
   "gohighlevel",
@@ -41,7 +42,7 @@ const FOOTER_BLOG_POSTS = new Set([
 ]);
 
 export async function Footer() {
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
 
   const competitors = comparePagesSource
     .getPages(locale)

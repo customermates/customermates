@@ -2,6 +2,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export const dynamic = "force-static";
 
@@ -11,11 +12,11 @@ type Manifest = Record<string, Record<string, Record<string, ManifestPage>>>;
 const manifest = rawManifest as Manifest;
 
 export function GET() {
-  const pages = manifest.docs.en;
+  const pages = manifest.docs[DEFAULT_LOCALE];
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (44 tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/en/docs/<slug>; German versions live under /de/.`,
+    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (44 tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>; German versions live under /de/.`,
     "",
   ];
 
@@ -25,7 +26,7 @@ export function GET() {
         const slug = item.slug || "intro-page";
         const page = pages[slug];
         if (!page) return null;
-        return `- [${page.title}](${env.BASE_URL}/en/raw/docs/${slug}.md): ${page.description}`;
+        return `- [${page.title}](${env.BASE_URL}/${DEFAULT_LOCALE}/raw/docs/${slug}.md): ${page.description}`;
       })
       .filter((line): line is string => line !== null);
     if (items.length === 0) continue;
@@ -35,7 +36,7 @@ export function GET() {
   lines.push(
     "## Optional",
     `- [OpenAPI 3.1 spec](${env.BASE_URL}/api/v1/openapi): the full REST schema as JSON`,
-    `- REST operation docs: one markdown file per endpoint at ${env.BASE_URL}/en/raw/openapi/<operation>.md`,
+    `- REST operation docs: one markdown file per endpoint at ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/openapi/<operation>.md`,
     "",
   );
 

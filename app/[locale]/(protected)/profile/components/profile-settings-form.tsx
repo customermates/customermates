@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserDetails } from "@/features/user/get/get-user-details.interactor";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
@@ -19,22 +20,22 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
+import { APP_LOCALES, DEFAULT_LOCALE, appLocaleOrDefault, isAppLocale } from "@/i18n/locale-registry";
 
 type Props = {
   userDetails: UserDetails;
   emailVerified: boolean;
 };
 
-function detectBrowserUiLocale(): Locale {
+function detectBrowserUiLocale(): AppLocale {
   const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
 
   for (const language of languages) {
     const base = language.toLowerCase().split("-")[0];
-    if (base === "de") return Locale.de;
-    if (base === "en") return Locale.en;
+    if (isAppLocale(base)) return base;
   }
 
-  return Locale.en;
+  return DEFAULT_LOCALE;
 }
 
 function resolveFormattingLanguageName(uiLocale: string): string {
@@ -101,7 +102,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     label: key === Theme.system ? systemThemeLabel : t(`Common.themes.${key}`),
   }));
 
-  const displayLanguageItems = [Locale.de, Locale.en, Locale.system].map((key) => ({
+  const displayLanguageItems = [...APP_LOCALES, Locale.system].map((key) => ({
     value: key,
     label: key === Locale.system ? systemDisplayLanguageLabel : t(`Common.locales.${key}`),
   }));
@@ -122,7 +123,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;
           if (locale !== previousDisplayLanguage) {
-            const targetLocale = locale === Locale.system ? currentLocale : locale === Locale.de ? "de" : "en";
+            const targetLocale = locale === Locale.system ? currentLocale : appLocaleOrDefault(locale);
             navigationGuard.tryNavigate(() => {
               window.location.href = `/${targetLocale}${pathname}`;
             });

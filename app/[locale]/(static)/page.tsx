@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -15,14 +13,8 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureSection } from "@/components/marketing/feature-section";
 import { JsonLd } from "@/components/seo/json-ld";
-import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { homepageSource } from "@/core/fumadocs/source";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return generateMetadataFromMeta({ locale, route: "/" });
-}
 
 export default async function HomePage() {
   const locale = await getLocale();

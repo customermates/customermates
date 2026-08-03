@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { getLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 import { BlogPostCard } from "./blog-post-card";
 
@@ -19,7 +20,7 @@ export default async function BlogPage() {
   const page = blogSource.getPage(["blog"], locale);
   const posts = blogPostsSource.getPages(locale);
 
-  if (!page) return null;
+  if (!page) notFound();
 
   const sortedPosts = [...posts].sort((a, b) => {
     const dateA = new Date(a.data.blogPost.date).getTime();
