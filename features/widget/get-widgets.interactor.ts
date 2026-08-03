@@ -1,4 +1,4 @@
-import type { ExtendedWidget } from "./widget.types";
+import type { WidgetDto } from "./widget.schema";
 
 import { WidgetDtoSchema } from "./widget.schema";
 
@@ -8,18 +8,18 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export abstract class GetWidgetsRepo {
-  abstract getWidgets(): Promise<ExtendedWidget[]>;
+  abstract getWidgets(): Promise<WidgetDto[]>;
 }
 
 @AllowInDemoMode
 @TenantInteractor()
-export class GetWidgetsInteractor extends AuthenticatedInteractor<void, ExtendedWidget[]> {
+export class GetWidgetsInteractor extends AuthenticatedInteractor<void, WidgetDto[]> {
   constructor(private repo: GetWidgetsRepo) {
     super();
   }
 
   @ValidateOutput(WidgetDtoSchema)
-  async invoke(): Promise<{ ok: true; data: ExtendedWidget[] }> {
+  async invoke(): Promise<{ ok: true; data: WidgetDto[] }> {
     return { ok: true as const, data: await this.repo.getWidgets() };
   }
 }

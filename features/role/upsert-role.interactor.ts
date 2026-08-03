@@ -1,4 +1,4 @@
-import type { UserRoleDto } from "./get-roles.interactor";
+import type { RoleDto } from "./get-roles.interactor";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
 import type { ValidateRoleIdsInteractor } from "@/core/validation/validators/validate-role-ids.interactor";
@@ -63,8 +63,8 @@ export type UpsertRoleData = Data<typeof Schema>;
 
 export abstract class UpsertRoleRepo {
   abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
-  abstract upsertRoleOrThrow(data: UpsertRoleData): Promise<UserRoleDto>;
-  abstract getRoleByIdOrThrow(id: string): Promise<UserRoleDto>;
+  abstract upsertRoleOrThrow(data: UpsertRoleData): Promise<RoleDto>;
+  abstract getRoleByIdOrThrow(id: string): Promise<RoleDto>;
 }
 
 @TenantInteractor({
@@ -74,7 +74,7 @@ export abstract class UpsertRoleRepo {
   ],
   condition: "AND",
 })
-export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData, UserRoleDto> {
+export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData, RoleDto> {
   constructor(
     private repo: UpsertRoleRepo,
     private eventService: EventService,
@@ -88,7 +88,7 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
     output: RoleDtoSchema,
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
-  async invoke(data: UpsertRoleData): Validated<UserRoleDto> {
+  async invoke(data: UpsertRoleData): Validated<RoleDto> {
     if (data.id && (await this.repo.isSystemRoleOrThrow(data.id))) throw new Error("Cannot update system roles");
 
     const previousRole = data.id ? await this.repo.getRoleByIdOrThrow(data.id) : undefined;

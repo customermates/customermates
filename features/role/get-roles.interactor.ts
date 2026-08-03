@@ -1,4 +1,4 @@
-import type { UserRoleDto } from "./role.types";
+import type { RoleDto } from "./role.schema";
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -13,9 +13,9 @@ import { RoleDtoSchema } from "./role.schema";
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 
-export type { UserRoleDto } from "./role.types";
+export type { RoleDto } from "./role.schema";
 
-export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
+export abstract class GetRolesRepo extends BaseGetRepo<RoleDto> {}
 
 @AllowInDemoMode
 @TenantInteractor({
@@ -25,7 +25,7 @@ export abstract class GetRolesRepo extends BaseGetRepo<UserRoleDto> {}
   ],
   condition: "OR",
 })
-export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
+export class GetRolesInteractor extends BaseGetInteractor<RoleDto> {
   constructor(
     repo: GetRolesRepo,
     p13nRepo: P13nRepo,
@@ -44,7 +44,7 @@ export class GetRolesInteractor extends BaseGetInteractor<UserRoleDto> {
 
   @Validate(GetQueryParamsSchema)
   @ValidateOutput(createGetResultSchema(RoleDtoSchema))
-  async invoke(params: GetQueryParams = {}): Validated<GetResult<UserRoleDto>> {
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<RoleDto>> {
     return await super.invoke(params);
   }
 }

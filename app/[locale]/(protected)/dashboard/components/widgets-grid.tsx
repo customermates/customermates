@@ -2,7 +2,7 @@
 
 import type { ComponentType } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
-import type { ExtendedWidget } from "@/features/widget/widget.types";
+import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
 
@@ -36,7 +36,7 @@ const ResponsiveGridLayout = dynamic(
 );
 
 type Props = {
-  widgets: ExtendedWidget[];
+  widgets: WidgetDto[];
   customColumns: CustomColumnDto[];
   filterableFields: Record<EntityType, FilterableField[]>;
 };

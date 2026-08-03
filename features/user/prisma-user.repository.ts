@@ -33,7 +33,7 @@ import {
 
 import { type UserDto } from "./user.schema";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { getSeedData, PIPELINE_STAGES, type StageKey } from "@/features/onboarding-wizard/seed-data";
 import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -77,14 +77,14 @@ export class PrismaUserRepo
     WebhookUserRepo
 {
   @BypassTenantGuard
-  async findExtendedUserByIdOrThrowUnscoped(userId: string) {
+  async findUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
   }
 
-  private get extendedUserSelect() {
+  private get tenantUserSelect() {
     return {
       id: true,
       email: true,
@@ -878,12 +878,12 @@ export class PrismaUserRepo
       },
     });
 
-    const extendedUser = await this.prisma.user.findUniqueOrThrow({
+    const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
-    return extendedUser;
+    return tenantUser;
   }
 
   @Transaction
@@ -909,12 +909,12 @@ export class PrismaUserRepo
       },
     });
 
-    const extendedUser = await this.prisma.user.findUniqueOrThrow({
+    const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
-    return extendedUser;
+    return tenantUser;
   }
 
   async findOrThrowCompanyWide(email: string) {
@@ -922,7 +922,7 @@ export class PrismaUserRepo
 
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { email, companyId },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;
@@ -945,7 +945,7 @@ export class PrismaUserRepo
   async findCurrentUserOrThrowUnscoped(email: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { email },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;
@@ -955,7 +955,7 @@ export class PrismaUserRepo
   async findCurrentUserUnscoped(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: this.extendedUserSelect,
+      select: this.tenantUserSelect,
     });
 
     return user;

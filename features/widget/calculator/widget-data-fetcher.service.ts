@@ -1,5 +1,4 @@
-import type { ExtendedWidget } from "../widget.types";
-import type { EntityForGrouping, DealRecord } from "./widget-calculator.types";
+import type { WidgetForCalculation, EntityForGrouping, DealRecord } from "./widget-calculator.types";
 import type { Filter } from "@/core/base/base-get.schema";
 
 import { EntityType } from "@/generated/prisma";
@@ -48,7 +47,7 @@ export class WidgetDataFetcher extends BaseRepository {
     }
   }
 
-  private async boundedDealWhere(widget: ExtendedWidget): Promise<Prisma.DealWhereInput> {
+  private async boundedDealWhere(widget: WidgetForCalculation): Promise<Prisma.DealWhereInput> {
     const { companyId } = this;
     const dealWhere = (await getDealRepo().buildQueryArgs({ filters: widget.dealFilters }, this.accessWhere("deal")))
       .where as Prisma.DealWhereInput;
@@ -68,13 +67,13 @@ export class WidgetDataFetcher extends BaseRepository {
     }
   }
 
-  async sumDealField(widget: ExtendedWidget, field: "totalValue" | "totalQuantity"): Promise<number> {
+  async sumDealField(widget: WidgetForCalculation, field: "totalValue" | "totalQuantity"): Promise<number> {
     const where = await this.boundedDealWhere(widget);
     const result = await this.prisma.deal.aggregate({ where, _sum: { totalValue: true, totalQuantity: true } });
     return (field === "totalValue" ? result._sum.totalValue : result._sum.totalQuantity) ?? 0;
   }
 
-  async getDealsForEntityType(widget: ExtendedWidget): Promise<DealRecord[]> {
+  async getDealsForEntityType(widget: WidgetForCalculation): Promise<DealRecord[]> {
     const { entityType } = widget;
     if (entityType === EntityType.task) return [];
 

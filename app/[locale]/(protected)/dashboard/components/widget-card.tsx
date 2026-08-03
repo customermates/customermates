@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
-import type { ExtendedWidget } from "@/features/widget/widget.types";
+import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { Filter } from "@/core/base/base-get.schema";
 
@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 
 import { AggregationType, EntityType } from "@/generated/prisma";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { getChartColors, getChartTextColors, getChartStrokeColors } from "@/constants/chart-colors";
 
 const CHIP_TO_CHART_COLOR: Record<ChipColor, ChartColor> = {
@@ -71,7 +71,7 @@ const RadarChartComponent = dynamic(
 );
 
 type Props = {
-  widget: ExtendedWidget;
+  widget: WidgetDto;
 };
 
 export const WidgetCard = observer(({ widget }: Props) => {

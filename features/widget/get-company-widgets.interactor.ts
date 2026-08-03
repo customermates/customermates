@@ -1,17 +1,11 @@
+import type { CompanyWidget } from "./widget.schema";
+
 import { CompanyWidgetsResultSchema } from "./widget.schema";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-
-export type CompanyWidget = {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-};
 
 export abstract class GetCompanyWidgetsRepo {
   abstract getCompanyWidgets(): Promise<CompanyWidget[]>;

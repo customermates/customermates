@@ -1,6 +1,6 @@
 "use client";
 
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 
 import { ChevronsUpDown, LogIn as LogOut, Moon, Sun } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -17,7 +17,7 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 type Props = {
-  user: ExtendedUser | null;
+  user: TenantUser | null;
   theme: string | undefined;
   labels: {
     signOut: string;

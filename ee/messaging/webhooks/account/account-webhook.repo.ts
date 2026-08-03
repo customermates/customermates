@@ -1,4 +1,4 @@
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 
 import type {
   ConnectedAccount,
@@ -11,7 +11,7 @@ import type { EmailFolder } from "../../email-folders";
 import { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
 
 export abstract class WebhookUserRepo {
-  abstract findExtendedUserByIdOrThrowUnscoped(userId: string): Promise<ExtendedUser>;
+  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
 }
 
 export abstract class AccountWebhookRepo extends FindAccountByUnipileIdUnscopedRepo {

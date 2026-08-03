@@ -1,4 +1,5 @@
-import type { ExtendedWidget, DiagramDataPoint } from "../widget.types";
+import type { DiagramDataPoint } from "../widget.schema";
+import type { WidgetForCalculation } from "./widget-calculator.types";
 
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
@@ -6,7 +7,7 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { getWidgetGroupingService, getWidgetDataFetcher, getCustomColumnRepo } from "@/core/di";
 
 export class PrismaWidgetCalculatorRepo extends BaseRepository {
-  async calculateWidgetData(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
+  async calculateWidgetData(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
     const { aggregationType } = widget;
 
     let data: DiagramDataPoint[];
@@ -26,7 +27,7 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
     return [...data].sort((a, b) => b.value - a.value);
   }
 
-  private async calculateCount(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
+  private async calculateCount(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
     const { entityType, entityFilters, groupByType, groupByCustomColumnId } = widget;
 
     if (groupByType === WidgetGroupByType.none)
@@ -44,7 +45,7 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
     return getWidgetGroupingService().groupEntitiesByEntityType(entities, entityType);
   }
 
-  private async calculateDealValue(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
+  private async calculateDealValue(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
     const { entityType, groupByType, groupByCustomColumnId } = widget;
 
     if (groupByType === WidgetGroupByType.none) {
@@ -68,7 +69,7 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
     return getWidgetGroupingService().groupDealsByEntityType(widget, deals);
   }
 
-  private async calculateDealQuantity(widget: ExtendedWidget): Promise<DiagramDataPoint[]> {
+  private async calculateDealQuantity(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
     const { entityType, groupByType, groupByCustomColumnId } = widget;
 
     if (entityType !== EntityType.service) return [];
