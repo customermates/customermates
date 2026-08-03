@@ -5,12 +5,16 @@ import { makeAutoObservable } from "mobx";
 import { format, register } from "timeago.js";
 import de from "timeago.js/lib/lang/de";
 import en from "timeago.js/lib/lang/en_US";
+import fr from "timeago.js/lib/lang/fr";
 import { Currency } from "@/generated/prisma";
+
+import type { RoutingLocale } from "@/i18n/locale-registry";
 
 import { formattingTagFor, isRoutingLocale } from "@/i18n/locale-registry";
 
-register("de", de);
-register("en", en);
+const TIMEAGO_LOCALES = { de, en, fr } satisfies Record<RoutingLocale, Parameters<typeof register>[1]>;
+
+for (const [locale, definition] of Object.entries(TIMEAGO_LOCALES)) register(locale, definition);
 
 export class IntlStore {
   constructor(private readonly rootStore: RootStore) {

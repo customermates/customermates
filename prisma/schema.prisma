@@ -852,6 +852,7 @@ enum Locale {
   system
   de
   en
+  fr
 }
 
 enum Theme {

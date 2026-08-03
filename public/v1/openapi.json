@@ -26751,7 +26751,8 @@
                       "enum": [
                         "system",
                         "de",
-                        "en"
+                        "en",
+                        "fr"
                       ]
                     },
                     "formattingLocale": {
@@ -26759,7 +26760,8 @@
                       "enum": [
                         "system",
                         "de",
-                        "en"
+                        "en",
+                        "fr"
                       ]
                     },
                     "roleId": {

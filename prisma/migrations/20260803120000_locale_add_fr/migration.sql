@@ -1,0 +1,11 @@
+-- Adds French as an application display language.
+--
+-- Purely additive: no table is rewritten and no existing row changes. PostgreSQL
+-- has no DROP VALUE, so retiring a language later means removing it from
+-- APP_LOCALES in i18n/locale-registry.ts instead; resolveUserLocale falls back to
+-- the default locale for any stored value the registry no longer offers, so no
+-- data migration is needed to stop offering one.
+--
+-- The new value is not referenced anywhere in this migration, which is what makes
+-- ALTER TYPE ... ADD VALUE safe inside Prisma's transaction on PostgreSQL 12+.
+ALTER TYPE "Locale" ADD VALUE IF NOT EXISTS 'fr';
