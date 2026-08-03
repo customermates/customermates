@@ -4,20 +4,23 @@ import type { GlobalSearchResultItem } from "@/features/search/global-search.int
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Search, Users } from "lucide-react";
+import { Briefcase, Building2, CornerDownLeft, Loader2, Package, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import { AppCard } from "@/components/card/app-card";
-import { AppModal } from "@/components/modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Icon } from "@/components/shared/icon";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/core/utils/cn";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
 
 const TYPE_META: Record<
@@ -50,16 +53,7 @@ export const GlobalSearchModal = observer(() => {
   const openEntity = useOpenEntity();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   useEffect(() => globalSearchModalStore.setWithUnsavedChangesGuard(false), []);
-
-  useEffect(() => {
-    if (!isOpen || !inputRef.current || document.activeElement === inputRef.current) return;
-    const timer = setTimeout(() => inputRef.current?.focus(), 0);
-    return () => clearTimeout(timer);
-  }, [isOpen, results]);
 
   const searchTerm = globalSearchModalStore.form.searchTerm ?? "";
   const hasQuery = debouncedSearchTerm.trim().length > 0;
@@ -108,117 +102,76 @@ export const GlobalSearchModal = observer(() => {
       .filter((g) => g.items.length > 0);
   }, [results, recentItems, hasQuery, globalSearchModalStore, openEntity, t]);
 
-  const flatItems = useMemo(() => groupedResults.flatMap((g) => g.items), [groupedResults]);
-
-  useEffect(() => setSelectedIndex(0), [flatItems.length]);
-
-  useEffect(() => {
-    if (isOpen) setSelectedIndex(0);
-  }, [isOpen]);
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Escape") {
-      globalSearchModalStore.close();
-      return;
-    }
-
-    if (!flatItems.length) return;
-
-    if (event.key === "ArrowDown" || event.key === "Tab") {
-      event.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % flatItems.length);
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + flatItems.length) % flatItems.length);
-    } else if (event.key === "Enter") {
-      event.preventDefault();
-      flatItems[selectedIndex]?.onSelect();
-    }
-  }
+  const hasItems = groupedResults.some((group) => group.items.length > 0);
 
   return (
-    <AppModal store={globalSearchModalStore} title={t("GlobalSearch.placeholder")}>
-      <AppCard>
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-          <Icon
-            className={cn("text-muted-foreground shrink-0", isLoading && "animate-spin")}
-            icon={isLoading ? Loader2 : Search}
-            size="lg"
-          />
+    <CommandDialog
+      commandProps={{ shouldFilter: false }}
+      description={t("GlobalSearch.placeholder")}
+      open={isOpen}
+      title={t("GlobalSearch.placeholder")}
+      onOpenChange={(next) => {
+        if (!next) globalSearchModalStore.close();
+      }}
+    >
+      <CommandInput
+        id="global-search-input"
+        placeholder={t("GlobalSearch.placeholder")}
+        value={searchTerm}
+        onValueChange={(next) => globalSearchModalStore.onChange("searchTerm", next)}
+      />
 
-          {isLoading && <span className="sr-only">{t("GlobalSearch.loading")}</span>}
+      {isLoading && (
+        <div className="flex items-center gap-2 border-b border-border px-4 py-2 text-xs text-muted-foreground">
+          <Loader2 className="size-3.5 shrink-0 animate-spin" />
 
-          <Input
-            ref={inputRef}
-            autoFocus
-            className="border-0 bg-transparent shadow-none px-0 focus-visible:ring-0 focus-visible:border-transparent"
-            id="global-search-input"
-            placeholder={t("GlobalSearch.placeholder")}
-            value={searchTerm}
-            onChange={(e) => globalSearchModalStore.onChange("searchTerm", e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
+          <span>{t("GlobalSearch.loading")}</span>
         </div>
+      )}
 
-        <div className="max-h-[60vh] overflow-y-auto py-2">
-          {showNoResults ? (
-            <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t("GlobalSearch.noResults")}</p>
-          ) : !hasQuery && recentItems.length === 0 ? (
-            <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t("GlobalSearch.emptyPrompt")}</p>
-          ) : (
-            <div className="flex flex-col">
-              {groupedResults.map((group, groupIdx) => {
-                const offset = groupedResults.slice(0, groupIdx).reduce((sum, g) => sum + g.items.length, 0);
-                const heading = !hasQuery ? t("GlobalSearch.groupRecent") : t(TYPE_META[group.type].labelKey);
+      <CommandList>
+        {showNoResults && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
 
-                return (
-                  <div key={hasQuery ? group.type : "recent"} className="flex flex-col px-2 pb-1">
-                    <div className="flex items-center justify-between px-2 pt-2 pb-1">
-                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                        {heading}
-                      </span>
+        {!hasQuery && recentItems.length === 0 && <CommandEmpty>{t("GlobalSearch.emptyPrompt")}</CommandEmpty>}
 
-                      {!hasQuery && groupIdx === 0 ? (
-                        <button
-                          className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-                          type="button"
-                          onClick={() => globalSearchModalStore.clearRecentItems()}
-                        >
-                          {t("GlobalSearch.clearRecent")}
-                        </button>
-                      ) : null}
-                    </div>
+        {groupedResults.map((group, groupIdx) => (
+          <CommandGroup
+            key={hasQuery ? group.type : "recent"}
+            heading={!hasQuery ? t("GlobalSearch.groupRecent") : t(TYPE_META[group.type].labelKey)}
+          >
+            {group.items.map((item) => (
+              <ResultRow
+                key={`${item.type}-${item.id}`}
+                fallbackIcon={TYPE_META[item.type].icon}
+                label={item.name}
+                pictureUrl={item.pictureUrl}
+                typeLabel={t(TYPE_META[item.type].labelKey)}
+                value={`${item.type}-${item.id}`}
+                onSelect={item.onSelect}
+              />
+            ))}
 
-                    <div className="flex flex-col">
-                      {group.items.map((item, idx) => (
-                        <ResultRow
-                          key={`${item.type}-${item.id}`}
-                          fallbackIcon={TYPE_META[item.type].icon}
-                          label={item.name}
-                          pictureUrl={item.pictureUrl}
-                          selected={selectedIndex === offset + idx}
-                          typeLabel={t(TYPE_META[item.type].labelKey)}
-                          onMouseEnter={() => setSelectedIndex(offset + idx)}
-                          onSelect={item.onSelect}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+            {!hasQuery && groupIdx === 0 && (
+              <CommandItem
+                className="text-muted-foreground"
+                value="global-search-clear-recent"
+                onSelect={() => globalSearchModalStore.clearRecentItems()}
+              >
+                {t("GlobalSearch.clearRecent")}
+              </CommandItem>
+            )}
+          </CommandGroup>
+        ))}
+      </CommandList>
+
+      {hasItems && (
+        <div className="flex shrink-0 items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+          <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
+
+          <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
         </div>
-
-        {flatItems.length > 0 && (
-          <div className="flex items-center gap-4 px-4 py-2 border-t border-border text-[11px] text-muted-foreground">
-            <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
-
-            <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
-          </div>
-        )}
-      </AppCard>
-    </AppModal>
+      )}
+    </CommandDialog>
   );
 });
 
@@ -227,48 +180,38 @@ function ResultRow({
   pictureUrl,
   label,
   typeLabel,
-  selected,
+  value,
   onSelect,
-  onMouseEnter,
 }: {
   fallbackIcon: LucideIcon;
   pictureUrl: string | null;
   label: string;
   typeLabel: string;
-  selected: boolean;
+  value: string;
   onSelect: () => void;
-  onMouseEnter: () => void;
 }) {
   const FallbackIcon = fallbackIcon;
   return (
-    <button
-      className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors",
-        selected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-      )}
-      type="button"
-      onClick={onSelect}
-      onMouseEnter={onMouseEnter}
-    >
+    <CommandItem className="gap-3" value={value} onSelect={onSelect}>
       <Avatar>
         {pictureUrl && <AvatarImage src={pictureUrl} />}
 
         <AvatarFallback className="bg-transparent">
-          {pictureUrl ? initialsFor(label) : <FallbackIcon className="text-muted-foreground size-4" />}
+          {pictureUrl ? initialsFor(label) : <FallbackIcon className="size-4 text-muted-foreground" />}
         </AvatarFallback>
       </Avatar>
 
-      <span className="flex-1 min-w-0 truncate">{label}</span>
+      <span className="min-w-0 flex-1 truncate">{label}</span>
 
-      <span className="text-[11px] text-muted-foreground shrink-0">{typeLabel}</span>
-    </button>
+      <span className="shrink-0 text-[11px] text-muted-foreground">{typeLabel}</span>
+    </CommandItem>
   );
 }
 
 function Hint({ label, symbol }: { label: string; symbol: ReactNode }) {
   return (
     <div className="flex items-center gap-1.5">
-      <kbd className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded border border-border bg-muted text-[10px] font-medium text-muted-foreground">
+      <kbd className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-border bg-muted px-1 text-[10px] font-medium text-muted-foreground">
         {symbol}
       </kbd>
 

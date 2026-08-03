@@ -3,15 +3,17 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { Button } from "@/components/ui/button";
-import { AppForm } from "@/components/forms/form-context";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useRootStore } from "@/core/stores/root-store.provider";
-
-import { AppModal } from "./app-modal";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations();
@@ -20,34 +22,37 @@ export const DeleteConfirmationModal = observer(() => {
   const title = form.title || t("Common.deleteConfirmation.title");
 
   return (
-    <AppModal size="sm" store={store} title={title}>
-      <AppForm store={store} onSubmit={store.onSubmit}>
-        <AppCard>
-          <AppCardHeader>
-            <h2 className="text-base font-semibold">{title}</h2>
-          </AppCardHeader>
+    <AlertDialog
+      open={store.isOpen}
+      onOpenChange={(next) => {
+        if (!next) close();
+      }}
+    >
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
 
-          <AppCardBody>
-            <p className="text-sm">{form.message || t("Common.deleteConfirmation.message")}</p>
-          </AppCardBody>
+          <AlertDialogDescription>{form.message || t("Common.deleteConfirmation.message")}</AlertDialogDescription>
+        </AlertDialogHeader>
 
-          <AppCardFooter>
-            <Button
-              disabled={isLoading}
-              id="confirm-delete-cancel"
-              type="button"
-              variant="outline"
-              onClick={() => close()}
-            >
-              {t("Common.actions.cancel")}
-            </Button>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading} id="confirm-delete-cancel">
+            {t("Common.actions.cancel")}
+          </AlertDialogCancel>
 
-            <Button disabled={isLoading} id="confirm-delete" type="submit" variant="destructive">
-              {t("Common.actions.delete")}
-            </Button>
-          </AppCardFooter>
-        </AppCard>
-      </AppForm>
-    </AppModal>
+          <AlertDialogAction
+            disabled={isLoading}
+            id="confirm-delete"
+            variant="destructive"
+            onClick={(event) => {
+              event.preventDefault();
+              void store.onSubmit();
+            }}
+          >
+            {t("Common.actions.delete")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 });
