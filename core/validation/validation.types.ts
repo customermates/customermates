@@ -46,6 +46,7 @@ export enum CustomErrorCode {
   webhookDeliveryNotFound = "webhookDeliveryNotFound",
   threadNotFound = "threadNotFound",
   calendarEventNotFound = "calendarEventNotFound",
+  connectedAccountNotFound = "connectedAccountNotFound",
   roleNotFound = "roleNotFound",
   invalidFilterField = "invalidFilterField",
   invalidFilterOperator = "invalidFilterOperator",

@@ -4,6 +4,10 @@ function accessibleAccountWhere(userId: string): Prisma.ConnectedAccountWhereInp
   return { OR: [{ userId }, { shared: true }] };
 }
 
+export function accessibleConnectedAccountWhere(companyId: string, userId: string): Prisma.ConnectedAccountWhereInput {
+  return { companyId, ...accessibleAccountWhere(userId) };
+}
+
 export function threadAccessWhere(companyId: string, userId: string): Prisma.MessagingThreadWhereInput {
   return {
     companyId,

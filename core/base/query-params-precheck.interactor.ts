@@ -9,6 +9,7 @@ import type { ValidateOrganizationIdsInteractor } from "@/core/validation/valida
 import type { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
 import type { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
 import type { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
+import type { ValidateConnectedAccountIdsInteractor } from "@/core/validation/validators/validate-connected-account-ids.interactor";
 import type { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
 import type { FindCustomColumnRepo } from "@/features/custom-column/find-custom-column.repo";
 import type { FilterEntityKind } from "@/core/types/filter-field-value-kind";
@@ -47,6 +48,7 @@ export class QueryParamsPrecheckInteractor {
     private serviceValidator: ValidateServiceIdsInteractor,
     private taskValidator: ValidateTaskIdsInteractor,
     private threadValidator: ValidateThreadIdsInteractor,
+    private connectedAccountValidator: ValidateConnectedAccountIdsInteractor,
     private customColumnRepo: FindCustomColumnRepo,
   ) {}
 
@@ -129,6 +131,8 @@ export class QueryParamsPrecheckInteractor {
         return this.taskValidator;
       case "thread":
         return this.threadValidator;
+      case "connectedAccount":
+        return this.connectedAccountValidator;
     }
   }
 

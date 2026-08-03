@@ -83,6 +83,7 @@ import { ValidateRoleIdsInteractor } from "@/core/validation/validators/validate
 import { ValidateServiceIdsInteractor } from "@/core/validation/validators/validate-service-ids.interactor";
 import { ValidateTaskIdsInteractor } from "@/core/validation/validators/validate-task-ids.interactor";
 import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
+import { ValidateConnectedAccountIdsInteractor } from "@/core/validation/validators/validate-connected-account-ids.interactor";
 import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
 import { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validators/validate-webhook-delivery-ids.interactor";
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
@@ -395,6 +396,7 @@ export const getQueryParamsPrecheck = () =>
     getServiceIdsValidator(),
     getTaskIdsValidator(),
     getThreadIdsValidator(),
+    getConnectedAccountIdsValidator(),
     getCustomColumnRepo(),
   );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
@@ -403,6 +405,8 @@ export const getWebhookIdsValidator = () => new ValidateWebhookIdsInteractor(get
 export const getWebhookDeliveryIdsValidator = () => new ValidateWebhookDeliveryIdsInteractor(getWebhookDeliveryRepo());
 export const getRoleIdsValidator = () => new ValidateRoleIdsInteractor(getRoleRepo());
 export const getThreadIdsValidator = () => new ValidateThreadIdsInteractor(getMessagingRepo());
+export const getConnectedAccountIdsValidator = () =>
+  new ValidateConnectedAccountIdsInteractor(getConnectedAccountRepo());
 
 export const getContactWritePrecheck = () =>
   new ContactWritePrecheckInteractor(

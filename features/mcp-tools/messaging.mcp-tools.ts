@@ -187,7 +187,12 @@ const GetActivitiesSchema = z.object({
     .optional()
     .describe(
       filtersDescription(
-        filterFieldsHint([FilterFieldKey.timelineKind, FilterFieldKey.timelineThreadId, FilterFieldKey.provider]),
+        filterFieldsHint([
+          FilterFieldKey.timelineKind,
+          FilterFieldKey.timelineThreadId,
+          FilterFieldKey.provider,
+          FilterFieldKey.connectedAccountId,
+        ]),
       ),
     ),
   sortDescriptor: SortDescriptorSchema.optional().describe(sortDescription("at (the event time)")),
