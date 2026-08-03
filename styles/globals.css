@@ -128,6 +128,16 @@
   );
 }
 
+/* A submenu opens beside its parent, so on a narrow screen the parent can consume the
+   whole width and Radix reports a negative available width. A negative max-width is
+   invalid at computed-value time, which resolves to `none` and lets the surface size to
+   its longest item: measured 587px inside a 320px viewport. This floor keeps it within
+   the gutter regardless. Note that a submenu still cannot be positioned well when there
+   is no room beside the parent; per the decision matrix, use a flat menu instead. */
+[data-slot="dropdown-menu-sub-content"] {
+  max-inline-size: calc(100dvw - 2 * var(--viewport-gutter));
+}
+
 :root {
   --radius: 0.5rem;
   --background: #f6f6f8;
