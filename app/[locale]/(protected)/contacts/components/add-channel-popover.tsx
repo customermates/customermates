@@ -39,7 +39,7 @@ export const AddChannelPopover = observer(({ contactId }: { contactId: string })
   const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${provider}`);
 
   return (
-    <CommandPrimitive className="relative" shouldFilter={false}>
+    <CommandPrimitive shouldFilter={false}>
       <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
         <PopoverAnchor asChild>
           <div className="border-border bg-card focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">

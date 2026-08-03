@@ -15,7 +15,6 @@ import { LinkPopover } from "./link-popover";
 type Props = {
   editor: Editor;
   anchorRect: EditorAnchorRect | null;
-  open: boolean;
   onClose: () => void;
 };
 
@@ -26,7 +25,7 @@ type FormatAction = {
   label: string;
 };
 
-export function BubbleMenu({ editor, anchorRect, open, onClose }: Props) {
+export function BubbleMenu({ editor, anchorRect, onClose }: Props) {
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
 
   const actions: FormatAction[] = [
@@ -80,7 +79,6 @@ export function BubbleMenu({ editor, anchorRect, open, onClose }: Props) {
       anchorRect={anchorRect}
       className="flex items-center gap-0.5"
       editorDom={editor.view.dom}
-      open={open}
       onClose={onClose}
     >
       {actions.map((action) => (

@@ -16,7 +16,7 @@ import {
   actionLabels,
 } from "./gallery-fixtures";
 
-export function GalleryBody({ content, repeat = 1 }: { content: ContentKind; repeat?: number }) {
+export function GalleryBody({ content }: { content: ContentKind }) {
   if (content === "short") return <p className="text-sm">A short body.</p>;
 
   if (content === "de") {
@@ -58,7 +58,7 @@ export function GalleryBody({ content, repeat = 1 }: { content: ContentKind; rep
   if (content === "overflow") {
     return (
       <div className="flex flex-col gap-4">
-        {Array.from({ length: Math.max(6, repeat) }, (_, index) => (
+        {Array.from({ length: 6 }, (_, index) => (
           <p key={index} className="text-sm">
             {`${index + 1}. ${LONG_PARAGRAPH}`}
           </p>

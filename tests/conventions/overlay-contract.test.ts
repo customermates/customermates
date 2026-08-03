@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { relative } from "node:path";
+import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -69,6 +69,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
     file: "components/ui/select.tsx",
     mustContain: [
       "max-h-(--radix-select-content-available-height)",
+      "--radix-select-content-available-width",
       'position = "popper"',
       "collisionPadding",
     ],
@@ -87,10 +88,6 @@ function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
     walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path)),
   );
-}
-
-function join(...parts: string[]) {
-  return parts.join("/");
 }
 
 type Line = { file: string; line: number; text: string };
@@ -169,12 +166,10 @@ describe("overlay contract", () => {
   it("defines the overlay tokens exactly once", () => {
     const css = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
 
-    for (const token of ["--viewport-block", "--overlay-block-budget", "--sheet-block-budget", "--keyboard-inset"])
+    for (const token of ["--viewport-block", "--overlay-block-budget", "--sheet-block-budget"])
       expect(css).toContain(`${token}:`);
 
     expect(css).toContain("@supports (height: 1dvh)");
-    expect(css).toContain('[data-slot="select-content"]');
-    expect(css).toContain("--radix-select-content-available-width");
   });
 
   it("sees the expected overlay surface", () => {

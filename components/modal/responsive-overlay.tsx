@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 
 import { Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
+import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
@@ -37,25 +38,25 @@ export function ResponsiveOverlay({
           {trigger}
         </PopoverTrigger>
 
-        {isWide && (
-          <PopoverContent
-            align={align}
-            className={cn(
-              "flex max-h-(--radix-popover-content-available-height) flex-col overflow-hidden p-0",
-              popoverClassName,
-            )}
-          >
-            <div className="shrink-0 border-b border-border px-4 py-3 text-sm font-medium">{title}</div>
+        <PopoverContent
+          align={align}
+          className={cn(
+            "flex max-h-(--radix-popover-content-available-height) flex-col overflow-hidden p-0",
+            popoverClassName,
+          )}
+        >
+          <PopoverHeader className="shrink-0 border-b border-border px-4 py-3">
+            <PopoverTitle>{title}</PopoverTitle>
+          </PopoverHeader>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">{children}</div>
+          <div className={cn(OVERLAY_SCROLL_REGION, "p-4")}>{children}</div>
 
-            {footer && (
-              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border p-3">
-                {footer}
-              </div>
-            )}
-          </PopoverContent>
-        )}
+          {footer && (
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border p-3">
+              {footer}
+            </div>
+          )}
+        </PopoverContent>
       </Popover>
 
       {!isWide && (

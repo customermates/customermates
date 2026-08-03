@@ -74,7 +74,7 @@ export const AppSidebar = observer(
     const rootStore = useRootStore();
     const { userStore, globalSearchModalStore, feedbackModalStore } = rootStore;
 
-    const { setOpenMobile } = useSidebar();
+    const { isMobile, setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
     const openEntity = useOpenEntity();
     const subscriptionStatus = subscription?.status ?? null;
@@ -92,7 +92,7 @@ export const AppSidebar = observer(
     useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
 
     function closeMobileSidebar(cb?: () => void) {
-      if (typeof window !== "undefined" && window.innerWidth < 768) setOpenMobile(false);
+      if (isMobile) setOpenMobile(false);
       cb?.();
     }
 

@@ -3,7 +3,10 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
+import { XIcon } from "lucide-react";
+
 import { cn } from "@/core/utils/cn";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
 
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
@@ -34,7 +37,14 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
   );
 }
 
-function DrawerContent({ className, children, ...props }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+function DrawerContent({
+  className,
+  children,
+  showCloseButton = true,
+  ...props
+}: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+  showCloseButton?: boolean;
+}) {
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
@@ -48,12 +58,21 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
           "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm",
           className,
         )}
+        data-overlay-surface="drawer"
         data-slot="drawer-content"
         {...props}
       >
         <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
 
         {children}
+
+        {showCloseButton && (
+          <DrawerPrimitive.Close className={cn(OVERLAY_CLOSE_CLASS, "top-4 right-4 z-10")} data-slot="drawer-close">
+            <XIcon className="size-4" />
+
+            <span className="sr-only">Close</span>
+          </DrawerPrimitive.Close>
+        )}
       </DrawerPrimitive.Content>
     </DrawerPortal>
   );
@@ -73,13 +92,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function DrawerBody({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-4", className)}
-      data-slot="drawer-body"
-      {...props}
-    />
-  );
+  return <div className={cn(OVERLAY_SCROLL_REGION, "px-4", className)} data-slot="drawer-body" {...props} />;
 }
 
 function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {

@@ -115,28 +115,6 @@
   }
 }
 
-/* Select's upstream default position is `item-aligned`, which aligns the chosen option
-   over the trigger and, unlike popper positioning, never publishes
-   --radix-select-content-available-width. A long option therefore sizes the surface past
-   the screen edge with nothing to clamp it: measured at 611px wide on a 320px viewport.
-   Expressed here rather than as a utility because the var() fallback inside min() is not
-   parseable as a Tailwind arbitrary value. */
-[data-slot="select-content"] {
-  max-inline-size: min(
-    var(--radix-select-content-available-width, 100dvw),
-    calc(100dvw - 2 * var(--viewport-gutter))
-  );
-}
-
-/* A submenu opens beside its parent, so on a narrow screen the parent can consume the
-   whole width and Radix reports a negative available width. A negative max-width is
-   invalid at computed-value time, which resolves to `none` and lets the surface size to
-   its longest item: measured 587px inside a 320px viewport. This floor keeps it within
-   the gutter regardless. Note that a submenu still cannot be positioned well when there
-   is no room beside the parent; per the decision matrix, use a flat menu instead. */
-[data-slot="dropdown-menu-sub-content"] {
-  max-inline-size: calc(100dvw - 2 * var(--viewport-gutter));
-}
 
 :root {
   --radius: 0.5rem;

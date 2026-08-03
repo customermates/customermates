@@ -5,6 +5,7 @@ import { XIcon } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -62,13 +63,19 @@ function SheetContent({
             "inset-x-0 bottom-0 h-auto max-h-(--sheet-block-budget) border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
           className,
         )}
+        data-overlay-surface="sheet"
         data-slot="sheet-content"
         {...props}
       >
         {children}
 
         {showCloseButton && (
-          <SheetPrimitive.Close className="absolute top-[calc(1rem+var(--safe-top))] right-[calc(1rem+var(--safe-right))] -m-2.5 grid place-items-center rounded-xs p-2.5 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <SheetPrimitive.Close
+            className={cn(
+              OVERLAY_CLOSE_CLASS,
+              "top-[calc(1rem+var(--safe-top))] right-[calc(1rem+var(--safe-right))] data-[state=open]:bg-secondary",
+            )}
+          >
             <XIcon className="size-4" />
 
             <span className="sr-only">Close</span>
@@ -96,7 +103,8 @@ function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
+        OVERLAY_SCROLL_REGION,
+        "pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
         className,
       )}
       data-slot="sheet-body"

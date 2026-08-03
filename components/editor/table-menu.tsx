@@ -14,11 +14,10 @@ type Chain = ReturnType<Editor["chain"]>;
 type Props = {
   editor: Editor;
   anchorRect: EditorAnchorRect | null;
-  open: boolean;
   onClose: () => void;
 };
 
-export function TableMenu({ editor, anchorRect, open, onClose }: Props) {
+export function TableMenu({ editor, anchorRect, onClose }: Props) {
   const t = useTranslations();
 
   const actions: { label: string; apply: (chain: Chain) => Chain }[] = [
@@ -39,7 +38,6 @@ export function TableMenu({ editor, anchorRect, open, onClose }: Props) {
       anchorRect={anchorRect}
       className="flex items-center gap-0.5"
       editorDom={editor.view.dom}
-      open={open}
       onClose={onClose}
     >
       {actions.map((action) => (

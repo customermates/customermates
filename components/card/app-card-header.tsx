@@ -11,7 +11,7 @@ export function AppCardHeader({ className, ...props }: Props) {
       {...props}
       className={cn(
         "z-0 flex w-full shrink-0 items-center gap-4 p-6 pb-0 *:min-w-0",
-        "in-data-[slot=dialog-content]:pr-14 in-data-[slot=drawer-content]:pr-14",
+        "in-data-overlay-surface:pr-14",
         className,
       )}
     />

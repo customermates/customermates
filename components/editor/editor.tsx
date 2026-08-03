@@ -185,7 +185,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         height: end.bottom - start.top,
       });
     }
-  }, [showBubbleMenu, showTableMenu, editor]);
+  }, [showBubbleMenu, editor]);
 
   useEffect(() => {
     if (showTableMenu && editor) {
@@ -209,30 +209,15 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   return (
     <div className="relative min-h-52">
       {showBubbleMenu && !showTableMenu && (
-        <BubbleMenu
-          anchorRect={bubbleAnchorRect}
-          editor={editor}
-          open={showBubbleMenu}
-          onClose={() => setShowBubbleMenu(false)}
-        />
+        <BubbleMenu anchorRect={bubbleAnchorRect} editor={editor} onClose={() => setShowBubbleMenu(false)} />
       )}
 
       {showTableMenu && !readOnly && (
-        <TableMenu
-          anchorRect={tableAnchorRect}
-          editor={editor}
-          open={showTableMenu}
-          onClose={() => setShowTableMenu(false)}
-        />
+        <TableMenu anchorRect={tableAnchorRect} editor={editor} onClose={() => setShowTableMenu(false)} />
       )}
 
       {showSlashMenu && (
-        <SlashMenu
-          anchorRect={slashAnchorRect}
-          editor={editor}
-          open={showSlashMenu}
-          onClose={() => setShowSlashMenu(false)}
-        />
+        <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
 
       <EditorContent editor={editor} />

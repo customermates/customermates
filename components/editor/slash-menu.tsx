@@ -38,11 +38,10 @@ type SlashCommand = {
 type Props = {
   editor: Editor;
   anchorRect: EditorAnchorRect | null;
-  open: boolean;
   onClose: () => void;
 };
 
-export function SlashMenu({ editor, anchorRect, open, onClose }: Props) {
+export function SlashMenu({ editor, anchorRect, onClose }: Props) {
   const t = useTranslations();
   const [urlCommand, setUrlCommand] = useState<UrlCommandKey | null>(null);
   const [url, setUrl] = useState("");
@@ -142,7 +141,6 @@ export function SlashMenu({ editor, anchorRect, open, onClose }: Props) {
       anchorRect={anchorRect}
       className="w-72 overflow-hidden p-0"
       editorDom={editor.view.dom}
-      open={open}
       side="bottom"
       onClose={onClose}
     >

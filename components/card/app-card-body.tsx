@@ -11,8 +11,7 @@ export function AppCardBody({ className, ...props }: Props) {
       {...props}
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-4 p-6",
-        "in-data-[slot=dialog-content]:overflow-x-clip in-data-[slot=dialog-content]:overflow-y-auto in-data-[slot=dialog-content]:overscroll-contain in-data-[slot=dialog-content]:[overflow-clip-margin:8px]",
-        "in-data-[slot=drawer-content]:overflow-x-clip in-data-[slot=drawer-content]:overflow-y-auto in-data-[slot=drawer-content]:overscroll-contain in-data-[slot=drawer-content]:[overflow-clip-margin:8px]",
+        "in-data-overlay-surface:overflow-x-clip in-data-overlay-surface:overflow-y-auto in-data-overlay-surface:overscroll-contain in-data-overlay-surface:[overflow-clip-margin:8px]",
         className,
       )}
     />

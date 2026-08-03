@@ -19,7 +19,6 @@ export type OverlayCaseId =
   | "dropdown-sub"
   | "select"
   | "tooltip"
-  | "autocomplete"
   | "nested-modal-select"
   | "nested-popover-dropdown";
 
@@ -42,12 +41,9 @@ export const OVERLAY_CASE_IDS: OverlayCaseId[] = [
   "dropdown-sub",
   "select",
   "tooltip",
-  "autocomplete",
   "nested-modal-select",
   "nested-popover-dropdown",
 ];
-
-export const CONTENT_KINDS: ContentKind[] = ["short", "long", "overflow", "de", "identifier", "code"];
 
 export const ANCHOR_CELLS = ["tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br"] as const;
 
@@ -65,15 +61,16 @@ export const ANCHOR_CELL_CLASS: Record<AnchorCell, string> = {
   br: "col-start-3 row-start-3 justify-self-end self-end",
 };
 
-type GermanFixture = { sourceKey: string; value: string; expansion: number };
+type GermanFixture = { sourceKey: string; value: string };
 
 export const GERMAN_FIXTURES: GermanFixture[] = [
-  { sourceKey: "Common.actions.add", value: "Hinzufügen", expansion: 3.33 },
-  { sourceKey: "ConnectedAccountsCard.resync", value: "Neu synchronisieren", expansion: 3.17 },
-  { sourceKey: "RolesCard.custom", value: "Benutzerdefiniert", expansion: 2.83 },
-  { sourceKey: "Common.actions.update", value: "Aktualisieren", expansion: 2.17 },
-  { sourceKey: "ThreadSettings.title", value: "Unterhaltungseinstellungen", expansion: 1.0 },
-  { sourceKey: "Appearance.toggle", value: "Darstellungsmodus-Umschalter", expansion: 1.0 },
+  { sourceKey: "Common.actions.add", value: "Hinzufügen" },
+  { sourceKey: "Inbox.compose.retry", value: "Erneut versuchen" },
+  { sourceKey: "ConnectedAccountsCard.resync", value: "Neu synchronisieren" },
+  { sourceKey: "RolesCard.custom", value: "Benutzerdefiniert" },
+  { sourceKey: "Common.actions.update", value: "Aktualisieren" },
+  { sourceKey: "Inbox.settings.title", value: "Unterhaltungseinstellungen" },
+  { sourceKey: "Common.ariaLabels.themeSwitcher", value: "Darstellungsmodus-Umschalter" },
 ];
 
 export const GERMAN_PARAGRAPH =

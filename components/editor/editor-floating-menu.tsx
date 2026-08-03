@@ -9,7 +9,6 @@ import { cn } from "@/core/utils/cn";
 import { useEditorAnchor } from "./use-editor-anchor";
 
 type Props = {
-  open: boolean;
   anchorRect: EditorAnchorRect | null;
   editorDom?: HTMLElement | null;
   children: ReactNode;
@@ -20,7 +19,6 @@ type Props = {
 };
 
 export function EditorFloatingMenu({
-  open,
   anchorRect,
   editorDom,
   children,
@@ -33,7 +31,7 @@ export function EditorFloatingMenu({
 
   return (
     <Popover
-      open={open && Boolean(anchorRect)}
+      open={Boolean(anchorRect)}
       onOpenChange={(next) => {
         if (!next) onClose();
       }}

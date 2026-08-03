@@ -69,6 +69,7 @@
         "components/modal/app-modal.tsx",
         "components/ui/command.tsx",
         "components/ui/dialog.tsx",
+        "components/ui/drawer.tsx",
         "components/ui/alert-dialog.tsx",
         "components/ui/sheet.tsx",
         "components/ui/popover.tsx",
@@ -173,6 +174,10 @@
           {
             "message": "Import cmdk only inside components/ui/command.tsx. Anchored command surfaces compose Popover or CommandDialog rather than hand-rolling a floating list (CUS-60).",
             "name": "cmdk"
+          },
+          {
+            "message": "Import Drawer from '@/components/ui/drawer' so it inherits the dynamic-viewport budget, scroll owner and safe-area insets (CUS-60). Raw vaul is only allowed inside components/ui/drawer.tsx.",
+            "name": "vaul"
           }
         ]
       }

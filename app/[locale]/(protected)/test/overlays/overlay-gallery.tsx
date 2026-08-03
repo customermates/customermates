@@ -9,7 +9,7 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppModal } from "@/components/modal";
+import { AppModal, type ModalSize } from "@/components/modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +56,12 @@ import {
   actionLabels,
 } from "./gallery-fixtures";
 
+const MODAL_SIZE: Partial<Record<OverlayCaseId, ModalSize>> = {
+  "modal-sm": "sm",
+  "modal-lg": "lg",
+  "modal-xl": "xl",
+};
+
 const OPTION_VALUES = [
   "short",
   "Neu synchronisieren",
@@ -79,11 +85,16 @@ export function OverlayGallery() {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (safe) {
-      const root = document.documentElement;
-      root.style.setProperty("--safe-top", `${safe}px`);
-      root.style.setProperty("--safe-bottom", `${safe}px`);
-    }
+    if (!safe) return;
+
+    const root = document.documentElement;
+    root.style.setProperty("--safe-top", `${safe}px`);
+    root.style.setProperty("--safe-bottom", `${safe}px`);
+
+    return () => {
+      root.style.removeProperty("--safe-top");
+      root.style.removeProperty("--safe-bottom");
+    };
   }, [safe]);
 
   useEffect(() => {
@@ -140,12 +151,7 @@ export function OverlayGallery() {
         <>
           {trigger}
 
-          <AppModal
-            open={open}
-            size={caseId === "modal-sm" ? "sm" : caseId === "modal-lg" ? "lg" : caseId === "modal-xl" ? "xl" : "md"}
-            title={title}
-            onClose={() => setOpen(false)}
-          >
+          <AppModal open={open} size={MODAL_SIZE[caseId] ?? "md"} title={title} onClose={() => setOpen(false)}>
             {cardChrome}
           </AppModal>
         </>
