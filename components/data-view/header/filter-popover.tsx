@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ResponsiveOverlay } from "@/components/modal";
 import { Separator } from "@/components/ui/separator";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -78,145 +78,151 @@ export const FilterPopover = observer(function FilterPopover<E extends HasId>({ 
     showDeleteConfirmation(() => void modalStore.deletePreset(), modalStore.form.name);
   }
 
-  return (
-    <Popover open={modalStore.isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={t("Common.ariaLabels.tooltipFilters")}
+  const trigger = (
+    <Button
+      aria-label={t("Common.ariaLabels.tooltipFilters")}
+      className={cn(
+        "relative",
+        compact ? "text-muted-foreground hover:text-foreground size-4 hover:bg-transparent" : "h-8",
+      )}
+      id={id}
+      size={compact ? "icon-xs" : "sm"}
+      type="button"
+      variant={compact ? "ghost" : "secondary"}
+    >
+      <Filter className="size-3.5" />
+
+      {activeFilterCount > 0 && (
+        <span
+          aria-hidden="true"
           className={cn(
-            "relative",
-            compact ? "text-muted-foreground hover:text-foreground size-4 hover:bg-transparent" : "h-8",
+            "absolute rounded-full bg-primary",
+            compact ? "-right-1 -top-1 size-1.5" : "-right-0.5 -top-0.5 size-2",
           )}
-          id={id}
-          size={compact ? "icon-xs" : "sm"}
-          type="button"
-          variant={compact ? "ghost" : "secondary"}
-        >
-          <Filter className="size-3.5" />
+        />
+      )}
+    </Button>
+  );
 
-          {activeFilterCount > 0 && (
-            <span
-              aria-hidden="true"
-              className={cn(
-                "absolute rounded-full bg-primary",
-                compact ? "-right-1 -top-1 size-1.5" : "-right-0.5 -top-0.5 size-2",
-              )}
-            />
-          )}
+  const footer = (
+    <>
+      {isCreatingPreset && (
+        <Button className="h-8" size="sm" type="button" variant="secondary" onClick={handleCancelCreatePreset}>
+          {t("Common.actions.cancel")}
         </Button>
-      </PopoverTrigger>
+      )}
 
-      <PopoverContent align="end" className="flex max-h-[calc(100vh-5rem)] w-96 flex-col p-0">
-        <AppForm store={modalStore}>
-          <PopoverSection label={t("Common.filters.presets.label")}>
-            {isCreatingPreset ? (
-              <FormInput
-                autoFocus
-                className="h-8"
-                id="name"
-                label={null}
-                placeholder={t("Common.filters.presets.namePlaceholder")}
-              />
-            ) : (
-              <div className="flex items-center gap-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      className="h-8 flex-1 justify-between font-normal"
-                      size="sm"
-                      type="button"
-                      variant="secondary"
-                    >
-                      <span className="truncate">
-                        {activePreset ? activePreset.name : t("Common.filters.presets.none")}
-                      </span>
+      {!isCreatingPreset && (
+        <Button
+          className="h-8"
+          disabled={activeFilterCount === 0}
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={handleClear}
+        >
+          {t("Common.actions.clear")}
+        </Button>
+      )}
 
-                      <ChevronDown className="size-3.5 opacity-50" />
-                    </Button>
-                  </DropdownMenuTrigger>
+      <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleApply}>
+        {isCreatingPreset || isEditingPreset ? t("Common.actions.save") : t("Common.filters.apply")}
+      </Button>
+    </>
+  );
 
-                  <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuItem onSelect={() => handleSelectPreset(undefined)}>
-                      <span className="flex-1">{t("Common.filters.presets.none")}</span>
-
-                      {!activePresetId && <Check className="size-3.5" />}
-                    </DropdownMenuItem>
-
-                    {savedPresets.length > 0 && <DropdownMenuSeparator />}
-
-                    {savedPresets.map((preset) => (
-                      <DropdownMenuItem key={preset.id} onSelect={() => handleSelectPreset(preset.id)}>
-                        <span className="flex-1">{preset.name}</span>
-
-                        {activePresetId === preset.id && <Check className="size-3.5" />}
-                      </DropdownMenuItem>
-                    ))}
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem onSelect={handleStartCreatePreset}>
-                      <BookmarkPlus className="size-3.5" />
-
-                      {t("Common.filters.presets.add")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {isEditingPreset && (
+  return (
+    <ResponsiveOverlay
+      align="end"
+      footer={footer}
+      open={modalStore.isOpen}
+      popoverClassName="w-96"
+      title={t("Common.ariaLabels.tooltipFilters")}
+      trigger={trigger}
+      onOpenChange={handleOpenChange}
+    >
+      <AppForm store={modalStore}>
+        <PopoverSection label={t("Common.filters.presets.label")}>
+          {isCreatingPreset ? (
+            <FormInput
+              autoFocus
+              className="h-8"
+              id="name"
+              label={null}
+              placeholder={t("Common.filters.presets.namePlaceholder")}
+            />
+          ) : (
+            <div className="flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button
-                    aria-label={t("Common.actions.delete")}
-                    className="size-8 text-destructive"
-                    size="icon-sm"
+                    className="h-8 flex-1 justify-between font-normal"
+                    size="sm"
                     type="button"
                     variant="secondary"
-                    onClick={handleDeletePreset}
                   >
-                    <Trash2 className="size-3.5" />
+                    <span className="truncate">
+                      {activePreset ? activePreset.name : t("Common.filters.presets.none")}
+                    </span>
+
+                    <ChevronDown className="size-3.5 opacity-50" />
                   </Button>
-                )}
-              </div>
-            )}
-          </PopoverSection>
+                </DropdownMenuTrigger>
 
-          <Separator />
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onSelect={() => handleSelectPreset(undefined)}>
+                    <span className="flex-1">{t("Common.filters.presets.none")}</span>
 
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <FilterAccordion
-              baseId="filters"
-              customColumns={store.customColumns}
-              filterableFields={store.filterableFields}
-              filters={modalStore.form.filters}
-              value={modalStore.expandedField ?? ""}
-              onValueChange={modalStore.setExpandedField}
-            />
-          </div>
+                    {!activePresetId && <Check className="size-3.5" />}
+                  </DropdownMenuItem>
 
-          <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-border p-2 sm:flex-row sm:justify-end">
-            {isCreatingPreset && (
-              <Button className="h-8" size="sm" type="button" variant="secondary" onClick={handleCancelCreatePreset}>
-                {t("Common.actions.cancel")}
-              </Button>
-            )}
+                  {savedPresets.length > 0 && <DropdownMenuSeparator />}
 
-            {!isCreatingPreset && (
-              <Button
-                className="h-8"
-                disabled={activeFilterCount === 0}
-                size="sm"
-                type="button"
-                variant="secondary"
-                onClick={handleClear}
-              >
-                {t("Common.actions.clear")}
-              </Button>
-            )}
+                  {savedPresets.map((preset) => (
+                    <DropdownMenuItem key={preset.id} onSelect={() => handleSelectPreset(preset.id)}>
+                      <span className="flex-1">{preset.name}</span>
 
-            <Button className="h-8" disabled={cannotSavePreset} size="sm" type="button" onClick={handleApply}>
-              {isCreatingPreset || isEditingPreset ? t("Common.actions.save") : t("Common.filters.apply")}
-            </Button>
-          </div>
-        </AppForm>
-      </PopoverContent>
-    </Popover>
+                      {activePresetId === preset.id && <Check className="size-3.5" />}
+                    </DropdownMenuItem>
+                  ))}
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onSelect={handleStartCreatePreset}>
+                    <BookmarkPlus className="size-3.5" />
+
+                    {t("Common.filters.presets.add")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {isEditingPreset && (
+                <Button
+                  aria-label={t("Common.actions.delete")}
+                  className="size-8 text-destructive"
+                  size="icon-sm"
+                  type="button"
+                  variant="secondary"
+                  onClick={handleDeletePreset}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              )}
+            </div>
+          )}
+        </PopoverSection>
+
+        <Separator />
+
+        <FilterAccordion
+          baseId="filters"
+          customColumns={store.customColumns}
+          filterableFields={store.filterableFields}
+          filters={modalStore.form.filters}
+          value={modalStore.expandedField ?? ""}
+          onValueChange={modalStore.setExpandedField}
+        />
+      </AppForm>
+    </ResponsiveOverlay>
   );
 });
