@@ -1,0 +1,209 @@
+import { readFileSync } from "node:fs";
+import { relative } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import { REPO_ROOT, walkFiles } from "./walk";
+
+const ENFORCED = true;
+
+const SCANNED_DIRECTORIES = ["app", "components", "features", "ee", "core", "workflows"];
+
+/**
+ * CUS-60 pins the overlay contract that shadcn does not ship: every overlay derives its
+ * block size from the dynamic-viewport tokens in styles/globals.css, and every floating
+ * surface goes through a collision-aware primitive rather than positioning itself.
+ *
+ * Only rules that are mechanically decidable live here. Notably absent, on purpose:
+ *
+ *  - "exactly one scroll owner per overlay" is undecidable statically, because whether a
+ *    second container is actually scrollable depends on content height at runtime. That
+ *    is asserted in the browser harness instead.
+ *  - a repo-wide `vw` ban would fire on legitimate marketing layout.
+ *  - banning inline `style={{ top, left }}` would fire on every legitimate inline style;
+ *    there is no reliable way to tell positioning from theming.
+ */
+
+/**
+ * Block-axis only. `vh` is the large viewport on mobile, so it overflows below the fold
+ * whenever browser chrome is showing, and it does not shrink for the on-screen keyboard.
+ * Inline-axis `vw` has no equivalent failure mode and stays allowed for width clamps.
+ */
+const LEGACY_VIEWPORT_UNIT = /\b(?:max-|min-)?h-(?:\[[^\]]*?\dvh\b[^\]]*\]|screen\b)/;
+const RAW_SAFE_AREA = /env\(\s*safe-area-inset-/;
+const FIXED_FLOATING_SURFACE = /"[^"]*\bfixed\b[^"]*\bz-\d/;
+const DETACHED_ABSOLUTE_PANEL = /"[^"]*\babsolute\b[^"]*\btop-full\b[^"]*"/;
+
+/**
+ * Raw `fixed` surfaces that are not overlays and must stay hand-positioned. Each entry is
+ * a repo-relative path; the stale-allowlist test below fails if one stops matching.
+ */
+const FIXED_SURFACE_ALLOWLIST = new Set([
+  "components/ui/dialog.tsx",
+  "components/ui/sheet.tsx",
+  "components/ui/drawer.tsx",
+  "components/ui/alert-dialog.tsx",
+  "components/ui/sidebar.tsx",
+  "components/shared/loading-overlay.tsx",
+  "app/[locale]/loading.tsx",
+]);
+
+const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
+  {
+    file: "components/ui/popover.tsx",
+    mustContain: [
+      "max-h-(--radix-popover-content-available-height)",
+      "max-w-(--radix-popover-content-available-width)",
+      "collisionPadding",
+    ],
+  },
+  {
+    file: "components/ui/dropdown-menu.tsx",
+    mustContain: [
+      "max-h-(--radix-dropdown-menu-content-available-height)",
+      "max-w-(--radix-dropdown-menu-content-available-width)",
+      "collisionPadding",
+    ],
+  },
+  {
+    file: "components/ui/select.tsx",
+    mustContain: [
+      "max-h-(--radix-select-content-available-height)",
+      "max-w-(--radix-select-content-available-width)",
+      "collisionPadding",
+    ],
+  },
+  {
+    file: "components/ui/tooltip.tsx",
+    mustContain: ["--radix-tooltip-content-available-width", "collisionPadding"],
+  },
+  { file: "components/ui/dialog.tsx", mustContain: ["max-h-(--overlay-block-budget)"] },
+  { file: "components/ui/alert-dialog.tsx", mustContain: ["max-h-(--overlay-block-budget)"] },
+  { file: "components/ui/sheet.tsx", mustContain: ["max-h-(--sheet-block-budget)", "sheet-body"] },
+  { file: "components/ui/drawer.tsx", mustContain: ["max-h-(--sheet-block-budget)", "drawer-body"] },
+];
+
+function sourceFiles() {
+  return SCANNED_DIRECTORIES.flatMap((directory) =>
+    walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path)),
+  );
+}
+
+function join(...parts: string[]) {
+  return parts.join("/");
+}
+
+type Line = { file: string; line: number; text: string };
+
+function allLines(): Line[] {
+  const lines: Line[] = [];
+  for (const absolute of sourceFiles()) {
+    const file = relative(REPO_ROOT, absolute);
+    const text = readFileSync(absolute, "utf8");
+    text.split("\n").forEach((raw, index) => lines.push({ file, line: index + 1, text: raw }));
+  }
+  return lines;
+}
+
+const LINES = allLines();
+
+function violations(match: (line: Line) => boolean, skip: (file: string) => boolean = () => false) {
+  return LINES.filter((line) => !skip(line.file) && match(line)).map(
+    (line) => `${line.file}:${line.line}: ${line.text.trim().slice(0, 160)}`,
+  );
+}
+
+describe("overlay contract", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("uses no legacy viewport units", () => {
+    const found = violations((line) => LEGACY_VIEWPORT_UNIT.test(line.text));
+
+    expect(found, `Use the overlay tokens or svh/dvh instead of vh/vw/screen:\n${found.join("\n")}`).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("reads safe-area insets through the shared tokens", () => {
+    const found = violations((line) => RAW_SAFE_AREA.test(line.text));
+
+    expect(found, `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("routes floating surfaces through a collision-aware primitive", () => {
+    const found = violations(
+      (line) => FIXED_FLOATING_SURFACE.test(line.text),
+      (file) => FIXED_SURFACE_ALLOWLIST.has(file),
+    );
+
+    expect(found, `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`).toEqual(
+      [],
+    );
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no detached absolute dropdown panels", () => {
+    const found = violations((line) => DETACHED_ABSOLUTE_PANEL.test(line.text));
+
+    expect(
+      found,
+      `An absolute top-full panel is clipped by scrolling ancestors and cannot flip. Use Popover:\n${found.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("pins the viewport contract", () => {
+    const layout = readFileSync(join(REPO_ROOT, "app/layout.tsx"), "utf8");
+
+    expect(layout).toContain('viewportFit: "cover"');
+    expect(layout).toContain('interactiveWidget: "resizes-content"');
+    expect(layout).not.toContain("maximumScale");
+    expect(layout).not.toContain("userScalable");
+  });
+
+  it("pins the shared primitive defaults", () => {
+    const missing: string[] = [];
+
+    for (const { file, mustContain } of PRIMITIVE_DEFAULTS) {
+      const text = readFileSync(join(REPO_ROOT, file), "utf8");
+      for (const needle of mustContain) if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
+    }
+
+    expect(missing, missing.join("\n")).toEqual([]);
+  });
+
+  it("defines the overlay tokens exactly once", () => {
+    const css = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
+
+    for (const token of ["--viewport-block", "--overlay-block-budget", "--sheet-block-budget", "--keyboard-inset"])
+      expect(css).toContain(`${token}:`);
+
+    expect(css).toContain("@supports (height: 1dvh)");
+  });
+
+  it("sees the expected overlay surface", () => {
+    expect(LINES.length).toBeGreaterThan(20000);
+    expect(LINES.some((line) => line.file === "components/ui/dialog.tsx")).toBe(true);
+    expect(LINES.some((line) => FIXED_FLOATING_SURFACE.test(line.text))).toBe(true);
+    expect(LINES.some((line) => line.text.includes("--radix-popover-content-available-width"))).toBe(true);
+  });
+
+  it("keeps the fixed-surface allowlist free of stale entries", () => {
+    const stale = [...FIXED_SURFACE_ALLOWLIST].filter(
+      (file) => !LINES.some((line) => line.file === file && FIXED_FLOATING_SURFACE.test(line.text)),
+    );
+
+    expect(stale, `No longer a raw fixed surface, drop from the allowlist:\n${stale.join("\n")}`).toEqual([]);
+  });
+
+  it("detects the contract violations in synthetic sources", () => {
+    const probe = [
+      `const a = "max-h-[90vh] flex";`,
+      `const b = "h-screen";`,
+      `const c = "fixed z-50 rounded-md";`,
+      `const d = "absolute inset-x-0 top-full z-50";`,
+      `const e = "max-h-(--overlay-block-budget)";`,
+      `const f = "padding-top: env(safe-area-inset-top)";`,
+      `const prose = "the layout is fixed and the height is one screen";`,
+    ];
+
+    expect(probe.filter((line) => LEGACY_VIEWPORT_UNIT.test(line))).toEqual([probe[0], probe[1]]);
+    expect(probe.filter((line) => FIXED_FLOATING_SURFACE.test(line))).toEqual([probe[2]]);
+    expect(probe.filter((line) => DETACHED_ABSOLUTE_PANEL.test(line))).toEqual([probe[3]]);
+    expect(probe.filter((line) => RAW_SAFE_AREA.test(line))).toEqual([probe[5]]);
+  });
+});

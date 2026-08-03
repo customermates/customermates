@@ -3,12 +3,11 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Command as CommandPrimitive } from "cmdk";
 import { Plus, Search } from "lucide-react";
 
 import type { MessagingProvider } from "@/generated/prisma";
 
-import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { CommandEmpty, CommandGroup, CommandItem, CommandList, CommandPrimitive } from "@/components/ui/command";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
