@@ -10,14 +10,14 @@ import { useRouter as useGuardedIntlRouter } from "@/i18n/navigation";
 
 const OPEN_PARAM = "open";
 
-type EntityDrawerEntry = {
+export type EntityDrawerEntry = {
   entityType: EntityType;
   id: string;
 };
 
 const VALID_ENTITY_TYPES: readonly EntityType[] = RELATION_ENTITY_TYPES;
 
-function parseOpenParam(raw: string | null): EntityDrawerEntry[] {
+export function parseOpenParam(raw: string | null): EntityDrawerEntry[] {
   if (!raw) return [];
   return raw
     .split(",")
@@ -32,7 +32,7 @@ function parseOpenParam(raw: string | null): EntityDrawerEntry[] {
     .filter((x): x is EntityDrawerEntry => x !== null);
 }
 
-function serializeStack(stack: EntityDrawerEntry[]): string | null {
+export function serializeStack(stack: EntityDrawerEntry[]): string | null {
   if (stack.length === 0) return null;
   return stack.map((e) => `${e.entityType}:${e.id}`).join(",");
 }
@@ -71,7 +71,7 @@ export function useEntityDrawerStack() {
 
   const popTop = useCallback(() => {
     if (stack.length === 0) return;
-    writeStack(stack.slice(0, -1), "push");
+    writeStack(stack.slice(0, -1), "replace");
   }, [stack, writeStack]);
 
   return { stack, top, pushEntity, popTop };

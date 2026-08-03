@@ -24,7 +24,7 @@ import { AddChannelPopover } from "./add-channel-popover";
 import { ContactComposePopover } from "./contact-compose-popover";
 
 type Props = {
-  contactId: string;
+  contactId?: string;
   emptyHint?: string;
 };
 
@@ -34,7 +34,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
   const { userStore, contactDetailStore, threadComposeStore, connectedAccountsStore } = rootStore;
   const copy = useCopyToClipboard();
   const [composeKey, setComposeKey] = useState<string | null>(null);
-  const canEditChannels = userStore.can(Resource.contacts, Action.update);
+  const canEditChannels = userStore.can(Resource.contacts, contactId ? Action.update : Action.create);
   const canStartThread = userStore.can(Resource.inboxMessages, Action.create) && rootStore.appMode !== "self-hosted";
   const identifiers = contactDetailStore.channels;
 
@@ -60,7 +60,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
       <div className="flex items-center gap-1.5">
         <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
 
-        {identifiers.length > 0 && rootStore.appMode !== "self-hosted" && (
+        {contactId && identifiers.length > 0 && rootStore.appMode !== "self-hosted" && (
           <IconButton
             href={`/inbox?filters=${encodeURIComponent(`participantContactId:in:${contactId}`)}`}
             icon={ExternalLink}

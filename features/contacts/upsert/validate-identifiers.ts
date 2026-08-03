@@ -63,8 +63,19 @@ export function validateIdentifierConflicts(
   const claimedBy = new Map<string, string | undefined>(owners);
 
   contacts.forEach(({ selfContactId, identifiers }, index) => {
+    const claimedInPayload = new Set<string>();
+
     (identifiers ?? []).forEach((identifier, i) => {
       const keys = channelStrings(identifier).map((value) => identifierKey(identifier.provider, value));
+
+      if (keys.some((key) => claimedInPayload.has(key))) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.duplicateChannel },
+          path: [...basePathFor(index), i, "value"],
+        });
+        return;
+      }
 
       if (keys.some((key) => claimedBy.has(key) && claimedBy.get(key) !== selfContactId)) {
         ctx.addIssue({
@@ -75,7 +86,10 @@ export function validateIdentifierConflicts(
         return;
       }
 
-      for (const key of keys) claimedBy.set(key, selfContactId);
+      for (const key of keys) {
+        claimedBy.set(key, selfContactId);
+        claimedInPayload.add(key);
+      }
     });
   });
 }

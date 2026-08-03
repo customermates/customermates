@@ -8,6 +8,7 @@ import { Resource } from "@/generated/prisma";
 import { deleteContactAction, getContactByIdAction, createContactAction, updateContactAction } from "../actions";
 
 import { BaseCustomColumnEntityModalStore } from "@/core/base/base-custom-column-entity-modal.store";
+import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 
 function toIdentifierInput(identifier: ContactIdentifierDto): IdentifierInput {
   return {
@@ -59,9 +60,8 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
   }
 
   addChannel = (identifier: IdentifierInput): void => {
-    const exists = this.channels.some(
-      (existing) => existing.provider === identifier.provider && existing.value === identifier.value,
-    );
+    const key = identifierKey(identifier.provider, identifier.value);
+    const exists = this.channels.some((existing) => identifierKey(existing.provider, existing.value) === key);
     if (exists) return;
 
     this.onChange("identifiers", [...this.channels, identifier]);
@@ -97,6 +97,7 @@ export class ContactDetailStore extends BaseCustomColumnEntityModalStore<
       organizationIds: [],
       userIds: [],
       dealIds: [],
+      taskIds: [],
       identifiers: [],
     };
   }

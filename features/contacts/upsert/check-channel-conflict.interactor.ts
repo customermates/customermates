@@ -34,8 +34,11 @@ const Schema = IdentifierInputSchema.pick({
 export type CheckChannelConflictData = Data<typeof Schema>;
 
 @TenantInteractor({
-  resource: Resource.contacts,
-  action: Action.update,
+  permissions: [
+    { resource: Resource.contacts, action: Action.create },
+    { resource: Resource.contacts, action: Action.update },
+  ],
+  condition: "OR",
 })
 export class CheckChannelConflictInteractor extends AuthenticatedInteractor<CheckChannelConflictData, boolean> {
   constructor(private owners: ContactIdentifierOwnersRepo) {
