@@ -357,12 +357,9 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const rows = await this.prisma.accountActivity.findMany({
       where: {
-        companyId: this.companyId,
-        AND: [
-          { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-          providerRelationWhere(query),
-          channelWhere(query),
-        ],
+        ...scoped,
+        ...accountActivityAccessWhere(this.companyId, this.userId),
+        AND: [providerRelationWhere(query), channelWhere(query)],
       },
       orderBy: [{ occurredAt: direction }, { id: direction }],
       take: limit,
@@ -390,12 +387,9 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     return this.prisma.accountActivity.count({
       where: {
-        companyId: this.companyId,
-        AND: [
-          { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-          providerRelationWhere(query),
-          channelWhere(query),
-        ],
+        ...scoped,
+        ...accountActivityAccessWhere(this.companyId, this.userId),
+        AND: [providerRelationWhere(query), channelWhere(query)],
       },
     });
   }
@@ -411,8 +405,8 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const rows = await this.prisma.calendarEvent.findMany({
       where: {
-        companyId: this.companyId,
-        AND: [calendarEventAccessWhere(this.companyId, this.userId), providerRelationWhere(query), channelWhere(query)],
+        ...calendarEventAccessWhere(this.companyId, this.userId),
+        AND: [providerRelationWhere(query), channelWhere(query)],
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
       include: { connectedAccount: { select: { provider: true } } },
@@ -434,8 +428,8 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     return this.prisma.calendarEvent.count({
       where: {
-        companyId: this.companyId,
-        AND: [calendarEventAccessWhere(this.companyId, this.userId), providerRelationWhere(query), channelWhere(query)],
+        ...calendarEventAccessWhere(this.companyId, this.userId),
+        AND: [providerRelationWhere(query), channelWhere(query)],
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
     });
@@ -455,7 +449,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     if (connectedAccountIds?.length) scoped.connectedAccountId = { in: connectedAccountIds };
 
     const rows = await this.prisma.messagingThread.findMany({
-      where: { ...scoped, companyId: this.companyId, ...threadAccessWhere(this.companyId, this.userId) },
+      where: { ...scoped, ...threadAccessWhere(this.companyId, this.userId) },
       orderBy: { lastMessageAt: "desc" },
       take: 100,
       select: {
