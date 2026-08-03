@@ -24,7 +24,16 @@ URL does not exist?**
 | Read by | the running app, through a stable dotted key | the page renderer and search engines, through a URL |
 | Absence means | the app is broken, so the gate fails | that URL does not exist, so it 404s |
 | Completeness | total: exact key and ICU-placeholder parity across app locales | per locale: a gap is a legitimate 404, never default-language prose at a localized URL |
-| Validated by | `i18n-parity`, `i18n-key-resolution`, `jsonc/sort-keys` | Fumadocs zod frontmatter schemas, plus the content-tree half of `i18n-parity` |
+| Validated by | `i18n-parity`, `i18n-key-resolution`, `jsonc/sort-keys`, `yarn i18n:audit` | Fumadocs zod frontmatter schemas, plus the content-tree half of `i18n-parity` |
+
+`tests/conventions/i18n-parity.test.ts` is the hard gate and runs in CI through `yarn test`. It enforces
+that `i18n/locales/*.json` corresponds one-to-one with `ROUTING_LOCALES`, that every bundle holds
+exactly the same number of keys as the default locale, that the key sets match in both directions, and
+that ICU placeholder names and rich-text tag names are identical per key. `yarn i18n:audit` also runs
+in CI and fails the build on the same key-set and interpolation classes, then reports advisory findings
+that need a human read: values still identical to English, glossary drift, one English string rendered
+inconsistently, two distinct English strings collapsing onto one translation within a namespace, and
+translations far longer than their source.
 
 The two formats are kept apart deliberately, and neither is generated from the other.
 

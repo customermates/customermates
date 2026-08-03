@@ -5,10 +5,17 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-import { icuArgumentNames } from "@/scripts/lib/icu";
-import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { icuArgumentNames, richTextTagNames } from "@/scripts/lib/icu";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ENFORCED = true;
+
+function listBundleLocales(): string[] {
+  return readdirSync(join(REPO_ROOT, "i18n", "locales"))
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => name.replace(/\.json$/, ""))
+    .sort();
+}
 
 function contentCollections(): string[] {
   return readdirSync(join(REPO_ROOT, "content"), { withFileTypes: true })
@@ -61,6 +68,49 @@ describe("i18n parity", () => {
       }
     }
     expect(problems, `leaf keys missing from the default locale:\n${problems.join("\n")}`).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("ships exactly one bundle per routing locale", () => {
+    const onDisk = listBundleLocales();
+    const registered: string[] = [...ROUTING_LOCALES].sort();
+
+    const unregistered = onDisk.filter((locale) => !registered.includes(locale));
+    const missing = registered.filter((locale) => !onDisk.includes(locale));
+
+    expect(
+      { unregistered, missing },
+      `i18n/locales/*.json must correspond one-to-one with ROUTING_LOCALES.\n` +
+        `on disk but not registered: ${unregistered.join(", ") || "none"}\n` +
+        `registered but no bundle: ${missing.join(", ") || "none"}`,
+    ).toEqual({ unregistered: [], missing: [] });
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("gives every locale the same number of keys", () => {
+    const counts = Object.fromEntries(
+      listBundleLocales().map((locale) => [locale, loadLocaleLeaves(locale).size] as const),
+    );
+    const expected = Object.fromEntries(Object.keys(counts).map((locale) => [locale, referenceLeaves.size] as const));
+
+    expect(counts, `every bundle must hold exactly ${referenceLeaves.size} keys, the ${DEFAULT_LOCALE} count`).toEqual(
+      expected,
+    );
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps rich-text tag names aligned per shared key", () => {
+    const mismatches: string[] = [];
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const [key, referenceValue] of referenceLeaves) {
+        const value = leaves.get(key);
+        if (value === undefined) continue;
+        const referenceTags = richTextTagNames(referenceValue);
+        const localeTags = richTextTagNames(value);
+        if (referenceTags !== localeTags) {
+          mismatches.push(`${key}: ${DEFAULT_LOCALE}=<${referenceTags}> ${locale}=<${localeTags}>`);
+        }
+      }
+    }
+    expect(mismatches, `rich-text tag mismatches:\n${mismatches.join("\n")}`).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps ICU placeholder names aligned per shared key", () => {
