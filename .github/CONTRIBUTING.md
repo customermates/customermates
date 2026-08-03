@@ -104,6 +104,34 @@ Customermates is **backend-first**: every read and write goes through an interac
 - An interactor exposed through an MCP tool or API route uses the `@Validate` decorator, which returns a structured `ok: false` error that the adapter renders for the caller. `@Enforce` (which throws) is reserved for internal/trusted callers such as webhook ingest and background jobs. `features/mcp-tools/__tests__/mcp-validate-contract.test.ts` enforces that no MCP tool is backed by an `@Enforce` interactor.
 - Custom validation messages are defined as a `CustomErrorCode` in `core/validation/validation.types.ts` with translations in `i18n/locales/en.json` and `i18n/locales/de.json`; avoid free-text issue messages.
 
+## Overlay Conventions
+
+Overlay primitives come from shadcn (`new-york-v4`). shadcn ships **no** mobile viewport safety — no dynamic viewport units, no safe-area insets, no collision padding, and no scroll container in Dialog or Sheet — so this repository layers that on top of upstream and enforces it in `tests/conventions/overlay-contract.test.ts`.
+
+Pick the overlay by what the interaction *is*, not by how much room is left:
+
+| Use | When | Width | Max height | Scroll owner | Small screens |
+| --- | --- | --- | --- | --- | --- |
+| **Tooltip** | Supplementary hint only. Never the sole carrier of a label, state or action, since touch users never hover | `w-fit`, capped at available width | content | none | unchanged |
+| **Dropdown menu** | Short contextual action list | `min-w-32`, capped at available width | available height | the content | unchanged |
+| **Select** | Bounded value choice | trigger width | available height | the content | unchanged |
+| **Popover** | Lightweight anchored content | `w-72` default, capped at available width | available height | exactly one region | promote with `ResponsiveOverlay` when form-heavy |
+| **`AppModal`** | Focused blocking task or form | `sm:max-w-{sm,md,lg,xl}` | `--overlay-block-budget` | `AppCardBody` | Dialog at `md`+, Drawer below |
+| **`AlertDialog`** | Destructive or consequential confirmation | `max-w-xs` / `sm:max-w-lg` | `--overlay-block-budget` | the content | stays a centred dialog at every size |
+| **Sheet** | Side surface tied to the current page | `w-3/4 sm:max-w-sm`, widened per call site | viewport | `SheetBody` | unchanged |
+| **Drawer** | The mobile presentation of a modal | full width | `--sheet-block-budget` | `DrawerBody` | this *is* the small-screen form |
+| **`CommandDialog`** | Search or command workflow | `sm:max-w-lg` | `--overlay-block-budget` | `CommandList` | unchanged |
+
+Rules the convention test enforces:
+
+- **No `vh` and no `h-screen`.** Block sizes come from `--overlay-block-budget` (centred overlays) or `--sheet-block-budget` (edge-anchored ones), both defined in `styles/globals.css` and upgraded to `dvh` behind `@supports`. Inline-axis `vw` stays allowed; only the block axis has the mobile-toolbar problem.
+- **No raw `env(safe-area-inset-*)`.** Use `var(--safe-top|right|bottom|left)`, and add them (`calc(1rem + var(--safe-left))`) so existing desktop padding survives.
+- **No hand-positioned floating surface.** A `fixed` or `absolute` layer with a `z-` class does not flip near an edge, does not follow scroll, and is clipped by any scrolling ancestor. Anchor a `Popover` instead, using `PopoverAnchor` with a virtual ref where there is no DOM trigger (see `components/editor/editor-floating-menu.tsx`).
+- **One scroll owner per overlay**, with `min-h-0` on every ancestor between it and the positioned root. A second `max-h` scroller nested inside a modal steals the dialog's own budget.
+- Raw `radix-ui` overlay roots and `cmdk` are importable only inside `components/ui/*`; everything else composes the wrappers.
+
+`/test/overlays` renders every overlay against long, overflowing, German, long-identifier and many-action fixtures. Cases are deep-linkable (`?case=&content=&actions=&anchor=&state=&safe=`) so a change can be checked at any viewport without clicking.
+
 ## Reporting Issues
 
 GitHub issue tracking is disabled on this repository. If you face a problem or have a suggestion, please use the contact options at [customermates.com](https://customermates.com) and provide as much detail as possible. Suspected security vulnerabilities go through private vulnerability reporting on the repository's Security tab, as described in the [security policy](https://github.com/customermates/.github/blob/main/SECURITY.md) — never through a public channel.
