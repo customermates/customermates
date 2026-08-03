@@ -658,7 +658,9 @@
     "locales": {
       "de": "Deutsch",
       "en": "Englisch",
+      "es": "Spanisch",
       "fr": "Französisch",
+      "it": "Italienisch",
       "system": "System"
     },
     "multiple": "Mehrere",

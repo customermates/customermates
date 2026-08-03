@@ -638,7 +638,9 @@
     "locales": {
       "de": "Allemand",
       "en": "Anglais",
+      "es": "Espagnol",
       "fr": "Français",
+      "it": "Italien",
       "system": "Système"
     },
     "multiple": "Multiple",

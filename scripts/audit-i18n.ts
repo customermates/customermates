@@ -48,16 +48,24 @@ const SHARED_VALUE_PREFIXES = [
   "AgplGithubBadge.label",
 ];
 
-/** Product nouns that must be rendered the same way everywhere within a locale. */
+/**
+ * Product nouns that must be rendered from the same word family everywhere
+ * within a locale. Values are stems, not surface forms, because the same
+ * English noun legitimately appears as a plural or a verb depending on the
+ * sentence: "Deal filters" is plural in Italian and "Contact your
+ * administrator" is a verb in Spanish. Matching the stem keeps the check on
+ * vocabulary choice, which is what drifts, rather than on inflection, which is
+ * grammar the translator has to get right anyway.
+ */
 const GLOSSARY: Record<string, Record<string, string>> = {
-  Deal: { fr: "affaire", it: "trattativa", es: "oportunidad" },
-  Deals: { fr: "affaires", it: "trattative", es: "oportunidades" },
-  Organization: { fr: "organisation", it: "organizzazione", es: "organización" },
-  Organizations: { fr: "organisations", it: "organizzazioni", es: "organizaciones" },
-  Contact: { fr: "contact", it: "contatto", es: "contacto" },
-  Contacts: { fr: "contacts", it: "contatti", es: "contactos" },
+  Deal: { fr: "affaire", it: "trattativ", es: "oportunidad" },
+  Deals: { fr: "affaire", it: "trattativ", es: "oportunidad" },
+  Organization: { fr: "organisation", it: "organizzazion", es: "organizaci" },
+  Organizations: { fr: "organisation", it: "organizzazion", es: "organizaci" },
+  Contact: { fr: "contact", it: "contatt", es: "contact" },
+  Contacts: { fr: "contact", it: "contatt", es: "contact" },
   Task: { fr: "tâche", it: "attività", es: "tarea" },
-  Tasks: { fr: "tâches", it: "attività", es: "tareas" },
+  Tasks: { fr: "tâche", it: "attività", es: "tarea" },
   Inbox: { fr: "boîte de réception", it: "posta in arrivo", es: "bandeja de entrada" },
 };
 
@@ -158,6 +166,34 @@ for (const locale of others) {
       const rendered = [...targets.entries()].map(([value, keys]) => `${JSON.stringify(value)} (${keys[0]})`);
       report.push(`    ${JSON.stringify(source)} -> ${rendered.join(" | ")}`);
     }
+  }
+
+  // 3b. The reverse of the check above: two distinct English strings collapsing
+  // onto one translation. Scoped to a shared parent namespace, because that is
+  // where the two are options of the same control and the user sees a duplicate
+  // with no way to tell them apart. A text sweep of rendered pages cannot find
+  // this, since every string it looks at is correctly translated.
+  const byNamespace = new Map<string, Map<string, string[]>>();
+  for (const [key, source] of reference) {
+    const value = leaves.get(key);
+    if (value === undefined || value === source || isSharedValue(key)) continue;
+    const namespace = key.slice(0, key.lastIndexOf("."));
+    const collisions = byNamespace.get(namespace) ?? new Map<string, string[]>();
+    collisions.set(value, [...(collisions.get(value) ?? []), key]);
+    byNamespace.set(namespace, collisions);
+  }
+  const collided: string[] = [];
+  for (const [namespace, collisions] of byNamespace) {
+    for (const [value, keys] of collisions) {
+      const sources = new Set(keys.map((key) => reference.get(key)));
+      if (sources.size > 1) {
+        collided.push(`${namespace}: ${JSON.stringify(value)} <- ${[...sources].map((s) => JSON.stringify(s)).join(" + ")}`);
+      }
+    }
+  }
+  if (collided.length) {
+    report.push(`  collided: ${collided.length} namespace(s) where distinct English strings share one translation`);
+    for (const entry of collided.slice(0, 10)) report.push(`    ${entry}`);
   }
 
   // 4. Left in English while another locale translated it.

@@ -26752,7 +26752,9 @@
                         "system",
                         "de",
                         "en",
-                        "fr"
+                        "es",
+                        "fr",
+                        "it"
                       ]
                     },
                     "formattingLocale": {
@@ -26761,7 +26763,9 @@
                         "system",
                         "de",
                         "en",
-                        "fr"
+                        "es",
+                        "fr",
+                        "it"
                       ]
                     },
                     "roleId": {

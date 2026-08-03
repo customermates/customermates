@@ -9,6 +9,8 @@ export const LOCALE_REGISTRY = {
   en: { offeredAsDisplayLanguage: true, hasPublishedContent: true, formattingTag: "en-US", flagCode: "us" },
   de: { offeredAsDisplayLanguage: true, hasPublishedContent: true, formattingTag: "de-DE", flagCode: "de" },
   fr: { offeredAsDisplayLanguage: true, hasPublishedContent: false, formattingTag: "fr-FR", flagCode: "fr" },
+  it: { offeredAsDisplayLanguage: true, hasPublishedContent: false, formattingTag: "it-IT", flagCode: "it" },
+  es: { offeredAsDisplayLanguage: true, hasPublishedContent: false, formattingTag: "es-ES", flagCode: "es" },
 } as const satisfies Record<string, LocaleCapabilities>;
 
 export type RoutingLocale = keyof typeof LOCALE_REGISTRY;
