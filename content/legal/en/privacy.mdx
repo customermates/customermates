@@ -41,7 +41,7 @@ We host the content of our website with the following provider:
 
 The provider is Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA (hereinafter referred to as Vercel). When you visit our website, Vercel collects various log files, including your IP addresses. Vercel is a tool for creating and hosting websites/web applications. Vercel stores cookies or other recognition technologies that are necessary for the display of the page, to provide certain website functions, and to ensure security (necessary cookies). For details, please refer to Vercel's privacy policy: https://vercel.com/legal/privacy-policy.
 
-The use of Vercel is based on Art. 6 para. 1 lit. f GDPR. We have a legitimate interest in the most reliable presentation of our website. If a corresponding consent has been requested, the processing is carried out exclusively on the basis of Art. 6 para. 1 lit. a GDPR and § 25 para. 1 TTDSG, insofar as the consent includes the storage of cookies or access to information in the user's terminal device (e.g., device fingerprinting) within the meaning of the TTDSG. The consent can be revoked at any time.
+The use of Vercel is based on Art. 6 para. 1 lit. f GDPR. We have a legitimate interest in the most reliable presentation of our website. If a corresponding consent has been requested, the processing is carried out exclusively on the basis of Art. 6 para. 1 lit. a GDPR and § 25 para. 1 TDDDG, insofar as the consent includes the storage of cookies or access to information in the user's terminal device (e.g., device fingerprinting) within the meaning of the TDDDG. The consent can be revoked at any time.
 
 The data transfer to the USA is based on the standard contractual clauses of the EU Commission. Details can be found here: https://vercel.com/changelog/vercel-is-now-certified-under-the-eu-us-data-privacy-framework-dpf. The company is certified under the "EU-US Data Privacy Framework" (DPF). The DPF is an agreement between the European Union and the USA that is intended to ensure compliance with European data protection standards for data processing in the USA. Each company certified under the DPF undertakes to comply with these data protection standards. For more information, please contact the provider at the following link: https://www.dataprivacyframework.gov/s/participant-search/participantdetail?contact=true&id=a2zt0000000TT9jAAG&status=Active.
 
@@ -228,6 +228,24 @@ The use of this service is based on your consent pursuant to Art. 6 para. 1 lit.
 
 The company is certified under the "EU-US Data Privacy Framework" (DPF). The DPF is an agreement between the European Union and the USA that is intended to ensure compliance with European data protection standards for data processing in the USA. Each company certified under the DPF undertakes to comply with these data protection standards. For more information, please contact the provider at the following link: https://www.dataprivacyframework.gov/participant/5780.
 
+### Vercel Web Analytics
+
+We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA (hereinafter "Vercel"). Vercel Web Analytics is active on all pages of our website and of the web application, including the pages available after login.
+
+Vercel Web Analytics records page views and the associated usage measurement data, in particular the page called up, the referrer, and technical information derived from the request such as the browser and device type and an approximate geographic origin, and makes this available to us in aggregated form. We use this data to understand how our offering is used and to improve it.
+
+The use of Vercel Web Analytics is based on our legitimate interest in the needs-based design and the improvement of our offering (Art. 6 para. 1 lit. f GDPR). Insofar as information is stored in your terminal device or accessed there, and insofar as consent has been requested for this, the processing is based on Art. 6 para. 1 lit. a GDPR and § 25 para. 1 TDDDG; the consent can be revoked at any time.
+
+The data transfer to the USA is based on the standard contractual clauses of the EU Commission. Vercel is additionally certified under the "EU-US Data Privacy Framework" (DPF). Further details can be found in Vercel's privacy policy: https://vercel.com/legal/privacy-policy.
+
+{/* TODO: confirm whether Vercel Web Analytics requires consent under section 25 TDDDG and align with the consent mechanism once one exists. */}
+
+### Award and Directory Badges
+
+On our website we display badges from third-party software directories and award programmes ("featured on" badges). We do not host these badge images ourselves; they are retrieved from the servers of the respective directory and award providers when the page is loaded. As a result, the visitor's IP address and further request data such as browser type, operating system, and referrer are transmitted to those providers. We have no influence on any further processing carried out by them.
+
+The integration of these badges is based on our legitimate interest in an appealing presentation of our offering and in referencing independent listings and awards (Art. 6 para. 1 lit. f GDPR). Insofar as a provider is based outside the European Union, in particular in the USA, the transfer takes place on the basis of the transfer mechanism used by the respective provider, in particular the standard contractual clauses of the EU Commission pursuant to Art. 46 GDPR or a certification under the "EU-US Data Privacy Framework" (DPF).
+
 ## 6. Digital Platform and Payment Provider
 
 ### Processing of Customer and Contract Data
@@ -346,11 +364,13 @@ Attachment files are transmitted on demand and are not stored by Customermates; 
 
 The data processed via the connected-account feature includes personal data of your own users as well as of third parties with whom you communicate (your correspondents) whose data appears in messages, contacts, and calendar entries.
 
+Please note that connecting an account also ingests the content of conversations with people who are not users of our service. This content is determined by you and your correspondents and may contain special categories of personal data within the meaning of Art. 9 GDPR. As controller for this content, you are responsible for having a legal basis for its processing and for fulfilling your information duties toward the people concerned.
+
 ### Roles and Data Processing on Behalf
 
 For the content of connected accounts (your mailboxes, messages, contacts, and calendars, including the personal data of your correspondents), you are the controller within the meaning of Art. 4 no. 7 GDPR. Customermates processes this data exclusively on your behalf and according to your instructions as a processor pursuant to Art. 28 GDPR. Customermates engages Unipile as a subprocessor for this purpose. The underlying communication platforms (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram, and Telegram) act as independent controllers for their own respective services.
 
-A list of the subprocessors we engage is available at /subprocessors, and further information on the data processing agreement is available at /dpa. {/* BLOCKER: execute the Unipile Art. 28 DPA before publishing; this section presumes it is in force. */}
+A list of the subprocessors we engage is available at [Subprocessors](/subprocessors), and further information on the data processing agreement is available at [Data Processing Agreement](/dpa). {/* BLOCKER: execute the Unipile Art. 28 DPA before publishing; this section presumes it is in force. */}
 
 ### Legal Basis
 
@@ -364,7 +384,15 @@ Further information can be found in Unipile's privacy policy at https://www.unip
 
 ### Retention and Deletion
 
-When you disconnect a connected account, Customermates deletes the stored threads, messages, participant profiles, and calendar data associated with that account and requests Unipile to remove the account. Statutory retention obligations remain unaffected.
+There are two ways in which a connected account can be removed, and they currently have different consequences for the stored content.
+
+When you disconnect a connected account yourself, Customermates deletes the stored threads, messages, participant profiles, and calendar data associated with that account and requests Unipile to remove the account.
+
+When a connected account is removed automatically, in particular because of a failed payment, the expiry of a trial, or prolonged inactivity of the account owner, the connected account is currently only deactivated and marked as deleted. The content already stored for that account (threads, messages, participant profiles, and calendar data) is retained until the connected account, your user account, or your company account is deleted.
+
+No fixed retention period applies to stored connected-account content. It is kept until one of the deletion events described above is triggered. Statutory retention obligations remain unaffected.
+
+{/* TODO: define and implement a retention limit for connected-account content, and align this wording with it. */}
 
 ### Data Subject Requests
 
