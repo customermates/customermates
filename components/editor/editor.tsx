@@ -13,9 +13,9 @@ import { useTranslations } from "next-intl";
 import { baseExtensions } from "./editor-extensions";
 import { findPastedImageUrl } from "./image-extension";
 import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
-import { calculateMenuPosition } from "./editor-positioning.utils";
 
 import { BubbleMenu } from "./bubble-menu";
+import { type EditorAnchorRect } from "./use-editor-anchor";
 import { SlashMenu } from "./slash-menu";
 import { TableMenu } from "./table-menu";
 
@@ -37,21 +37,12 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
 export function Editor({ data, onChange, readOnly = false }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
-  const [slashMenuPosition, setSlashMenuPosition] = useState({
-    top: 0,
-    left: 0,
-  });
+  const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [showBubbleMenu, setShowBubbleMenu] = useState(false);
-  const [bubbleMenuPosition, setBubbleMenuPosition] = useState({
-    top: 0,
-    left: 0,
-  });
+  const [bubbleAnchorRect, setBubbleAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [showTableMenu, setShowTableMenu] = useState(false);
-  const [tableMenuPosition, setTableMenuPosition] = useState({ top: 0, left: 0 });
+  const [tableAnchorRect, setTableAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [tableAnchorPos, setTableAnchorPos] = useState<number | null>(null);
-  const bubbleMenuRef = useRef<HTMLDivElement>(null);
-  const slashMenuRef = useRef<HTMLDivElement>(null);
-  const tableMenuRef = useRef<HTMLDivElement>(null);
   const isSettingContentRef = useRef(false);
 
   const showBubbleMenuForSelection = useCallback(
@@ -134,7 +125,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         if (event.key === "/" && !showSlashMenu) {
           const { selection } = view.state;
           const coords = view.coordsAtPos(selection.from);
-          setSlashMenuPosition({ top: coords.top, left: coords.left });
+          setSlashAnchorRect({ top: coords.top, left: coords.left, height: coords.bottom - coords.top });
           setShowSlashMenu(true);
           return true;
         }
@@ -181,98 +172,65 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   }, [editor, showBubbleMenuForSelection]);
 
   useEffect(() => {
-    if (showBubbleMenu && bubbleMenuRef.current && editor) {
+    if (showBubbleMenu && editor) {
       const { from, to } = editor.state.selection;
       const { view } = editor;
       const start = view.coordsAtPos(from);
       const end = view.coordsAtPos(to);
-      const menuRect = bubbleMenuRef.current.getBoundingClientRect();
 
-      const position = calculateMenuPosition({
-        cursorTop: start.top,
-        cursorBottom: end.bottom,
-        cursorLeft: start.left,
-        cursorRight: end.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
-        centered: true,
+      setBubbleAnchorRect({
+        top: start.top,
+        left: Math.min(start.left, end.left),
+        width: Math.abs(end.left - start.left),
+        height: end.bottom - start.top,
       });
-
-      setBubbleMenuPosition(position);
     }
   }, [showBubbleMenu, showTableMenu, editor]);
 
   useEffect(() => {
-    if (showTableMenu && tableMenuRef.current && editor) {
+    if (showTableMenu && editor) {
       const { from } = editor.state.selection;
       const domNode = editor.view.domAtPos(from).node;
       const element = domNode instanceof Element ? domNode : domNode.parentElement;
       const tableElement = element?.closest("table");
       const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(from);
-      const menuRect = tableMenuRef.current.getBoundingClientRect();
 
-      const position = calculateMenuPosition({
-        cursorTop: anchor.top,
-        cursorBottom: anchor.bottom,
-        cursorLeft: anchor.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
+      setTableAnchorRect({
+        top: anchor.top,
+        left: anchor.left,
+        width: "width" in anchor ? anchor.width : 0,
+        height: anchor.bottom - anchor.top,
       });
-
-      setTableMenuPosition(position);
     }
   }, [showTableMenu, tableAnchorPos, editor]);
-
-  useEffect(() => {
-    if (!showTableMenu || !editor) return;
-    const editorView = editor.view;
-
-    function handlePointerDown(event: MouseEvent) {
-      const target = event.target as Node;
-      if (tableMenuRef.current?.contains(target)) return;
-      if (editorView.dom.contains(target)) return;
-      setShowTableMenu(false);
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
-  }, [showTableMenu, editor]);
-
-  useEffect(() => {
-    if (showSlashMenu && slashMenuRef.current && editor) {
-      const { selection } = editor.state;
-      const coords = editor.view.coordsAtPos(selection.from);
-      const menuRect = slashMenuRef.current.getBoundingClientRect();
-
-      const position = calculateMenuPosition({
-        cursorTop: coords.top,
-        cursorBottom: coords.bottom,
-        cursorLeft: coords.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
-      });
-
-      setSlashMenuPosition(position);
-    }
-  }, [showSlashMenu, editor]);
 
   if (!editor) return null;
 
   return (
     <div className="relative min-h-52">
       {showBubbleMenu && !showTableMenu && (
-        <BubbleMenu bubbleMenuRef={bubbleMenuRef} editor={editor} position={bubbleMenuPosition} />
+        <BubbleMenu
+          anchorRect={bubbleAnchorRect}
+          editor={editor}
+          open={showBubbleMenu}
+          onClose={() => setShowBubbleMenu(false)}
+        />
       )}
 
       {showTableMenu && !readOnly && (
-        <TableMenu editor={editor} position={tableMenuPosition} tableMenuRef={tableMenuRef} />
+        <TableMenu
+          anchorRect={tableAnchorRect}
+          editor={editor}
+          open={showTableMenu}
+          onClose={() => setShowTableMenu(false)}
+        />
       )}
 
       {showSlashMenu && (
         <SlashMenu
+          anchorRect={slashAnchorRect}
           editor={editor}
-          position={slashMenuPosition}
-          slashMenuRef={slashMenuRef}
+          open={showSlashMenu}
           onClose={() => setShowSlashMenu(false)}
         />
       )}

@@ -1,21 +1,24 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
+import type { EditorAnchorRect } from "./use-editor-anchor";
 
-import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+
+import { EditorFloatingMenu } from "./editor-floating-menu";
 
 type Chain = ReturnType<Editor["chain"]>;
 
 type Props = {
   editor: Editor;
-  position: { top: number; left: number };
-  tableMenuRef: React.RefObject<HTMLDivElement>;
+  anchorRect: EditorAnchorRect | null;
+  open: boolean;
+  onClose: () => void;
 };
 
-export function TableMenu({ editor, position, tableMenuRef }: Props) {
+export function TableMenu({ editor, anchorRect, open, onClose }: Props) {
   const t = useTranslations();
 
   const actions: { label: string; apply: (chain: Chain) => Chain }[] = [
@@ -30,13 +33,14 @@ export function TableMenu({ editor, position, tableMenuRef }: Props) {
     apply(editor.chain().focus()).run();
   };
 
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
-    <div
-      ref={tableMenuRef}
-      className="fixed z-50 flex items-center gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-      style={{ top: position.top, left: position.left }}
+  return (
+    <EditorFloatingMenu
+      align="start"
+      anchorRect={anchorRect}
+      className="flex items-center gap-0.5"
+      editorDom={editor.view.dom}
+      open={open}
+      onClose={onClose}
     >
       {actions.map((action) => (
         <Button
@@ -57,7 +61,6 @@ export function TableMenu({ editor, position, tableMenuRef }: Props) {
           {action.label}
         </Button>
       ))}
-    </div>,
-    document.body,
+    </EditorFloatingMenu>
   );
 }

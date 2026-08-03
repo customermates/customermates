@@ -1,20 +1,22 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
+import type { EditorAnchorRect } from "./use-editor-anchor";
 
 import { Bold, Italic, Strikethrough, Code, Heading1, Heading2, Underline } from "lucide-react";
-import { createPortal } from "react-dom";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
+import { EditorFloatingMenu } from "./editor-floating-menu";
 import { LinkPopover } from "./link-popover";
 
 type Props = {
   editor: Editor;
-  position: { top: number; left: number };
-  bubbleMenuRef: React.RefObject<HTMLDivElement>;
+  anchorRect: EditorAnchorRect | null;
+  open: boolean;
+  onClose: () => void;
 };
 
 type FormatAction = {
@@ -24,7 +26,7 @@ type FormatAction = {
   label: string;
 };
 
-export function BubbleMenu({ editor, position, bubbleMenuRef }: Props) {
+export function BubbleMenu({ editor, anchorRect, open, onClose }: Props) {
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
 
   const actions: FormatAction[] = [
@@ -72,13 +74,14 @@ export function BubbleMenu({ editor, position, bubbleMenuRef }: Props) {
     },
   ];
 
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
-    <div
-      ref={bubbleMenuRef}
-      className="fixed z-50 flex items-center gap-0.5 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
-      style={{ top: position.top, left: position.left }}
+  return (
+    <EditorFloatingMenu
+      align="center"
+      anchorRect={anchorRect}
+      className="flex items-center gap-0.5"
+      editorDom={editor.view.dom}
+      open={open}
+      onClose={onClose}
     >
       {actions.map((action) => (
         <Button
@@ -103,7 +106,6 @@ export function BubbleMenu({ editor, position, bubbleMenuRef }: Props) {
       ))}
 
       <LinkPopover editor={editor} open={linkPopoverOpen} onOpenChange={setLinkPopoverOpen} />
-    </div>,
-    document.body,
+    </EditorFloatingMenu>
   );
 }
