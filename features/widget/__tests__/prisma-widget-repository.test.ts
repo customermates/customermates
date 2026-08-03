@@ -8,9 +8,10 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const { widgetFindMany, widgetFindFirst, calculateWidgetData } = vi.hoisted(() => ({
+const { widgetFindMany, widgetFindFirst, widgetUpsert, calculateWidgetData } = vi.hoisted(() => ({
   widgetFindMany: vi.fn(),
   widgetFindFirst: vi.fn(),
+  widgetUpsert: vi.fn(),
   calculateWidgetData: vi.fn(),
 }));
 
@@ -24,7 +25,15 @@ vi.mock("@/prisma/db", () => ({
   ...MOCK_PRISMA_DB_MODULE,
   prisma: {
     ...MOCK_PRISMA_DB_MODULE.prisma,
-    widget: { findMany: widgetFindMany, findFirst: widgetFindFirst },
+    $transaction: vi.fn().mockImplementation((fn: (tx: unknown) => unknown) =>
+      fn({
+        $executeRaw: vi.fn().mockResolvedValue(undefined),
+        auditLog: { createMany: vi.fn() },
+        webhookDelivery: { createMany: vi.fn() },
+        widget: { findMany: widgetFindMany, findFirst: widgetFindFirst, upsert: widgetUpsert },
+      }),
+    ),
+    widget: { findMany: widgetFindMany, findFirst: widgetFindFirst, upsert: widgetUpsert },
   },
 }));
 
@@ -99,13 +108,44 @@ describe("PrismaWidgetRepo.toDto", () => {
     expect(widgets[0].data).toEqual([{ label: "Total", value: 3 }]);
   });
 
-  it("reads through the explicit select rather than the whole row", async () => {
+  it("reads through the explicit select, scoped to the tenant", async () => {
     widgetFindMany.mockResolvedValue([]);
 
     await runWithTenant(mockUser, () => new PrismaWidgetRepo().getWidgets());
 
-    expect(widgetFindMany).toHaveBeenCalledWith(expect.objectContaining({ select: expect.any(Object) }));
+    expect(widgetFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: mockUser.id, companyId: mockUser.companyId } }),
+    );
     expect(widgetFindMany.mock.calls[0][0].select).toHaveProperty("entityFilters", true);
+  });
+
+  it("scopes a single widget read to the company", async () => {
+    widgetFindFirst.mockResolvedValue(null);
+
+    await runWithTenant(mockUser, () => new PrismaWidgetRepo().getWidgetById(WIDGET_ID));
+
+    expect(widgetFindFirst.mock.calls[0][0].where).toEqual({ id: WIDGET_ID, companyId: mockUser.companyId });
+  });
+
+  it("persists absent filters as empty arrays rather than JSON null", async () => {
+    widgetUpsert.mockResolvedValue(legacyRow());
+
+    await runWithTenant(mockUser, () =>
+      new PrismaWidgetRepo().upsertWidget({
+        data: {
+          name: "New",
+          entityType: EntityType.contact,
+          groupByType: WidgetGroupByType.none,
+          aggregationType: AggregationType.count,
+          isTemplate: false,
+        },
+      }),
+    );
+
+    const created = widgetUpsert.mock.calls[0][0].create;
+
+    expect(created.entityFilters).toEqual([]);
+    expect(created.dealFilters).toEqual([]);
   });
 
   it("returns null for a missing widget without calling the calculator", async () => {

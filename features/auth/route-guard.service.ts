@@ -58,7 +58,7 @@ export class RouteGuardService {
     const allowed = options.allowedActions ?? [Action.readOwn, Action.readAll];
 
     const hasRequiredPermission =
-      user.role?.permissions?.some((p) => p.resource === options.resource && allowed.includes(p.action)) ?? false;
+      user.role?.permissions.some((p) => p.resource === options.resource && allowed.includes(p.action)) ?? false;
     if (hasRequiredPermission) return null;
 
     return redirectTo("/");

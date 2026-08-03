@@ -74,8 +74,6 @@ export const WidgetLayoutItemSchema = z.object({
   maxH: z.number().optional(),
 });
 
-export type WidgetLayoutItem = Data<typeof WidgetLayoutItemSchema>;
-
 export const WidgetLayoutSchema = z.object({
   xs: WidgetLayoutItemSchema.optional(),
   sm: WidgetLayoutItemSchema.optional(),

@@ -65,7 +65,7 @@ export class UserService {
 
     if (user.role?.isSystemRole) return true;
 
-    return user.role?.permissions?.some((p) => p.resource === resource && p.action === action) ?? false;
+    return user.role?.permissions.some((p) => p.resource === resource && p.action === action) ?? false;
   }
 
   async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {

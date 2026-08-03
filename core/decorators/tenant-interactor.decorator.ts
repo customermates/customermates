@@ -46,7 +46,7 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(
 
         const permissionChecks = permissions.map((p) => {
           return (
-            user.role?.permissions?.some(
+            user.role?.permissions.some(
               (permission) => permission.resource === p.resource && permission.action === p.action,
             ) ?? false
           );

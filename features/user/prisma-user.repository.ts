@@ -878,12 +878,12 @@ export class PrismaUserRepo
       },
     });
 
-    const extendedUser = await this.prisma.user.findUniqueOrThrow({
+    const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
       select: this.tenantUserSelect,
     });
 
-    return extendedUser;
+    return tenantUser;
   }
 
   @Transaction
@@ -909,12 +909,12 @@ export class PrismaUserRepo
       },
     });
 
-    const extendedUser = await this.prisma.user.findUniqueOrThrow({
+    const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
       select: this.tenantUserSelect,
     });
 
-    return extendedUser;
+    return tenantUser;
   }
 
   async findOrThrowCompanyWide(email: string) {
