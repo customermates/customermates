@@ -13,8 +13,6 @@ const withMDX = createMDX({
   configPath: "./core/fumadocs/source.config.ts",
 });
 
-const isProductionBuild = env.VERCEL_ENV === "production";
-
 const nextConfig: NextConfig = {
   env: {
     NEXT_INTL_CONFIG_PATH: "i18n/request.ts",
@@ -29,7 +27,7 @@ const nextConfig: NextConfig = {
   compress: true,
 
   experimental: {
-    turbopackSourceMaps: isProductionBuild,
+    turbopackSourceMaps: false,
     turbopackMemoryLimit: 6 * 1024 * 1024 * 1024,
     serverActions: {
       bodySizeLimit: "25mb",
@@ -68,10 +66,8 @@ const sentryOptions = {
   project: env.SENTRY_PROJECT,
   authToken: env.SENTRY_AUTH_TOKEN,
   silent: !env.CI,
-  hideSourceMaps: true,
-  widenClientFileUpload: isProductionBuild,
   sourcemaps: {
-    disable: !isProductionBuild,
+    disable: true,
   },
   tunnelRoute: "/monitoring",
 };
