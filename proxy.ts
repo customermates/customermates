@@ -8,6 +8,11 @@ import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
+import {
+  AFFILIATE_REFERRAL_COOKIE,
+  AFFILIATE_REFERRAL_MAX_AGE_SECONDS,
+  readAffiliateReferral,
+} from "./core/affiliate/affiliate-referral";
 
 const intlMiddlewareRaw = createMiddleware(routing);
 
@@ -38,6 +43,21 @@ function appendSetCookieHeaders(response: NextResponse, authResponse: Response):
 }
 
 export default async function proxy(req: NextRequest) {
+  const response = await route(req);
+  const referral = readAffiliateReferral(req.nextUrl);
+
+  if (referral) {
+    response.cookies.set(AFFILIATE_REFERRAL_COOKIE, referral, {
+      maxAge: AFFILIATE_REFERRAL_MAX_AGE_SECONDS,
+      path: "/",
+      sameSite: "lax",
+    });
+  }
+
+  return response;
+}
+
+async function route(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const base = resolveRequestOrigin(req.nextUrl.origin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
 

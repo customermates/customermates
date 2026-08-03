@@ -10,6 +10,7 @@ import {
 
 const mockUser = createMockUser();
 const request = vi.hoisted(() => ({ origin: "https://feat-inbox.customermates.com" }));
+const affiliate = vi.hoisted(() => ({ referral: null as string | null }));
 
 vi.mock("@/env", () => ({
   env: {
@@ -26,6 +27,10 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
+  cookies: () => ({
+    get: (name: string) =>
+      name === "aff_ref" && affiliate.referral ? { name, value: affiliate.referral } : undefined,
+  }),
 }));
 
 const { CreateCheckoutSessionInteractor } = await import("../create-checkout-session.interactor");

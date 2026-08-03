@@ -58,6 +58,11 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
                     {chunks}
                   </AppLink>
                 ),
+                dpaLink: (chunks) => (
+                  <AppLink href="/dpa" target="_blank">
+                    {chunks}
+                  </AppLink>
+                ),
                 termsOfServiceLink: (chunks) => (
                   <AppLink href="/terms" target="_blank">
                     {chunks}

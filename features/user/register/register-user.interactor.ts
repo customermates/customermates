@@ -3,9 +3,12 @@ import type { ExtendedUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
+import type { LegalAcceptance } from "@/constants/legal-documents";
 
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
+
+import { buildLegalAcceptance } from "@/constants/legal-documents";
 
 import { DomainEvent } from "@/features/event/domain-events";
 
@@ -40,8 +43,10 @@ export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
-  abstract createCompanyAndUser(args: RegisterUserData): Promise<ExtendedUser>;
-  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<ExtendedUser>;
+  abstract createCompanyAndUser(args: RegisterUserData & LegalAcceptance): Promise<ExtendedUser>;
+  abstract registerExistingCompany(
+    args: RegisterUserData & LegalAcceptance & { companyId: string },
+  ): Promise<ExtendedUser>;
 }
 
 @SystemInteractor
@@ -62,9 +67,11 @@ export class RegisterUserInteractor {
 
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
 
+    const legalAcceptance = buildLegalAcceptance(new Date());
+
     const extendedUser = companyId
-      ? await this.repo.registerExistingCompany({ ...data, companyId })
-      : await this.repo.createCompanyAndUser(data);
+      ? await this.repo.registerExistingCompany({ ...data, ...legalAcceptance, companyId })
+      : await this.repo.createCompanyAndUser({ ...data, ...legalAcceptance });
 
     await runWithTenant(extendedUser, async () => {
       await this.eventService.publish(DomainEvent.USER_REGISTERED, {

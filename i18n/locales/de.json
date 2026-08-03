@@ -1564,7 +1564,7 @@
     "title": "Huch! Du hast die Leere betreten"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Ich stimme der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> und den <termsOfServiceLink>Nutzungsbedingungen</termsOfServiceLink> zu"
+    "agreeToTerms": "Ich stimme den <termsOfServiceLink>Nutzungsbedingungen</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und habe die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen"
   },
   "OnboardingWizard": {
     "ai": {
@@ -1728,7 +1728,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Beim Anmelden stimmst du unseren <termsOfServiceLink>AGBs</termsOfServiceLink> und der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zu",
+    "agreeToTerms": "Beim Anmelden stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und bestätigst, unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen zu haben",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
     "or": "ODER",
@@ -1739,7 +1739,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Einladung annehmen",
-    "agreeToTerms": "Beim Registrieren stimmst du unseren <termsOfServiceLink>AGBs</termsOfServiceLink> und der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zu",
+    "agreeToTerms": "Beim Registrieren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und bestätigst, unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen zu haben",
     "buttonLabel": "Registrieren mit {provider}",
     "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",
@@ -1885,6 +1885,9 @@
     "resendSuccess": "Verifizierungsemail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung"
+  },
+  "VideoEmbed": {
+    "consentNotice": "Zum Laden des Videos von YouTube klicken. Ihre IP-Adresse wird erst nach dem Klick an YouTube übermittelt."
   },
   "WebhookDeliveriesCard": {
     "title": "Kürzliche Zustellungen"

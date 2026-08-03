@@ -171,6 +171,10 @@ model User {
   country                         CountryCode        @default(de)
   avatarUrl                       String?
   agreeToTerms                    Boolean            @default(false)
+  legalAcceptedAt                 DateTime?
+  legalTermsVersion               String?
+  legalPrivacyVersion             String?
+  legalDpaVersion                 String?
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?

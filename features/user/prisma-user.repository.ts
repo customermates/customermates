@@ -866,6 +866,10 @@ export class PrismaUserRepo
     const user = await this.prisma.user.create({
       data: {
         agreeToTerms: args.agreeToTerms,
+        legalAcceptedAt: args.legalAcceptedAt,
+        legalTermsVersion: args.legalTermsVersion,
+        legalPrivacyVersion: args.legalPrivacyVersion,
+        legalDpaVersion: args.legalDpaVersion,
         firstName: args.firstName,
         lastName: args.lastName,
         email: args.email,
@@ -898,6 +902,10 @@ export class PrismaUserRepo
     const user = await this.prisma.user.create({
       data: {
         agreeToTerms: args.agreeToTerms,
+        legalAcceptedAt: args.legalAcceptedAt,
+        legalTermsVersion: args.legalTermsVersion,
+        legalPrivacyVersion: args.legalPrivacyVersion,
+        legalDpaVersion: args.legalDpaVersion,
         firstName: args.firstName,
         lastName: args.lastName,
         email: args.email,

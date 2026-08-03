@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type Props = {
   countryKey: string;
@@ -18,8 +18,10 @@ export function FormAutocompleteCountryItem({ countryKey, label, size = "md" }: 
       <Avatar className={size === "sm" ? "size-3" : "size-5"}>
         <AvatarImage
           alt={t("Common.imageAlt.countryFlag", { country: label })}
-          src={`https://flagcdn.com/${countryKey.toLowerCase()}.svg`}
+          src={`/icons/flags/w40/${countryKey.toLowerCase()}.png`}
         />
+
+        <AvatarFallback>{countryKey.toUpperCase()}</AvatarFallback>
       </Avatar>
 
       <span className="truncate">{label}</span>

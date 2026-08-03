@@ -1564,7 +1564,7 @@
     "title": "Oops! You've entered the void"
   },
   "OnboardingForm": {
-    "agreeToTerms": "I agree to the <dataPrivacyLink>Privacy Policy</dataPrivacyLink> and the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink>"
+    "agreeToTerms": "I agree to the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink> and the <dpaLink>Data Processing Agreement</dpaLink>, and I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>"
   },
   "OnboardingWizard": {
     "ai": {
@@ -1728,7 +1728,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>, and confirm you have read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Continue with {provider}",
     "forgotPassword": "Forgot password?",
     "or": "OR",
@@ -1739,7 +1739,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accept invitation",
-    "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>, and confirm you have read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",
@@ -1885,6 +1885,9 @@
     "resendSuccess": "Verification email sent successfully.",
     "subtitle": "Verify your email address to continue.",
     "title": "Email Verification"
+  },
+  "VideoEmbed": {
+    "consentNotice": "Click to load the video from YouTube. Your IP address is transmitted to YouTube only after you click."
   },
   "WebhookDeliveriesCard": {
     "title": "Recent Deliveries"

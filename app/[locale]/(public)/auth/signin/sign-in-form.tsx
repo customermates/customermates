@@ -130,6 +130,11 @@ export const SignInForm = observer(({ socialProviders }: Props) => {
                     {chunks}
                   </AppLink>
                 ),
+                dpaLink: (chunks) => (
+                  <AppLink inheritSize className="text-inherit underline" href="/dpa" target="_blank">
+                    {chunks}
+                  </AppLink>
+                ),
                 termsOfServiceLink: (chunks) => (
                   <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
                     {chunks}

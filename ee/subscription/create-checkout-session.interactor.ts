@@ -2,7 +2,7 @@ import type { SubscriptionService } from "./subscription.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Resource, Action, SubscriptionPlan } from "@/generated/prisma";
 
 import type { Subscription } from "@/generated/prisma";
@@ -14,6 +14,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
+import { AFFILIATE_REFERRAL_COOKIE, withAffiliateReferral } from "@/core/affiliate/affiliate-referral";
 import { env } from "@/env";
 
 import { planToVariant } from "./subscription.service";
@@ -57,6 +58,8 @@ export class CreateCheckoutSessionInteractor {
       redirectUrl,
     });
 
-    return redirectTo(checkout.data.attributes.url);
+    const referral = (await cookies()).get(AFFILIATE_REFERRAL_COOKIE)?.value ?? null;
+
+    return redirectTo(withAffiliateReferral(checkout.data.attributes.url, referral));
   }
 }

@@ -6,7 +6,11 @@ type SensitiveUserFields =
   | "welcomeEmailSentAt"
   | "trialExpiredOfferSentAt"
   | "trialInactivationReminderSentAt"
-  | "trialInactivationNoticeSentAt";
+  | "trialInactivationNoticeSentAt"
+  | "legalAcceptedAt"
+  | "legalTermsVersion"
+  | "legalPrivacyVersion"
+  | "legalDpaVersion";
 
 export type ExtendedUser = Omit<User, SensitiveUserFields> & {
   role: UserRoleDto | null;
