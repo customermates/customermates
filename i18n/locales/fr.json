@@ -264,6 +264,7 @@
       "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
+      "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "contactNotFound": "ID de contact introuvable ou inaccessible.",
       "contactRefRequired": "id doit être un UUID de contact, un e-mail ou un téléphone, ou 'fournisseur:valeur' pour un identifiant (par exemple 'linkedin:jdoe').",
       "customColumnIdNotFound": "ID de colonne personnalisée introuvable ou inaccessible.",
@@ -439,6 +440,7 @@
       "editCurrent": "Modifier les filtres",
       "fields": {
         "assignedUserId": "Assigné à",
+        "connectedAccountId": "Canal",
         "contactIds": "Contact",
         "createdAt": "Créé le",
         "dealIds": "Affaire",
