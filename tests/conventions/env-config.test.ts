@@ -157,12 +157,14 @@ describe("environment configuration", () => {
     );
   });
 
-  it("allows only Production to frame Demo builds", () => {
+  it("allows only Production and its branch domains to frame Demo builds", () => {
     const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
     expect(config).toContain('env.APP_MODE === "demo"');
-    expect(config).toContain(`? "frame-ancestors 'self' https://customermates.com"`);
+    expect(config).toContain(`? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"`);
     expect(config).toContain(`: "frame-ancestors 'self'"`);
     expect(config).not.toContain("test.customermates.com");
+    expect(config).not.toContain("frame-ancestors *");
+    expect(config).not.toContain("*.vercel.app");
   });
 
   it("uses the Better Auth host allowlist and dedicated OAuth proxy secret", () => {

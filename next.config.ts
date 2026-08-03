@@ -53,7 +53,9 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              env.APP_MODE === "demo" ? "frame-ancestors 'self' https://customermates.com" : "frame-ancestors 'self'",
+              env.APP_MODE === "demo"
+                ? "frame-ancestors 'self' https://customermates.com https://*.customermates.com"
+                : "frame-ancestors 'self'",
           },
         ],
       },
