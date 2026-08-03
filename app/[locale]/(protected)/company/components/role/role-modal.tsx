@@ -55,7 +55,7 @@ export const RoleModal = observer(({ store }: Props) => {
     ];
 
     return (
-      <div key={resource} className="grid grid-cols-subgrid col-span-3 py-3 items-center">
+      <div key={resource} className="grid grid-cols-subgrid col-span-3 py-3 items-center *:min-w-0">
         <h3 className="text-sm font-medium">{t(`RoleModal.resources.${resource}`)}</h3>
 
         <div>
@@ -112,8 +112,8 @@ export const RoleModal = observer(({ store }: Props) => {
               <FormTextarea required id="description" />
             )}
 
-            <div className="grid grid-cols-[1fr_auto_auto] gap-x-8 divide-y divide-border border-y border-border">
-              <div className="grid grid-cols-subgrid col-span-3 py-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 divide-y divide-border border-y border-border sm:gap-x-8">
+              <div className="grid grid-cols-subgrid col-span-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[11px]">
                 <span>{t("RoleModal.resourceHeader")}</span>
 
                 <span>{t("RoleModal.manageAccess")}</span>

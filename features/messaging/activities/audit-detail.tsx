@@ -235,7 +235,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       />
 
       <AppCardBody>
-        <div className="flex flex-col gap-4 max-h-[60vh] overflow-auto">
+        <div className="flex flex-col gap-4">
           {changes.map((change, index) => {
             const key = `${entry.id}-${change.field}-${index}`;
 

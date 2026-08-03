@@ -92,7 +92,7 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
       <AppCardBody className="space-y-3">
         {message.subject && <h3 className="text-base font-semibold">{message.subject}</h3>}
 
-        <div className="max-h-[60vh] overflow-auto">
+        <div>
           {isEmail ? (
             <div
               className={cn(
@@ -209,7 +209,7 @@ const CalendarEventDetail = observer(
           )}
 
           {description && (
-            <div className="max-h-[40vh] overflow-auto">
+            <div>
               {looksLikeHtml(description) ? (
                 <div className="bg-muted w-full rounded-2xl p-1.5 shadow-xs">
                   <EmailFrame html={description} />

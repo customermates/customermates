@@ -171,7 +171,7 @@ export default async function RootLayout({ children }: Props) {
       className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
       lang={displayLanguage}
     >
-      <body className="h-screen flex flex-col font-sans antialiased">
+      <body className="h-svh flex flex-col font-sans antialiased">
         <Providers
           appMode={env.APP_MODE}
           defaultTheme={themeCookie}

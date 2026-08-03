@@ -21,7 +21,7 @@ type Props = {
 export default function GlobalError({ reset }: Props) {
   return (
     <html className={`${latin.variable} ${latin.className} dark`} lang="en">
-      <body className="h-screen flex flex-col font-sans antialiased">
+      <body className="h-svh flex flex-col font-sans antialiased">
         <ErrorPageView
           backHref="/"
           backLabel="Back to home"
