@@ -14,10 +14,7 @@
   ],
   "overrides": [
     {
-      "files": [
-        "**/*.mjs",
-        "**/*.cjs"
-      ],
+      "files": ["**/*.mjs", "**/*.cjs"],
       "parser": "espree",
       "parserOptions": {
         "ecmaVersion": 12,
@@ -31,13 +28,8 @@
         "plugin:@typescript-eslint/strict",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ],
-      "files": [
-        "**/*.ts",
-        "**/*.tsx"
-      ],
-      "plugins": [
-        "better-tailwindcss"
-      ],
+      "files": ["**/*.ts", "**/*.tsx"],
+      "plugins": ["better-tailwindcss"],
       "rules": {
         "@typescript-eslint/consistent-type-imports": "error",
         "@typescript-eslint/no-explicit-any": "off",
@@ -67,9 +59,7 @@
       }
     },
     {
-      "files": [
-        "components/entity-detail/hooks/use-entity-drawer-stack.ts"
-      ],
+      "files": ["components/entity-detail/hooks/use-entity-drawer-stack.ts"],
       "rules": {
         "no-restricted-imports": "off"
       }
@@ -91,9 +81,7 @@
       }
     },
     {
-      "files": [
-        "components/shared/app-link.tsx"
-      ],
+      "files": ["components/shared/app-link.tsx"],
       "rules": {
         "no-restricted-imports": "off"
       }
@@ -110,15 +98,9 @@
       }
     },
     {
-      "files": [
-        "**/*.json",
-        "**/*.jsonc",
-        "**/*.json5"
-      ],
+      "files": ["**/*.json", "**/*.jsonc", "**/*.json5"],
       "parser": "jsonc-eslint-parser",
-      "plugins": [
-        "jsonc"
-      ],
+      "plugins": ["jsonc"],
       "rules": {
         "jsonc/sort-keys": [
           "warn",
@@ -152,19 +134,9 @@
     "sourceType": "module",
     "tsconfigRootDir": "."
   },
-  "plugins": [
-    "react",
-    "unused-imports",
-    "import",
-    "@typescript-eslint",
-    "jsx-a11y",
-    "prettier"
-  ],
+  "plugins": ["react", "unused-imports", "import", "@typescript-eslint", "jsx-a11y", "prettier"],
   "rules": {
-    "curly": [
-      "warn",
-      "multi-or-nest"
-    ],
+    "curly": ["warn", "multi-or-nest"],
     "jsx-a11y/click-events-have-key-events": "warn",
     "jsx-a11y/interactive-supports-focus": "warn",
     "jsx-a11y/no-autofocus": "off",
@@ -180,9 +152,7 @@
       {
         "paths": [
           {
-            "importNames": [
-              "useRouter"
-            ],
+            "importNames": ["useRouter"],
             "message": "Import useRouter from '@/i18n/navigation' so navigation flows through the unsaved-changes guard. The only exception is components/entity-detail/hooks/use-entity-drawer-stack.ts, which intentionally uses the raw router for drawer-stack query writes that do not change the page.",
             "name": "next/navigation"
           },
@@ -191,21 +161,12 @@
             "name": "@/components/ui/dialog"
           },
           {
-            "importNames": [
-              "default"
-            ],
+            "importNames": ["default"],
             "message": "Use <AppLink> from '@/components/shared/app-link' for text links, or IntlLink from '@/i18n/navigation' inside styled or asChild wrappers, so internal links keep the active locale (next-intl localePrefix is 'always'). next/link's default Link export is only allowed in components/shared/app-link.tsx, the external-link wrapper; the named useLinkStatus hook is unaffected.",
             "name": "next/link"
           },
           {
-            "importNames": [
-              "Dialog",
-              "AlertDialog",
-              "Popover",
-              "DropdownMenu",
-              "Select",
-              "Tooltip"
-            ],
+            "importNames": ["Dialog", "AlertDialog", "Popover", "DropdownMenu", "Select", "Tooltip"],
             "message": "Import overlay primitives from '@/components/ui/{dialog,alert-dialog,sheet,popover,dropdown-menu,select,tooltip}' so every overlay inherits the shared collision padding, available-width and available-height caps, dynamic-viewport budget and safe-area insets (CUS-60). Raw radix-ui overlay roots are only allowed inside those primitive files. Non-overlay primitives such as Slot, VisuallyHidden, Tabs and Accordion are unrestricted.",
             "name": "radix-ui"
           },

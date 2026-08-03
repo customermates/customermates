@@ -69,7 +69,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
     file: "components/ui/select.tsx",
     mustContain: [
       "max-h-(--radix-select-content-available-height)",
-      "max-w-(--radix-select-content-available-width)",
+      'position = "popper"',
       "collisionPadding",
     ],
   },
@@ -173,6 +173,8 @@ describe("overlay contract", () => {
       expect(css).toContain(`${token}:`);
 
     expect(css).toContain("@supports (height: 1dvh)");
+    expect(css).toContain('[data-slot="select-content"]');
+    expect(css).toContain("--radix-select-content-available-width");
   });
 
   it("sees the expected overlay surface", () => {

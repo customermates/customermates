@@ -115,6 +115,19 @@
   }
 }
 
+/* Select's upstream default position is `item-aligned`, which aligns the chosen option
+   over the trigger and, unlike popper positioning, never publishes
+   --radix-select-content-available-width. A long option therefore sizes the surface past
+   the screen edge with nothing to clamp it: measured at 611px wide on a 320px viewport.
+   Expressed here rather than as a utility because the var() fallback inside min() is not
+   parseable as a Tailwind arbitrary value. */
+[data-slot="select-content"] {
+  max-inline-size: min(
+    var(--radix-select-content-available-width, 100dvw),
+    calc(100dvw - 2 * var(--viewport-gutter))
+  );
+}
+
 :root {
   --radius: 0.5rem;
   --background: #f6f6f8;

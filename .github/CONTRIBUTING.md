@@ -130,6 +130,8 @@ Rules the convention test enforces:
 - **One scroll owner per overlay**, with `min-h-0` on every ancestor between it and the positioned root. A second `max-h` scroller nested inside a modal steals the dialog's own budget.
 - Raw `radix-ui` overlay roots and `cmdk` are importable only inside `components/ui/*`; everything else composes the wrappers.
 
+One deliberate divergence from upstream: `SelectContent` defaults to `position="popper"`, not shadcn's `item-aligned`. Item-aligned performs no inline-axis collision avoidance and never publishes `--radix-select-content-available-width`, so nothing clamps the surface: measured at 611px wide on a 320px viewport, and still 4px past the edge once a width cap was added by hand. Popper lands it fully inside the gutter. `styles/globals.css` keeps a `max-inline-size` floor on `[data-slot="select-content"]` so a call site that opts back into item-aligned still cannot exceed the screen.
+
 `/test/overlays` renders every overlay against long, overflowing, German, long-identifier and many-action fixtures. Cases are deep-linkable (`?case=&content=&actions=&anchor=&state=&safe=`) so a change can be checked at any viewport without clicking.
 
 ## Reporting Issues
