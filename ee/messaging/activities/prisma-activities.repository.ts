@@ -19,34 +19,8 @@ import { threadAccessWhere, calendarEventAccessWhere, accountActivityAccessWhere
 import type { GetActivitiesRepo } from "./get-activities.interactor";
 import type { ActivityThreadOptionsData, ActivityThreadOptionsRepo } from "./get-activity-thread-options.interactor";
 
-import { interpretFilters } from "./timeline-filters";
-
-type SourceFilters = {
-  providers?: string[];
-  threadIds?: string[];
-  threadIdsNotIn?: string[];
-  connectedAccountIdsIn?: string[];
-  connectedAccountIdsNotIn?: string[];
-};
-
-type ChannelWhere = { connectedAccountId?: { in?: string[]; notIn?: string[] } };
-
-function channelWhere(filters: SourceFilters): ChannelWhere {
-  const { connectedAccountIdsIn, connectedAccountIdsNotIn } = filters;
-  if (!connectedAccountIdsIn?.length && !connectedAccountIdsNotIn?.length) return {};
-
-  return {
-    connectedAccountId: {
-      ...(connectedAccountIdsIn?.length ? { in: connectedAccountIdsIn } : {}),
-      ...(connectedAccountIdsNotIn?.length ? { notIn: connectedAccountIdsNotIn } : {}),
-    },
-  };
-}
-
-function providerRelationWhere(providers?: string[]): { connectedAccount?: { provider: { in: MessagingProvider[] } } } {
-  if (!providers?.length) return {};
-  return { connectedAccount: { provider: { in: providers as MessagingProvider[] } } };
-}
+import type { ActivityQuery } from "./timeline-filters";
+import { channelWhere, interpretFilters, providerRelationWhere, providerWhere, threadWhere } from "./timeline-filters";
 
 export abstract class ActivityContactRepo {
   abstract resolveContactIdsForEntityCompanyWide(args: { entityType: EntityType; entityId: string }): Promise<string[]>;
@@ -122,7 +96,7 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   }
 
   async getItems(params: GetQueryParams) {
-    const { sourceFilters, contactIds, emails, entityIds, fetchAudit, fetchMessages, fetchActivities, fetchCalendar } =
+    const { query, contactIds, emails, entityIds, fetchAudit, fetchMessages, fetchActivities, fetchCalendar } =
       await this.plan(params);
 
     const pageSize = params.pagination?.pageSize ?? params.take ?? 100;
@@ -133,9 +107,9 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
 
     const [auditLogs, messages, activities, calendarEvents] = await Promise.all([
       fetchAudit ? this.listAuditLogs(entityIds, fetchN, direction) : [],
-      fetchMessages ? this.listMessages({ contactIds, limit: fetchN, direction, ...sourceFilters }) : [],
-      fetchActivities ? this.listAccountActivities({ contactIds, limit: fetchN, direction, ...sourceFilters }) : [],
-      fetchCalendar ? this.listCalendarEvents({ emails, limit: fetchN, direction, ...sourceFilters }) : [],
+      fetchMessages ? this.listMessages({ query, contactIds, limit: fetchN, direction }) : [],
+      fetchActivities ? this.listAccountActivities({ query, contactIds, limit: fetchN, direction }) : [],
+      fetchCalendar ? this.listCalendarEvents({ query, emails, limit: fetchN, direction }) : [],
     ]);
 
     const myAccountIds = await this.listMySendingAccountIds(
@@ -203,14 +177,14 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
   }
 
   async getCount(params: GetQueryParams) {
-    const { sourceFilters, contactIds, emails, entityIds, fetchAudit, fetchMessages, fetchActivities, fetchCalendar } =
+    const { query, contactIds, emails, entityIds, fetchAudit, fetchMessages, fetchActivities, fetchCalendar } =
       await this.plan(params);
 
     const [audit, messages, activities, calendar] = await Promise.all([
       fetchAudit ? this.countAuditLogs(entityIds) : 0,
-      fetchMessages ? this.countMessages({ contactIds, ...sourceFilters }) : 0,
-      fetchActivities ? this.countAccountActivities({ contactIds, ...sourceFilters }) : 0,
-      fetchCalendar ? this.countCalendarEvents({ emails, ...sourceFilters }) : 0,
+      fetchMessages ? this.countMessages({ query, contactIds }) : 0,
+      fetchActivities ? this.countAccountActivities({ query, contactIds }) : 0,
+      fetchCalendar ? this.countCalendarEvents({ query, emails }) : 0,
     ]);
 
     return audit + messages + activities + calendar;
@@ -238,22 +212,12 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     const kindAllowed = (kind: ActivityKind) =>
       (!query.kindsIn || query.kindsIn.has(kind)) && (!query.kindsNotIn || !query.kindsNotIn.has(kind));
 
-    const sourceFilters: SourceFilters = {
-      providers: query.providers && [...query.providers],
-      threadIds: query.threadIdsIn && [...query.threadIdsIn],
-      threadIdsNotIn: query.threadIdsNotIn && [...query.threadIdsNotIn],
-      connectedAccountIdsIn: query.connectedAccountIdsIn && [...query.connectedAccountIdsIn],
-      connectedAccountIdsNotIn: query.connectedAccountIdsNotIn && [...query.connectedAccountIdsNotIn],
-    };
-
     const channelOrProviderActive = Boolean(
-      sourceFilters.providers?.length ||
-        sourceFilters.connectedAccountIdsIn?.length ||
-        sourceFilters.connectedAccountIdsNotIn?.length,
+      query.providers?.size || query.connectedAccountIdsIn?.size || query.connectedAccountIdsNotIn?.size,
     );
 
     return {
-      sourceFilters,
+      query,
       contactIds,
       emails,
       entityIds,
@@ -285,10 +249,13 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     });
   }
 
-  private async listMessages(
-    args: SourceFilters & { contactIds?: string[]; limit: number; direction: "asc" | "desc" },
-  ) {
-    const { contactIds, providers, threadIds, threadIdsNotIn, direction } = args;
+  private async listMessages(args: {
+    query: ActivityQuery;
+    contactIds?: string[];
+    limit: number;
+    direction: "asc" | "desc";
+  }) {
+    const { query, contactIds, direction } = args;
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
@@ -311,16 +278,9 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         ...scoped,
         companyId: this.companyId,
         thread: threadAccessWhere(this.companyId, this.userId),
-        ...(providers?.length ? { provider: { in: providers as MessagingProvider[] } } : {}),
-        ...channelWhere(args),
-        ...(threadIds?.length || threadIdsNotIn?.length
-          ? {
-              messagingThreadId: {
-                ...(threadIds?.length ? { in: threadIds } : {}),
-                ...(threadIdsNotIn?.length ? { notIn: threadIdsNotIn } : {}),
-              },
-            }
-          : {}),
+        ...providerWhere(query),
+        ...channelWhere(query),
+        ...threadWhere(query),
       },
       orderBy: [{ sentAt: direction }, { id: direction }],
       take: args.limit,
@@ -347,8 +307,8 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     });
   }
 
-  private async countMessages(args: SourceFilters & { contactIds?: string[] }) {
-    const { contactIds, providers, threadIds, threadIdsNotIn } = args;
+  private async countMessages(args: { query: ActivityQuery; contactIds?: string[] }) {
+    const { query, contactIds } = args;
     const scoped: Prisma.MessagingMessageWhereInput = {};
 
     if (contactIds?.length) {
@@ -371,26 +331,22 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         ...scoped,
         companyId: this.companyId,
         thread: threadAccessWhere(this.companyId, this.userId),
-        ...(providers?.length ? { provider: { in: providers as MessagingProvider[] } } : {}),
-        ...channelWhere(args),
-        ...(threadIds?.length || threadIdsNotIn?.length
-          ? {
-              messagingThreadId: {
-                ...(threadIds?.length ? { in: threadIds } : {}),
-                ...(threadIdsNotIn?.length ? { notIn: threadIdsNotIn } : {}),
-              },
-            }
-          : {}),
+        ...providerWhere(query),
+        ...channelWhere(query),
+        ...threadWhere(query),
       },
     });
   }
 
-  private async listAccountActivities(
-    args: SourceFilters & { contactIds?: string[]; limit: number; direction: "asc" | "desc" },
-  ) {
+  private async listAccountActivities(args: {
+    query: ActivityQuery;
+    contactIds?: string[];
+    limit: number;
+    direction: "asc" | "desc";
+  }) {
     if (!this.canAccess(Resource.inboxMessages)) return [];
 
-    const { contactIds, providers, limit, direction } = args;
+    const { query, contactIds, limit, direction } = args;
     const scoped: Prisma.AccountActivityWhereInput = {};
     if (contactIds?.length) {
       const identifiers = await getContactRepo().findContactIdentifierValuesCompanyWide(contactIds);
@@ -404,8 +360,8 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         companyId: this.companyId,
         AND: [
           { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-          providerRelationWhere(providers),
-          channelWhere(args),
+          providerRelationWhere(query),
+          channelWhere(query),
         ],
       },
       orderBy: [{ occurredAt: direction }, { id: direction }],
@@ -420,10 +376,10 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     }));
   }
 
-  private async countAccountActivities(args: SourceFilters & { contactIds?: string[] }) {
+  private async countAccountActivities(args: { query: ActivityQuery; contactIds?: string[] }) {
     if (!this.canAccess(Resource.inboxMessages)) return 0;
 
-    const { contactIds, providers } = args;
+    const { query, contactIds } = args;
     const scoped: Prisma.AccountActivityWhereInput = {};
     if (contactIds?.length) {
       const identifiers = await getContactRepo().findContactIdentifierValuesCompanyWide(contactIds);
@@ -437,27 +393,26 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
         companyId: this.companyId,
         AND: [
           { ...scoped, ...accountActivityAccessWhere(this.companyId, this.userId) },
-          providerRelationWhere(providers),
-          channelWhere(args),
+          providerRelationWhere(query),
+          channelWhere(query),
         ],
       },
     });
   }
 
-  private async listCalendarEvents(
-    args: SourceFilters & { emails?: string[]; limit: number; direction: "asc" | "desc" },
-  ) {
-    const { emails, providers, limit, direction } = args;
+  private async listCalendarEvents(args: {
+    query: ActivityQuery;
+    emails?: string[];
+    limit: number;
+    direction: "asc" | "desc";
+  }) {
+    const { query, emails, limit, direction } = args;
     if (emails && emails.length === 0) return [];
 
     const rows = await this.prisma.calendarEvent.findMany({
       where: {
         companyId: this.companyId,
-        AND: [
-          calendarEventAccessWhere(this.companyId, this.userId),
-          providerRelationWhere(providers),
-          channelWhere(args),
-        ],
+        AND: [calendarEventAccessWhere(this.companyId, this.userId), providerRelationWhere(query), channelWhere(query)],
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
       include: { connectedAccount: { select: { provider: true } } },
@@ -473,18 +428,14 @@ export class PrismaActivitiesRepo extends BaseRepository implements GetActivitie
     }));
   }
 
-  private countCalendarEvents(args: SourceFilters & { emails?: string[] }) {
-    const { emails, providers } = args;
+  private countCalendarEvents(args: { query: ActivityQuery; emails?: string[] }) {
+    const { query, emails } = args;
     if (emails && emails.length === 0) return Promise.resolve(0);
 
     return this.prisma.calendarEvent.count({
       where: {
         companyId: this.companyId,
-        AND: [
-          calendarEventAccessWhere(this.companyId, this.userId),
-          providerRelationWhere(providers),
-          channelWhere(args),
-        ],
+        AND: [calendarEventAccessWhere(this.companyId, this.userId), providerRelationWhere(query), channelWhere(query)],
         ...(emails?.length ? { attendeeEmails: { hasSome: emails } } : {}),
       },
     });
