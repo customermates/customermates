@@ -344,6 +344,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
 
   loadTemplate = async (widgetId: string) => {
     this.setIsLoading(true);
+    runInAction(() => {
+      this.isHydrating = true;
+    });
 
     try {
       const widget = await getWidgetByIdAction({ id: widgetId });
@@ -381,6 +384,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       }
     } finally {
       this.setIsLoading(false);
+      runInAction(() => {
+        this.isHydrating = false;
+      });
     }
   };
 
