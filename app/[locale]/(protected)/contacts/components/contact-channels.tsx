@@ -69,7 +69,7 @@ export const ContactChannels = observer(({ contactId, emptyHint }: Props) => {
         )}
       </div>
 
-      {identifiers.length === 0 && !canEditChannels && (
+      {contactId && identifiers.length === 0 && !canEditChannels && (
         <p className="text-muted-foreground text-xs italic">{emptyHint ?? t("EntityChannels.emptyHint")}</p>
       )}
 
