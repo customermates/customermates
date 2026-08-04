@@ -27,6 +27,7 @@ vi.mock("next/headers", () => ({
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
+  getLocale: () => Promise.resolve("en"),
 }));
 
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -69,7 +70,7 @@ describe("ReconnectConnectedAccountInteractor", () => {
 
     expect(messagingService.createReconnectAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
+        redirectUri: "https://feat-inbox.customermates.com/en/profile/connected-accounts",
       }),
     );
   });

@@ -5,7 +5,7 @@ import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscriptio
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Action, Resource, SubscriptionPlan } from "@/generated/prisma";
 
@@ -16,6 +16,7 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { redirectTo } from "@/features/auth/auth-outcome";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 import { signHostedAuthState } from "../webhook-signature";
@@ -73,7 +74,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     const entry: { providers: readonly string[]; config?: Record<string, unknown> } = CONNECT_CHANNELS[data.channel];
     const link = await this.messagingService.createAuthLink({
       providers: [...entry.providers],
-      redirectUri: `${baseUrl}/profile/connected-accounts`,
+      redirectUri: `${baseUrl}/${appLocaleOrDefault(await getLocale())}/profile/connected-accounts`,
       expiresOn,
       state,
       ...(entry.config ? { config: entry.config } : {}),

@@ -3,6 +3,7 @@ import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
 import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
 import { Resource, Action, SubscriptionPlan } from "@/generated/prisma";
 
 import type { Subscription } from "@/generated/prisma";
@@ -14,6 +15,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 import { planToVariant } from "./subscription.service";
@@ -46,7 +48,7 @@ export class CreateCheckoutSessionInteractor {
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
     const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-    const redirectUrl = `${baseUrl}/company/subscription`;
+    const redirectUrl = `${baseUrl}/${appLocaleOrDefault(await getLocale())}/company/subscription`;
 
     const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
       variantId: planToVariant(data.plan),

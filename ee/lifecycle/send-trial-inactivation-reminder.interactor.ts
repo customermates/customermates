@@ -29,7 +29,7 @@ export class SendTrialInactivationReminderInteractor {
       if (!claimed) continue;
 
       const locale = resolveUserLocale(user);
-      const contactHref = `${env.BASE_URL}/contact`;
+      const contactHref = `${env.BASE_URL}/${locale}/contact`;
       const t = await getTranslator(locale, "TrialInactivationReminder");
 
       await this.emailService.send({

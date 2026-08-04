@@ -76,10 +76,9 @@ export class DeleteAccountsForPlanInteractor {
     const accountsLabel = removedAccounts
       .map((account) => `${account.provider} (${account.displayName ?? account.emailAddress ?? account.id})`)
       .join(", ");
-    const href = `${env.BASE_URL}/profile/connected-accounts`;
-
     for (const admin of admins) {
       const locale = resolveUserLocale(admin);
+      const href = `${env.BASE_URL}/${locale}/profile/connected-accounts`;
       const t = await getTranslator(locale, "AccountsRemovedNotice");
 
       await this.emailService.send({
