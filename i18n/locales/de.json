@@ -18,7 +18,7 @@
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Datum wählen",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
-    "keyWarning": "Kopieren Sie diesen Schlüssel jetzt. Sie können ihn später nicht mehr sehen. Der Schlüssel sollte nur mit Vorsicht verwendet werden, da andere sich als Sie ausgeben könnten, wenn der Schlüssel verloren geht.",
+    "keyWarning": "Kopiere diesen Schlüssel jetzt. Später kannst du ihn nicht mehr sehen. Verwende den Schlüssel nur mit Vorsicht, denn wer ihn besitzt, kann sich als du ausgeben.",
     "quickDescription": "Wähle deine KI. Wir zeigen dir nur die Einrichtung, die sie benötigt.",
     "quickTitle": "Schnellverbindungen",
     "standardDescription": "Wähle einen Namen und optional ein Ablaufdatum.",
@@ -36,7 +36,7 @@
     "deletedFieldChanged": "Ein Feld wurde geändert, das inzwischen gelöscht wurde.",
     "emptyHistory": "Kein Änderungsverlauf für diesen Eintrag verfügbar.",
     "entity": "Element",
-    "entityId": "Elements-ID",
+    "entityId": "Element-ID",
     "event": "Ereignis",
     "eventAt": "{event} am {date}",
     "eventData": "Ereignisdaten",
@@ -147,7 +147,7 @@
       "mainContent": "Hauptinhalt",
       "navigation": "Navigation",
       "nothingFound": "Nichts gefunden",
-      "openMenu": "Öffnen Sie das Menü",
+      "openMenu": "Menü öffnen",
       "profileActions": "Profilaktionen",
       "profileAndActions": "Profil & Aktionen",
       "selectOption": "Option auswählen",
@@ -164,7 +164,7 @@
       "tooltipSort": "Sortieren"
     },
     "avatarUrl": "Profilbild",
-    "avatarUrlDescription": "Geben Sie optional einen Link zu einem Bild ein, das als Ihr Avatar verwendet wird. Das Bild sollte öffentlich zugänglich sein.",
+    "avatarUrlDescription": "Gib optional einen Link zu einem Bild ein, das als dein Avatar verwendet wird. Das Bild sollte öffentlich zugänglich sein.",
     "backToProdCta": "Zurück zur Startseite",
     "benjamin": {
       "name": "Benjamin Wagner",
@@ -182,7 +182,7 @@
     "country": "Land",
     "currency": "Währung",
     "customColumn": {
-      "deleteMessage": "Sind Sie sicher, dass Sie diese Spalte löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteMessage": "Möchtest du diese Spalte wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "deleteTitle": "Spalte löschen"
     },
     "customColumnTypes": {
@@ -190,12 +190,12 @@
       "date": "Datum",
       "dateRange": "Datumsbereich",
       "dateTime": "Datum & Uhrzeit",
-      "dateTimeRange": "Datum & Uhrzeit Bereich",
+      "dateTimeRange": "Datums- und Uhrzeitbereich",
       "email": "E-Mail",
       "link": "Link",
       "phone": "Telefon",
       "plain": "Text",
-      "singleSelect": "Einfache Auswahl"
+      "singleSelect": "Einzelauswahl"
     },
     "dark": "Dunkel",
     "datePresets": {
@@ -252,8 +252,8 @@
       }
     },
     "deleteConfirmation": {
-      "message": "Sind Sie sicher, dass Sie dieses Element löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "messageWithName": "Sind Sie sicher, dass Sie \"{name}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "message": "Möchtest du dieses Element wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "messageWithName": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "title": "Löschung bestätigen"
     },
     "email": "E-Mail",
@@ -275,7 +275,7 @@
     "errors": {
       "activityScopeRequiresBoth": "entityType und entityId müssen zusammen angegeben werden, um auf einen Datensatz einzugrenzen.",
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
-      "assigneeRequired": "Sie müssen sich diesem Element zuweisen. Bitte beachten Sie, dass Sie nur Elemente sehen können, die Ihnen zugewiesen sind.",
+      "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
@@ -305,7 +305,7 @@
       "generic": "Ein Fehler ist aufgetreten.",
       "inmailSignatureRequired": "Füge eine Signatur für die Recruiter-InMail hinzu.",
       "inmailSubjectRequired": "Füge einen Betreff für die InMail hinzu.",
-      "invalidChannelValue": "Das ist keine gültige E-Mail-Adresse, Telefonnummer oder ein gültiger Benutzername.",
+      "invalidChannelValue": "Das ist keine gültige E-Mail-Adresse, keine Telefonnummer und kein gültiges Handle.",
       "invalidCredentials": "Ungültige E-Mail-Adresse oder Passwort.",
       "invalidFilterField": "Filterfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidFilterOperator": "Der Operator '{operator}' ist für das Feld '{field}' nicht erlaubt. Erlaubte Operatoren: {validValues}.",
@@ -327,7 +327,7 @@
       "roleSystemRequired": "Mindestens ein Nutzer muss Systemadministrator sein.",
       "salesNavigatorNotAvailable": "Dieses LinkedIn-Konto hat Sales Navigator nicht verbunden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator braucht ein verbundenes LinkedIn-Konto, dieses Konto ist aber {provider}.",
-      "sendEmailTargetRequired": "Wählen Sie eine Konversation oder ein Konto zum Senden aus.",
+      "sendEmailTargetRequired": "Wähle eine Konversation oder ein Konto zum Senden aus.",
       "serviceNotFound": "Service-ID nicht gefunden oder nicht zugänglich.",
       "socialActionRequiresSocialAccount": "Diese Aktion braucht ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "socialPostsRequireSocialAccount": "Für Social-Posts brauchst du ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
@@ -335,8 +335,8 @@
       "taskNameCannotBeChangedForSystemTasks": "Der Name kann für Systemaufgaben nicht geändert werden.",
       "taskNotFound": "Aufgaben-ID nicht gefunden oder nicht zugänglich.",
       "taskOnlyCustomTasksCanBeDeleted": "Nur benutzerdefinierte Aufgaben können gelöscht werden.",
-      "terminologyInvalidPreset": "Wähle eine der verfügbaren Namensvorlagen.",
-      "termsNotAgreed": "Sie müssen den Allgemeinen Geschäftsbedingungen zustimmen.",
+    "terminologyInvalidPreset": "Wähle eine der verfügbaren Namensvorlagen.",
+    "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Bitte erneut verbinden.",
       "unipileInvalidRequest": "Der Anbieter hat die Anfrage als ungültig abgelehnt. Bitte Empfänger-Kennungen und Nachrichtenparameter prüfen.",
@@ -350,14 +350,14 @@
       "webhookCreateFieldsRequired": "URL und Ereignisse sind zum Erstellen eines Webhooks erforderlich.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
-      "widgetDealAggregationNotAllowedForTask": "Deal-Aggregationstypen sind für den Elementstyp Aufgabe nicht erlaubt.",
-      "widgetDealFiltersNotAllowedForDealEntityType": "Deal-Filter sind nicht erlaubt, wenn der Elementstyp Deal ist.",
-      "widgetDealQuantityOnlyForService": "Deal-Mengen-Aggregation ist nur für den Elementstyp Service erlaubt.",
+      "widgetDealAggregationNotAllowedForTask": "Deal-Aggregationstypen sind für den Elementtyp Aufgabe nicht erlaubt.",
+      "widgetDealFiltersNotAllowedForDealEntityType": "Deal-Filter sind nicht erlaubt, wenn der Elementtyp Deal ist.",
+      "widgetDealQuantityOnlyForService": "Deal-Mengen-Aggregation ist nur für den Elementtyp Service erlaubt.",
       "widgetGroupByCustomColumnIdRequired": "Benutzerdefinierte Spalten-ID ist erforderlich, wenn nach benutzerdefinierter Spalte gruppiert wird.",
-      "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach Elementstyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
-      "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementstyp des Diagramms übereinstimmen.",
+      "widgetGroupByEntityTypeNotAllowedForCount": "Gruppierung nach dem Elementtyp selbst ist nicht erlaubt, wenn der Aggregationstyp Anzahl ist.",
+      "widgetGroupByTypeMustMatchEntityType": "Gruppierungstyp muss mit dem Elementtyp des Diagramms übereinstimmen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementstypen."
+      "widgetTaskCanOnlyGroupByCustomColumn": "Aufgaben können nur nach benutzerdefinierten Spalten gruppiert werden, nicht nach Elementtypen."
     },
     "events": {
       "company": {
@@ -505,9 +505,9 @@
       "presets": {
         "add": "Als Preset speichern…",
         "cancelEditing": "Abbrechen",
-        "clearPreset": "Preset löschen",
+        "clearPreset": "Preset zurücksetzen",
         "createOrUpdate": "Preset erstellen oder bearbeiten",
-        "deleteConfirm": "Möchten Sie diesen gespeicherten Filter wirklich löschen?",
+        "deleteConfirm": "Möchtest du diesen gespeicherten Filter wirklich löschen?",
         "label": "Preset",
         "namePlaceholder": "Preset-Name",
         "new": "+ Neuen Filter speichern",
@@ -524,7 +524,7 @@
       "background": "Hintergrundmuster",
       "countryFlag": "Flagge von {country}",
       "feature": "Feature-Illustration für {feature}",
-      "hero": "Hero-Bild für {page}",
+      "hero": "Titelbild für {page}",
       "logo": "Customermates Logo",
       "mission": "Missions-Illustration für {mission}",
       "providerIcon": "{provider} Anmelde-Icon"
@@ -538,7 +538,7 @@
       "amount": "Betrag",
       "apiKey": "API-Schlüssel",
       "assignedUserId": "Zugewiesener Benutzer",
-      "avatarUrl": "Avatar URL",
+      "avatarUrl": "Avatar-URL",
       "company": "Unternehmen",
       "confirmEmail": "E-Mail bestätigen",
       "confirmPassword": "Passwort bestätigen",
@@ -574,7 +574,7 @@
       "formattingLocale": "Formatierungssprache",
       "groupByValue": "Gruppierung",
       "inviteLink": "Einladungslink",
-      "isTemplate": "Als Vorlage für andere Nutzer Ihrer Organisation freigeben",
+      "isTemplate": "Als Vorlage für andere Benutzer deiner Organisation freigeben",
       "label": "Bezeichnung",
       "lastName": "Nachname",
       "message": "Nachricht",
@@ -666,7 +666,7 @@
     "multiple": "Mehrere",
     "name": "Name",
     "navigationGuard": {
-      "message": "Sie haben nicht gespeicherte Änderungen. \nSind Sie sicher, dass Sie diese Seite verlassen möchten? \nIhre Änderungen gehen verloren.",
+      "message": "Du hast nicht gespeicherte Änderungen. \nMöchtest du diese Seite wirklich verlassen? \nDeine Änderungen gehen verloren.",
       "title": "Nicht gespeicherte Änderungen"
     },
     "none": "Keine",
@@ -688,7 +688,7 @@
       "whatsapp": "WhatsApp"
     },
     "role": "Rolle",
-    "single": "Einzel",
+    "single": "Einzeln",
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
@@ -697,8 +697,8 @@
     },
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Bitte genehmigen Sie den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen.",
-        "description": "Ein Benutzer hat Ihre Einladung angenommen. Bitte genehmigen Sie den Benutzer, um die Einladung zu akzeptieren.",
+        "alert": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Genehmige den Benutzer in den <link>Unternehmenseinstellungen</link>, um diese Aufgabe zu lösen.",
+        "description": "Ein Benutzer hat deine Einladung angenommen. Genehmige den Benutzer, um die Einladung zu akzeptieren.",
         "title": "Benutzer genehmigen"
       }
     },
@@ -723,7 +723,7 @@
         "enabled": "Aktiviert",
         "endDate": "Enddatum",
         "entity": "Element",
-        "entityId": "Elements-ID",
+        "entityId": "Element-ID",
         "event": "Ereignis",
         "events": "Ereignisse",
         "expiresAt": "Läuft ab",
@@ -751,8 +751,8 @@
         "team": "Team",
         "title": "Titel",
         "total": "Gesamt",
-        "totalQuantity": "Service Anzahl",
-        "totalValue": "Geschäftswert",
+        "totalQuantity": "Service-Anzahl",
+        "totalValue": "Deal-Wert",
         "type": "Typ",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
@@ -770,7 +770,7 @@
       "search": "Suchen...",
       "ungrouped": "Nicht gruppiert"
     },
-    "theme": "Thema",
+    "theme": "Darstellung",
     "themes": {
       "dark": "Dunkel",
       "light": "Hell",
@@ -826,9 +826,9 @@
     "subject": "Tritt deinem Team auf Customermates bei"
   },
   "CompanyInviteModal": {
-    "description": "Teilen Sie diesen Link mit Benutzern, die Sie zu Ihrem Unternehmen einladen möchten.",
+    "description": "Teile diesen Link mit Benutzern, die du zu deinem Unternehmen einladen möchtest.",
     "expiresAt": "Läuft am {date} ab.",
-    "generating": "Link generieren ...",
+    "generating": "Link wird generiert…",
     "label": "Einladungslink",
     "title": "Benutzer einladen"
   },
@@ -836,11 +836,11 @@
     "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}."
   },
   "CompanyUserModal": {
-    "activeUserWarning": "Sie können Ihr eigenes Benutzerkonto in Ihren <settingsLink>Einstellungen</settingsLink> bearbeiten.",
+    "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
     "title": "Benutzer"
   },
   "ConnectedAccountsCard": {
-    "accountLimitReached": "Business umfasst 3 verbundene Konten pro Nutzer. Kontaktieren Sie uns für unbegrenzte Konten im Enterprise-Tarif.",
+    "accountLimitReached": "Business umfasst 3 verbundene Konten pro Nutzer. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
     "alreadyExistsToastTitle": "Konto bereits verbunden",
     "channels": {
@@ -855,7 +855,7 @@
     "connectedAt": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
-    "description": "Verbinde die Kanäle, aus denen deine Inbox Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
+    "description": "Verbinde die Kanäle, aus denen dein Posteingang Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "disconnect": "Trennen",
     "disconnectedToastDescription": "Dieses Konto ist beim Anbieter nicht mehr verbunden. Verbinde es mit deinen aktuellen Anmeldedaten neu.",
     "disconnectedToastTitle": "Konto getrennt",
@@ -873,7 +873,7 @@
     "invalidCredentialsToastTitle": "Ungültige Anmeldedaten",
     "lastSynced": "Zuletzt synchronisiert",
     "messagingRequiresCloud": "Messaging ist in Customermates Cloud verfügbar (ab dem Pro-Tarif).",
-    "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Aktualisiere dein Abo, um einen Kanal zu verbinden.",
+    "messagingRequiresPro": "Messaging erfordert den Pro-Tarif oder höher. Führe ein Upgrade durch, um einen Kanal zu verbinden.",
     "ownerLabel": "Besitzer",
     "paidSubscriptionRequired": "Das Verbinden von Kanälen erfordert ein aktives Abonnement oder eine noch nicht abgelaufene Testphase.",
     "provider": "Anbieter",
@@ -889,8 +889,8 @@
     "sharedOnToast": "Konto mit deinem Workspace geteilt",
     "status": "Status",
     "statusLabels": {
-      "connecting": "Verbinde",
-      "credentials": "Erneut verbinden",
+      "connecting": "Wird verbunden",
+      "credentials": "Erneute Verbindung nötig",
       "deleted": "Gelöscht",
       "error": "Fehler",
       "ok": "Verbunden",
@@ -900,7 +900,7 @@
     "subTypeBoth": "E-Mail & Kalender",
     "subTypeCalendar": "Kalender",
     "subTypeEmail": "E-Mail",
-    "syncing": "Synchronisiert im Hintergrund",
+    "syncing": "Wird im Hintergrund synchronisiert",
     "syncingTooltip": "Nachrichten, E-Mails und Kalendereinträge dieses Kontos werden im Hintergrund importiert. Das dauert in der Regel wenige Minuten, bei großen Konten bis zu einer Stunde. Du kannst währenddessen normal weiterarbeiten; neue Aktivitäten erscheinen, sobald sie eingehen.",
     "title": "Kanäle",
     "upgradeToBusinessForMoreAccounts": "Du hast die im Pro-Tarif enthaltenen verbundenen Konten erreicht. Wechsle zu Business, um weitere zu verbinden.",
@@ -937,7 +937,7 @@
       "messagePlaceholder": "Woran arbeitest du und wie kann ich helfen?",
       "submit": "Nachricht senden",
       "successBody": "Ich melde mich unter der angegebenen E‑Mail, meist innerhalb von 24 Stunden.",
-      "successCta": "Weitere senden",
+      "successCta": "Weitere Nachricht senden",
       "successTitle": "Danke, Nachricht erhalten.",
       "successToast": "Danke, Nachricht erhalten. Ich melde mich bald."
     },
@@ -997,18 +997,18 @@
       "service": "Service"
     },
     "horizontal": "Horizontal anzeigen",
-    "isTemplate": "Als Vorlage für andere Nutzer Ihrer Organisation freigeben",
+    "isTemplate": "Als Vorlage für andere Benutzer deiner Organisation freigeben",
     "limit": "Max. Anzahl an Einträgen",
     "reverseXAxis": "X-Achse umkehren",
     "reverseYAxis": "Y-Achse umkehren",
     "selectWidgetTemplate": "Diagramm-Vorlage",
     "selectWidgetTemplateDescription": "Du kannst existierende Diagramme von Mitgliedern deiner Organisationen auswählen und diese als Vorlage für dein neues Diagramm verwenden.",
-    "startDate": "Start Datum",
+    "startDate": "Startdatum",
     "tabs": {
       "config": "Konfiguration",
       "dealFilters": "Filter für {deals}",
       "display": "Darstellung",
-      "filters": "{entityType} Filter"
+      "filters": "{entityType}-Filter"
     },
     "ungrouped": "Ungruppiert",
     "widget": "Diagramm",
@@ -1021,7 +1021,7 @@
       },
       "value": {
         "description": "Zeigt den gesamten Geldwert dealbezogener Services pro Zeitraum. Werte werden anhand deiner Gruppierung (z. B. Organisation, Kontakt, Service oder benutzerdefinierte Spalte) aggregiert.",
-        "short": "Deal-Geschäftswert über Zeit"
+        "short": "Dealwert über Zeit"
       }
     }
   },
@@ -1048,7 +1048,7 @@
     "copyMcpConfig": "MCP-Config kopieren",
     "copyPage": "Seite kopieren",
     "englishOnlyAlert": "Die technische API-Endpunkt-Dokumentation ist nur auf Englisch verfügbar. Dies liegt daran, dass API-Dokumentation präzise technische Terminologie und Konsistenz mit Industriestandards erfordert.",
-    "liveDataAlert": "Das Ausführen von Operationen im API-Playground wirkt sich auf Ihre Live-Daten aus.",
+    "liveDataAlert": "Das Ausführen von Operationen im API-Playground wirkt sich auf deine Live-Daten aus.",
     "markdownCopied": "Seite in die Zwischenablage kopiert.",
     "mcpCommandCopied": "MCP-Command in die Zwischenablage kopiert.",
     "mcpConfigCopied": "MCP-Config in die Zwischenablage kopiert.",
@@ -1072,7 +1072,7 @@
     "connectConnector": "Custom Connector",
     "connectYourAi": "KI verbinden",
     "filterSyntax": "Filter-Syntax",
-    "getStarted": "Get Started",
+    "getStarted": "Einstieg",
     "gettingStarted": "Erste Schritte",
     "goBack": "Zurück",
     "integrations": "Integrationen",
@@ -1111,8 +1111,8 @@
   },
   "EmailVerification": {
     "notVerified": "E-Mail nicht verifiziert",
-    "resend": "Verifizierungsemail erneut senden",
-    "resendSuccess": "Verifizierungsemail wurde gesendet.",
+    "resend": "Verifizierungs-E-Mail erneut senden",
+    "resendSuccess": "Verifizierungs-E-Mail wurde gesendet.",
     "verified": "E-Mail verifiziert"
   },
   "EntityChannels": {
@@ -1257,9 +1257,9 @@
     "contactSupport": "Keine Sorge, wir wurden automatisch über dieses Problem benachrichtigt und kümmern uns bereits darum. Wenn du sofortige Hilfe benötigst, kannst du dich gerne an unser Support-Team wenden.",
     "ctaLabel": "Zurück zur Startseite",
     "demoModeError": "Speichern, Löschen und Ändern von Daten ist im Demo-Modus nicht verfügbar. <link>Jetzt kostenlos starten</link>, um auf alle Funktionen zuzugreifen.",
-    "inactiveUser": "Ihr Konto ist derzeit inaktiv. Bitte kontaktieren Sie Ihren Administrator, um Ihr Konto zu reaktivieren.",
-    "invalidInviteLink": "Der Einladungslink, den Sie verwendet haben, ist ungültig oder möglicherweise manipuliert. Bitte kontaktieren Sie Ihren Administrator, um einen neuen, gültigen Einladungslink zu erhalten, damit Sie Ihre Registrierung fortsetzen können.",
-    "inviteLinkExpired": "Der Einladungslink, den Sie verwendet haben, ist abgelaufen und kann nicht mehr verwendet werden. Bitte kontaktieren Sie Ihren Administrator und fragen Sie sie, einen neuen, gültigen Einladungslink für Sie zu generieren, damit Sie Ihre Kontoeinrichtung abschließen können.",
+    "inactiveUser": "Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren.",
+    "invalidInviteLink": "Der Einladungslink, den du verwendet hast, ist ungültig oder wurde möglicherweise manipuliert. Kontaktiere deinen Administrator, um einen neuen, gültigen Einladungslink zu erhalten und deine Registrierung fortzusetzen.",
+    "inviteLinkExpired": "Der Einladungslink, den du verwendet hast, ist abgelaufen und kann nicht mehr verwendet werden. Kontaktiere deinen Administrator und bitte ihn, einen neuen Einladungslink für dich zu erstellen, damit du deine Kontoeinrichtung abschließen kannst.",
     "retry": "Erneut versuchen",
     "subtitle": "Ups! Etwas ist schiefgelaufen",
     "title": "Das ist jetzt peinlich",
@@ -1267,12 +1267,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Unbehandelte Würfe im Browser-Code. Im Dev-Modus fängt das Next.js-Error-Overlay sie ab; in Produktion landen sie via globalem Handler des Browser-SDK in Sentry und im UnexpectedErrorToaster.",
+      "description": "Nicht abgefangene Ausnahmen im Browser-Code. Im Dev-Modus fängt das Next.js-Error-Overlay sie ab; in Produktion landen sie via globalem Handler des Browser-SDK in Sentry und im UnexpectedErrorToaster.",
       "title": "Client-seitig",
       "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
-      "description": "Server-Action wirft → wird von onRequestError in instrumentation.ts gefangen → an Sentry gemeldet.",
+      "description": "Server-Action wirft einen Fehler → wird von onRequestError in instrumentation.ts abgefangen → an Sentry gemeldet.",
       "title": "Server-Action",
       "triggerServerError": "Server-Action-Fehler werfen"
     },
@@ -1287,13 +1287,13 @@
   },
   "FAQSection": {
     "contactCta": "Kontakt aufnehmen →",
-    "contactIntro": "Nichts passendes gefunden?",
+    "contactIntro": "Nichts Passendes gefunden?",
     "label": "FAQ"
   },
   "feedback": {
     "general": {
-      "description": "Ihr Feedback hilft uns, besser zu werden. Teilen Sie Ideen, melden Sie Probleme oder sagen Sie uns, was gut funktioniert, damit wir ein besseres Produkt für Sie bauen können.",
-      "title": "Teilen Sie Ihr Feedback"
+      "description": "Dein Feedback hilft uns, besser zu werden. Teile Ideen, melde Probleme oder sag uns, was gut läuft, damit wir ein besseres Produkt für dich bauen können.",
+      "title": "Teile dein Feedback"
     },
     "success": "Feedback erhalten. Du bist offiziell Teil der Build-Crew."
   },
@@ -1367,10 +1367,10 @@
       "featureUsers": "Unbegrenzte Nutzer",
       "period": "für immer",
       "price": "Kostenlos",
-      "tag": "Auf Ihrem Server mit Docker Compose. AGPL-Community-Edition mit quellverfügbaren kommerziellen Komponenten.",
+      "tag": "Auf deinem Server mit Docker Compose. AGPL-Community-Edition mit quellverfügbaren kommerziellen Komponenten.",
       "title": "Self-Hosted"
     },
-    "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-host für immer kostenlos, oder starte mit der Cloud ohne Kreditkarte.",
+    "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-Hosting ist für immer kostenlos, oder starte ohne Kreditkarte in der Cloud.",
     "title": "Einfach, ehrlich, europäisch"
   },
   "HomepageStatsRow": {
@@ -1420,7 +1420,7 @@
       "send": "Senden",
       "sendAs": "Senden als",
       "sending": "Wird gesendet…",
-      "sendQueuedDescription": "Dein Anbieter versendet sie gerade. Sobald der Versand bestätigt ist, erscheint sie im Postfach.",
+      "sendQueuedDescription": "Dein Anbieter versendet sie gerade. Sobald der Versand bestätigt ist, erscheint sie in deinem Posteingang.",
       "sendQueuedTitle": "Nachricht in Warteschlange",
       "subjectPlaceholder": "Betreff",
       "toLabel": "An",
@@ -1463,11 +1463,11 @@
     "previewUnsupported": "💬 Nicht unterstützte Nachricht",
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Sprachnachricht",
-    "rateLimited": "Das Rate-Limit dieses Kanals wurde erreicht. Erneut versuchen ist {retryAfter} möglich.",
+    "rateLimited": "Das Rate-Limit dieses Kanals wurde erreicht. Du kannst es {retryAfter} erneut versuchen.",
     "refresh": "Aktualisieren",
-    "refreshDone": "Postfach aktualisiert.",
+    "refreshDone": "Posteingang aktualisiert.",
     "refreshRateLimited": "Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.",
-    "resyncThread": "Konversation synchronisieren",
+    "resyncThread": "Konversation neu synchronisieren",
     "resyncThreadDone": "Konversation aktualisiert",
     "resyncThreadFailed": "Konversation konnte nicht aktualisiert werden",
     "selectThread": "Wähle eine Konversation aus dem Posteingang",
@@ -1479,7 +1479,7 @@
       "title": "Unterhaltungseinstellungen",
       "tooltip": "Sichtbarkeit und Personen verwalten",
       "visibility": "Sichtbarkeit",
-      "visibilityHint": "Private Unterhaltungen sind nur für dich sichtbar. Im CRM teilen macht nur diese Unterhaltung für dein ganzes Team sichtbar.",
+      "visibilityHint": "Private Konversationen sind nur für dich sichtbar. Im CRM teilen macht nur diese Konversation für dein ganzes Team sichtbar.",
       "visibilityTitle": "Sichtbarkeitseinstellungen"
     },
     "shareToCrmActive": "Im CRM geteilt, für dein ganzes Team sichtbar",
@@ -1559,7 +1559,7 @@
   },
   "McpConsentCard": {
     "approve": "Zulassen",
-    "body": "{client} fordert Zugriff auf dein Customermates Konto an. Bestätige nur, wenn du diese Verbindung selbst gestartet hast.",
+    "body": "{client} fordert Zugriff auf dein Customermates-Konto an. Lass den Zugriff nur zu, wenn du diese Verbindung selbst gestartet hast.",
     "deny": "Ablehnen",
     "destination": "Verbindungsziel: {host}",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut oder starte die Verbindung in deinem Client neu.",
@@ -1573,7 +1573,7 @@
     "title": "Zugriff autorisieren"
   },
   "MessagingUpsell": {
-    "cta": "Abo aktualisieren",
+    "cta": "Tarif upgraden",
     "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt die gemeinsame Inbox.",
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
@@ -1583,6 +1583,8 @@
     "addPickerTitle": "Neu anlegen…",
     "affiliate": "Affiliate Programm",
     "apiDocs": "API Dokumentation",
+    "affiliate": "Affiliate-Programm",
+    "apiDocs": "API-Dokumentation",
     "automation": "Automatisierung",
     "blog": "Blog",
     "connectedAccounts": "Kanäle",
@@ -1822,7 +1824,7 @@
     "picker": {
       "features": {
         "business": ["Alles aus Pro", "3 verbundene Konten pro Nutzer", "Geteilte Konten und priorisierter Support"],
-        "pro": ["Alles aus Starter", "Gemeinsamer Posteingang", "1 verbundenes Konto pro Nutzer"],
+        "pro": ["Alles aus Starter", "Zentraler Posteingang", "1 verbundenes Konto pro Nutzer"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
           "Audit-Log",
@@ -1849,7 +1851,7 @@
     "quantity": "Aktive Plätze",
     "refresh": "Aktualisieren",
     "refreshSuccess": "Abonnement erfolgreich aktualisiert",
-    "seatBillingNote": "Sie zahlen pro aktivem Nutzer. Änderungen an den Plätzen werden anteilig mit der nächsten Rechnung verrechnet.",
+    "seatBillingNote": "Du zahlst pro aktivem Nutzer. Änderungen an den Plätzen werden anteilig mit der nächsten Rechnung verrechnet.",
     "status": {
       "active": "Aktiv",
       "cancelled": "Gekündigt",
@@ -1873,7 +1875,7 @@
     "cta": "Kontakt aufnehmen",
     "dismiss": "Falls diese E-Mail Sie gerade zu einem ungünstigen Zeitpunkt erreicht, antworten Sie einfach später und ich helfe Ihnen bei den nächsten Schritten.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Ihr Konto ist inaktiv - wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
@@ -1885,20 +1887,20 @@
     "systemTaskTooltip": "Vom System verwaltet: {task}. Der Eintrag kann nicht manuell gelöscht werden. Öffne ihn für weitere Informationen."
   },
   "TrialExpiredOffer": {
-    "body": "Ihr Testzeitraum ist vor Kurzem abgelaufen, aber ich möchte Sie gerne weiter begleiten. Wenn Sie möchten, verlängere ich den Test und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",
+    "body": "Ihre Testphase ist vor Kurzem abgelaufen, aber ich helfe Ihnen gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn Sie möchten, verlängere ich Ihre Testphase und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",
     "cta": "Kontakt aufnehmen",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Mehr Zeit nötig? Wir machen gemeinsam weiter",
     "title": "Angebot zur Testverlängerung"
   },
   "TrialInactivationNotice": {
-    "body": "Ihr Konto ist jetzt inaktiv, weil Ihr Test vor mehr als 6 Tagen geendet hat. Wenn Sie weitermachen möchten, helfe ich Ihnen gerne bei der schnellen Reaktivierung.",
+    "body": "Ihr Konto ist jetzt inaktiv, weil Ihr Testzeitraum vor mehr als 6 Tagen abgelaufen ist. Wenn Sie doch noch weitermachen möchten, helfe ich Ihnen gerne bei der schnellen Reaktivierung und begleite Sie bei den nächsten Schritten.",
     "cta": "Kontakt aufnehmen",
     "dismiss": "Falls es gerade nicht passt, kein Problem. Sie können jederzeit zurückkommen und ich helfe Ihnen persönlich.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Ihr Konto ist inaktiv - wir helfen beim Neustart",
     "title": "Konto inaktiv gesetzt"
@@ -1908,7 +1910,7 @@
     "cta": "Kontakt aufnehmen",
     "dismiss": "Wenn Sie Ihr Konto nicht mehr benötigen, ist keine Aktion erforderlich.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Noch 3 Tage bis zur Inaktivierung Ihres Kontos",
     "title": "Erinnerung zur Inaktivierung"
@@ -1946,16 +1948,16 @@
     "subject": "E-Mail bestätigen"
   },
   "VerifyEmailCard": {
-    "body": "Wir haben dir eine Verifizierungsemail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
-    "ctaLabel": "Verifizierungsemail erneut senden",
-    "resendSuccess": "Verifizierungsemail wurde erfolgreich gesendet.",
+    "body": "Wir haben dir eine Verifizierungs-E-Mail gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um deine E-Mail-Adresse zu verifizieren.",
+    "ctaLabel": "Verifizierungs-E-Mail erneut senden",
+    "resendSuccess": "Verifizierungs-E-Mail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung"
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",
     "emptyTitle": "Noch keine Zustellungen",
-    "title": "Kürzliche Zustellungen"
+    "title": "Letzte Zustellungen"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Erstellt am",

@@ -327,7 +327,7 @@
       "unipileProviderError": "Il provider sta riscontrando problemi in questo momento. Riprova tra poco.",
       "unipileRateLimit": "Questo canale ha raggiunto il suo limite per ora. Puoi riprovare {retryAfter}. Maggiori informazioni su https://customermates.com/docs/messaging-rate-limits.",
       "unipileRequestTimeout": "La richiesta è scaduta. L'azione potrebbe essere comunque andata a buon fine, verifica prima di riprovare.",
-      "unipileResourceNotFound": "Il destinatario o la conversazione non è stato trovato su questo canale.",
+      "unipileResourceNotFound": "Impossibile trovare il destinatario o la conversazione su questo canale.",
       "unipileServiceUnavailable": "Il servizio di messaggistica non è temporaneamente disponibile. Riprova tra poco.",
       "unipileUnknown": "Il provider ha rifiutato questo messaggio. Riprova o contatta l'assistenza.",
       "userNotFound": "ID utente non trovato o non accessibile.",
@@ -763,7 +763,7 @@
         "implementationPlan": "Redigere il piano di implementazione",
         "introCall": "Chiamata di presentazione",
         "kickoffPrep": "Preparare i materiali di avvio",
-        "postMortem": "Scrivere il consuntivo del progetto",
+        "postMortem": "Scrivere la retrospettiva del progetto",
         "retainerCheckIn": "Pianificare il punto sul contratto ricorrente",
         "sendQuote": "Inviare il preventivo",
         "shipStarterKits": "Spedire i kit iniziali"
@@ -1634,7 +1634,7 @@
       "linkValidity": "Il link è valido per 7 giorni.",
       "loadingLink": "Generazione del link…",
       "send": "Invia gli inviti",
-      "sentSuccess": "Inviati {count} invito/i.",
+      "sentSuccess": "{count} invito/i inviato/i.",
       "tabs": {
         "email": "Invia e-mail",
         "link": "Condividi il link"
@@ -1796,7 +1796,7 @@
       "active": "Attivo",
       "cancelled": "Annullato",
       "expired": "Scaduto",
-      "pastDue": "Scaduto e non pagato",
+      "pastDue": "Pagamento in ritardo",
       "trial": "Prova",
       "trialDaysLeft": "Prova · {days, plural, =0 {termina oggi} one {# giorno rimasto} other {# giorni rimasti}}",
       "unPaid": "Non pagato"

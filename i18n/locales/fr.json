@@ -286,7 +286,7 @@
       "emailAlreadyExists": "Un compte existe déjà avec cette adresse e-mail.",
       "emailMismatch": "Les adresses e-mail doivent correspondre.",
       "emailNotVerified": "Adresse e-mail non vérifiée.",
-      "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau de exactement 2 éléments.",
+      "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
       "generic": "Une erreur est survenue.",
       "inmailSignatureRequired": "Ajoutez une signature pour l'InMail Recruiter.",
       "inmailSubjectRequired": "Ajoutez un objet pour l'InMail.",
@@ -549,7 +549,7 @@
       "entityType": "Élément",
       "events": "Évènements",
       "expiresIn": "Expire le",
-      "feedback": "Retour",
+      "feedback": "Commentaires",
       "firstName": "Prénom",
       "formattingLocale": "Format régional",
       "groupByValue": "Regroupement",
@@ -1023,7 +1023,7 @@
     "title": "Contact"
   },
   "ContactPage": {
-    "description": "Une question, envie d'une démonstration ou d'explorer un partenariat ? Écrivez-moi et je vous réponds sous un jour.",
+    "description": "Une question, envie d'une démonstration ou d'explorer un partenariat ? Écrivez-moi et je vous réponds sous 24 heures.",
     "form": {
       "messagePlaceholder": "Sur quoi travaillez-vous, et comment puis-je aider ?",
       "submit": "Envoyer le message",
@@ -1139,7 +1139,7 @@
     "copyMcpConfig": "Copier la configuration MCP",
     "copyPage": "Copier la page",
     "englishOnlyAlert": "La documentation technique des points de terminaison de l'API n'est disponible qu'en anglais, car elle exige une terminologie technique précise et une cohérence avec les standards du secteur.",
-    "liveDataAlert": "Les opérations effectuées dans le bac à sable de l'API affectent vos données réelles.",
+    "liveDataAlert": "Les opérations effectuées dans le playground de l'API affectent vos données réelles.",
     "markdownCopied": "Page copiée dans le presse-papiers.",
     "mcpCommandCopied": "Commande MCP copiée dans le presse-papiers.",
     "mcpConfigCopied": "Configuration MCP copiée dans le presse-papiers.",
@@ -1608,7 +1608,7 @@
       "cleanLabel": "Démarrer à vide",
       "description": "Faut-il préparer votre espace de travail avec des données d'exemple, ou démarrer entièrement à vide ?",
       "keepDescription": "Démarrez avec des contacts, affaires, services et tâches d'exemple pour explorer l'application immédiatement.",
-      "keepLabel": "Conserver les données démo",
+      "keepLabel": "Conserver les données de démonstration",
       "recommended": "Recommandé",
       "title": "Données de démonstration"
     },

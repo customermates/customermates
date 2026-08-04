@@ -927,7 +927,7 @@
     "currencyDescription": "Se usa para todos los importes del CRM, como el valor de oportunidades y servicios."
   },
   "CompanyUserModal": {
-    "activeUserWarning": "Puedes editar tu propia cuenta en tu <settingsLink>configuración</settingsLink>.",
+    "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",
     "title": "Usuario"
   },
   "ConnectedAccountsCard": {
