@@ -17,7 +17,7 @@ import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachmen
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { Button } from "@/components/ui/button";
 import { FilterPopover } from "@/components/data-view/header/filter-popover";
 import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
@@ -60,7 +60,7 @@ function formatFieldList(fields: string[]): string {
 
 export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: Props) => {
   const t = useTranslations();
-  const columnLabel = useColumnLabel();
+  const columnLabel = useCanonicalColumnLabel();
   const { intlStore, timelineDetailModalStore, activitiesStore: store } = useRootStore();
 
   useEffect(() => {

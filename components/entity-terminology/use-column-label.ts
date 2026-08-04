@@ -28,3 +28,9 @@ export function useColumnLabel() {
       : t(`Common.table.columns.${columnId}`);
   };
 }
+
+export function useCanonicalColumnLabel() {
+  const t = useTranslations();
+
+  return (columnId: string) => t(`Common.table.columns.${columnId}`);
+}

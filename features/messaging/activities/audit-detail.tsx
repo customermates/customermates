@@ -29,7 +29,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 
 type AvatarItem = {
   id: string;
@@ -56,7 +56,7 @@ type Props = {
 
 export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
-  const columnLabel = useColumnLabel();
+  const columnLabel = useCanonicalColumnLabel();
   const { intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
