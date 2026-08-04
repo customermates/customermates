@@ -1,15 +1,3 @@
-/**
- * Cross-locale audit of the message catalogs.
- *
- *   yarn i18n:audit            audit every app locale against the default
- *   yarn i18n:audit --strict   exit non-zero on advisory findings too
- *
- * The convention suite already enforces key parity and ICU placeholder parity.
- * This script adds the cross-referencing checks that need judgement to act on:
- * whether the same English source is translated consistently, whether a value
- * was left in English, whether product terms follow the glossary, and whether a
- * translation is long enough to be a layout risk.
- */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -22,11 +10,6 @@ type Leaves = Map<string, string>;
 const REPO_ROOT = process.cwd();
 const STRICT = process.argv.includes("--strict");
 
-/**
- * Values that are deliberately identical across locales: technical tokens that
- * appear inside validation messages, comparison operators, brand names, and the
- * synthetic seed fixtures' proper nouns and example addresses.
- */
 const SHARED_VALUE_PREFIXES = [
   "Common.types.",
   "Common.validations.",
@@ -48,15 +31,6 @@ const SHARED_VALUE_PREFIXES = [
   "AgplGithubBadge.label",
 ];
 
-/**
- * Product nouns that must be rendered from the same word family everywhere
- * within a locale. Values are stems, not surface forms, because the same
- * English noun legitimately appears as a plural or a verb depending on the
- * sentence: "Deal filters" is plural in Italian and "Contact your
- * administrator" is a verb in Spanish. Matching the stem keeps the check on
- * vocabulary choice, which is what drifts, rather than on inflection, which is
- * grammar the translator has to get right anyway.
- */
 const GLOSSARY: Record<string, Record<string, string>> = {
   Deal: { fr: "affaire", it: "trattativ", es: "oportunidad" },
   Deals: { fr: "affaire", it: "trattativ", es: "oportunidad" },
@@ -91,16 +65,11 @@ function isSharedValue(key: string): boolean {
   return SHARED_VALUE_PREFIXES.some((prefix) => key === prefix || key.startsWith(prefix));
 }
 
-/** Whole-word match, so "Custom" does not match inside "Customermates". */
 function containsWord(haystack: string, needle: string): boolean {
   const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`(?<![\\p{L}\\d])${escaped}(?![\\p{L}\\d])`, "iu").test(haystack);
 }
 
-/**
- * Word-start match, so a glossary term matches its inflections: "affaire"
- * accepts "affaires", and "contact" accepts "contacter".
- */
 function containsStem(haystack: string, stem: string): boolean {
   const escaped = stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`(?<![\\p{L}\\d])${escaped}`, "iu").test(haystack);
@@ -127,7 +96,6 @@ for (const locale of others) {
   const leaves = loadLeaves(locale);
   const report: string[] = [];
 
-  // 1. Same length. Same key set, same count.
   const missing = [...reference.keys()].filter((key) => !leaves.has(key));
   const extra = [...leaves.keys()].filter((key) => !reference.has(key));
   if (leaves.size !== reference.size || missing.length || extra.length) {
@@ -138,7 +106,6 @@ for (const locale of others) {
     );
   }
 
-  // 2. Interpolation must survive translation.
   const icu: string[] = [];
   const tags: string[] = [];
   for (const [key, source] of reference) {
@@ -150,7 +117,6 @@ for (const locale of others) {
   if (icu.length) blocking.push(`${locale}: ICU arguments differ on ${icu.length} key(s): ${icu.join(", ")}`);
   if (tags.length) blocking.push(`${locale}: rich-text tags differ on ${tags.length} key(s): ${tags.join(", ")}`);
 
-  // 3. Cross-reference: one English source should get one translation per locale.
   const bySource = new Map<string, Map<string, string[]>>();
   for (const [key, source] of reference) {
     const value = leaves.get(key);
@@ -168,11 +134,6 @@ for (const locale of others) {
     }
   }
 
-  // 3b. The reverse of the check above: two distinct English strings collapsing
-  // onto one translation. Scoped to a shared parent namespace, because that is
-  // where the two are options of the same control and the user sees a duplicate
-  // with no way to tell them apart. A text sweep of rendered pages cannot find
-  // this, since every string it looks at is correctly translated.
   const byNamespace = new Map<string, Map<string, string[]>>();
   for (const [key, source] of reference) {
     const value = leaves.get(key);
@@ -196,7 +157,6 @@ for (const locale of others) {
     for (const entry of collided.slice(0, 10)) report.push(`    ${entry}`);
   }
 
-  // 4. Left in English while another locale translated it.
   const untranslated = [...reference.entries()].filter(([key, source]) => {
     if (isSharedValue(key) || source.length < 12) return false;
     if (leaves.get(key) !== source) return false;
@@ -207,7 +167,6 @@ for (const locale of others) {
     for (const [key, source] of untranslated.slice(0, 10)) report.push(`    ${key} = ${JSON.stringify(source)}`);
   }
 
-  // 5. Glossary adherence.
   const glossaryMisses: string[] = [];
   for (const [term, translations] of Object.entries(GLOSSARY)) {
     const expected = translations[locale];
@@ -224,7 +183,6 @@ for (const locale of others) {
     for (const miss of glossaryMisses.slice(0, 10)) report.push(`    ${miss}`);
   }
 
-  // 6. Layout risk from expansion.
   const long = [...reference.entries()]
     .filter(([key, source]) => {
       const value = leaves.get(key);

@@ -22,13 +22,12 @@ const intlNegotiatingMiddleware = createMiddleware(contentRouting);
 const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
 
 function negotiateLocale(req: NextRequest) {
-  const response = intlNegotiatingMiddleware(req);
+  const negotiateOverLocalesThatCanServeIt = isContentPage(req) ? intlNegotiatingMiddleware : intlMiddleware;
+  const response = negotiateOverLocalesThatCanServeIt(req);
   if (response.headers.has("location")) response.headers.set("vary", "accept-language, cookie");
   return response;
 }
 
-// A locale-shaped prefix we do not serve must 404 rather than redirect: a redirect
-// would be cached against a URL we may later want to serve for real.
 function isUnsupportedLocalePrefix(pathname: string): boolean {
   const firstSegment = pathname.split("/")[1] ?? "";
   return LOCALE_SHAPED_SEGMENT.test(firstSegment) && !isRoutingLocale(firstSegment.toLowerCase());
@@ -133,9 +132,6 @@ export default async function proxy(req: NextRequest) {
 
   if (isAuthenticated && isLocaleRootPage) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
 
-  // An application-only locale publishes no marketing, blog or docs pages. Send
-  // those URLs to the default locale instead of rendering an untranslated page.
-  // Temporary, because whether a locale has content is a configuration value.
   if (!isContentLocale(currentLocale) && isContentPage(req)) {
     const unprefixed = stripLocalePrefix(pathname);
     const target = new URL(unprefixed === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${unprefixed}`, base);

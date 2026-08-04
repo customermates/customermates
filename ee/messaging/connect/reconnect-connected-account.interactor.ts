@@ -7,7 +7,6 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -18,7 +17,6 @@ import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { signHostedAuthState } from "../webhook-signature";
 import { DomainEvent } from "@/features/event/domain-events";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
@@ -55,7 +53,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
 
     const link = await this.messagingService.createReconnectAuthLink({
       accountId: account.unipileAccountId,
-      redirectUri: `${baseUrl}/${appLocaleOrDefault(await getLocale())}/profile/connected-accounts`,
+      redirectUri: `${baseUrl}/profile/connected-accounts`,
       expiresOn,
       state,
     });

@@ -28,7 +28,7 @@ export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
       await this.repo.deactivateUser(user.id);
 
       const locale = resolveUserLocale(user);
-      const contactHref = `${env.BASE_URL}/${locale}/contact`;
+      const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "SubscriptionInactivationNotice");
 
       await this.emailService.send({

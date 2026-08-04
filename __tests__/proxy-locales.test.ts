@@ -9,9 +9,6 @@ const mockEnv = vi.hoisted(() => ({
   BASE_URL: "http://localhost:4000",
 }));
 
-// A fixture registry with one application-only locale (fr) and one
-// content-only locale (nl), so the route matrix can be exercised without
-// shipping a third language. next-intl's real middleware runs against it.
 vi.mock("@/i18n/locale-registry", () => {
   type Capabilities = {
     offeredAsDisplayLanguage: boolean;
@@ -65,11 +62,6 @@ vi.mock("@/core/auth/better-auth", () => ({
   auth: { api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() } },
 }));
 
-// next-intl's ESM build imports "next/server" extensionless, which Node rejects
-// outside a bundler. This stand-in reproduces the two behaviours the proxy
-// depends on: an unprefixed path is negotiated against the config's own locale
-// list, and a prefixed path passes through. The locale lists themselves come
-// from the real defineRouting call, so scoping is still what is under test.
 vi.mock("next-intl/middleware", async () => {
   const { NextResponse } = await import("next/server");
 
@@ -179,6 +171,21 @@ describe("proxy locale routing", () => {
 
     const dutch = await call("/pricing", "nl-NL,nl;q=0.9");
     expect(dutch.location, "a content locale remains negotiable").toContain("/nl/pricing");
+  });
+
+  it("negotiates an unprefixed application path into any routing locale", async () => {
+    const subscription = await call("/company/subscription", "fr-FR,fr;q=0.9");
+    expect(subscription.status).toBe(307);
+    expect(
+      subscription.location,
+      "an application page exists in every routing locale, so the reader keeps their own language",
+    ).toContain("/fr/company/subscription");
+    expect(subscription.response.headers.get("vary")).toBe("accept-language, cookie");
+
+    const contact = await call("/contact", "fr-FR,fr;q=0.9");
+    expect(contact.location, "a public page outside the content set is still an application page").toContain(
+      "/fr/contact",
+    );
   });
 
   it("normalises a mixed-case prefix of a known locale", async () => {

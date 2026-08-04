@@ -1,21 +1,9 @@
-/**
- * Shared ICU message analysis for the i18n gates.
- *
- * Both the convention suite and `yarn i18n:audit` compare interpolation across
- * locales, so they must agree on what counts as an argument. A naive regex does
- * not: in `{count} filter{count, plural, =1 {} other {s}}` the `{s}` is plural
- * sub-message text, not an argument, and treating it as one makes a correct
- * German translation with an empty plural branch look broken.
- */
-
-/** Argument names in argument position, sorted and comma-joined. */
 export function icuArgumentNames(message: string): string {
   const names = new Set<string>();
   parseMessage(message, 0, names);
   return [...names].sort().join(",");
 }
 
-/** Rich-text tag names such as `bold` in `<bold>text</bold>`, sorted and comma-joined. */
 export function richTextTagNames(message: string): string {
   const names = new Set<string>();
   for (const match of message.matchAll(/<\s*\/?\s*([A-Za-z][A-Za-z0-9]*)\s*\/?\s*>/g)) names.add(match[1]);

@@ -70,7 +70,7 @@ describe("ReconnectConnectedAccountInteractor", () => {
 
     expect(messagingService.createReconnectAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/en/profile/connected-accounts",
+        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
       }),
     );
   });

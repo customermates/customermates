@@ -32,7 +32,7 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
       await this.repo.deactivateUser(user.id);
 
       const locale = resolveUserLocale(user);
-      const contactHref = `${env.BASE_URL}/${locale}/contact`;
+      const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "TrialInactivationNotice");
 
       await this.emailService.send({

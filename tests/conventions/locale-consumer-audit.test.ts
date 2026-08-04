@@ -11,8 +11,6 @@ const ENFORCED = true;
 
 const SCANNED_ROOTS = ["app", "components", "core", "ee", "features", "i18n", "scripts", "tests", "__tests__"];
 
-// The registry owns the locale set. These files may still name locales:
-// the registry itself, and fixtures that deliberately model other registries.
 const ALLOWED = new Set([
   "i18n/locale-registry.ts",
   "tests/conventions/locale-consumer-audit.test.ts",
@@ -22,10 +20,6 @@ const ALLOWED = new Set([
   "tests/helpers/mock-user.ts",
 ]);
 
-// Derived from the registry rather than spelled out, so a locale added later is
-// policed on the day it is registered. Spelling the set out here meant the
-// patterns only ever recognised the two locales that existed when they were
-// written, and `["fr","it"]` passed the gate cleanly.
 const LOCALE_ALTERNATION = ROUTING_LOCALES.join("|");
 const LOCALE_LIST_LITERAL = new RegExp(
   `\\[\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*(?:,\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*)+\\]`,
