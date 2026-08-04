@@ -57,3 +57,19 @@ describe("serializeStack", () => {
     expect(serializeStack(parseOpenParam(raw))).toBe(raw);
   });
 });
+
+describe("popping the drawer stack", () => {
+  const pop = (raw: string) => serializeStack(parseOpenParam(raw).slice(0, -1));
+
+  it("returns to the parent entry instead of closing the whole stack", () => {
+    expect(pop("contact:new,organization:new")).toBe("contact:new");
+  });
+
+  it("unwinds a three-deep stack one entry at a time", () => {
+    expect(pop("contact:new,organization:new,deal:new")).toBe("contact:new,organization:new");
+  });
+
+  it("clears the param once the last entry is popped", () => {
+    expect(pop("contact:new")).toBeNull();
+  });
+});
