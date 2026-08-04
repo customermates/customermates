@@ -173,6 +173,7 @@
     "db:use-live-data": "bash scripts/use-live-data.sh",
     "dev": "prisma generate && yarn workflow:setup && yarn openapi:generate && yarn raw-docs:generate && next dev --turbopack -p 4000",
     "email:dev": "email dev --dir components/emails",
+    "legal:date": "tsx scripts/stamp-legal-date.ts",
     "lint": "eslint . --ext .ts,.tsx,.json,.jsonc,.json5 -c .eslintrc.json --max-warnings 0",
     "openapi:generate": "tsx scripts/generate-openapi.ts",
     "postinstall": "prisma generate",
