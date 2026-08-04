@@ -84,7 +84,7 @@ async function fetchRecord(entity: Entity, key: string) {
     id: `record:${entity}:${recordId}`,
     title: entityNameExtractors[entity](row),
     text,
-    url: `${env.BASE_URL}/${DEFAULT_LOCALE}/${entityRoutes[entity]}/${recordId}`,
+    url: `${env.BASE_URL}/${entityRoutes[entity]}/${recordId}`,
     metadata: { entity },
   };
 
@@ -127,7 +127,7 @@ export const searchTool = {
         return result.data.items.slice(0, 3).map((item: any) => ({
           id: `record:${entity}:${item.id}`,
           title: entityNameExtractors[entity](item),
-          url: `${env.BASE_URL}/${DEFAULT_LOCALE}/${entityRoutes[entity]}/${item.id}`,
+          url: `${env.BASE_URL}/${entityRoutes[entity]}/${item.id}`,
         }));
       }),
     );
