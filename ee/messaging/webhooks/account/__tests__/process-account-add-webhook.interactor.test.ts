@@ -19,7 +19,7 @@ function makeAccountRepo(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 function makeUserRepo() {
-  return { findExtendedUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(USER) };
+  return { findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(USER) };
 }
 
 function makeMessagingService() {

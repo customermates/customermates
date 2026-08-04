@@ -1,3 +1,5 @@
+import type { Data } from "@/core/validation/validation.utils";
+
 import { z } from "zod";
 import { Resource, Action } from "@/generated/prisma";
 
@@ -16,3 +18,5 @@ export const RoleDtoSchema = z.object({
     }),
   ),
 });
+
+export type RoleDto = Data<typeof RoleDtoSchema>;

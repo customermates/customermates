@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
-import type { UpsertWidgetData, DisplayOptions } from "@/features/widget/upsert-widget.interactor";
+import type { UpsertWidgetData } from "@/features/widget/upsert-widget.interactor";
 import type { RootStore } from "@/core/stores/root.store";
-import type { CompanyWidget } from "@/features/widget/get-company-widgets.interactor";
+import type { CompanyWidget, WidgetDisplayOptions } from "@/features/widget/widget.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
@@ -11,7 +11,7 @@ import { EntityType, WidgetGroupByType, AggregationType, Resource } from "@/gene
 
 import { upsertWidgetAction, deleteWidgetAction, getWidgetByIdAction, getCompanyWidgetsAction } from "../actions";
 
-import { ChartColor, DisplayType } from "@/features/widget/widget.types";
+import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
@@ -23,6 +23,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
   public groupByValue: string = WidgetGroupByType.none;
   public expandedSection: WidgetModalSection = "config";
   public expandedFilterField: string | undefined = undefined;
+  public isHydrating = false;
   private skipReactions = false;
   public filterableFieldsByEntityType: Record<EntityType, FilterableField[]> = {
     [EntityType.contact]: [],
@@ -78,7 +79,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
         useGroupColors: true,
         showLegend: true,
         showFilters: true,
-      } as DisplayOptions,
+      } as WidgetDisplayOptions,
       groupByType: WidgetGroupByType.none,
       groupByCustomColumnId: undefined,
       aggregationType: AggregationType.count,
@@ -90,6 +91,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       groupByValue: observable,
       expandedSection: observable,
       expandedFilterField: observable,
+      isHydrating: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
 
@@ -289,6 +291,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
 
   loadById = async (id: string) => {
     this.setIsLoading(true);
+    runInAction(() => {
+      this.isHydrating = true;
+    });
     this.open();
 
     try {
@@ -331,11 +336,17 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       } else this.close();
     } finally {
       this.setIsLoading(false);
+      runInAction(() => {
+        this.isHydrating = false;
+      });
     }
   };
 
   loadTemplate = async (widgetId: string) => {
     this.setIsLoading(true);
+    runInAction(() => {
+      this.isHydrating = true;
+    });
 
     try {
       const widget = await getWidgetByIdAction({ id: widgetId });
@@ -373,6 +384,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       }
     } finally {
       this.setIsLoading(false);
+      runInAction(() => {
+        this.isHydrating = false;
+      });
     }
   };
 

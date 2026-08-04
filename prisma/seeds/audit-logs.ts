@@ -4,7 +4,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 import type { DealDto } from "@/features/deals/deal.schema";
 import type { DomainEventMap } from "@/features/event/domain-events";
 import type { OrganizationDto } from "@/features/organizations/organization.schema";
-import type { UserRoleDto } from "@/features/role/role.types";
+import type { RoleDto } from "@/features/role/role.schema";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
@@ -74,7 +74,7 @@ export type SyntheticAuditSnapshot = {
   customColumns: CustomColumnSnapshot[];
   deals: DealDto[];
   organizations: OrganizationDto[];
-  roles: UserRoleDto[];
+  roles: RoleDto[];
   services: ServiceDto[];
   tasks: TaskDto[];
   users: RegisteredUserSnapshot[];

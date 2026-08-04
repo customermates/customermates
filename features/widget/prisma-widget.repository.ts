@@ -6,7 +6,8 @@ import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
 import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
-import type { ExtendedWidget, WidgetLayout } from "./widget.types";
+import type { WidgetDisplayOptions, WidgetDto, WidgetLayout } from "./widget.schema";
+import type { Filter } from "@/core/base/base-get.schema";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -26,22 +27,50 @@ export class PrismaWidgetRepo
     UpdateWidgetLayoutsRepo,
     FindWidgetsByIdsRepo
 {
+  private get dtoSelect() {
+    return {
+      id: true,
+      userId: true,
+      companyId: true,
+      name: true,
+      entityType: true,
+      entityFilters: true,
+      dealFilters: true,
+      displayOptions: true,
+      groupByType: true,
+      groupByCustomColumnId: true,
+      aggregationType: true,
+      layout: true,
+      isTemplate: true,
+      createdAt: true,
+      updatedAt: true,
+    } as const;
+  }
+
+  private async toDto(row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>): Promise<WidgetDto> {
+    const widget = {
+      ...row,
+      entityFilters: (row.entityFilters as unknown as Filter[] | null) ?? [],
+      dealFilters: (row.dealFilters as unknown as Filter[] | null) ?? [],
+      displayOptions: (row.displayOptions as unknown as WidgetDisplayOptions | null) ?? null,
+      layout: (row.layout as unknown as WidgetLayout | null) ?? null,
+    };
+
+    return { ...widget, data: await getWidgetCalculatorRepo().calculateWidgetData(widget) };
+  }
+
   async getWidgets() {
     const { id: userId, companyId } = this.user;
 
-    const widgets = (await this.prisma.widget.findMany({
+    const rows = await this.prisma.widget.findMany({
       where: {
         userId,
         companyId,
       },
-    })) as unknown as ExtendedWidget[];
+      select: this.dtoSelect,
+    });
 
-    return Promise.all(
-      widgets.map(async (widget) => ({
-        ...widget,
-        data: await getWidgetCalculatorRepo().calculateWidgetData(widget),
-      })),
-    );
+    return Promise.all(rows.map((row) => this.toDto(row)));
   }
 
   @Transaction
@@ -54,8 +83,8 @@ export class PrismaWidgetRepo
       companyId,
       name: widgetData.name,
       entityType: widgetData.entityType,
-      entityFilters: widgetData.entityFilters ?? Prisma.JsonNull,
-      dealFilters: widgetData.dealFilters ?? Prisma.JsonNull,
+      entityFilters: widgetData.entityFilters ?? [],
+      dealFilters: widgetData.dealFilters ?? [],
       displayOptions: widgetData.displayOptions ?? Prisma.JsonNull,
       groupByType: widgetData.groupByType ?? null,
       groupByCustomColumnId: widgetData.groupByCustomColumnId ?? null,
@@ -63,13 +92,14 @@ export class PrismaWidgetRepo
       isTemplate: widgetData.isTemplate,
     };
 
-    const widget = (await this.prisma.widget.upsert({
+    const row = await this.prisma.widget.upsert({
       where: { id: widgetData.id ?? "", companyId, userId },
       create: widgetDataForDb,
       update: widgetDataForDb,
-    })) as unknown as ExtendedWidget;
+      select: this.dtoSelect,
+    });
 
-    return { ...widget, data: await getWidgetCalculatorRepo().calculateWidgetData(widget) };
+    return this.toDto(row);
   }
 
   @Transaction
@@ -126,16 +156,15 @@ export class PrismaWidgetRepo
   async getWidgetById(id: string) {
     const { companyId } = this.user;
 
-    const widget = (await this.prisma.widget.findFirst({
+    const row = await this.prisma.widget.findFirst({
       where: {
         id,
         companyId,
       },
-    })) as unknown as ExtendedWidget | null;
+      select: this.dtoSelect,
+    });
 
-    if (!widget) return null;
-
-    return { ...widget, data: await getWidgetCalculatorRepo().calculateWidgetData(widget) };
+    return row ? this.toDto(row) : null;
   }
 
   @Transaction
@@ -151,11 +180,12 @@ export class PrismaWidgetRepo
         companyId,
         userId,
       },
+      select: { id: true },
     });
 
     await Promise.all(
       widgets.map((widget) => {
-        const widgetLayout: WidgetLayout = {
+        const layout: WidgetLayout = {
           xs: args.layouts.xs.find((l) => l.i === widget.id),
           sm: args.layouts.sm.find((l) => l.i === widget.id),
           md: args.layouts.md.find((l) => l.i === widget.id),
@@ -164,7 +194,7 @@ export class PrismaWidgetRepo
 
         return this.prisma.widget.update({
           where: { id: widget.id, companyId, userId },
-          data: { layout: widgetLayout },
+          data: { layout },
         });
       }),
     );

@@ -1,4 +1,4 @@
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
 import type { UserService } from "../../user/user.service";
 import type { RouteGuardSubscriptionRepo } from "../route-guard.service";
@@ -30,7 +30,7 @@ function makeService() {
   );
 }
 
-function user(overrides: Record<string, unknown> = {}): ExtendedUser {
+function user(overrides: Record<string, unknown> = {}): TenantUser {
   return {
     id: "user-1",
     email: "max@example.com",
@@ -39,7 +39,7 @@ function user(overrides: Record<string, unknown> = {}): ExtendedUser {
     onboardingWizardCompletedAt: new Date(),
     role: { isSystemRole: true, permissions: [] },
     ...overrides,
-  } as unknown as ExtendedUser;
+  } as unknown as TenantUser;
 }
 
 function subscription(status: SubscriptionStatus, trialEndDate: Date | null = null) {

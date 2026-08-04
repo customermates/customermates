@@ -1,6 +1,6 @@
 "use client";
 
-import type { UserRoleDto } from "@/features/role/get-roles.interactor";
+import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -15,7 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { DataViewContainer } from "@/components/data-view";
 
 type Props = {
-  initialRoles: GetResult<UserRoleDto>;
+  initialRoles: GetResult<RoleDto>;
 };
 
 export const RolesCard = observer(({ initialRoles }: Props) => {
@@ -24,7 +24,7 @@ export const RolesCard = observer(({ initialRoles }: Props) => {
 
   useEffect(() => rolesStore.setItems(initialRoles), [initialRoles]);
 
-  const columns = useMemo<ColumnDef<UserRoleDto>[]>(() => {
+  const columns = useMemo<ColumnDef<RoleDto>[]>(() => {
     return [
       {
         id: "name",

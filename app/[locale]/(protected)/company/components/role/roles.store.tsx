@@ -5,10 +5,10 @@ import { Resource } from "@/generated/prisma";
 
 import { getRolesAction } from "../../actions";
 
-import { type UserRoleDto } from "@/features/role/get-roles.interactor";
+import { type RoleDto } from "@/features/role/get-roles.interactor";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
-export class RolesStore extends BaseDataViewStore<UserRoleDto> {
+export class RolesStore extends BaseDataViewStore<RoleDto> {
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.users);
   }

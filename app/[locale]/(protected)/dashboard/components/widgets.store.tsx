@@ -1,6 +1,6 @@
 import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout/legacy";
 import type { UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
-import type { ExtendedWidget } from "@/features/widget/widget.types";
+import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
@@ -16,7 +16,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
 
-export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
+export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   layouts: ResponsiveLayouts = { xs: [], sm: [], md: [], lg: [] };
 
   constructor(rootStore: RootStore) {
@@ -32,7 +32,7 @@ export class WidgetsStore extends BaseDataViewStore<ExtendedWidget> {
     return [];
   }
 
-  setItems(args: GetResult<ExtendedWidget>) {
+  setItems(args: GetResult<WidgetDto>) {
     this.items = args.items;
     if (args.customColumns) this.customColumns = args.customColumns;
 

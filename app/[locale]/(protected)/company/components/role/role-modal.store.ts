@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
-import type { UserRoleDto } from "@/features/role/get-roles.interactor";
+import type { RoleDto } from "@/features/role/get-roles.interactor";
 
 import { action, computed, makeObservable, toJS } from "mobx";
 import { Resource, Action } from "@/generated/prisma";
@@ -101,7 +101,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
     }
   };
 
-  setRole = (role: UserRoleDto) => {
+  setRole = (role: RoleDto) => {
     this.setError(undefined);
 
     const permissions: UpsertRoleData["permissions"] = {
