@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { AppChip } from "@/components/chip/app-chip";
 import { ClickableChip } from "@/components/chip/clickable-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
+import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { cn } from "@/core/utils/cn";
 
 type Props<E extends HasId> = {
@@ -25,6 +26,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
   onEditFilters,
 }: Props<E>) {
   const t = useTranslations();
+  const filterFieldLabel = useFilterFieldLabel();
   const { editFiltersModalStore } = useRootStore();
 
   const filters = store.filters ?? [];
@@ -81,7 +83,7 @@ export const DataViewActiveFiltersBar = observer(function DataViewActiveFiltersB
       )}
 
       {filters.map((filter, index) => {
-        const label = getFilterLabel(filter, store.customColumns, t);
+        const label = filterFieldLabel(filter.field, store.customColumns);
         const operator = t(`Common.filters.operators.${filter.operator}`);
 
         return (

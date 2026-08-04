@@ -29,7 +29,8 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
-import { FilterChipValue, getFilterLabel } from "@/components/data-view/filter-modal/filter-chip-display";
+import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 
 const VerticalBarChart = dynamic(
   () =>
@@ -76,6 +77,7 @@ type Props = {
 
 export const WidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations();
+  const filterFieldLabel = useFilterFieldLabel();
   const { resolvedTheme } = useTheme();
   const { intlStore, widgetModalStore, widgetsStore } = useRootStore();
   const customColumns = widgetsStore.customColumns;
@@ -204,7 +206,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
     ? [
         ...activeEntityFilters.map((filter, index) => ({
           key: `entity-${filter.field}-${index}`,
-          label: getFilterLabel(filter, entityCustomColumns, t),
+          label: filterFieldLabel(filter.field, entityCustomColumns),
           operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: entityCustomColumns,
           filter,
@@ -212,7 +214,7 @@ export const WidgetCard = observer(({ widget }: Props) => {
         })),
         ...activeDealFilters.map((filter, index) => ({
           key: `deal-${filter.field}-${index}`,
-          label: getFilterLabel(filter, dealCustomColumns, t),
+          label: filterFieldLabel(filter.field, dealCustomColumns),
           operator: t(`Common.filters.operators.${filter.operator}`),
           customColumns: dealCustomColumns,
           filter,

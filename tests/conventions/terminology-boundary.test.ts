@@ -31,6 +31,22 @@ const CANONICAL_SURFACES = [
 
 const CANONICAL_FILES = ["features/messaging/activities/audit-detail.tsx", "features/messaging/activities/activities-panel.tsx"];
 
+const CANONICAL_FILTER_REPOSITORIES = [
+  "ee/audit-log/prisma-audit-log.repository.ts",
+  "ee/messaging/activities/prisma-activities.repository.ts",
+  "features/webhook/prisma-webhook.repository.ts",
+  "features/webhook/prisma-webhook-delivery.repository.ts",
+];
+
+const ENTITY_REFERENCE_FILTER_FIELDS = [
+  "contactIds",
+  "organizationIds",
+  "dealIds",
+  "serviceIds",
+  "taskIds",
+  "participantContactId",
+];
+
 function toRepoPath(path: string) {
   return relative(REPO_ROOT, path).split(sep).join("/");
 }
@@ -61,6 +77,26 @@ describe("audit and webhook surfaces stay canonical", () => {
       .map((file) => `${file.path} references ${file.symbols.join(", ")}`);
 
     expect(offenders).toEqual([]);
+  });
+
+  it("never offers an entity-reference filter field, whose label follows workspace terminology", () => {
+    const offenders = CANONICAL_FILTER_REPOSITORIES.flatMap((repository) => {
+      const source = readFileSync(join(REPO_ROOT, repository), "utf8");
+
+      return ENTITY_REFERENCE_FILTER_FIELDS.filter((field) =>
+        new RegExp(`FilterFieldKey\\.${field}\\b`).test(source),
+      ).map((field) => `${repository} offers ${field}`);
+    });
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("gives every entity-reference filter field a workspace term in the working UI", () => {
+    const source = readFileSync(join(REPO_ROOT, "components/entity-terminology/use-filter-field-label.ts"), "utf8");
+
+    const unmapped = ENTITY_REFERENCE_FILTER_FIELDS.filter((field) => !new RegExp(`^\\s*${field}:`, "m").test(source));
+
+    expect(unmapped).toEqual([]);
   });
 
   it("keeps a canonical column label resolver available", () => {
