@@ -940,11 +940,10 @@
     "checkpointToastDescription": "The security verification could not be completed. Start the connection again, and contact support if it keeps happening.",
     "checkpointToastTitle": "Verification failed",
     "connectAccount": "Connect channel",
-    "connectDisclosure": "By connecting a channel, you authorize Customermates to process that account's messages, contacts, and calendar through our messaging provider on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink>, and <termsOfServiceLink>Terms</termsOfServiceLink>.",
     "connectedAt": "Connected",
     "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
     "connectedToastTitle": "Channel connected",
-    "description": "Connect the channels your inbox pulls from, like email, WhatsApp, and LinkedIn. Channels are private by default, and can be shared with your workspace if needed. Individual threads can also be shared separately.",
+    "description": "Connect the channels your inbox pulls from, like email, WhatsApp and LinkedIn. Channels are private by default and can be shared with your workspace. By connecting one, you authorize us to process its messages, contacts and calendar on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
     "disconnect": "Disconnect",
     "disconnectedToastDescription": "This account is no longer connected at the provider. Reconnect it with your current login details.",
     "disconnectedToastTitle": "Account disconnected",
@@ -1885,9 +1884,6 @@
     "resendSuccess": "Verification email sent successfully.",
     "subtitle": "Verify your email address to continue.",
     "title": "Email Verification"
-  },
-  "VideoEmbed": {
-    "consentNotice": "Click to load the video from YouTube. Your IP address is transmitted to YouTube only after you click."
   },
   "WebhookDeliveriesCard": {
     "title": "Recent Deliveries"

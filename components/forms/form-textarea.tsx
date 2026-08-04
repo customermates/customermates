@@ -38,7 +38,7 @@ export const FormTextarea = observer(
           <FormLabel htmlFor={domId}>
             {resolvedLabel}
 
-            {required ? <span className="text-destructive"> *</span> : null}
+            {required ? <span className="text-destructive">&nbsp;*</span> : null}
           </FormLabel>
         )}
 

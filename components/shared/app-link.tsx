@@ -10,6 +10,7 @@ import { cn } from "@/core/utils/cn";
 type BaseProps = {
   external?: boolean;
   inheritSize?: boolean;
+  inline?: boolean;
   className?: string;
 };
 
@@ -17,10 +18,11 @@ type Props = BaseProps &
   (({ external: true } & ComponentProps<typeof NextLink>) | ({ external?: false } & ComponentProps<typeof IntlLink>));
 
 export function AppLink(props: Props) {
-  const { external = false, inheritSize = false, className, ...rest } = props;
+  const { external = false, inheritSize = false, inline = false, className, ...rest } = props;
 
   const mergedClassName = cn(
-    "text-primary underline-offset-4 hover:underline transition-colors",
+    "underline-offset-4 transition-colors",
+    inline ? "text-inherit underline hover:text-primary" : "text-primary hover:underline",
     inheritSize && "[font-size:inherit]",
     className,
   );

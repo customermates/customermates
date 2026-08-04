@@ -7,7 +7,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features", "ee"];
 
-const ALLOWED_SUBRESOURCE_HOSTS = new Set(["demo.customermates.com", "www.youtube-nocookie.com"]);
+const ALLOWED_SUBRESOURCE_HOSTS = new Set(["demo.customermates.com", "lmsqueezy.com"]);
 
 const SUBRESOURCE_PATTERN = /(?:\bsrc|\bsrcSet)=\{?["'`]([^"'`]*?)["'`]/g;
 
@@ -45,10 +45,11 @@ function countryCodes(): string[] {
 }
 
 describe("third-party browser requests", () => {
-  it("keeps the root layout free of external subresources", () => {
+  it("loads only the disclosed affiliate tracker from the root layout", () => {
     const layout = readFileSync(join(REPO_ROOT, "app", "layout.tsx"), "utf8");
+    const hosts = [...new Set(externalHostsIn(layout))];
 
-    expect(layout).not.toMatch(/https?:\/\//);
+    expect(hosts).toEqual(["lmsqueezy.com"]);
   });
 
   it("loads no third-party subresource outside the allowlist", () => {

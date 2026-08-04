@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Lora } from "next/font/google";
 import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { Status } from "@/generated/prisma";
 
@@ -192,6 +193,12 @@ export default async function RootLayout({ children }: Props) {
         </Providers>
 
         <Analytics />
+
+        <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
+          {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
+        </Script>
+
+        <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="lazyOnload" />
       </body>
     </html>
   );

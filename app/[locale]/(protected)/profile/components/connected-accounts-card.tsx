@@ -93,29 +93,30 @@ const ConnectAction = observer(() => {
   );
 });
 
-const ConnectDisclosure = () => {
+const ConnectedAccountsAlert = () => {
   const t = useTranslations();
 
   return (
-    <p className="text-subdued text-x-sm">
-      {t.rich("ConnectedAccountsCard.connectDisclosure", {
+    <Alert
+      color="primary"
+      description={t.rich("ConnectedAccountsCard.description", {
         dataPrivacyLink: (chunks) => (
-          <AppLink className="underline" href="/privacy" target="_blank">
+          <AppLink inheritSize inline href="/privacy" target="_blank">
             {chunks}
           </AppLink>
         ),
         subprocessorsLink: (chunks) => (
-          <AppLink className="underline" href="/subprocessors" target="_blank">
+          <AppLink inheritSize inline href="/subprocessors" target="_blank">
             {chunks}
           </AppLink>
         ),
         termsOfServiceLink: (chunks) => (
-          <AppLink className="underline" href="/terms" target="_blank">
+          <AppLink inheritSize inline href="/terms" target="_blank">
             {chunks}
           </AppLink>
         ),
       })}
-    </p>
+    />
   );
 };
 
@@ -137,20 +138,16 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   if (connectedAccountsStore.items.length === 0) {
     return (
       <div className="flex w-full max-w-3xl flex-col gap-4">
-        <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
+        <ConnectedAccountsAlert />
 
         <p className="text-subdued text-x-md">{t("ConnectedAccountsCard.emptyState")}</p>
-
-        <ConnectDisclosure />
       </div>
     );
   }
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-4">
-      <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
-
-      <ConnectDisclosure />
+      <ConnectedAccountsAlert />
 
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
         {connectedAccountsStore.items.map((account) => {

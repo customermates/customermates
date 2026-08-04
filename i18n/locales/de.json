@@ -940,11 +940,10 @@
     "checkpointToastDescription": "Die Sicherheitsüberprüfung konnte nicht abgeschlossen werden. Starte die Verbindung erneut und kontaktiere den Support, falls das Problem bestehen bleibt.",
     "checkpointToastTitle": "Verifizierung fehlgeschlagen",
     "connectAccount": "Kanal verbinden",
-    "connectDisclosure": "Mit dem Verbinden eines Kanals beauftragen Sie Customermates, die Nachrichten, Kontakte und Kalender dieses Kontos in Ihrem Auftrag über unseren Messaging-Dienstleister zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "connectedAt": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
-    "description": "Verbinde die Kanäle, aus denen deine Inbox Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können bei Bedarf mit deinem Workspace geteilt werden. Einzelne Threads lassen sich auch separat teilen.",
+    "description": "Verbinde die Kanäle, aus denen deine Inbox Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "disconnect": "Trennen",
     "disconnectedToastDescription": "Dieses Konto ist beim Anbieter nicht mehr verbunden. Verbinde es mit deinen aktuellen Anmeldedaten neu.",
     "disconnectedToastTitle": "Konto getrennt",
@@ -1885,9 +1884,6 @@
     "resendSuccess": "Verifizierungsemail wurde erfolgreich gesendet.",
     "subtitle": "Verifiziere deine E-Mail-Adresse, um fortzufahren.",
     "title": "E-Mail-Verifizierung"
-  },
-  "VideoEmbed": {
-    "consentNotice": "Zum Laden des Videos von YouTube klicken. Ihre IP-Adresse wird erst nach dem Klick an YouTube übermittelt."
   },
   "WebhookDeliveriesCard": {
     "title": "Kürzliche Zustellungen"

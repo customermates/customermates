@@ -117,7 +117,7 @@ export const FormIsoDatePicker = observer(
           <FormLabel htmlFor={id}>
             {resolvedLabel}
 
-            {required ? <span className="text-destructive"> *</span> : null}
+            {required ? <span className="text-destructive">&nbsp;*</span> : null}
           </FormLabel>
         )}
 
