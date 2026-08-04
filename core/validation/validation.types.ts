@@ -57,6 +57,7 @@ export enum CustomErrorCode {
   notesExceedsMaxLength = "notesExceedsMaxLength",
   mustNotBeBlank = "mustNotBeBlank",
   mustNotContainNullChars = "mustNotContainNullChars",
+  terminologyInvalidPreset = "terminologyInvalidPreset",
   duplicateWebhookEvents = "duplicateWebhookEvents",
   webhookCreateFieldsRequired = "webhookCreateFieldsRequired",
   activityScopeRequiresBoth = "activityScopeRequiresBoth",

@@ -6,6 +6,11 @@ import { Currency, Resource, Action } from "@/generated/prisma";
 
 import { DomainEvent } from "../event/domain-events";
 
+import {
+  EntityTerminologyEntrySchema,
+  type EntityTerminologyEntry,
+} from "@/features/entity-terminology/entity-terminology.schema";
+
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -14,33 +19,37 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 
-export const UpdateCompanyDetailsSchema = z.object({
-  currency: z.enum(Currency),
+export const UpdateCompanySettingsSchema = z.object({
+  currency: z.enum(Currency).optional(),
+  terminology: z.array(EntityTerminologyEntrySchema).optional(),
 });
 
-export type UpdateCompanyDetailsData = Data<typeof UpdateCompanyDetailsSchema>;
+export type UpdateCompanySettingsData = Data<typeof UpdateCompanySettingsSchema>;
 
-export abstract class UpdateCompanyDetailsRepo {
-  abstract updateDetails(args: UpdateCompanyDetailsData): Promise<void>;
+export abstract class UpdateCompanySettingsRepo {
+  abstract updateDetails(args: { currency: Currency }): Promise<void>;
+  abstract upsertTerminology(entries: EntityTerminologyEntry[]): Promise<void>;
 }
 
 @TenantInteractor({ resource: Resource.company, action: Action.update })
-export class UpdateCompanyDetailsInteractor extends AuthenticatedInteractor<
-  UpdateCompanyDetailsData,
-  UpdateCompanyDetailsData
+export class UpdateCompanySettingsInteractor extends AuthenticatedInteractor<
+  UpdateCompanySettingsData,
+  UpdateCompanySettingsData
 > {
   constructor(
-    private repo: UpdateCompanyDetailsRepo,
+    private repo: UpdateCompanySettingsRepo,
     private eventService: EventService,
   ) {
     super();
   }
 
-  @Validate(UpdateCompanyDetailsSchema)
-  @ValidateOutput(UpdateCompanyDetailsSchema)
+  @Validate(UpdateCompanySettingsSchema)
+  @ValidateOutput(UpdateCompanySettingsSchema)
   @Transaction
-  async invoke(data: UpdateCompanyDetailsData): Validated<UpdateCompanyDetailsData> {
-    await this.repo.updateDetails(data);
+  async invoke(data: UpdateCompanySettingsData): Validated<UpdateCompanySettingsData> {
+    if (data.terminology?.length) await this.repo.upsertTerminology(data.terminology);
+
+    if (data.currency) await this.repo.updateDetails({ currency: data.currency });
 
     const { companyId } = getTenantUser();
 

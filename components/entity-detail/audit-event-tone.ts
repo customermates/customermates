@@ -18,8 +18,9 @@ export function auditChangeLabel<TColumn extends { label: string }>(
   change: { columnId?: string; field: string },
   columnsById: Map<string, TColumn>,
   t: (key: string) => string,
+  columnLabel: (columnId: string) => string,
 ): string {
   return change.columnId !== undefined
     ? (columnsById.get(change.columnId)?.label ?? t("AuditLogModal.deletedField"))
-    : t(`Common.table.columns.${change.field}`);
+    : columnLabel(change.field);
 }

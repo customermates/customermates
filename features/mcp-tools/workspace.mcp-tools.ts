@@ -15,7 +15,7 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import {
-  getGetCompanyDetailsInteractor,
+  getGetCompanySettingsInteractor,
   getGetMyConnectedAccountsInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
@@ -27,6 +27,9 @@ export const getWorkspaceContextTool = {
   title: "Get workspace context",
   description:
     "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
+    "company.terminology gives the singular and plural label this workspace uses for each record type, keyed by the canonical entity type. " +
+    'Always phrase answers with those labels (for example say "People" when contact.plural is People) and map the words the user types back onto the canonical entity type. ' +
+    "Tool names, filter fields and ids stay canonical regardless of the labels. " +
     "Each role carries its full permission list; match roleId values from list_users against it. " +
     "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
     "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
@@ -36,7 +39,7 @@ export const getWorkspaceContextTool = {
   execute: async () => {
     const [userResult, companyResult, rolesResult, accountsResult] = await Promise.all([
       getGetUserDetailsInteractor().invoke(),
-      getGetCompanyDetailsInteractor().invoke(),
+      getGetCompanySettingsInteractor().invoke(),
       getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
       getGetMyConnectedAccountsInteractor().invoke(),
     ]);
@@ -51,6 +54,7 @@ export const getWorkspaceContextTool = {
           currency: company.currency,
           createdAt: company.createdAt,
           updatedAt: company.updatedAt,
+          terminology: company.terminology.labels,
         },
         roles: rolesResult.data.items,
         connectedAccounts: accountsResult.data,

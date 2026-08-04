@@ -4,19 +4,23 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 
 import { DataCardView } from "./data-card-view";
 import { DataKanbanView } from "./data-kanban-view";
 import { DataTable } from "./data-table";
+import { DataViewEmpty } from "./data-view-empty";
 import { DataViewActiveFiltersBar } from "./header/active-filters-bar";
 import { DataViewPagination } from "./header/pagination";
 import { DataViewToolbar } from "./data-view-toolbar";
 import { MassActionsBar } from "./mass-actions-bar";
+
+import type { EmptyStateDescriptor } from "./data-view-empty";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -27,6 +31,7 @@ type Props<E extends HasId> = {
   isSearchable?: boolean;
   searchPlaceholder?: string;
   anchorScope?: string;
+  emptyState?: EmptyStateDescriptor;
 };
 
 export const DataViewContainer = observer(function DataViewContainer<E extends HasId>({
@@ -38,8 +43,10 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   isSearchable = true,
   searchPlaceholder,
   anchorScope,
+  emptyState,
 }: Props<E>) {
-  const t = useTranslations();
+  const columnLabel = useColumnLabel();
+  const { terminologyStore } = useRootStore();
 
   const resolvedColumns = useMemo<ColumnDef<E>[]>(() => {
     const byId = new Map(columns.map((c) => [c.id ?? "", c]));
@@ -47,12 +54,12 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
       .map((tc) => byId.get(tc.uid))
       .filter((c): c is ColumnDef<E> => c !== undefined)
       .map((c) => {
-        const withHeader = c.header ? c : { ...c, header: t(`Common.table.columns.${c.id ?? ""}`) };
+        const withHeader = c.header ? c : { ...c, header: columnLabel(c.id ?? "") };
         return c.id && store.sortableColumnIds.has(c.id)
           ? ({ ...withHeader, accessorKey: c.id } as ColumnDef<E>)
           : withHeader;
       });
-  }, [columns, store.orderedColumns, store.sortableColumnIds, t]);
+  }, [columns, store.orderedColumns, store.sortableColumnIds, columnLabel, terminologyStore.overrides]);
 
   const topBarNode = useMemo(
     () => (
@@ -73,8 +80,11 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
 
   const isTable = store.viewMode === ViewMode.table;
   const isKanban = store.viewMode === ViewMode.card && Boolean(store.groupingColumnId);
+  const isEmpty = store.items.length === 0;
 
-  const body = isTable ? (
+  const body = isEmpty ? (
+    <DataViewEmpty descriptor={emptyState} store={store} onAdd={onAdd} />
+  ) : isTable ? (
     <DataTable columns={resolvedColumns} store={store} onRowClick={onRowClick} onRowHref={rowHref} />
   ) : isKanban ? (
     <DataKanbanView cardHref={rowHref} columns={resolvedColumns} store={store} onCardClick={onRowClick} />
@@ -95,7 +105,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         {body}
       </div>
 
-      {!isKanban && <DataViewPagination store={store} />}
+      {!isKanban && !isEmpty && <DataViewPagination store={store} />}
     </div>
   );
 });

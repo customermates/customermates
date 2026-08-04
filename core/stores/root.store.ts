@@ -43,6 +43,7 @@ import { ServicesStore } from "@/app/[locale]/(protected)/services/components/se
 import { ServiceDetailStore } from "@/app/[locale]/(protected)/services/components/service-detail.store";
 import { IntlStore } from "@/core/stores/intl.store";
 import { LocaleStore } from "@/core/stores/locale.store";
+import { TerminologyStore } from "@/core/stores/terminology.store";
 import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/widgets.store";
 import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
 import { RolesStore } from "@/app/[locale]/(protected)/company/components/role/roles.store";
@@ -75,6 +76,7 @@ export class RootStore {
   private _connectedAccountModalStore?: ConnectedAccountModalStore;
   private _connectUpsellModalStore?: ConnectUpsellModalStore;
   private _companyStore?: CompanyStore;
+  private _terminologyStore?: TerminologyStore;
   private _contactsStore?: ContactsStore;
   private _messagingThreadsStore?: MessagingThreadsStore;
   private _messagingThreadDetailStore?: MessagingThreadDetailStore;
@@ -163,6 +165,10 @@ export class RootStore {
 
   get companyStore() {
     return (this._companyStore ??= new CompanyStore(this));
+  }
+
+  get terminologyStore() {
+    return (this._terminologyStore ??= new TerminologyStore(this));
   }
 
   get usersStore() {

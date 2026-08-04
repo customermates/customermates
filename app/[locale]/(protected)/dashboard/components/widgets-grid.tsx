@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { LayoutGrid, Plus } from "lucide-react";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -19,6 +19,8 @@ import "@/styles/react-grid-layout.css";
 import { WidgetCard } from "./widget-card";
 import { WidgetModal } from "./widget-modal";
 import { GRID_COLS, GRID_BREAKPOINTS } from "./grid.constants";
+
+import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { Button } from "@/components/ui/button";
@@ -119,6 +121,15 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
             </div>
           ))}
         </ResponsiveGridLayout>
+      )}
+
+      {items.length === 0 && (
+        <DataViewEmptyState
+          body={t("Common.emptyState.dashboardBody")}
+          icon={LayoutGrid}
+          primaryAction={{ label: t("Dashboard.addCard"), onClick: () => void widgetModalStore.add() }}
+          title={t("Common.emptyState.dashboardTitle")}
+        />
       )}
 
       <WidgetModal customColumns={customColumns} filterableFields={filterableFields} />
