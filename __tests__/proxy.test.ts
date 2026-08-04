@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn<(input: unknown) => Promise<SessionResult | null>>(),
   intlMiddleware: vi.fn<(request: NextRequest) => NextResponse>(),
   isPublicPage: vi.fn<(request: NextRequest) => boolean>(),
+  isContentPage: vi.fn<(request: NextRequest) => boolean>(),
   signInEmail: vi.fn<(input: unknown) => Promise<Response>>(),
   signOut: vi.fn<(input: unknown) => Promise<Response>>(),
 }));
@@ -30,9 +31,8 @@ vi.mock("next-intl/middleware", () => ({
 }));
 
 vi.mock("@/i18n/routing", () => ({
-  ROUTING_DEFAULT_LOCALE: "en",
-  ROUTING_LOCALES: ["en", "de"],
   isPublicPage: mocks.isPublicPage,
+  isContentPage: mocks.isContentPage,
   routing: {},
   contentRouting: {},
 }));

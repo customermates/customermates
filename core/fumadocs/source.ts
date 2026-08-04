@@ -25,8 +25,6 @@ import {
   pricing,
 } from "@/.source/server";
 
-export { i18n };
-
 export const blogSource = loader({
   baseUrl: "/blog",
   i18n,

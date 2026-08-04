@@ -4,10 +4,6 @@ import { defineRouting } from "next-intl/routing";
 
 import { CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
 
-export { ROUTING_LOCALES };
-
-export const ROUTING_DEFAULT_LOCALE = DEFAULT_LOCALE;
-
 export const PUBLIC_ROUTES_SEO = [
   "/",
   "/auth/signin",
@@ -55,14 +51,14 @@ export const CONTENT_ROUTES = [
 
 export const routing = defineRouting({
   locales: ROUTING_LOCALES,
-  defaultLocale: ROUTING_DEFAULT_LOCALE,
+  defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
   alternateLinks: false,
 });
 
 export const contentRouting = defineRouting({
   locales: CONTENT_LOCALES,
-  defaultLocale: ROUTING_DEFAULT_LOCALE,
+  defaultLocale: DEFAULT_LOCALE,
   localePrefix: "always",
   alternateLinks: false,
 });
