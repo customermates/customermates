@@ -36,6 +36,7 @@ export class SendTrialExtensionOfferInteractor {
         to: user.email,
         subject: t("subject"),
         react: TrialExpiredOffer({
+          locale,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { createElement } from "react";
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -53,6 +53,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();
+    const locale = await getLocale();
     const subject = t("CompanyInvite.subject");
     const preview = t("CompanyInvite.preview", { inviterName });
     const intro = t("CompanyInvite.intro", { inviterName });
@@ -67,6 +68,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
           to: email,
           subject,
           react: createElement(CompanyInvite, {
+            locale,
             inviteLink,
             subject,
             preview,

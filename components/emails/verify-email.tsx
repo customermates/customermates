@@ -6,6 +6,7 @@ import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
 
 type Props = {
+  locale: string;
   url: string;
   subject: string;
   intro: string;
@@ -14,9 +15,9 @@ type Props = {
   securityNotice: string;
 };
 
-export default function VerifyEmail({ url, subject, intro, cta, fallback, securityNotice }: Props) {
+export default function VerifyEmail({ locale, url, subject, intro, cta, fallback, securityNotice }: Props) {
   return (
-    <EmailLayout preview={subject} title={subject}>
+    <EmailLayout locale={locale} preview={subject} title={subject}>
       <EmailText>{intro}</EmailText>
 
       <EmailSection>

@@ -34,6 +34,7 @@ export class SendWelcomeAndDemoInteractor {
         to: user.email,
         subject: t("subject"),
         react: TrialWelcome({
+          locale,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           planNote: t("planNote"),

@@ -7,6 +7,7 @@ import { EmailText } from "@/components/emails/base/email-text";
 import { env } from "@/env";
 
 type Props = {
+  locale: string;
   inviteLink: string;
   subject: string;
   preview: string;
@@ -15,9 +16,9 @@ type Props = {
   fallback: string;
 };
 
-export default function CompanyInvite({ inviteLink, subject, preview, intro, cta, fallback }: Props) {
+export default function CompanyInvite({ locale, inviteLink, subject, preview, intro, cta, fallback }: Props) {
   return (
-    <EmailLayout preview={preview} title={subject}>
+    <EmailLayout locale={locale} preview={preview} title={subject}>
       <EmailText>{intro}</EmailText>
 
       <EmailSection>

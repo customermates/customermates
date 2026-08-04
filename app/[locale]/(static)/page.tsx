@@ -13,7 +13,7 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureSection } from "@/components/marketing/feature-section";
 import { JsonLd } from "@/components/seo/json-ld";
-import { homepageSource } from "@/core/fumadocs/source";
+import { homepageSource, pricingSource } from "@/core/fumadocs/source";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
 
 export default async function HomePage() {
@@ -24,6 +24,8 @@ export default async function HomePage() {
 
   const { hero, howItWorks, walkthrough, benefits, features, faq, cta } = homepagePage.data;
 
+  const pricingCards = pricingSource.getPage(["pricing"], locale)?.data.pricing.pricingCards ?? [];
+
   return (
     <div className="flex flex-col items-center">
       <JsonLd schema={organizationSchema()} />
@@ -32,6 +34,7 @@ export default async function HomePage() {
         schema={softwareApplicationSchema({
           description: homepagePage.data.description,
           locale,
+          prices: pricingCards.map((card) => card.price),
         })}
       />
 

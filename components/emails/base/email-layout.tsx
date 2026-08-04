@@ -5,6 +5,7 @@ import { Body, Container, Head, Heading, Html, Preview, Section, Tailwind, Text 
 import { EmailImage } from "./email-image";
 
 import { env } from "@/env";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { colorPalettes } from "@/styles/color-palettes";
 
 const config = {
@@ -22,13 +23,14 @@ const ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 type Props = PropsWithChildren<{
   preview?: string;
   title?: string;
+  locale?: string;
 }>;
 
-export function EmailLayout({ preview, title, children }: Props) {
+export function EmailLayout({ preview, title, locale = DEFAULT_LOCALE, children }: Props) {
   const year = new Date().getFullYear();
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Tailwind config={config}>
         <Head>
           <style>{`body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }`}</style>

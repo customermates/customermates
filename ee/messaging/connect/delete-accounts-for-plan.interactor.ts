@@ -85,6 +85,7 @@ export class DeleteAccountsForPlanInteractor {
         to: admin.email,
         subject: t("subject"),
         react: AccountsRemovedNotice({
+          locale,
           greeting: t("greeting", { firstName: admin.firstName }),
           body: t("body", { accounts: accountsLabel, plan: plan.charAt(0).toUpperCase() + plan.slice(1) }),
           cta: t("cta"),

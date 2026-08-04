@@ -39,6 +39,7 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
         to: user.email,
         subject: t("subject"),
         react: TrialInactivationNotice({
+          locale,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

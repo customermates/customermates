@@ -5,7 +5,7 @@ import React from "react";
 import { APIError } from "better-auth";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
@@ -139,11 +139,13 @@ export class AuthService {
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
+    const locale = await getLocale();
 
     await this.emailService.send({
       to: args.to,
       subject: t("VerifyEmail.subject"),
       react: React.createElement(VerifyEmail, {
+        locale,
         url: args.url,
         subject: t("VerifyEmail.subject"),
         intro: t("VerifyEmail.intro"),
@@ -156,11 +158,13 @@ export class AuthService {
 
   async sendResetPasswordEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
+    const locale = await getLocale();
 
     await this.emailService.send({
       to: args.to,
       subject: t("ResetPassword.subject"),
       react: React.createElement(ResetPassword, {
+        locale,
         url: args.url,
         subject: t("ResetPassword.subject"),
         intro: t("ResetPassword.intro"),

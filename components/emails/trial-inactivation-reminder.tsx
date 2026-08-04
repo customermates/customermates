@@ -9,6 +9,7 @@ import { env } from "@/env";
 const CONTACT_HREF = `${env.BASE_URL}/contact`;
 
 type Props = {
+  locale: string;
   greeting: string;
   body: string;
   cta: string;
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export default function TrialInactivationReminder({
+  locale,
   greeting,
   body,
   cta,
@@ -34,7 +36,7 @@ export default function TrialInactivationReminder({
   const resolvedHref = href ?? CONTACT_HREF;
 
   return (
-    <EmailLayout preview={subject} title={title}>
+    <EmailLayout locale={locale} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>

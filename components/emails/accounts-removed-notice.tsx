@@ -8,6 +8,7 @@ import { env } from "@/env";
 const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}/profile/connected-accounts`;
 
 type Props = {
+  locale: string;
   greeting: string;
   body: string;
   cta: string;
@@ -17,9 +18,9 @@ type Props = {
   href?: string;
 };
 
-export default function AccountsRemovedNotice({ greeting, body, cta, signoff, subject, title, href }: Props) {
+export default function AccountsRemovedNotice({ locale, greeting, body, cta, signoff, subject, title, href }: Props) {
   return (
-    <EmailLayout preview={subject} title={title}>
+    <EmailLayout locale={locale} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>

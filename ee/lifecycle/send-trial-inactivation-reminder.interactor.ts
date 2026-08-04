@@ -36,6 +36,7 @@ export class SendTrialInactivationReminderInteractor {
         to: user.email,
         subject: t("subject"),
         react: TrialInactivationReminder({
+          locale,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

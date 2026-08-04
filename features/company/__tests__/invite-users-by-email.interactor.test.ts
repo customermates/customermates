@@ -26,6 +26,7 @@ vi.mock("next/headers", () => ({
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
+  getLocale: () => Promise.resolve("en"),
 }));
 
 import { InviteUsersByEmailInteractor } from "../invite-users-by-email.interactor";

@@ -3,6 +3,7 @@ import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailText } from "@/components/emails/base/email-text";
 
 type Props = {
+  locale: string;
   greeting: string;
   body: string;
   planNote: string;
@@ -12,9 +13,9 @@ type Props = {
   title: string;
 };
 
-export default function TrialWelcome({ greeting, body, planNote, dismiss, signoff, subject, title }: Props) {
+export default function TrialWelcome({ locale, greeting, body, planNote, dismiss, signoff, subject, title }: Props) {
   return (
-    <EmailLayout preview={subject} title={title}>
+    <EmailLayout locale={locale} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
