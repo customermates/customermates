@@ -23,6 +23,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
   public groupByValue: string = WidgetGroupByType.none;
   public expandedSection: WidgetModalSection = "config";
   public expandedFilterField: string | undefined = undefined;
+  public isHydrating = false;
   private skipReactions = false;
   public filterableFieldsByEntityType: Record<EntityType, FilterableField[]> = {
     [EntityType.contact]: [],
@@ -90,6 +91,7 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       groupByValue: observable,
       expandedSection: observable,
       expandedFilterField: observable,
+      isHydrating: observable,
       filterableFieldsByEntityType: observable,
       customColumnsByEntityType: observable,
 
@@ -289,6 +291,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
 
   loadById = async (id: string) => {
     this.setIsLoading(true);
+    runInAction(() => {
+      this.isHydrating = true;
+    });
     this.open();
 
     try {
@@ -331,11 +336,17 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       } else this.close();
     } finally {
       this.setIsLoading(false);
+      runInAction(() => {
+        this.isHydrating = false;
+      });
     }
   };
 
   loadTemplate = async (widgetId: string) => {
     this.setIsLoading(true);
+    runInAction(() => {
+      this.isHydrating = true;
+    });
 
     try {
       const widget = await getWidgetByIdAction({ id: widgetId });
@@ -373,6 +384,9 @@ export class WidgetModalStore extends BaseModalStore<UpsertWidgetData> {
       }
     } finally {
       this.setIsLoading(false);
+      runInAction(() => {
+        this.isHydrating = false;
+      });
     }
   };
 
