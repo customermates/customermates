@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { HubPostGrid, type HubPostGridItem } from "@/components/marketing/hub-post-grid";
@@ -21,7 +21,8 @@ export default async function ForHubPage() {
 
   if (!page) notFound();
 
-  const tagLabel = locale === "de" ? "Branche" : "Industry";
+  const t = await getTranslations();
+  const tagLabel = t("Common.tags.industry");
 
   const items: HubPostGridItem[] = forPagesSource
     .getPages(locale)

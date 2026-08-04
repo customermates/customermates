@@ -861,6 +861,10 @@
       "search": "Cerca...",
       "ungrouped": "Non raggruppato"
     },
+    "tags": {
+      "feature": "Funzionalità",
+      "industry": "Settore"
+    },
     "theme": "Tema",
     "themes": {
       "dark": "Scuro",
@@ -1370,7 +1374,7 @@
   "Inbox": {
     "ariaBackToInbox": "Torna alla posta in arrivo",
     "attachmentAudio": "Messaggio vocale",
-    "attachmentCount": "{count} allegato/i:",
+    "attachmentCount": "{count, plural, one {# allegato:} other {# allegati:}}",
     "attachmentFile": "File",
     "attachmentImage": "Immagine",
     "attachmentLinkedinPost": "Post LinkedIn",
@@ -1429,7 +1433,7 @@
     "fileTypePdf": "Documento PDF",
     "fileTypePowerpoint": "Presentazione PowerPoint",
     "fileTypeWord": "Documento Word",
-    "groupThread": "Gruppo ({count} membri)",
+    "groupThread": "Gruppo ({count, plural, one {# membro} other {# membri}})",
     "hideQuotedText": "Nascondi il testo citato",
     "learnMore": "Scopri di più",
     "linkedinContact": "Contatto LinkedIn",
@@ -1634,7 +1638,7 @@
       "linkValidity": "Il link è valido per 7 giorni.",
       "loadingLink": "Generazione del link…",
       "send": "Invia gli inviti",
-      "sentSuccess": "{count} invito/i inviato/i.",
+      "sentSuccess": "{count, plural, one {# invito inviato.} other {# inviti inviati.}}",
       "tabs": {
         "email": "Invia e-mail",
         "link": "Condividi il link"

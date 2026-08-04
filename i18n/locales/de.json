@@ -770,6 +770,10 @@
       "search": "Suchen...",
       "ungrouped": "Nicht gruppiert"
     },
+    "tags": {
+      "feature": "Funktion",
+      "industry": "Branche"
+    },
     "theme": "Darstellung",
     "themes": {
       "dark": "Dunkel",
@@ -1381,7 +1385,7 @@
   "Inbox": {
     "ariaBackToInbox": "Zurück zum Posteingang",
     "attachmentAudio": "Sprachnachricht",
-    "attachmentCount": "{count} Anhang/Anhänge:",
+    "attachmentCount": "{count, plural, one {# Anhang:} other {# Anhänge:}}",
     "attachmentFile": "Datei",
     "attachmentImage": "Bild",
     "attachmentLinkedinPost": "LinkedIn-Beitrag",
@@ -1440,7 +1444,7 @@
     "fileTypePdf": "PDF-Dokument",
     "fileTypePowerpoint": "PowerPoint-Präsentation",
     "fileTypeWord": "Word-Dokument",
-    "groupThread": "Gruppe ({count} Teilnehmer)",
+    "groupThread": "Gruppe ({count, plural, one {# Mitglied} other {# Mitglieder}})",
     "hideQuotedText": "Zitierten Text ausblenden",
     "learnMore": "Mehr erfahren",
     "linkedinContact": "LinkedIn-Kontakt",
@@ -1710,7 +1714,7 @@
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
-      "sentSuccess": "{count} Einladung(en) gesendet.",
+      "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",
         "link": "Link teilen"

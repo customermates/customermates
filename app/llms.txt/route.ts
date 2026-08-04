@@ -2,7 +2,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export const dynamic = "force-static";
 
@@ -13,10 +13,16 @@ const manifest = rawManifest as Manifest;
 
 export function GET() {
   const pages = manifest.docs[DEFAULT_LOCALE];
+  const translatedPrefixes = CONTENT_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE).map(
+    (locale) => `/${locale}/`,
+  );
+  const translationNote = translatedPrefixes.length
+    ? ` Translated versions live under ${translatedPrefixes.join(", ")}.`
+    : "";
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (44 tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>; German versions live under /de/.`,
+    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (44 tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>.${translationNote}`,
     "",
   ];
 

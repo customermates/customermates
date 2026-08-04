@@ -20,7 +20,7 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
-import { APP_LOCALES, DEFAULT_LOCALE, appLocaleOrDefault, isAppLocale } from "@/i18n/locale-registry";
+import { APP_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, appLocaleOrDefault, isAppLocale } from "@/i18n/locale-registry";
 
 type Props = {
   userDetails: UserDetails;
@@ -107,7 +107,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     label: key === Locale.system ? systemDisplayLanguageLabel : t(`Common.locales.${key}`),
   }));
 
-  const formattingLocaleItems = [Locale.de, Locale.en, Locale.system].map((key) => ({
+  const formattingLocaleItems = [...ROUTING_LOCALES, Locale.system].map((key) => ({
     value: key,
     label: key === Locale.system ? systemFormattingLocaleLabel : t(`Common.locales.${key}`),
   }));

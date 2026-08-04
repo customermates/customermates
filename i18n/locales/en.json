@@ -770,6 +770,10 @@
       "search": "Search...",
       "ungrouped": "Ungrouped"
     },
+    "tags": {
+      "feature": "Feature",
+      "industry": "Industry"
+    },
     "theme": "Theme",
     "themes": {
       "dark": "Dark",
@@ -1381,7 +1385,7 @@
   "Inbox": {
     "ariaBackToInbox": "Back to inbox",
     "attachmentAudio": "Voice message",
-    "attachmentCount": "{count} attachment(s):",
+    "attachmentCount": "{count, plural, one {# attachment:} other {# attachments:}}",
     "attachmentFile": "File",
     "attachmentImage": "Image",
     "attachmentLinkedinPost": "LinkedIn post",
@@ -1440,7 +1444,7 @@
     "fileTypePdf": "PDF document",
     "fileTypePowerpoint": "PowerPoint presentation",
     "fileTypeWord": "Word document",
-    "groupThread": "Group ({count} members)",
+    "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
     "learnMore": "Learn more",
     "linkedinContact": "LinkedIn contact",
@@ -1708,7 +1712,7 @@
       "linkFailed": "Could not create the invite link.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
-      "sentSuccess": "Sent {count} invitation(s).",
+      "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
         "link": "Share link"

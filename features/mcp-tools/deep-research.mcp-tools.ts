@@ -6,7 +6,7 @@ import { customErrorMessage, formatDatesInResponse, validationError, VALIDATION_
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
 
 import { env } from "@/env";
-import { DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
@@ -84,7 +84,7 @@ async function fetchRecord(entity: Entity, key: string) {
     id: `record:${entity}:${recordId}`,
     title: entityNameExtractors[entity](row),
     text,
-    url: `${env.BASE_URL}/en/${entityRoutes[entity]}/${recordId}`,
+    url: `${env.BASE_URL}/${DEFAULT_LOCALE}/${entityRoutes[entity]}/${recordId}`,
     metadata: { entity },
   };
 
@@ -165,7 +165,7 @@ export const fetchTool = {
     return (
       `${VALIDATION_ERROR_PREFIX} Unknown id "${id}". ` +
       `Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
-      `or "doc:<locale>:<slug>" with locale en or de.`
+      `or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`
     );
   },
 };

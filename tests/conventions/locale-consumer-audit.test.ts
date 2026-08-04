@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+
 const ENFORCED = true;
 
 const SCANNED_ROOTS = ["app", "components", "core", "ee", "features", "i18n", "scripts", "tests", "__tests__"];
@@ -20,8 +22,17 @@ const ALLOWED = new Set([
   "tests/helpers/mock-user.ts",
 ]);
 
-const LOCALE_LIST_LITERAL = /\[\s*["'](?:en|de)["']\s*,\s*["'](?:en|de)["']\s*\]/;
-const LOCALE_UNION_TYPE = /["'](?:en|de)["']\s*\|\s*["'](?:en|de)["']/;
+// Derived from the registry rather than spelled out, so a locale added later is
+// policed on the day it is registered. Spelling the set out here meant the
+// patterns only ever recognised the two locales that existed when they were
+// written, and `["fr","it"]` passed the gate cleanly.
+const LOCALE_ALTERNATION = ROUTING_LOCALES.join("|");
+const LOCALE_LIST_LITERAL = new RegExp(
+  `\\[\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*(?:,\\s*["'](?:${LOCALE_ALTERNATION})["']\\s*)+\\]`,
+);
+const LOCALE_UNION_TYPE = new RegExp(
+  `["'](?:${LOCALE_ALTERNATION})["']\\s*\\|\\s*["'](?:${LOCALE_ALTERNATION})["']`,
+);
 const REDECLARED_LOCALE_ALIAS = /\(typeof\s+(?:ROUTING_LOCALES|APP_LOCALES|CONTENT_LOCALES)\)\[number\]/;
 
 const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
