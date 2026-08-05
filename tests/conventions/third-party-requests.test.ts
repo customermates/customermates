@@ -7,6 +7,10 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features", "ee"];
 
+// lmsqueezy.com serves the affiliate attribution script loaded in the root layout. It is a
+// deliberate third-party request on every page view, disclosed in the privacy policy, and it is
+// why this codebase cannot claim to make no third-party browser requests. Removing it would break
+// affiliate attribution, so it is allowed here knowingly rather than overlooked.
 const ALLOWED_SUBRESOURCE_HOSTS = new Set(["demo.customermates.com", "lmsqueezy.com"]);
 
 const SUBRESOURCE_PATTERN = /(?:\bsrc|\bsrcSet)=\{?["'`]([^"'`]*?)["'`]/g;
