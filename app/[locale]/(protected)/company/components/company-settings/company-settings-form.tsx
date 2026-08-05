@@ -4,15 +4,18 @@ import { useEffect, useId, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import type { Currency } from "@/generated/prisma";
+import { EntityType, type Currency } from "@/generated/prisma";
 
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormActions } from "@/components/card/form-actions";
+import { Separator } from "@/components/ui/separator";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CURRENCIES } from "@/constants/currencies";
 import { AppChip } from "@/components/chip/app-chip";
+import { TerminologyRelationshipDiagram } from "@/components/entity-terminology/terminology-relationship-diagram";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRouter } from "@/i18n/navigation";
 
 type Props = {
@@ -23,11 +26,17 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const formId = useId();
-  const { companySettingsStore: store } = useRootStore();
+  const { companySettingsStore: store, terminologyStore } = useRootStore();
+  const { plural } = useEntityTerminology();
+  const canManage = store.canManage;
 
   useEffect(() => {
     store.onInitOrRefresh({ currency });
   }, [currency]);
+
+  useEffect(() => {
+    store.initTerminology(terminologyStore.overrides);
+  }, [store, terminologyStore.overrides]);
 
   const topBarActions = useMemo(
     () => <FormActions anchorScope="company-settings" formId={formId} store={store} variant="topbar" />,
@@ -45,7 +54,7 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
         })
       }
     >
-      <div className="flex w-full max-w-3xl flex-col gap-4">
+      <div className="flex w-full max-w-3xl flex-col gap-6">
         <div className="flex flex-col gap-1.5">
           <FormAutocomplete
             required
@@ -58,8 +67,21 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
             {({ key }) => <span>{t(`Common.currencies.${key}`)}</span>}
           </FormAutocomplete>
 
-          <p className="text-subdued text-xs">{t("CompanySettings.currencyDescription")}</p>
+          <p className="text-subdued text-xs">
+            {t("CompanySettings.currencyDescription", {
+              deals: plural(EntityType.deal),
+              services: plural(EntityType.service),
+            })}
+          </p>
         </div>
+
+        <Separator />
+
+        <TerminologyRelationshipDiagram
+          readOnly={!canManage}
+          selections={store.form.terminology}
+          onPreset={canManage ? store.setTerminologyPreset : undefined}
+        />
       </div>
     </AppForm>
   );

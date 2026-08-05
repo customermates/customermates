@@ -19,7 +19,7 @@ const SOURCE_HINT_KEYS = {
   lookup: "EntityChannels.addChannel.sourceLookup",
 } as const;
 
-export const AddChannelPopover = observer(({ contactId }: { contactId: string }) => {
+export const AddChannelPopover = observer(({ contactId }: { contactId?: string }) => {
   const t = useTranslations();
   const { addChannelStore: store } = useRootStore();
 

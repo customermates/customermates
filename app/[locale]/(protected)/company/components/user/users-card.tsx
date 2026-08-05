@@ -1,7 +1,7 @@
 "use client";
 
 import type { UserDto } from "@/features/user/user.schema";
-import type { UserRoleDto } from "@/features/role/get-roles.interactor";
+import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -17,7 +17,7 @@ import { DataViewContainer } from "@/components/data-view";
 
 type Props = {
   initialUsers: GetResult<UserDto>;
-  initialRoles: GetResult<UserRoleDto>;
+  initialRoles: GetResult<RoleDto>;
 };
 
 export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {

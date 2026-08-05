@@ -4,10 +4,9 @@ import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 
 import { FilterField } from "@/components/data-view/filter-modal/filter-field";
-import { isCustomField } from "@/components/data-view/table-view.utils";
+import { useFilterFieldLabel } from "@/components/entity-terminology/use-filter-field-label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Props = {
@@ -22,16 +21,14 @@ type Props = {
 
 export const FilterAccordion = observer(
   ({ filters, baseId, filterableFields, customColumns, nested = false, value, onValueChange }: Props) => {
-    const t = useTranslations();
+    const fieldLabel = useFilterFieldLabel();
 
     const itemClassName = nested ? "border-b-0" : "border-b last:border-b-0 px-3";
 
     return (
       <Accordion collapsible className="flex flex-col" type="single" value={value} onValueChange={onValueChange}>
         {filters.map((filter, index) => {
-          const isCustom = isCustomField(filter.field);
-          const customColumn = isCustom ? customColumns?.find((col) => col.id === filter.field) : null;
-          const label = isCustom ? (customColumn?.label ?? filter.field) : t(`Common.filters.fields.${filter.field}`);
+          const label = fieldLabel(filter.field, customColumns);
           const hasValue = filter.operator !== undefined;
 
           return (

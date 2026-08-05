@@ -14,14 +14,14 @@ import {
   getAdminUpdateUserDetailsInteractor,
   getGetUserByIdInteractor,
   getInviteUsersByEmailInteractor,
-  getUpdateCompanyDetailsInteractor,
+  getUpdateCompanySettingsInteractor,
   getUpdateUserDetailsInteractor,
 } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
 import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor";
-import { UpdateCompanyDetailsSchema } from "@/features/company/update-company-details.interactor";
+import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
 
 const countryValues = Object.values(CountryCode);
@@ -40,7 +40,7 @@ const UpdateWorkspaceSettingsSchema = z.object({
   avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
     "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
   ),
-  currency: UpdateCompanyDetailsSchema.shape.currency
+  currency: UpdateCompanySettingsSchema.shape.currency
     .optional()
     .describe(`company target: required ${enumHint(currencyValues)}`),
 });
@@ -62,9 +62,9 @@ export const updateWorkspaceSettingsTool = {
         encodeToToon({ firstName: data.firstName, lastName: data.lastName, message: "Profile updated" }),
       );
     }
-    const parsed = UpdateCompanyDetailsSchema.safeParse(params);
+    const parsed = UpdateCompanySettingsSchema.required({ currency: true }).safeParse(params);
     if (!parsed.success) return validationError(parsed.error);
-    return runInteractor(getUpdateCompanyDetailsInteractor().invoke(parsed.data), (data) =>
+    return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
       encodeToToon({ currency: data.currency, message: "Company settings updated" }),
     );
   },

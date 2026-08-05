@@ -8,23 +8,12 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 
-import { isCustomField } from "@/components/data-view/table-view.utils";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   type FilterSelectItem,
   useFilterSelectItems,
 } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
-
-export function getFilterLabel(
-  filter: Filter,
-  customColumns: CustomColumnDto[] | undefined,
-  t: (key: string) => string,
-) {
-  if (isCustomField(filter.field)) return customColumns?.find((col) => col.id === filter.field)?.label ?? filter.field;
-
-  return t(`Common.filters.fields.${filter.field.replace(/\./g, "_")}`);
-}
 
 function normalizeValues(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String);

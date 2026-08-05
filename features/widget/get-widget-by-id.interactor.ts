@@ -1,4 +1,4 @@
-import type { ExtendedWidget } from "./widget.types";
+import type { WidgetDto } from "./widget.schema";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -17,19 +17,19 @@ const Schema = z.object({
 export type GetWidgetByIdData = Data<typeof Schema>;
 
 export abstract class GetWidgetByIdRepo {
-  abstract getWidgetById(id: string): Promise<ExtendedWidget | null>;
+  abstract getWidgetById(id: string): Promise<WidgetDto | null>;
 }
 
 @AllowInDemoMode
 @TenantInteractor()
-export class GetWidgetByIdInteractor extends AuthenticatedInteractor<GetWidgetByIdData, ExtendedWidget | null> {
+export class GetWidgetByIdInteractor extends AuthenticatedInteractor<GetWidgetByIdData, WidgetDto | null> {
   constructor(private repo: GetWidgetByIdRepo) {
     super();
   }
 
   @Validate(Schema)
   @ValidateOutput(WidgetDtoSchema)
-  async invoke(data: GetWidgetByIdData): Validated<ExtendedWidget | null> {
+  async invoke(data: GetWidgetByIdData): Validated<WidgetDto | null> {
     return { ok: true as const, data: await this.repo.getWidgetById(data.id) };
   }
 }

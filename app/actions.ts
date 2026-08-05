@@ -31,11 +31,16 @@ import {
   getUpsertP13nInteractor,
   getUpsertFilterPresetInteractor,
   getDeleteFilterPresetInteractor,
+  getGetCompanySettingsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function deleteCustomColumnAction(id: string) {
   return serializeResult(getDeleteCustomColumnInteractor().invoke({ id }));
+}
+
+export async function getCompanySettingsAction() {
+  return serializeResult(getGetCompanySettingsInteractor().invoke());
 }
 
 export async function upsertCustomColumnAction(data: UpsertCustomColumnData) {

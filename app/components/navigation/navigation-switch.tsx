@@ -1,7 +1,8 @@
 "use client";
 
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { Company } from "@/generated/prisma";
+import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
 import { useLayoutEffect } from "react";
@@ -21,12 +22,13 @@ type Props = {
   isAuthenticated: boolean;
   onboardingComplete: boolean;
   company: Company | null;
+  terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
-  user: ExtendedUser | null;
+  user: TenantUser | null;
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
   children: React.ReactNode;
@@ -36,6 +38,7 @@ export function NavigationSwitch({
   isAuthenticated,
   onboardingComplete,
   company,
+  terminology,
   subscription,
   trialDaysLeft,
   systemTaskCount,
@@ -51,13 +54,14 @@ export function NavigationSwitch({
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
   const isAuthRoute = pathname.startsWith("/auth/");
   const hideAppShell = !isAuthenticated || isOnboardingWizard || isAuthRoute;
-  const { userStore, companyStore, subscriptionStore } = useRootStore();
+  const { userStore, companyStore, subscriptionStore, terminologyStore } = useRootStore();
 
   useLayoutEffect(() => {
     userStore.setUser(user);
     if (company) companyStore.setCompany(company);
+    terminologyStore.setOverrides(terminology);
     subscriptionStore.setSubscription(subscription);
-  }, [user, company, subscription]);
+  }, [user, company, terminology, subscription]);
 
   if (isDocsRoute) {
     return (

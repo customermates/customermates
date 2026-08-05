@@ -1,4 +1,4 @@
-import type { UserRoleDto } from "./get-roles.interactor";
+import type { RoleDto } from "./get-roles.interactor";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
 
@@ -20,7 +20,7 @@ export type DeleteRoleData = Data<typeof Schema>;
 export abstract class DeleteRoleRepo {
   abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
   abstract hasUsersAssigned(data: string): Promise<boolean>;
-  abstract deleteRoleOrThrow(id: string): Promise<UserRoleDto>;
+  abstract deleteRoleOrThrow(id: string): Promise<RoleDto>;
 }
 
 @TenantInteractor({ resource: Resource.users, action: Action.delete })

@@ -41,6 +41,8 @@
     "userId": "User"
   },
   "AuditLogsCard": {
+    "emptyBody": "Workspace changes are recorded here as they happen.",
+    "emptyTitle": "No activity yet",
     "searchTooltip": "Search by element id",
     "title": "Audit Logs"
   },
@@ -238,10 +240,29 @@
     "default": "Default",
     "defaultColor": "Default Color",
     "defaultData": {
-      "todo": {
+      "contact": {
+        "columnLabel": "Sales Pipeline",
+        "options": {
+          "contact": "Contact",
+          "inProgress": "In Progress",
+          "lost": "Lost",
+          "new": "New",
+          "qualified": "Qualified",
+          "won": "Won"
+        }
+      },
+      "deal": {
         "columnLabel": "Status",
-        "name": "My first task",
-        "states": {
+        "options": {
+          "abandoned": "Abandoned",
+          "lost": "Lost",
+          "open": "Open",
+          "won": "Won"
+        }
+      },
+      "task": {
+        "columnLabel": "Status",
+        "options": {
           "archived": "Archived",
           "blocked": "Blocked",
           "done": "Done",
@@ -257,6 +278,20 @@
       "title": "Confirm Deletion"
     },
     "email": "E-Mail",
+    "emptyState": {
+      "body": "Get started by adding your first {singular}.",
+      "clearFilters": "Clear filters",
+      "cta": "Add your first {singular}",
+      "dashboardBody": "Charts and metrics appear here as you add data.",
+      "dashboardTitle": "Nothing to show yet",
+      "filteredBody": "No {plural} match your filters.",
+      "filteredTitle": "No matches",
+      "genericFilteredBody": "No results match your filters.",
+      "genericTitle": "Nothing here yet",
+      "readOnlyBody": "You do not have permission to add {plural}.",
+      "readOnlyTitle": "No {plural} yet",
+      "title": "No {plural} yet"
+    },
     "en": "English",
     "errors": {
       "activityScopeRequiresBoth": "entityType and entityId must be provided together to scope to one record.",
@@ -281,6 +316,7 @@
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dealNotFound": "Deal ID not found or not accessible.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
+      "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",
       "emailAlreadyExists": "An account with this email already exists.",
@@ -320,6 +356,7 @@
       "taskNameCannotBeChangedForSystemTasks": "Name cannot be changed for system tasks.",
       "taskNotFound": "Task ID not found or not accessible.",
       "taskOnlyCustomTasksCanBeDeleted": "Only custom tasks can be deleted.",
+      "terminologyInvalidPreset": "Choose one of the available name presets.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
       "unipileDisconnectedAccount": "The channel is disconnected. Please reconnect it and try again.",
@@ -665,117 +702,6 @@
       "whatsapp": "WhatsApp"
     },
     "role": "Role",
-    "seedData": {
-      "column": {
-        "articleNumber": "Article number",
-        "billableHours": "Billable hours",
-        "salesPipeline": "Sales pipeline",
-        "stock": "Stock"
-      },
-      "contact": {
-        "alex": {
-          "email": "alex.murphy@northlight.example",
-          "first": "Alex",
-          "last": "Murphy"
-        },
-        "elena": {
-          "email": "elena.costa@harborline.example",
-          "first": "Elena",
-          "last": "Costa"
-        },
-        "linnea": {
-          "email": "linnea.holm@kestrelstudios.example",
-          "first": "Linnea",
-          "last": "Holm"
-        },
-        "marius": {
-          "email": "marius.becker@marlowecole.example",
-          "first": "Marius",
-          "last": "Becker"
-        },
-        "priya": {
-          "email": "priya.iyer@northlight.example",
-          "first": "Priya",
-          "last": "Iyer"
-        },
-        "rashid": {
-          "email": "rashid.khan@atlasmobility.example",
-          "first": "Rashid",
-          "last": "Khan"
-        },
-        "sara": {
-          "email": "sara.romero@atlasmobility.example",
-          "first": "Sara",
-          "last": "Romero"
-        },
-        "tomas": {
-          "email": "tomas.lindberg@harborline.example",
-          "first": "Tomas",
-          "last": "Lindberg"
-        }
-      },
-      "deal": {
-        "atlasDiscovery": "Atlas discovery sprint",
-        "atlasExpansion": "Atlas fleet expansion",
-        "atlasPilot": "Atlas pilot rollout",
-        "atlasRetainer": "Atlas ongoing retainer",
-        "harborDiscovery": "Harbor scoping workshop",
-        "harborRollout": "Harbor rollout package",
-        "kestrelFlagship": "Kestrel flagship launch",
-        "kestrelRetainer": "Kestrel implementation + retainer",
-        "marloweBulk": "Marlowe bulk order",
-        "marloweImplementation": "Marlowe full implementation",
-        "northLightDiscovery": "North Light discovery",
-        "northLightStarter": "North Light starter order"
-      },
-      "organization": {
-        "atlasMobility": "Atlas Mobility",
-        "harborAndLine": "Harbor & Line",
-        "kestrelStudios": "Kestrel Studios",
-        "marloweAndCole": "Marlowe & Cole",
-        "northLight": "North Light Group"
-      },
-      "pipeline": {
-        "lost": "Lost",
-        "new": "New",
-        "qualified": "Qualified",
-        "quoted": "Quoted",
-        "won": "Won"
-      },
-      "service": {
-        "discovery": "Discovery",
-        "enterpriseKit": "Enterprise kit",
-        "implementation": "Implementation",
-        "premiumKit": "Premium kit",
-        "retainer": "Retainer",
-        "starterKit": "Starter kit"
-      },
-      "task": {
-        "checkStock": "Check stock levels",
-        "confirmBulkOrder": "Confirm bulk order details",
-        "contractReview": "Review expansion contract",
-        "discoveryWorkshop": "Run discovery workshop",
-        "followUp": "Follow up after pause",
-        "gatherRequirements": "Gather requirements",
-        "implementationPlan": "Draft implementation plan",
-        "introCall": "Intro call",
-        "kickoffPrep": "Prep kickoff materials",
-        "postMortem": "Write project post-mortem",
-        "retainerCheckIn": "Schedule retainer check-in",
-        "sendQuote": "Send quote",
-        "shipStarterKits": "Ship starter kits"
-      },
-      "widget": {
-        "activeDealsByStage": "Active deals",
-        "dealsByStage": "Deals by stage",
-        "dealValueByOrg": "Deal value by organization",
-        "tasksByStatus": "Tasks by status",
-        "topDealsByValue": "Top deals by value",
-        "totalContacts": "Contacts",
-        "valueByStage": "Pipeline value",
-        "valuePerService": "Value per service"
-      }
-    },
     "single": "Single",
     "sort": {
       "ascending": "Ascending",
@@ -921,7 +847,7 @@
     "title": "Invite User"
   },
   "CompanySettings": {
-    "currencyDescription": "Used for all money values across the CRM, like deal and service values."
+    "currencyDescription": "Used for all money values across the CRM, for example: {deals}, {services}."
   },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
@@ -1113,9 +1039,8 @@
     }
   },
   "DealModal": {
-    "noServicesAdded": "No services added yet",
+    "noServicesAdded": "No {entity} added yet",
     "quantityLabel": "Quantity",
-    "servicesLabel": "Services",
     "title": "Deal",
     "totalLabel": "Total",
     "valueLabel": "Value"
@@ -1229,6 +1154,79 @@
     "tooltipUnverified": "This profile hasn't been confirmed yet. It's checked automatically when you send your first message.",
     "unverified": "Unverified"
   },
+  "EntityTerminology": {
+    "presets": {
+      "contact": {
+        "client": {
+          "plural": "Clients",
+          "singular": "Client"
+        },
+        "contact": {
+          "plural": "Contacts",
+          "singular": "Contact"
+        },
+        "person": {
+          "plural": "People",
+          "singular": "Person"
+        }
+      },
+      "deal": {
+        "deal": {
+          "plural": "Deals",
+          "singular": "Deal"
+        },
+        "opportunity": {
+          "plural": "Opportunities",
+          "singular": "Opportunity"
+        },
+        "project": {
+          "plural": "Projects",
+          "singular": "Project"
+        }
+      },
+      "organization": {
+        "account": {
+          "plural": "Accounts",
+          "singular": "Account"
+        },
+        "company": {
+          "plural": "Companies",
+          "singular": "Company"
+        },
+        "organization": {
+          "plural": "Organizations",
+          "singular": "Organization"
+        }
+      },
+      "service": {
+        "offering": {
+          "plural": "Offerings",
+          "singular": "Offering"
+        },
+        "product": {
+          "plural": "Products",
+          "singular": "Product"
+        },
+        "service": {
+          "plural": "Services",
+          "singular": "Service"
+        }
+      },
+      "task": {
+        "task": {
+          "plural": "Tasks",
+          "singular": "Task"
+        }
+      }
+    },
+    "relationships": {
+      "dataModelSubtitle": "Each node is a live entity. Rename it inline, the connections stay intact.",
+      "dataModelTitle": "Your data model",
+      "include": "include",
+      "involvedIn": "are involved in",
+      "workAt": "work at"
+    }
+  },
   "EntityTimeline": {
     "loadOlder": "Load older",
     "types": {
@@ -1308,11 +1306,7 @@
   "GlobalSearch": {
     "clearRecent": "Clear",
     "emptyPrompt": "Start typing to search across your contacts, organizations, deals, and services.",
-    "groupContact": "Contacts",
-    "groupDeal": "Deals",
-    "groupOrganization": "Organizations",
     "groupRecent": "Recently opened",
-    "groupService": "Services",
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
@@ -1521,13 +1515,9 @@
     "title": "Upgrade to unlock messaging"
   },
   "NavigationBar": {
-    "addContact": "Add contact",
-    "addDeal": "Add deal",
-    "addOrganization": "Add organization",
+    "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
-    "addService": "Add service",
-    "addTask": "Add task",
     "affiliate": "Affiliate Program",
     "apiDocs": "API Documentation",
     "automation": "Automation",
@@ -1600,28 +1590,6 @@
     "avatarDescription": "Optional. Paste a link to a photo of yourself. It must be publicly accessible (so anyone with the link can see it). Leave it blank and we'll show your initials instead.",
     "back": "Back",
     "continue": "Continue",
-    "demoData": {
-      "cleanDescription": "Skip the example data. You'll begin with an empty workspace.",
-      "cleanLabel": "Start clean",
-      "description": "Should we set up your workspace with example data, or start completely empty?",
-      "keepDescription": "Start with example contacts, deals, services, and tasks so you can explore the app right away.",
-      "keepLabel": "Keep demo data",
-      "recommended": "Recommended",
-      "title": "Demo data"
-    },
-    "entities": {
-      "description": "Pick whichever fits best. We'll tailor your starter pipeline, services and dashboard widgets to match. You can change column types and rename anything later, this just decides the starter shape.",
-      "product": {
-        "description": "You sell physical or digital things in units. We'll add fields for article numbers and stock.",
-        "example": "A starter kit with SKUs, quantities, and stock counts.",
-        "title": "Products"
-      },
-      "service": {
-        "description": "You sell time, expertise, or recurring engagements. We'll add a field for billable hours.",
-        "example": "A discovery sprint, an implementation project, a monthly retainer.",
-        "title": "Services"
-      }
-    },
     "finish": "Finish",
     "invite": {
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
@@ -1645,14 +1613,6 @@
         "subtitle": "Let Claude Code or Codex run your CRM for you.",
         "title": "Connect an AI agent"
       },
-      "demoData": {
-        "subtitle": "Start with example contacts, deals and tasks, or begin with an empty workspace.",
-        "title": "Demo data"
-      },
-      "entities": {
-        "subtitle": "Tell us what you sell, and we'll set up your workspace to match.",
-        "title": "What do you sell?"
-      },
       "invite": {
         "placeholder": "Invite team placeholder",
         "subtitle": "Share a link or send email invitations.",
@@ -1661,6 +1621,10 @@
       "profile": {
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
+      },
+      "terminology": {
+        "subtitle": "Choose what to call the core records in your workspace.",
+        "title": "Name your records"
       }
     }
   },
@@ -1884,6 +1848,8 @@
     "title": "Email Verification"
   },
   "WebhookDeliveriesCard": {
+    "emptyBody": "Delivery attempts appear here once a webhook fires.",
+    "emptyTitle": "No deliveries yet",
     "title": "Recent Deliveries"
   },
   "WebhookDeliveryModal": {
@@ -1913,6 +1879,8 @@
     "urlDescription": "The endpoint URL where webhook events will be sent via POST requests."
   },
   "WebhooksCard": {
+    "emptyBody": "Add a webhook to send workspace events to your systems.",
+    "emptyTitle": "No webhooks yet",
     "title": "Webhooks"
   }
 }

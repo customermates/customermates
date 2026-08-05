@@ -1,6 +1,7 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { GetCompanyDetailsRepo } from "./get-company-details.interactor";
-import type { UpdateCompanyDetailsRepo } from "./update-company-details.interactor";
+import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
+import type { GetCompanySettingsRepo } from "./get-company-settings.interactor";
+import type { UpdateCompanySettingsRepo } from "./update-company-settings.interactor";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.interactor";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
@@ -21,8 +22,8 @@ import { BaseRepository } from "@/core/base/base-repository";
 export class PrismaCompanyRepo
   extends BaseRepository
   implements
-    GetCompanyDetailsRepo,
-    UpdateCompanyDetailsRepo,
+    GetCompanySettingsRepo,
+    UpdateCompanySettingsRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
@@ -35,7 +36,7 @@ export class PrismaCompanyRepo
     CreateAuthLinkSubscriptionRepo
 {
   @Transaction
-  async updateDetails(args: RepoArgs<UpdateCompanyDetailsRepo, "updateDetails">) {
+  async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
     const { companyId } = this.user;
 
     await this.prisma.company.update({
@@ -47,6 +48,31 @@ export class PrismaCompanyRepo
   async getDetails() {
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
+  }
+
+  async getTerminology(): Promise<EntityTerminologyOverride[]> {
+    const { companyId } = this.user;
+
+    return this.prisma.entityTerminology.findMany({
+      where: { companyId },
+      select: { entityType: true, presetKey: true },
+      orderBy: { entityType: "asc" },
+    });
+  }
+
+  @Transaction
+  async upsertTerminology(entries: RepoArgs<UpdateCompanySettingsRepo, "upsertTerminology">) {
+    const { companyId } = this.user;
+
+    for (const entry of entries) {
+      const row = { companyId, entityType: entry.entityType, presetKey: entry.presetKey };
+
+      await this.prisma.entityTerminology.upsert({
+        where: { companyId_entityType: { companyId, entityType: entry.entityType } },
+        create: row,
+        update: row,
+      });
+    }
   }
 
   @Transaction

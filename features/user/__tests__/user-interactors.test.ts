@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { CountryCode } from "@/generated/prisma";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -20,24 +21,12 @@ import { DomainEvent } from "@/features/event/domain-events";
 
 const USER_ID = "test-user-id";
 
-const mockExtendedUser = {
-  id: USER_ID,
+const mockTenantUser = createMockUser({
   email: "jane@example.com",
   firstName: "Jane",
   lastName: "Doe",
-  country: "DE",
-  status: "active",
-  avatarUrl: null,
-  roleId: "test-role-id",
-  companyId: "test-company-id",
-  role: {
-    id: "test-role-id",
-    name: "Admin",
-    isSystemRole: true,
-    companyId: "test-company-id",
-    permissions: [],
-  },
-};
+  country: CountryCode.de,
+});
 
 describe("RegisterUserInteractor", () => {
   let mockAuthService: any;
@@ -53,8 +42,8 @@ describe("RegisterUserInteractor", () => {
     };
     mockRepo = {
       findCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
-      createCompanyAndUser: vi.fn().mockResolvedValue(mockExtendedUser),
-      registerExistingCompany: vi.fn().mockResolvedValue(mockExtendedUser),
+      createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
+      registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),

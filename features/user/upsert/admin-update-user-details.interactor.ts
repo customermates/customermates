@@ -1,5 +1,5 @@
 import type { EventService } from "@/features/event/event.service";
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
@@ -32,7 +32,7 @@ export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchem
 
 export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
-  abstract findOrThrowCompanyWide(email: string): Promise<ExtendedUser>;
+  abstract findOrThrowCompanyWide(email: string): Promise<TenantUser>;
   abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
 }
 

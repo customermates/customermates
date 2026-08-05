@@ -22,6 +22,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Editor } from "@/components/editor/editor";
 import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useRouter } from "@/i18n/navigation";
 
 type Layout = "drawer" | "page";
@@ -38,12 +39,12 @@ export const EntityDetailBody = observer(
   <Form extends FormEntityDto, Dto extends EntityDto>({
     store,
     entityType,
-    titleKey,
     children,
     layout = "drawer",
   }: Props<Form, Dto>) => {
     const t = useTranslations();
     const router = useRouter();
+    const { singular } = useEntityTerminology();
 
     const { form, isLoading, lastCreatedId, canManage, isReadOnly } = store;
 
@@ -65,7 +66,7 @@ export const EntityDetailBody = observer(
         <AppForm store={store as unknown as BaseFormStore}>
           <AppCard className="rounded-none border-0 bg-transparent shadow-none">
             <AppCardHeader>
-              <h2 className="text-x-lg grow">{t(titleKey)}</h2>
+              <h2 className="text-x-lg grow">{singular(entityType)}</h2>
             </AppCardHeader>
 
             <AppCardBody>

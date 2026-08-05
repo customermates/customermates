@@ -4,7 +4,7 @@ import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-up
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { SendFeedbackData } from "@/features/feedback/send-feedback.schema";
-import type { UpdateCompanyDetailsData } from "@/features/company/update-company-details.interactor";
+import type { UpdateCompanySettingsData } from "@/features/company/update-company-settings.interactor";
 import type { DeleteRoleData } from "@/features/role/delete-role.interactor";
 import type { UpsertRoleData } from "@/features/role/upsert-role.interactor";
 import type { UpsertWebhookData } from "@/features/webhook/upsert-webhook.interactor";
@@ -19,8 +19,8 @@ import {
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
-  getGetCompanyDetailsInteractor,
-  getUpdateCompanyDetailsInteractor,
+  getGetCompanySettingsInteractor,
+  getUpdateCompanySettingsInteractor,
   getGetOrCreateInviteTokenInteractor,
   getInviteUsersByEmailInteractor,
   getSendFeedbackInteractor,
@@ -55,8 +55,8 @@ export async function getSubscriptionAction() {
   return result.data;
 }
 
-export async function updateCompanyAction(data: UpdateCompanyDetailsData) {
-  return serializeResult(getUpdateCompanyDetailsInteractor().invoke(data));
+export async function updateCompanyAction(data: UpdateCompanySettingsData) {
+  return serializeResult(getUpdateCompanySettingsInteractor().invoke(data));
 }
 
 export async function sendFeedbackAction(data: SendFeedbackData) {
@@ -77,7 +77,7 @@ export async function inviteUsersByEmailAction(data: InviteUsersByEmailData) {
 }
 
 export async function getCompanyDetailsAction() {
-  const result = await getGetCompanyDetailsInteractor().invoke();
+  const result = await getGetCompanySettingsInteractor().invoke();
   return result.data;
 }
 

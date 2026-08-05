@@ -14,12 +14,12 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { UpdateCompanyDetailsInteractor } from "../update-company-details.interactor";
+import { UpdateCompanySettingsInteractor } from "../update-company-settings.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 
 const COMPANY_ID = "test-company-id";
 
-describe("UpdateCompanyDetailsInteractor", () => {
+describe("UpdateCompanySettingsInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
 
@@ -30,6 +30,7 @@ describe("UpdateCompanyDetailsInteractor", () => {
 
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(undefined),
+      upsertTerminology: vi.fn().mockResolvedValue(undefined),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
@@ -37,7 +38,7 @@ describe("UpdateCompanyDetailsInteractor", () => {
   });
 
   function createInteractor() {
-    return new UpdateCompanyDetailsInteractor(mockRepo, mockEventService);
+    return new UpdateCompanySettingsInteractor(mockRepo, mockEventService);
   }
 
   it("publishes COMPANY_UPDATED event", async () => {
@@ -50,6 +51,20 @@ describe("UpdateCompanyDetailsInteractor", () => {
         entityId: COMPANY_ID,
         payload: { currency: "usd" },
       }),
+    );
+  });
+
+  it("audits a terminology-only change, so renaming records is not silent", async () => {
+    const terminology = [{ entityType: "contact" as const, presetKey: "person" }];
+    const interactor = createInteractor();
+    const result: any = await interactor.invoke({ terminology });
+
+    expect(result.ok).toBe(true);
+    expect(mockRepo.upsertTerminology).toHaveBeenCalledWith(terminology);
+    expect(mockRepo.updateDetails).not.toHaveBeenCalled();
+    expect(mockEventService.publish).toHaveBeenCalledWith(
+      DomainEvent.COMPANY_UPDATED,
+      expect.objectContaining({ entityId: COMPANY_ID, payload: { terminology } }),
     );
   });
 

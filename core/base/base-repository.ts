@@ -1,4 +1,4 @@
-import type { ExtendedUser } from "@/features/user/user.types";
+import type { TenantUser } from "@/features/user/user.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
 import { Resource, Action } from "@/generated/prisma";
@@ -28,7 +28,7 @@ export abstract class BaseRepository<
     return getTransactionClient<AppPrismaClient>() ?? prisma;
   }
 
-  public get user(): ExtendedUser {
+  public get user(): TenantUser {
     if (isTenantGuardBypassed()) throw new Error("User is not available when tenant is bypassed");
 
     return getTenantUser();

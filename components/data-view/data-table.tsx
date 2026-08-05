@@ -222,75 +222,69 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       </TableHeader>
 
       <TableBody>
-        {table.getRowModel().rows.length === 0 ? (
-          <TableRow>
-            <TableCell className="h-24 text-center text-muted-foreground" colSpan={allColumns.length}>
-              No items found.
-            </TableCell>
-          </TableRow>
-        ) : (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              className={cn((onRowClick || onRowHref) && "cursor-pointer")}
-              data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
-              onClick={(e) => {
-                if (isInteractiveClick(e)) return;
-                if (store.selectedIds.size > 0 && canBulkAct) {
-                  if (store.selectedIds.has(row.original.id)) store.selectedIds.delete(row.original.id);
-                  else store.selectedIds.add(row.original.id);
-                  return;
-                }
-                if (onRowClick) {
-                  onRowClick(row.original);
-                  return;
-                }
-                const href = onRowHref?.(row.original);
-                if (href) navigateToHref(href);
-              }}
-            >
-              {row.getVisibleCells().map((cell) => {
-                const isSelectionCell = cell.column.id === "__select";
-                const isNameCell = cell.column.id === "name";
-                const persistedWidth = store.columnWidths[cell.column.id];
-                const content = flexRender(cell.column.columnDef.cell, cell.getContext());
-                const rowHref = onRowHref?.(row.original);
-                const wrapped =
-                  isNameCell && rowHref ? (
-                    <a
-                      className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
-                      href={rowHref}
-                      onClick={(e) => {
-                        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-                        if (store.selectedIds.size > 0 && canBulkAct) {
+        {table.getRowModel().rows.length === 0
+          ? null
+          : table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                className={cn((onRowClick || onRowHref) && "cursor-pointer")}
+                data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
+                onClick={(e) => {
+                  if (isInteractiveClick(e)) return;
+                  if (store.selectedIds.size > 0 && canBulkAct) {
+                    if (store.selectedIds.has(row.original.id)) store.selectedIds.delete(row.original.id);
+                    else store.selectedIds.add(row.original.id);
+                    return;
+                  }
+                  if (onRowClick) {
+                    onRowClick(row.original);
+                    return;
+                  }
+                  const href = onRowHref?.(row.original);
+                  if (href) navigateToHref(href);
+                }}
+              >
+                {row.getVisibleCells().map((cell) => {
+                  const isSelectionCell = cell.column.id === "__select";
+                  const isNameCell = cell.column.id === "name";
+                  const persistedWidth = store.columnWidths[cell.column.id];
+                  const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+                  const rowHref = onRowHref?.(row.original);
+                  const wrapped =
+                    isNameCell && rowHref ? (
+                      <a
+                        className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
+                        href={rowHref}
+                        onClick={(e) => {
+                          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                          if (store.selectedIds.size > 0 && canBulkAct) {
+                            e.preventDefault();
+                            return;
+                          }
                           e.preventDefault();
-                          return;
-                        }
-                        e.preventDefault();
-                        if (onRowClick) onRowClick(row.original);
-                        else navigateToHref(rowHref);
-                      }}
-                    >
-                      {content}
-                    </a>
-                  ) : (
-                    content
-                  );
-                return (
-                  <TableCell key={cell.id} className={isSelectionCell ? "w-10" : undefined}>
-                    {persistedWidth != null && !isSelectionCell ? (
-                      <div className="truncate" style={{ width: persistedWidth - 24 }}>
-                        {wrapped}
-                      </div>
+                          if (onRowClick) onRowClick(row.original);
+                          else navigateToHref(rowHref);
+                        }}
+                      >
+                        {content}
+                      </a>
                     ) : (
-                      wrapped
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))
-        )}
+                      content
+                    );
+                  return (
+                    <TableCell key={cell.id} className={isSelectionCell ? "w-10" : undefined}>
+                      {persistedWidth != null && !isSelectionCell ? (
+                        <div className="truncate" style={{ width: persistedWidth - 24 }}>
+                          {wrapped}
+                        </div>
+                      ) : (
+                        wrapped
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
       </TableBody>
     </Table>
   );

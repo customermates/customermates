@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ExtendedUser } from "@/features/user/user.service";
+import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
@@ -40,8 +40,8 @@ export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
-  abstract createCompanyAndUser(args: RegisterUserData): Promise<ExtendedUser>;
-  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<ExtendedUser>;
+  abstract createCompanyAndUser(args: RegisterUserData): Promise<TenantUser>;
+  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
 }
 
 @SystemInteractor
@@ -62,28 +62,28 @@ export class RegisterUserInteractor {
 
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
 
-    const extendedUser = companyId
+    const tenantUser = companyId
       ? await this.repo.registerExistingCompany({ ...data, companyId })
       : await this.repo.createCompanyAndUser(data);
 
-    await runWithTenant(extendedUser, async () => {
+    await runWithTenant(tenantUser, async () => {
       await this.eventService.publish(DomainEvent.USER_REGISTERED, {
-        entityId: extendedUser.id,
+        entityId: tenantUser.id,
         payload: {
-          email: extendedUser.email,
-          firstName: extendedUser.firstName,
-          lastName: extendedUser.lastName,
-          country: extendedUser.country,
-          status: extendedUser.status,
-          avatarUrl: extendedUser.avatarUrl,
-          roleId: extendedUser.roleId,
+          email: tenantUser.email,
+          firstName: tenantUser.firstName,
+          lastName: tenantUser.lastName,
+          country: tenantUser.country,
+          status: tenantUser.status,
+          avatarUrl: tenantUser.avatarUrl,
+          roleId: tenantUser.roleId,
           isNewCompany: !companyId,
         },
       });
 
       await this.authService.sendNewUserNotificationEmail({
-        email: extendedUser.email,
-        name: `${extendedUser.firstName} ${extendedUser.lastName}`,
+        email: tenantUser.email,
+        name: `${tenantUser.firstName} ${tenantUser.lastName}`,
       });
     });
 

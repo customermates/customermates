@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { OnboardingWizard } from "./components/onboarding-wizard";
 
-import { getGetCompanyDetailsInteractor, getInviteTokenValidationInteractor, getUserService } from "@/core/di";
+import { getGetCompanySettingsInteractor, getInviteTokenValidationInteractor, getUserService } from "@/core/di";
 import { requireSession } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
@@ -26,7 +26,8 @@ export default async function OnboardingWizardPage() {
     }
   }
 
-  const company = user ? (await getGetCompanyDetailsInteractor().invoke()).data : null;
+  const settingsResult = user ? await getGetCompanySettingsInteractor().invoke() : null;
+  const initialTerminology = settingsResult?.ok ? settingsResult.data.terminology.presets : [];
 
   const sessionName = session.user?.name ?? "";
   const isEmail = sessionName.includes("@");
@@ -42,7 +43,7 @@ export default async function OnboardingWizardPage() {
   return (
     <CenteredCardPage>
       <OnboardingWizard
-        initialCompany={company}
+        initialTerminology={initialTerminology}
         isInvited={isInvited}
         profileCompleted={Boolean(user)}
         sessionAvatarUrl={sessionAvatarUrl}

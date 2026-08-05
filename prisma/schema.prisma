@@ -199,7 +199,6 @@ model User {
 model Company {
   id                          String                       @id @default(uuid())
   currency                    Currency                     @default(eur)
-  salesType                   SalesType?
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
   tasks                       Task[]
@@ -240,6 +239,20 @@ model Company {
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
   subscription                Subscription?
+  entityTerminology           EntityTerminology[]
+}
+
+model EntityTerminology {
+  id         String     @id @default(uuid())
+  companyId  String
+  company    Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  entityType EntityType
+  presetKey  String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([companyId, entityType])
+  @@index([companyId])
 }
 
 model P13n {
@@ -1135,11 +1148,6 @@ enum SubscriptionPlan {
   pro
   business
   enterprise
-}
-
-enum SalesType {
-  product
-  service
 }
 
 model ConnectedAccount {

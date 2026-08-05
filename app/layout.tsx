@@ -12,6 +12,7 @@ import { Status } from "@/generated/prisma";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 
 import type { Company } from "@/generated/prisma";
+import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
@@ -19,7 +20,7 @@ import { NavigationSwitch } from "./components/navigation/navigation-switch";
 import {
   getAuthService,
   getUserService,
-  getGetCompanyDetailsInteractor,
+  getGetCompanySettingsInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
@@ -135,6 +136,7 @@ export default async function RootLayout({ children }: Props) {
   let unreadThreadCount = 0;
   let channelsNeedingActionCount = 0;
   let company: Company | null = null;
+  let terminology: EntityTerminologyOverride[] = [];
   let subscription: SubscriptionDto | null = null;
   let trialDaysLeft: number | null = null;
   let emailVerified: boolean | null = null;
@@ -149,13 +151,14 @@ export default async function RootLayout({ children }: Props) {
     if (isAuthenticated) {
       const [companyResult, systemTaskCountResult, subscriptionResult, unreadThreadCountResult, accountsResult] =
         await Promise.all([
-          getGetCompanyDetailsInteractor().invoke(),
+          getGetCompanySettingsInteractor().invoke(),
           getCountSystemTasksInteractor().invoke(),
           getGetSubscriptionInteractor().invoke(),
           getGetUnreadThreadCountInteractor().invoke(),
           getGetMyConnectedAccountsInteractor().invoke(),
         ]);
       company = companyResult.data;
+      terminology = companyResult.data.terminology.presets;
       systemTaskCount = systemTaskCountResult.data;
       unreadThreadCount = unreadThreadCountResult.data;
       channelsNeedingActionCount = accountsResult.ok ? accountsResult.data.filter(accountNeedsAction).length : 0;
@@ -187,6 +190,7 @@ export default async function RootLayout({ children }: Props) {
             onboardingComplete={onboardingComplete}
             subscription={subscription}
             systemTaskCount={systemTaskCount}
+            terminology={terminology}
             trialDaysLeft={trialDaysLeft}
             unreadThreadCount={unreadThreadCount}
             user={user}

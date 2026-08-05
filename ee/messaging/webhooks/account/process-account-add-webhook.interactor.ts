@@ -38,7 +38,7 @@ export class ProcessAccountAddWebhookInteractor {
     const userId = verifyHostedAuthState(envelope.state ?? envelope.payload?.state ?? null);
     if (!userId) throw new Error("account.add webhook: missing or invalid hosted-auth state");
 
-    const user = await this.userRepo.findExtendedUserByIdOrThrowUnscoped(userId);
+    const user = await this.userRepo.findUserByIdOrThrowUnscoped(userId);
 
     const existing = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
 

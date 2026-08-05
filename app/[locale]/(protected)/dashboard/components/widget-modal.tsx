@@ -33,8 +33,8 @@ import {
 import { ChevronsUpDownIcon } from "lucide-react";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
-import type { ChartColor } from "@/features/widget/widget.types";
-import { DisplayType } from "@/features/widget/widget.types";
+import type { ChartColor } from "@/features/widget/widget.schema";
+import { DisplayType } from "@/features/widget/widget.schema";
 import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
@@ -81,157 +81,129 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
             </div>
           </AppCardHeader>
 
-          <AppCardBody>
-            <Accordion
-              collapsible
-              className="w-full"
-              type="single"
-              value={widgetModalStore.expandedSection}
-              onValueChange={widgetModalStore.setExpandedSection}
-            >
-              <AccordionItem value="config">
-                <AccordionTrigger>{t("Dashboard.tabs.config")}</AccordionTrigger>
+          <AppCardBody className="min-h-40">
+            {!widgetModalStore.isHydrating && (
+              <Accordion
+                collapsible
+                className="w-full"
+                type="single"
+                value={widgetModalStore.expandedSection}
+                onValueChange={widgetModalStore.setExpandedSection}
+              >
+                <AccordionItem value="config">
+                  <AccordionTrigger>{t("Dashboard.tabs.config")}</AccordionTrigger>
 
-                <AccordionContent className="flex flex-col gap-4 pb-4 pt-2">
-                  {showTemplateSelection && (
+                  <AccordionContent className="flex flex-col gap-4 pb-4 pt-2">
+                    {showTemplateSelection && (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="template">{t("Common.inputs.template")}</FormLabel>
+
+                        <Select onValueChange={(key) => void widgetModalStore.loadTemplate(key)}>
+                          <SelectTrigger className="w-full" id="template">
+                            <SelectValue placeholder=" " />
+                          </SelectTrigger>
+
+                          <SelectContent>
+                            {companyWideWidgets.map((widget) => (
+                              <SelectItem key={widget.id} value={widget.id}>
+                                <div className="flex w-full gap-2 items-center justify-start">
+                                  <span>{widget.name}</span>
+
+                                  <AppChip
+                                    startContent={
+                                      <Avatar
+                                        name={[widget.firstName, widget.lastName]}
+                                        size="sm"
+                                        src={widget.avatarUrl}
+                                      />
+                                    }
+                                    variant="outline"
+                                  >
+                                    {`${widget.firstName} ${widget.lastName}`.trim()}
+                                  </AppChip>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <p className="text-x-sm text-muted-foreground">
+                          {t("Dashboard.selectWidgetTemplateDescription")}
+                        </p>
+                      </div>
+                    )}
+
+                    <FormInput autoFocus required id="name" label={t("Common.inputs.name")} />
+
+                    <FormSelect
+                      required
+                      id="entityType"
+                      items={widgetModalStore.availableEntityTypes.map((entityType) => ({
+                        value: entityType,
+                        label: t(`Dashboard.entityTypes.${entityType}`),
+                      }))}
+                      label={t("Common.inputs.entityType")}
+                    />
+
+                    <FormSelect
+                      required
+                      id="aggregationType"
+                      items={widgetModalStore.aggregationTypeOptions.map(({ key }) => {
+                        const entityTypeName = t(`Dashboard.entityTypes.${form.entityType}`);
+                        const translationKey = `Dashboard.aggregationTypes.${key}`;
+                        const label =
+                          key === "count"
+                            ? t(translationKey, { entities: entityTypeName })
+                            : key === "dealValue"
+                              ? t(translationKey, { entity: entityTypeName })
+                              : t(translationKey);
+                        return { value: key, label };
+                      })}
+                      label={t("Common.inputs.aggregationType")}
+                    />
+
                     <div className="space-y-1.5">
-                      <FormLabel htmlFor="template">{t("Common.inputs.template")}</FormLabel>
+                      <FormLabel htmlFor="groupByValue">{t("Common.inputs.groupByValue")}</FormLabel>
 
-                      <Select onValueChange={(key) => void widgetModalStore.loadTemplate(key)}>
-                        <SelectTrigger className="w-full" id="template">
+                      <Select
+                        value={widgetModalStore.groupBySelectValue}
+                        onValueChange={(key) => widgetModalStore.onGroupByChange(key)}
+                      >
+                        <SelectTrigger className="w-full" id="groupByValue">
                           <SelectValue placeholder=" " />
                         </SelectTrigger>
 
                         <SelectContent>
-                          {companyWideWidgets.map((widget) => (
-                            <SelectItem key={widget.id} value={widget.id}>
-                              <div className="flex w-full gap-2 items-center justify-start">
-                                <span>{widget.name}</span>
-
-                                <AppChip
-                                  startContent={
-                                    <Avatar
-                                      name={[widget.firstName, widget.lastName]}
-                                      size="sm"
-                                      src={widget.avatarUrl}
-                                    />
-                                  }
-                                  variant="outline"
-                                >
-                                  {`${widget.firstName} ${widget.lastName}`.trim()}
-                                </AppChip>
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {widgetModalStore.groupBySelectOptions.map((opt) => {
+                            const translationKey =
+                              opt.key.startsWith("custom:") && opt.label ? undefined : `Dashboard.groupBys.${opt.key}`;
+                            const label = translationKey ? t(translationKey as never) : (opt.label ?? String(opt.key));
+                            return (
+                              <SelectItem key={opt.key} value={opt.key}>
+                                {label}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
-
-                      <p className="text-x-sm text-muted-foreground">
-                        {t("Dashboard.selectWidgetTemplateDescription")}
-                      </p>
                     </div>
-                  )}
 
-                  <FormInput autoFocus required id="name" label={t("Common.inputs.name")} />
+                    <FormSwitch id="isTemplate" label={t("Common.inputs.isTemplate")} />
+                  </AccordionContent>
+                </AccordionItem>
 
-                  <FormSelect
-                    required
-                    id="entityType"
-                    items={widgetModalStore.availableEntityTypes.map((entityType) => ({
-                      value: entityType,
-                      label: t(`Dashboard.entityTypes.${entityType}`),
-                    }))}
-                    label={t("Common.inputs.entityType")}
-                  />
-
-                  <FormSelect
-                    required
-                    id="aggregationType"
-                    items={widgetModalStore.aggregationTypeOptions.map(({ key }) => {
-                      const entityTypeName = t(`Dashboard.entityTypes.${form.entityType}`);
-                      const translationKey = `Dashboard.aggregationTypes.${key}`;
-                      const label =
-                        key === "count"
-                          ? t(translationKey, { entities: entityTypeName })
-                          : key === "dealValue"
-                            ? t(translationKey, { entity: entityTypeName })
-                            : t(translationKey);
-                      return { value: key, label };
-                    })}
-                    label={t("Common.inputs.aggregationType")}
-                  />
-
-                  <div className="space-y-1.5">
-                    <FormLabel htmlFor="groupByValue">{t("Common.inputs.groupByValue")}</FormLabel>
-
-                    <Select
-                      value={widgetModalStore.groupBySelectValue}
-                      onValueChange={(key) => widgetModalStore.onGroupByChange(key)}
-                    >
-                      <SelectTrigger className="w-full" id="groupByValue">
-                        <SelectValue placeholder=" " />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        {widgetModalStore.groupBySelectOptions.map((opt) => {
-                          const translationKey =
-                            opt.key.startsWith("custom:") && opt.label ? undefined : `Dashboard.groupBys.${opt.key}`;
-                          const label = translationKey ? t(translationKey as never) : (opt.label ?? String(opt.key));
-                          return (
-                            <SelectItem key={opt.key} value={opt.key}>
-                              {label}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <FormSwitch id="isTemplate" label={t("Common.inputs.isTemplate")} />
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="filters">
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <span>
-                      {t("Dashboard.tabs.filters", {
-                        entityType: t(`Dashboard.entityTypes.${widgetModalStore.form.entityType}`),
-                      })}
-                    </span>
-
-                    {widgetModalStore.activeFiltersCount > 0 && (
-                      <AppChip className="size-5 min-w-5 min-h-5 p-0" variant="secondary">
-                        {widgetModalStore.activeFiltersCount}
-                      </AppChip>
-                    )}
-                  </div>
-                </AccordionTrigger>
-
-                <AccordionContent className="pt-0 pb-2">
-                  <FilterAccordion
-                    nested
-                    baseId="entityFilters"
-                    customColumns={widgetModalStore.customColumns}
-                    filterableFields={widgetModalStore.filterableFields}
-                    filters={widgetModalStore.form.entityFilters ?? []}
-                    value={
-                      widgetModalStore.expandedSection === "filters" ? widgetModalStore.expandedFilterField : undefined
-                    }
-                    onValueChange={widgetModalStore.setExpandedFilterField}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-
-              {widgetModalStore.showDealFiltersTab && (
-                <AccordionItem value="dealFilters">
+                <AccordionItem value="filters">
                   <AccordionTrigger>
                     <div className="flex items-center gap-2">
-                      <span>{t("Dashboard.tabs.dealFilters")}</span>
+                      <span>
+                        {t("Dashboard.tabs.filters", {
+                          entityType: t(`Dashboard.entityTypes.${widgetModalStore.form.entityType}`),
+                        })}
+                      </span>
 
-                      {widgetModalStore.activeDealFiltersCount > 0 && (
+                      {widgetModalStore.activeFiltersCount > 0 && (
                         <AppChip className="size-5 min-w-5 min-h-5 p-0" variant="secondary">
-                          {widgetModalStore.activeDealFiltersCount}
+                          {widgetModalStore.activeFiltersCount}
                         </AppChip>
                       )}
                     </div>
@@ -240,12 +212,12 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                   <AccordionContent className="pt-0 pb-2">
                     <FilterAccordion
                       nested
-                      baseId="dealFilters"
-                      customColumns={widgetModalStore.customColumnsByEntityType[EntityType.deal]}
-                      filterableFields={widgetModalStore.dealFilterableFields}
-                      filters={widgetModalStore.form.dealFilters ?? []}
+                      baseId="entityFilters"
+                      customColumns={widgetModalStore.customColumns}
+                      filterableFields={widgetModalStore.filterableFields}
+                      filters={widgetModalStore.form.entityFilters ?? []}
                       value={
-                        widgetModalStore.expandedSection === "dealFilters"
+                        widgetModalStore.expandedSection === "filters"
                           ? widgetModalStore.expandedFilterField
                           : undefined
                       }
@@ -253,108 +225,144 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                     />
                   </AccordionContent>
                 </AccordionItem>
-              )}
 
-              <AccordionItem value="display">
-                <AccordionTrigger>{t("Dashboard.tabs.display")}</AccordionTrigger>
+                {widgetModalStore.showDealFiltersTab && (
+                  <AccordionItem value="dealFilters">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <span>{t("Dashboard.tabs.dealFilters")}</span>
 
-                <AccordionContent className="flex flex-col gap-4 pb-4 pt-2">
-                  {form.groupByType === WidgetGroupByType.customColumn && (
-                    <FormSwitch
-                      id="displayOptions.useGroupColors"
-                      label={t("Common.inputs.displayOptions.useGroupColors")}
-                    />
-                  )}
+                        {widgetModalStore.activeDealFiltersCount > 0 && (
+                          <AppChip className="size-5 min-w-5 min-h-5 p-0" variant="secondary">
+                            {widgetModalStore.activeDealFiltersCount}
+                          </AppChip>
+                        )}
+                      </div>
+                    </AccordionTrigger>
 
-                  {!(
-                    form.groupByType === WidgetGroupByType.customColumn && form.displayOptions?.useGroupColors !== false
-                  ) && (
-                    <div className="space-y-1.5">
-                      <FormLabel htmlFor="displayOptions.barColors">
-                        {t("Common.inputs.displayOptions.barColors")}
-                      </FormLabel>
+                    <AccordionContent className="pt-0 pb-2">
+                      <FilterAccordion
+                        nested
+                        baseId="dealFilters"
+                        customColumns={widgetModalStore.customColumnsByEntityType[EntityType.deal]}
+                        filterableFields={widgetModalStore.dealFilterableFields}
+                        filters={widgetModalStore.form.dealFilters ?? []}
+                        value={
+                          widgetModalStore.expandedSection === "dealFilters"
+                            ? widgetModalStore.expandedFilterField
+                            : undefined
+                        }
+                        onValueChange={widgetModalStore.setExpandedFilterField}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-label={t("Common.inputs.displayOptions.barColors")}
-                            className="w-full justify-between font-normal"
-                            id="displayOptions.barColors"
-                            type="button"
-                            variant="outline"
-                          >
-                            <span className="flex flex-wrap items-center gap-1">
-                              {(form.displayOptions?.barColors ?? []).map((key) => (
-                                <span
-                                  key={key}
-                                  className="inline-flex size-4 rounded-full"
-                                  style={{ backgroundColor: chartColors[key as keyof typeof chartColors] }}
-                                />
-                              ))}
-                            </span>
+                <AccordionItem value="display">
+                  <AccordionTrigger>{t("Dashboard.tabs.display")}</AccordionTrigger>
 
-                            <ChevronsUpDownIcon className="ml-2 size-4 opacity-50" />
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
-                          {Object.entries(chartColors).map(([key, color]) => {
-                            const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
-                            return (
-                              <DropdownMenuCheckboxItem
-                                key={key}
-                                checked={selected}
-                                onCheckedChange={(checked) => {
-                                  const current = form.displayOptions?.barColors ?? [];
-                                  const next = checked
-                                    ? [...current, key as ChartColor]
-                                    : current.filter((k) => k !== (key as ChartColor));
-                                  if (next.length === 0) return;
-                                  widgetModalStore.onChange("displayOptions.barColors", next);
-                                }}
-                                onSelect={(e) => e.preventDefault()}
-                              >
-                                <span className="inline-flex size-4 rounded-full" style={{ backgroundColor: color }} />
-                              </DropdownMenuCheckboxItem>
-                            );
-                          })}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
-
-                  <FormSelect
-                    id="displayOptions.displayType"
-                    items={Object.values(DisplayType).map((key) => ({
-                      value: key,
-                      label: t(`Dashboard.displayTypes.${key}`),
-                    }))}
-                    label={t("Common.inputs.displayOptions.displayType")}
-                  />
-
-                  {form.displayOptions?.displayType !== DisplayType.doughnutChart &&
-                    form.displayOptions?.displayType !== DisplayType.radarChart && (
-                      <>
-                        <FormSwitch
-                          id="displayOptions.reverseXAxis"
-                          label={t("Common.inputs.displayOptions.reverseXAxis")}
-                        />
-
-                        <FormSwitch
-                          id="displayOptions.reverseYAxis"
-                          label={t("Common.inputs.displayOptions.reverseYAxis")}
-                        />
-                      </>
+                  <AccordionContent className="flex flex-col gap-4 pb-4 pt-2">
+                    {form.groupByType === WidgetGroupByType.customColumn && (
+                      <FormSwitch
+                        id="displayOptions.useGroupColors"
+                        label={t("Common.inputs.displayOptions.useGroupColors")}
+                      />
                     )}
 
-                  {form.displayOptions?.displayType === DisplayType.doughnutChart && (
-                    <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
-                  )}
+                    {!(
+                      form.groupByType === WidgetGroupByType.customColumn &&
+                      form.displayOptions?.useGroupColors !== false
+                    ) && (
+                      <div className="space-y-1.5">
+                        <FormLabel htmlFor="displayOptions.barColors">
+                          {t("Common.inputs.displayOptions.barColors")}
+                        </FormLabel>
 
-                  <FormSwitch id="displayOptions.showFilters" label={t("Common.inputs.displayOptions.showFilters")} />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-label={t("Common.inputs.displayOptions.barColors")}
+                              className="w-full justify-between font-normal"
+                              id="displayOptions.barColors"
+                              type="button"
+                              variant="outline"
+                            >
+                              <span className="flex flex-wrap items-center gap-1">
+                                {(form.displayOptions?.barColors ?? []).map((key) => (
+                                  <span
+                                    key={key}
+                                    className="inline-flex size-4 rounded-full"
+                                    style={{ backgroundColor: chartColors[key as keyof typeof chartColors] }}
+                                  />
+                                ))}
+                              </span>
+
+                              <ChevronsUpDownIcon className="ml-2 size-4 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+
+                          <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+                            {Object.entries(chartColors).map(([key, color]) => {
+                              const selected = (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+                              return (
+                                <DropdownMenuCheckboxItem
+                                  key={key}
+                                  checked={selected}
+                                  onCheckedChange={(checked) => {
+                                    const current = form.displayOptions?.barColors ?? [];
+                                    const next = checked
+                                      ? [...current, key as ChartColor]
+                                      : current.filter((k) => k !== (key as ChartColor));
+                                    if (next.length === 0) return;
+                                    widgetModalStore.onChange("displayOptions.barColors", next);
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                >
+                                  <span
+                                    className="inline-flex size-4 rounded-full"
+                                    style={{ backgroundColor: color }}
+                                  />
+                                </DropdownMenuCheckboxItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+
+                    <FormSelect
+                      id="displayOptions.displayType"
+                      items={Object.values(DisplayType).map((key) => ({
+                        value: key,
+                        label: t(`Dashboard.displayTypes.${key}`),
+                      }))}
+                      label={t("Common.inputs.displayOptions.displayType")}
+                    />
+
+                    {form.displayOptions?.displayType !== DisplayType.doughnutChart &&
+                      form.displayOptions?.displayType !== DisplayType.radarChart && (
+                        <>
+                          <FormSwitch
+                            id="displayOptions.reverseXAxis"
+                            label={t("Common.inputs.displayOptions.reverseXAxis")}
+                          />
+
+                          <FormSwitch
+                            id="displayOptions.reverseYAxis"
+                            label={t("Common.inputs.displayOptions.reverseYAxis")}
+                          />
+                        </>
+                      )}
+
+                    {form.displayOptions?.displayType === DisplayType.doughnutChart && (
+                      <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
+                    )}
+
+                    <FormSwitch id="displayOptions.showFilters" label={t("Common.inputs.displayOptions.showFilters")} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            )}
           </AppCardBody>
 
           <FormActions showInitially anchorScope="widget-modal" store={widgetModalStore} />
