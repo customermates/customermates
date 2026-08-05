@@ -4,35 +4,14 @@ import { join } from "node:path";
 const LOCALES = ["en", "de"] as const;
 const DOCUMENTS = ["privacy", "terms", "dpa", "subprocessors"] as const;
 
-const MONTHS_EN = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const MONTHS_DE = [
-  "Januar",
-  "Februar",
-  "März",
-  "April",
-  "Mai",
-  "Juni",
-  "Juli",
-  "August",
-  "September",
-  "Oktober",
-  "November",
-  "Dezember",
-];
+// Month names come from Intl rather than from a hand-maintained list or from the i18n
+// catalogues. The catalogues are for product copy that a translator owns; these are calendar
+// names that the platform already knows, so duplicating them anywhere would only create a
+// second thing to keep correct.
+const LONG_DATE = {
+  en: new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }),
+  de: new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }),
+} as const;
 
 type Formats = { iso: string; longEn: string; longDe: string; numeric: string };
 
@@ -47,8 +26,8 @@ export function formatDate(iso: string): Formats {
 
   return {
     iso,
-    longEn: `${day} ${MONTHS_EN[month - 1]} ${year}`,
-    longDe: `${day}. ${MONTHS_DE[month - 1]} ${year}`,
+    longEn: LONG_DATE.en.format(date),
+    longDe: LONG_DATE.de.format(date),
     numeric: `${String(day).padStart(2, "0")}.${String(month).padStart(2, "0")}.${year}`,
   };
 }

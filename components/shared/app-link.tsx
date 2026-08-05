@@ -23,7 +23,7 @@ export function AppLink(props: Props) {
   const mergedClassName = cn(
     "underline-offset-4 transition-colors",
     inline ? "text-inherit underline hover:text-primary" : "text-primary hover:underline",
-    inheritSize && "[font-size:inherit]",
+    (inline || inheritSize) && "[font-size:inherit]",
     className,
   );
 
