@@ -78,6 +78,8 @@ export function OverlayGallery() {
   const state = params.get("state") ?? "idle";
   const startsOpen = params.get("open") !== "0";
   const safe = params.get("safe");
+  const matrixRun = params.get("matrixRun");
+  const matrixCell = params.get("matrixCell");
 
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -104,6 +106,17 @@ export function OverlayGallery() {
   const error = state === "error";
   const title = content === "de" ? "Unterhaltungseinstellungen" : "Overlay case";
   const anchorClass = ANCHOR_CELL_CLASS[anchor];
+  const fixture = {
+    caseId,
+    content,
+    anchor,
+    actions,
+    state,
+    startsOpen,
+    safe: safe ? Number(safe) : 0,
+    matrixRun,
+    matrixCell,
+  };
 
   const cardChrome = (
     <AppCard>
@@ -144,7 +157,10 @@ export function OverlayGallery() {
   );
 
   return (
-    <div className="grid min-h-[70svh] w-full grid-cols-3 grid-rows-3 gap-4 p-4">
+    <div
+      className="grid min-h-[70svh] w-full grid-cols-3 grid-rows-3 gap-4 p-4"
+      data-overlay-gallery-fixture={JSON.stringify(fixture)}
+    >
       {caseId.startsWith("modal-") || caseId === "nested-modal-select" ? (
         <>
           {trigger}
@@ -314,7 +330,7 @@ export function OverlayGallery() {
             ))}
 
             {caseId === "dropdown-sub" && (
-              <DropdownMenuSub open>
+              <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Benutzerdefiniert</DropdownMenuSubTrigger>
 
                 <DropdownMenuSubContent>

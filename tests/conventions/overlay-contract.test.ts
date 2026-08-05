@@ -62,6 +62,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
     mustContain: [
       "max-h-(--radix-dropdown-menu-content-available-height)",
       "max-w-(--radix-dropdown-menu-content-available-width)",
+      "calc(var(--radix-dropdown-menu-content-available-width,100dvw)",
       "collisionPadding",
     ],
   },
@@ -72,6 +73,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
       "--radix-select-content-available-width",
       'position = "popper"',
       "collisionPadding",
+      "sideOffset = 4",
     ],
   },
   {

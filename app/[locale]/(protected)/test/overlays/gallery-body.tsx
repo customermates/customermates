@@ -79,7 +79,7 @@ export function GalleryFormBody({ error }: { error: boolean }) {
         <Input defaultValue="" id="overlay-field-name" placeholder="Benutzerdefiniert" />
 
         {error && (
-          <p className="text-sm text-destructive">
+          <p data-overlay-fixture-error className="text-sm text-destructive">
             Dieser Wert ist ungültig. Bitte geben Sie einen benutzerdefinierten Namen ein, der nicht bereits vergeben
             ist.
           </p>
