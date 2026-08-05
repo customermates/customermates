@@ -2,14 +2,16 @@
 
 import { useTranslations } from "next-intl";
 
+import { AppCard } from "@/components/card/app-card";
+import { AppCardBody } from "@/components/card/app-card-body";
+import { AppCardFooter } from "@/components/card/app-card-footer";
+import { AppCardHeader } from "@/components/card/app-card-header";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
@@ -29,20 +31,26 @@ export function UnsavedChangesGuard({ open, onCancel, onConfirm }: Props) {
         if (!next) onCancel();
       }}
     >
-      <AlertDialogContent size="sm">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t("Common.navigationGuard.title")}</AlertDialogTitle>
+      <AlertDialogContent className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none" size="sm">
+        <AppCard>
+          <AppCardHeader>
+            <AlertDialogTitle className="text-base font-semibold">{t("Common.navigationGuard.title")}</AlertDialogTitle>
+          </AppCardHeader>
 
-          <AlertDialogDescription>{t("Common.navigationGuard.message")}</AlertDialogDescription>
-        </AlertDialogHeader>
+          <AppCardBody>
+            <AlertDialogDescription className="text-sm text-foreground">
+              {t("Common.navigationGuard.message")}
+            </AlertDialogDescription>
+          </AppCardBody>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>{t("Common.actions.cancel")}</AlertDialogCancel>
+          <AppCardFooter>
+            <AlertDialogCancel onClick={onCancel}>{t("Common.actions.cancel")}</AlertDialogCancel>
 
-          <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t("Common.actions.discard")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
+            <AlertDialogAction variant="destructive" onClick={onConfirm}>
+              {t("Common.actions.discard")}
+            </AlertDialogAction>
+          </AppCardFooter>
+        </AppCard>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -116,8 +116,8 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
           showBubbleMenuForSelection(view);
           return false;
         },
-        keyup: (view) => {
-          showBubbleMenuForSelection(view);
+        keyup: (view, event) => {
+          if (event.key !== "Escape") showBubbleMenuForSelection(view);
           return false;
         },
       },
@@ -125,7 +125,16 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         if (event.key === "/" && !showSlashMenu) {
           const { selection } = view.state;
           const coords = view.coordsAtPos(selection.from);
-          setSlashAnchorRect({ top: coords.top, left: coords.left, height: coords.bottom - coords.top });
+          const position = selection.from;
+          setSlashAnchorRect({
+            top: coords.top,
+            left: coords.left,
+            height: coords.bottom - coords.top,
+            resolve: () => {
+              const current = view.coordsAtPos(Math.min(position, view.state.doc.content.size));
+              return new DOMRect(current.left, current.top, 0, current.bottom - current.top);
+            },
+          });
           setShowSlashMenu(true);
           return true;
         }
@@ -133,6 +142,18 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         if (showSlashMenu && event.key === "Escape") {
           event.preventDefault();
           setShowSlashMenu(false);
+          return true;
+        }
+
+        if (showBubbleMenu && event.key === "Escape") {
+          event.preventDefault();
+          setShowBubbleMenu(false);
+          return true;
+        }
+
+        if (showTableMenu && event.key === "Escape") {
+          event.preventDefault();
+          setShowTableMenu(false);
           return true;
         }
 
@@ -183,23 +204,45 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         left: Math.min(start.left, end.left),
         width: Math.abs(end.left - start.left),
         height: end.bottom - start.top,
+        resolve: () => {
+          const currentSelection = view.state.selection;
+          const currentStart = view.coordsAtPos(currentSelection.from);
+          const currentEnd = view.coordsAtPos(currentSelection.to);
+          const left = Math.min(currentStart.left, currentEnd.left);
+          return new DOMRect(
+            left,
+            currentStart.top,
+            Math.abs(currentEnd.left - currentStart.left),
+            currentEnd.bottom - currentStart.top,
+          );
+        },
       });
     }
   }, [showBubbleMenu, editor]);
 
   useEffect(() => {
     if (showTableMenu && editor) {
-      const { from } = editor.state.selection;
-      const domNode = editor.view.domAtPos(from).node;
-      const element = domNode instanceof Element ? domNode : domNode.parentElement;
-      const tableElement = element?.closest("table");
-      const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(from);
+      const resolve = () => {
+        const position = Math.min(tableAnchorPos ?? editor.state.selection.from, editor.state.doc.content.size);
+        const domNode = editor.view.nodeDOM(position);
+        const tableElement =
+          domNode instanceof HTMLTableElement
+            ? domNode
+            : domNode instanceof Element
+              ? (domNode.querySelector("table") ?? domNode.closest("table"))
+              : null;
+        const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(position);
+
+        return new DOMRect(anchor.left, anchor.top, "width" in anchor ? anchor.width : 0, anchor.bottom - anchor.top);
+      };
+      const anchor = resolve();
 
       setTableAnchorRect({
         top: anchor.top,
         left: anchor.left,
-        width: "width" in anchor ? anchor.width : 0,
+        width: anchor.width,
         height: anchor.bottom - anchor.top,
+        resolve,
       });
     }
   }, [showTableMenu, tableAnchorPos, editor]);

@@ -143,6 +143,14 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
       editorDom={editor.view.dom}
       side="bottom"
       onClose={onClose}
+      onEscapeKeyDown={(event) => {
+        if (!urlCommand) return;
+
+        event.preventDefault();
+        setUrlCommand(null);
+        setUrl("");
+      }}
+      onRestoreFocus={() => editor.view.focus()}
     >
       {urlCommand ? (
         <div className="flex w-full items-center gap-1 p-2">

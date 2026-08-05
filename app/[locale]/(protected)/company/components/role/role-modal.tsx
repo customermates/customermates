@@ -55,7 +55,7 @@ export const RoleModal = observer(({ store }: Props) => {
     ];
 
     return (
-      <div key={resource} className="grid grid-cols-subgrid col-span-3 py-3 items-center *:min-w-0">
+      <div key={resource} className="grid grid-cols-subgrid col-span-3 py-3 items-center">
         <h3 className="text-sm font-medium">{t(`RoleModal.resources.${resource}`)}</h3>
 
         <div>

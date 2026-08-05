@@ -16,8 +16,6 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -162,20 +160,26 @@ export function OverlayGallery() {
           {trigger}
 
           <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogContent size="sm">
-              <AlertDialogHeader>
-                <AlertDialogTitle>{title}</AlertDialogTitle>
+            <AlertDialogContent className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none" size="sm">
+              <AppCard>
+                <AppCardHeader>
+                  <AlertDialogTitle className="text-base font-semibold">{title}</AlertDialogTitle>
+                </AppCardHeader>
 
-                <AlertDialogDescription>{content === "de" ? GERMAN_PARAGRAPH : LONG_PARAGRAPH}</AlertDialogDescription>
-              </AlertDialogHeader>
+                <AppCardBody>
+                  <AlertDialogDescription className="text-sm text-foreground">
+                    {content === "de" ? GERMAN_PARAGRAPH : LONG_PARAGRAPH}
+                  </AlertDialogDescription>
+                </AppCardBody>
 
-              <AlertDialogFooter>
-                <AlertDialogCancel id="overlay-action-cancel">Cancel</AlertDialogCancel>
+                <AppCardFooter>
+                  <AlertDialogCancel id="overlay-action-cancel">Cancel</AlertDialogCancel>
 
-                <AlertDialogAction id="overlay-action-submit" variant="destructive">
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
+                  <AlertDialogAction id="overlay-action-submit" variant="destructive">
+                    Delete
+                  </AlertDialogAction>
+                </AppCardFooter>
+              </AppCard>
             </AlertDialogContent>
           </AlertDialog>
         </>
@@ -294,7 +298,9 @@ export function OverlayGallery() {
           trigger={trigger}
           onOpenChange={setOpen}
         >
-          <GalleryBody content={content} />
+          <div className="p-3">
+            <GalleryBody content={content} />
+          </div>
         </ResponsiveOverlay>
       )}
 

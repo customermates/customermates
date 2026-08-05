@@ -39,6 +39,7 @@ export function TableMenu({ editor, anchorRect, onClose }: Props) {
       className="flex items-center gap-0.5"
       editorDom={editor.view.dom}
       onClose={onClose}
+      onRestoreFocus={() => editor.view.focus()}
     >
       {actions.map((action) => (
         <Button
