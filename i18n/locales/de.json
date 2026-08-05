@@ -41,6 +41,8 @@
     "userId": "Benutzer"
   },
   "AuditLogsCard": {
+    "emptyBody": "Änderungen im Workspace werden hier protokolliert.",
+    "emptyTitle": "Noch keine Aktivität",
     "searchTooltip": "Nach Element-ID suchen",
     "title": "Audit-Logs"
   },
@@ -238,10 +240,29 @@
     "default": "Standard",
     "defaultColor": "Standardfarbe",
     "defaultData": {
-      "todo": {
+      "contact": {
+        "columnLabel": "Vertriebsphase",
+        "options": {
+          "contact": "Kontaktiert",
+          "inProgress": "In Bearbeitung",
+          "lost": "Verloren",
+          "new": "Neu",
+          "qualified": "Qualifiziert",
+          "won": "Gewonnen"
+        }
+      },
+      "deal": {
         "columnLabel": "Status",
-        "name": "Meine erste Aufgabe",
-        "states": {
+        "options": {
+          "abandoned": "Abgebrochen",
+          "lost": "Verloren",
+          "open": "Offen",
+          "won": "Gewonnen"
+        }
+      },
+      "task": {
+        "columnLabel": "Status",
+        "options": {
           "archived": "Archiviert",
           "blocked": "Blockiert",
           "done": "Erledigt",
@@ -257,6 +278,20 @@
       "title": "Löschung bestätigen"
     },
     "email": "E-Mail",
+    "emptyState": {
+      "body": "Füge deinen ersten {singular} hinzu, um loszulegen.",
+      "clearFilters": "Filter zurücksetzen",
+      "cta": "Ersten {singular} hinzufügen",
+      "dashboardBody": "Diagramme und Kennzahlen erscheinen hier, sobald du Daten hinzufügst.",
+      "dashboardTitle": "Noch nichts zu sehen",
+      "filteredBody": "Keine {plural} entsprechen deinen Filtern.",
+      "filteredTitle": "Keine Treffer",
+      "genericFilteredBody": "Keine Ergebnisse entsprechen deinen Filtern.",
+      "genericTitle": "Noch nichts vorhanden",
+      "readOnlyBody": "Du hast keine Berechtigung, {plural} hinzuzufügen.",
+      "readOnlyTitle": "Noch keine {plural}",
+      "title": "Noch keine {plural}"
+    },
     "en": "English",
     "errors": {
       "activityScopeRequiresBoth": "entityType und entityId müssen zusammen angegeben werden, um auf einen Datensatz einzugrenzen.",
@@ -281,6 +316,7 @@
       "customFieldInvalidUrl": "Der URL-Wert ist ungültig. Muss ein gültiges URL-Format haben (z.B. https://example.com). Bei mehreren URLs durch Komma trennen (z.B. https://example.com, https://example.org).",
       "dealNotFound": "Deal-ID nicht gefunden oder nicht zugänglich.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
+      "duplicateChannel": "Dieser Kanal ist mehrfach vorhanden. Füge jede E-Mail-Adresse, Telefonnummer und jeden Benutzernamen nur einmal hinzu.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben an diesen Thread gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
       "duplicateWebhookEvents": "Doppelte Ereignisse sind nicht erlaubt.",
       "emailAlreadyExists": "Ein Konto mit dieser E-Mail-Adresse existiert bereits.",
@@ -320,6 +356,7 @@
       "taskNameCannotBeChangedForSystemTasks": "Der Name kann für Systemaufgaben nicht geändert werden.",
       "taskNotFound": "Aufgaben-ID nicht gefunden oder nicht zugänglich.",
       "taskOnlyCustomTasksCanBeDeleted": "Nur benutzerdefinierte Aufgaben können gelöscht werden.",
+      "terminologyInvalidPreset": "Wähle eine der verfügbaren Namensvorlagen.",
       "termsNotAgreed": "Sie müssen den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
       "unipileDisconnectedAccount": "Der Kanal ist getrennt. Bitte erneut verbinden.",
@@ -665,117 +702,6 @@
       "whatsapp": "WhatsApp"
     },
     "role": "Rolle",
-    "seedData": {
-      "column": {
-        "articleNumber": "Artikelnummer",
-        "billableHours": "Abrechenbare Stunden",
-        "salesPipeline": "Sales-Pipeline",
-        "stock": "Bestand"
-      },
-      "contact": {
-        "alex": {
-          "email": "alex.murphy@northlight.example",
-          "first": "Alex",
-          "last": "Murphy"
-        },
-        "elena": {
-          "email": "elena.costa@harborline.example",
-          "first": "Elena",
-          "last": "Costa"
-        },
-        "linnea": {
-          "email": "linnea.holm@kestrelstudios.example",
-          "first": "Linnea",
-          "last": "Holm"
-        },
-        "marius": {
-          "email": "marius.becker@marlowecole.example",
-          "first": "Marius",
-          "last": "Becker"
-        },
-        "priya": {
-          "email": "priya.iyer@northlight.example",
-          "first": "Priya",
-          "last": "Iyer"
-        },
-        "rashid": {
-          "email": "rashid.khan@atlasmobility.example",
-          "first": "Rashid",
-          "last": "Khan"
-        },
-        "sara": {
-          "email": "sara.romero@atlasmobility.example",
-          "first": "Sara",
-          "last": "Romero"
-        },
-        "tomas": {
-          "email": "tomas.lindberg@harborline.example",
-          "first": "Tomas",
-          "last": "Lindberg"
-        }
-      },
-      "deal": {
-        "atlasDiscovery": "Atlas Discovery-Sprint",
-        "atlasExpansion": "Atlas Flotten-Erweiterung",
-        "atlasPilot": "Atlas Pilot-Rollout",
-        "atlasRetainer": "Atlas laufender Retainer",
-        "harborDiscovery": "Harbor Scoping-Workshop",
-        "harborRollout": "Harbor Rollout-Paket",
-        "kestrelFlagship": "Kestrel Flagship-Launch",
-        "kestrelRetainer": "Kestrel Implementierung + Retainer",
-        "marloweBulk": "Marlowe Großbestellung",
-        "marloweImplementation": "Marlowe vollständige Implementierung",
-        "northLightDiscovery": "North Light Discovery",
-        "northLightStarter": "North Light Starter-Bestellung"
-      },
-      "organization": {
-        "atlasMobility": "Atlas Mobility",
-        "harborAndLine": "Harbor & Line",
-        "kestrelStudios": "Kestrel Studios",
-        "marloweAndCole": "Marlowe & Cole",
-        "northLight": "North Light Group"
-      },
-      "pipeline": {
-        "lost": "Verloren",
-        "new": "Neu",
-        "qualified": "Qualifiziert",
-        "quoted": "Angebot",
-        "won": "Gewonnen"
-      },
-      "service": {
-        "discovery": "Discovery",
-        "enterpriseKit": "Enterprise-Paket",
-        "implementation": "Implementierung",
-        "premiumKit": "Premium-Paket",
-        "retainer": "Retainer",
-        "starterKit": "Starter-Paket"
-      },
-      "task": {
-        "checkStock": "Bestände prüfen",
-        "confirmBulkOrder": "Großbestellung bestätigen",
-        "contractReview": "Erweiterungsvertrag prüfen",
-        "discoveryWorkshop": "Discovery-Workshop durchführen",
-        "followUp": "Nachfassen nach Pause",
-        "gatherRequirements": "Anforderungen aufnehmen",
-        "implementationPlan": "Umsetzungsplan entwerfen",
-        "introCall": "Erstgespräch",
-        "kickoffPrep": "Kickoff-Unterlagen vorbereiten",
-        "postMortem": "Projekt-Post-Mortem schreiben",
-        "retainerCheckIn": "Retainer-Check-in planen",
-        "sendQuote": "Angebot versenden",
-        "shipStarterKits": "Starter-Kits versenden"
-      },
-      "widget": {
-        "activeDealsByStage": "Aktive Deals",
-        "dealsByStage": "Deals je Stage",
-        "dealValueByOrg": "Deal-Wert je Organisation",
-        "tasksByStatus": "Aufgaben nach Status",
-        "topDealsByValue": "Top Deals nach Wert",
-        "totalContacts": "Kontakte",
-        "valueByStage": "Pipeline-Wert",
-        "valuePerService": "Wert je Service"
-      }
-    },
     "single": "Einzel",
     "sort": {
       "ascending": "Aufsteigend",
@@ -921,7 +847,7 @@
     "title": "Benutzer einladen"
   },
   "CompanySettings": {
-    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, etwa Deal- und Servicewerte."
+    "currencyDescription": "Wird für alle Geldwerte im CRM verwendet, zum Beispiel: {deals}, {services}."
   },
   "CompanyUserModal": {
     "activeUserWarning": "Sie können Ihr eigenes Benutzerkonto in Ihren <settingsLink>Einstellungen</settingsLink> bearbeiten.",
@@ -1113,9 +1039,8 @@
     }
   },
   "DealModal": {
-    "noServicesAdded": "Noch keine Services hinzugefügt",
+    "noServicesAdded": "Noch keine {entity} hinzugefügt",
     "quantityLabel": "Anzahl",
-    "servicesLabel": "Services",
     "title": "Deal",
     "totalLabel": "Gesamt",
     "valueLabel": "Wert"
@@ -1229,6 +1154,79 @@
     "tooltipUnverified": "Dieses Profil wurde noch nicht bestätigt. Es wird automatisch geprüft, sobald du die erste Nachricht sendest.",
     "unverified": "Unbestätigt"
   },
+  "EntityTerminology": {
+    "presets": {
+      "contact": {
+        "client": {
+          "plural": "Kunden",
+          "singular": "Kunde"
+        },
+        "contact": {
+          "plural": "Kontakte",
+          "singular": "Kontakt"
+        },
+        "person": {
+          "plural": "Personen",
+          "singular": "Person"
+        }
+      },
+      "deal": {
+        "deal": {
+          "plural": "Deals",
+          "singular": "Deal"
+        },
+        "opportunity": {
+          "plural": "Chancen",
+          "singular": "Chance"
+        },
+        "project": {
+          "plural": "Projekte",
+          "singular": "Projekt"
+        }
+      },
+      "organization": {
+        "account": {
+          "plural": "Accounts",
+          "singular": "Account"
+        },
+        "company": {
+          "plural": "Unternehmen",
+          "singular": "Unternehmen"
+        },
+        "organization": {
+          "plural": "Organisationen",
+          "singular": "Organisation"
+        }
+      },
+      "service": {
+        "offering": {
+          "plural": "Angebote",
+          "singular": "Angebot"
+        },
+        "product": {
+          "plural": "Produkte",
+          "singular": "Produkt"
+        },
+        "service": {
+          "plural": "Services",
+          "singular": "Service"
+        }
+      },
+      "task": {
+        "task": {
+          "plural": "Aufgaben",
+          "singular": "Aufgabe"
+        }
+      }
+    },
+    "relationships": {
+      "dataModelSubtitle": "Jeder Knoten ist eine Entität. Benenne sie direkt um, die Verbindungen bleiben bestehen.",
+      "dataModelTitle": "Dein Datenmodell",
+      "include": "enthalten",
+      "involvedIn": "sind beteiligt an",
+      "workAt": "arbeiten bei"
+    }
+  },
   "EntityTimeline": {
     "loadOlder": "Ältere laden",
     "types": {
@@ -1310,11 +1308,7 @@
   "GlobalSearch": {
     "clearRecent": "Leeren",
     "emptyPrompt": "Tippe los, um in Kontakten, Organisationen, Deals und Services zu suchen.",
-    "groupContact": "Kontakte",
-    "groupDeal": "Deals",
-    "groupOrganization": "Organisationen",
     "groupRecent": "Zuletzt geöffnet",
-    "groupService": "Services",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
     "loading": "Suche...",
@@ -1523,13 +1517,9 @@
     "title": "Upgrade nötig, um Messaging freizuschalten"
   },
   "NavigationBar": {
-    "addContact": "Kontakt hinzufügen",
-    "addDeal": "Deal hinzufügen",
-    "addOrganization": "Organisation hinzufügen",
+    "addEntity": "{entity} hinzufügen",
     "addPickerDescription": "Wähle den Typ des Datensatzes, den du anlegen möchtest.",
     "addPickerTitle": "Neu anlegen…",
-    "addService": "Service hinzufügen",
-    "addTask": "Aufgabe hinzufügen",
     "affiliate": "Affiliate Programm",
     "apiDocs": "API Dokumentation",
     "automation": "Automatisierung",
@@ -1602,28 +1592,6 @@
     "avatarDescription": "Optional. Füge einen Link zu einem Foto von dir ein. Der Link muss öffentlich zugänglich sein (jede Person mit dem Link kann das Bild sehen). Lässt du das Feld leer, zeigen wir deine Initialen.",
     "back": "Zurück",
     "continue": "Weiter",
-    "demoData": {
-      "cleanDescription": "Beispieldaten überspringen. Du startest mit einem leeren Workspace.",
-      "cleanLabel": "Leer starten",
-      "description": "Sollen wir den Workspace mit Beispieldaten einrichten oder leer starten?",
-      "keepDescription": "Starte mit Beispiel-Kontakten, -Deals, -Services und -Tasks, damit du die App direkt erkunden kannst.",
-      "keepLabel": "Beispieldaten behalten",
-      "recommended": "Empfohlen",
-      "title": "Beispieldaten"
-    },
-    "entities": {
-      "description": "Wähle, was am besten passt. Wir richten Pipeline, Services und Dashboard-Widgets passend ein. Spaltentypen und Bezeichnungen kannst du später jederzeit ändern, das bestimmt nur die Startform.",
-      "product": {
-        "description": "Du verkaufst physische oder digitale Dinge in Stückzahlen. Wir ergänzen Felder für Artikelnummer und Bestand.",
-        "example": "Ein Starter-Paket mit Artikelnummern, Mengen und Bestand.",
-        "title": "Produkte"
-      },
-      "service": {
-        "description": "Du verkaufst Zeit, Expertise oder wiederkehrende Engagements. Wir ergänzen ein Feld für abrechenbare Stunden.",
-        "example": "Ein Discovery-Sprint, eine Implementierung, ein monatlicher Retainer.",
-        "title": "Services"
-      }
-    },
     "finish": "Fertig",
     "invite": {
       "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
@@ -1647,14 +1615,6 @@
         "subtitle": "Lass Claude Code oder Codex dein CRM für dich führen.",
         "title": "KI-Agent verbinden"
       },
-      "demoData": {
-        "subtitle": "Mit Beispielkontakten, Deals und Aufgaben starten oder mit einem leeren Workspace.",
-        "title": "Beispieldaten"
-      },
-      "entities": {
-        "subtitle": "Sag uns, was du verkaufst, und wir richten den Workspace passend ein.",
-        "title": "Was verkaufst du?"
-      },
       "invite": {
         "placeholder": "Platzhalter Team einladen",
         "subtitle": "Teile einen Link oder verschicke E-Mail-Einladungen.",
@@ -1663,6 +1623,10 @@
       "profile": {
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
+      },
+      "terminology": {
+        "subtitle": "Lege fest, wie die zentralen Datensätze in deinem Workspace heißen.",
+        "title": "Benenne deine Datensätze"
       }
     }
   },
@@ -1886,6 +1850,8 @@
     "title": "E-Mail-Verifizierung"
   },
   "WebhookDeliveriesCard": {
+    "emptyBody": "Zustellversuche erscheinen hier, sobald ein Webhook ausgelöst wird.",
+    "emptyTitle": "Noch keine Zustellungen",
     "title": "Kürzliche Zustellungen"
   },
   "WebhookDeliveryModal": {
@@ -1915,6 +1881,8 @@
     "urlDescription": "Die Endpunkt-URL, an die Webhook-Ereignisse per POST-Anfragen gesendet werden."
   },
   "WebhooksCard": {
+    "emptyBody": "Füge einen Webhook hinzu, um Workspace-Ereignisse an deine Systeme zu senden.",
+    "emptyTitle": "Noch keine Webhooks",
     "title": "Webhooks"
   }
 }

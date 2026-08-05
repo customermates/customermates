@@ -1,6 +1,6 @@
 "use client";
 
-import type { Company } from "@/generated/prisma";
+import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
@@ -12,16 +12,14 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { WIZARD_STEPS } from "./onboarding-wizard.store";
 import { StepProfile } from "./step-profile";
-import { StepEntities } from "./step-entities";
-import { StepDemoData } from "./step-demo-data";
+import { StepTerminology } from "./step-terminology";
 import { StepAi } from "./step-ai";
 import { StepInvite } from "./step-invite";
 
 type Props = {
   profileCompleted: boolean;
-  initialCompany: Company | null;
+  initialTerminology: EntityTerminologyOverride[];
   isInvited?: boolean;
   sessionEmail?: string;
   sessionFirstName?: string;
@@ -32,7 +30,7 @@ type Props = {
 export const OnboardingWizard = observer(
   ({
     profileCompleted,
-    initialCompany,
+    initialTerminology,
     isInvited = false,
     sessionEmail = "",
     sessionFirstName,
@@ -44,13 +42,9 @@ export const OnboardingWizard = observer(
     const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
 
     useEffect(() => {
-      const aiStepIndex = WIZARD_STEPS.indexOf("ai");
-      if (initialCompany?.salesType) {
-        onboardingWizardStore.setInitialStep(aiStepIndex);
-        return;
-      }
+      onboardingWizardStore.initTerminology(initialTerminology);
       onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0);
-    }, [profileCompleted, initialCompany?.salesType]);
+    }, [profileCompleted, initialTerminology]);
 
     const renderStep = () => {
       switch (currentStep) {
@@ -63,10 +57,8 @@ export const OnboardingWizard = observer(
               lastName={sessionLastName}
             />
           );
-        case "entities":
-          return <StepEntities />;
-        case "demoData":
-          return <StepDemoData />;
+        case "terminology":
+          return <StepTerminology />;
         case "ai":
           return <StepAi />;
         case "invite":

@@ -7,7 +7,7 @@ import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
-import type { CountryCode, Status, Currency, MessagingProvider } from "@/generated/prisma";
+import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
@@ -95,7 +95,8 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: {
-      currency: Currency;
+      currency?: Currency;
+      terminology?: { entityType: EntityType; presetKey: string }[];
     };
   };
   [DomainEvent.CONTACT_CREATED]: {

@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { cn } from "@/core/utils/cn";
 
 import { PopoverSection as Section } from "./popover-section";
@@ -91,6 +92,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   id,
 }: Props<E>) {
   const t = useTranslations();
+  const columnLabel = useColumnLabel();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -277,7 +279,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                       <SelectContent>
                         {sortable.map((col) => (
                           <SelectItem key={col.uid} value={col.uid}>
-                            {col.label || t(`Common.table.columns.${col.uid}`)}
+                            {col.label || columnLabel(col.uid)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -348,7 +350,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                         {orderedColumns.map((col) => {
                           const isPinned = col.uid === "name";
                           const isVisible = !hiddenSet.has(col.uid);
-                          const label = col.label || t(`Common.table.columns.${col.uid}`);
+                          const label = col.label || columnLabel(col.uid);
                           return (
                             <FieldRow
                               key={col.uid}

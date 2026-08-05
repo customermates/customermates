@@ -6,7 +6,7 @@ import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -30,6 +30,7 @@ import {
 import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
@@ -72,7 +73,8 @@ export const AppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { userStore, globalSearchModalStore, feedbackModalStore } = rootStore;
+    const { userStore, globalSearchModalStore, feedbackModalStore, terminologyStore } = rootStore;
+    const { singular, plural } = useEntityTerminology();
 
     const { setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
@@ -122,7 +124,7 @@ export const AppSidebar = observer(
             },
             {
               key: "tasks",
-              title: t("NavigationBar.tasks"),
+              title: plural(EntityType.task),
               href: "/tasks",
               icon: CheckCircle2,
               visible: userStore.canAccess(Resource.tasks),
@@ -136,28 +138,28 @@ export const AppSidebar = observer(
           items: [
             {
               key: "contacts",
-              title: t("NavigationBar.contacts"),
+              title: plural(EntityType.contact),
               href: "/contacts",
               icon: Users,
               visible: userStore.canAccess(Resource.contacts),
             },
             {
               key: "organizations",
-              title: t("NavigationBar.organizations"),
+              title: plural(EntityType.organization),
               href: "/organizations",
               icon: Building2,
               visible: userStore.canAccess(Resource.organizations),
             },
             {
               key: "deals",
-              title: t("NavigationBar.deals"),
+              title: plural(EntityType.deal),
               href: "/deals",
               icon: TrendingUp,
               visible: userStore.canAccess(Resource.deals),
             },
             {
               key: "services",
-              title: t("NavigationBar.services"),
+              title: plural(EntityType.service),
               href: "/services",
               icon: Package,
               visible: userStore.canAccess(Resource.services),
@@ -202,6 +204,8 @@ export const AppSidebar = observer(
       ].filter((g) => g.items.length > 0);
     }, [
       t,
+      plural,
+      terminologyStore.overrides,
       rootStore.appMode,
       subscriptionStatus,
       userStore.user,
@@ -236,23 +240,33 @@ export const AppSidebar = observer(
       {
         resource: Resource.contacts,
         key: "add_contact",
-        label: t("NavigationBar.addContact"),
+        label: t("NavigationBar.addEntity", { entity: singular(EntityType.contact) }),
         entity: EntityType.contact,
       },
       {
         resource: Resource.organizations,
         key: "add_organization",
-        label: t("NavigationBar.addOrganization"),
+        label: t("NavigationBar.addEntity", { entity: singular(EntityType.organization) }),
         entity: EntityType.organization,
       },
-      { resource: Resource.deals, key: "add_deal", label: t("NavigationBar.addDeal"), entity: EntityType.deal },
+      {
+        resource: Resource.deals,
+        key: "add_deal",
+        label: t("NavigationBar.addEntity", { entity: singular(EntityType.deal) }),
+        entity: EntityType.deal,
+      },
       {
         resource: Resource.services,
         key: "add_service",
-        label: t("NavigationBar.addService"),
+        label: t("NavigationBar.addEntity", { entity: singular(EntityType.service) }),
         entity: EntityType.service,
       },
-      { resource: Resource.tasks, key: "add_task", label: t("NavigationBar.addTask"), entity: EntityType.task },
+      {
+        resource: Resource.tasks,
+        key: "add_task",
+        label: t("NavigationBar.addEntity", { entity: singular(EntityType.task) }),
+        entity: EntityType.task,
+      },
     ];
 
     if (isDocsRoute) return null;
@@ -318,8 +332,10 @@ export const AppSidebar = observer(
           open={isAddPickerOpen}
           onOpenChange={setIsAddPickerOpen}
           onPick={(entity) => {
-            setIsAddPickerOpen(false);
-            openEntity(entity, "new");
+            startTransition(() => {
+              setIsAddPickerOpen(false);
+              openEntity(entity, "new");
+            });
           }}
         />
       </>
@@ -347,7 +363,7 @@ function AddPickerDrawer({
   const t = useTranslations();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[420px]" side="right">
+      <SheetContent className="sm:max-w-[420px]" side="left">
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 

@@ -661,13 +661,91 @@ describe("validateIdentifierConflicts", () => {
     expect(ctx.addIssue).toHaveBeenCalledTimes(1);
   });
 
-  it("passes when one batch row repeats its own identifier", () => {
+  it("rejects a repeated identifier inside one batch row", () => {
     const ctx = createMockCtx();
     validateIdentifierConflicts(
       [{ selfContactId: "batch-row:0", identifiers: [mailIdentifier("a@b.com"), mailIdentifier("a@b.com")] }],
       new Map<string, string>(),
       ctx,
       () => ["rows", 0],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.duplicateChannel }, path: ["rows", 0, 1, "value"] }),
+    );
+  });
+
+  it("rejects a repeated identifier inside one create payload", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [{ selfContactId: undefined, identifiers: [mailIdentifier("a@b.com"), mailIdentifier("a@b.com")] }],
+      new Map<string, string>(),
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { error: CustomErrorCode.duplicateChannel } }),
+    );
+  });
+
+  it("rejects the same address listed under two email providers in one create payload", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [
+        {
+          selfContactId: undefined,
+          identifiers: [
+            mailIdentifier("a@b.com"),
+            { provider: MessagingProvider.google, value: "a@b.com" } as IdentifierInput,
+          ],
+        },
+      ],
+      new Map<string, string>(),
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
+    expect(ctx.addIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: { error: CustomErrorCode.duplicateChannel },
+        path: ["identifiers", 1, "value"],
+      }),
+    );
+  });
+
+  it("passes distinct identifiers in one create payload", () => {
+    const ctx = createMockCtx();
+    validateIdentifierConflicts(
+      [
+        {
+          selfContactId: undefined,
+          identifiers: [
+            mailIdentifier("a@b.com"),
+            { provider: MessagingProvider.linkedin, value: "handle" } as IdentifierInput,
+          ],
+        },
+      ],
+      new Map<string, string>(),
+      ctx,
+      () => ["identifiers"],
+    );
+    expect(ctx.addIssue).not.toHaveBeenCalled();
+  });
+
+  it("lets an existing contact re-claim its own identifier under a sibling email provider", () => {
+    const ctx = createMockCtx();
+    const owners = new Map([["email:a@b.com", "contact-1"]]);
+    validateIdentifierConflicts(
+      [
+        {
+          selfContactId: "contact-1",
+          identifiers: [{ provider: MessagingProvider.google, value: "a@b.com" } as IdentifierInput],
+        },
+      ],
+      owners,
+      ctx,
+      () => ["identifiers"],
     );
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });

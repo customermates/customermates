@@ -77,6 +77,7 @@ export const WebhookDeliveriesCard = observer(({ initialDeliveries }: Props) => 
     <DataViewContainer
       anchorScope="company-webhook-deliveries"
       columns={columns}
+      emptyState={{ title: t("WebhookDeliveriesCard.emptyTitle"), body: t("WebhookDeliveriesCard.emptyBody") }}
       store={webhookDeliveriesStore}
       onRowClick={(item) => {
         webhookDeliveryModalStore.onInitOrRefresh(item);

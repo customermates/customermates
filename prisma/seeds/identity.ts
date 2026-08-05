@@ -67,7 +67,6 @@ export async function seedIdentity(context: SeedContext): Promise<void> {
 
   const company = {
     currency: "eur" as const,
-    salesType: "service" as const,
     ...SYNTHETIC_SEED_TIMELINE.company,
   };
   await prisma.company.upsert({

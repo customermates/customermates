@@ -355,6 +355,91 @@ describe("CreateContactInteractor", () => {
       }),
     );
   });
+
+  function createWithIdentifiers(identifiers: unknown[], precheck = makeContactWritePrecheck()) {
+    const interactor = new CreateContactInteractor(
+      mockCreateRepo,
+      mockOrgRepo,
+      mockDealRepo,
+      mockTaskRepo,
+      mockEventService,
+      precheck,
+    );
+    return interactor.invoke({
+      firstName: "Jane",
+      lastName: "Doe",
+      organizationIds: [],
+      userIds: [],
+      dealIds: [],
+      taskIds: [],
+      customFieldValues: [],
+      identifiers,
+    } as any);
+  }
+
+  it("creates a contact with no identifiers", async () => {
+    const result: any = await createWithIdentifiers([]);
+
+    expect(result.ok).toBe(true);
+    expect(mockCreateRepo.createContactOrThrow).toHaveBeenCalledTimes(1);
+    expect(mockCreateRepo.createContactOrThrow.mock.calls[0][0].identifiers).toEqual([]);
+  });
+
+  it("normalizes and persists multiple identifiers in one create", async () => {
+    const result: any = await createWithIdentifiers([
+      { provider: "mail", value: "Jane@Example.COM" },
+      { provider: "linkedin", value: "jane-doe" },
+    ]);
+
+    expect(result.ok).toBe(true);
+    expect(mockCreateRepo.createContactOrThrow).toHaveBeenCalledTimes(1);
+    expect(mockCreateRepo.createContactOrThrow.mock.calls[0][0].identifiers).toEqual([
+      expect.objectContaining({ provider: "mail", value: "jane@example.com" }),
+      expect.objectContaining({ provider: "linkedin", value: "jane-doe" }),
+    ]);
+  });
+
+  it("rejects an invalid identifier without writing or publishing", async () => {
+    const result: any = await createWithIdentifiers([{ provider: "mail", value: "not-an-email" }]);
+
+    expect(result.ok).toBe(false);
+    expect(mockCreateRepo.createContactOrThrow).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("rejects a duplicate within the submitted draft without writing or publishing", async () => {
+    const result: any = await createWithIdentifiers([
+      { provider: "mail", value: "jane@example.com" },
+      { provider: "google", value: "jane@example.com" },
+    ]);
+
+    expect(result.ok).toBe(false);
+    expect(mockCreateRepo.createContactOrThrow).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("rejects an identifier already owned by another contact without writing", async () => {
+    const owningRepo = {
+      findIds: vi.fn().mockResolvedValue(new Map()),
+      findIdentifierOwnersCompanyWide: vi.fn().mockResolvedValue(new Map([["email:jane@example.com", CONTACT_ID_2]])),
+    };
+    const precheck = new ContactWritePrecheckInteractor(
+      new ValidateOrganizationIdsInteractor(getOrganizationRepo()),
+      new ValidateUserIdsInteractor(getUserRepo()),
+      new ValidateDealIdsInteractor(getDealRepo()),
+      new ValidateTaskIdsInteractor(getTaskRepo()),
+      new ValidateContactIdsInteractor(getContactRepo()),
+      new ValidateCustomFieldValuesInteractor(getCustomColumnRepo()),
+      new ValidateAssigneeGuardInteractor(getUserService() as unknown as UserService),
+      new ValidateIdentifierConflictsInteractor(owningRepo as any),
+      getContactRepo(),
+    );
+
+    const result: any = await createWithIdentifiers([{ provider: "mail", value: "jane@example.com" }], precheck);
+
+    expect(result.ok).toBe(false);
+    expect(mockCreateRepo.createContactOrThrow).not.toHaveBeenCalled();
+  });
 });
 
 describe("DeleteContactInteractor", () => {

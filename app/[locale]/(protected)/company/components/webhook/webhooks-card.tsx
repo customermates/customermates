@@ -85,6 +85,7 @@ export const WebhooksCard = observer(({ initialWebhooks }: Props) => {
     <DataViewContainer
       anchorScope="company-webhooks"
       columns={columns}
+      emptyState={{ title: t("WebhooksCard.emptyTitle"), body: t("WebhooksCard.emptyBody") }}
       store={webhooksStore}
       onAdd={() =>
         webhookModalStore.openWith({

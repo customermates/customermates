@@ -24,6 +24,7 @@ import {
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { ShellHeader } from "./shell-header";
 import { useTopBarActions } from "./topbar-actions-context";
@@ -31,6 +32,7 @@ import { WORKSPACE_SECTIONS, visibleSubroutes, type WorkspaceSection } from "./n
 
 import type { AppMode } from "@/core/config/environment";
 import type { Resource } from "@/generated/prisma";
+import { EntityType } from "@/generated/prisma";
 
 type Sibling = { slug: string; label: string };
 type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: string | null; isEntity?: boolean };
@@ -56,14 +58,24 @@ export const AppTopBar = observer(() => {
   const t = useTranslations();
   const pathname = usePathname();
   const rootStore = useRootStore();
-  const { layoutStore, userStore } = rootStore;
+  const { layoutStore, userStore, terminologyStore } = rootStore;
   const { actions, override } = useTopBarActions();
+  const { plural } = useEntityTerminology();
+
+  const entityLabels: Record<string, string> = {
+    contacts: plural(EntityType.contact),
+    organizations: plural(EntityType.organization),
+    deals: plural(EntityType.deal),
+    services: plural(EntityType.service),
+    tasks: plural(EntityType.task),
+  };
 
   const { crumbs, section } = useMemo(
     () =>
       buildCrumbs(
         pathname,
         t,
+        entityLabels,
         layoutStore.runtimeTitle,
         layoutStore.runtimePictureUrl,
         layoutStore.runtimeAvatarKind !== null,
@@ -73,6 +85,7 @@ export const AppTopBar = observer(() => {
     [
       pathname,
       t,
+      terminologyStore.overrides,
       layoutStore.runtimeTitle,
       layoutStore.runtimePictureUrl,
       layoutStore.runtimeAvatarKind,
@@ -143,6 +156,7 @@ export const AppTopBar = observer(() => {
 function buildCrumbs(
   pathname: string,
   t: (k: string) => string,
+  entityLabels: Record<string, string>,
   runtimeTitle: string | null,
   runtimePictureUrl: string | null,
   showLeafAvatar: boolean,
@@ -163,7 +177,7 @@ function buildCrumbs(
   const crumbs: Crumb[] = [];
   const leafKey = entry.group === "settings" ? `UserAvatar.${entry.label}` : `NavigationBar.${entry.label}`;
   const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
-  crumbs.push({ label: t(leafKey), href: sectionHref });
+  crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
 
   if (parts.length > 1) {
     const leaf = parts[1];

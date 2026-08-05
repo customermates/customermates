@@ -262,7 +262,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     });
   }
 
-  if (groups.size === 0) return <div className="py-12 text-center text-sm text-muted-foreground">No items found.</div>;
+  if (groups.size === 0) return null;
 
   const loadMoreLabel = t("Common.actions.loadMore");
 

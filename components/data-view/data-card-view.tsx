@@ -39,8 +39,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (store.items.length === 0)
-    return <div className="py-12 text-center text-sm text-muted-foreground">No items found.</div>;
+  if (store.items.length === 0) return null;
 
   return (
     <div className={cn("", className)} data-slot="card-grid">

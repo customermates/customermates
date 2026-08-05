@@ -12,6 +12,7 @@ import { EntityType } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { AppCard } from "@/components/card/app-card";
 import { AppModal } from "@/components/modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,32 +21,18 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/core/utils/cn";
 import { initialsFor } from "@/core/utils/initials";
 
-const TYPE_META: Record<
-  GlobalSearchResultItem["type"],
-  { icon: LucideIcon; entityType: EntityType; labelKey: string }
-> = {
-  contact: {
-    icon: Users,
-    entityType: EntityType.contact,
-    labelKey: "GlobalSearch.groupContact",
-  },
-  organization: {
-    icon: Building2,
-    entityType: EntityType.organization,
-    labelKey: "GlobalSearch.groupOrganization",
-  },
-  deal: { icon: Briefcase, entityType: EntityType.deal, labelKey: "GlobalSearch.groupDeal" },
-  service: {
-    icon: Package,
-    entityType: EntityType.service,
-    labelKey: "GlobalSearch.groupService",
-  },
+const TYPE_META: Record<GlobalSearchResultItem["type"], { icon: LucideIcon; entityType: EntityType }> = {
+  contact: { icon: Users, entityType: EntityType.contact },
+  organization: { icon: Building2, entityType: EntityType.organization },
+  deal: { icon: Briefcase, entityType: EntityType.deal },
+  service: { icon: Package, entityType: EntityType.service },
 };
 
 type SelectableItem = GlobalSearchResultItem & { onSelect: () => void };
 
 export const GlobalSearchModal = observer(() => {
   const t = useTranslations();
+  const { plural, singular } = useEntityTerminology();
   const { globalSearchModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
@@ -169,7 +156,7 @@ export const GlobalSearchModal = observer(() => {
             <div className="flex flex-col">
               {groupedResults.map((group, groupIdx) => {
                 const offset = groupedResults.slice(0, groupIdx).reduce((sum, g) => sum + g.items.length, 0);
-                const heading = !hasQuery ? t("GlobalSearch.groupRecent") : t(TYPE_META[group.type].labelKey);
+                const heading = !hasQuery ? t("GlobalSearch.groupRecent") : plural(TYPE_META[group.type].entityType);
 
                 return (
                   <div key={hasQuery ? group.type : "recent"} className="flex flex-col px-2 pb-1">
@@ -197,7 +184,7 @@ export const GlobalSearchModal = observer(() => {
                           label={item.name}
                           pictureUrl={item.pictureUrl}
                           selected={selectedIndex === offset + idx}
-                          typeLabel={t(TYPE_META[item.type].labelKey)}
+                          typeLabel={singular(TYPE_META[item.type].entityType)}
                           onMouseEnter={() => setSelectedIndex(offset + idx)}
                           onSelect={item.onSelect}
                         />

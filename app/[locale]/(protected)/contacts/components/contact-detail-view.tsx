@@ -32,7 +32,7 @@ export const ContactDetailView = observer(({ layout = "drawer" }: Props) => {
         <FormInput id="lastName" />
       </div>
 
-      {fetchedEntity && <ContactChannels contactId={fetchedEntity.id} />}
+      <ContactChannels contactId={fetchedEntity?.id} />
 
       <EntityRelationField
         currentEntityId={fetchedEntity?.id}
