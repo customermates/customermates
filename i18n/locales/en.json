@@ -316,6 +316,7 @@
       "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dealNotFound": "Deal ID not found or not accessible.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
+      "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",
       "emailAlreadyExists": "An account with this email already exists.",

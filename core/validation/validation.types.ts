@@ -15,6 +15,7 @@ export enum CustomErrorCode {
   customColumnTypeMismatch = "customColumnTypeMismatch",
   invalidChannelValue = "invalidChannelValue",
   channelAlreadyLinked = "channelAlreadyLinked",
+  duplicateChannel = "duplicateChannel",
   contactRefRequired = "contactRefRequired",
   relationNotAllowed = "relationNotAllowed",
   customFieldInvalidEmail = "customFieldInvalidEmail",

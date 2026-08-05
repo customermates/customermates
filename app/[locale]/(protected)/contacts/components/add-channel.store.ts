@@ -12,8 +12,9 @@ import { checkChannelConflictAction, getContactsAction, searchChannelCandidatesA
 import { resolveProviderProfileAction } from "../../inbox/actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { channelClass, isHandleProvider } from "@/ee/messaging/provider";
+import { isHandleProvider } from "@/ee/messaging/provider";
 import { inferChannelProviders, normalizeChannelValue, parseChannelHandle } from "@/features/contacts/channel-value";
+import { identifierKey } from "@/features/contacts/upsert/validate-identifiers";
 import { Debouncer, SEARCH_DEBOUNCE_MS } from "@/core/utils/debounce";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -25,10 +26,6 @@ type TaggedCandidate = { candidate: ChannelCandidateDto; source: CandidateSource
 const SOURCE_PRIORITY: Record<CandidateSource, number> = { lookup: 0, contact: 1, conversation: 2 };
 
 type AddChannelForm = { value: string };
-
-function channelKey(provider: MessagingProvider, value: string): string {
-  return `${channelClass(provider)}:${value}`;
-}
 
 export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   open = false;
@@ -65,7 +62,7 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
     });
   }
 
-  setContactId = (contactId: string) => {
+  setContactId = (contactId: string | undefined) => {
     this.contactId = contactId;
   };
 
@@ -75,14 +72,14 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   };
 
   get contactChannelKeys(): Set<string> {
-    return new Set(this.rootStore.contactDetailStore.channels.map((c) => channelKey(c.provider, c.value)));
+    return new Set(this.rootStore.contactDetailStore.channels.map((c) => identifierKey(c.provider, c.value)));
   }
 
   get mergedCandidates(): TaggedCandidate[] {
     const contactKeys = this.contactChannelKeys;
     const byKey = new Map<string, TaggedCandidate>();
     for (const tagged of [...this.candidates, ...(this.liveCandidate ? [this.liveCandidate] : [])]) {
-      const key = channelKey(tagged.candidate.provider, tagged.candidate.value);
+      const key = identifierKey(tagged.candidate.provider, tagged.candidate.value);
       if (contactKeys.has(key)) continue;
       const existing = byKey.get(key);
       if (!existing || SOURCE_PRIORITY[tagged.source] < SOURCE_PRIORITY[existing.source]) byKey.set(key, tagged);
@@ -93,12 +90,12 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   get addAsNewOptions(): MessagingProvider[] {
     const contactKeys = this.contactChannelKeys;
     const candidateKeys = new Set(
-      this.mergedCandidates.map((t) => channelKey(t.candidate.provider, t.candidate.value)),
+      this.mergedCandidates.map((t) => identifierKey(t.candidate.provider, t.candidate.value)),
     );
     return inferChannelProviders(this.query).filter((provider) => {
       const value = normalizeChannelValue(provider, this.query);
       if (!value) return false;
-      const key = channelKey(provider, value);
+      const key = identifierKey(provider, value);
       return !candidateKeys.has(key) && !contactKeys.has(key);
     });
   }

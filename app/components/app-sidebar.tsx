@@ -6,7 +6,7 @@ import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -332,8 +332,10 @@ export const AppSidebar = observer(
           open={isAddPickerOpen}
           onOpenChange={setIsAddPickerOpen}
           onPick={(entity) => {
-            setIsAddPickerOpen(false);
-            openEntity(entity, "new");
+            startTransition(() => {
+              setIsAddPickerOpen(false);
+              openEntity(entity, "new");
+            });
           }}
         />
       </>
@@ -361,7 +363,7 @@ function AddPickerDrawer({
   const t = useTranslations();
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[420px]" side="right">
+      <SheetContent className="sm:max-w-[420px]" side="left">
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
