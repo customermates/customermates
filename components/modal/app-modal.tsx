@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
 
 import { observer } from "mobx-react-lite";
@@ -9,6 +9,7 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
@@ -36,7 +37,7 @@ type Props = {
 export const AppModal = observer(({ store, title, size = "md", className, children, open, onClose }: Props) => {
   const isOpen = open ?? store?.isOpen ?? false;
   const isWide = useIsWiderThan("md");
-  const openerRef = useRef<HTMLElement | null>(null);
+  const focusReturn = useOverlayFocusReturn(isOpen, store?.focusReturnTarget, store?.focusReturnFallback);
 
   function requestClose() {
     if (store?.withUnsavedChangesGuard && store?.hasUnsavedChanges) {
@@ -51,29 +52,6 @@ export const AppModal = observer(({ store, title, size = "md", className, childr
     if (!next) requestClose();
   }
 
-  function handleOpenAutoFocus() {
-    if (openerRef.current?.isConnected) return;
-
-    const activeElement = document.activeElement;
-    openerRef.current =
-      activeElement instanceof HTMLElement &&
-      activeElement !== document.body &&
-      activeElement !== document.documentElement
-        ? activeElement
-        : null;
-  }
-
-  function handleCloseAutoFocus(event: Event) {
-    event.preventDefault();
-    if (isOpen) return;
-
-    const opener = openerRef.current;
-    openerRef.current = null;
-    if (!opener?.isConnected) return;
-
-    opener.focus();
-  }
-
   const accessibleTitle = title ?? "Dialog";
 
   return (
@@ -82,8 +60,7 @@ export const AppModal = observer(({ store, title, size = "md", className, childr
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
             className={cn("flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none", sizeClassMap[size], className)}
-            onCloseAutoFocus={handleCloseAutoFocus}
-            onOpenAutoFocus={handleOpenAutoFocus}
+            {...focusReturn}
           >
             <VisuallyHidden.Root>
               <DialogTitle>{accessibleTitle}</DialogTitle>
@@ -94,11 +71,7 @@ export const AppModal = observer(({ store, title, size = "md", className, childr
         </Dialog>
       ) : (
         <Drawer open={isOpen} repositionInputs={false} onOpenChange={handleOpenChange}>
-          <DrawerContent
-            className={cn("gap-0", className)}
-            onCloseAutoFocus={handleCloseAutoFocus}
-            onOpenAutoFocus={handleOpenAutoFocus}
-          >
+          <DrawerContent className={cn("gap-0", className)} {...focusReturn}>
             <VisuallyHidden.Root>
               <DrawerTitle>{accessibleTitle}</DrawerTitle>
             </VisuallyHidden.Root>

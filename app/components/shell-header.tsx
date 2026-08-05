@@ -14,7 +14,7 @@ export function ShellHeader({ children, actions }: Props) {
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background md:rounded-t-xl">
       <div className="flex flex-1 min-w-0 items-center gap-2 px-4 ps-[calc(1rem+var(--safe-left))]">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ml-1" id="sidebar-trigger" />
 
         {children && (
           <>

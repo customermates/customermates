@@ -86,6 +86,15 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
   { file: "components/ui/drawer.tsx", mustContain: ["max-h-(--sheet-block-budget)", "drawer-body"] },
 ];
 
+const CONTROLLED_FOCUS_RETURN_SURFACES = [
+  "app/components/app-sidebar.tsx",
+  "components/modal/app-modal.tsx",
+  "components/entity-detail/entity-drawer.tsx",
+  "components/modal/unsaved-changes-guard.tsx",
+  "components/modal/delete-confirmation-modal.tsx",
+  "components/ui/command.tsx",
+];
+
 function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
     walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path)),
@@ -163,6 +172,45 @@ describe("overlay contract", () => {
     }
 
     expect(missing, missing.join("\n")).toEqual([]);
+  });
+
+  it("pins focus return for controlled overlays without primitive triggers", () => {
+    const hook = readFileSync(join(REPO_ROOT, "components/ui/use-overlay-focus-return.ts"), "utf8");
+
+    expect(hook).toContain("openRef.current = open");
+    expect(hook).toContain("previousOpenRef.current = open");
+    expect(hook).toContain("capturedRef.current");
+    expect(hook).toContain("document.getElementById(id)");
+    expect(hook).toContain("element.getClientRects().length > 0");
+    expect(hook).toContain("if (openRef.current === true) return");
+    expect(hook).toContain("generationRef.current !== generation");
+    expect(hook).not.toContain("addEventListener(");
+
+    const entityDrawerStack = readFileSync(
+      join(REPO_ROOT, "components/entity-detail/hooks/use-entity-drawer-stack.ts"),
+      "utf8",
+    );
+    expect(entityDrawerStack).toContain("WeakRef<HTMLElement>");
+    expect(entityDrawerStack).toContain(
+      "stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker)",
+    );
+    expect(entityDrawerStack).toContain("stack.length === 1) prepareEntityDrawerInvokerRestore()");
+    expect(entityDrawerStack).toContain("resolveFocusTarget(entityDrawerFallback)");
+    expect(entityDrawerStack).toContain("pendingEntityDrawerRestore !== entityDrawerInvocation");
+    expect(entityDrawerStack).toContain("pendingEntityDrawerRestore = entityDrawerInvocation");
+    expect(entityDrawerStack).not.toContain("window.setTimeout(");
+
+    const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
+    expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
+    expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
+    expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
+    expect(appSidebar).toContain("if (isHandingOffRef.current)");
+
+    const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(
+      (file) => !readFileSync(join(REPO_ROOT, file), "utf8").includes("useOverlayFocusReturn("),
+    );
+
+    expect(missing, `Controlled overlays missing focus return:\n${missing.join("\n")}`).toEqual([]);
   });
 
   it("defines the overlay tokens exactly once", () => {

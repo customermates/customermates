@@ -15,8 +15,8 @@ type Props = {
   logoAlt: string;
   searchLabel: string;
   addLabel: string;
-  onSearch: () => void;
-  onAdd: () => void;
+  onSearch: (invoker: HTMLElement) => void;
+  onAdd: (invoker: HTMLElement) => void;
 };
 
 export function NavHeader({
@@ -58,7 +58,7 @@ export function NavHeader({
 
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton id="nav-search" tooltip={searchLabel} onClick={onSearch}>
+          <SidebarMenuButton id="nav-search" tooltip={searchLabel} onClick={(event) => onSearch(event.currentTarget)}>
             <Search />
 
             <span>{searchLabel}</span>
@@ -70,7 +70,7 @@ export function NavHeader({
         </SidebarMenuItem>
 
         <SidebarMenuItem>
-          <SidebarMenuButton tooltip={addLabel} onClick={onAdd}>
+          <SidebarMenuButton id="nav-add" tooltip={addLabel} onClick={(event) => onAdd(event.currentTarget)}>
             <Plus />
 
             <span>{addLabel}</span>

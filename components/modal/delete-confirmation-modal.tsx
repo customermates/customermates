@@ -15,6 +15,7 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const DeleteConfirmationModal = observer(() => {
@@ -22,6 +23,7 @@ export const DeleteConfirmationModal = observer(() => {
   const { deleteConfirmationModalStore: store } = useRootStore();
   const { isLoading, form, close } = store;
   const title = form.title || t("Common.deleteConfirmation.title");
+  const focusReturn = useOverlayFocusReturn(store.isOpen);
 
   return (
     <AlertDialog
@@ -30,7 +32,11 @@ export const DeleteConfirmationModal = observer(() => {
         if (!next) close();
       }}
     >
-      <AlertDialogContent className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none" size="sm">
+      <AlertDialogContent
+        className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none"
+        size="sm"
+        {...focusReturn}
+      >
         <AppCard>
           <AppCardHeader>
             <AlertDialogTitle className="text-base font-semibold">{title}</AlertDialogTitle>

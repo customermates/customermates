@@ -10,6 +10,52 @@ import { useRouter as useGuardedIntlRouter } from "@/i18n/navigation";
 
 const OPEN_PARAM = "open";
 
+type EntityDrawerFocusTarget = {
+  ref: WeakRef<HTMLElement>;
+  id: string | null;
+};
+
+let entityDrawerInvoker: EntityDrawerFocusTarget | null = null;
+let entityDrawerFallback: EntityDrawerFocusTarget | null = null;
+let entityDrawerInvocation = 0;
+let pendingEntityDrawerRestore: number | null = null;
+
+function focusTarget(element: Element | null): EntityDrawerFocusTarget | null {
+  return element instanceof HTMLElement && element !== document.body && element !== document.documentElement
+    ? { ref: new WeakRef(element), id: element.id || null }
+    : null;
+}
+
+function resolveFocusTarget(target: EntityDrawerFocusTarget | null) {
+  const element = target?.ref.deref() ?? null;
+  if (element?.isConnected && element.getClientRects().length > 0) return element;
+
+  const replacement = target?.id ? document.getElementById(target.id) : null;
+  return replacement?.isConnected && replacement.getClientRects().length > 0 ? replacement : null;
+}
+
+function rememberEntityDrawerInvoker(preferredInvoker?: HTMLElement | null, fallbackInvoker?: HTMLElement | null) {
+  const activeElement = preferredInvoker?.isConnected ? preferredInvoker : document.activeElement;
+  entityDrawerInvocation += 1;
+  pendingEntityDrawerRestore = null;
+  entityDrawerInvoker = focusTarget(activeElement);
+  entityDrawerFallback = focusTarget(fallbackInvoker ?? null);
+}
+
+export function focusEntityDrawerInvoker() {
+  if (pendingEntityDrawerRestore !== entityDrawerInvocation) return;
+
+  const invoker = resolveFocusTarget(entityDrawerInvoker) ?? resolveFocusTarget(entityDrawerFallback);
+  invoker?.focus({ preventScroll: true });
+  entityDrawerInvoker = null;
+  entityDrawerFallback = null;
+  pendingEntityDrawerRestore = null;
+}
+
+function prepareEntityDrawerInvokerRestore() {
+  pendingEntityDrawerRestore = entityDrawerInvocation;
+}
+
 export type EntityDrawerEntry = {
   entityType: EntityType;
   id: string;
@@ -61,9 +107,10 @@ export function useEntityDrawerStack() {
   );
 
   const pushEntity = useCallback(
-    (entry: EntityDrawerEntry) => {
+    (entry: EntityDrawerEntry, preferredInvoker?: HTMLElement | null, fallbackInvoker?: HTMLElement | null) => {
       const currentTop = stack[stack.length - 1];
       if (currentTop && currentTop.entityType === entry.entityType && currentTop.id === entry.id) return;
+      if (stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker);
       writeStack([...stack, entry]);
     },
     [stack, writeStack],
@@ -71,6 +118,7 @@ export function useEntityDrawerStack() {
 
   const popTop = useCallback(() => {
     if (stack.length === 0) return;
+    if (stack.length === 1) prepareEntityDrawerInvokerRestore();
     writeStack(stack.slice(0, -1), "replace");
   }, [stack, writeStack]);
 
@@ -81,9 +129,14 @@ export function useOpenEntity() {
   const { pushEntity } = useEntityDrawerStack();
   const router = useGuardedIntlRouter();
   return useCallback(
-    (entityType: EntityType, id: string) => {
+    (
+      entityType: EntityType,
+      id: string,
+      preferredInvoker?: HTMLElement | null,
+      fallbackInvoker?: HTMLElement | null,
+    ) => {
       if (id === "new") {
-        pushEntity({ entityType, id });
+        pushEntity({ entityType, id }, preferredInvoker, fallbackInvoker);
         return;
       }
       const segment = ENTITY_URL_SEGMENT[entityType];

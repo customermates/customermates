@@ -6,6 +6,7 @@ import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
@@ -24,6 +25,9 @@ function CommandDialog({
   className,
   commandProps,
   showCloseButton = true,
+  focusReturnTarget,
+  focusReturnFallback,
+  open,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title?: string;
@@ -31,10 +35,18 @@ function CommandDialog({
   className?: string;
   commandProps?: React.ComponentProps<typeof Command>;
   showCloseButton?: boolean;
+  focusReturnTarget?: HTMLElement | null;
+  focusReturnFallback?: HTMLElement | null;
 }) {
+  const focusReturn = useOverlayFocusReturn(open, focusReturnTarget, focusReturnFallback);
+
   return (
-    <Dialog {...props}>
-      <DialogContent className={cn("overflow-hidden p-0", className)} showCloseButton={showCloseButton}>
+    <Dialog open={open} {...props}>
+      <DialogContent
+        className={cn("overflow-hidden p-0", className)}
+        showCloseButton={showCloseButton}
+        {...focusReturn}
+      >
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>
 

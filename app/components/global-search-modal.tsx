@@ -47,9 +47,11 @@ export const GlobalSearchModal = observer(() => {
   const showNoResults = hasQuery && !isLoading && results?.results.length === 0;
 
   const openItem = (item: GlobalSearchResultItem) => {
+    const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
+    const focusReturnFallback = globalSearchModalStore.focusReturnFallback;
     globalSearchModalStore.pushRecentItem(item);
     globalSearchModalStore.close();
-    openEntity(TYPE_META[item.type].entityType, item.id);
+    openEntity(TYPE_META[item.type].entityType, item.id, focusReturnTarget, focusReturnFallback);
   };
 
   const openRecentItem = (item: GlobalSearchResultItem) => {
@@ -95,6 +97,8 @@ export const GlobalSearchModal = observer(() => {
     <CommandDialog
       commandProps={{ shouldFilter: false }}
       description={t("GlobalSearch.placeholder")}
+      focusReturnFallback={globalSearchModalStore.focusReturnFallback}
+      focusReturnTarget={globalSearchModalStore.focusReturnTarget}
       open={isOpen}
       title={t("GlobalSearch.placeholder")}
       onOpenChange={(next) => {
