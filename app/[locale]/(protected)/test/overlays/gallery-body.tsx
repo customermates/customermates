@@ -58,7 +58,7 @@ export function GalleryBody({ content }: { content: ContentKind }) {
   if (content === "overflow") {
     return (
       <div className="flex flex-col gap-4">
-        {Array.from({ length: 6 }, (_, index) => (
+        {Array.from({ length: 18 }, (_, index) => (
           <p key={index} className="text-sm">
             {`${index + 1}. ${LONG_PARAGRAPH}`}
           </p>
