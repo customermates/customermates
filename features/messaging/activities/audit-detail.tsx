@@ -29,6 +29,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { EntityType, TaskType } from "@/generated/prisma";
 import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/tasks/components/system-task.config";
+import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 
 type AvatarItem = {
   id: string;
@@ -55,6 +56,7 @@ type Props = {
 
 export const AuditDetail = observer(({ entry, customColumns }: Props) => {
   const t = useTranslations();
+  const columnLabel = useCanonicalColumnLabel();
   const { intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
   const entityHref = useEntityHref();
@@ -189,7 +191,7 @@ export const AuditDetail = observer(({ entry, customColumns }: Props) => {
       field:
         change.columnId !== undefined
           ? (customColumn?.label ?? t("AuditLogModal.deletedField"))
-          : t(`Common.table.columns.${change.field}`),
+          : columnLabel(change.field),
       previous: change.previous,
       current: change.current,
       customColumn,

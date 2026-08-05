@@ -141,7 +141,6 @@ import { DeleteManyTasksInteractor } from "@/features/tasks/delete/delete-many-t
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
-import { SeedOnboardingDataInteractor } from "@/features/onboarding-wizard/seed-onboarding-data.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
@@ -155,8 +154,8 @@ import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-soc
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { SignOutInteractor } from "@/features/auth/sign-out.interactor";
 // Company interactors
-import { GetCompanyDetailsInteractor } from "@/features/company/get-company-details.interactor";
-import { UpdateCompanyDetailsInteractor } from "@/features/company/update-company-details.interactor";
+import { GetCompanySettingsInteractor } from "@/features/company/get-company-settings.interactor";
+import { UpdateCompanySettingsInteractor } from "@/features/company/update-company-settings.interactor";
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
@@ -256,6 +255,7 @@ import { GetCustomColumnsInteractor } from "@/features/custom-column/get-custom-
 import { GetCustomColumnsByEntityTypeInteractor } from "@/features/custom-column/get-custom-columns-by-entity-type.interactor";
 import { UpsertCustomColumnInteractor } from "@/features/custom-column/upsert-custom-column.interactor";
 import { DeleteCustomColumnInteractor } from "@/features/custom-column/delete-custom-column.interactor";
+// Entity Terminology
 // Search interactor
 import { GlobalSearchInteractor } from "@/features/search/global-search.interactor";
 // P13n interactors
@@ -837,8 +837,6 @@ export const getRegisterUserInteractor = () =>
 
 export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
 
-export const getSeedOnboardingDataInteractor = () => new SeedOnboardingDataInteractor(getUserRepo());
-
 export const getCompleteOnboardingWizardInteractor = () => new CompleteOnboardingWizardInteractor(getUserRepo());
 
 export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
@@ -880,10 +878,10 @@ export const getSignOutInteractor = () => new SignOutInteractor(getAuthService()
 
 // --- Company ---
 
-export const getGetCompanyDetailsInteractor = () => new GetCompanyDetailsInteractor(getCompanyRepo());
+export const getGetCompanySettingsInteractor = () => new GetCompanySettingsInteractor(getCompanyRepo());
 
-export const getUpdateCompanyDetailsInteractor = () =>
-  new UpdateCompanyDetailsInteractor(getCompanyRepo(), getEventService());
+export const getUpdateCompanySettingsInteractor = () =>
+  new UpdateCompanySettingsInteractor(getCompanyRepo(), getEventService());
 
 export const getGetOrCreateInviteTokenInteractor = () => new GetOrCreateInviteTokenInteractor(getCompanyRepo());
 

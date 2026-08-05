@@ -14,6 +14,7 @@ import { Icon } from "@/components/shared/icon";
 import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 export const DealServicesSelection = observer(() => {
   const { dealDetailStore, intlStore, userStore } = useRootStore();
@@ -21,6 +22,7 @@ export const DealServicesSelection = observer(() => {
     dealDetailStore;
   const entityHref = useEntityHref();
   const t = useTranslations();
+  const { plural } = useEntityTerminology();
 
   if (!userStore.canAccess(Resource.services)) return null;
 
@@ -29,7 +31,7 @@ export const DealServicesSelection = observer(() => {
       <div className="w-full grid grid-cols-[minmax(40px,1fr)_minmax(70px,130px)_40px] gap-2 gap-y-3 items-center">
         <div className="flex items-center w-full min-w-0">
           <label className="flex-1 text-x-md truncate min-w-0 text-muted-foreground">
-            {t("DealModal.servicesLabel")}
+            {plural(EntityType.service)}
           </label>
 
           <label className="text-x-md text-right truncate min-w-0 text-muted-foreground pl-2">
@@ -170,7 +172,11 @@ export const DealServicesSelection = observer(() => {
         )}
       </div>
 
-      {(form.services || []).length === 0 && <p className="text-x-sm text-subdued">{t("DealModal.noServicesAdded")}</p>}
+      {(form.services || []).length === 0 && (
+        <p className="text-x-sm text-subdued">
+          {t("DealModal.noServicesAdded", { entity: plural(EntityType.service).toLocaleLowerCase() })}
+        </p>
+      )}
     </div>
   );
 });
