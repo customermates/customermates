@@ -54,6 +54,13 @@ describe("stampDocument", () => {
     expect(stamped.split("\n").length).toBe(source.split("\n").length);
     expect(stamped).toContain("## 1. Scope and Subject Matter of Contract");
   });
+
+  it.each(LOCALES)("does not backdate DPA effectiveness for %s", (locale) => {
+    const stamped = stampDocument(legal(locale, "dpa"), locale, formats);
+
+    expect(stamped).toContain(locale === "en" ? "when concluded under Section 2" : "bei Abschluss nach Ziffer 2");
+    expect(stamped).not.toContain(locale === "en" ? `effective ${formats.longEn}` : `gültig ab ${formats.longDe}`);
+  });
 });
 
 describe("published legal documents carry a date on every document", () => {

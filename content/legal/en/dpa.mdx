@@ -5,9 +5,11 @@ description: Customermates' Data Processing Agreement under Art. 28 GDPR governi
 
 # Data Processing Agreement (DPA)
 
-_Version 1.0, effective 3 August 2026_
+_Version 1.0, last updated 6 August 2026; effective for each Customer when concluded under Section 2_
 
 This Data Processing Agreement ("DPA") supplements and forms an integral part of the Terms and Conditions (the "Main Agreement") between Benjamin Wagner, operating as Customermates, An den Kasernen 25, 68167 Mannheim, Germany (the "Provider" or "Processor"), and the customer (the "Customer" or "Controller"). It governs the processing of personal data carried out by the Provider on behalf of the Customer within the framework of the software-as-a-service offering, including the optional connected-account feature (email, messaging, and calendar), in accordance with Art. 28 GDPR.
+
+This version takes effect for a Customer only when concluded under Section 2. Publication, display, or access to this document does not by itself conclude or amend a DPA for an existing customer.
 
 ## 1. Subject Matter, Roles, and Duration
 
@@ -23,11 +25,11 @@ This DPA takes effect together with the Main Agreement and remains in force for 
 
 The parties to this DPA are the Provider named above and the Customer, who is identified by the account and company data held in the Customer's account.
 
-This DPA is concluded in electronic form within the meaning of Art. 28(9) GDPR when the Customer accepts the Main Agreement on registration. It applies in its version in force from time to time; changes are notified to the Customer in text form in accordance with Section 10 of the Main Agreement. Updating the list maintained at [Subprocessors](/subprocessors) under Section 9 does not constitute an amendment to this DPA. On request, the Provider provides the Customer with a copy of this DPA in text form.
+This DPA is concluded in electronic form within the meaning of Art. 28(9) GDPR when the Customer accepts the Main Agreement during onboarding. It applies in its version in force from time to time; changes are notified to the Customer in text form in accordance with Section 10 of the Main Agreement. Updating the list maintained at [Subprocessors](/subprocessors) under Section 9 does not constitute an amendment to this DPA. On request, the Provider provides the Customer with a copy of this DPA in text form.
 
 Where the Customer does not itself determine the purposes and means of the processing, but makes the Service available to its own customers under its own agreement, for example as a reseller or partner, the Customer acts as a processor toward those customers and the Provider acts as a subprocessor. In that case, every reference in this DPA to the Customer as controller is to be read as a reference to the Customer acting on the documented instructions of its own customer. The Customer warrants that it is authorised to conclude this DPA and to issue the instructions given under it, and that the relevant controller has authorised the engagement of the Provider as a subprocessor. The Customer remains responsible toward the Provider for all obligations under this DPA.
 
-This DPA covers the Service as operated by the Provider. Where the Customer operates the software on its own infrastructure, the Provider does not process personal data on the Customer's behalf in that deployment, and this DPA does not apply to it.
+This DPA covers only the managed Service operated by the Provider. Running the software on infrastructure independently controlled by a self-host operator does not by itself appoint the Provider as processor, and personal data covered by this DPA is not transmitted to the Provider merely because the software is installed or updated. The independent operator determines its own infrastructure, providers, purposes, and means of processing and is responsible for its own processor agreements and transfer safeguards. Any support, managed operation, Enterprise service, or other activity through which the Provider actually receives personal data requires the separately applicable agreement.
 
 ## 3. Nature and Purpose of the Processing
 
@@ -46,7 +48,7 @@ The connected-account feature is powered by the transport provider UNIPILE SAS, 
 
 - CRM record data, including names, contact details, company and role, deal and task data, free-text notes, and customer-defined custom fields;
 - audit and activity logs recording actions taken in the Customer's account;
-- content from the Customer's account that the Customer attaches to or reproduces in a support request;
+- content from the Customer's account that the Customer attaches to or reproduces in a support or feedback request;
 - connected-account metadata (for example the connected account's identifier, type, and status);
 - email content, including subject, body, sender and recipient addresses, and attachments;
 - chat and direct-message content across the connected social and messaging channels;
@@ -81,13 +83,15 @@ Taking into account the state of the art, the costs of implementation, and the n
 
 ## 9. Subprocessors
 
-The Customer grants the Provider a general written authorization to engage subprocessors. The Provider maintains a current list of its subprocessors, including their identity, purpose, and location, at [Subprocessors](/subprocessors), which is incorporated into this DPA by reference.
+The Customer grants the Provider a general written authorization to engage subprocessors. The Provider maintains a current page of its processors, subprocessors, and other recipients at [Subprocessors](/subprocessors). Only the entries expressly identified there as processing personal data covered by this DPA on the Customer's behalf are incorporated into this DPA as subprocessors, including their identity, purpose, and location.
 
 Before a subprocessor processes personal data on the Customer's behalf, the Provider enters into a written contract that imposes the same data-protection obligations required by this DPA in accordance with Art. 28(2) and (4) GDPR. Disclosing a contractual gap does not replace that written contract or authorize processing. Where a subprocessor fails to fulfil its data-protection obligations, the Provider remains fully liable to the Customer for the performance of those obligations.
 
 For the connected-account feature, the Provider uses **UNIPILE SAS** (RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, France) as a subprocessor for the transport of connected-account email, messaging, and calendar data. The executed supplier DPA identifies the Provider as controller and Unipile as processor; in the downstream processing governed by this DPA, the Customer is controller, the Provider is processor, and Unipile performs the supplier role described here. The supplier DPA's annex lists personal master data, contact data, professional data, information disclosed or contained in public directories, and IP addresses, while the operational scope also includes the categories listed in Section 4. Further details are set out at [Subprocessors](/subprocessors).
 
 For the storage of the personal data processed on the Customer's behalf, the Provider engages **Neon, LLC**, an affiliate of Databricks, Inc. (https://neon.com), as a subprocessor operating the managed PostgreSQL database. The Provider has configured its production database in the European Union (Frankfurt am Main). This region is a product setting chosen by the Provider and not a data residency contractually guaranteed to the Provider; the Provider informs the Customer of a change of region using the notification procedure set out in this Section. Neon, LLC is established in a third country and engages subprocessors there; the transfer mechanism applicable to it is indicated at [Subprocessors](/subprocessors).
+
+**Forward Email, LLC** is not used for the connected-account feature or ordinary CRM processing. Where the Customer attaches or reproduces personal data covered by this DPA in a support or feedback request delivered to the Provider's operator inbox, Forward Email processes that fragment as a subprocessor. For ordinary account and business correspondence, it supports processing for which the Provider is an independent controller and which is outside this DPA. The unresolved contract and transfer status for Forward Email is stated at [Subprocessors](/subprocessors); disclosure of that gap does not replace the contract required by the preceding paragraph.
 
 Where the Provider itself decides to add or replace a subprocessor, it informs the Customer before that subprocessor begins processing personal data on the Customer's behalf and allows the Customer a reasonable opportunity to object before processing begins. Where an existing supplier gives notice of an intended addition or replacement in its own supply chain, the Provider informs the Customer without undue delay after receiving that notice. If the supplier notice provides an objection period, the Provider states the remaining period in its notice to the Customer. The Customer may object in text form without undue delay on reasonable data-protection grounds. Where the Customer objects and the parties cannot resolve the objection, the Customer may terminate the affected service in accordance with the Main Agreement. For supplier-originated changes, the Provider does not promise a fixed advance-notice period that its supplier contracts do not guarantee.
 
@@ -138,4 +142,4 @@ An den Kasernen 25
 68167 Mannheim  
 mail@customermates.com  
 
-*Last Update: 03.08.2026*
+*Last Update: 06.08.2026*

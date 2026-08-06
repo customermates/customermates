@@ -17,6 +17,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "../upsert/update-user-details.interactor";
+import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 
 const USER_ID = "test-user-id";
@@ -78,6 +79,27 @@ describe("RegisterUserInteractor", () => {
     );
   });
 
+  it("passes the current legal document versions to a new company registration", async () => {
+    const interactor = createInteractor();
+    await interactor.invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legalAcceptedAt: expect.any(Date),
+        legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
+        legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
+        legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
+      }),
+    );
+  });
+
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
     mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
@@ -95,6 +117,30 @@ describe("RegisterUserInteractor", () => {
       DomainEvent.USER_REGISTERED,
       expect.objectContaining({
         payload: expect.objectContaining({ isNewCompany: false }),
+      }),
+    );
+  });
+
+  it("passes the current legal document versions to an existing company registration", async () => {
+    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+
+    const interactor = createInteractor();
+    await interactor.invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        companyId: "existing-company-id",
+        legalAcceptedAt: expect.any(Date),
+        legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
+        legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
+        legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
       }),
     );
   });

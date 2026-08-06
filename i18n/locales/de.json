@@ -1337,7 +1337,7 @@
       "cancelAnytime": "Jederzeit kündbar",
       "gdpr": "DSGVO-konform",
       "noLimits": "Transparente Tarife",
-      "openSource": "Open Source"
+      "openSource": "Open Core"
     },
     "eyebrow": "Preise",
     "selfHosted": {
@@ -1349,7 +1349,7 @@
       "featureUsers": "Unbegrenzte Nutzer",
       "period": "für immer",
       "price": "Kostenlos",
-      "tag": "Auf Ihrem Server mit Docker Compose. Voller Source. AGPLv3.",
+      "tag": "Auf Ihrem Server mit Docker Compose. AGPL-Community-Edition mit quellverfügbaren kommerziellen Komponenten.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-host für immer kostenlos, oder starte mit der Cloud ohne Kreditkarte.",
@@ -1553,7 +1553,7 @@
     "title": "Huch! Du hast die Leere betreten"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Ich stimme den <termsOfServiceLink>Nutzungsbedingungen</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und habe die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen"
+    "agreeToTerms": "Nur für den von Benjamin Wagner betriebenen verwalteten Dienst bestätige ich, dass ich für einen Geschäftskunden handle, zu dessen Vertretung berechtigt bin und den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zustimme; die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen. In einer unabhängig betriebenen Self-Hosted-Installation dokumentiert das Aktivieren dieses Kontrollkästchens lediglich den Abschluss des technischen Onboardings und keine Annahme dieser Dokumente; maßgeblich sind die Repository-Lizenzen und die eigenen Dokumente des Betreibers."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1691,7 +1691,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Beim Anmelden stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und bestätigst, unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen zu haben",
+    "agreeToTerms": "Hier kannst du unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> einsehen.",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
     "or": "ODER",
@@ -1702,7 +1702,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Einladung annehmen",
-    "agreeToTerms": "Beim Registrieren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> und dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zu und bestätigst, unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen zu haben",
+    "agreeToTerms": "Für den verwalteten Dienst wirst du während des Onboardings aufgefordert, deine Vertretungsberechtigung für einen Geschäftskunden zu bestätigen und unseren <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zuzustimmen. Für eine unabhängig betriebene Self-Hosted-Installation gelten diese Dokumente nicht; maßgeblich sind die Repository-Lizenzen und die eigenen Dokumente des Betreibers. Bitte lies unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
     "buttonLabel": "Registrieren mit {provider}",
     "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",

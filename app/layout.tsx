@@ -198,11 +198,15 @@ export default async function RootLayout({ children }: Props) {
 
         <Analytics />
 
-        <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
-          {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
-        </Script>
+        {env.APP_MODE !== "self-hosted" && (
+          <>
+            <Script id="lemon-squeezy-affiliate-config" strategy="afterInteractive">
+              {`window.lemonSqueezyAffiliateConfig = { store: "customermates" };`}
+            </Script>
 
-        <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="lazyOnload" />
+            <Script defer src="https://lmsqueezy.com/affiliate.js" strategy="lazyOnload" />
+          </>
+        )}
       </body>
     </html>
   );

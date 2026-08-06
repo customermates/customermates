@@ -68,6 +68,67 @@ describe("legal documents describe only what the product does", () => {
   });
 });
 
+describe("managed service and independent self-hosting stay separated", () => {
+  it.each(LOCALES)("all operative documents (%s) exclude independent self-hosting", (name) => {
+    const exclusions =
+      name === "en"
+        ? {
+            privacy: /does not describe processing performed by an independent self-host operator/,
+            terms: /do not govern an independently operated self-hosted installation/,
+            dpa: /does not by itself appoint the Provider as processor/,
+            subprocessors: /are engaged directly by that operator and are not Customermates subprocessors/,
+          }
+        : {
+            privacy: /beschreibt keine Verarbeitung durch einen unabhängigen Self-Host-Betreiber/,
+            terms: /gelten nicht für eine eigenständig betriebene Self-Hosted-Installation/,
+            dpa: /bestellt den Anbieter für sich genommen nicht zum Auftragsverarbeiter/,
+            subprocessors:
+              /werden unmittelbar durch diesen Betreiber beauftragt und sind keine Unterauftragsverarbeiter/,
+          };
+
+    for (const [document, exclusion] of Object.entries(exclusions))
+      expect(legal(name, document), `${name}/${document} does not exclude independent self-hosting`).toMatch(exclusion);
+  });
+
+  it.each(LOCALES)("terms (%s) preserve the previously agreed version for existing customers", (name) => {
+    expect(legal(name, "terms")).toMatch(
+      name === "en" ? /does not by itself amend an existing contract/ : /ändert einen bestehenden Vertrag nicht/,
+    );
+  });
+
+  it.each(LOCALES)("dpa and provider list (%s) classify Forward Email narrowly", (name) => {
+    const dpa = legal(name, "dpa");
+    const subprocessors = legal(name, "subprocessors");
+
+    expect(dpa).toMatch(/Forward Email/);
+    expect(dpa).toMatch(
+      name === "en"
+        ? /not used for the connected-account feature or ordinary CRM processing/
+        : /weder für die Funktion verbundener Konten noch für die gewöhnliche CRM-Verarbeitung/,
+    );
+    expect(dpa).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
+
+    expect(subprocessors).toMatch(/Forward Email/);
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /not used for connected customer mailboxes or ordinary CRM data/
+        : /weder für verbundene Kundenpostfächer noch für gewöhnliche CRM-Daten/,
+    );
+    expect(subprocessors).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
+  });
+
+  it.each(LOCALES)("affiliate disclosure (%s) records the consent and self-host boundaries", (name) => {
+    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
+
+    expect(text).toMatch(/APP_MODE=self-hosted/);
+    expect(text).toMatch(
+      name === "en"
+        ? /consent mechanism is not currently implemented/
+        : /Einwilligungsmechanismus ist derzeit nicht implementiert/,
+    );
+  });
+});
+
 describe("legal document versions stay coupled to the acceptance record", () => {
   it.each(LOCALES)("privacy, terms and dpa (%s) carry their version", (name) => {
     expect(legal(name, "privacy")).toContain(LEGAL_DOCUMENT_VERSIONS.privacy);
@@ -92,6 +153,31 @@ describe("registration acceptance covers the DPA", () => {
       expect(richTags(de[key].agreeToTerms), `${key}.agreeToTerms tag mismatch`).toEqual(
         richTags(en[key].agreeToTerms),
       );
+  });
+
+  it.each(LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
+    const messages = locale(name);
+
+    expect(messages.OnboardingForm.agreeToTerms).toMatch(name === "en" ? /business customer/ : /Geschäftskunden/);
+    expect(messages.OnboardingForm.agreeToTerms).toMatch(
+      name === "en" ? /authorised/ : /zu dessen Vertretung berechtigt/,
+    );
+    expect(messages.OnboardingForm.agreeToTerms).toMatch(
+      name === "en" ? /does not accept those documents/ : /keine Annahme dieser Dokumente/,
+    );
+    expect(messages.SignUpForm.agreeToTerms).toMatch(
+      name === "en" ? /^For the managed service, onboarding will ask/ : /^Für den verwalteten Dienst wirst du/,
+    );
+    expect(messages.SignUpForm.agreeToTerms).toMatch(name === "en" ? /documents do not apply/ : /Dokumente nicht/);
+    expect(messages.SignUpForm.agreeToTerms).not.toMatch(
+      name === "en"
+        ? /\bBy registering\b|\b(?:I|you)\s+(?:agree|accept|assent)\b/i
+        : /\b(?:Beim|Durch das) Registrieren\b|\bdu\s+(?:akzeptierst|stimmst)\b/i,
+    );
+    expect(messages.SignInForm.agreeToTerms).toMatch(name === "en" ? /^Review our/ : /^Hier kannst du/);
+    expect(messages.SignInForm.agreeToTerms).not.toMatch(
+      name === "en" ? /\b(?:I|you)\s+(?:agree|accept|assent)\b|\bBy signing in\b/i : /zustimm|akzeptier|Annahme/i,
+    );
   });
 
   it("renders a DPA link in every acceptance surface", () => {

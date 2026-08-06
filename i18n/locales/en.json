@@ -1337,7 +1337,7 @@
       "cancelAnytime": "Cancel anytime",
       "gdpr": "GDPR compliant",
       "noLimits": "Transparent tiers",
-      "openSource": "Open source"
+      "openSource": "Open core"
     },
     "eyebrow": "Pricing",
     "selfHosted": {
@@ -1349,7 +1349,7 @@
       "featureUsers": "Unlimited users",
       "period": "forever",
       "price": "Free",
-      "tag": "Run on your server with Docker Compose. Full source. AGPLv3.",
+      "tag": "Run on your server with Docker Compose. AGPL Community Edition with source-available components.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparent tiers, no hidden costs. Self-host free forever, or start on Cloud with no credit card.",
@@ -1553,7 +1553,7 @@
     "title": "Oops! You've entered the void"
   },
   "OnboardingForm": {
-    "agreeToTerms": "I agree to the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink> and the <dpaLink>Data Processing Agreement</dpaLink>, and I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>"
+    "agreeToTerms": "Only for the managed service operated by Benjamin Wagner, I confirm that I act for a business customer, am authorised to bind it, and agree to the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink> and the <dpaLink>Data Processing Agreement</dpaLink>; I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. In an independently operated self-hosted installation, checking this box records completion of the software's onboarding only and does not accept those documents; the repository licences and the operator's own documents govern."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1691,7 +1691,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>, and confirm you have read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "Review our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>Data Processing Agreement</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Continue with {provider}",
     "forgotPassword": "Forgot password?",
     "or": "OR",
@@ -1702,7 +1702,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accept invitation",
-    "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>, and confirm you have read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "For the managed service, onboarding will ask you to confirm your authority for a business customer and accept our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>. In an independently operated self-hosted installation, those documents do not apply; the repository licences and the operator's own documents govern. Please read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",

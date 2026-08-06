@@ -7,10 +7,10 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features", "ee"];
 
-// lmsqueezy.com serves the affiliate attribution script loaded in the root layout. It is a
-// deliberate third-party request on every page view, disclosed in the privacy policy, and it is
-// why this codebase cannot claim to make no third-party browser requests. Removing it would break
-// affiliate attribution, so it is allowed here knowingly rather than overlooked.
+// lmsqueezy.com serves the affiliate attribution script loaded in the root layout of managed
+// hosted deployments. It is a deliberate third-party request disclosed in the privacy policy,
+// so it is allowed here knowingly rather than overlooked. Independent self-hosted deployments
+// must not load it.
 const ALLOWED_SUBRESOURCE_HOSTS = new Set(["demo.customermates.com", "lmsqueezy.com"]);
 
 const SUBRESOURCE_PATTERN = /(?:\bsrc|\bsrcSet)=\{?["'`]([^"'`]*?)["'`]/g;
@@ -49,11 +49,14 @@ function countryCodes(): string[] {
 }
 
 describe("third-party browser requests", () => {
-  it("loads only the disclosed affiliate tracker from the root layout", () => {
+  it("loads only the disclosed affiliate tracker and excludes it from self-hosting", () => {
     const layout = readFileSync(join(REPO_ROOT, "app", "layout.tsx"), "utf8");
     const hosts = [...new Set(externalHostsIn(layout))];
+    const hostedOnlyBlock = /env\.APP_MODE !== "self-hosted" && \(\s*<>([\s\S]*?)<\/\>\s*\)/.exec(layout)?.[1];
 
     expect(hosts).toEqual(["lmsqueezy.com"]);
+    expect(hostedOnlyBlock).toContain("lemon-squeezy-affiliate-config");
+    expect(hostedOnlyBlock).toContain("https://lmsqueezy.com/affiliate.js");
   });
 
   it("loads no third-party subresource outside the allowlist", () => {

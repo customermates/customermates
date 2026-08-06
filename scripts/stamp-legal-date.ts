@@ -9,8 +9,18 @@ const DOCUMENTS = ["privacy", "terms", "dpa", "subprocessors"] as const;
 // names that the platform already knows, so duplicating them anywhere would only create a
 // second thing to keep correct.
 const LONG_DATE = {
-  en: new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }),
-  de: new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }),
+  en: new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }),
+  de: new Intl.DateTimeFormat("de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }),
 } as const;
 
 type Formats = { iso: string; longEn: string; longDe: string; numeric: string };
@@ -42,7 +52,9 @@ export function stampDocument(source: string, locale: "en" | "de", formats: Form
       suffix ? `_Version ${formats.iso}${versionWithDate}_` : `_Version ${formats.iso}_`,
     )
     .replace(/^_Version 1\.0,.*_$/m, () =>
-      locale === "en" ? `_Version 1.0, effective ${long}_` : `_Version 1.0, gültig ab ${long}_`,
+      locale === "en"
+        ? `_Version 1.0, last updated ${long}; effective for each Customer when concluded under Section 2_`
+        : `_Version 1.0, Stand ${long}; für jeden Kunden wirksam bei Abschluss nach Ziffer 2_`,
     )
     .replace(/^_Last updated: .*_$/m, `_Last updated: ${long}_`)
     .replace(/^_Stand: .*_$/m, `_Stand: ${long}_`)
@@ -55,7 +67,7 @@ function main(): void {
 
   if (!iso) {
     console.error("Usage: yarn legal:date <YYYY-MM-DD>");
-    console.error("Stamps the version and effective date across every legal document in both locales.");
+    console.error("Stamps version and last-updated dates across every legal document in both locales.");
     process.exit(1);
   }
 

@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll, vi } from "vitest";
 
 import { createTranslator } from "next-intl";
 
+import { buildLegalAcceptance, LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import messages from "@/i18n/locales/en.json";
 
 vi.mock("next-intl/server", () => ({
@@ -23,6 +24,7 @@ afterAll(async () => {
 describe("registration against a real database", () => {
   it("provisions a workspace with default select fields and no demo records", async () => {
     const repo = new PrismaUserRepo();
+    const legalAcceptedAt = new Date("2026-08-06T07:30:00.000Z");
 
     const user = await runWithoutTenant(() =>
       repo.createCompanyAndUser({
@@ -32,7 +34,8 @@ describe("registration against a real database", () => {
         country: "de",
         agreeToTerms: true,
         avatarUrl: null,
-      } as Parameters<InstanceType<typeof PrismaUserRepo>["createCompanyAndUser"]>[0]),
+        ...buildLegalAcceptance(legalAcceptedAt),
+      }),
     );
 
     companyId = user.companyId;
@@ -58,5 +61,24 @@ describe("registration against a real database", () => {
     );
 
     expect(counts).toEqual([0, 0, 0, 0, 0]);
+
+    const persistedAcceptance = await runWithoutTenant(() =>
+      prisma.user.findUniqueOrThrow({
+        where: { id: user.id },
+        select: {
+          legalAcceptedAt: true,
+          legalDpaVersion: true,
+          legalPrivacyVersion: true,
+          legalTermsVersion: true,
+        },
+      }),
+    );
+
+    expect(persistedAcceptance).toEqual({
+      legalAcceptedAt,
+      legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
+      legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
+      legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
+    });
   });
 });
