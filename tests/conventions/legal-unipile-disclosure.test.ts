@@ -103,12 +103,21 @@ describe("managed service and independent self-hosting stay separated", () => {
     const combined = `${privacy}\n${dpa}\n${subprocessors}`;
 
     expect(privacy).toMatch(name === "en" ? /final hosted operator mailbox/ : /endgültiges gehostetes Betreiberpostfach/);
-    expect(privacy).toMatch(name === "en" ? /encrypted SQLite databases/ : /verschlüsselten SQLite-Datenbanken/);
-    expect(privacy).toContain("Cloudflare R2");
     expect(privacy).toMatch(
-      name === "en" ? /outbound SMTP emails are stored for approximately 30 days/ : /ausgehende SMTP-E-Mails ungefähr 30 Tage gespeichert/i,
+      name === "en"
+        ? /content, attachments, headers, delivery and security metadata/
+        : /Nachrichteninhalte, Anhänge, Kopfzeilen, Zustellungs- und Sicherheitsmetadaten/,
     );
-    expect(privacy).toMatch(name === "en" ? /published statements conflict/ : /Aufgrund dieses Widerspruchs/);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /standard data processing agreement is accepted electronically through its service Terms/
+        : /Standard-Auftragsverarbeitungsvertrag.*elektronisch über dessen Nutzungsbedingungen angenommen/,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /Standard Contractual Clauses for applicable transfers/
+        : /einschlägige Übermittlungen.*EU-Standardvertragsklauseln/,
+    );
     expect(privacy).toMatch(
       name === "en"
         ? /customer determines the legal basis.*documented instructions/
@@ -134,13 +143,17 @@ describe("managed service and independent self-hosting stay separated", () => {
     expect(dpa).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
 
     expect(subprocessors).toMatch(/Forward Email/);
-    expect(subprocessors).toContain("Cloudflare R2");
     expect(subprocessors).toMatch(
       name === "en"
         ? /not used for connected customer mailboxes or ordinary CRM data/
         : /weder für verbundene Kundenpostfächer noch für gewöhnliche CRM-Daten/,
     );
-    expect(subprocessors).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
+    expect(subprocessors).toMatch(name === "en" ? /support or feedback correspondence/ : /Support- oder Feedbackkorrespondenz/);
+    expect(subprocessors).toMatch(
+      name === "en"
+        ? /standard DPA is accepted electronically through its service Terms/
+        : /Standard-AVV.*elektronisch über dessen Nutzungsbedingungen angenommen/,
+    );
     expect(combined).not.toMatch(
       name === "en"
         ? /forwarded in memory|mailbox provider selected for that account/
