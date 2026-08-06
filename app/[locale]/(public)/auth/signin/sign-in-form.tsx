@@ -126,17 +126,17 @@ export const SignInForm = observer(({ socialProviders }: Props) => {
             <p className="text-x-xs text-subdued text-center mt-2">
               {t.rich("SignInForm.agreeToTerms", {
                 dataPrivacyLink: (chunks) => (
-                  <AppLink inheritSize inline href="/privacy" target="_blank">
+                  <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
                     {chunks}
                   </AppLink>
                 ),
                 dpaLink: (chunks) => (
-                  <AppLink inheritSize inline href="/dpa" target="_blank">
+                  <AppLink inheritSize className="text-inherit underline" href="/dpa" target="_blank">
                     {chunks}
                   </AppLink>
                 ),
                 termsOfServiceLink: (chunks) => (
-                  <AppLink inheritSize inline href="/terms" target="_blank">
+                  <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
                     {chunks}
                   </AppLink>
                 ),

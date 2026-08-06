@@ -58,7 +58,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
                   country: currentLocaleLabel,
                 })}
                 loading="lazy"
-                src={`/icons/flags/w40/${LOCALE_TO_FLAG[currentLocale].toLowerCase()}.png`}
+                src={`https://flagcdn.com/${LOCALE_TO_FLAG[currentLocale].toLowerCase()}.svg`}
               />
 
               <AvatarFallback>{currentLocale.toUpperCase()}</AvatarFallback>
@@ -79,7 +79,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
               <Avatar size="sm">
                 <AvatarImage
                   alt={t("Common.imageAlt.countryFlag", { country: label })}
-                  src={`/icons/flags/w40/${LOCALE_TO_FLAG[locale].toLowerCase()}.png`}
+                  src={`https://flagcdn.com/${LOCALE_TO_FLAG[locale].toLowerCase()}.svg`}
                 />
 
                 <AvatarFallback>{locale.toUpperCase()}</AvatarFallback>

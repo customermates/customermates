@@ -279,10 +279,10 @@ As Lemon Squeezy is based in the USA, personal data may be transferred to a thir
 
 ### Affiliate Tracking (Lemon Squeezy)
 
-As part of our affiliate program, we use a tracking system provided by the payment and affiliate service provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC),  
+As part of our affiliate program, we use a tracking system provided by the payment and affiliate service provider **Sold through Link, LLC** (formerly Lemon Squeezy LLC),<br />
 222 South Main Street, Suite 500, Salt Lake City, UT 84101, USA.
 
-Affiliate tracking is used for the **attribution of concluded contracts to referring partners** and the settlement of affiliate commissions. The affiliate script is scheduled by the root layout on managed Customermates routes. When the browser fetches it as part of a full document load, the request discloses ordinary request metadata, including the browser's IP address, to Lemon Squeezy. When its affiliate tracker initialises, it reads `document.cookie` to look for an existing `ls_aff_ref` cookie. The script is not included in documented `APP_MODE=self-hosted` operation.
+Affiliate tracking is used for the **attribution of concluded contracts to referring partners** and the settlement of affiliate commissions. The affiliate script is scheduled by the root layout on managed Customermates routes. When the browser fetches it as part of a full document load, the request discloses ordinary request metadata, including the browser's IP address, to Lemon Squeezy. When its affiliate tracker initialises, it reads `document.cookie` to look for an existing `ls_aff_ref` cookie. The current root layout does not suppress the script solely because `APP_MODE=self-hosted` is set. An independent self-host operator controls its own deployment and is responsible for its own disclosures and consent choices.
 
 If neither an existing `ls_aff_ref` cookie nor an `aff` parameter in the page URL is found, the script exits without executing its bundled fingerprinting routine or sending an affiliate tracking POST. Otherwise it executes that routine and reads browser and device signals including canvas, audio, fonts, plugins, storage availability, screen, platform, and hardware characteristics; where the trigger is an `aff` parameter, it can set the `ls_aff_ref` cookie. The cookie duration is controlled by the affiliate-program setting and has not yet been verified for our store.
 

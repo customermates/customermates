@@ -9,6 +9,7 @@ import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
 import { buildLegalAcceptance } from "@/constants/legal-documents";
+import { env } from "@/env";
 
 import { DomainEvent } from "@/features/event/domain-events";
 
@@ -67,7 +68,7 @@ export class RegisterUserInteractor {
 
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
 
-    const legalAcceptance = buildLegalAcceptance(new Date());
+    const legalAcceptance = buildLegalAcceptance(env.APP_MODE === "cloud" ? new Date() : null);
 
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({ ...data, ...legalAcceptance, companyId })

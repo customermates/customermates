@@ -43,7 +43,7 @@ export const FormRadioGroup = observer(
           <FormLabel htmlFor={id}>
             {label}
 
-            {required ? <span className="text-destructive">&nbsp;*</span> : null}
+            {required ? <span className="text-destructive"> *</span> : null}
           </FormLabel>
         )}
 

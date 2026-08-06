@@ -41,7 +41,7 @@ export const FormCheckbox = observer(({ id, label, required, className, containe
             <span>
               {label}
 
-              {required ? <span className="text-destructive">&nbsp;*</span> : null}
+              {required ? <span className="text-destructive"> *</span> : null}
             </span>
           </FormLabel>
         )}

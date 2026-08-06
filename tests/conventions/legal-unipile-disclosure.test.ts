@@ -161,10 +161,14 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
   });
 
-  it.each(LOCALES)("affiliate disclosure (%s) records the consent and self-host boundaries", (name) => {
+  it.each(LOCALES)("affiliate disclosure (%s) records the consent and current self-host behavior", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
 
-    expect(text).toMatch(/APP_MODE=self-hosted/);
+    expect(text).toMatch(
+      name === "en"
+        ? /does not suppress the script solely because `APP_MODE=self-hosted` is set/
+        : /unterdrückt das Skript nicht allein deshalb, weil `APP_MODE=self-hosted` gesetzt ist/,
+    );
     expect(text).toMatch(
       name === "en"
         ? /consent mechanism is not currently implemented/

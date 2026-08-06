@@ -9,6 +9,7 @@ import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
 import { Mermaid } from "./mermaid";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
+import { YouTube } from "./youtube-embed";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -22,6 +23,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     StatusAvailable,
     StatusPartial,
     StatusUnavailable,
+    YouTube,
     ...components,
   };
 }

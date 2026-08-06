@@ -8,6 +8,9 @@ import messages from "@/i18n/locales/en.json";
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
 }));
+vi.mock("@/env", () => ({
+  env: { APP_MODE: "cloud", DATABASE_URL: process.env.DATABASE_URL },
+}));
 
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { prisma } = await import("@/prisma/db");

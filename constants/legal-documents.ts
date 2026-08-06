@@ -5,13 +5,22 @@ export const LEGAL_DOCUMENT_VERSIONS = {
 } as const;
 
 export type LegalAcceptance = {
-  legalAcceptedAt: Date;
-  legalDpaVersion: string;
-  legalPrivacyVersion: string;
-  legalTermsVersion: string;
+  legalAcceptedAt: Date | null;
+  legalDpaVersion: string | null;
+  legalPrivacyVersion: string | null;
+  legalTermsVersion: string | null;
 };
 
-export function buildLegalAcceptance(acceptedAt: Date): LegalAcceptance {
+export function buildLegalAcceptance(acceptedAt: Date | null): LegalAcceptance {
+  if (!acceptedAt) {
+    return {
+      legalAcceptedAt: null,
+      legalDpaVersion: null,
+      legalPrivacyVersion: null,
+      legalTermsVersion: null,
+    };
+  }
+
   return {
     legalAcceptedAt: acceptedAt,
     legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,

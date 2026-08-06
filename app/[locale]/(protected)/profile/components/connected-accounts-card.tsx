@@ -101,17 +101,17 @@ const ConnectedAccountsAlert = () => {
       color="primary"
       description={t.rich("ConnectedAccountsCard.description", {
         dataPrivacyLink: (chunks) => (
-          <AppLink inheritSize inline href="/privacy" target="_blank">
+          <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
             {chunks}
           </AppLink>
         ),
         subprocessorsLink: (chunks) => (
-          <AppLink inheritSize inline href="/subprocessors" target="_blank">
+          <AppLink inheritSize className="text-inherit underline" href="/subprocessors" target="_blank">
             {chunks}
           </AppLink>
         ),
         termsOfServiceLink: (chunks) => (
-          <AppLink inheritSize inline href="/terms" target="_blank">
+          <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
             {chunks}
           </AppLink>
         ),

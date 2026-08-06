@@ -49,11 +49,7 @@ export function Alert({ className, color = "default", title, description, icon, 
 
       {title && <AlertTitle>{title}</AlertTitle>}
 
-      {description && (
-        <AlertDescription>
-          <p className="leading-relaxed">{description}</p>
-        </AlertDescription>
-      )}
+      {description && <AlertDescription>{description}</AlertDescription>}
 
       {children && <div className="col-start-2 min-w-0">{children}</div>}
     </UiAlert>

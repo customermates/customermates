@@ -107,7 +107,7 @@ export const FormNumberInput = observer(
           <FormLabel htmlFor={id}>
             {resolvedLabel}
 
-            {isReq ? <span className="text-destructive">&nbsp;*</span> : null}
+            {isReq ? <span className="text-destructive"> *</span> : null}
           </FormLabel>
         )}
 

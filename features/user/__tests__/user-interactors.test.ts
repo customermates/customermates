@@ -36,6 +36,7 @@ describe("RegisterUserInteractor", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "self-hosted";
 
     mockAuthService = {
       resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
@@ -80,6 +81,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("passes the current legal document versions to a new company registration", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "cloud";
     const interactor = createInteractor();
     await interactor.invoke({
       email: "jane@example.com",
@@ -122,6 +124,7 @@ describe("RegisterUserInteractor", () => {
   });
 
   it("passes the current legal document versions to an existing company registration", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "cloud";
     mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
@@ -141,6 +144,27 @@ describe("RegisterUserInteractor", () => {
         legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
         legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
         legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
+      }),
+    );
+  });
+
+  it("does not represent self-hosted onboarding as acceptance of the managed-service documents", async () => {
+    const interactor = createInteractor();
+    await interactor.invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        legalAcceptedAt: null,
+        legalDpaVersion: null,
+        legalPrivacyVersion: null,
+        legalTermsVersion: null,
       }),
     );
   });
