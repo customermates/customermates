@@ -39,6 +39,7 @@ import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
 import { getChartColors } from "@/constants/chart-colors";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 type Props = {
   customColumns: CustomColumnDto[];
@@ -48,6 +49,7 @@ type Props = {
 export const WidgetModal = observer(({ customColumns, filterableFields }: Props) => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
+  const { plural, singular } = useEntityTerminology();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const { resolvedTheme } = useTheme();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
@@ -140,7 +142,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                       id="entityType"
                       items={widgetModalStore.availableEntityTypes.map((entityType) => ({
                         value: entityType,
-                        label: t(`Dashboard.entityTypes.${entityType}`),
+                        label: singular(entityType),
                       }))}
                       label={t("Common.inputs.entityType")}
                     />
@@ -149,14 +151,25 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                       required
                       id="aggregationType"
                       items={widgetModalStore.aggregationTypeOptions.map(({ key }) => {
-                        const entityTypeName = t(`Dashboard.entityTypes.${form.entityType}`);
                         const translationKey = `Dashboard.aggregationTypes.${key}`;
                         const label =
                           key === "count"
-                            ? t(translationKey, { entities: entityTypeName })
+                            ? t(translationKey, { entities: plural(form.entityType) })
                             : key === "dealValue"
-                              ? t(translationKey, { entity: entityTypeName })
-                              : t(translationKey);
+                              ? form.entityType === EntityType.deal
+                                ? t("Dashboard.aggregationTypes.dealValue", {
+                                    deal: singular(EntityType.deal),
+                                  })
+                                : t("Dashboard.aggregationTypes.dealValueRelated", {
+                                    deal: singular(EntityType.deal),
+                                    entity: singular(form.entityType),
+                                  })
+                              : key === "dealQuantity"
+                                ? t(translationKey, {
+                                    deals: plural(EntityType.deal),
+                                    services: plural(EntityType.service),
+                                  })
+                                : t(translationKey);
                         return { value: key, label };
                       })}
                       label={t("Common.inputs.aggregationType")}
@@ -175,9 +188,12 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
 
                         <SelectContent>
                           {widgetModalStore.groupBySelectOptions.map((opt) => {
-                            const translationKey =
-                              opt.key.startsWith("custom:") && opt.label ? undefined : `Dashboard.groupBys.${opt.key}`;
-                            const label = translationKey ? t(translationKey as never) : (opt.label ?? String(opt.key));
+                            const isEntityGrouping = Object.values(EntityType).includes(opt.key as EntityType);
+                            const label = isEntityGrouping
+                              ? singular(opt.key as EntityType)
+                              : opt.key.startsWith("custom:") && opt.label
+                                ? opt.label
+                                : t("Dashboard.groupBys.none");
                             return (
                               <SelectItem key={opt.key} value={opt.key}>
                                 {label}
@@ -197,7 +213,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                     <div className="flex items-center gap-2">
                       <span>
                         {t("Dashboard.tabs.filters", {
-                          entityType: t(`Dashboard.entityTypes.${widgetModalStore.form.entityType}`),
+                          entityType: singular(widgetModalStore.form.entityType),
                         })}
                       </span>
 
@@ -230,7 +246,7 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
                   <AccordionItem value="dealFilters">
                     <AccordionTrigger>
                       <div className="flex items-center gap-2">
-                        <span>{t("Dashboard.tabs.dealFilters")}</span>
+                        <span>{t("Dashboard.tabs.dealFilters", { deals: plural(EntityType.deal) })}</span>
 
                         {widgetModalStore.activeDealFiltersCount > 0 && (
                           <AppChip className="size-5 min-w-5 min-h-5 p-0" variant="secondary">

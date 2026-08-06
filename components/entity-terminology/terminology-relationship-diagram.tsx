@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import { Building2, ChevronDown, ChevronRight, Package, TrendingUp, Users } from "lucide-react";
+import { Building2, CheckCircle2, ChevronDown, ChevronRight, Package, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
@@ -25,7 +25,7 @@ type EntityStyle = {
   accent: string;
 };
 
-const ENTITY_STYLE: Record<string, EntityStyle> = {
+const ENTITY_STYLE: Record<EntityType, EntityStyle> = {
   [EntityType.contact]: {
     icon: Users,
     square: "bg-blue-500/10",
@@ -50,6 +50,12 @@ const ENTITY_STYLE: Record<string, EntityStyle> = {
     glyph: "text-amber-600 dark:text-amber-400",
     accent: "border-l-amber-500",
   },
+  [EntityType.task]: {
+    icon: CheckCircle2,
+    square: "bg-cyan-500/10",
+    glyph: "text-cyan-600 dark:text-cyan-400",
+    accent: "border-l-cyan-500",
+  },
 };
 
 const CARD_BASE = "w-full items-center gap-2.5 border-l-4 py-1.5 text-sm font-medium";
@@ -67,13 +73,15 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
   const t = useTranslations();
   const { presetLabel } = useEntityTerminology();
 
+  const selectedPresetKey = (entityType: EntityType) => {
+    const selected = selections[entityType];
+    return isTerminologyPresetKey(entityType, selected) ? selected : CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];
+  };
+
   const node = (entityType: EntityType) => {
     const style = ENTITY_STYLE[entityType];
     const Icon = style.icon;
-    const selected = selections[entityType];
-    const presetKey = isTerminologyPresetKey(entityType, selected)
-      ? selected
-      : CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];
+    const presetKey = selectedPresetKey(entityType);
 
     const glyph = (
       <span className={cn("flex size-6 shrink-0 items-center justify-center rounded", style.square)}>
@@ -93,7 +101,13 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
     return (
       <Select value={presetKey} onValueChange={(next) => onPreset(entityType, next)}>
-        <SelectTrigger className={cn(CARD_BASE, "justify-between", style.accent)} id={`terminology-${entityType}`}>
+        <SelectTrigger
+          aria-label={t("EntityTerminology.relationships.selectLabel", {
+            entity: presetLabel(entityType, presetKey, "singular"),
+          })}
+          className={cn(CARD_BASE, "justify-between", style.accent)}
+          id={`terminology-${entityType}`}
+        >
           <span className="flex min-w-0 items-center gap-2.5">
             {glyph}
 
@@ -170,6 +184,22 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
           {node(EntityType.service)}
         </div>
+
+        <div aria-hidden="true" className="flex justify-center text-muted-foreground/50">
+          <div className="flex flex-col items-center">
+            <div className="h-2 w-px bg-current" />
+
+            <ChevronDown className="-mt-1.5 size-3 shrink-0" />
+          </div>
+        </div>
+
+        {node(EntityType.task)}
+
+        <span className="text-center text-xs text-muted-foreground">
+          {t("EntityTerminology.relationships.linkedToAny", {
+            tasks: presetLabel(EntityType.task, selectedPresetKey(EntityType.task), "plural"),
+          })}
+        </span>
       </div>
     </div>
   );

@@ -3,7 +3,9 @@ import { EntityType } from "@/generated/prisma";
 
 import { UpsertEntityTerminologySchema } from "../entity-terminology.schema";
 import {
+  CONFIGURABLE_TERMINOLOGY_ENTITY_TYPES,
   defaultTerminologySelections,
+  ENTITY_TERMINOLOGY_PRESETS,
   terminologySelectionsFromOverrides,
   terminologySelectionsToEntries,
 } from "../entity-terminology.constants";
@@ -25,8 +27,12 @@ describe("UpsertEntityTerminologySchema", () => {
     expect(parse([{ entityType: EntityType.contact }]).success).toBe(false);
   });
 
-  it("rejects a non-configurable entity type", () => {
-    expect(parse([{ entityType: EntityType.task, presetKey: "task" }]).success).toBe(false);
+  it.each(ENTITY_TERMINOLOGY_PRESETS[EntityType.task])("accepts the Task preset %s", (presetKey) => {
+    expect(parse([{ entityType: EntityType.task, presetKey }]).success).toBe(true);
+  });
+
+  it.each(["product", "not-a-preset"])("rejects the cross-entity or unknown Task preset %s", (presetKey) => {
+    expect(parse([{ entityType: EntityType.task, presetKey }]).success).toBe(false);
   });
 
   it("requires at least one entry", () => {
@@ -36,21 +42,54 @@ describe("UpsertEntityTerminologySchema", () => {
 
 describe("terminology selection helpers", () => {
   it("defaults every configurable entity to its canonical preset", () => {
-    const selections = defaultTerminologySelections();
-    expect(selections[EntityType.contact]).toBe("contact");
-    expect(selections[EntityType.service]).toBe("service");
+    expect(CONFIGURABLE_TERMINOLOGY_ENTITY_TYPES).toEqual([
+      EntityType.contact,
+      EntityType.organization,
+      EntityType.deal,
+      EntityType.service,
+      EntityType.task,
+    ]);
+    expect(defaultTerminologySelections()).toEqual({
+      contact: "contact",
+      organization: "organization",
+      deal: "deal",
+      service: "service",
+      task: "task",
+    });
   });
 
-  it("round-trips overrides through selections back into entries", () => {
+  it("hydrates legacy four-entry overrides with a canonical Task and serializes five ordered entries", () => {
     const selections = terminologySelectionsFromOverrides([
       { entityType: EntityType.contact, presetKey: "client" },
+      { entityType: EntityType.organization, presetKey: "company" },
       { entityType: EntityType.deal, presetKey: "opportunity" },
+      { entityType: EntityType.service, presetKey: "product" },
     ]);
-    expect(selections[EntityType.contact]).toBe("client");
-    expect(selections[EntityType.deal]).toBe("opportunity");
+    expect(selections).toEqual({
+      contact: "client",
+      organization: "company",
+      deal: "opportunity",
+      service: "product",
+      task: "task",
+    });
 
-    const entries = terminologySelectionsToEntries(selections);
-    expect(entries).toContainEqual({ entityType: EntityType.deal, presetKey: "opportunity" });
-    expect(entries).toContainEqual({ entityType: EntityType.organization, presetKey: "organization" });
+    selections[EntityType.task] = "followUp";
+    expect(terminologySelectionsToEntries(selections)).toEqual([
+      { entityType: EntityType.contact, presetKey: "client" },
+      { entityType: EntityType.organization, presetKey: "company" },
+      { entityType: EntityType.deal, presetKey: "opportunity" },
+      { entityType: EntityType.service, presetKey: "product" },
+      { entityType: EntityType.task, presetKey: "followUp" },
+    ]);
+  });
+
+  it("falls back from stale stored keys instead of poisoning the settings form", () => {
+    expect(terminologySelectionsFromOverrides([{ entityType: EntityType.task, presetKey: "retired" }])).toEqual({
+      contact: "contact",
+      organization: "organization",
+      deal: "deal",
+      service: "service",
+      task: "task",
+    });
   });
 });

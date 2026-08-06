@@ -955,8 +955,9 @@
     "aggregationType": "Aggregationstyp",
     "aggregationTypes": {
       "count": "Anzahl {entities}",
-      "dealQuantity": "Anzahl Services in Deals",
-      "dealValue": "Dealwert bezogen auf {entity}",
+      "dealQuantity": "Anzahl {services} in {deals}",
+      "dealValue": "{deal}-Wert",
+      "dealValueRelated": "{deal}-Wert bezogen auf {entity}",
       "field": "Feld"
     },
     "barColors": "Balkenfarben",
@@ -998,7 +999,7 @@
     "startDate": "Start Datum",
     "tabs": {
       "config": "Konfiguration",
-      "dealFilters": "Deal-Filter",
+      "dealFilters": "Filter für {deals}",
       "display": "Darstellung",
       "filters": "{entityType} Filter"
     },
@@ -1144,6 +1145,10 @@
           "plural": "Kontakte",
           "singular": "Kontakt"
         },
+        "lead": {
+          "plural": "Leads",
+          "singular": "Lead"
+        },
         "person": {
           "plural": "Personen",
           "singular": "Person"
@@ -1153,6 +1158,10 @@
         "deal": {
           "plural": "Deals",
           "singular": "Deal"
+        },
+        "job": {
+          "plural": "Aufträge",
+          "singular": "Auftrag"
         },
         "opportunity": {
           "plural": "Chancen",
@@ -1179,8 +1188,12 @@
       },
       "service": {
         "offering": {
-          "plural": "Angebote",
-          "singular": "Angebot"
+          "plural": "Leistungen",
+          "singular": "Leistung"
+        },
+        "package": {
+          "plural": "Pakete",
+          "singular": "Paket"
         },
         "product": {
           "plural": "Produkte",
@@ -1192,9 +1205,21 @@
         }
       },
       "task": {
+        "actionItem": {
+          "plural": "Action Items",
+          "singular": "Action Item"
+        },
+        "followUp": {
+          "plural": "Follow-ups",
+          "singular": "Follow-up"
+        },
         "task": {
           "plural": "Aufgaben",
           "singular": "Aufgabe"
+        },
+        "todo": {
+          "plural": "To-dos",
+          "singular": "To-do"
         }
       }
     },
@@ -1203,6 +1228,8 @@
       "dataModelTitle": "Dein Datenmodell",
       "include": "enthalten",
       "involvedIn": "sind beteiligt an",
+      "linkedToAny": "{tasks} können mit jedem der obigen Datensätze verknüpft werden.",
+      "selectLabel": "Bezeichnung für {entity}",
       "workAt": "arbeiten bei"
     }
   },
@@ -1284,7 +1311,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Leeren",
-    "emptyPrompt": "Tippe los, um in Kontakten, Organisationen, Deals und Services zu suchen.",
+    "emptyPrompt": "Tippe los und durchsuche: {contacts}, {organizations}, {deals} und {services}.",
     "groupRecent": "Zuletzt geöffnet",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
@@ -1645,10 +1672,6 @@
       "profile": {
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
-      },
-      "terminology": {
-        "subtitle": "Lege fest, wie die zentralen Datensätze in deinem Workspace heißen.",
-        "title": "Benenne deine Datensätze"
       }
     }
   },
@@ -1801,7 +1824,7 @@
     "title": "Aufgabe"
   },
   "TasksCard": {
-    "systemTaskTooltip": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Öffne die Aufgabe für weitere Informationen."
+    "systemTaskTooltip": "Vom System verwaltet: {task}. Der Eintrag kann nicht manuell gelöscht werden. Öffne ihn für weitere Informationen."
   },
   "TrialExpiredOffer": {
     "body": "Ihr Testzeitraum ist vor Kurzem abgelaufen, aber ich möchte Sie gerne weiter begleiten. Wenn Sie möchten, verlängere ich den Test und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",

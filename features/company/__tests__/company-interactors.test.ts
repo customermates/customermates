@@ -56,7 +56,7 @@ describe("UpdateCompanySettingsInteractor", () => {
   });
 
   it("audits a terminology-only change, so renaming records is not silent", async () => {
-    const terminology = [{ entityType: "contact" as const, presetKey: "person" }];
+    const terminology = [{ entityType: "task" as const, presetKey: "followUp" }];
     const interactor = createInteractor();
     const result: any = await interactor.invoke({ terminology });
 

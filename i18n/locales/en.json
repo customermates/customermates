@@ -955,8 +955,9 @@
     "aggregationType": "Aggregation Type",
     "aggregationTypes": {
       "count": "Count {entities}",
-      "dealQuantity": "Number of Services in Deals",
-      "dealValue": "Deal Value related to {entity}",
+      "dealQuantity": "Number of {services} in {deals}",
+      "dealValue": "{deal} value",
+      "dealValueRelated": "{deal} value related to {entity}",
       "field": "Field"
     },
     "barColors": "Bar Colors",
@@ -998,7 +999,7 @@
     "startDate": "Start Date",
     "tabs": {
       "config": "Configuration",
-      "dealFilters": "Deal Filters",
+      "dealFilters": "Filters for {deals}",
       "display": "Display",
       "filters": "{entityType} Filters"
     },
@@ -1144,6 +1145,10 @@
           "plural": "Contacts",
           "singular": "Contact"
         },
+        "lead": {
+          "plural": "Leads",
+          "singular": "Lead"
+        },
         "person": {
           "plural": "People",
           "singular": "Person"
@@ -1153,6 +1158,10 @@
         "deal": {
           "plural": "Deals",
           "singular": "Deal"
+        },
+        "job": {
+          "plural": "Jobs",
+          "singular": "Job"
         },
         "opportunity": {
           "plural": "Opportunities",
@@ -1182,6 +1191,10 @@
           "plural": "Offerings",
           "singular": "Offering"
         },
+        "package": {
+          "plural": "Packages",
+          "singular": "Package"
+        },
         "product": {
           "plural": "Products",
           "singular": "Product"
@@ -1192,9 +1205,21 @@
         }
       },
       "task": {
+        "actionItem": {
+          "plural": "Action items",
+          "singular": "Action item"
+        },
+        "followUp": {
+          "plural": "Follow-ups",
+          "singular": "Follow-up"
+        },
         "task": {
           "plural": "Tasks",
           "singular": "Task"
+        },
+        "todo": {
+          "plural": "To-dos",
+          "singular": "To-do"
         }
       }
     },
@@ -1203,6 +1228,8 @@
       "dataModelTitle": "Your data model",
       "include": "include",
       "involvedIn": "are involved in",
+      "linkedToAny": "{tasks} can be linked to any record above.",
+      "selectLabel": "Name for {entity}",
       "workAt": "work at"
     }
   },
@@ -1284,7 +1311,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Clear",
-    "emptyPrompt": "Start typing to search across your contacts, organizations, deals, and services.",
+    "emptyPrompt": "Start typing to search across: {contacts}, {organizations}, {deals}, and {services}.",
     "groupRecent": "Recently opened",
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
@@ -1645,10 +1672,6 @@
       "profile": {
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
-      },
-      "terminology": {
-        "subtitle": "Choose what to call the core records in your workspace.",
-        "title": "Name your records"
       }
     }
   },
@@ -1801,7 +1824,7 @@
     "title": "Task"
   },
   "TasksCard": {
-    "systemTaskTooltip": "This is a system task that cannot be manually deleted. Open the task for more information."
+    "systemTaskTooltip": "System-managed {task}. It cannot be deleted manually; open it for more information."
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",

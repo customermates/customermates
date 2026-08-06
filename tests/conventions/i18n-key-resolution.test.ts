@@ -30,7 +30,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/contacts/components/contact-channels.tsx :: t :: Common.providers.",
   "app/[locale]/(protected)/dashboard/components/widget-card.tsx :: t :: Common.filters.operators.",
   "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.displayTypes.",
-  "app/[locale]/(protected)/dashboard/components/widget-modal.tsx :: t :: Dashboard.entityTypes.",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.",

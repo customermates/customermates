@@ -19,7 +19,7 @@ type EntityIdentity = { name: string; pictureUrl?: string | null };
 type EntityDetailConfig = {
   store: (root: RootStore) => AnyDetailStore;
   DetailView: ComponentType<{ layout: "page" | "drawer" }>;
-  identity: (entity: any, t: Translate) => EntityIdentity;
+  identity: (entity: any, t: Translate, fallbackName: string) => EntityIdentity;
   canDelete?: (store: AnyDetailStore) => boolean;
 };
 
@@ -27,35 +27,35 @@ export const ENTITY_DETAIL: Record<EntityType, EntityDetailConfig> = {
   [EntityType.contact]: {
     store: (root) => root.contactDetailStore,
     DetailView: ContactDetailView,
-    identity: (c, t) => ({
-      name: `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || t("ContactModal.title"),
+    identity: (c, _t, fallbackName) => ({
+      name: `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || fallbackName,
       pictureUrl: c.avatarUrl ?? null,
     }),
   },
   [EntityType.organization]: {
     store: (root) => root.organizationDetailStore,
     DetailView: OrganizationDetailView,
-    identity: (o, t) => ({
-      name: o.name ?? t("OrganizationModal.title"),
+    identity: (o, _t, fallbackName) => ({
+      name: o.name || fallbackName,
       pictureUrl: null,
     }),
   },
   [EntityType.deal]: {
     store: (root) => root.dealDetailStore,
     DetailView: DealDetailView,
-    identity: (d, t) => ({ name: d.name ?? t("DealModal.title") }),
+    identity: (d, _t, fallbackName) => ({ name: d.name || fallbackName }),
   },
   [EntityType.service]: {
     store: (root) => root.serviceDetailStore,
     DetailView: ServiceDetailView,
-    identity: (s, t) => ({ name: s.name ?? t("ServiceModal.title") }),
+    identity: (s, _t, fallbackName) => ({ name: s.name || fallbackName }),
   },
   [EntityType.task]: {
     store: (root) => root.taskDetailStore,
     DetailView: TaskDetailView,
-    identity: (task, t) => {
+    identity: (task, t, fallbackName) => {
       const key = getSystemTaskNameTranslationKey(task.type);
-      return { name: key ? t(key) : (task.name ?? t("TaskModal.title")) };
+      return { name: key ? t(key) : task.name || fallbackName };
     },
     canDelete: (store) => Boolean((store as { isCustomTask?: boolean }).isCustomTask),
   },

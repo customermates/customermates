@@ -9,7 +9,6 @@ import { EntityType, type Currency } from "@/generated/prisma";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormActions } from "@/components/card/form-actions";
-import { Separator } from "@/components/ui/separator";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { TerminologyRelationshipDiagram } from "@/components/entity-terminology/terminology-relationship-diagram";
@@ -63,8 +62,6 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
             })}
           </p>
         </div>
-
-        <Separator />
 
         <TerminologyRelationshipDiagram
           readOnly={!canManage}
