@@ -5,7 +5,7 @@ import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS } from "./overlay-contract";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
 import { Button } from "@/components/ui/button";
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -82,7 +82,7 @@ function DialogContent({
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn("flex flex-col gap-2", OVERLAY_HEADER_ALIGNMENT_CLASS, className)}
       data-slot="dialog-header"
       {...props}
     />

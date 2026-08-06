@@ -4,7 +4,7 @@ import * as React from "react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
+import { OVERLAY_COLLISION_PADDING, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
 
 function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />;
@@ -48,7 +48,23 @@ function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitiv
 }
 
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col gap-1 text-sm", className)} data-slot="popover-header" {...props} />;
+  return (
+    <div
+      className={cn("flex flex-col gap-1 text-sm", OVERLAY_HEADER_ALIGNMENT_CLASS, className)}
+      data-slot="popover-header"
+      {...props}
+    />
+  );
+}
+
+function PopoverFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn("flex shrink-0 flex-wrap items-center justify-end gap-2", className)}
+      data-slot="popover-footer"
+      {...props}
+    />
+  );
 }
 
 function PopoverTitle({ className, ...props }: React.ComponentProps<"h2">) {
@@ -59,4 +75,13 @@ function PopoverDescription({ className, ...props }: React.ComponentProps<"p">) 
   return <p className={cn("text-muted-foreground", className)} data-slot="popover-description" {...props} />;
 }
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor, PopoverHeader, PopoverTitle, PopoverDescription };
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+  PopoverHeader,
+  PopoverFooter,
+  PopoverTitle,
+  PopoverDescription,
+};

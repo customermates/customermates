@@ -84,7 +84,7 @@ export const EntityDetailBody = observer(
             </AppCardBody>
 
             {canManage && (
-              <AppCardFooter className="border-t">
+              <AppCardFooter>
                 <Button
                   disabled={isLoading || !store.hasUnsavedChanges || store.isDisabled}
                   id="drawer-save"

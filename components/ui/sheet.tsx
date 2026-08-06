@@ -5,7 +5,7 @@ import { XIcon } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -92,6 +92,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       className={cn(
         "flex shrink-0 flex-col gap-1.5 p-4 pt-[calc(1rem+var(--safe-top))] pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
+        OVERLAY_HEADER_ALIGNMENT_CLASS,
         className,
       )}
       data-slot="sheet-header"

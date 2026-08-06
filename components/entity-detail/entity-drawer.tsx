@@ -77,7 +77,9 @@ export const EntityDrawer = observer(() => {
             <SheetTitle>{top ? top.entityType : "Detail"}</SheetTitle>
           </VisuallyHidden.Root>
 
-          <SheetBody className="px-0">{DetailView && <DetailView layout="drawer" />}</SheetBody>
+          <SheetBody className="flex flex-col overflow-hidden px-0">
+            {DetailView && <DetailView layout="drawer" />}
+          </SheetBody>
         </SheetContent>
       </Sheet>
 

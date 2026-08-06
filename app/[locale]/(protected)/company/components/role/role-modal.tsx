@@ -8,9 +8,10 @@ import { Trash2 } from "lucide-react";
 import { Resource } from "@/generated/prisma";
 
 import { Alert } from "@/components/shared/alert";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OVERLAY_CLOSE_CLASS } from "@/components/ui/overlay-contract";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -22,6 +23,7 @@ import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormRadioGroup, type FormRadioGroupOption } from "@/components/forms/form-radio-group";
 import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   store: RoleModalStore;
@@ -31,6 +33,7 @@ export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
   const { form, isDisabledOrSystemRole, isLoading, hasUsersAssigned, isSystemRole } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
+  const canDeleteRole = Boolean(form.id && !isDisabledOrSystemRole && !hasUsersAssigned);
 
   function renderResourcePermissions(resource: Resource) {
     const permission = form.permissions[resource];
@@ -79,22 +82,30 @@ export const RoleModal = observer(({ store }: Props) => {
 
   return (
     <AppModal size="xl" store={store} title={t("RoleModal.title")}>
-      <AppForm store={store}>
-        <AppCard>
-          <AppCardHeader className="items-start">
-            <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
-
-            {form.id && !isDisabledOrSystemRole && !hasUsersAssigned && (
-              <Button
+      {canDeleteRole && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                aria-label={t("Common.actions.delete")}
+                className={cn(OVERLAY_CLOSE_CLASS, "top-4 right-14 z-10")}
                 disabled={isLoading}
-                size="icon"
                 type="button"
-                variant="destructive"
                 onClick={() => showDeleteConfirmation(() => store.delete(), form.name ?? "")}
               >
-                <Icon icon={Trash2} />
-              </Button>
-            )}
+                <Icon className="text-destructive" icon={Trash2} />
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
+      <AppForm store={store}>
+        <AppCard>
+          <AppCardHeader className={cn("items-start", canDeleteRole && "in-data-overlay-close:pr-24")}>
+            <h2 className="grow truncate text-base font-semibold">{t("RoleModal.title")}</h2>
           </AppCardHeader>
 
           <AppCardBody>

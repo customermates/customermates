@@ -11,7 +11,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
@@ -52,17 +59,13 @@ export function ResponsiveOverlay({
           popoverClassName,
         )}
       >
-        <PopoverHeader className="shrink-0 border-b border-border p-3">
+        <PopoverHeader className="shrink-0 p-3">
           <PopoverTitle>{title}</PopoverTitle>
         </PopoverHeader>
 
         <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>
 
-        {footer && (
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border p-3">
-            {footer}
-          </div>
-        )}
+        {footer && <PopoverFooter className="p-3">{footer}</PopoverFooter>}
       </PopoverContent>
     </Popover>
   ) : (

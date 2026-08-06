@@ -6,7 +6,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
 
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
@@ -82,10 +82,7 @@ function DrawerContent({
 function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn(
-        "flex shrink-0 flex-col gap-0.5 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-1.5 md:text-left",
-        className,
-      )}
+      className={cn("flex shrink-0 flex-col gap-0.5 p-4 md:gap-1.5", OVERLAY_HEADER_ALIGNMENT_CLASS, className)}
       data-slot="drawer-header"
       {...props}
     />

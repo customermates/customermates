@@ -14,13 +14,15 @@ Choose an overlay by what the interaction is, not by how much room is left.
 | **Popover**       | Lightweight anchored content                                                 | `w-72` default, capped at available width  | available height         | exactly one region | promote with `ResponsiveOverlay` when form-heavy |
 | **AppModal**      | Focused blocking task or form                                                | `sm:max-w-{sm,md,lg,xl}`                   | `--overlay-block-budget` | `AppCardBody`      | Dialog at `md`+, Drawer below                    |
 | **AlertDialog**   | Destructive or consequential confirmation                                    | `max-w-xs` / `sm:max-w-lg`                 | `--overlay-block-budget` | the content        | stays a centered dialog                          |
-| **Sheet**         | Side surface tied to the current page                                        | `w-3/4 sm:max-w-sm`, widened per call site | viewport                 | `SheetBody`        | unchanged                                        |
+| **Sheet**         | Side surface tied to the current page                                        | `w-3/4 sm:max-w-sm`, widened per call site | viewport                 | `SheetBody`, or a delegated `AppCardBody` | unchanged                              |
 | **Drawer**        | Mobile presentation of a modal                                               | full width                                 | `--sheet-block-budget`   | `DrawerBody`       | this is the small-screen form                    |
 | **CommandDialog** | Search or command workflow                                                   | `sm:max-w-lg`                              | `--overlay-block-budget` | `CommandList`      | unchanged                                        |
 
 ## Required composition
 
 - Give each overlay exactly one vertical scroll owner, with `min-h-0` on every ancestor between that owner and the positioned root.
+- Align every visible overlay header left across Dialog, Drawer, Sheet, Popover, AlertDialog, and AppModal presentations. Non-overlay card compositions may opt into another alignment explicitly.
+- Keep task-overlay headers and action footers divider-free. Use separators inside structured content only; retain each primitive's outer surface or edge border.
 - Controlled overlays without a primitive trigger use `useOverlayFocusReturn`. Custom navigation lifecycles reuse `overlay-focus-target` rather than duplicating element, stable-ID, visibility, or remount logic.
 - Always provide a stable focus fallback when an opener can unmount. Never return focus into an inert or closing overlay.
 - Import raw `radix-ui` overlay roots and `cmdk` only inside `components/ui/*`; all other code composes these wrappers.
@@ -31,6 +33,7 @@ Preferred patterns:
 - Read safe areas through `var(--safe-top|right|bottom|left)` and add them to existing padding, for example `calc(1rem + var(--safe-left))`.
 - Anchor floating content with Popover or Floating UI. Use `PopoverAnchor` with a virtual reference when no DOM trigger exists, as in [`editor-floating-menu.tsx`](../editor/editor-floating-menu.tsx).
 - Cap anchored content with the matching Radix available-width and available-height variables.
+- When a Sheet hosts an AppCard, constrain `SheetBody` as a non-scrolling flex column and delegate scrolling to `AppCardBody`; do not leave both regions scrollable.
 
 Prohibited patterns:
 
@@ -38,6 +41,7 @@ Prohibited patterns:
 - Raw `env(safe-area-inset-*)` outside the shared tokens.
 - Hand-positioned `fixed` or `absolute` floating surfaces with a `z-` class.
 - A second `max-h` scroller nested inside a modal.
+- `border-t` or `border-b` dividers on task-overlay headers and action footers.
 
 ## Reviewed limits
 

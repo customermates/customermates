@@ -55,6 +55,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
       "max-h-(--radix-popover-content-available-height)",
       "max-w-(--radix-popover-content-available-width)",
       "collisionPadding",
+      "popover-footer",
     ],
   },
   {
@@ -107,6 +108,28 @@ const DOCUMENTED_OVERLAY_TYPES = [
   "CommandDialog",
 ];
 
+const OVERLAY_FOOTER_COMPONENTS = [
+  "DialogFooter",
+  "DrawerFooter",
+  "SheetFooter",
+  "AlertDialogFooter",
+  "PopoverFooter",
+];
+
+const OVERLAY_FOOTER_DIVIDER = new RegExp(
+  `<(?:${OVERLAY_FOOTER_COMPONENTS.join("|")})\\b(?:(?!>).)*\\bborder-(?:t|b)\\b(?:(?!>).)*>`,
+  "gs",
+);
+
+const SHARED_OVERLAY_FOOTERS = [
+  ["components/card/app-card-footer.tsx", "AppCardFooter"],
+  ["components/ui/dialog.tsx", "DialogFooter"],
+  ["components/ui/drawer.tsx", "DrawerFooter"],
+  ["components/ui/sheet.tsx", "SheetFooter"],
+  ["components/ui/alert-dialog.tsx", "AlertDialogFooter"],
+  ["components/ui/popover.tsx", "PopoverFooter"],
+] as const;
+
 function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
     walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path)),
@@ -131,6 +154,31 @@ function violations(match: (line: Line) => boolean, skip: (file: string) => bool
   return LINES.filter((line) => !skip(line.file) && match(line)).map(
     (line) => `${line.file}:${line.line}: ${line.text.trim().slice(0, 160)}`,
   );
+}
+
+function sourcePatternViolations(pattern: RegExp) {
+  const found: string[] = [];
+
+  for (const absolute of sourceFiles()) {
+    const file = relative(REPO_ROOT, absolute);
+    const text = readFileSync(absolute, "utf8");
+
+    for (const match of text.matchAll(new RegExp(pattern.source, pattern.flags))) {
+      const line = text.slice(0, match.index).split("\n").length;
+      found.push(`${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`);
+    }
+  }
+
+  return found;
+}
+
+function functionSource(file: string, functionName: string) {
+  const text = readFileSync(join(REPO_ROOT, file), "utf8");
+  const start = text.indexOf(`function ${functionName}(`);
+  if (start === -1) return "";
+
+  const next = text.indexOf("\nfunction ", start + 1);
+  return text.slice(start, next === -1 ? text.length : next);
 }
 
 describe("overlay contract", () => {
@@ -193,6 +241,53 @@ describe("overlay contract", () => {
     }
 
     expect(missing, missing.join("\n")).toEqual([]);
+  });
+
+  it("keeps task overlay headers left-aligned", () => {
+    const contract = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.ts"), "utf8");
+    expect(contract).toContain('OVERLAY_HEADER_ALIGNMENT_CLASS = "text-left"');
+
+    for (const file of ["dialog.tsx", "drawer.tsx", "sheet.tsx", "popover.tsx", "alert-dialog.tsx"]) {
+      const primitive = readFileSync(join(REPO_ROOT, "components/ui", file), "utf8");
+      expect(primitive, `${file} must reuse the shared header alignment`).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
+    }
+
+    const dialog = readFileSync(join(REPO_ROOT, "components/ui/dialog.tsx"), "utf8");
+    const drawer = readFileSync(join(REPO_ROOT, "components/ui/drawer.tsx"), "utf8");
+    const alertDialog = readFileSync(join(REPO_ROOT, "components/ui/alert-dialog.tsx"), "utf8");
+    const appCardHeader = readFileSync(join(REPO_ROOT, "components/card/app-card-header.tsx"), "utf8");
+
+    expect(dialog).not.toContain("text-center sm:text-left");
+    expect(drawer).not.toContain("drawer-content:text-center");
+    expect(alertDialog).not.toContain("place-items-center");
+    expect(appCardHeader).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
+  });
+
+  it("keeps delegated sheet card footers above the bottom safe area", () => {
+    const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
+
+    expect(appCardFooter).toContain(
+      "in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]",
+    );
+  });
+
+  it("keeps task-overlay headers and action footers divider-free", () => {
+    const entityDetail = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-detail-body.tsx"), "utf8");
+    const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
+    const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
+
+    expect(
+      footerViolations,
+      `Overlay action footers stay visually continuous with their surface:\n${footerViolations.join("\n")}`,
+    ).toEqual([]);
+    expect(entityDetail).not.toMatch(/<AppCardFooter[^>]*\bborder-(?:t|b)\b/);
+    expect(responsiveOverlay).not.toMatch(/<PopoverHeader[^>]*\bborder-b\b/);
+
+    for (const [file, functionName] of SHARED_OVERLAY_FOOTERS) {
+      const source = functionSource(file, functionName);
+      expect(source, `${functionName} must exist in ${file}`).not.toBe("");
+      expect(source, `${functionName} must not add an internal divider`).not.toMatch(/\bborder-(?:t|b)\b/);
+    }
   });
 
   it("pins focus return for controlled overlays without primitive triggers", () => {
