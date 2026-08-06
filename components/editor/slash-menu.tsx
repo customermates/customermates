@@ -1,6 +1,7 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
+import type { EditorAnchorRect } from "./use-editor-anchor";
 
 import {
   CheckCircle,
@@ -16,13 +17,14 @@ import {
   Table as TableIcon,
   Image as ImageIcon,
 } from "lucide-react";
-import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
+
+import { EditorFloatingMenu } from "./editor-floating-menu";
 
 type UrlCommandKey = "image" | "link";
 
@@ -35,12 +37,11 @@ type SlashCommand = {
 
 type Props = {
   editor: Editor;
-  position: { top: number; left: number };
-  slashMenuRef: React.RefObject<HTMLDivElement>;
+  anchorRect: EditorAnchorRect | null;
   onClose: () => void;
 };
 
-export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
+export function SlashMenu({ editor, anchorRect, onClose }: Props) {
   const t = useTranslations();
   const [urlCommand, setUrlCommand] = useState<UrlCommandKey | null>(null);
   const [url, setUrl] = useState("");
@@ -135,22 +136,21 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
     ];
   }, [editor, t]);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (slashMenuRef.current && !slashMenuRef.current.contains(event.target as Node)) onClose();
-    }
+  return (
+    <EditorFloatingMenu
+      anchorRect={anchorRect}
+      className="w-72 overflow-hidden p-0"
+      editorDom={editor.view.dom}
+      side="bottom"
+      onClose={onClose}
+      onEscapeKeyDown={(event) => {
+        if (!urlCommand) return;
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose, slashMenuRef]);
-
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
-    <div
-      ref={slashMenuRef}
-      className="fixed z-50 w-72 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
-      style={{ top: position.top, left: position.left }}
+        event.preventDefault();
+        setUrlCommand(null);
+        setUrl("");
+      }}
+      onRestoreFocus={() => editor.view.focus()}
     >
       {urlCommand ? (
         <div className="flex w-full items-center gap-1 p-2">
@@ -211,7 +211,6 @@ export function SlashMenu({ editor, position, slashMenuRef, onClose }: Props) {
           </CommandList>
         </Command>
       )}
-    </div>,
-    document.body,
+    </EditorFloatingMenu>
   );
 }

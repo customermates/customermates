@@ -7,47 +7,66 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { Button } from "@/components/ui/button";
-import { AppForm } from "@/components/forms/form-context";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useRootStore } from "@/core/stores/root-store.provider";
-
-import { AppModal } from "./app-modal";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations();
   const { deleteConfirmationModalStore: store } = useRootStore();
   const { isLoading, form, close } = store;
   const title = form.title || t("Common.deleteConfirmation.title");
+  const focusReturn = useOverlayFocusReturn(store.isOpen);
 
   return (
-    <AppModal size="sm" store={store} title={title}>
-      <AppForm store={store} onSubmit={store.onSubmit}>
+    <AlertDialog
+      open={store.isOpen}
+      onOpenChange={(next) => {
+        if (!next) close();
+      }}
+    >
+      <AlertDialogContent
+        className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none"
+        size="sm"
+        {...focusReturn}
+      >
         <AppCard>
           <AppCardHeader>
-            <h2 className="text-base font-semibold">{title}</h2>
+            <AlertDialogTitle className="text-base font-semibold">{title}</AlertDialogTitle>
           </AppCardHeader>
 
           <AppCardBody>
-            <p className="text-sm">{form.message || t("Common.deleteConfirmation.message")}</p>
+            <AlertDialogDescription className="text-sm text-foreground">
+              {form.message || t("Common.deleteConfirmation.message")}
+            </AlertDialogDescription>
           </AppCardBody>
 
           <AppCardFooter>
-            <Button
-              disabled={isLoading}
-              id="confirm-delete-cancel"
-              type="button"
-              variant="outline"
-              onClick={() => close()}
-            >
+            <AlertDialogCancel disabled={isLoading} id="confirm-delete-cancel">
               {t("Common.actions.cancel")}
-            </Button>
+            </AlertDialogCancel>
 
-            <Button disabled={isLoading} id="confirm-delete" type="submit" variant="destructive">
+            <AlertDialogAction
+              disabled={isLoading}
+              id="confirm-delete"
+              variant="destructive"
+              onClick={(event) => {
+                event.preventDefault();
+                void store.onSubmit();
+              }}
+            >
               {t("Common.actions.delete")}
-            </Button>
+            </AlertDialogAction>
           </AppCardFooter>
         </AppCard>
-      </AppForm>
-    </AppModal>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 });

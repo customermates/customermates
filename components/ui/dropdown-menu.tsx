@@ -5,6 +5,7 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
+import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
 
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -21,15 +22,17 @@ function DropdownMenuTrigger({ ...props }: React.ComponentProps<typeof DropdownM
 function DropdownMenuContent({
   className,
   sideOffset = 4,
+  collisionPadding = OVERLAY_COLLISION_PADDING,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         className={cn(
-          "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-32 origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-32 max-w-(--radix-dropdown-menu-content-available-width) origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto overscroll-contain rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           className,
         )}
+        collisionPadding={collisionPadding}
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         {...props}
@@ -189,14 +192,16 @@ function DropdownMenuSubTrigger({
 
 function DropdownMenuSubContent({
   className,
+  collisionPadding = OVERLAY_COLLISION_PADDING,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
     <DropdownMenuPrimitive.SubContent
       className={cn(
-        "z-50 min-w-32 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+        "z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-32 max-w-[max(0px,min(calc(var(--radix-dropdown-menu-content-available-width,100dvw)_-_var(--viewport-gutter)_-_var(--viewport-gutter)),calc(100dvw_-_var(--viewport-gutter)_-_var(--viewport-gutter))))] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto overscroll-contain rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
         className,
       )}
+      collisionPadding={collisionPadding}
       data-slot="dropdown-menu-sub-content"
       {...props}
     />

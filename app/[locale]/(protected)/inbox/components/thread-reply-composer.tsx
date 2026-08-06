@@ -298,7 +298,7 @@ export const ThreadReplyComposer = observer(
         )}
 
         <FormTextarea
-          className="max-h-[40vh] min-h-[56px] resize-none border-0 bg-transparent px-3 pt-2.5 text-sm shadow-none focus-visible:ring-0"
+          className="max-h-[calc(0.4*var(--viewport-block))] min-h-[56px] resize-none border-0 bg-transparent px-3 pt-2.5 text-sm shadow-none focus-visible:ring-0"
           containerClassName="w-full"
           id="body"
           inputId="inbox-reply-input"

@@ -6,6 +6,7 @@ import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
@@ -22,24 +23,43 @@ function CommandDialog({
   description = "Search for a command to run...",
   children,
   className,
+  commandProps,
   showCloseButton = true,
+  focusReturnTarget,
+  focusReturnFallback,
+  open,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title?: string;
   description?: string;
   className?: string;
+  commandProps?: React.ComponentProps<typeof Command>;
   showCloseButton?: boolean;
+  focusReturnTarget?: HTMLElement | null;
+  focusReturnFallback?: HTMLElement | null;
 }) {
+  const focusReturn = useOverlayFocusReturn(open, focusReturnTarget, focusReturnFallback);
+
   return (
-    <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
+    <Dialog open={open} {...props}>
+      <DialogContent
+        className={cn("overflow-hidden p-0", className)}
+        showCloseButton={showCloseButton}
+        {...focusReturn}
+      >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
 
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
 
-      <DialogContent className={cn("overflow-hidden p-0", className)} showCloseButton={showCloseButton}>
-        <Command className="**:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+        <Command
+          {...commandProps}
+          className={cn(
+            "**:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5",
+            commandProps?.className,
+          )}
+        >
           {children}
         </Command>
       </DialogContent>
@@ -54,7 +74,7 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
 
       <CommandPrimitive.Input
         className={cn(
-          "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full rounded-md bg-transparent py-3 text-base outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           className,
         )}
         data-slot="command-input"
@@ -67,7 +87,10 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
 function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
-      className={cn("max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto", className)}
+      className={cn(
+        "max-h-[min(300px,var(--overlay-block-budget))] scroll-py-1 overflow-x-hidden overflow-y-auto overscroll-contain",
+        className,
+      )}
       data-slot="command-list"
       {...props}
     />
@@ -126,6 +149,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
 
 export {
   Command,
+  CommandPrimitive,
   CommandDialog,
   CommandInput,
   CommandList,

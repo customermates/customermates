@@ -73,6 +73,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       isEmail: computed,
       isLinkedin: computed,
       isNewThread: computed,
+      hasComposedContent: computed,
       toggleCcBcc: action,
       addAttachments: action,
       removeAttachment: action,
@@ -89,6 +90,10 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   get isNewThread(): boolean {
     return !this.form.threadId && this.newThreadTarget !== null;
+  }
+
+  get hasComposedContent(): boolean {
+    return this.form.body.trim().length > 0 || this.attachments.length > 0;
   }
 
   addAttachments = (files: File[]) => {
