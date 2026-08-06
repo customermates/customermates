@@ -7,49 +7,35 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
 import { useRouter as useGuardedIntlRouter } from "@/i18n/navigation";
+import {
+  captureOverlayFocusTarget,
+  focusOverlayTarget,
+  type OverlayFocusTarget,
+} from "@/components/ui/overlay-focus-target";
 
 const OPEN_PARAM = "open";
 
-type EntityDrawerFocusTarget = {
-  ref: WeakRef<HTMLElement>;
-  id: string | null;
-};
-
-let entityDrawerInvoker: EntityDrawerFocusTarget | null = null;
-let entityDrawerFallback: EntityDrawerFocusTarget | null = null;
+let entityDrawerInvoker: OverlayFocusTarget | null = null;
+let entityDrawerFallback: OverlayFocusTarget | null = null;
 let entityDrawerInvocation = 0;
 let pendingEntityDrawerRestore: number | null = null;
-
-function focusTarget(element: Element | null): EntityDrawerFocusTarget | null {
-  return element instanceof HTMLElement && element !== document.body && element !== document.documentElement
-    ? { ref: new WeakRef(element), id: element.id || null }
-    : null;
-}
-
-function resolveFocusTarget(target: EntityDrawerFocusTarget | null) {
-  const element = target?.ref.deref() ?? null;
-  if (element?.isConnected && element.getClientRects().length > 0) return element;
-
-  const replacement = target?.id ? document.getElementById(target.id) : null;
-  return replacement?.isConnected && replacement.getClientRects().length > 0 ? replacement : null;
-}
 
 function rememberEntityDrawerInvoker(preferredInvoker?: HTMLElement | null, fallbackInvoker?: HTMLElement | null) {
   const activeElement = preferredInvoker?.isConnected ? preferredInvoker : document.activeElement;
   entityDrawerInvocation += 1;
   pendingEntityDrawerRestore = null;
-  entityDrawerInvoker = focusTarget(activeElement);
-  entityDrawerFallback = focusTarget(fallbackInvoker ?? null);
+  entityDrawerInvoker = captureOverlayFocusTarget(activeElement);
+  entityDrawerFallback = captureOverlayFocusTarget(fallbackInvoker ?? null);
 }
 
 export function focusEntityDrawerInvoker() {
-  if (pendingEntityDrawerRestore !== entityDrawerInvocation) return;
+  if (pendingEntityDrawerRestore !== entityDrawerInvocation) return false;
 
-  const invoker = resolveFocusTarget(entityDrawerInvoker) ?? resolveFocusTarget(entityDrawerFallback);
-  invoker?.focus({ preventScroll: true });
+  const focused = focusOverlayTarget(entityDrawerInvoker, entityDrawerFallback);
   entityDrawerInvoker = null;
   entityDrawerFallback = null;
   pendingEntityDrawerRestore = null;
+  return focused;
 }
 
 function prepareEntityDrawerInvokerRestore() {

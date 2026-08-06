@@ -50,9 +50,15 @@ export function UnsavedChangesGuard({ open, onCancel, onConfirm }: Props) {
           </AppCardBody>
 
           <AppCardFooter>
-            <AlertDialogCancel onClick={onCancel}>{t("Common.actions.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("Common.actions.cancel")}</AlertDialogCancel>
 
-            <AlertDialogAction variant="destructive" onClick={onConfirm}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={(event) => {
+                event.preventDefault();
+                onConfirm();
+              }}
+            >
               {t("Common.actions.discard")}
             </AlertDialogAction>
           </AppCardFooter>

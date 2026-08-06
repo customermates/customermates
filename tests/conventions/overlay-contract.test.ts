@@ -176,29 +176,38 @@ describe("overlay contract", () => {
 
   it("pins focus return for controlled overlays without primitive triggers", () => {
     const hook = readFileSync(join(REPO_ROOT, "components/ui/use-overlay-focus-return.ts"), "utf8");
+    const focusTarget = readFileSync(join(REPO_ROOT, "components/ui/overlay-focus-target.ts"), "utf8");
 
     expect(hook).toContain("openRef.current = open");
     expect(hook).toContain("previousOpenRef.current = open");
     expect(hook).toContain("capturedRef.current");
-    expect(hook).toContain("document.getElementById(id)");
-    expect(hook).toContain("element.getClientRects().length > 0");
+    expect(hook).toContain("usableOverlayFocusTarget(document.activeElement)");
     expect(hook).toContain("if (openRef.current === true) return");
     expect(hook).toContain("generationRef.current !== generation");
     expect(hook).not.toContain("addEventListener(");
+
+    expect(focusTarget).toContain("WeakRef<HTMLElement>");
+    expect(focusTarget).toContain("document.getElementById(target.id)");
+    expect(focusTarget).toContain("candidate.getClientRects().length === 0");
+    expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
+    expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
     const entityDrawerStack = readFileSync(
       join(REPO_ROOT, "components/entity-detail/hooks/use-entity-drawer-stack.ts"),
       "utf8",
     );
-    expect(entityDrawerStack).toContain("WeakRef<HTMLElement>");
     expect(entityDrawerStack).toContain(
       "stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker)",
     );
     expect(entityDrawerStack).toContain("stack.length === 1) prepareEntityDrawerInvokerRestore()");
-    expect(entityDrawerStack).toContain("resolveFocusTarget(entityDrawerFallback)");
-    expect(entityDrawerStack).toContain("pendingEntityDrawerRestore !== entityDrawerInvocation");
-    expect(entityDrawerStack).toContain("pendingEntityDrawerRestore = entityDrawerInvocation");
+    expect(entityDrawerStack).toContain("focusOverlayTarget(entityDrawerInvoker, entityDrawerFallback)");
+    expect(entityDrawerStack).not.toContain("document.getElementById(");
+    expect(entityDrawerStack).not.toContain(".focus(");
     expect(entityDrawerStack).not.toContain("window.setTimeout(");
+
+    const entityDrawer = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-drawer.tsx"), "utf8");
+    expect(entityDrawer).toContain("if (focusEntityDrawerInvoker())");
+    expect(entityDrawer).toContain("focusReturn.onCloseAutoFocus(event)");
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");

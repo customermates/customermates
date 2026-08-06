@@ -54,8 +54,12 @@ export const EntityDrawer = observer(() => {
   }
 
   function handleCloseAutoFocus(event: Event) {
+    if (focusEntityDrawerInvoker()) {
+      event.preventDefault();
+      return;
+    }
+
     focusReturn.onCloseAutoFocus(event);
-    focusEntityDrawerInvoker();
   }
 
   const DetailView = top ? ENTITY_DETAIL[top.entityType].DetailView : null;

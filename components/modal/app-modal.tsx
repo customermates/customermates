@@ -24,18 +24,24 @@ const sizeClassMap: Record<ModalSize, string> = {
   xl: "sm:max-w-xl",
 };
 
-type Props = {
-  store?: BaseModalStore;
-  title?: ReactNode;
+type SharedProps = {
+  title: ReactNode;
   size?: ModalSize;
-  className?: string;
   children: ReactNode;
-  open?: boolean;
-  onClose?: () => void;
 };
 
-export const AppModal = observer(({ store, title, size = "md", className, children, open, onClose }: Props) => {
-  const isOpen = open ?? store?.isOpen ?? false;
+type StoreProps = { store: BaseModalStore; open?: never; onClose?: never };
+type ControlledProps = { store?: never; open: boolean; onClose: () => void };
+type Props = SharedProps & (StoreProps | ControlledProps);
+
+function hasStore(props: Props): props is SharedProps & StoreProps {
+  return props.store !== undefined;
+}
+
+export const AppModal = observer((props: Props) => {
+  const { title, size = "md", children } = props;
+  const store = hasStore(props) ? props.store : undefined;
+  const isOpen = hasStore(props) ? props.store.isOpen : props.open;
   const isWide = useIsWiderThan("md");
   const focusReturn = useOverlayFocusReturn(isOpen, store?.focusReturnTarget, store?.focusReturnFallback);
 
@@ -44,26 +50,24 @@ export const AppModal = observer(({ store, title, size = "md", className, childr
       store.setIsClosingWithGuard(true);
       return;
     }
-    if (onClose) onClose();
-    else store?.close();
+    if (hasStore(props)) props.store.close();
+    else props.onClose();
   }
 
   function handleOpenChange(next: boolean) {
     if (!next) requestClose();
   }
 
-  const accessibleTitle = title ?? "Dialog";
-
   return (
     <>
       {isWide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
-            className={cn("flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none", sizeClassMap[size], className)}
+            className={cn("flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none", sizeClassMap[size])}
             {...focusReturn}
           >
             <VisuallyHidden.Root>
-              <DialogTitle>{accessibleTitle}</DialogTitle>
+              <DialogTitle>{title}</DialogTitle>
             </VisuallyHidden.Root>
 
             {children}
@@ -71,9 +75,9 @@ export const AppModal = observer(({ store, title, size = "md", className, childr
         </Dialog>
       ) : (
         <Drawer open={isOpen} repositionInputs={false} onOpenChange={handleOpenChange}>
-          <DrawerContent className={cn("gap-0", className)} {...focusReturn}>
+          <DrawerContent className="gap-0" {...focusReturn}>
             <VisuallyHidden.Root>
-              <DrawerTitle>{accessibleTitle}</DrawerTitle>
+              <DrawerTitle>{title}</DrawerTitle>
             </VisuallyHidden.Root>
 
             {children}

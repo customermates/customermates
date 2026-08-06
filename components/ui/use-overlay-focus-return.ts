@@ -2,18 +2,12 @@
 
 import { useCallback, useRef } from "react";
 
-function focusCandidate(element: Element | null) {
-  return typeof HTMLElement !== "undefined" &&
-    element instanceof HTMLElement &&
-    element !== document.body &&
-    element !== document.documentElement
-    ? element
-    : null;
-}
-
-function visibleFocusCandidate(element: HTMLElement | null) {
-  return element?.isConnected && element.getClientRects().length > 0 ? element : null;
-}
+import {
+  captureOverlayFocusTarget,
+  focusOverlayTarget,
+  type OverlayFocusTarget,
+  usableOverlayFocusTarget,
+} from "./overlay-focus-target";
 
 export function useOverlayFocusReturn(
   open?: boolean,
@@ -22,28 +16,20 @@ export function useOverlayFocusReturn(
 ) {
   const openRef = useRef(open);
   const previousOpenRef = useRef(open);
-  const openerRef = useRef<HTMLElement | null>(null);
-  const openerIdRef = useRef<string | null>(null);
-  const fallbackRef = useRef<HTMLElement | null>(null);
-  const fallbackIdRef = useRef<string | null>(null);
+  const openerRef = useRef<OverlayFocusTarget | null>(null);
+  const fallbackRef = useRef<OverlayFocusTarget | null>(null);
   const capturedRef = useRef(false);
   const generationRef = useRef(0);
 
   const captureOpener = useCallback((element: Element | null, fallback?: HTMLElement | null) => {
-    const opener = focusCandidate(element);
-    openerRef.current = opener;
-    openerIdRef.current = opener?.id || null;
-    fallbackRef.current = focusCandidate(fallback ?? null);
-    fallbackIdRef.current = fallbackRef.current?.id || null;
-    capturedRef.current = Boolean(opener || fallbackRef.current);
+    openerRef.current = captureOverlayFocusTarget(element);
+    fallbackRef.current = captureOverlayFocusTarget(fallback ?? null);
+    capturedRef.current = Boolean(openerRef.current || fallbackRef.current);
   }, []);
 
   if (open === true && previousOpenRef.current !== true) {
     generationRef.current += 1;
-    captureOpener(
-      preferredOpener?.isConnected ? preferredOpener : typeof document === "undefined" ? null : document.activeElement,
-      fallbackOpener,
-    );
+    captureOpener(preferredOpener ?? (typeof document === "undefined" ? null : document.activeElement), fallbackOpener);
   }
 
   openRef.current = open;
@@ -52,44 +38,21 @@ export function useOverlayFocusReturn(
   const onOpenAutoFocus = useCallback(() => {
     if (capturedRef.current) return;
 
-    captureOpener(preferredOpener?.isConnected ? preferredOpener : document.activeElement, fallbackOpener);
+    captureOpener(preferredOpener ?? document.activeElement, fallbackOpener);
   }, [captureOpener, fallbackOpener, preferredOpener]);
-
-  const resolveCandidate = useCallback((element: HTMLElement | null, id: string | null) => {
-    const connected = visibleFocusCandidate(element);
-    if (connected) return connected;
-
-    const replacement = id ? document.getElementById(id) : null;
-    return visibleFocusCandidate(replacement);
-  }, []);
-
-  const resolveOpener = useCallback(
-    () =>
-      resolveCandidate(openerRef.current, openerIdRef.current) ??
-      resolveCandidate(fallbackRef.current, fallbackIdRef.current),
-    [resolveCandidate],
-  );
 
   const focusOpener = useCallback(() => {
     if (openRef.current === true) return;
-
-    const opener = resolveOpener();
-    if (opener) {
-      openerRef.current = opener;
-      opener.focus({ preventScroll: true });
-    }
-  }, [resolveOpener]);
+    focusOverlayTarget(openerRef.current, fallbackRef.current);
+  }, []);
 
   const finalizeFocusReturn = useCallback(
     (generation: number) => {
       if (openRef.current === true || generationRef.current !== generation) return;
 
-      const activeElement = focusCandidate(document.activeElement);
-      if (!activeElement?.isConnected) focusOpener();
+      if (!usableOverlayFocusTarget(document.activeElement)) focusOpener();
       openerRef.current = null;
-      openerIdRef.current = null;
       fallbackRef.current = null;
-      fallbackIdRef.current = null;
       capturedRef.current = false;
     },
     [focusOpener],
