@@ -136,7 +136,7 @@ export const ApiKeyModal = observer(() => {
   );
 
   return (
-    <AppModal size="xl" store={apiKeyModalStore} title={title} onClose={close}>
+    <AppModal size="xl" store={apiKeyModalStore} title={title}>
       <AppForm store={apiKeyModalStore}>
         <AppCard>
           <AppCardHeader>
