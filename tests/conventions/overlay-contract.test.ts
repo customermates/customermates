@@ -95,6 +95,18 @@ const CONTROLLED_FOCUS_RETURN_SURFACES = [
   "components/ui/command.tsx",
 ];
 
+const DOCUMENTED_OVERLAY_TYPES = [
+  "Tooltip",
+  "Dropdown menu",
+  "Select",
+  "Popover",
+  "AppModal",
+  "AlertDialog",
+  "Sheet",
+  "Drawer",
+  "CommandDialog",
+];
+
 function sourceFiles() {
   return SCANNED_DIRECTORIES.flatMap((directory) =>
     walkFiles(join(REPO_ROOT, directory), (path) => /\.tsx?$/.test(path)),
@@ -122,6 +134,15 @@ function violations(match: (line: Line) => boolean, skip: (file: string) => bool
 }
 
 describe("overlay contract", () => {
+  it("keeps the decision guide beside the shared primitives", () => {
+    const guide = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.md"), "utf8");
+
+    for (const type of DOCUMENTED_OVERLAY_TYPES) expect(guide).toContain(`**${type}**`);
+    expect(guide).toContain("../../tests/conventions/overlay-contract.test.ts");
+    expect(guide).toContain("Preferred patterns:");
+    expect(guide).toContain("Prohibited patterns:");
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("uses no legacy viewport units", () => {
     const found = violations((line) => LEGACY_VIEWPORT_UNIT.test(line.text));
 
