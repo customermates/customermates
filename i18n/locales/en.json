@@ -11,10 +11,18 @@
     "label": "AGPL · Open source"
   },
   "ApiKeyModal": {
+    "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
+    "addTitle": "Add an API key",
+    "backToOptions": "All API key options",
+    "done": "Done",
     "expiresIn": "Expires in",
     "expiresInPlaceholder": "Pick a date",
     "keyCreated": "API key created successfully",
     "keyWarning": "Make sure to copy this key now. You won't be able to see it again. The key should only be used with caution because others could impersonate you if the key gets lost.",
+    "quickDescription": "Pick the AI you use and we'll show only the setup it needs.",
+    "quickTitle": "Quick connections",
+    "standardDescription": "Choose a name and an optional expiration date.",
+    "standardTitle": "Standard API key",
     "title": "Create API Key"
   },
   "ApiKeysCard": {
@@ -1543,7 +1551,7 @@
         "claudeButton": "Add to Claude",
         "claudeDescription": "Open Claude's prefilled custom-connector dialog, then sign in to Customermates and approve access.",
         "claudeTitle": "Connect your Claude account",
-        "externalNote": "This setup happens in a new tab or in your AI. Finishing onboarding here does not verify the external connection.",
+        "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection.",
         "paidPlan": "Custom connectors require a paid Claude or ChatGPT plan.",
         "urlLabel": "MCP server URL"
       },
@@ -1551,9 +1559,6 @@
       "createKeyIntro": "Generate an API key for this agent. The key is shown once and embedded in the install snippet below.",
       "errors": {
         "createFailed": "Could not create the API key. Please try again."
-      },
-      "footer": {
-        "optionalNote": "Connecting an AI is optional. You can change this later in your profile."
       },
       "fullGuide": "Full setup guide →",
       "install": {
@@ -1615,9 +1620,8 @@
     "invite": {
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
       "emailPlaceholder": "colleague@example.com",
-      "linkDescription": "Anyone with this link can join your team.",
+      "linkDescription": "Anyone with this link can join your team. The link is valid for 7 days.",
       "linkFailed": "Could not create the invite link.",
-      "linkValidity": "The link is valid for 7 days.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
       "sentSuccess": "Sent {count} invitation(s).",

@@ -216,11 +216,25 @@ describe("StepAiStore API-key lifecycle", () => {
     store.selectClaudeMethod("local");
     store.selectClaudeClient("claudeCode");
 
-    await expect(store.createApiKey()).resolves.toBeUndefined();
+    await expect(store.createApiKey()).resolves.toEqual({ status: "failed" });
 
     expect(store.hasError).toBe(true);
     expect(store.isCreating).toBe(false);
     expect(store.credential).toBeNull();
     expect(store.canFinish).toBe(false);
+  });
+
+  it("clears every one-time credential when the reusable flow is reset", async () => {
+    profileActions.createApiKeyAction.mockResolvedValue(successfulKey("cursor-id", "cursor-secret"));
+    const store = makeStore();
+    store.selectProvider("cursor");
+    await store.createApiKey();
+
+    store.reset();
+
+    expect(store.route).toEqual({ screen: "providers" });
+    expect(store.selectedProvider).toBeNull();
+    expect(store.credentials).toEqual({});
+    expect(store.apiKey).toBeNull();
   });
 });

@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { ArrowLeft, ArrowRight, CalendarIcon, KeyRound, Trash2 } from "lucide-react";
 
+import { AiConnectionFlow } from "@/components/ai-connection/ai-connection-flow";
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
@@ -13,7 +16,6 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Trash2 } from "lucide-react";
 import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -58,7 +60,7 @@ const ExpiresInPicker = observer(() => {
         <PopoverContent align="start" className="w-auto p-0">
           <Calendar
             autoFocus
-            disabled={(d) => d < today || d > max}
+            disabled={(date) => date < today || date > max}
             mode="single"
             selected={expiresAt ?? undefined}
             onSelect={(next) => apiKeyModalStore.setExpiresAt(next ?? null)}
@@ -72,20 +74,75 @@ const ExpiresInPicker = observer(() => {
 export const ApiKeyModal = observer(() => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
-  const { createdKey, isLoading, close, hasUnsavedChanges, mode, viewingKey } = apiKeyModalStore;
+  const { aiConnectionStore, createdKey, creationPath, isLoading, close, hasUnsavedChanges, mode, viewingKey } =
+    apiKeyModalStore;
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   const isView = mode === "view" && viewingKey !== null;
-  const title = isView ? viewingKey?.name || t("ApiKeysCard.unnamed") : t("ApiKeyModal.title");
+  const isPlain = mode === "create" && creationPath === "plain";
+  const isWizard = mode === "create" && creationPath === "wizard";
+  const standardOptionRef = useRef<HTMLButtonElement>(null);
+  const previousCreationPath = useRef(creationPath);
+
+  useEffect(() => {
+    if (previousCreationPath.current === creationPath) return;
+
+    if (creationPath === "plain") document.getElementById("name")?.focus();
+    else if (previousCreationPath.current === "plain") standardOptionRef.current?.focus();
+
+    previousCreationPath.current = creationPath;
+  }, [creationPath]);
+
+  const title = isView
+    ? viewingKey?.name || t("ApiKeysCard.unnamed")
+    : isPlain || createdKey
+      ? t("ApiKeyModal.title")
+      : t("ApiKeyModal.addTitle");
+
+  const providerIntro = (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">{t("ApiKeyModal.addDescription")}</p>
+
+      <Button
+        ref={standardOptionRef}
+        className="h-auto w-full justify-start gap-3 whitespace-normal rounded-xl p-4 text-left"
+        data-api-key-option="plain"
+        type="button"
+        variant="outline"
+        onClick={apiKeyModalStore.choosePlain}
+      >
+        <span
+          aria-hidden
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground"
+        >
+          <KeyRound className="size-5" />
+        </span>
+
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="text-sm font-medium">{t("ApiKeyModal.standardTitle")}</span>
+
+          <span className="text-xs font-normal text-muted-foreground">{t("ApiKeyModal.standardDescription")}</span>
+        </span>
+
+        <ArrowRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+      </Button>
+
+      <div className="flex flex-col gap-1">
+        <h3 className="text-sm font-medium">{t("ApiKeyModal.quickTitle")}</h3>
+
+        <p className="text-xs text-muted-foreground">{t("ApiKeyModal.quickDescription")}</p>
+      </div>
+    </div>
+  );
 
   return (
-    <AppModal store={apiKeyModalStore} title={title}>
+    <AppModal size="xl" store={apiKeyModalStore} title={title} onClose={close}>
       <AppForm store={apiKeyModalStore}>
         <AppCard>
           <AppCardHeader>
             <h2 className="mr-auto text-x-lg">{title}</h2>
 
-            {isView && viewingKey && (
+            {isView && viewingKey ? (
               <Button
                 size="icon"
                 title="Delete"
@@ -99,7 +156,7 @@ export const ApiKeyModal = observer(() => {
               >
                 <Icon icon={Trash2} />
               </Button>
-            )}
+            ) : null}
           </AppCardHeader>
 
           <AppCardBody>
@@ -107,13 +164,13 @@ export const ApiKeyModal = observer(() => {
               <div className="flex flex-col gap-2">
                 <InfoRow label="Created at">{intlStore.formatNumericalShortDateTime(viewingKey.createdAt)}</InfoRow>
 
-                {viewingKey.expiresAt && (
+                {viewingKey.expiresAt ? (
                   <InfoRow label="Expires at">{intlStore.formatNumericalShortDateTime(viewingKey.expiresAt)}</InfoRow>
-                )}
+                ) : null}
 
-                {viewingKey.lastRequest && (
+                {viewingKey.lastRequest ? (
                   <InfoRow label="Last used">{intlStore.formatNumericalShortDateTime(viewingKey.lastRequest)}</InfoRow>
-                )}
+                ) : null}
               </div>
             ) : createdKey ? (
               <Alert hideIcon className="mb-4" color="success">
@@ -125,16 +182,36 @@ export const ApiKeyModal = observer(() => {
                   <p className="text-x-sm">{t("ApiKeyModal.keyWarning")}</p>
                 </div>
               </Alert>
-            ) : (
+            ) : isPlain ? (
               <>
+                <Button
+                  className="-ml-2 w-fit"
+                  disabled={isLoading}
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={apiKeyModalStore.backToOptions}
+                >
+                  <ArrowLeft aria-hidden />
+
+                  {t("ApiKeyModal.backToOptions")}
+                </Button>
+
                 <FormInput required id="name" />
 
                 <ExpiresInPicker />
               </>
-            )}
+            ) : isWizard ? (
+              <AiConnectionFlow
+                backLabel={t("ApiKeyModal.backToOptions")}
+                beforeProviders={providerIntro}
+                store={aiConnectionStore}
+                onKeyCreated={apiKeyModalStore.refreshAfterQuickConnection}
+              />
+            ) : null}
           </AppCardBody>
 
-          {!isView && !createdKey && (
+          {isPlain && !createdKey ? (
             <AppCardFooter>
               <Button disabled={isLoading} variant="secondary" onClick={close}>
                 {t("Common.actions.cancel")}
@@ -144,7 +221,21 @@ export const ApiKeyModal = observer(() => {
                 {t("Common.actions.save")}
               </Button>
             </AppCardFooter>
-          )}
+          ) : null}
+
+          {isWizard ? (
+            <AppCardFooter>
+              <Button disabled={aiConnectionStore.isCreating} variant="secondary" onClick={close}>
+                {t("Common.actions.cancel")}
+              </Button>
+
+              {aiConnectionStore.route.screen !== "providers" ? (
+                <Button disabled={!aiConnectionStore.canFinish} type="button" onClick={close}>
+                  {t("ApiKeyModal.done")}
+                </Button>
+              ) : null}
+            </AppCardFooter>
+          ) : null}
         </AppCard>
       </AppForm>
     </AppModal>

@@ -11,10 +11,18 @@
     "label": "AGPL · Open Source"
   },
   "ApiKeyModal": {
+    "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
+    "addTitle": "API-Key hinzufügen",
+    "backToOptions": "Alle API-Key-Optionen",
+    "done": "Fertig",
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Datum wählen",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
     "keyWarning": "Kopieren Sie diesen Schlüssel jetzt. Sie können ihn später nicht mehr sehen. Der Schlüssel sollte nur mit Vorsicht verwendet werden, da andere sich als Sie ausgeben könnten, wenn der Schlüssel verloren geht.",
+    "quickDescription": "Wähle deine KI. Wir zeigen dir nur die Einrichtung, die sie benötigt.",
+    "quickTitle": "Schnellverbindungen",
+    "standardDescription": "Wähle einen Namen und optional ein Ablaufdatum.",
+    "standardTitle": "Standard-API-Key",
     "title": "API-Schlüssel erstellen"
   },
   "ApiKeysCard": {
@@ -1543,7 +1551,7 @@
         "claudeButton": "Zu Claude hinzufügen",
         "claudeDescription": "Öffne den vorausgefüllten Dialog für benutzerdefinierte Connectors in Claude, melde dich bei Customermates an und erteile den Zugriff.",
         "claudeTitle": "Claude-Konto verbinden",
-        "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Der Abschluss des Onboardings bestätigt die externe Verbindung nicht.",
+        "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Customermates prüft die externe Verbindung nicht automatisch.",
         "paidPlan": "Benutzerdefinierte Connectors erfordern einen kostenpflichtigen Claude- oder ChatGPT-Tarif.",
         "urlLabel": "MCP-Server-URL"
       },
@@ -1551,9 +1559,6 @@
       "createKeyIntro": "Erstelle einen API-Key für diesen Agenten. Der Key wird nur einmal angezeigt und ist im Install-Snippet unten enthalten.",
       "errors": {
         "createFailed": "API-Key konnte nicht erstellt werden. Bitte erneut versuchen."
-      },
-      "footer": {
-        "optionalNote": "Das Verbinden einer KI ist optional. Du kannst das später in deinem Profil ändern."
       },
       "fullGuide": "Vollständige Anleitung →",
       "install": {
@@ -1615,9 +1620,8 @@
     "invite": {
       "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
       "emailPlaceholder": "kollegin@beispiel.de",
-      "linkDescription": "Jede Person mit diesem Link kann deinem Team beitreten.",
+      "linkDescription": "Jede Person mit diesem Link kann deinem Team beitreten. Der Link ist 7 Tage gültig.",
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
-      "linkValidity": "Der Link ist 7 Tage gültig.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
       "sentSuccess": "{count} Einladung(en) gesendet.",

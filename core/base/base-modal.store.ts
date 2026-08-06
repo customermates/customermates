@@ -51,7 +51,12 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
     this.open();
   };
 
+  protected prepareToClose(): boolean {
+    return true;
+  }
+
   close = () => {
+    if (!this.prepareToClose()) return;
     this.isClosingWithGuard = false;
     this.isOpen = false;
     this.isLoading = false;

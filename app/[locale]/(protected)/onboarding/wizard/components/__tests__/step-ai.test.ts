@@ -194,6 +194,8 @@ describe("StepAi direct setup", () => {
     const html = renderStep(store);
 
     expect(html).toContain('role="alert"');
+    expect(html).toContain('aria-invalid="true"');
+    expect(html).toContain("border-destructive");
     expect(html).toContain("OnboardingWizard.ai.errors.createFailed");
     expect(html).toContain("OnboardingWizard.ai.createKey");
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
