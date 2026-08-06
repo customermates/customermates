@@ -16,6 +16,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { UpdateCompanySettingsInteractor } from "../update-company-settings.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import { Currency } from "@/generated/prisma";
 
 const COMPANY_ID = "test-company-id";
 
@@ -23,7 +24,7 @@ describe("UpdateCompanySettingsInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
 
-  const companyData = { currency: "usd" as const };
+  const companyData = { currency: Currency.idr };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,7 +50,7 @@ describe("UpdateCompanySettingsInteractor", () => {
       DomainEvent.COMPANY_UPDATED,
       expect.objectContaining({
         entityId: COMPANY_ID,
-        payload: { currency: "usd" },
+        payload: { currency: Currency.idr },
       }),
     );
   });
@@ -64,7 +65,10 @@ describe("UpdateCompanySettingsInteractor", () => {
     expect(mockRepo.updateDetails).not.toHaveBeenCalled();
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.COMPANY_UPDATED,
-      expect.objectContaining({ entityId: COMPANY_ID, payload: { terminology } }),
+      expect.objectContaining({
+        entityId: COMPANY_ID,
+        payload: { terminology },
+      }),
     );
   });
 
@@ -72,7 +76,9 @@ describe("UpdateCompanySettingsInteractor", () => {
     const interactor = createInteractor();
     await interactor.invoke(companyData);
 
-    expect(mockRepo.updateDetails).toHaveBeenCalledWith({ currency: "usd" });
+    expect(mockRepo.updateDetails).toHaveBeenCalledWith({
+      currency: Currency.idr,
+    });
   });
 
   it("returns { ok: true, data }", async () => {
@@ -80,12 +86,12 @@ describe("UpdateCompanySettingsInteractor", () => {
     const result: any = await interactor.invoke(companyData);
 
     expect(result.ok).toBe(true);
-    expect(result.data).toEqual({ currency: "usd" });
+    expect(result.data).toEqual({ currency: Currency.idr });
   });
 
-  it("rejects an unknown currency", async () => {
+  it.each(["xau", "xxx", "zzz"])("rejects unsupported currency code %s", async (currency) => {
     const interactor = createInteractor();
-    const result: any = await interactor.invoke({ currency: "xxx" } as never);
+    const result: any = await interactor.invoke({ currency } as never);
 
     expect(result.ok).toBe(false);
     expect(mockRepo.updateDetails).not.toHaveBeenCalled();
