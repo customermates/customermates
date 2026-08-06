@@ -13,8 +13,9 @@ describe("IntlStore currency formatting", () => {
       userStore: { user: { formattingLocale: Locale.en } },
     } as unknown as RootStore;
     const store = new IntlStore(rootStore);
+    const expected = new Intl.NumberFormat("en-US", { currency: Currency.idr, style: "currency" }).format(1234.5);
 
-    expect(store.formatCurrency(1234.5)).toContain("IDR");
-    expect(store.formatCurrency(1234.5)).toContain("1,234.50");
+    expect(store.formatCurrency(1234.5)).toBe(expected);
+    expect(expected).toContain("IDR");
   });
 });
