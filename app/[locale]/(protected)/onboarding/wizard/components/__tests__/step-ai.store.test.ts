@@ -8,12 +8,12 @@ const profileActions = vi.hoisted(() => ({
 
 vi.mock("../../../../profile/actions", () => profileActions);
 
-import { StepAiStore } from "../step-ai.store";
+import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 
 const rootStore = {} as RootStore;
 
-function makeStore(): StepAiStore {
-  return new StepAiStore(rootStore);
+function makeStore(): AiConnectionStore {
+  return new AiConnectionStore(rootStore);
 }
 
 function successfulKey(id: string, key: string) {
@@ -24,7 +24,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("StepAiStore routing", () => {
+describe("AiConnectionStore routing", () => {
   it("starts on the five-provider chooser with Finish disabled", () => {
     const store = makeStore();
 
@@ -93,7 +93,7 @@ describe("StepAiStore routing", () => {
   });
 });
 
-describe("StepAiStore API-key lifecycle", () => {
+describe("AiConnectionStore API-key lifecycle", () => {
   it("creates a key for the exact client and enables Finish", async () => {
     profileActions.createApiKeyAction.mockResolvedValue(successfulKey("key-id", "secret-key"));
     const store = makeStore();

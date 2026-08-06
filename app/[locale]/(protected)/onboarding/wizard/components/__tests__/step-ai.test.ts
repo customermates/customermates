@@ -36,16 +36,16 @@ vi.mock("../../../../profile/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 
-import { StepAiStore } from "../step-ai.store";
+import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { StepAi } from "../step-ai";
 
 const stubRootStore = {} as RootStore;
 
-function makeStore(): StepAiStore {
-  return new StepAiStore(stubRootStore);
+function makeStore(): AiConnectionStore {
+  return new AiConnectionStore(stubRootStore);
 }
 
-function renderStep(store: StepAiStore, isSubmitting = false): string {
+function renderStep(store: AiConnectionStore, isSubmitting = false): string {
   testContext.rootStore = {
     onboardingWizardStore: {
       complete: vi.fn(),

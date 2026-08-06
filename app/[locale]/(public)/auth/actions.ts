@@ -4,7 +4,6 @@ import type { EmailSignInData } from "@/features/auth/sign-in-with-email.interac
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
 import type { RequestPasswordResetData } from "@/features/auth/request-password-reset.interactor";
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
-import type { $ZodErrorTree } from "zod/v4/core";
 
 import {
   getSignInWithEmailInteractor,
@@ -18,14 +17,14 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
-type EmailSignInActionResult = { ok: true; data: { url: string } } | { ok: false; error: $ZodErrorTree<unknown> };
-
-export async function signInWithEmailAction(data: EmailSignInData): Promise<EmailSignInActionResult> {
+export async function signInWithEmailAction(data: EmailSignInData) {
   const result = await getSignInWithEmailInteractor().invoke(data);
   if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
-  if (result.ok) return { ok: true as const, data: { url: result.data.callbackURL ?? "/" } };
 
-  return serializeResult(result);
+  const serialized = await serializeResult(result);
+  if (serialized.ok) return { ok: true as const, data: { url: serialized.data.callbackURL ?? "/" } };
+
+  return serialized;
 }
 
 export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
