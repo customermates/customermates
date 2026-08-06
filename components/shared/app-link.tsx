@@ -8,6 +8,7 @@ import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
+  appearance?: "default" | "inline";
   external?: boolean;
   inheritSize?: boolean;
   className?: string;
@@ -17,10 +18,10 @@ type Props = BaseProps &
   (({ external: true } & ComponentProps<typeof NextLink>) | ({ external?: false } & ComponentProps<typeof IntlLink>));
 
 export function AppLink(props: Props) {
-  const { external = false, inheritSize = false, className, ...rest } = props;
+  const { appearance = "default", external = false, inheritSize = false, className, ...rest } = props;
 
   const mergedClassName = cn(
-    "text-primary underline-offset-4 hover:underline transition-colors",
+    appearance === "inline" ? "inline-link" : "text-primary underline-offset-4 hover:underline transition-colors",
     inheritSize && "[font-size:inherit]",
     className,
   );

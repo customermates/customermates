@@ -1551,7 +1551,7 @@
         "claudeButton": "Add to Claude",
         "claudeDescription": "Open Claude's prefilled custom-connector dialog, then sign in to Customermates and approve access.",
         "claudeTitle": "Connect your Claude account",
-        "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection.",
+        "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection. <guide>Read the full setup guide</guide>.",
         "paidPlan": "Custom connectors require a paid Claude or ChatGPT plan.",
         "urlLabel": "MCP server URL"
       },
@@ -1560,7 +1560,6 @@
       "errors": {
         "createFailed": "Could not create the API key. Please try again."
       },
-      "fullGuide": "Full setup guide →",
       "install": {
         "instruction": {
           "claudeCode": "Run this in any terminal:",
@@ -1569,7 +1568,7 @@
           "cursor": "In Cursor, open Settings → Tools & MCP → Add new MCP server, then paste:",
           "gemini": "Add this to ~/.gemini/settings.json (merge into mcpServers if it already exists):"
         },
-        "keyNote": "Copy this setup now. The API key is shown once and can be revoked later from your profile.",
+        "keyNote": "Copy this setup now. The API key is shown once and can be revoked later from your profile. <guide>Read the full setup guide</guide>.",
         "label": "Connect Customermates to {tool}"
       },
       "local": {

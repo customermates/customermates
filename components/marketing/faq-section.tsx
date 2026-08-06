@@ -39,7 +39,7 @@ export async function FAQSection({ faqs, title }: Props) {
         {/* eslint-disable react/jsx-newline */}
         <p className="mx-auto mt-3 max-w-[480px] text-sm text-muted-foreground">
           {t("FAQSection.contactIntro")}{" "}
-          <AppLink className="font-medium text-primary no-underline hover:underline" href="/contact">
+          <AppLink appearance="inline" className="font-medium" href="/contact">
             {t("FAQSection.contactCta")}
           </AppLink>
         </p>

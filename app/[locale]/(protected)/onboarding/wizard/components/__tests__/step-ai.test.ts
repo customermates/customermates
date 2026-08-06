@@ -1,6 +1,6 @@
 import type { RootStore } from "@/core/stores/root.store";
 
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { runInAction } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -13,12 +13,23 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => testContext.rootStore,
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: "a",
+}));
+
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string, values?: Record<string, string>) => {
-    if (!values) return key;
-    return Object.entries(values).reduce((text, [name, value]) => `${text} ${name}=${value}`, key);
-  },
+  useTranslations: () =>
+    Object.assign(
+      (key: string, values?: Record<string, string>) => {
+        if (!values) return key;
+        return Object.entries(values).reduce((text, [name, value]) => `${text} ${name}=${value}`, key);
+      },
+      {
+        rich: (key: string, values?: Record<string, (chunks: string) => ReactNode>) =>
+          createElement("span", null, key, " ", values?.guide?.("guide")),
+      },
+    ),
 }));
 
 vi.mock("../../../../profile/actions", () => ({
@@ -54,6 +65,12 @@ function buttonContaining(html: string, text: string): string {
   const button = buttons(html).find((candidate) => candidate.includes(text));
   expect(button, `button containing ${text}`).toBeDefined();
   return button ?? "";
+}
+
+function paragraphContaining(html: string, text: string): string {
+  const paragraph = (html.match(/<p\b[\s\S]*?<\/p>/g) ?? []).find((candidate) => candidate.includes(text));
+  expect(paragraph, `paragraph containing ${text}`).toBeDefined();
+  return paragraph ?? "";
 }
 
 function expectButtonDisabled(button: string, expected: boolean): void {
@@ -145,7 +162,9 @@ describe("StepAi Claude setup", () => {
     expect(buttonContaining(selectedHtml, "OnboardingWizard.ai.choices.claudeDesktop")).toContain(
       'aria-pressed="true"',
     );
-    expect(selectedHtml).toContain("OnboardingWizard.ai.createKey");
+    expect(buttonContaining(selectedHtml, "OnboardingWizard.ai.createKey")).toContain(
+      'data-api-key-setup="claudeDesktop"',
+    );
     expectButtonDisabled(buttonContaining(selectedHtml, "OnboardingWizard.finish"), true);
   });
 });
@@ -162,6 +181,8 @@ describe("StepAi direct setup", () => {
     expect(html).toContain("OnboardingWizard.ai.connector.paidPlan");
     expect(html).not.toContain("OnboardingWizard.ai.connector.claudeButton");
     expect(html).toContain("http://localhost:4000/api/v1/mcp");
+    expect(paragraphContaining(html, "OnboardingWizard.ai.connector.externalNote")).toContain(">guide</a>");
+    expect(html).toContain('class="inline-link');
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), false);
   });
 
@@ -171,18 +192,26 @@ describe("StepAi direct setup", () => {
 
     const beforeKey = renderStep(store);
 
-    expect(beforeKey).toContain("OnboardingWizard.ai.createKey");
+    const createCard = buttonContaining(beforeKey, "OnboardingWizard.ai.createKey");
+
+    expect(createCard).toContain('data-api-key-setup="codex"');
+    expect(createCard).toContain("OnboardingWizard.ai.createKeyIntro");
+    expect(createCard).toContain("lucide-arrow-right");
     expect(beforeKey).not.toContain("OnboardingWizard.ai.install.instruction.codex");
     expectButtonDisabled(buttonContaining(beforeKey, "OnboardingWizard.finish"), true);
 
     runInAction(() => {
-      store.credentials = { codex: { id: "synthetic-id", key: "synthetic-secret" } };
+      store.credentials = {
+        codex: { id: "synthetic-id", key: "synthetic-secret" },
+      };
     });
     const afterKey = renderStep(store);
 
     expect(afterKey).toContain("OnboardingWizard.ai.install.instruction.codex");
     expect(afterKey).toContain("synthetic-secret");
     expect(afterKey).not.toContain("OnboardingWizard.ai.install.instruction.cursor");
+    expect(paragraphContaining(afterKey, "OnboardingWizard.ai.install.keyNote")).toContain(">guide</a>");
+    expect(afterKey).not.toContain('data-api-key-setup="codex"');
     expectButtonDisabled(buttonContaining(afterKey, "OnboardingWizard.finish"), false);
   });
 
@@ -194,10 +223,13 @@ describe("StepAi direct setup", () => {
     const html = renderStep(store);
 
     expect(html).toContain('role="alert"');
-    expect(html).toContain('aria-invalid="true"');
-    expect(html).toContain("border-destructive");
+    const retryCard = buttonContaining(html, "OnboardingWizard.ai.createKey");
+
+    expect(retryCard).toContain('aria-invalid="true"');
+    expect(retryCard).toContain('aria-describedby="api-key-action-cursor-description api-key-action-cursor-error"');
+    expect(retryCard).toContain("border-destructive");
+    expect(retryCard).toContain('data-api-key-setup="cursor"');
     expect(html).toContain("OnboardingWizard.ai.errors.createFailed");
-    expect(html).toContain("OnboardingWizard.ai.createKey");
     expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
   });
 
@@ -207,13 +239,18 @@ describe("StepAi direct setup", () => {
     store.pendingTool = "gemini";
 
     const creatingHtml = renderStep(store);
+    const creatingCard = buttonContaining(creatingHtml, "OnboardingWizard.ai.createKey");
 
-    expect(creatingHtml).toContain('aria-busy="true"');
+    expect(creatingCard).toContain('aria-busy="true"');
+    expect(creatingCard).toContain("lucide-loader-circle");
+    expectButtonDisabled(creatingCard, true);
     expectButtonDisabled(buttonContaining(creatingHtml, "OnboardingWizard.finish"), true);
 
     runInAction(() => {
       store.pendingTool = null;
-      store.credentials = { gemini: { id: "synthetic-id", key: "synthetic-secret" } };
+      store.credentials = {
+        gemini: { id: "synthetic-id", key: "synthetic-secret" },
+      };
     });
     const submittingHtml = renderStep(store, true);
 

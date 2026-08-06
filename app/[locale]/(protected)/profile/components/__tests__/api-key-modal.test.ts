@@ -18,7 +18,11 @@ vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
-  useTranslations: () => (key: string) => key,
+  useTranslations: () =>
+    Object.assign((key: string) => key, {
+      rich: (key: string, values?: Record<string, (chunks: string) => ReactNode>) =>
+        createElement("span", null, key, " ", values?.guide?.("guide")),
+    }),
 }));
 
 vi.mock("@/components/modal", () => ({
@@ -37,7 +41,7 @@ vi.mock("@/i18n/navigation", () => ({
 import { ApiKeyModalStore } from "../api-key-modal.store";
 import { ApiKeyModal } from "../api-key-modal";
 
-function renderModal(path: "wizard" | "plain" = "wizard") {
+function renderModal(path: "wizard" | "plain" = "wizard", provider?: "codex" | "cursor" | "gemini") {
   const rootStore = {
     apiKeysStore: { refresh: vi.fn() },
     intlStore: { formatDescriptiveLongDate: vi.fn() },
@@ -54,6 +58,7 @@ function renderModal(path: "wizard" | "plain" = "wizard") {
   Object.assign(rootStore, { apiKeyModalStore: store });
   store.add();
   if (path === "plain") store.choosePlain();
+  if (provider) store.aiConnectionStore.selectProvider(provider);
   testContext.rootStore = rootStore;
 
   return renderToStaticMarkup(createElement(ApiKeyModal));
@@ -82,5 +87,16 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).toContain('id="name"');
     expect(html).toContain('id="expiresIn"');
     expect(html).toContain('id="api-key-save"');
+  });
+
+  it("uses the shared full-card key action for quick connections", () => {
+    const html = renderModal("wizard", "cursor");
+    const createCard = (html.match(/<button\b[\s\S]*?<\/button>/g) ?? []).find((button) =>
+      button.includes("OnboardingWizard.ai.createKey"),
+    );
+
+    expect(createCard).toContain('data-api-key-setup="cursor"');
+    expect(createCard).toContain("OnboardingWizard.ai.createKeyIntro");
+    expect(createCard).toContain("lucide-arrow-right");
   });
 });

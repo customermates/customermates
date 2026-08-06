@@ -54,12 +54,12 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
             <span>
               {t.rich("OnboardingForm.agreeToTerms", {
                 dataPrivacyLink: (chunks) => (
-                  <AppLink href="/privacy" target="_blank">
+                  <AppLink appearance="inline" href="/privacy" target="_blank">
                     {chunks}
                   </AppLink>
                 ),
                 termsOfServiceLink: (chunks) => (
-                  <AppLink href="/terms" target="_blank">
+                  <AppLink appearance="inline" href="/terms" target="_blank">
                     {chunks}
                   </AppLink>
                 ),

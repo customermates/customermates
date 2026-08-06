@@ -9,6 +9,10 @@ const profileActions = vi.hoisted(() => ({
 
 vi.mock("@/app/[locale]/(protected)/profile/actions", () => profileActions);
 
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: "a",
+}));
+
 import { ApiKeyModalStore } from "../api-key-modal.store";
 import { executeAiConnectionKeyCreation } from "@/components/ai-connection/ai-connection-flow";
 

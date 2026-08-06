@@ -9,6 +9,10 @@ vi.mock("sonner", () => ({
   toast: { error: feedback.toastError },
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: "a",
+}));
+
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: feedback.toastZodErrorTree,
 }));
@@ -17,7 +21,7 @@ vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 
-import { executeAiConnectionKeyCreation } from "../ai-connection-flow";
+import { ClaudeSetup, executeAiConnectionKeyCreation } from "../ai-connection-flow";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -63,5 +67,11 @@ describe("executeAiConnectionKeyCreation", () => {
 
     expect(feedback.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(feedback.toastError).not.toHaveBeenCalled();
+  });
+});
+
+describe("ClaudeSetup", () => {
+  it("remains observer-wrapped so the first Claude selection rerenders", () => {
+    expect((ClaudeSetup as unknown as { $$typeof?: symbol }).$$typeof).toBe(Symbol.for("react.memo"));
   });
 });

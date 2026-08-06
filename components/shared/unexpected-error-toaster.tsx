@@ -39,7 +39,7 @@ function useApplicationErrorHandler(): (error: unknown) => void {
         toast.warning(
           t.rich("ErrorCard.demoModeError", {
             link: (chunks) => (
-              <AppLink external className="text-current underline" href="https://customermates.com/auth/signin">
+              <AppLink external appearance="inline" href="https://customermates.com/auth/signin">
                 {chunks}
               </AppLink>
             ),

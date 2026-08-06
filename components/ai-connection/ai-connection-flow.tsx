@@ -12,13 +12,14 @@ import type {
 } from "./ai-connection.store";
 
 import { useEffect, useRef } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { toast } from "sonner";
-import { ArrowLeft, Check, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ExternalLink, KeyRound, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AppLink } from "@/components/shared/app-link";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { cn } from "@/core/utils/cn";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -123,12 +124,11 @@ function SubstepHeader({ backDisabled, backLabel, headingRef, subtitle, title, o
 }
 
 type ConnectorSetupProps = {
-  locale: string;
   mcpUrl: string;
   provider: "claude" | "chatgpt";
 };
 
-function ConnectorSetup({ locale, mcpUrl, provider }: ConnectorSetupProps) {
+function ConnectorSetup({ mcpUrl, provider }: ConnectorSetupProps) {
   const t = useTranslations();
   const isClaude = provider === "claude";
 
@@ -170,20 +170,25 @@ function ConnectorSetup({ locale, mcpUrl, provider }: ConnectorSetupProps) {
         </p>
       )}
 
-      <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.connector.externalNote")}</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        {t.rich("OnboardingWizard.ai.connector.externalNote", {
+          guide: (chunks) => (
+            <AppLink
+              inheritSize
+              appearance="inline"
+              href={DOCS_LINKS.connector}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              {chunks}
+            </AppLink>
+          ),
+        })}
+      </p>
 
       {!isClaude ? (
         <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.connector.paidPlan")}</p>
       ) : null}
-
-      <a
-        className="w-fit text-xs text-primary underline underline-offset-4"
-        href={`/${locale}${DOCS_LINKS.connector}`}
-        rel="noreferrer"
-        target="_blank"
-      >
-        {t("OnboardingWizard.ai.fullGuide")}
-      </a>
     </div>
   );
 }
@@ -193,7 +198,6 @@ type ApiKeySetupProps = {
   baseUrl: string;
   hasError: boolean;
   isCreating: boolean;
-  locale: string;
   nested?: boolean;
   resultHeadingRef: Ref<HTMLHeadingElement>;
   tool: McpTool;
@@ -205,7 +209,6 @@ function ApiKeySetup({
   baseUrl,
   hasError,
   isCreating,
-  locale,
   nested = false,
   resultHeadingRef,
   tool,
@@ -214,35 +217,54 @@ function ApiKeySetup({
   const t = useTranslations();
   const toolName = t(`OnboardingWizard.ai.choices.${tool}`);
   const installSnippet = apiKey && baseUrl ? getMcpInstallSnippet(tool, apiKey, baseUrl) : "";
+  const actionTitleId = `api-key-action-${tool}-title`;
+  const actionDescriptionId = `api-key-action-${tool}-description`;
+  const errorId = `api-key-action-${tool}-error`;
 
   if (!apiKey) {
     return (
-      <div
-        aria-busy={isCreating}
-        aria-invalid={hasError || undefined}
-        className={cn(
-          "flex flex-col gap-3",
-          !nested && "rounded-xl border bg-muted/30 p-4",
-          !nested && hasError && "border-destructive bg-destructive/5",
-        )}
-        data-api-key-setup={tool}
-      >
-        <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.createKeyIntro")}</p>
-
+      <div className="flex flex-col gap-2">
         <Button
-          className="h-auto w-full whitespace-normal xs:w-fit"
+          aria-busy={isCreating}
+          aria-describedby={`${actionDescriptionId}${hasError ? ` ${errorId}` : ""}`}
+          aria-invalid={hasError || undefined}
+          aria-labelledby={actionTitleId}
+          className={cn(
+            "h-auto min-h-20 w-full justify-start gap-3 whitespace-normal rounded-xl p-4 text-left",
+            hasError && "border-destructive bg-destructive/5 hover:bg-destructive/10",
+          )}
+          data-api-key-setup={tool}
           disabled={isCreating}
-          size="sm"
           type="button"
+          variant="outline"
           onClick={onCreate}
         >
-          {isCreating ? <Loader2 aria-hidden className="animate-spin" /> : null}
+          <span
+            aria-hidden
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground"
+          >
+            <KeyRound className="size-5" />
+          </span>
 
-          {t("OnboardingWizard.ai.createKey")}
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm font-medium" id={actionTitleId}>
+              {t("OnboardingWizard.ai.createKey")}
+            </span>
+
+            <span className="text-xs font-normal leading-relaxed text-muted-foreground" id={actionDescriptionId}>
+              {t("OnboardingWizard.ai.createKeyIntro")}
+            </span>
+          </span>
+
+          {isCreating ? (
+            <Loader2 aria-hidden className="size-4 shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <ArrowRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+          )}
         </Button>
 
         {hasError ? (
-          <p className="text-xs text-destructive" role="alert">
+          <p className="text-xs text-destructive" id={errorId} role="alert">
             {t("OnboardingWizard.ai.errors.createFailed")}
           </p>
         ) : null}
@@ -268,16 +290,15 @@ function ApiKeySetup({
 
       <CopyableCode value={installSnippet} />
 
-      <p className="text-xs leading-relaxed text-muted-foreground">{t("OnboardingWizard.ai.install.keyNote")}</p>
-
-      <a
-        className="w-fit text-xs text-primary underline underline-offset-4"
-        href={`/${locale}${DOCS_LINKS[tool]}`}
-        rel="noreferrer"
-        target="_blank"
-      >
-        {t("OnboardingWizard.ai.fullGuide")}
-      </a>
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        {t.rich("OnboardingWizard.ai.install.keyNote", {
+          guide: (chunks) => (
+            <AppLink inheritSize appearance="inline" href={DOCS_LINKS[tool]} rel="noreferrer noopener" target="_blank">
+              {chunks}
+            </AppLink>
+          ),
+        })}
+      </p>
     </div>
   );
 }
@@ -286,13 +307,19 @@ type ClaudeSetupProps = {
   store: AiConnectionStore;
   baseUrl: string;
   disabled: boolean;
-  locale: string;
   mcpUrl: string;
   resultHeadingRef: Ref<HTMLHeadingElement>;
   onCreate: () => void;
 };
 
-function ClaudeSetup({ store, baseUrl, disabled, locale, mcpUrl, resultHeadingRef, onCreate }: ClaudeSetupProps) {
+export const ClaudeSetup = observer(function ClaudeSetup({
+  store,
+  baseUrl,
+  disabled,
+  mcpUrl,
+  resultHeadingRef,
+  onCreate,
+}: ClaudeSetupProps) {
   const t = useTranslations();
   const method = store.claudeMethod;
 
@@ -349,7 +376,7 @@ function ClaudeSetup({ store, baseUrl, disabled, locale, mcpUrl, resultHeadingRe
 
       {method === "account" ? (
         <div id="claude-account-details">
-          <ConnectorSetup locale={locale} mcpUrl={mcpUrl} provider="claude" />
+          <ConnectorSetup mcpUrl={mcpUrl} provider="claude" />
         </div>
       ) : null}
 
@@ -407,7 +434,6 @@ function ClaudeSetup({ store, baseUrl, disabled, locale, mcpUrl, resultHeadingRe
               baseUrl={baseUrl}
               hasError={store.hasError}
               isCreating={store.isCreating}
-              locale={locale}
               resultHeadingRef={resultHeadingRef}
               tool={store.claudeClient}
               onCreate={onCreate}
@@ -417,7 +443,7 @@ function ClaudeSetup({ store, baseUrl, disabled, locale, mcpUrl, resultHeadingRe
       ) : null}
     </div>
   );
-}
+});
 
 type Props = {
   backLabel?: string;
@@ -450,7 +476,6 @@ export async function executeAiConnectionKeyCreation({
 export const AiConnectionFlow = observer(
   ({ backLabel, beforeProviders, disabled = false, store, onKeyCreated }: Props) => {
     const t = useTranslations();
-    const locale = useLocale();
     const providerRefs = useRef<Partial<Record<AiConnectionProvider, HTMLButtonElement | null>>>({});
     const screenHeadingRef = useRef<HTMLHeadingElement>(null);
     const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -514,7 +539,6 @@ export const AiConnectionFlow = observer(
           <ClaudeSetup
             baseUrl={baseUrl}
             disabled={interactionDisabled}
-            locale={locale}
             mcpUrl={mcpUrl}
             resultHeadingRef={resultHeadingRef}
             store={store}
@@ -549,22 +573,27 @@ export const AiConnectionFlow = observer(
           headingRef={screenHeadingRef}
           subtitle={
             isConnector
-              ? t("OnboardingWizard.ai.screen.setup.connectorSubtitle", { provider: providerName })
-              : t("OnboardingWizard.ai.screen.setup.apiKeySubtitle", { provider: providerName })
+              ? t("OnboardingWizard.ai.screen.setup.connectorSubtitle", {
+                  provider: providerName,
+                })
+              : t("OnboardingWizard.ai.screen.setup.apiKeySubtitle", {
+                  provider: providerName,
+                })
           }
-          title={t("OnboardingWizard.ai.screen.setup.title", { provider: providerName })}
+          title={t("OnboardingWizard.ai.screen.setup.title", {
+            provider: providerName,
+          })}
           onBack={store.backToProviders}
         />
 
         {isConnector ? (
-          <ConnectorSetup locale={locale} mcpUrl={mcpUrl} provider="chatgpt" />
+          <ConnectorSetup mcpUrl={mcpUrl} provider="chatgpt" />
         ) : store.selectedTool ? (
           <ApiKeySetup
             apiKey={store.apiKey}
             baseUrl={baseUrl}
             hasError={store.hasError}
             isCreating={store.isCreating}
-            locale={locale}
             resultHeadingRef={resultHeadingRef}
             tool={store.selectedTool}
             onCreate={() => void createKey()}
