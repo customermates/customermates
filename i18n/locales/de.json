@@ -1527,23 +1527,33 @@
   "OnboardingWizard": {
     "ai": {
       "choices": {
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
         "claudeCode": "Claude Code",
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
-        "connector": "Claude & ChatGPT (Connector)",
         "cursor": "Cursor",
         "gemini": "Gemini",
         "skip": "Später einrichten"
       },
       "connector": {
-        "chatgptHint": "In ChatGPT: Einstellungen, Connectors, Custom Connector hinzufügen, dann die URL einfügen.",
+        "chatgptDescription": "Verwende die URL unten als benutzerdefinierten MCP-Connector und wähle OAuth als Authentifizierung.",
+        "chatgptSteps": "In ChatGPT: Einstellungen → Connectors → Connector hinzufügen → Custom connector (MCP). Füge die URL ein, wähle OAuth, speichere und melde dich anschließend bei Customermates an, um den Zugriff zu erlauben.",
+        "chatgptTitle": "Customermates-Connector hinzufügen",
         "claudeButton": "Zu Claude hinzufügen",
+        "claudeDescription": "Öffne den vorausgefüllten Dialog für benutzerdefinierte Connectors in Claude, melde dich bei Customermates an und erteile den Zugriff.",
+        "claudeTitle": "Claude-Konto verbinden",
+        "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Der Abschluss des Onboardings bestätigt die externe Verbindung nicht.",
+        "paidPlan": "Benutzerdefinierte Connectors erfordern einen kostenpflichtigen Claude- oder ChatGPT-Tarif.",
         "urlLabel": "MCP-Server-URL"
       },
       "createKey": "API-Key erstellen",
       "createKeyIntro": "Erstelle einen API-Key für diesen Agenten. Der Key wird nur einmal angezeigt und ist im Install-Snippet unten enthalten.",
       "errors": {
         "createFailed": "API-Key konnte nicht erstellt werden. Bitte erneut versuchen."
+      },
+      "footer": {
+        "optionalNote": "Das Verbinden einer KI ist optional. Du kannst das später in deinem Profil ändern."
       },
       "fullGuide": "Vollständige Anleitung →",
       "install": {
@@ -1554,9 +1564,49 @@
           "cursor": "In Cursor: Settings → Tools & MCP → Add new MCP server öffnen und einfügen:",
           "gemini": "Zu ~/.gemini/settings.json hinzufügen (in bestehenden mcpServers mergen, falls vorhanden):"
         },
+        "keyNote": "Kopiere diese Einrichtung jetzt. Der API-Key wird nur einmal angezeigt und kann später in deinem Profil widerrufen werden.",
         "label": "Customermates mit {tool} verbinden"
       },
-      "skipHint": "Du kannst das später in deinem Profil einrichten."
+      "local": {
+        "ariaLabel": "Lokale Claude-App",
+        "description": "Wir erstellen einen Key und zeigen dir nur den Einrichtungsausschnitt, den du brauchst.",
+        "title": "Wähle deine lokale Claude-App"
+      },
+      "methods": {
+        "account": {
+          "description": "Für Claude im Web, auf dem Desktop und auf Mobilgeräten. Melde dich einmal an; du brauchst keinen API-Key und keine Konfigurationsdatei.",
+          "meta": "Benutzerdefinierter Connector · OAuth",
+          "note": "Erfordert einen Claude-Tarif mit benutzerdefinierten Connectors.",
+          "recommended": "Empfohlen",
+          "title": "Claude-Konto"
+        },
+        "ariaLabel": "Verbindungsmethoden für Claude",
+        "local": {
+          "description": "Erstelle einen API-Key und füge einen lokalen Konfigurationsausschnitt hinzu.",
+          "meta": "Lokale Einrichtung · API-Key",
+          "note": "Am besten für Claude Code oder Claude Desktop ohne benutzerdefinierte Connectors.",
+          "title": "Claude Code oder Desktop"
+        }
+      },
+      "providers": {
+        "ariaLabel": "KI-Clients"
+      },
+      "screen": {
+        "back": "Alle KI-Clients",
+        "claude": {
+          "subtitle": "Beide Optionen nutzen MCP und dieselben Customermates-Tools. Wähle die Einrichtung passend dazu, wo du Claude nutzt.",
+          "title": "Wie nutzt du Claude?"
+        },
+        "setup": {
+          "apiKeySubtitle": "Erstelle einen API-Key und folge dann der Anleitung für {provider}.",
+          "connectorSubtitle": "Füge Customermates als benutzerdefinierten Connector hinzu. Du brauchst keinen API-Key und keine Konfigurationsdatei.",
+          "title": "{provider} verbinden"
+        },
+        "skip": {
+          "subtitle": "Du kannst das Onboarding jetzt abschließen und später in deinem Profil eine KI verbinden.",
+          "title": "KI später einrichten"
+        }
+      }
     },
     "avatarDescription": "Optional. Füge einen Link zu einem Foto von dir ein. Der Link muss öffentlich zugänglich sein (jede Person mit dem Link kann das Bild sehen). Lässt du das Feld leer, zeigen wir deine Initialen.",
     "back": "Zurück",
@@ -1581,8 +1631,8 @@
     "steps": {
       "ai": {
         "placeholder": "Platzhalter KI-Integration",
-        "subtitle": "Lass Claude Code oder Codex dein CRM für dich führen.",
-        "title": "KI-Agent verbinden"
+        "subtitle": "Wähle eine KI aus, die du jetzt verbinden möchtest. Weitere kannst du später hinzufügen.",
+        "title": "KI verbinden"
       },
       "invite": {
         "placeholder": "Platzhalter Team einladen",
