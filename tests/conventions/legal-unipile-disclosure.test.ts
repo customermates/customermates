@@ -96,11 +96,36 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
   });
 
-  it.each(LOCALES)("dpa and provider list (%s) classify Forward Email narrowly", (name) => {
+  it.each(LOCALES)("legal documents (%s) describe Forward Email's hosted mailbox and narrow role", (name) => {
+    const privacy = legal(name, "privacy");
     const dpa = legal(name, "dpa");
     const subprocessors = legal(name, "subprocessors");
+    const combined = `${privacy}\n${dpa}\n${subprocessors}`;
+
+    expect(privacy).toMatch(name === "en" ? /final hosted operator mailbox/ : /endgültiges gehostetes Betreiberpostfach/);
+    expect(privacy).toMatch(name === "en" ? /encrypted SQLite databases/ : /verschlüsselten SQLite-Datenbanken/);
+    expect(privacy).toContain("Cloudflare R2");
+    expect(privacy).toMatch(
+      name === "en" ? /outbound SMTP emails are stored for approximately 30 days/ : /ausgehende SMTP-E-Mails ungefähr 30 Tage gespeichert/i,
+    );
+    expect(privacy).toMatch(name === "en" ? /published statements conflict/ : /Aufgrund dieses Widerspruchs/);
+    expect(privacy).toMatch(
+      name === "en"
+        ? /customer determines the legal basis.*documented instructions/
+        : /Kunde die Rechtsgrundlage.*dokumentierten Weisungen/,
+    );
+    expect(privacy).toMatch(
+      name === "en"
+        ? /No separate downstream mailbox provider is used/
+        : /Ein gesonderter nachgelagerter Postfachanbieter wird nicht eingesetzt/,
+    );
 
     expect(dpa).toMatch(/Forward Email/);
+    expect(dpa).toMatch(
+      name === "en"
+        ? /hosts and stores the Provider's final operator mailbox/
+        : /hostet und speichert das endgültige Betreiberpostfach/,
+    );
     expect(dpa).toMatch(
       name === "en"
         ? /not used for the connected-account feature or ordinary CRM processing/
@@ -109,12 +134,18 @@ describe("managed service and independent self-hosting stay separated", () => {
     expect(dpa).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
 
     expect(subprocessors).toMatch(/Forward Email/);
+    expect(subprocessors).toContain("Cloudflare R2");
     expect(subprocessors).toMatch(
       name === "en"
         ? /not used for connected customer mailboxes or ordinary CRM data/
         : /weder für verbundene Kundenpostfächer noch für gewöhnliche CRM-Daten/,
     );
     expect(subprocessors).toMatch(name === "en" ? /support or feedback request/ : /Support- oder Feedbackanfrage/);
+    expect(combined).not.toMatch(
+      name === "en"
+        ? /forwarded in memory|mailbox provider selected for that account/
+        : /im Arbeitsspeicher weitergeleitet|ausgewählten Postfachanbieter/,
+    );
   });
 
   it.each(LOCALES)("affiliate disclosure (%s) records the consent and self-host boundaries", (name) => {
