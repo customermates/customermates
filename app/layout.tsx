@@ -106,9 +106,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "white",
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f6f8" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 type Props = {
@@ -171,7 +174,7 @@ export default async function RootLayout({ children }: Props) {
       className={`${latin.variable} ${mono.variable} ${serif.variable} ${latin.className}`}
       lang={displayLanguage}
     >
-      <body className="h-screen flex flex-col font-sans antialiased">
+      <body className="h-svh flex flex-col font-sans antialiased">
         <Providers
           appMode={env.APP_MODE}
           defaultTheme={themeCookie}

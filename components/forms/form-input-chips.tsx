@@ -193,7 +193,7 @@ export const FormInputChips = observer(
           {!isReadOnly && (
             <input
               aria-invalid={hasError}
-              className="flex-1 min-w-24 border-0 bg-transparent px-1 py-0.5 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+              className="flex-1 min-w-24 border-0 bg-transparent px-1 py-0.5 text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm"
               disabled={isDisabled}
               id={id}
               placeholder={placeholder}

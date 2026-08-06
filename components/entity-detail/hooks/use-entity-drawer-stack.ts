@@ -7,8 +7,40 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
 import { useRouter as useGuardedIntlRouter } from "@/i18n/navigation";
+import {
+  captureOverlayFocusTarget,
+  focusOverlayTarget,
+  type OverlayFocusTarget,
+} from "@/components/ui/overlay-focus-target";
 
 const OPEN_PARAM = "open";
+
+let entityDrawerInvoker: OverlayFocusTarget | null = null;
+let entityDrawerFallback: OverlayFocusTarget | null = null;
+let entityDrawerInvocation = 0;
+let pendingEntityDrawerRestore: number | null = null;
+
+function rememberEntityDrawerInvoker(preferredInvoker?: HTMLElement | null, fallbackInvoker?: HTMLElement | null) {
+  const activeElement = preferredInvoker?.isConnected ? preferredInvoker : document.activeElement;
+  entityDrawerInvocation += 1;
+  pendingEntityDrawerRestore = null;
+  entityDrawerInvoker = captureOverlayFocusTarget(activeElement);
+  entityDrawerFallback = captureOverlayFocusTarget(fallbackInvoker ?? null);
+}
+
+export function focusEntityDrawerInvoker() {
+  if (pendingEntityDrawerRestore !== entityDrawerInvocation) return false;
+
+  const focused = focusOverlayTarget(entityDrawerInvoker, entityDrawerFallback);
+  entityDrawerInvoker = null;
+  entityDrawerFallback = null;
+  pendingEntityDrawerRestore = null;
+  return focused;
+}
+
+function prepareEntityDrawerInvokerRestore() {
+  pendingEntityDrawerRestore = entityDrawerInvocation;
+}
 
 export type EntityDrawerEntry = {
   entityType: EntityType;
@@ -61,9 +93,10 @@ export function useEntityDrawerStack() {
   );
 
   const pushEntity = useCallback(
-    (entry: EntityDrawerEntry) => {
+    (entry: EntityDrawerEntry, preferredInvoker?: HTMLElement | null, fallbackInvoker?: HTMLElement | null) => {
       const currentTop = stack[stack.length - 1];
       if (currentTop && currentTop.entityType === entry.entityType && currentTop.id === entry.id) return;
+      if (stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker);
       writeStack([...stack, entry]);
     },
     [stack, writeStack],
@@ -71,6 +104,7 @@ export function useEntityDrawerStack() {
 
   const popTop = useCallback(() => {
     if (stack.length === 0) return;
+    if (stack.length === 1) prepareEntityDrawerInvokerRestore();
     writeStack(stack.slice(0, -1), "replace");
   }, [stack, writeStack]);
 
@@ -81,9 +115,14 @@ export function useOpenEntity() {
   const { pushEntity } = useEntityDrawerStack();
   const router = useGuardedIntlRouter();
   return useCallback(
-    (entityType: EntityType, id: string) => {
+    (
+      entityType: EntityType,
+      id: string,
+      preferredInvoker?: HTMLElement | null,
+      fallbackInvoker?: HTMLElement | null,
+    ) => {
       if (id === "new") {
-        pushEntity({ entityType, id });
+        pushEntity({ entityType, id }, preferredInvoker, fallbackInvoker);
         return;
       }
       const segment = ENTITY_URL_SEGMENT[entityType];

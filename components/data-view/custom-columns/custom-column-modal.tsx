@@ -35,6 +35,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppForm } from "@/components/forms/form-context";
+import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormSwitch } from "@/components/forms/form-switch";
@@ -50,7 +51,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AppChip } from "@/components/chip/app-chip";
-import { CURRENCIES } from "@/constants/currencies";
 import { CHIP_COLORS, type ChipColor } from "@/constants/chip-colors";
 import { DATE_DISPLAY_FORMATS } from "@/constants/date-format";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -326,12 +326,7 @@ export const CustomColumnModal = observer(() => {
             )}
 
             {form.type === CustomColumnType.currency && (
-              <FormSelect
-                required
-                id="options.currency"
-                items={CURRENCIES.map(({ key }) => ({ value: key, label: t(`Common.currencies.${key}`) }))}
-                label={t("Common.inputs.options.currency")}
-              />
+              <FormAutocompleteCurrency required id="options.currency" label={t("Common.inputs.options.currency")} />
             )}
 
             {form.type === CustomColumnType.singleSelect && (

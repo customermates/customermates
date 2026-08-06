@@ -15,7 +15,7 @@ export type NavSecondaryItem = {
   title: string;
   icon: React.FC<SVGProps<SVGSVGElement>>;
   href?: string;
-  onSelect?: () => void;
+  onSelect?: (invoker: HTMLElement) => void;
 };
 
 type Props = {
@@ -38,7 +38,12 @@ export function NavSecondary({ items, ...props }: Props) {
                   </IntlLink>
                 </SidebarMenuButton>
               ) : (
-                <SidebarMenuButton id={`nav-${item.key}`} size="sm" tooltip={item.title} onClick={item.onSelect}>
+                <SidebarMenuButton
+                  id={`nav-${item.key}`}
+                  size="sm"
+                  tooltip={item.title}
+                  onClick={(event) => item.onSelect?.(event.currentTarget)}
+                >
                   <Icon icon={item.icon} />
 
                   <span>{item.title}</span>

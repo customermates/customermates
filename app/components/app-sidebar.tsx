@@ -6,7 +6,7 @@ import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -34,7 +34,8 @@ import { useEntityTerminology } from "@/components/entity-terminology/use-entity
 import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { Icon } from "@/components/shared/icon";
 import { signOutAction } from "@/app/[locale]/actions";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
@@ -76,7 +77,7 @@ export const AppSidebar = observer(
     const { userStore, globalSearchModalStore, feedbackModalStore, terminologyStore } = rootStore;
     const { singular, plural } = useEntityTerminology();
 
-    const { setOpenMobile } = useSidebar();
+    const { isMobile, setOpenMobile } = useSidebar();
     const { resolvedTheme, setTheme } = useTheme();
     const openEntity = useOpenEntity();
     const subscriptionStatus = subscription?.status ?? null;
@@ -84,6 +85,8 @@ export const AppSidebar = observer(
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
     const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
+    const addPickerInvokerRef = useRef<HTMLElement | null>(null);
+    const addPickerFallbackRef = useRef<HTMLElement | null>(null);
 
     function handleThemeChange() {
       const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
@@ -94,7 +97,7 @@ export const AppSidebar = observer(
     useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
 
     function closeMobileSidebar(cb?: () => void) {
-      if (typeof window !== "undefined" && window.innerWidth < 768) setOpenMobile(false);
+      if (isMobile) setOpenMobile(false);
       cb?.();
     }
 
@@ -214,27 +217,24 @@ export const AppSidebar = observer(
       channelsNeedingActionCount,
     ]);
 
-    const secondaryItems: NavSecondaryItem[] = useMemo(
-      () => [
-        {
-          key: "documentation",
-          title: t("UserAvatar.documentation"),
-          icon: FileText,
-          href: "/docs",
-        },
-        {
-          key: "feedback",
-          title: t("Common.inputs.feedback"),
-          icon: MessageCircle,
-          onSelect: () =>
-            closeMobileSidebar(() => {
-              feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
-              feedbackModalStore.open();
-            }),
-        },
-      ],
-      [t],
-    );
+    const secondaryItems: NavSecondaryItem[] = [
+      {
+        key: "documentation",
+        title: t("UserAvatar.documentation"),
+        icon: FileText,
+        href: "/docs",
+      },
+      {
+        key: "feedback",
+        title: t("Common.inputs.feedback"),
+        icon: MessageCircle,
+        onSelect: (invoker) =>
+          closeMobileSidebar(() => {
+            feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
+            feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
+          }),
+      },
+    ];
 
     const addItems = [
       {
@@ -291,8 +291,18 @@ export const AppSidebar = observer(
             homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/"}
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
-            onAdd={() => closeMobileSidebar(() => setIsAddPickerOpen(true))}
-            onSearch={() => closeMobileSidebar(() => globalSearchModalStore.open())}
+            onAdd={(invoker) =>
+              closeMobileSidebar(() => {
+                addPickerInvokerRef.current = invoker;
+                addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
+                setIsAddPickerOpen(true);
+              })
+            }
+            onSearch={(invoker) =>
+              closeMobileSidebar(() =>
+                globalSearchModalStore.openFrom(invoker, document.getElementById("sidebar-trigger")),
+              )
+            }
           />
 
           <SidebarContent>
@@ -330,11 +340,13 @@ export const AppSidebar = observer(
         <AddPickerDrawer
           items={addItems.filter((item) => userStore.canManage(item.resource))}
           open={isAddPickerOpen}
+          returnFocusFallback={addPickerFallbackRef.current}
+          returnFocusTarget={addPickerInvokerRef.current}
           onOpenChange={setIsAddPickerOpen}
           onPick={(entity) => {
             startTransition(() => {
               setIsAddPickerOpen(false);
-              openEntity(entity, "new");
+              openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
             });
           }}
         />
@@ -352,38 +364,63 @@ type AddPickerItem = {
 function AddPickerDrawer({
   items,
   open,
+  returnFocusFallback,
+  returnFocusTarget,
   onOpenChange,
   onPick,
 }: {
   items: AddPickerItem[];
   open: boolean;
+  returnFocusFallback: HTMLElement | null;
+  returnFocusTarget: HTMLElement | null;
   onOpenChange: (o: boolean) => void;
   onPick: (entity: EntityType) => void;
 }) {
   const t = useTranslations();
+  const isHandingOffRef = useRef(false);
+  const focusReturn = useOverlayFocusReturn(open, returnFocusTarget, returnFocusFallback);
+
+  function handleCloseAutoFocus(event: Event) {
+    if (isHandingOffRef.current) {
+      isHandingOffRef.current = false;
+      event.preventDefault();
+      return;
+    }
+
+    focusReturn.onCloseAutoFocus(event);
+  }
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[420px]" side="left">
+      <SheetContent
+        className="gap-0 sm:max-w-[420px]"
+        side="left"
+        {...focusReturn}
+        onCloseAutoFocus={handleCloseAutoFocus}
+      >
         <SheetHeader className="px-6 pt-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
           <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col gap-1 p-4">
+        <SheetBody className="flex flex-col gap-1 py-4">
           {items.map((item) => (
             <button
               key={item.key}
               className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
               type="button"
-              onClick={() => onPick(item.entity)}
+              onClick={() => {
+                isHandingOffRef.current = true;
+                onPick(item.entity);
+              }}
             >
               <span>{item.label}</span>
 
               <Icon className="size-3.5 opacity-50" icon={Plus} />
             </button>
           ))}
-        </div>
+        </SheetBody>
       </SheetContent>
     </Sheet>
   );

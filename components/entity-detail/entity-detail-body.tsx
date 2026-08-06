@@ -64,12 +64,12 @@ export const EntityDetailBody = observer(
     return (
       <>
         <AppForm store={store as unknown as BaseFormStore}>
-          <AppCard className="min-h-0 flex-1 rounded-none border-0 bg-transparent shadow-none">
+          <AppCard className="rounded-none border-0 bg-transparent shadow-none">
             <AppCardHeader>
               <h2 className="text-x-lg grow">{singular(entityType)}</h2>
             </AppCardHeader>
 
-            <AppCardBody className="overflow-x-clip overflow-y-auto">
+            <AppCardBody>
               <div className="flex flex-col gap-6">
                 {children}
 
@@ -84,7 +84,7 @@ export const EntityDetailBody = observer(
             </AppCardBody>
 
             {canManage && (
-              <AppCardFooter className="border-t">
+              <AppCardFooter>
                 <Button
                   disabled={isLoading || !store.hasUnsavedChanges || store.isDisabled}
                   id="drawer-save"

@@ -6,9 +6,15 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { AppCardHeader } from "@/components/card/app-card-header";
-import { Button } from "@/components/ui/button";
-
-import { AppModal } from "./app-modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 
 type Props = {
   open: boolean;
@@ -18,28 +24,46 @@ type Props = {
 
 export function UnsavedChangesGuard({ open, onCancel, onConfirm }: Props) {
   const t = useTranslations();
+  const focusReturn = useOverlayFocusReturn(open);
 
   return (
-    <AppModal open={open} size="sm" title={t("Common.navigationGuard.title")} onClose={onCancel}>
-      <AppCard>
-        <AppCardHeader>
-          <h2 className="text-base font-semibold">{t("Common.navigationGuard.title")}</h2>
-        </AppCardHeader>
+    <AlertDialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onCancel();
+      }}
+    >
+      <AlertDialogContent
+        className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none"
+        size="sm"
+        {...focusReturn}
+      >
+        <AppCard>
+          <AppCardHeader>
+            <AlertDialogTitle className="text-base font-semibold">{t("Common.navigationGuard.title")}</AlertDialogTitle>
+          </AppCardHeader>
 
-        <AppCardBody>
-          <p className="text-sm">{t("Common.navigationGuard.message")}</p>
-        </AppCardBody>
+          <AppCardBody>
+            <AlertDialogDescription className="text-sm text-foreground">
+              {t("Common.navigationGuard.message")}
+            </AlertDialogDescription>
+          </AppCardBody>
 
-        <AppCardFooter>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {t("Common.actions.cancel")}
-          </Button>
+          <AppCardFooter>
+            <AlertDialogCancel>{t("Common.actions.cancel")}</AlertDialogCancel>
 
-          <Button type="button" variant="destructive" onClick={onConfirm}>
-            {t("Common.actions.discard")}
-          </Button>
-        </AppCardFooter>
-      </AppCard>
-    </AppModal>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={(event) => {
+                event.preventDefault();
+                onConfirm();
+              }}
+            >
+              {t("Common.actions.discard")}
+            </AlertDialogAction>
+          </AppCardFooter>
+        </AppCard>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

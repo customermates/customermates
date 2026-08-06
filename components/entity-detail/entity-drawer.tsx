@@ -3,18 +3,23 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "radix-ui";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import {
+  focusEntityDrawerInvoker,
+  useEntityDrawerStack,
+} from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { ENTITY_DETAIL } from "@/components/entity-detail/entity-detail.registry";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
+import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 
 export const EntityDrawer = observer(() => {
   const { top, popTop } = useEntityDrawerStack();
   const rootStore = useRootStore();
   const lastLoadedRef = useRef<string | null>(null);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+  const focusReturn = useOverlayFocusReturn(Boolean(top));
 
   useEffect(() => {
     if (!top) {
@@ -48,17 +53,33 @@ export const EntityDrawer = observer(() => {
     popTop();
   }
 
+  function handleCloseAutoFocus(event: Event) {
+    if (focusEntityDrawerInvoker()) {
+      event.preventDefault();
+      return;
+    }
+
+    focusReturn.onCloseAutoFocus(event);
+  }
+
   const DetailView = top ? ENTITY_DETAIL[top.entityType].DetailView : null;
 
   return (
     <>
       <Sheet open={Boolean(top)} onOpenChange={handleOpenChange}>
-        <SheetContent className="p-0 overflow-y-auto" side="left">
+        <SheetContent
+          className="gap-0 sm:max-w-[640px]"
+          side="left"
+          {...focusReturn}
+          onCloseAutoFocus={handleCloseAutoFocus}
+        >
           <VisuallyHidden.Root>
             <SheetTitle>{top ? top.entityType : "Detail"}</SheetTitle>
           </VisuallyHidden.Root>
 
-          {DetailView && <DetailView layout="drawer" />}
+          <SheetBody className="flex flex-col overflow-hidden px-0">
+            {DetailView && <DetailView layout="drawer" />}
+          </SheetBody>
         </SheetContent>
       </Sheet>
 

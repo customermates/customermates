@@ -10,6 +10,8 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
   public isOpen = false;
   public isEditingCustomField = false;
   public isClosingWithGuard = false;
+  public focusReturnTarget: HTMLElement | null = null;
+  public focusReturnFallback: HTMLElement | null = null;
 
   constructor(rootStore: RootStore, initialState: T, resource?: Resource) {
     super(rootStore, initialState, resource);
@@ -25,6 +27,7 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
       toggleEditingCustomField: action,
       setIsEditingCustomField: action,
       open: action,
+      openFrom: action,
       close: action,
     });
   }
@@ -42,6 +45,15 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
   };
 
   open = () => {
+    this.focusReturnTarget = null;
+    this.focusReturnFallback = null;
+    this.isEditingCustomField = false;
+    this.isOpen = true;
+  };
+
+  openFrom = (focusReturnTarget: HTMLElement, focusReturnFallback?: HTMLElement | null) => {
+    this.focusReturnTarget = focusReturnTarget.isConnected ? focusReturnTarget : null;
+    this.focusReturnFallback = focusReturnFallback?.isConnected ? focusReturnFallback : null;
     this.isEditingCustomField = false;
     this.isOpen = true;
   };
@@ -55,5 +67,7 @@ export abstract class BaseModalStore<T extends object = object> extends BaseForm
     this.isClosingWithGuard = false;
     this.isOpen = false;
     this.isLoading = false;
+    this.focusReturnTarget = null;
+    this.focusReturnFallback = null;
   };
 }

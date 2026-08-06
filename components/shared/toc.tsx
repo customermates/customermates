@@ -50,7 +50,7 @@ export function Toc({ items, children, actions }: { items: TOCItemType[]; childr
 
         <aside
           ref={tocScrollRef}
-          className="hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky top-0 max-h-screen min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]"
+          className="hidden lg:block max-w-68 shrink-0 [&_a]:text-xs sticky top-0 max-h-svh min-h-0 ms-px overflow-auto py-3 [scrollbar-width:none]"
         >
           {actions ? <div className="mb-4">{actions}</div> : null}
 

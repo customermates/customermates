@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator";
 import { TimeInput } from "./time-input";
 import { cn } from "@/core/utils/cn";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { useAppForm } from "./form-context";
@@ -116,26 +117,11 @@ export const FormIsoDateRangePicker = observer(
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
 
     const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(parsedRange?.from ?? new Date()));
-    const [isWide, setIsWide] = useState<boolean>(() =>
-      typeof window === "undefined" ? true : window.matchMedia("(min-width: 640px)").matches,
-    );
+    const isWide = useIsWiderThan("sm");
 
     useEffect(() => {
       if (parsedRange?.from) setCurrentMonth(startOfMonth(parsedRange.from));
     }, [parsedRange?.from?.getTime()]);
-
-    useEffect(() => {
-      if (typeof window === "undefined") return;
-      const mq = window.matchMedia("(min-width: 640px)");
-      const handle = () => setIsWide(mq.matches);
-      handle();
-      mq.addEventListener("change", handle);
-      window.addEventListener("resize", handle);
-      return () => {
-        mq.removeEventListener("change", handle);
-        window.removeEventListener("resize", handle);
-      };
-    }, []);
 
     function commit(range: DateRange | undefined) {
       if (!range || !range.from || !range.to) {

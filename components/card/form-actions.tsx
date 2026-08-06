@@ -76,11 +76,11 @@ export const FormActions = observer(
       </>
     );
 
-    if (isTopBar) return <div className="flex items-center gap-1">{buttons}</div>;
+    if (isTopBar) return <div className="flex shrink-0 items-center gap-1">{buttons}</div>;
 
     const shouldShow = Boolean(showInitially) || dirty || loading;
     return (
-      <Reveal show={shouldShow}>
+      <Reveal className="shrink-0" show={shouldShow}>
         <AppCardFooter>{buttons}</AppCardFooter>
       </Reveal>
     );
