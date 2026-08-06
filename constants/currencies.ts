@@ -1,31 +1,18 @@
 import { Currency } from "@/generated/prisma";
 
-export const CURRENCIES = [
-  { key: Currency.aed },
-  { key: Currency.aud },
-  { key: Currency.brl },
-  { key: Currency.cad },
-  { key: Currency.chf },
-  { key: Currency.cny },
-  { key: Currency.czk },
-  { key: Currency.dkk },
-  { key: Currency.eur },
-  { key: Currency.gbp },
-  { key: Currency.hkd },
-  { key: Currency.huf },
-  { key: Currency.ils },
-  { key: Currency.inr },
-  { key: Currency.jpy },
-  { key: Currency.krw },
-  { key: Currency.mxn },
-  { key: Currency.nok },
-  { key: Currency.nzd },
-  { key: Currency.pln },
-  { key: Currency.sar },
-  { key: Currency.sek },
-  { key: Currency.sgd },
-  { key: Currency.try },
-  { key: Currency.twd },
-  { key: Currency.usd },
-  { key: Currency.zar },
-] as const;
+export const CURRENCIES: ReadonlyArray<{ key: Currency }> = Object.values(Currency)
+  .sort((left, right) => left.localeCompare(right))
+  .map((key) => ({ key }));
+
+export function getCurrencyLabel(currency: string, locale: string): string {
+  const code = currency.toUpperCase();
+
+  try {
+    const localizedName = new Intl.DisplayNames([locale], {
+      type: "currency",
+    }).of(code);
+    return localizedName && localizedName !== code ? `${localizedName} (${code})` : code;
+  } catch {
+    return code;
+  }
+}
