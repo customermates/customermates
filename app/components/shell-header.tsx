@@ -13,8 +13,8 @@ type Props = {
 export function ShellHeader({ children, actions }: Props) {
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background md:rounded-t-xl">
-      <div className="flex flex-1 min-w-0 items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
+      <div className="flex flex-1 min-w-0 items-center gap-2 px-4 ps-[calc(1rem+var(--safe-left))]">
+        <SidebarTrigger className="-ml-1" id="sidebar-trigger" />
 
         {children && (
           <>
@@ -25,7 +25,9 @@ export function ShellHeader({ children, actions }: Props) {
         )}
       </div>
 
-      {actions && <div className="flex shrink-0 items-center gap-2 px-4">{actions}</div>}
+      {actions && (
+        <div className="flex shrink-0 items-center gap-2 px-4 pe-[calc(1rem+var(--safe-right))]">{actions}</div>
+      )}
     </header>
   );
 }

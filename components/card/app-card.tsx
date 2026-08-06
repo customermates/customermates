@@ -10,7 +10,8 @@ export function AppCard({ className, ...props }: Props) {
     <Card
       className={cn(
         "w-full gap-0 py-0",
-        "in-data-[slot=dialog-content]:flex-1 in-data-[slot=dialog-content]:min-h-0",
+        "in-data-overlay-surface:min-h-0 in-data-overlay-surface:flex-1 in-data-overlay-surface:overflow-hidden",
+        "in-data-[overlay-surface=drawer]:border-0 in-data-[overlay-surface=drawer]:bg-transparent in-data-[overlay-surface=drawer]:shadow-none",
         className,
       )}
       data-uid="app-card"

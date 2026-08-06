@@ -10,8 +10,8 @@ export function AppCardBody({ className, ...props }: Props) {
     <CardContent
       {...props}
       className={cn(
-        "flex flex-1 flex-col gap-4 p-6 min-h-0",
-        "in-data-[slot=dialog-content]:overflow-y-auto in-data-[slot=dialog-content]:overflow-x-clip in-data-[slot=dialog-content]:[overflow-clip-margin:8px]",
+        "flex min-h-0 flex-1 flex-col gap-4 p-6",
+        "in-data-overlay-surface:overflow-x-clip in-data-overlay-surface:overflow-y-auto in-data-overlay-surface:overscroll-contain in-data-overlay-surface:[overflow-clip-margin:8px]",
         className,
       )}
     />

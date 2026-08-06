@@ -79,7 +79,7 @@ export function NavigationSwitch({
 
   if (hideAppShell) {
     return (
-      <div className="h-screen flex">
+      <div className="h-svh flex">
         <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
           <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
             <PublicNavbar isAuthenticated={isAuthenticated} onboardingComplete={onboardingComplete} />

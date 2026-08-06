@@ -65,7 +65,18 @@
       }
     },
     {
-      "files": ["components/modal/app-modal.tsx", "components/ui/command.tsx"],
+      "files": [
+        "components/modal/app-modal.tsx",
+        "components/ui/command.tsx",
+        "components/ui/dialog.tsx",
+        "components/ui/drawer.tsx",
+        "components/ui/alert-dialog.tsx",
+        "components/ui/sheet.tsx",
+        "components/ui/popover.tsx",
+        "components/ui/dropdown-menu.tsx",
+        "components/ui/select.tsx",
+        "components/ui/tooltip.tsx"
+      ],
       "rules": {
         "no-restricted-imports": "off"
       }
@@ -95,11 +106,19 @@
         "jsonc/sort-keys": [
           "warn",
           {
-            "order": { "caseSensitive": false, "natural": true, "type": "asc" },
+            "order": {
+              "caseSensitive": false,
+              "natural": true,
+              "type": "asc"
+            },
             "pathPattern": "^$"
           },
           {
-            "order": { "caseSensitive": false, "natural": true, "type": "asc" },
+            "order": {
+              "caseSensitive": false,
+              "natural": true,
+              "type": "asc"
+            },
             "pathPattern": ".*"
           }
         ]
@@ -123,7 +142,12 @@
     "jsx-a11y/interactive-supports-focus": "warn",
     "jsx-a11y/no-autofocus": "off",
     "no-console": "off",
-    "no-implicit-coercion": ["error", { "boolean": true }],
+    "no-implicit-coercion": [
+      "error",
+      {
+        "boolean": true
+      }
+    ],
     "no-restricted-imports": [
       "error",
       {
@@ -141,6 +165,19 @@
             "importNames": ["default"],
             "message": "Use <AppLink> from '@/components/shared/app-link' for text links, or IntlLink from '@/i18n/navigation' inside styled or asChild wrappers, so internal links keep the active locale (next-intl localePrefix is 'always'). next/link's default Link export is only allowed in components/shared/app-link.tsx, the external-link wrapper; the named useLinkStatus hook is unaffected.",
             "name": "next/link"
+          },
+          {
+            "importNames": ["Dialog", "AlertDialog", "Popover", "DropdownMenu", "Select", "Tooltip"],
+            "message": "Import overlay primitives from '@/components/ui/{dialog,alert-dialog,sheet,popover,dropdown-menu,select,tooltip}' so every overlay inherits the shared collision padding, available-width and available-height caps, dynamic-viewport budget and safe-area insets (CUS-60). Raw radix-ui overlay roots are only allowed inside those primitive files. Non-overlay primitives such as Slot, VisuallyHidden, Tabs and Accordion are unrestricted.",
+            "name": "radix-ui"
+          },
+          {
+            "message": "Import cmdk only inside components/ui/command.tsx. Anchored command surfaces compose Popover or CommandDialog rather than hand-rolling a floating list (CUS-60).",
+            "name": "cmdk"
+          },
+          {
+            "message": "Import Drawer from '@/components/ui/drawer' so it inherits the dynamic-viewport budget, scroll owner and safe-area insets (CUS-60). Raw vaul is only allowed inside components/ui/drawer.tsx.",
+            "name": "vaul"
           }
         ]
       }
@@ -148,7 +185,7 @@
     "no-restricted-syntax": [
       "error",
       {
-        "message": "Avoid 'window.location.href = ...' — it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/language-selector.tsx for an example).",
+        "message": "Avoid 'window.location.href = ...' \u2014 it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/language-selector.tsx for an example).",
         "selector": "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location'][left.property.name='href']"
       }
     ],
@@ -159,7 +196,12 @@
         "printWidth": 120
       }
     ],
-    "react/jsx-newline": ["warn", { "prevent": false }],
+    "react/jsx-newline": [
+      "warn",
+      {
+        "prevent": false
+      }
+    ],
     "react/jsx-sort-props": [
       "warn",
       {

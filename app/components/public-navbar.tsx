@@ -10,7 +10,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -117,12 +117,12 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
               </Button>
             </SheetTrigger>
 
-            <SheetContent className="w-80 p-6" side="right">
-              <SheetHeader className="p-0">
+            <SheetContent className="w-80 max-w-[85vw] gap-0" side="right">
+              <SheetHeader>
                 <SheetTitle className="sr-only">{logoAlt}</SheetTitle>
               </SheetHeader>
 
-              <div className="flex flex-col gap-3 pt-3">
+              <SheetBody className="flex flex-col gap-3 pb-6">
                 {publicNavItems.map((item) => (
                   <AppLink
                     key={item.href}
@@ -139,7 +139,7 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
                 {contactButton}
 
                 {ctaButton}
-              </div>
+              </SheetBody>
             </SheetContent>
           </Sheet>
         </div>

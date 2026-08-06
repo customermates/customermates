@@ -13,9 +13,9 @@ import { useTranslations } from "next-intl";
 import { baseExtensions } from "./editor-extensions";
 import { findPastedImageUrl } from "./image-extension";
 import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
-import { calculateMenuPosition } from "./editor-positioning.utils";
 
 import { BubbleMenu } from "./bubble-menu";
+import { type EditorAnchorRect } from "./use-editor-anchor";
 import { SlashMenu } from "./slash-menu";
 import { TableMenu } from "./table-menu";
 
@@ -37,21 +37,12 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
 export function Editor({ data, onChange, readOnly = false }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
-  const [slashMenuPosition, setSlashMenuPosition] = useState({
-    top: 0,
-    left: 0,
-  });
+  const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [showBubbleMenu, setShowBubbleMenu] = useState(false);
-  const [bubbleMenuPosition, setBubbleMenuPosition] = useState({
-    top: 0,
-    left: 0,
-  });
+  const [bubbleAnchorRect, setBubbleAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [showTableMenu, setShowTableMenu] = useState(false);
-  const [tableMenuPosition, setTableMenuPosition] = useState({ top: 0, left: 0 });
+  const [tableAnchorRect, setTableAnchorRect] = useState<EditorAnchorRect | null>(null);
   const [tableAnchorPos, setTableAnchorPos] = useState<number | null>(null);
-  const bubbleMenuRef = useRef<HTMLDivElement>(null);
-  const slashMenuRef = useRef<HTMLDivElement>(null);
-  const tableMenuRef = useRef<HTMLDivElement>(null);
   const isSettingContentRef = useRef(false);
 
   const showBubbleMenuForSelection = useCallback(
@@ -94,7 +85,7 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
     editorProps: {
       attributes: {
         class:
-          "tiptap prose prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
+          "tiptap prose prose-base md:prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
       },
       handlePaste: (view, event) => {
         const pastedImageUrl = findPastedImageUrl(event.clipboardData);
@@ -125,8 +116,8 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
           showBubbleMenuForSelection(view);
           return false;
         },
-        keyup: (view) => {
-          showBubbleMenuForSelection(view);
+        keyup: (view, event) => {
+          if (event.key !== "Escape") showBubbleMenuForSelection(view);
           return false;
         },
       },
@@ -134,7 +125,16 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         if (event.key === "/" && !showSlashMenu) {
           const { selection } = view.state;
           const coords = view.coordsAtPos(selection.from);
-          setSlashMenuPosition({ top: coords.top, left: coords.left });
+          const position = selection.from;
+          setSlashAnchorRect({
+            top: coords.top,
+            left: coords.left,
+            height: coords.bottom - coords.top,
+            resolve: () => {
+              const current = view.coordsAtPos(Math.min(position, view.state.doc.content.size));
+              return new DOMRect(current.left, current.top, 0, current.bottom - current.top);
+            },
+          });
           setShowSlashMenu(true);
           return true;
         }
@@ -142,6 +142,18 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         if (showSlashMenu && event.key === "Escape") {
           event.preventDefault();
           setShowSlashMenu(false);
+          return true;
+        }
+
+        if (showBubbleMenu && event.key === "Escape") {
+          event.preventDefault();
+          setShowBubbleMenu(false);
+          return true;
+        }
+
+        if (showTableMenu && event.key === "Escape") {
+          event.preventDefault();
+          setShowTableMenu(false);
           return true;
         }
 
@@ -181,100 +193,74 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   }, [editor, showBubbleMenuForSelection]);
 
   useEffect(() => {
-    if (showBubbleMenu && bubbleMenuRef.current && editor) {
+    if (showBubbleMenu && editor) {
       const { from, to } = editor.state.selection;
       const { view } = editor;
       const start = view.coordsAtPos(from);
       const end = view.coordsAtPos(to);
-      const menuRect = bubbleMenuRef.current.getBoundingClientRect();
 
-      const position = calculateMenuPosition({
-        cursorTop: start.top,
-        cursorBottom: end.bottom,
-        cursorLeft: start.left,
-        cursorRight: end.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
-        centered: true,
+      setBubbleAnchorRect({
+        top: start.top,
+        left: Math.min(start.left, end.left),
+        width: Math.abs(end.left - start.left),
+        height: end.bottom - start.top,
+        resolve: () => {
+          const currentSelection = view.state.selection;
+          const currentStart = view.coordsAtPos(currentSelection.from);
+          const currentEnd = view.coordsAtPos(currentSelection.to);
+          const left = Math.min(currentStart.left, currentEnd.left);
+          return new DOMRect(
+            left,
+            currentStart.top,
+            Math.abs(currentEnd.left - currentStart.left),
+            currentEnd.bottom - currentStart.top,
+          );
+        },
       });
-
-      setBubbleMenuPosition(position);
     }
-  }, [showBubbleMenu, showTableMenu, editor]);
+  }, [showBubbleMenu, editor]);
 
   useEffect(() => {
-    if (showTableMenu && tableMenuRef.current && editor) {
-      const { from } = editor.state.selection;
-      const domNode = editor.view.domAtPos(from).node;
-      const element = domNode instanceof Element ? domNode : domNode.parentElement;
-      const tableElement = element?.closest("table");
-      const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(from);
-      const menuRect = tableMenuRef.current.getBoundingClientRect();
+    if (showTableMenu && editor) {
+      const resolve = () => {
+        const position = Math.min(tableAnchorPos ?? editor.state.selection.from, editor.state.doc.content.size);
+        const domNode = editor.view.nodeDOM(position);
+        const tableElement =
+          domNode instanceof HTMLTableElement
+            ? domNode
+            : domNode instanceof Element
+              ? (domNode.querySelector("table") ?? domNode.closest("table"))
+              : null;
+        const anchor = tableElement ? tableElement.getBoundingClientRect() : editor.view.coordsAtPos(position);
 
-      const position = calculateMenuPosition({
-        cursorTop: anchor.top,
-        cursorBottom: anchor.bottom,
-        cursorLeft: anchor.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
+        return new DOMRect(anchor.left, anchor.top, "width" in anchor ? anchor.width : 0, anchor.bottom - anchor.top);
+      };
+      const anchor = resolve();
+
+      setTableAnchorRect({
+        top: anchor.top,
+        left: anchor.left,
+        width: anchor.width,
+        height: anchor.bottom - anchor.top,
+        resolve,
       });
-
-      setTableMenuPosition(position);
     }
   }, [showTableMenu, tableAnchorPos, editor]);
-
-  useEffect(() => {
-    if (!showTableMenu || !editor) return;
-    const editorView = editor.view;
-
-    function handlePointerDown(event: MouseEvent) {
-      const target = event.target as Node;
-      if (tableMenuRef.current?.contains(target)) return;
-      if (editorView.dom.contains(target)) return;
-      setShowTableMenu(false);
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    return () => document.removeEventListener("mousedown", handlePointerDown);
-  }, [showTableMenu, editor]);
-
-  useEffect(() => {
-    if (showSlashMenu && slashMenuRef.current && editor) {
-      const { selection } = editor.state;
-      const coords = editor.view.coordsAtPos(selection.from);
-      const menuRect = slashMenuRef.current.getBoundingClientRect();
-
-      const position = calculateMenuPosition({
-        cursorTop: coords.top,
-        cursorBottom: coords.bottom,
-        cursorLeft: coords.left,
-        menuWidth: menuRect.width,
-        menuHeight: menuRect.height,
-      });
-
-      setSlashMenuPosition(position);
-    }
-  }, [showSlashMenu, editor]);
 
   if (!editor) return null;
 
   return (
     <div className="relative min-h-52">
       {showBubbleMenu && !showTableMenu && (
-        <BubbleMenu bubbleMenuRef={bubbleMenuRef} editor={editor} position={bubbleMenuPosition} />
+        <BubbleMenu anchorRect={bubbleAnchorRect} editor={editor} onClose={() => setShowBubbleMenu(false)} />
       )}
 
       {showTableMenu && !readOnly && (
-        <TableMenu editor={editor} position={tableMenuPosition} tableMenuRef={tableMenuRef} />
+        <TableMenu anchorRect={tableAnchorRect} editor={editor} onClose={() => setShowTableMenu(false)} />
       )}
 
       {showSlashMenu && (
-        <SlashMenu
-          editor={editor}
-          position={slashMenuPosition}
-          slashMenuRef={slashMenuRef}
-          onClose={() => setShowSlashMenu(false)}
-        />
+        <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
 
       <EditorContent editor={editor} />

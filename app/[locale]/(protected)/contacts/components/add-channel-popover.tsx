@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Command as CommandPrimitive } from "cmdk";
 import { Plus, Search } from "lucide-react";
 
 import type { MessagingProvider } from "@/generated/prisma";
 
-import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { CommandEmpty, CommandGroup, CommandItem, CommandList, CommandPrimitive } from "@/components/ui/command";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -22,21 +22,11 @@ const SOURCE_HINT_KEYS = {
 export const AddChannelPopover = observer(({ contactId }: { contactId?: string }) => {
   const t = useTranslations();
   const { addChannelStore: store } = useRootStore();
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     store.setContactId(contactId);
     store.reset();
   }, [store, contactId]);
-
-  useEffect(() => {
-    if (!store.open) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) store.setOpen(false);
-    };
-    document.addEventListener("pointerdown", onPointerDown, true);
-    return () => document.removeEventListener("pointerdown", onPointerDown, true);
-  }, [store, store.open]);
 
   const candidates = store.mergedCandidates;
   const addAsNewOptions = store.addAsNewOptions;
@@ -49,32 +39,38 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
   const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${provider}`);
 
   return (
-    <CommandPrimitive ref={containerRef} className="relative" shouldFilter={false}>
-      <div className="border-border bg-card focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
-        <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
+    <CommandPrimitive shouldFilter={false}>
+      <Popover open={showList} onOpenChange={(next) => store.setOpen(next)}>
+        <PopoverAnchor asChild>
+          <div className="border-border bg-card focus-within:border-ring focus-within:ring-ring/50 flex w-full items-center gap-3 rounded-md border px-3 py-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-inset">
+            <Search aria-hidden className="text-muted-foreground size-5 shrink-0" />
 
-        <CommandPrimitive.Input
-          aria-label={t("EntityChannels.addChannel.trigger")}
-          className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
-          placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
-          value={store.query}
-          onClick={() => store.setOpen(true)}
-          onFocus={() => store.setOpen(true)}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              store.setOpen(false);
-              event.currentTarget.blur();
-            } else if (event.key === "Tab") store.setOpen(false);
-          }}
-          onValueChange={(next) => {
-            store.setOpen(true);
-            store.setQuery(next);
-          }}
-        />
-      </div>
+            <CommandPrimitive.Input
+              aria-label={t("EntityChannels.addChannel.trigger")}
+              className="placeholder:text-muted-foreground flex-1 bg-transparent text-sm outline-none"
+              placeholder={t("EntityChannels.addChannel.searchPlaceholder")}
+              value={store.query}
+              onClick={() => store.setOpen(true)}
+              onFocus={() => store.setOpen(true)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  store.setOpen(false);
+                  event.currentTarget.blur();
+                } else if (event.key === "Tab") store.setOpen(false);
+              }}
+              onValueChange={(next) => {
+                store.setOpen(true);
+                store.setQuery(next);
+              }}
+            />
+          </div>
+        </PopoverAnchor>
 
-      {showList && (
-        <div className="bg-popover text-popover-foreground absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-md border shadow-md">
+        <PopoverContent
+          align="start"
+          className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
           <CommandList>
             {busy && candidates.length === 0 && (
               <div className="text-muted-foreground py-3 text-center text-sm">
@@ -155,8 +151,8 @@ export const AddChannelPopover = observer(({ contactId }: { contactId?: string }
               </div>
             )}
           </CommandList>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
     </CommandPrimitive>
   );
 });
