@@ -76,6 +76,9 @@ describe("ApiKeyModal add wizard", () => {
     expect(html.match(/data-api-key-option="plain"/g)).toHaveLength(1);
     expect(html.match(/data-provider=/g)).toHaveLength(5);
     expect(html).toContain("ApiKeyModal.quickTitle");
+    expect(html).toContain("Common.actions.cancel");
+    expect(html).not.toContain("Common.actions.back");
+    expect(html).not.toContain("ApiKeyModal.done");
     expect(html).not.toContain("OnboardingWizard.ai.choices.skip");
     expect(html).not.toContain("OnboardingWizard.finish");
   });
@@ -105,6 +108,8 @@ describe("ApiKeyModal add wizard", () => {
 
     expect(html.match(/OnboardingWizard\.ai\.screen\.setup\.title/g)).toHaveLength(1);
     expect(html).toContain("Common.actions.back");
+    expect(html).toContain("ApiKeyModal.done");
+    expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
     expect(html).not.toContain("<h2>OnboardingWizard.ai.screen.setup.title</h2>");
   });

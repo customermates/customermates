@@ -237,23 +237,22 @@ export const ApiKeyModal = observer(() => {
 
           {isWizard ? (
             <AppCardFooter>
-              {aiConnectionStore.route.screen !== "providers" ? (
+              {aiConnectionStore.route.screen === "providers" ? (
+                <Button disabled={aiConnectionStore.isCreating} variant="secondary" onClick={close}>
+                  {t("Common.actions.cancel")}
+                </Button>
+              ) : (
                 <Button
-                  className="mr-auto"
                   disabled={aiConnectionStore.isCreating}
                   type="button"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={aiConnectionStore.backToProviders}
                 >
                   <ArrowLeft aria-hidden />
 
                   {t("Common.actions.back")}
                 </Button>
-              ) : null}
-
-              <Button disabled={aiConnectionStore.isCreating} variant="secondary" onClick={close}>
-                {t("Common.actions.cancel")}
-              </Button>
+              )}
 
               {aiConnectionStore.route.screen !== "providers" ? (
                 <Button disabled={!aiConnectionStore.canFinish} type="button" onClick={close}>
