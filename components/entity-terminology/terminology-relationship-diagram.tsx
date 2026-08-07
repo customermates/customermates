@@ -72,6 +72,9 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
   };
 
   const entityLabel = (entityType: EntityType) => presetLabel(entityType, selectedPresetKey(entityType), "plural");
+  const taskScopeLabel = t("EntityTerminology.relationships.taskScope", {
+    tasks: entityLabel(EntityType.task),
+  });
 
   const node = (entityType: EntityType) => {
     const style = ENTITY_STYLE[entityType];
@@ -164,14 +167,14 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
       <div className="relative">
         <svg
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden size-full text-input sm:block"
+          className="pointer-events-none absolute inset-0 hidden size-full text-border sm:block"
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
         >
           <line
             data-relationship="contact-organization"
             stroke="currentColor"
-            strokeWidth="0.5"
+            strokeWidth="1"
             vectorEffect="non-scaling-stroke"
             x1="42"
             x2="58"
@@ -182,7 +185,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="contact-deal"
             stroke="currentColor"
-            strokeWidth="0.5"
+            strokeWidth="1"
             vectorEffect="non-scaling-stroke"
             x1="21"
             x2="21"
@@ -193,7 +196,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="organization-deal"
             stroke="currentColor"
-            strokeWidth="0.5"
+            strokeWidth="1"
             vectorEffect="non-scaling-stroke"
             x1="79"
             x2="21"
@@ -204,7 +207,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="deal-service"
             stroke="currentColor"
-            strokeWidth="0.5"
+            strokeWidth="1"
             vectorEffect="non-scaling-stroke"
             x1="42"
             x2="58"
@@ -252,7 +255,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
         </div>
       </div>
 
-      <div className="sm:sr-only">{relationshipList()}</div>
+      <div className="sr-only">{relationshipList()}</div>
     </>
   );
 
@@ -266,20 +269,20 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
         {relationshipMap()}
 
         <div aria-labelledby="terminology-task-relationship-label" className="flex flex-col items-center" role="group">
-          <div className="relative flex min-h-14 w-full items-center justify-center py-2">
-            <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-input" />
+          <div className="relative flex min-h-6 w-full items-center justify-center sm:min-h-14 sm:py-2">
+            <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border" />
 
             <span
-              className="relative z-10 max-w-[calc(100%-2rem)] bg-background px-2 text-center text-[10px] leading-relaxed text-muted-foreground"
+              className="sr-only sm:not-sr-only sm:relative sm:z-10 sm:max-w-[calc(100%-2rem)] sm:bg-background sm:px-2 sm:text-center sm:text-[10px] sm:leading-relaxed sm:text-muted-foreground"
               id="terminology-task-relationship-label"
             >
-              {t("EntityTerminology.relationships.taskScope", {
-                tasks: entityLabel(EntityType.task),
-              })}
+              {taskScopeLabel}
             </span>
           </div>
 
-          <div className="w-full sm:w-[calc(50%-3rem)]">{node(EntityType.task)}</div>
+          <div data-task-selector className="w-full">
+            {node(EntityType.task)}
+          </div>
         </div>
       </div>
     </section>

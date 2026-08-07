@@ -1226,7 +1226,7 @@
     "relationships": {
       "contactDealSummary": "{contacts} sind an Datensätzen vom Typ „{deals}“ beteiligt.",
       "contactOrganizationSummary": "{contacts} arbeiten bei Datensätzen vom Typ „{organizations}“.",
-      "dataModelLabel": "Dein Datenmodell – wähle die Bezeichnungen, die dein Team verwendet; die Beziehungen bleiben unverändert.",
+      "dataModelLabel": "Dein Datenmodell: Wähle die Bezeichnungen, die dein Team verwendet; die Beziehungen bleiben unverändert.",
       "dealServiceSummary": "{deals} enthalten Datensätze vom Typ „{services}“.",
       "howRecordsConnect": "So sind Datensätze verknüpft",
       "include": "enthalten",

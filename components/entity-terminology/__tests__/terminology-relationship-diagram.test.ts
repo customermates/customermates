@@ -81,9 +81,14 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(taskSelect).toContain("Follow-ups");
     expect(html.match(/data-selected=/g)).toHaveLength(5);
     expect(html).toContain("Follow-ups can be linked to any record in this model.");
-    expect(html).toContain("Your data model — choose the names your team uses; relationships stay the same.");
+    expect(html).toContain("Your data model: choose the names your team uses; relationships stay the same.");
+    expect(html).not.toContain("—");
+    expect(html).not.toContain("–");
+    expect(html).toContain('aria-labelledby="terminology-task-relationship-label"');
     expect(html).toContain('id="terminology-task-relationship-label"');
     expect(html).toContain('role="group"');
+    expect(html).toContain('data-task-selector="true" class="w-full"');
+    expect(html).not.toContain("sm:w-[calc(50%-3rem)]");
     expect(html).not.toContain("Work items");
     expect(html).not.toContain("border-t");
     expect(html).not.toContain("rounded-xl");
@@ -105,11 +110,26 @@ describe("TerminologyRelationshipDiagram", () => {
       expect(html.match(new RegExp(`data-relationship="${relationship}"`, "g"))).toHaveLength(2);
 
     expect(html).toContain('<svg aria-hidden="true"');
-    expect(html).toContain("text-input");
-    expect(html).toContain("bg-input");
+    expect(html).toContain("text-border");
+    expect(html).toContain("bg-border");
+    expect(html.match(/stroke-width="1"/g)).toHaveLength(4);
     expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
     expect(html).toContain("Companies are linked to Jobs.");
     expect(html).not.toContain("border-l-");
+  });
+
+  it("keeps relationship descriptions accessible while hiding them visually on small screens", () => {
+    const html = renderToStaticMarkup(
+      createElement(TerminologyRelationshipDiagram, {
+        selections,
+        onPreset: vi.fn(),
+      }),
+    );
+
+    expect(html).toContain('<div class="sr-only"><div class="flex flex-col gap-2">');
+    expect(html).toContain("sr-only sm:not-sr-only");
+    expect(html).toContain("relative flex min-h-6 w-full items-center justify-center sm:min-h-14 sm:py-2");
+    expect(html).not.toContain("sm:sr-only");
   });
 
   it("renders five static labels and no selectors for read-only users", () => {
