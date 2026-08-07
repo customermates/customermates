@@ -3,12 +3,16 @@ import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { LegalAcceptance } from "@/constants/legal-documents";
 
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
-import { buildLegalAcceptance } from "@/constants/legal-documents";
+import {
+  ALL_LEGAL_DOCUMENTS,
+  LEGAL_CONTRACT_KEY,
+  LEGAL_INFORMATION_KEY,
+  currentLegalDocumentVersions,
+} from "@/constants/legal-documents";
 import { env } from "@/env";
 
 import { DomainEvent } from "@/features/event/domain-events";
@@ -21,33 +25,33 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { getLegalDeploymentCommit } from "@/features/legal/legal-deployment-commit";
+import { resolveUserLocale } from "@/i18n/user-locale";
 
-const Schema = z
-  .object({
-    email: z.email(),
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    country: z.enum(CountryCode),
-    avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
-    agreeToTerms: z.boolean(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.agreeToTerms !== true) {
-      ctx.addIssue({
-        code: "custom",
-        params: { error: CustomErrorCode.termsNotAgreed },
-        path: ["agreeToTerms"],
-      });
-    }
-  });
+const Schema = z.object({
+  email: z.email(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  country: z.enum(CountryCode),
+  avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
+  agreeToTerms: z.boolean(),
+  legalLocale: z.enum(["en", "de"]).optional(),
+});
+const NewCloudCompanySchema = Schema.superRefine((data, ctx) => {
+  if (data.agreeToTerms !== true) {
+    ctx.addIssue({
+      code: "custom",
+      params: { error: CustomErrorCode.termsNotAgreed },
+      path: ["agreeToTerms"],
+    });
+  }
+});
 export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
   abstract findCompanyIdUnscoped(userId: string): Promise<string | null>;
-  abstract createCompanyAndUser(args: RegisterUserData & LegalAcceptance): Promise<TenantUser>;
-  abstract registerExistingCompany(
-    args: RegisterUserData & LegalAcceptance & { companyId: string },
-  ): Promise<TenantUser>;
+  abstract createCompanyAndUser(args: RegisterUserData): Promise<TenantUser>;
+  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
 }
 
 @SystemInteractor
@@ -67,14 +71,43 @@ export class RegisterUserInteractor {
     const session = sessionResult.session;
 
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
+    const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
 
-    const legalAcceptance = buildLegalAcceptance(env.APP_MODE === "cloud" ? new Date() : null);
+    if (isNewCloudCompany) {
+      const acceptance = await NewCloudCompanySchema.safeParseAsync(data);
+      if (!acceptance.success) return { ok: false as const, error: acceptance.error };
+    }
+
+    const registrationData = { ...data, agreeToTerms: isNewCloudCompany };
 
     const tenantUser = companyId
-      ? await this.repo.registerExistingCompany({ ...data, ...legalAcceptance, companyId })
-      : await this.repo.createCompanyAndUser({ ...data, ...legalAcceptance });
+      ? await this.repo.registerExistingCompany({
+          ...registrationData,
+          companyId,
+        })
+      : await this.repo.createCompanyAndUser(registrationData);
 
     await runWithTenant(tenantUser, async () => {
+      if (isNewCloudCompany) {
+        const acceptedAt = new Date().toISOString();
+        await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
+          entityId: LEGAL_CONTRACT_KEY,
+          payload: {
+            versions: currentLegalDocumentVersions(),
+            contractKey: LEGAL_CONTRACT_KEY,
+            informationKey: LEGAL_INFORMATION_KEY,
+            changedDocuments: [...ALL_LEGAL_DOCUMENTS],
+            acceptingUser: { id: tenantUser.id, email: tenantUser.email },
+            locale: data.legalLocale ?? resolveUserLocale(tenantUser),
+            noticeAt: null,
+            effectiveAt: acceptedAt,
+            providerMessageId: null,
+            deployedGitCommit: getLegalDeploymentCommit(),
+            acceptanceType: "initial-onboarding",
+          },
+        });
+      }
+
       await this.eventService.publish(DomainEvent.USER_REGISTERED, {
         entityId: tenantUser.id,
         payload: {

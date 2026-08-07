@@ -6,6 +6,7 @@ import type { TaskDto } from "@/features/tasks/task.schema";
 import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/constants/legal-documents";
 
 import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
 
@@ -53,6 +54,9 @@ export enum DomainEvent {
   MESSAGING_CALENDAR_CHANGED = "messaging.calendar.changed",
   MESSAGING_CALENDAR_EVENT_CHANGED = "messaging.calendar_event.changed",
   MESSAGING_RELATION_CREATED = "messaging.relation.created",
+  LEGAL_CONTRACT_NOTICE_SENT = "legal.contract_notice_sent",
+  LEGAL_INFORMATION_NOTICE_SENT = "legal.information_notice_sent",
+  LEGAL_DOCUMENTS_ACCEPTED = "legal.documents_accepted",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -414,6 +418,24 @@ export type DomainEventMap = {
       provider: MessagingProvider;
       providerUserId: string;
     };
+  };
+  [DomainEvent.LEGAL_CONTRACT_NOTICE_SENT]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: LegalNoticeAuditPayload;
+  };
+  [DomainEvent.LEGAL_INFORMATION_NOTICE_SENT]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: LegalNoticeAuditPayload;
+  };
+  [DomainEvent.LEGAL_DOCUMENTS_ACCEPTED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: LegalAcceptanceAuditPayload;
   };
 };
 

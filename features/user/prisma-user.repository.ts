@@ -15,6 +15,7 @@ import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/sen
 import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
+import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
 
 import { randomUUID } from "node:crypto";
 
@@ -83,7 +84,8 @@ export class PrismaUserRepo
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
     CompleteOnboardingWizardRepo,
-    WebhookUserRepo
+    WebhookUserRepo,
+    SendLegalDocumentNoticesRepo
 {
   @BypassTenantGuard
   async findUserByIdOrThrowUnscoped(userId: string) {
@@ -161,9 +163,18 @@ export class PrismaUserRepo
 
   getFilterableFields() {
     return Promise.resolve([
-      { field: FilterFieldKey.status, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.status] },
-      { field: FilterFieldKey.updatedAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt] },
-      { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+      {
+        field: FilterFieldKey.status,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.status],
+      },
+      {
+        field: FilterFieldKey.updatedAt,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.updatedAt],
+      },
+      {
+        field: FilterFieldKey.createdAt,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt],
+      },
     ]);
   }
 
@@ -330,10 +341,6 @@ export class PrismaUserRepo
     const user = await this.prisma.user.create({
       data: {
         agreeToTerms: args.agreeToTerms,
-        legalAcceptedAt: args.legalAcceptedAt,
-        legalTermsVersion: args.legalTermsVersion,
-        legalPrivacyVersion: args.legalPrivacyVersion,
-        legalDpaVersion: args.legalDpaVersion,
         firstName: args.firstName,
         lastName: args.lastName,
         email: args.email,
@@ -366,10 +373,6 @@ export class PrismaUserRepo
     const user = await this.prisma.user.create({
       data: {
         agreeToTerms: args.agreeToTerms,
-        legalAcceptedAt: args.legalAcceptedAt,
-        legalTermsVersion: args.legalTermsVersion,
-        legalPrivacyVersion: args.legalPrivacyVersion,
-        legalDpaVersion: args.legalDpaVersion,
         firstName: args.firstName,
         lastName: args.lastName,
         email: args.email,
@@ -446,9 +449,37 @@ export class PrismaUserRepo
   @BypassTenantGuard
   async findCompanyAdminsUnscoped(companyId: string) {
     return this.prisma.user.findMany({
-      where: { companyId, status: { not: Status.inactive }, role: { isSystemRole: true } },
+      where: {
+        companyId,
+        status: { not: Status.inactive },
+        role: { isSystemRole: true },
+      },
       select: { id: true, email: true, firstName: true, displayLanguage: true },
     });
+  }
+
+  @BypassTenantGuard
+  async findActiveLegalNoticeRecipientsUnscoped() {
+    const users = await this.prisma.user.findMany({
+      where: { status: Status.active },
+      select: {
+        id: true,
+        companyId: true,
+        email: true,
+        firstName: true,
+        displayLanguage: true,
+        role: { select: { isSystemRole: true } },
+      },
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      companyId: user.companyId,
+      email: user.email,
+      firstName: user.firstName,
+      displayLanguage: user.displayLanguage,
+      isSystemAdministrator: user.role?.isSystemRole === true,
+    }));
   }
 
   async countActiveUsers() {

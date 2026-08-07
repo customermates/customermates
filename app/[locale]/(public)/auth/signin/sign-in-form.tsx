@@ -25,15 +25,16 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 
 type Props = {
+  isInvited: boolean;
   socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignInForm = observer(({ socialProviders }: Props) => {
+export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
   const searchParams = useSearchParams();
 
   const t = useTranslations();
 
-  const { signInStore } = useRootStore();
+  const { signInStore, appMode } = useRootStore();
   const { callbackURL, isLoading } = signInStore;
 
   useEffect(() => {
@@ -80,7 +81,9 @@ export const SignInForm = observer(({ socialProviders }: Props) => {
                 {socialProviders.microsoft && (
                   <SignInProviderButton
                     className="w-full sm:flex-1"
-                    label={t("SignInForm.buttonLabel", { provider: "Microsoft" })}
+                    label={t("SignInForm.buttonLabel", {
+                      provider: "Microsoft",
+                    })}
                     providerId="microsoft"
                     onClick={() =>
                       void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
@@ -123,25 +126,27 @@ export const SignInForm = observer(({ socialProviders }: Props) => {
               {t("SignInForm.signInCta")}
             </Button>
 
-            <p className="text-x-xs text-subdued text-center mt-2">
-              {t.rich("SignInForm.agreeToTerms", {
-                dataPrivacyLink: (chunks) => (
-                  <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                dpaLink: (chunks) => (
-                  <AppLink inheritSize className="text-inherit underline" href="/dpa" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                termsOfServiceLink: (chunks) => (
-                  <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-              })}
-            </p>
+            {appMode === "cloud" && !isInvited ? (
+              <p className="text-x-xs text-subdued text-center mt-2">
+                {t.rich("SignInForm.agreeToTerms", {
+                  dataPrivacyLink: (chunks) => (
+                    <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  dpaLink: (chunks) => (
+                    <AppLink inheritSize className="text-inherit underline" href="/dpa" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  termsOfServiceLink: (chunks) => (
+                    <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                })}
+              </p>
+            ) : null}
           </div>
         </AppCardFooter>
       </AppCard>

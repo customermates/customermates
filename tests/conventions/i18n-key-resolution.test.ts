@@ -67,6 +67,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.",
   "components/forms/use-form-field.ts :: t :: Common.inputs.",
   "features/user/prisma-user.repository.ts :: t :: Common.defaultData.",
+  "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.",
   "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.",
   "app/[locale]/(protected)/contacts/components/contact-compose-popover.tsx :: t :: Common.providers.",
   "components/shared/language-selector.tsx :: t :: Common.locales.",

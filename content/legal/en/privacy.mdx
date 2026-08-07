@@ -79,7 +79,7 @@ Forward Email's standard data processing agreement is accepted electronically th
 
 For sending transactional and account emails, we use the service Resend, offered by Plus Five Five, Inc. (operating as Resend), 2261 Market Street #5039, San Francisco, CA 94114, USA (hereinafter "Resend").
 
-We use Resend exclusively for service emails that are necessary to operate your account and to perform our contract with you. These are, in particular, the confirmation of your email address, emails for resetting your password, invitations to a company account, notices concerning the trial period and the status of your account and your connected accounts, and internal notifications to us, for example about a new registration, an inquiry submitted through the contact form, feedback, or a support request. The data processed for this purpose comprises the recipient's email address, the name and account data contained in the respective message, the message content, and the technical dispatch and delivery metadata.
+We use Resend exclusively for service emails that are necessary to operate your account and to perform our contract with you. These are, in particular, the confirmation of your email address, emails for resetting your password, invitations to a company account, notices concerning the trial period and the status of your account and your connected accounts, notices about updated Terms, the Data Processing Agreement, the Privacy Policy or subprocessors, and internal notifications to us, for example about a new registration, an inquiry submitted through the contact form, feedback, or a support request. The data processed for this purpose comprises the recipient's email address, the name and account data contained in the respective message, the message content, and the technical dispatch and delivery metadata.
 
 The legal basis is Art. 6 para. 1 lit. b GDPR, insofar as the email is necessary for the performance of our contract with you or for pre-contractual measures, and Art. 6 para. 1 lit. f GDPR for the notifications sent internally to us and for our legitimate interest in a reliable and secure email infrastructure. Where an email answers an inquiry you addressed to us, our legitimate interest in the effective handling of that inquiry applies (Art. 6 para. 1 lit. f GDPR). These emails are service messages and not advertising. They are therefore not based on consent within the meaning of Art. 6 para. 1 lit. a GDPR and cannot be unsubscribed from separately for as long as your account exists. We do not use Resend for advertising or marketing mailings.
 
@@ -242,6 +242,12 @@ You can register on this website to use additional functions on the site. We use
 
 For important changes, such as the scope of the offer or technically necessary changes, we use the e-mail address provided during registration to inform you in this way. The processing of the data entered during registration is based on the purpose of carrying out the user relationship established by the registration and, if applicable, for the initiation of further contracts (Art. 6 para. 1 lit. b GDPR). The data collected during registration will be stored by us as long as you are registered on this website and will then be deleted. Legal retention periods remain unaffected.
 
+### Legal-document notices and acceptance records
+
+For the managed cloud service, we record legal-document notices and electronic acceptances in the existing company audit log. A record contains the company and user identifiers, the event type and deterministic legal-version key, all current document versions and the documents changed in that release, the recipient's or accepting user's identifier and email-address snapshot, the selected locale, the notice and effective dates, the audit-record creation time as the acceptance time where applicable, the Resend provider message ID where an email was sent, the deployed Git commit, and whether an acceptance occurred during initial onboarding or after a later update.
+
+We use these records to avoid duplicate notices, retry failed delivery, calculate a consistent company deadline, present or enforce the legal-update flow in the managed-service user interface, and prove which identified documents were notified or accepted. The processing is based on Art. 6(1)(b) GDPR where it is necessary to form, administer, or amend the business-customer contract and on Art. 6(1)(f) GDPR for our legitimate interests in reliable delivery, access control, and legal evidence. The records currently follow the audit log's existing retention relationships: they remain while the related company and user records exist and are deleted automatically if either related record is deleted. This is the audit system's existing cascade-deletion behavior and must be reassessed before a production user- or company-deletion feature is introduced. No separate immutable legal archive is maintained in the application.
+
 ### Registration with Google
 
 Instead of registering directly on this website, you can register with Google. The provider of this service is Google Ireland Limited ("Google"), Gordon House, Barrow Street, Dublin 4, Ireland. Your browser redirects you to Google's sign-in page, where you enter your Google credentials; Customermates does not receive or store your password. Google authenticates you and returns the account information covered by the authorization screen so that we can create or complete your profile. You can review connected access in your Google settings at https://myaccount.google.com/security and https://myaccount.google.com/permissions. The processing associated with Google registration is based on our legitimate interest in offering a simple registration process (Art. 6 para. 1 lit. f GDPR). The function is voluntary.
@@ -278,6 +284,7 @@ When you make a self-service purchase, your payment data (e.g. name, billing add
 For a self-service purchase, Lemon Squeezy acts as the **Merchant of Record** and is responsible for payment processing and, where applicable, the calculation, collection, and remittance of statutory sales taxes. It does not act on our behalf for that purchase but as an independent controller under its own terms; there is no data processing agreement pursuant to Art. 28 GDPR for that processing.
 
 Data processing is carried out on the basis of:
+
 - Art. 6(1)(b) GDPR (performance of a contract),
 - Art. 6(1)(f) GDPR (legitimate interest in secure and efficient payment processing).
 
@@ -298,7 +305,7 @@ As Lemon Squeezy is based in the USA, personal data may be transferred to a thir
 
 Further information on data processing by Lemon Squeezy can be found in their privacy policy:
 
-https://www.lemonsqueezy.com/privacy  
+https://www.lemonsqueezy.com/privacy
 
 and their terms of service:
 
@@ -315,6 +322,7 @@ Authentication takes place via a Unipile-hosted flow in which you enter provider
 ### Processed Data
 
 When you use the connected-account feature, the following personal data may be processed, depending on the accounts you connect:
+
 - connected-account metadata (e.g., the connected address or handle, display name, and connection status);
 - email content, including subject, body, sender and recipient addresses, and attachments;
 - chat and direct-message content across the connected messaging channels;
@@ -390,6 +398,7 @@ When the assistant becomes available, you will be interacting with an artificial
 ### Data to be processed
 
 Once the assistant is available, the following data may be processed when it is used:
+
 - the content of the inputs you make in the assistant,
 - data from your company account that you or the assistant include in the request on your instruction,
 - technical metadata such as timestamps and session information.
@@ -409,6 +418,7 @@ The assistant will be an optional feature that has to be activated for a company
 ### Processing on our behalf and processing by OpenAI
 
 Before the assistant is made available, we will conclude a data processing agreement with OpenAI pursuant to Art. 28 GDPR. OpenAI is already listed in advance at [Subprocessors](/subprocessors) under the notice procedure set out in our [Data Processing Agreement](/dpa), marked as planned and not yet in use. According to OpenAI, data transmitted through its API is not used to train its own models. Further information:
+
 - OpenAI Data Processing Addendum: https://openai.com/policies/data-processing-addendum
 - OpenAI Privacy Policy: https://openai.com/policies/privacy-policy
 

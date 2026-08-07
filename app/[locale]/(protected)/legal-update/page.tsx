@@ -1,0 +1,25 @@
+import { redirect } from "next/navigation";
+
+import { CenteredCardPage } from "@/components/shared/centered-card-page";
+import { getLegalStatusService, getUserService } from "@/core/di";
+import { requireAccess } from "@/features/auth/next/require";
+
+import { LegalUpdateView } from "./components/legal-update-view";
+
+export default async function LegalUpdatePage() {
+  await requireAccess({
+    skipLegalAcceptanceCheck: true,
+    skipSubscriptionCheck: true,
+  });
+  const user = await getUserService().getActiveUserOrThrow();
+  const status = await getLegalStatusService().getStatus(user);
+
+  if (!status.contractNoticeSent && !status.informationNoticeVisible) redirect("/");
+  if (status.contractAccepted && !status.informationNoticeVisible) redirect("/");
+
+  return (
+    <CenteredCardPage>
+      <LegalUpdateView status={status} />
+    </CenteredCardPage>
+  );
+}

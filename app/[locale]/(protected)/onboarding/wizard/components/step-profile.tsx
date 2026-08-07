@@ -18,11 +18,12 @@ type Props = {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  isInvited?: boolean;
 };
 
-export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: Props) => {
+export const StepProfile = observer(({ email, firstName, lastName, avatarUrl, isInvited = false }: Props) => {
   const t = useTranslations();
-  const { stepProfileStore: store } = useRootStore();
+  const { stepProfileStore: store, appMode } = useRootStore();
   const { isLoading } = store;
 
   useEffect(
@@ -47,31 +48,33 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
 
         <FormAutocompleteCountry required id="country" />
 
-        <FormCheckbox
-          required
-          id="agreeToTerms"
-          label={
-            <span>
-              {t.rich("OnboardingForm.agreeToTerms", {
-                dataPrivacyLink: (chunks) => (
-                  <AppLink className="text-inherit underline" href="/privacy" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                dpaLink: (chunks) => (
-                  <AppLink className="text-inherit underline" href="/dpa" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                termsOfServiceLink: (chunks) => (
-                  <AppLink className="text-inherit underline" href="/terms" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-              })}
-            </span>
-          }
-        />
+        {appMode === "cloud" && !isInvited ? (
+          <FormCheckbox
+            required
+            id="agreeToTerms"
+            label={
+              <span>
+                {t.rich("OnboardingForm.agreeToTerms", {
+                  dataPrivacyLink: (chunks) => (
+                    <AppLink className="text-inherit underline" href="/privacy" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  dpaLink: (chunks) => (
+                    <AppLink className="text-inherit underline" href="/dpa" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  termsOfServiceLink: (chunks) => (
+                    <AppLink className="text-inherit underline" href="/terms" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                })}
+              </span>
+            }
+          />
+        ) : null}
 
         <Button className="self-end mt-2" disabled={isLoading} type="submit">
           {isLoading && <Loader2 className="size-4 animate-spin" />}

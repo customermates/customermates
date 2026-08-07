@@ -1,6 +1,7 @@
 import type { AuthService } from "./auth.service";
 import type { UserService } from "../user/user.service";
 import type { Redirect } from "./auth-outcome";
+import type { LegalStatusService } from "@/features/legal/legal-status.service";
 
 import { Action, Status } from "@/generated/prisma";
 
@@ -15,6 +16,7 @@ export type AccessOptions = {
   allowedActions?: Action[];
   skipSubscriptionCheck?: boolean;
   skipOnboardingWizardCheck?: boolean;
+  skipLegalAcceptanceCheck?: boolean;
 };
 
 export abstract class RouteGuardSubscriptionRepo {
@@ -26,6 +28,7 @@ export class RouteGuardService {
     private authService: AuthService,
     private userService: UserService,
     private subscriptionRepo: RouteGuardSubscriptionRepo,
+    private legalStatusService: LegalStatusService,
   ) {}
   private static readonly STATUS_REDIRECTS: Partial<Record<Status, string>> = {
     [Status.inactive]: "/auth/error?type=inactiveUser",
@@ -45,6 +48,11 @@ export class RouteGuardService {
 
     if (!options?.skipOnboardingWizardCheck && user.role?.isSystemRole && user.onboardingWizardCompletedAt == null)
       return redirectTo("/onboarding/wizard");
+
+    if (!options?.skipLegalAcceptanceCheck && env.APP_MODE === "cloud") {
+      const legalStatus = await this.legalStatusService.getStatus(user);
+      if (legalStatus.mustAccept) return redirectTo("/legal-update");
+    }
 
     if (!options?.skipSubscriptionCheck && env.APP_MODE !== "demo") {
       const subRedirect = await this.checkSubscription(user.companyId);

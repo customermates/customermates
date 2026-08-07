@@ -29,6 +29,7 @@ export const FormCheckbox = observer(({ id, label, required, className, containe
       <div className="flex items-center gap-2">
         <Checkbox
           aria-invalid={hasError}
+          aria-required={required}
           checked={checked}
           className={className}
           disabled={store?.isDisabled}

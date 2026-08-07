@@ -377,6 +377,11 @@
         "deleted": "Deal gelöscht",
         "updated": "Deal aktualisiert"
       },
+      "legal": {
+        "contract_notice_sent": "Vertragsmitteilung versandt",
+        "documents_accepted": "Rechtsdokumente angenommen",
+        "information_notice_sent": "Rechtliche Information versandt"
+      },
       "message": {
         "received": "Nachricht empfangen",
         "sent": "Nachricht gesendet"
@@ -1457,6 +1462,55 @@
     "unlinkedParticipants": "Einige Teilnehmer nicht verknüpft",
     "youPrefix": "Du:"
   },
+  "LegalDocumentNotice": {
+    "acceptedContractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Ein berechtigter Systemadministrator hat diese Fassung bereits für den Geschäftskunden angenommen; diese Mitteilung dient Ihren Unterlagen, da sie an jeden aktiven Systemadministrator versandt wird.",
+    "acceptedContractDateLabel": "Unternehmensweites Wirksamkeitsdatum",
+    "acceptedContractRecord": "Eine weitere Annahme durch Sie ist nicht erforderlich. Der oben angegebene unternehmensweite Termin bleibt Bestandteil des Veröffentlichungsnachweises.",
+    "acceptedContractSubject": "Aktualisierte Customermates-Rechtsdokumente — für Ihre Unterlagen",
+    "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
+    "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",
+    "contractObjection": "Bitte teilen Sie einen Widerspruch vor der angegebenen Frist durch Antwort auf diese E-Mail mit. Schweigen oder Untätigkeit gelten nicht als Zustimmung. Werden geänderte Vertragsdokumente nicht fristgerecht angenommen, kann der Zugang zur Benutzeroberfläche des verwalteten Dienstes bis zur Annahme durch einen berechtigten Administrator beschränkt werden.",
+    "contractSubject": "Handlung erforderlich: aktualisierte Customermates-Rechtsdokumente",
+    "contractTitle": "Rechtsdokumente aktualisiert",
+    "documents": {
+      "dpa": "Auftragsverarbeitungsvertrag",
+      "privacy": "Datenschutzerklärung",
+      "subprocessors": "Unterauftragsverarbeiter",
+      "terms": "Allgemeine Geschäftsbedingungen"
+    },
+    "greeting": "Hallo {firstName},",
+    "informationBody": "Wir haben die unten aufgeführten rechtlichen Informationen aktualisiert. Eine Annahme ist nicht erforderlich, sofern diese E-Mail nicht zugleich geänderte AGB oder einen geänderten Auftragsverarbeitungsvertrag nennt.",
+    "informationSubject": "Rechtliche Informationen von Customermates aktualisiert",
+    "informationTitle": "Rechtliche Informationen aktualisiert",
+    "liveLabel": "Aktuelles Dokument",
+    "revisionLabel": "Versionsbezogene Quelle",
+    "signoff": "Viele Grüße\nBen",
+    "subprocessorDeadlineLabel": "Widerspruchsfrist für Unterauftragsverarbeiter",
+    "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe."
+  },
+  "LegalUpdateBanner": {
+    "admin": "Rechtsdokumente wurden aktualisiert. Prüfen und akzeptieren Sie die aktualisierten AGB und den AVV bis zum {date}, um Customermates weiter zu nutzen.",
+    "information": "Rechtliche Informationen wurden aktualisiert.",
+    "member": "Rechtsdokumente wurden aktualisiert. Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV bis zum {date} akzeptieren.",
+    "review": "Dokumente prüfen"
+  },
+  "LegalUpdateView": {
+    "accept": "Akzeptieren und fortfahren",
+    "acceptance": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und akzeptiere die aktuellen AGB und den AVV.",
+    "and": "sowie",
+    "continue": "Weiter zu Customermates",
+    "description": "Prüfen Sie die aktuellen",
+    "dpa": "AVV",
+    "informationSubtitle": "Bitte prüfen Sie die aktualisierten rechtlichen Informationen.",
+    "memberWaiting": "Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV akzeptieren. Danach können Sie es erneut versuchen oder sich abmelden.",
+    "privacy": "Datenschutzerklärung",
+    "retry": "Erneut versuchen",
+    "signOut": "Abmelden",
+    "subprocessors": "Unterauftragsverarbeiter",
+    "subtitle": "Ein berechtigter Unternehmensadministrator muss bis zum {date} akzeptieren.",
+    "terms": "AGB",
+    "title": "Rechtsdokumente aktualisiert"
+  },
   "Loading": {
     "text": "Laden..."
   },
@@ -1524,7 +1578,7 @@
     "title": "Huch! Du hast die Leere betreten"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Nur für den von Benjamin Wagner betriebenen verwalteten Dienst bestätige ich, dass ich für einen Geschäftskunden handle, zu dessen Vertretung berechtigt bin und den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zustimme; die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen. In einer unabhängig betriebenen Self-Hosted-Installation dokumentiert das Aktivieren dieses Kontrollkästchens lediglich den Abschluss des technischen Onboardings und keine Annahme dieser Dokumente; maßgeblich sind die Repository-Lizenzen und die eigenen Dokumente des Betreibers."
+    "agreeToTerms": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1662,7 +1716,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Hier kannst du unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> einsehen.",
+    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
     "or": "ODER",
@@ -1673,7 +1727,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Einladung annehmen",
-    "agreeToTerms": "Für den verwalteten Dienst wirst du während des Onboardings aufgefordert, deine Vertretungsberechtigung für einen Geschäftskunden zu bestätigen und unseren <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>Auftragsverarbeitungsvertrag</dpaLink> zuzustimmen. Für eine unabhängig betriebene Self-Hosted-Installation gelten diese Dokumente nicht; maßgeblich sind die Repository-Lizenzen und die eigenen Dokumente des Betreibers. Bitte lies unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
+    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
     "buttonLabel": "Registrieren mit {provider}",
     "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",

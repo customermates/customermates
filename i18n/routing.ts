@@ -54,8 +54,10 @@ export const routing = defineRouting({
 export type RouterLocale = (typeof routing.locales)[number];
 
 export function isPublicPage(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  return isPublicPathname(req.nextUrl.pathname);
+}
 
+export function isPublicPathname(pathname: string) {
   for (const p of PUBLIC_ROUTES) if (buildLocaleAwareRegex(p).test(pathname)) return true;
 
   return false;

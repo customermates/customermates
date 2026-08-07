@@ -377,6 +377,11 @@
         "deleted": "Deal Deleted",
         "updated": "Deal Updated"
       },
+      "legal": {
+        "contract_notice_sent": "Contract Notice Sent",
+        "documents_accepted": "Legal Documents Accepted",
+        "information_notice_sent": "Legal Information Notice Sent"
+      },
       "message": {
         "received": "Message Received",
         "sent": "Message Sent"
@@ -1457,6 +1462,55 @@
     "unlinkedParticipants": "Some participants not linked to a contact",
     "youPrefix": "You:"
   },
+  "LegalDocumentNotice": {
+    "acceptedContractBody": "We updated the legal documents listed below. An authorised system administrator has already accepted this release for the business customer; this notice is provided for your records because every active system administrator receives it.",
+    "acceptedContractDateLabel": "Company-wide effective date",
+    "acceptedContractRecord": "No further acceptance is required from you. The company-wide date shown above remains part of the release record.",
+    "acceptedContractSubject": "Updated Customermates legal documents — for your records",
+    "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
+    "contractDeadlineLabel": "Objection and acceptance deadline",
+    "contractObjection": "Please send any objection before the stated deadline by replying to this email. Silence or inactivity is not acceptance. If updated contractual documents are not accepted by the deadline, access to the managed-service user interface may be restricted until an authorised administrator accepts them.",
+    "contractSubject": "Action required: updated Customermates legal documents",
+    "contractTitle": "Legal documents updated",
+    "documents": {
+      "dpa": "Data Processing Agreement",
+      "privacy": "Privacy Policy",
+      "subprocessors": "Subprocessors",
+      "terms": "Terms and Conditions"
+    },
+    "greeting": "Hi {firstName},",
+    "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
+    "informationSubject": "Customermates legal information updated",
+    "informationTitle": "Legal information updated",
+    "liveLabel": "Live document",
+    "revisionLabel": "Version-specific source",
+    "signoff": "Best regards,\nBen",
+    "subprocessorDeadlineLabel": "Subprocessor objection deadline",
+    "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds."
+  },
+  "LegalUpdateBanner": {
+    "admin": "Legal documents updated. Review and accept the updated Terms and DPA by {date} to keep using Customermates.",
+    "information": "Legal information has been updated.",
+    "member": "Legal documents updated. A company administrator must accept the updated Terms and DPA by {date}.",
+    "review": "Review documents"
+  },
+  "LegalUpdateView": {
+    "accept": "Accept and continue",
+    "acceptance": "I am authorised to act for the business customer and accept the current Terms and DPA.",
+    "and": "and",
+    "continue": "Continue to Customermates",
+    "description": "Review the current",
+    "dpa": "DPA",
+    "informationSubtitle": "Please review the updated legal information.",
+    "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
+    "privacy": "Privacy Policy",
+    "retry": "Retry",
+    "signOut": "Sign out",
+    "subprocessors": "Subprocessors",
+    "subtitle": "An authorised company administrator must accept by {date}.",
+    "terms": "Terms",
+    "title": "Legal documents updated"
+  },
   "Loading": {
     "text": "Loading..."
   },
@@ -1524,7 +1578,7 @@
     "title": "Oops! You've entered the void"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Only for the managed service operated by Benjamin Wagner, I confirm that I act for a business customer, am authorised to bind it, and agree to the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink> and the <dpaLink>Data Processing Agreement</dpaLink>; I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. In an independently operated self-hosted installation, checking this box records completion of the software's onboarding only and does not accept those documents; the repository licences and the operator's own documents govern."
+    "agreeToTerms": "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1662,7 +1716,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Review our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>Data Processing Agreement</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Continue with {provider}",
     "forgotPassword": "Forgot password?",
     "or": "OR",
@@ -1673,7 +1727,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accept invitation",
-    "agreeToTerms": "For the managed service, onboarding will ask you to confirm your authority for a business customer and accept our <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>Data Processing Agreement</dpaLink>. In an independently operated self-hosted installation, those documents do not apply; the repository licences and the operator's own documents govern. Please read our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",

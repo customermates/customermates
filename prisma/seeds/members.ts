@@ -23,7 +23,7 @@ export type SyntheticCompanyMemberDefinition = Readonly<{
 export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   {
     id: SEED_IDS.user,
-    agreeToTerms: true,
+    agreeToTerms: false,
     avatarPath: SYNTHETIC_AVATAR_PATHS.maxBergmann,
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
@@ -34,7 +34,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   },
   {
     id: SEED_IDS.sofiaRossiUser,
-    agreeToTerms: true,
+    agreeToTerms: false,
     avatarPath: SYNTHETIC_AVATAR_PATHS.sofiaRossi,
     country: "it",
     email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
@@ -45,7 +45,7 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   },
   {
     id: SEED_IDS.elenaHoffmannUser,
-    agreeToTerms: true,
+    agreeToTerms: false,
     avatarPath: SYNTHETIC_AVATAR_PATHS.elenaHoffmann,
     country: "de",
     email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
@@ -65,7 +65,12 @@ async function reconcileMemberId(context: SeedContext, id: string, email: string
   if (!existingByEmail || existingByEmail.id === id) return;
 
   if (existingById) await context.prisma.user.delete({ where: { id: existingByEmail.id } });
-  else await context.prisma.user.update({ where: { id: existingByEmail.id }, data: { id } });
+  else {
+    await context.prisma.user.update({
+      where: { id: existingByEmail.id },
+      data: { id },
+    });
+  }
 }
 
 export async function seedCompanyMembers(context: SeedContext): Promise<void> {

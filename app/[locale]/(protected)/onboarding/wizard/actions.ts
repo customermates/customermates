@@ -4,13 +4,15 @@ import type { RegisterUserData } from "@/features/user/register/register-user.in
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { Status } from "@/generated/prisma";
 
 import { getCompleteOnboardingWizardInteractor, getRegisterUserInteractor, getUserService } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function registerProfileAction(data: RegisterUserData) {
-  const result = await serializeResult(getRegisterUserInteractor().invoke(data));
+  const legalLocale = (await getLocale()) === "de" ? "de" : "en";
+  const result = await serializeResult(getRegisterUserInteractor().invoke({ ...data, legalLocale }));
   if (result.ok) {
     const cookieStore = await cookies();
     cookieStore.delete("inviteToken");

@@ -3,6 +3,7 @@ import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
+import type { LegalAuditRepo } from "@/features/legal/legal-status.service";
 
 import type { Prisma } from "@/generated/prisma";
 
@@ -15,7 +16,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
-  implements GetAuditLogsRepo, CreateAuditLogRepo
+  implements GetAuditLogsRepo, CreateAuditLogRepo, LegalAuditRepo
 {
   private get baseSelect() {
     return {
@@ -46,13 +47,21 @@ export class PrismaAuditLogRepo
 
   getFilterableFields() {
     return Promise.resolve([
-      { field: FilterFieldKey.event, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.event] },
-      { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },
+      {
+        field: FilterFieldKey.event,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.event],
+      },
+      {
+        field: FilterFieldKey.createdAt,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt],
+      },
     ]);
   }
 
   async getItems(params: GetQueryParams) {
-    const args = await this.buildQueryArgs(params, { companyId: this.companyId });
+    const args = await this.buildQueryArgs(params, {
+      companyId: this.companyId,
+    });
 
     const auditLogs = await this.prisma.auditLog.findMany({
       ...args,
@@ -67,7 +76,9 @@ export class PrismaAuditLogRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, { companyId: this.companyId });
+    const { where } = await this.buildQueryArgs(params, {
+      companyId: this.companyId,
+    });
 
     return this.prisma.auditLog.count({ where });
   }
@@ -75,7 +86,12 @@ export class PrismaAuditLogRepo
   async log(args: RepoArgs<CreateAuditLogRepo, "log">) {
     const { id: userId, companyId } = this.user;
 
-    const data = { ...args, eventData: args.eventData as Prisma.InputJsonValue, userId, companyId };
+    const data = {
+      ...args,
+      eventData: args.eventData as Prisma.InputJsonValue,
+      userId,
+      companyId,
+    };
 
     const store = transactionStorage.getStore();
 
@@ -89,8 +105,60 @@ export class PrismaAuditLogRepo
 
   @BypassTenantGuard
   async logUnscoped(args: RepoArgs<CreateAuditLogRepo, "logUnscoped">) {
-    await this.prisma.auditLog.create({
-      data: { ...args, eventData: args.eventData as Prisma.InputJsonValue },
+    const data = {
+      ...args,
+      eventData: args.eventData as Prisma.InputJsonValue,
+    };
+    const store = transactionStorage.getStore();
+    if (store) {
+      store.auditLogBatch.push(data);
+      return;
+    }
+    await this.prisma.auditLog.create({ data });
+  }
+
+  @BypassTenantGuard
+  async findLegalEventUnscoped(args: {
+    companyId: string;
+    event: DomainEvent;
+    entityId?: string;
+    excludeEntityId?: string;
+    userId?: string;
+    order?: "asc" | "desc";
+  }) {
+    return this.prisma.auditLog.findFirst({
+      where: {
+        companyId: args.companyId,
+        event: args.event,
+        entityId: args.entityId ?? (args.excludeEntityId ? { not: args.excludeEntityId } : undefined),
+        userId: args.userId,
+      },
+      orderBy: { createdAt: args.order ?? "desc" },
+      select: {
+        createdAt: true,
+        entityId: true,
+        eventData: true,
+        userId: true,
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async findLegalEventsUnscoped(args: { companyId: string; event: DomainEvent; entityId: string; userId?: string }) {
+    return this.prisma.auditLog.findMany({
+      where: {
+        companyId: args.companyId,
+        event: args.event,
+        entityId: args.entityId,
+        userId: args.userId,
+      },
+      orderBy: { createdAt: "asc" },
+      select: {
+        createdAt: true,
+        entityId: true,
+        eventData: true,
+        userId: true,
+      },
     });
   }
 }

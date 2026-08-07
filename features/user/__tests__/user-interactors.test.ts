@@ -17,10 +17,16 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "../upsert/update-user-details.interactor";
-import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { LEGAL_CONTRACT_KEY, LEGAL_INFORMATION_KEY, LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
+import { DemoModeError } from "@/core/errors/app-errors";
 
 const USER_ID = "test-user-id";
+const mutableEnv = MOCK_ENV_MODULE.env as unknown as {
+  APP_MODE: "cloud" | "demo" | "self-hosted";
+  NODE_ENV: "test" | "production";
+  VERCEL_GIT_COMMIT_SHA?: string;
+};
 
 const mockTenantUser = createMockUser({
   email: "jane@example.com",
@@ -36,7 +42,9 @@ describe("RegisterUserInteractor", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "self-hosted";
+    mutableEnv.APP_MODE = "self-hosted";
+    mutableEnv.NODE_ENV = "test";
+    mutableEnv.VERCEL_GIT_COMMIT_SHA = "a".repeat(40);
 
     mockAuthService = {
       resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
@@ -80,8 +88,8 @@ describe("RegisterUserInteractor", () => {
     );
   });
 
-  it("passes the current legal document versions to a new company registration", async () => {
-    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "cloud";
+  it("records current company-wide legal acceptance for a new cloud company", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     const interactor = createInteractor();
     await interactor.invoke({
       email: "jane@example.com",
@@ -90,16 +98,61 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
+      legalLocale: "de",
     });
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockEventService.publish).toHaveBeenNthCalledWith(
+      1,
+      DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
       expect.objectContaining({
-        legalAcceptedAt: expect.any(Date),
-        legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
-        legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
-        legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
+        entityId: LEGAL_CONTRACT_KEY,
+        payload: expect.objectContaining({
+          acceptanceType: "initial-onboarding",
+          contractKey: LEGAL_CONTRACT_KEY,
+          deployedGitCommit: "a".repeat(40),
+          informationKey: LEGAL_INFORMATION_KEY,
+          locale: "de",
+          versions: LEGAL_DOCUMENT_VERSIONS,
+          acceptingUser: { id: USER_ID, email: "jane@example.com" },
+        }),
       }),
     );
+  });
+
+  it("fails closed when production registration cannot record an immutable deployment commit", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mutableEnv.NODE_ENV = "production";
+    mutableEnv.VERCEL_GIT_COMMIT_SHA = undefined;
+
+    await expect(
+      createInteractor().invoke({
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      }),
+    ).rejects.toThrow("immutable legal-version evidence");
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unchecked new cloud company before creating records", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
+
+    const result = await createInteractor().invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: false,
+    });
+
+    expect("ok" in result && result.ok).toBe(false);
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
   it("publishes USER_REGISTERED with isNewCompany false for existing company", async () => {
@@ -112,7 +165,7 @@ describe("RegisterUserInteractor", () => {
       lastName: "Doe",
       country: "de",
       avatarUrl: null,
-      agreeToTerms: true,
+      agreeToTerms: false,
     });
 
     expect(mockEventService.publish).toHaveBeenCalledWith(
@@ -121,10 +174,17 @@ describe("RegisterUserInteractor", () => {
         payload: expect.objectContaining({ isNewCompany: false }),
       }),
     );
+    expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        companyId: "existing-company-id",
+        agreeToTerms: false,
+      }),
+    );
+    expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
-  it("passes the current legal document versions to an existing company registration", async () => {
-    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "self-hosted" }).APP_MODE = "cloud";
+  it("does not record managed-service acceptance for an invited cloud user", async () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
 
     const interactor = createInteractor();
@@ -134,18 +194,16 @@ describe("RegisterUserInteractor", () => {
       lastName: "Doe",
       country: "de",
       avatarUrl: null,
-      agreeToTerms: true,
+      agreeToTerms: false,
     });
 
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({
         companyId: "existing-company-id",
-        legalAcceptedAt: expect.any(Date),
-        legalDpaVersion: LEGAL_DOCUMENT_VERSIONS.dpa,
-        legalPrivacyVersion: LEGAL_DOCUMENT_VERSIONS.privacy,
-        legalTermsVersion: LEGAL_DOCUMENT_VERSIONS.terms,
+        agreeToTerms: false,
       }),
     );
+    expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
   it("does not represent self-hosted onboarding as acceptance of the managed-service documents", async () => {
@@ -159,14 +217,26 @@ describe("RegisterUserInteractor", () => {
       agreeToTerms: true,
     });
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(
-      expect.objectContaining({
-        legalAcceptedAt: null,
-        legalDpaVersion: null,
-        legalPrivacyVersion: null,
-        legalTermsVersion: null,
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
+    expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
+  });
+
+  it("blocks demo-mode registration before recording managed-service acceptance", () => {
+    (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "demo";
+
+    expect(() =>
+      createInteractor().invoke({
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
       }),
-    );
+    ).toThrow(DemoModeError);
+
+    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
   it("calls authService.sendNewUserNotificationEmail", async () => {
@@ -267,7 +337,9 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockRepo.updateDetails).toHaveBeenCalledWith({ theme: "dark" });
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_UPDATED,
-      expect.objectContaining({ payload: expect.objectContaining({ firstName: "Janet" }) }),
+      expect.objectContaining({
+        payload: expect.objectContaining({ firstName: "Janet" }),
+      }),
     );
   });
 

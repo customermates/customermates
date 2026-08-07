@@ -217,10 +217,11 @@ describe("managed service and independent self-hosting stay separated", () => {
 });
 
 describe("legal document versions stay coupled to the acceptance record", () => {
-  it.each(LOCALES)("privacy, terms and dpa (%s) carry their version", (name) => {
+  it.each(LOCALES)("all legal documents (%s) carry their version", (name) => {
     expect(legal(name, "privacy")).toContain(LEGAL_DOCUMENT_VERSIONS.privacy);
     expect(legal(name, "terms")).toContain(LEGAL_DOCUMENT_VERSIONS.terms);
     expect(legal(name, "dpa")).toContain(LEGAL_DOCUMENT_VERSIONS.dpa);
+    expect(legal(name, "subprocessors")).toContain(LEGAL_DOCUMENT_VERSIONS.subprocessors);
   });
 });
 
@@ -244,27 +245,21 @@ describe("registration acceptance covers the DPA", () => {
 
   it.each(LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
     const messages = locale(name);
+    const expected = name === "en"
+      ? {
+          onboarding:
+            "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+          auth: "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+        }
+      : {
+          onboarding:
+            "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
+          auth: "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
+        };
 
-    expect(messages.OnboardingForm.agreeToTerms).toMatch(name === "en" ? /business customer/ : /Geschäftskunden/);
-    expect(messages.OnboardingForm.agreeToTerms).toMatch(
-      name === "en" ? /authorised/ : /zu dessen Vertretung berechtigt/,
-    );
-    expect(messages.OnboardingForm.agreeToTerms).toMatch(
-      name === "en" ? /does not accept those documents/ : /keine Annahme dieser Dokumente/,
-    );
-    expect(messages.SignUpForm.agreeToTerms).toMatch(
-      name === "en" ? /^For the managed service, onboarding will ask/ : /^Für den verwalteten Dienst wirst du/,
-    );
-    expect(messages.SignUpForm.agreeToTerms).toMatch(name === "en" ? /documents do not apply/ : /Dokumente nicht/);
-    expect(messages.SignUpForm.agreeToTerms).not.toMatch(
-      name === "en"
-        ? /\bBy registering\b|\b(?:I|you)\s+(?:agree|accept|assent)\b/i
-        : /\b(?:Beim|Durch das) Registrieren\b|\bdu\s+(?:akzeptierst|stimmst)\b/i,
-    );
-    expect(messages.SignInForm.agreeToTerms).toMatch(name === "en" ? /^Review our/ : /^Hier kannst du/);
-    expect(messages.SignInForm.agreeToTerms).not.toMatch(
-      name === "en" ? /\b(?:I|you)\s+(?:agree|accept|assent)\b|\bBy signing in\b/i : /zustimm|akzeptier|Annahme/i,
-    );
+    expect(messages.OnboardingForm.agreeToTerms).toBe(expected.onboarding);
+    expect(messages.SignUpForm.agreeToTerms).toBe(expected.auth);
+    expect(messages.SignInForm.agreeToTerms).toBe(expected.auth);
   });
 
   it("renders a DPA link in every acceptance surface", () => {
@@ -278,5 +273,103 @@ describe("registration acceptance covers the DPA", () => {
       const source = readFileSync(join(REPO_ROOT, surface), "utf8");
       expect(source, `${surface} does not render the DPA link`).toContain('href="/dpa"');
     }
+  });
+
+  it("limits hosted legal copy and acceptance to non-invited cloud company creation", () => {
+    const signInPage = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/page.tsx"), "utf8");
+    const signInForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/sign-in-form.tsx"), "utf8");
+    const signUpForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signup/sign-up-form.tsx"), "utf8");
+    const onboarding = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx"),
+      "utf8",
+    );
+
+    expect(signInPage).toContain("getInviteTokenValidationInteractor");
+    expect(signInForm).toContain('appMode === "cloud" && !isInvited');
+    expect(signUpForm).toContain('appMode === "cloud" && !isInvited');
+    expect(onboarding).toContain('appMode === "cloud" && !isInvited');
+  });
+
+  it("keeps the forced legal route isolated while public legal pages remain readable", () => {
+    const navigation = readFileSync(join(REPO_ROOT, "app/components/navigation/navigation-switch.tsx"), "utf8");
+    const protectedLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/layout.tsx"), "utf8");
+    const banner = readFileSync(join(REPO_ROOT, "app/components/legal-update-banner.tsx"), "utf8");
+    const view = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx"),
+      "utf8",
+    );
+    const action = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/legal-update/actions.ts"),
+      "utf8",
+    );
+
+    expect(navigation).toMatch(/if \(isLegalUpdateRoute\)/);
+    expect(protectedLayout).toContain("!isLegalUpdateRoute");
+    expect(banner).toContain("isPublicPathname(pathname)");
+    expect(banner).toContain("window.location.replace");
+    expect(view).toContain("status.contractNoticeSent");
+    expect(view).toContain("!status.mustAccept");
+    expect(view).toContain('t("signOut")');
+    expect(action).toContain('revalidatePath("/", "layout")');
+    expect(action).toContain("RedirectType.replace");
+  });
+});
+
+describe("legal update workflow disclosure", () => {
+  it("states the managed-service contract notice and acceptance procedure in both locales", () => {
+    const en = legal("en", "terms");
+    const de = legal("de", "terms");
+
+    expect(en).toMatch(/automated change notice to every active system administrator/i);
+    expect(en).toMatch(/14 calendar days after the first such notice has been successfully sent/i);
+    expect(en).toMatch(/Silence or inactivity does not constitute acceptance/i);
+    expect(en).toMatch(/restrict access to the managed-service user interface/i);
+    expect(en).toMatch(/Price changes remain subject to the separate two-month procedure/i);
+
+    expect(de).toMatch(/automatisierte Änderungsmitteilung an jeden aktiven Systemadministrator/i);
+    expect(de).toMatch(/14 Kalendertage nach dem ersten erfolgreichen Versand/i);
+    expect(de).toMatch(/Schweigen oder Untätigkeit gelten nicht als Zustimmung/i);
+    expect(de).toMatch(/Zugang zur Benutzeroberfläche des verwalteten Dienstes/i);
+    expect(de).toMatch(/Preisänderungen unterliegen weiterhin dem gesonderten Zweimonatsverfahren/i);
+  });
+
+  it("keeps electronic DPA acceptance separate from the subprocessor objection process", () => {
+    const en = legal("en", "dpa");
+    const de = legal("de", "dpa");
+
+    expect(en).toMatch(/authorised system administrator accepts it electronically/i);
+    expect(en).toMatch(/separate notice and objection procedure/i);
+    expect(de).toMatch(/berechtigter Systemadministrator.*elektronisch/i);
+    expect(de).toMatch(/gesonderten Mitteilungs- und Widerspruchsverfahren/i);
+  });
+
+  it("discloses the audit evidence fields, retention behavior, and Resend legal notices", () => {
+    const enPrivacy = legal("en", "privacy");
+    const dePrivacy = legal("de", "privacy");
+    const enSubprocessors = legal("en", "subprocessors");
+    const deSubprocessors = legal("de", "subprocessors");
+
+    for (const phrase of [
+      "deterministic legal-version key",
+      "email-address snapshot",
+      "Resend provider message ID",
+      "deployed Git commit",
+      "initial onboarding",
+      "cascade",
+    ]) expect(enPrivacy).toContain(phrase);
+
+    for (const phrase of [
+      "deterministischen Rechtsdokument-Versionsschlüssel",
+      "E-Mail-Adressmomentaufnahme",
+      "Resend-Nachrichtenkennung",
+      "eingesetzten Git-Commit",
+      "erstmaligen Onboarding",
+      "Kaskadenlöschverhalten",
+    ]) expect(dePrivacy).toContain(phrase);
+
+    expect(enPrivacy).toMatch(/notices about updated Terms.*Data Processing Agreement.*Privacy Policy.*subprocessors/i);
+    expect(dePrivacy).toMatch(/Mitteilungen über aktualisierte AGB.*AVV.*Datenschutzerklärung.*Unterauftragsverarbeiter/i);
+    expect(enSubprocessors).toMatch(/Resend[\s\S]*notices about updated Terms/i);
+    expect(deSubprocessors).toMatch(/Resend[\s\S]*Mitteilungen über aktualisierte AGB/i);
   });
 });

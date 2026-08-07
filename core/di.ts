@@ -282,6 +282,9 @@ import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/life
 import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
+import { SendLegalDocumentNoticesInteractor } from "@/ee/lifecycle/send-legal-document-notices.interactor";
+import { LegalStatusService } from "@/features/legal/legal-status.service";
+import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-documents.interactor";
 // Webhook delivery interactor (workflow task consumer)
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
 // EE Audit Log interactors
@@ -319,7 +322,9 @@ export const getSupportRepo = () => new PrismaSupportRepo();
 export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
-export const getRouteGuardService = () => new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo());
+export const getLegalStatusService = () => new LegalStatusService(getAuditLogRepo());
+export const getRouteGuardService = () =>
+  new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getLegalStatusService());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
@@ -1396,6 +1401,12 @@ export const getDeleteConnectedAccountsForInactiveOwnersInteractor = () =>
 
 export const getDeleteOrphanedUnipileAccountsInteractor = () =>
   new DeleteOrphanedUnipileAccountsInteractor(getConnectedAccountRepo(), getMessagingService());
+
+export const getSendLegalDocumentNoticesInteractor = () =>
+  new SendLegalDocumentNoticesInteractor(getUserRepo(), getAuditLogRepo(), getEmailService(), getEventService());
+
+export const getAcceptLegalDocumentsInteractor = () =>
+  new AcceptLegalDocumentsInteractor(getUserService(), getAuditLogRepo(), getEventService());
 
 // --- Webhook delivery (workflow task) ---
 
