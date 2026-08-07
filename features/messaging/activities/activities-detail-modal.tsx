@@ -9,12 +9,9 @@ import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, ExternalLink, MapPin, 
 import { MessagingProvider } from "@/generated/prisma";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { AppModal } from "@/components/modal/app-modal";
+import { AppModal, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IntlLink as Link } from "@/i18n/navigation";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
 import { SanitizedHtml } from "@/app/[locale]/(protected)/inbox/components/sanitized-html";
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
@@ -249,44 +246,37 @@ export const TimelineDetailModal = observer(() => {
           : t("ContactHistory.linkedinConnectionAccepted");
   const activityProfileUrl = entry?.kind === "activity" ? payloadString(entry.payload, "profileUrl") : null;
 
-  const actions =
-    entry?.kind === "message" ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button asChild aria-label={t("ContactHistory.ariaOpenInInbox")} size="icon" variant="secondary">
-            <Link href={`/inbox?threadId=${encodeURIComponent(entry.message.messagingThreadId)}`}>
-              <ExternalLink className="size-4" />
-            </Link>
-          </Button>
-        </TooltipTrigger>
-
-        <TooltipContent>{t("ContactHistory.openInInbox")}</TooltipContent>
-      </Tooltip>
-    ) : entry?.kind === "calendar_event" && entry.event.conferenceUrl ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button asChild aria-label={t("ContactHistory.calendarJoinMeeting")} size="icon" variant="secondary">
-            <a href={entry.event.conferenceUrl} rel="noopener noreferrer" target="_blank">
-              <ExternalLink className="size-4" />
-            </a>
-          </Button>
-        </TooltipTrigger>
-
-        <TooltipContent>{t("ContactHistory.calendarJoinMeeting")}</TooltipContent>
-      </Tooltip>
-    ) : entry?.kind === "activity" && activityProfileUrl ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button asChild aria-label={t("ContactHistory.linkedinOpenProfile")} size="icon" variant="secondary">
-            <a href={activityProfileUrl} rel="noopener noreferrer" target="_blank">
-              <ExternalLink className="size-4" />
-            </a>
-          </Button>
-        </TooltipTrigger>
-
-        <TooltipContent>{t("ContactHistory.linkedinOpenProfile")}</TooltipContent>
-      </Tooltip>
-    ) : null;
+  const actions: AppModalActions =
+    entry?.kind === "message"
+      ? [
+          {
+            id: "open-message-in-inbox",
+            label: t("ContactHistory.ariaOpenInInbox"),
+            icon: ExternalLink,
+            href: `/inbox?threadId=${encodeURIComponent(entry.message.messagingThreadId)}`,
+          },
+        ]
+      : entry?.kind === "calendar_event" && entry.event.conferenceUrl
+        ? [
+            {
+              id: "join-calendar-meeting",
+              label: t("ContactHistory.calendarJoinMeeting"),
+              icon: ExternalLink,
+              href: entry.event.conferenceUrl,
+              external: true,
+            },
+          ]
+        : entry?.kind === "activity" && activityProfileUrl
+          ? [
+              {
+                id: "open-linkedin-profile",
+                label: t("ContactHistory.linkedinOpenProfile"),
+                icon: ExternalLink,
+                href: activityProfileUrl,
+                external: true,
+              },
+            ]
+          : [];
 
   return (
     <AppModal

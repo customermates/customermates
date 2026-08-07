@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import { RefreshCw } from "lucide-react";
 import { WebhookDeliveryStatus } from "@/generated/prisma";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { AppModal } from "@/components/modal";
@@ -17,7 +15,6 @@ import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
-import { Icon } from "@/components/shared/icon";
 
 export const WebhookDeliveryModal = observer(() => {
   const t = useTranslations();
@@ -28,24 +25,17 @@ export const WebhookDeliveryModal = observer(() => {
     <AppModal
       actions={
         store.canManage &&
-        (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed) ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("WebhookDeliveryModal.resend")}
-                disabled={store.isResending}
-                size="icon"
-                type="button"
-                variant="secondary"
-                onClick={() => void store.resend()}
-              >
-                <Icon className={store.isResending ? "animate-spin" : undefined} icon={RefreshCw} />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("WebhookDeliveryModal.resend")}</TooltipContent>
-          </Tooltip>
-        ) : null
+        (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed)
+          ? [
+              {
+                id: "resend-webhook-delivery",
+                label: t("WebhookDeliveryModal.resend"),
+                icon: RefreshCw,
+                busy: store.isResending,
+                onClick: () => store.resend(),
+              },
+            ]
+          : []
       }
       size="xl"
       store={store}

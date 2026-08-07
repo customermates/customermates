@@ -5,7 +5,12 @@ import { XIcon } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
+import {
+  OVERLAY_CLOSE_CLASS,
+  OVERLAY_HEADER_ALIGNMENT_CLASS,
+  OVERLAY_SAFE_CLOSE_POSITION_CLASS,
+  OVERLAY_SCROLL_REGION,
+} from "./overlay-contract";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -72,12 +77,10 @@ function SheetContent({
 
         {showCloseButton && (
           <SheetPrimitive.Close
-            className={cn(
-              OVERLAY_CLOSE_CLASS,
-              "top-[calc(1rem+var(--safe-top))] right-[calc(1rem+var(--safe-right))] data-[state=open]:bg-secondary",
-            )}
+            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_SAFE_CLOSE_POSITION_CLASS)}
+            data-slot="sheet-close"
           >
-            <XIcon className="size-4" />
+            <XIcon />
 
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>

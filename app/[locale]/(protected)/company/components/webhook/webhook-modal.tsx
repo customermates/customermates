@@ -4,8 +4,6 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -33,24 +31,18 @@ export const WebhookModal = observer(() => {
   return (
     <AppModal
       actions={
-        form?.id && canManage ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("Common.actions.delete")}
-                disabled={isDisabled}
-                size="icon"
-                type="button"
-                variant="destructive"
-                onClick={() => showDeleteConfirmation(() => void webhookModalStore.delete())}
-              >
-                <Icon icon={Trash2} />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
-          </Tooltip>
-        ) : null
+        form?.id && canManage
+          ? [
+              {
+                id: "delete-webhook",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isDisabled,
+                onClick: () => showDeleteConfirmation(() => void webhookModalStore.delete()),
+              },
+            ]
+          : []
       }
       store={webhookModalStore}
       title={t("WebhookModal.title")}

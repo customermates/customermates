@@ -10,7 +10,6 @@ import { useTheme } from "next-themes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import { EntityType, WidgetGroupByType } from "@/generated/prisma";
 
@@ -36,7 +35,6 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 import type { ChartColor } from "@/features/widget/widget.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
-import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { FilterAccordion } from "@/components/data-view/filter-modal/filter-accordion";
 import { getChartColors } from "@/constants/chart-colors";
@@ -66,24 +64,18 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
   return (
     <AppModal
       actions={
-        canManage && form.id ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("Common.actions.delete")}
-                disabled={isDisabled}
-                size="icon"
-                type="button"
-                variant="destructive"
-                onClick={() => showDeleteConfirmation(() => void widgetModalStore.delete())}
-              >
-                <Icon icon={Trash2} />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
-          </Tooltip>
-        ) : null
+        canManage && form.id
+          ? [
+              {
+                id: "delete-widget",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isDisabled,
+                onClick: () => showDeleteConfirmation(() => void widgetModalStore.delete()),
+              },
+            ]
+          : []
       }
       store={widgetModalStore}
       title={t("Dashboard.widget")}

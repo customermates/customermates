@@ -22,7 +22,7 @@ Choose an overlay by what the interaction is, not by how much room is left.
 
 - Give each overlay exactly one vertical scroll owner, with `min-h-0` on every ancestor between that owner and the positioned root.
 - Align every visible overlay header left across Dialog, Drawer, Sheet, Popover, AlertDialog, and AppModal presentations. Non-overlay card compositions may opt into another alignment explicitly.
-- Keep AppModal headers limited to titles and non-interactive metadata. Pass compact, accessible icon controls through the AppModal `actions` slot so they share one top-right row beside Close.
+- Keep AppModal headers limited to titles and non-interactive metadata. Pass zero to two typed action descriptors through the AppModal `actions` slot. AppModal alone renders their 36×36 controls, 16px icons, semantic color, accessible name, tooltip, disabled/busy behavior, and fixed top-right row beside Close; callers cannot override those visual dimensions.
 - Keep task-overlay headers and action footers divider-free. Use separators inside structured content only; retain each primitive's outer surface or edge border.
 - Controlled overlays without a primitive trigger use `useOverlayFocusReturn`. Custom navigation lifecycles reuse `overlay-focus-target` rather than duplicating element, stable-ID, visibility, or remount logic.
 - Always provide a stable focus fallback when an opener can unmount. Never return focus into an inert or closing overlay.

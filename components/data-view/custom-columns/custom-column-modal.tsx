@@ -42,7 +42,6 @@ import { FormSwitch } from "@/components/forms/form-switch";
 import { AppModal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -211,27 +210,18 @@ export const CustomColumnModal = observer(() => {
   return (
     <AppModal
       actions={
-        form.id ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label={t("Common.actions.deleteCustomFields")}
-                  className="size-8"
-                  disabled={store.isDisabled}
-                  size="icon"
-                  type="button"
-                  variant="destructive"
-                  onClick={() => showDeleteConfirmation(() => store.deleteColumn(), form.label)}
-                >
-                  <Icon icon={Trash2} />
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>{t("Common.actions.deleteCustomFields")}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : null
+        form.id
+          ? [
+              {
+                id: "delete-custom-field",
+                label: t("Common.actions.deleteCustomFields"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: store.isDisabled,
+                onClick: () => showDeleteConfirmation(() => store.deleteColumn(), form.label),
+              },
+            ]
+          : []
       }
       store={store}
       title={form.id ? t("Common.actions.editCustomFields") : t("Common.actions.addCustomField")}

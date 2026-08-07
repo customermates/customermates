@@ -16,14 +16,12 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { Alert } from "@/components/shared/alert";
 import { CopyableCode } from "@/components/shared/copyable-code";
-import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 
 const ExpiresInPicker = observer(() => {
@@ -150,29 +148,22 @@ export const ApiKeyModal = observer(() => {
   return (
     <AppModal
       actions={
-        isView && viewingKey ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("Common.actions.delete")}
-                disabled={isLoading}
-                size="icon"
-                type="button"
-                variant="destructive"
-                onClick={() =>
+        isView && viewingKey
+          ? [
+              {
+                id: "delete-api-key",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isLoading,
+                onClick: () =>
                   showDeleteConfirmation(async () => {
                     await apiKeysStore.delete(viewingKey.id);
                     close();
-                  }, viewingKey.name ?? undefined)
-                }
-              >
-                <Icon icon={Trash2} />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
-          </Tooltip>
-        ) : null
+                  }, viewingKey.name ?? undefined),
+              },
+            ]
+          : []
       }
       size="xl"
       store={apiKeyModalStore}

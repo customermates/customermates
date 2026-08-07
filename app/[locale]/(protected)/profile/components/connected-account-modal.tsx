@@ -7,17 +7,15 @@ import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { AppModal } from "@/components/modal";
+import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
@@ -58,76 +56,47 @@ export const ConnectedAccountModal = observer(() => {
     appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
+  const primaryAction: AppModalActionProps | null = hasAccountActions
+    ? canReconnect
+      ? {
+          id: "reconnect-account",
+          label: t("ConnectedAccountsCard.reactivate"),
+          icon: Plug,
+          onClick: () => connectedAccountsStore.reconnect(account.id),
+        }
+      : canResync
+        ? {
+            id: "resync-account",
+            label: t("ConnectedAccountsCard.resync"),
+            icon: RefreshCw,
+            onClick: () => connectedAccountsStore.resync(account.id),
+          }
+        : null
+    : null;
+  const destructiveAction: AppModalActionProps | null =
+    hasAccountActions && canDelete
+      ? {
+          id: "disconnect-account",
+          label: t("ConnectedAccountsCard.disconnect"),
+          icon: Trash2,
+          variant: "destructive",
+          onClick: () =>
+            showDeleteConfirmation(async () => {
+              await connectedAccountsStore.disconnect(account.id);
+              close();
+            }, title),
+        }
+      : null;
+  const modalActions: AppModalActions = primaryAction
+    ? destructiveAction
+      ? [primaryAction, destructiveAction]
+      : [primaryAction]
+    : destructiveAction
+      ? [destructiveAction]
+      : [];
 
   return (
-    <AppModal
-      actions={
-        hasAccountActions ? (
-          <>
-            {canReconnect ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label={t("ConnectedAccountsCard.reactivate")}
-                    size="icon"
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void connectedAccountsStore.reconnect(account.id)}
-                  >
-                    <Icon icon={Plug} />
-                  </Button>
-                </TooltipTrigger>
-
-                <TooltipContent>{t("ConnectedAccountsCard.reactivate")}</TooltipContent>
-              </Tooltip>
-            ) : null}
-
-            {canResync ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label={t("ConnectedAccountsCard.resync")}
-                    size="icon"
-                    type="button"
-                    variant="secondary"
-                    onClick={() => void connectedAccountsStore.resync(account.id)}
-                  >
-                    <Icon icon={RefreshCw} />
-                  </Button>
-                </TooltipTrigger>
-
-                <TooltipContent>{t("ConnectedAccountsCard.resync")}</TooltipContent>
-              </Tooltip>
-            ) : null}
-
-            {canDelete ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    aria-label={t("ConnectedAccountsCard.disconnect")}
-                    size="icon"
-                    type="button"
-                    variant="destructive"
-                    onClick={() =>
-                      showDeleteConfirmation(async () => {
-                        await connectedAccountsStore.disconnect(account.id);
-                        close();
-                      }, title)
-                    }
-                  >
-                    <Icon icon={Trash2} />
-                  </Button>
-                </TooltipTrigger>
-
-                <TooltipContent>{t("ConnectedAccountsCard.disconnect")}</TooltipContent>
-              </Tooltip>
-            ) : null}
-          </>
-        ) : null
-      }
-      store={connectedAccountModalStore}
-      title={title}
-    >
+    <AppModal actions={modalActions} store={connectedAccountModalStore} title={title}>
       <AppCard>
         <AppCardHeader>
           <div className="flex min-w-0 items-center gap-2">

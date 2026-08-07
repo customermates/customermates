@@ -6,7 +6,12 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS, OVERLAY_SCROLL_REGION } from "./overlay-contract";
+import {
+  OVERLAY_CLOSE_CLASS,
+  OVERLAY_CLOSE_POSITION_CLASS,
+  OVERLAY_HEADER_ALIGNMENT_CLASS,
+  OVERLAY_SCROLL_REGION,
+} from "./overlay-contract";
 
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
@@ -68,8 +73,11 @@ function DrawerContent({
         {children}
 
         {showCloseButton && (
-          <DrawerPrimitive.Close className={cn(OVERLAY_CLOSE_CLASS, "top-4 right-4 z-10")} data-slot="drawer-close">
-            <XIcon className="size-4" />
+          <DrawerPrimitive.Close
+            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
+            data-slot="drawer-close"
+          >
+            <XIcon />
 
             <span className="sr-only">Close</span>
           </DrawerPrimitive.Close>

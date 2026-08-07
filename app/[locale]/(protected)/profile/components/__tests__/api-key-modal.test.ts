@@ -27,11 +27,25 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/components/modal", () => ({
-  AppModal: ({ actions, children }: { actions?: ReactNode; children: ReactNode }) =>
+  AppModal: ({ actions, children }: { actions?: Array<Record<string, unknown>>; children: ReactNode }) =>
     createElement(
       "div",
       null,
-      actions ? createElement("div", { "data-slot": "app-modal-actions" }, actions) : null,
+      actions?.length
+        ? createElement(
+            "div",
+            { "data-slot": "app-modal-actions" },
+            actions.map((action) =>
+              createElement("button", {
+                "aria-label": action.label,
+                "data-size": "icon",
+                "data-variant": action.variant ?? "neutral",
+                key: String(action.id),
+                type: "button",
+              }),
+            ),
+          )
+        : null,
       children,
     ),
 }));
@@ -172,6 +186,8 @@ describe("ApiKeyModal add wizard", () => {
     const contentHeader = html.match(/<div[^>]*data-slot="card-header"[^>]*>[\s\S]*?<\/div>/)?.[0];
 
     expect(actionRail).toContain('aria-label="Common.actions.delete"');
+    expect(actionRail).toContain('data-size="icon"');
+    expect(actionRail).toContain('data-variant="destructive"');
     expect(contentHeader).toContain("Gemini");
     expect(contentHeader).not.toContain("Common.actions.delete");
   });

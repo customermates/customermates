@@ -8,10 +8,8 @@ import { Trash2 } from "lucide-react";
 import { Resource } from "@/generated/prisma";
 
 import { Alert } from "@/components/shared/alert";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -21,7 +19,6 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormTextarea } from "@/components/forms/form-textarea";
 import { FormRadioGroup, type FormRadioGroupOption } from "@/components/forms/form-radio-group";
-import { Icon } from "@/components/shared/icon";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 
 type Props = {
@@ -82,26 +79,18 @@ export const RoleModal = observer(({ store }: Props) => {
   return (
     <AppModal
       actions={
-        canDeleteRole ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label={t("Common.actions.delete")}
-                  disabled={isLoading}
-                  size="icon"
-                  type="button"
-                  variant="destructive"
-                  onClick={() => showDeleteConfirmation(() => store.delete(), form.name ?? "")}
-                >
-                  <Icon icon={Trash2} />
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : null
+        canDeleteRole
+          ? [
+              {
+                id: "delete-role",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isLoading,
+                onClick: () => showDeleteConfirmation(() => store.delete(), form.name ?? ""),
+              },
+            ]
+          : []
       }
       size="xl"
       store={store}
