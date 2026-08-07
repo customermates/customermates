@@ -14,7 +14,17 @@ const LOCALES = ["en", "de"] as const;
 
 const ACCEPTANCE_MESSAGE_KEYS = ["OnboardingForm", "SignUpForm", "SignInForm"] as const;
 
-const REMOVED_SUBJECTS = ["newsletter", "zoom", "google ads", "supabase", "flagcdn"];
+const REMOVED_SUBJECTS = ["newsletter", "zoom", "google ads", "supabase"];
+
+const EXTERNAL_IMAGE_HOSTS = [
+  "flagcdn.com",
+  "uneed.best",
+  "b.sf-syn.com",
+  "twelve.tools",
+  "wired.business",
+  "startupfa.me",
+  "open-launch.com",
+] as const;
 
 function legal(locale: string, slug: string): string {
   return readFileSync(join(REPO_ROOT, "content", "legal", locale, `${slug}.mdx`), "utf8");
@@ -64,7 +74,36 @@ describe("legal documents describe only what the product does", () => {
   });
 
   it.each(LOCALES)("privacy (%s) does not claim a consent mechanism the product lacks", (name) => {
-    expect(legal(name, "privacy")).not.toMatch(/flagcdn|Google Ads/i);
+    expect(legal(name, "privacy")).not.toMatch(/Google Ads/i);
+  });
+
+  it.each(LOCALES)("privacy and subprocessors (%s) disclose every external image host", (name) => {
+    const privacy = legal(name, "privacy");
+    const subprocessors = legal(name, "subprocessors");
+
+    for (const host of EXTERNAL_IMAGE_HOSTS) {
+      expect(privacy, `${name}/privacy is missing ${host}`).toContain(host);
+      expect(subprocessors, `${name}/subprocessors is missing ${host}`).toContain(host);
+    }
+
+    expect(privacy).toMatch(name === "en" ? /IP address.*image URL.*browser.*referr/i : /IP-Adresse.*Bild-URL.*Browser.*verweis/i);
+  });
+
+  it.each(LOCALES)("legal documents (%s) cover the implemented Unipile social and sales scope", (name) => {
+    const text = `${legal(name, "privacy")}\n${legal(name, "dpa")}\n${legal(name, "subprocessors")}`;
+
+    expect(text).toMatch(name === "en" ? /social posts.*comments.*reactions/i : /Beiträge.*Kommentare.*Reaktionen/i);
+    expect(text).toMatch(name === "en" ? /relationship requests/i : /Kontaktanfragen/i);
+    expect(text).toMatch(name === "en" ? /Sales Navigator.*search.*list/is : /Sales.Navigator.*Such.*Listen/is);
+  });
+
+  it.each(LOCALES)("privacy and subprocessors (%s) track the current Neon contract chain", (name) => {
+    const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
+
+    expect(text).toContain("https://neon.com/platform-terms");
+    expect(text).toContain("https://www.databricks.com/legal/databricks-subprocessors");
+    expect(text).toMatch(/Grafana Labs/);
+    expect(text).not.toMatch(/16 (?:April|\. April) 2026/);
   });
 });
 

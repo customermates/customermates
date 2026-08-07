@@ -5,7 +5,7 @@ description: Informationen dazu, wie Customermates personenbezogene Daten verarb
 
 # Datenschutz
 
-_Version 2026-08-06, Stand 6. August 2026_
+_Version 2026-08-07, Stand 7. August 2026_
 
 ## Geltungsbereich dieser Datenschutzerklärung
 
@@ -55,13 +55,13 @@ Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben ge
 
 ### Neon
 
-Für die Bereitstellung und Verwaltung unserer Datenbank nutzen wir den Dienst Neon, angeboten von Neon, LLC, einem verbundenen Unternehmen der Databricks, Inc. (nachfolgend „Neon“). Neon stellt die verwaltete PostgreSQL-Datenbank bereit, in der die Daten unserer Anwendung gespeichert werden.
+Für die Bereitstellung und Verwaltung unserer Datenbank nutzen wir den verwalteten PostgreSQL-Dienst Neon auf Grundlage eines Vertrags mit Databricks, Inc., der Muttergesellschaft von Neon, LLC (nachfolgend „Neon“). Neon stellt die verwaltete PostgreSQL-Datenbank bereit, in der die Daten unserer Anwendung gespeichert werden.
 
-Unsere Produktivdatenbank haben wir in der Europäischen Union in der Region Frankfurt am Main (aws-eu-central-1) konfiguriert. Solange diese Konfiguration gilt, werden die gespeicherten Anwendungsdaten innerhalb der Europäischen Union vorgehalten. Die Region ist eine von uns gewählte Produkteinstellung und keine uns vom Anbieter vertraglich zugesagte Datenresidenz; der Zugriff aus den Vereinigten Staaten zu Administration, Wartung und Unterstützung wird nachstehend beschrieben.
+Customermates hat seine primäre Produktivdatenbank in der AWS-Region Frankfurt (`eu-central-1`) konfiguriert. Dies ist eine gewählte Produkteinstellung und keine vertraglich garantierte Datenresidenz. Databricks, seine verbundenen Unternehmen und die jeweils eingesetzten Unterauftragsverarbeiter können Daten nach Maßgabe der nachstehenden Angaben aus anderen Ländern verarbeiten oder darauf zugreifen.
 
 Für personenbezogene Daten, die Customermates als Verantwortlicher verarbeitet, beruht die Verarbeitung über Neon auf Art. 6 Abs. 1 lit. b DSGVO, soweit sie zur Erbringung unserer vertraglichen Leistungen erforderlich ist, sowie auf Art. 6 Abs. 1 lit. f DSGVO wegen unseres berechtigten Interesses an einem zuverlässigen und sicheren Anwendungsbetrieb. Für kundenseitig verantwortete Inhalte bestimmt der Kunde die Rechtsgrundlage; Customermates verarbeitet diese Daten nach dokumentierter Weisung. Neon verarbeitet beide Kategorien in unserem Auftrag im Rahmen eines Auftragsverarbeitungsvertrags gemäß Art. 28 DSGVO. Unser Vertragspartner ist Databricks, Inc., Vereinigte Staaten. Der Vertrag besteht aus dem Neon Platform Services Product Specific Schedule (https://neon.com/platform-terms), das das Databricks Master Cloud Services Agreement (https://www.databricks.com/legal/mcsa) und das Databricks Data Processing Addendum (https://www.databricks.com/legal/dpa) einbezieht und mit der Nutzung des Dienstes angenommen wird.
 
-Obwohl die Datenbank selbst in Frankfurt am Main betrieben wird, hat Neon, LLC ihren Sitz in den Vereinigten Staaten und ist ein verbundenes Unternehmen der Databricks, Inc. Ein Zugriff auf die Daten aus den Vereinigten Staaten, insbesondere zur Administration, Wartung und Unterstützung des Dienstes, ist daher nicht ausgeschlossen; zudem setzt Neon Unterauftragsverarbeiter mit Sitz in den Vereinigten Staaten ein. Nach der Unterauftragsverarbeiter-Liste von Neon mit Stand 16. April 2026 sind dies Salesforce, Grafana, Amazon Web Services und Microsoft Azure mit jeweils US-amerikanischem Standort; die aktuelle Liste ist unter https://neon.com/subprocessors abrufbar. Für diese Übermittlungen stützt sich Databricks auf die Standardvertragsklauseln der EU-Kommission aus dem Jahr 2021 (Durchführungsbeschluss (EU) 2021/914) gemäß Art. 46 DSGVO.
+Databricks, Inc. und sein verbundenes Unternehmen Neon, LLC haben ihren Sitz in den Vereinigten Staaten; ein Zugriff aus den Vereinigten Staaten zur Administration, Wartung und Unterstützung ist daher nicht ausgeschlossen. Das Neon Platform Services Product Specific Schedule mit Stand 5. August 2026 nennt Grafana Labs in den Vereinigten Staaten zusätzlich zu den Unterauftragsverarbeitern der aktuellen Databricks-Liste unter https://www.databricks.com/legal/databricks-subprocessors. Diese Liste erfasst Cloud-Infrastruktur, Support, Kommunikation sowie technische oder operative verbundene Unternehmen in den dort genannten Ländern und bezeichnet einige Cloud- und KI-Anbieter als kundenseitig ausgewählt. Customermates nutzt Neon ausschließlich als verwaltete PostgreSQL-Datenbank in der ausgewählten AWS-Region Frankfurt und hat für diese Verarbeitung keinen KI-gestützten Databricks-Dienst ausgewählt. Für beschränkte Übermittlungen an Databricks bezieht das Databricks Data Processing Addendum die Standardvertragsklauseln der EU-Kommission aus dem Jahr 2021 (Durchführungsbeschluss (EU) 2021/914) gemäß Art. 46 DSGVO ein.
 
 ### Auftragsverarbeitung
 
@@ -202,6 +202,12 @@ Der Provider der Seiten erhebt und speichert automatisch Informationen in sogena
 
 Eine Zusammenführung dieser Daten mit anderen Datenquellen wird nicht vorgenommen. Die Erfassung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der technisch fehlerfreien Darstellung und der Optimierung seiner Website; hierzu müssen die Server-Log-Files erfasst werden.
 
+### Extern gehostete Flaggen und Verzeichnis-Badges
+
+Die Sprachauswahl und Länderfelder können Flaggenbilder unmittelbar von `flagcdn.com` laden. Der Footer kann Verzeichnis-Badges unmittelbar von `uneed.best`, `b.sf-syn.com` (SourceForge), `twelve.tools`, `wired.business`, `startupfa.me` und `open-launch.com` laden. Wird ein solches Bild angezeigt, stellt Ihr Browser eine direkte Verbindung zur jeweiligen Domain her. Deren Betreiber kann die IP-Adresse, die abgerufene Bild-URL, den Zeitpunkt des Abrufs, Browser- und Geräte-Header sowie abhängig von der Referrer-Richtlinie des Browsers die verweisende Seite erhalten. Wir übermitteln mit diesen Bildabrufen nicht bewusst CRM-Inhalte oder Konto-Kennungen und erhalten von den Bild-Hosts keine besucherbezogenen Antwortdaten.
+
+Wir veranlassen diese Abrufe auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO wegen unseres berechtigten Interesses, Sprach- und Länderauswahlen erkennbar zu machen und sachliche Verweise auf Verzeichnisse anzuzeigen, in denen Customermates gelistet ist. Die Bild-Hosts verarbeiten die Anfragedaten nach ihren eigenen Bedingungen; sie sind als weitere Empfänger und nicht als Unterauftragsverarbeiter für kundenseitig verantwortete CRM-Inhalte aufgeführt. Ihre Infrastruktur kann eine Verarbeitung außerhalb des EWR umfassen; Standort und Übermittlungsgarantien hängen vom jeweiligen Betreiber ab. Die aktuellen Domains und ihre Rollen sind zusätzlich unter [Unterauftragsverarbeiter und weitere Empfänger](/subprocessors) aufgeführt.
+
 ### Vercel Web Analytics
 
 Wir nutzen Vercel Web Analytics, einen Dienst zur Nutzungsmessung der Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (nachfolgend „Vercel“). Vercel Web Analytics ist auf allen Seiten unserer Website und unserer Webanwendung aktiv, einschließlich der nach der Anmeldung verfügbaren Seiten.
@@ -300,7 +306,7 @@ https://www.lemonsqueezy.com/terms
 
 ## 6. Verbundene Konten (E-Mail, Messaging und Kalender)
 
-Unser CRM-System bietet eine optionale Funktion für verbundene Konten, mit der Sie Ihre eigenen E-Mail-Postfächer (Gmail/Google, Microsoft/Outlook und IMAP), Messaging-Konten (LinkedIn, einschließlich der Varianten Sales Navigator und Recruiter, sowie WhatsApp, Instagram und Telegram) und Kalender verbinden können, um Ihre geschäftliche Kommunikation und Ihre Termine direkt innerhalb des CRM zu senden, zu empfangen und zu verwalten. Die Nutzung dieser Funktion ist optional und wird nur wirksam, wenn Sie sich aktiv dafür entscheiden, ein Konto zu verbinden.
+Unser CRM-System bietet eine optionale Funktion für verbundene Konten, mit der Sie Ihre eigenen E-Mail-Postfächer (Gmail/Google, Microsoft/Outlook und IMAP), Messaging-Konten (LinkedIn, einschließlich der Varianten Sales Navigator und Recruiter, sowie WhatsApp, Instagram und Telegram) und Kalender verbinden können. Abhängig vom verbundenen Anbieter kann die Funktion geschäftliche Kommunikation und Termine senden, empfangen und verwalten; Beiträge in sozialen Netzwerken, Kommentare, Reaktionen sowie Personen- und Unternehmensprofile abrufen und anzeigen; Kontaktanfragen auflisten, versenden, annehmen, zurücknehmen oder ablehnen; Sales-Navigator-Suchen nach Leads und Unternehmen durchführen; sowie bestehende Lead- oder Account-Listen anzeigen und ihnen Einträge hinzufügen. Die Nutzung dieser Funktion ist optional und wird nur wirksam, wenn Sie sich aktiv dafür entscheiden, ein Konto zu verbinden.
 
 Der technische Transport der Daten verbundener Konten erfolgt durch unseren Dienstleister **UNIPILE SAS**, RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, Frankreich (nachfolgend „Unipile“).
 
@@ -313,18 +319,21 @@ Bei Nutzung der Funktion für verbundene Konten können abhängig von den von Ih
 - E-Mail-Inhalte, einschließlich Betreff, Nachrichtentext, Absender- und Empfängeradressen sowie Anhänge;
 - Inhalte von Chats und Direktnachrichten über die verbundenen Messaging-Kanäle;
 - Kontakt- und Teilnehmer-Profildaten (Name, Avatar, LinkedIn-Überschrift/-Berufsbezeichnung, Profil-URL sowie die jeweilige E-Mail-Adresse, Telefonnummer oder der jeweilige Handle);
+- Beiträge in sozialen Netzwerken und Interaktionsdaten (Beitrags- oder Kommentartext, Autoren, Reagierende, Zeitstempel, Reaktionstypen und Zähler);
+- Personen- und Unternehmensprofile sowie Beziehungsdaten (Anbieterkennungen, Namen, Profil-URLs und -Bilder, Beschreibungen, Beschäftigung, Standort, Branche, Netzwerkdistanz, Verbindungsstatus und Anfragetexte);
+- Eingaben, Ergebnisse und Listendaten aus Sales Navigator (Such-URLs und -Filter, Lead- und Unternehmensprofile, Listennamen und -zugehörigkeit sowie Speicherstatus);
 - Kalendereinträge, einschließlich der E-Mail-Adressen von Teilnehmern und des Zu-/Absagestatus (RSVP);
 - Nachrichten- und Konto-Metadaten.
 
-Anhänge werden bei Bedarf übertragen und von Customermates nicht gespeichert; gespeichert werden lediglich die Metadaten der Anhänge. Zusätzlich zur Verarbeitung bei Unipile speichert Customermates eine Kopie der Inhalte verbundener Konten in seiner eigenen Datenbank (siehe Abschnitt 2, „Neon“), insbesondere Nachrichtentexte (Text und HTML), Betreffzeilen, Absender- und Empfängerkennungen, Profile der Thread-Teilnehmer, Kalendereinträge mit den E-Mail-Adressen der Teilnehmer sowie die von den Anbietern empfangenen rohen Eingangsdaten.
+Anhänge werden bei Bedarf übertragen und von Customermates nicht gespeichert; gespeichert werden lediglich die Metadaten der Anhänge. Zusätzlich zur Verarbeitung bei Unipile speichert Customermates eine Kopie der synchronisierten Inhalte verbundener Konten in seiner eigenen Datenbank (siehe Abschnitt 2, „Neon“), insbesondere Nachrichtentexte (Text und HTML), Betreffzeilen, Absender- und Empfängerkennungen, Profile der Thread-Teilnehmer, Kalendereinträge mit den E-Mail-Adressen der Teilnehmer sowie die von den Anbietern empfangenen rohen Eingangsdaten. Beiträge und Interaktionen, Profilabfragen, Kontaktanfragen sowie Such-, Ergebnis- und Listendaten aus Sales Navigator werden über Unipile abgerufen oder übertragen, wenn ein Kunde die jeweilige Handlung veranlasst, und an den anfragenden Nutzer oder einen vom Kunden autorisierten API- oder MCP-Client zurückgegeben. Customermates speichert diese Vorgangsdaten nicht als Inhalte verbundener Konten, sofern der Kunde Informationen nicht gesondert als CRM-Datensatz speichert. Handlungen zu Kontaktanfragen und Listen ändern die zugrunde liegende Plattform auf Weisung des Kunden.
 
-Die über die Funktion für verbundene Konten verarbeiteten Daten umfassen sowohl personenbezogene Daten Ihrer eigenen Nutzer als auch personenbezogene Daten Dritter, mit denen Sie kommunizieren (Ihrer Korrespondenzpartner) und deren Daten in Nachrichten, Kontakten und Kalendereinträgen erscheinen.
+Die über die Funktion für verbundene Konten verarbeiteten Daten umfassen sowohl personenbezogene Daten Ihrer eigenen Nutzer als auch Dritter, darunter Korrespondenzpartner, Beitrags- und Kommentarautoren, Reagierende, Personen mit abgerufenen Profilen, Parteien von Kontaktanfragen, Sales-Navigator-Leads und Unternehmensvertreter.
 
 Bitte beachten Sie: Mit dem Verbinden eines Kontos werden auch die Inhalte von Konversationen mit Personen übernommen, die keine Nutzer unseres Dienstes sind. Diese Inhalte werden durch Sie und Ihre Korrespondenzpartner bestimmt und können besondere Kategorien personenbezogener Daten im Sinne des Art. 9 DSGVO enthalten. Als Verantwortlicher für diese Inhalte sind Sie dafür verantwortlich, dass für deren Verarbeitung eine Rechtsgrundlage besteht und dass Sie Ihre Informationspflichten gegenüber den betroffenen Personen erfüllen.
 
 ### Rollen und Auftragsverarbeitung
 
-Für die Inhalte verbundener Konten (Ihre Postfächer, Nachrichten, Kontakte und Kalender, einschließlich der personenbezogenen Daten Ihrer Korrespondenzpartner) sind Sie Verantwortlicher im Sinne des Art. 4 Nr. 7 DSGVO. Customermates verarbeitet diese Daten ausschließlich in Ihrem Auftrag und nach Ihren Weisungen als Auftragsverarbeiter gemäß Art. 28 DSGVO. Customermates zieht hierfür Unipile als Unterauftragsverarbeiter hinzu. Die zugrunde liegenden Kommunikationsplattformen (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram und Telegram) handeln als eigenständige Verantwortliche für ihre jeweiligen eigenen Dienste.
+Für Inhalte und Vorgänge verbundener Konten (einschließlich Postfächern, Nachrichten, Kontakten, Kalendern, Inhalten und Interaktionsdaten sozialer Netzwerke, Profilen, Kontaktanfragen sowie Such- und Listendaten aus Sales Navigator) sind Sie Verantwortlicher im Sinne des Art. 4 Nr. 7 DSGVO. Customermates verarbeitet diese Daten ausschließlich in Ihrem Auftrag und nach Ihren Weisungen als Auftragsverarbeiter gemäß Art. 28 DSGVO. Customermates zieht hierfür Unipile als Unterauftragsverarbeiter hinzu. Die zugrunde liegenden Kommunikationsplattformen (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram und Telegram) handeln als eigenständige Verantwortliche für ihre jeweiligen eigenen Dienste.
 
 Eine Liste der von uns eingesetzten Unterauftragsverarbeiter ist unter [Unterauftragsverarbeiter](/subprocessors) verfügbar; weitere Informationen zum Auftragsverarbeitungsvertrag finden Sie unter [Auftragsverarbeitungsvertrag](/dpa).
 
@@ -360,7 +369,7 @@ Für gespeicherte Inhalte verbundener Konten gilt während der Vertragslaufzeit 
 
 Sind Sie nicht unser Kunde, gelangen Ihre personenbezogenen Daten aber in unsere Systeme, weil einer unserer Kunden mit Ihnen kommuniziert oder Ihre Daten in seinem CRM speichert, so ist dieser Kunde und nicht Customermates Verantwortlicher für diese Daten. Wir verarbeiten sie ausschließlich auf dessen dokumentierte Weisung als Auftragsverarbeiter gemäß Art. 28 DSGVO.
 
-Betroffen sind die in Abschnitt 6 genannten Datenkategorien, insbesondere Kontakt- und Profildaten sowie die Inhalte von Nachrichten und Kalendereinträgen. Sie erreichen uns unmittelbar vom Kunden oder, bei verbundenen Konten, von den vom Kunden verbundenen E-Mail-, Messaging- und Kalenderanbietern.
+Betroffen sind die in Abschnitt 6 genannten Datenkategorien, insbesondere Kontakt- und Profildaten, Nachrichten- und Kalenderinhalte, Beiträge und Interaktionsdaten sozialer Netzwerke, Daten zu Kontaktanfragen sowie Such-, Ergebnis- und Listendaten aus Sales Navigator. Sie erreichen uns unmittelbar vom Kunden oder, bei verbundenen Konten, von den vom Kunden verbundenen E-Mail-, Messaging-, sozialen Netzwerk- und Kalenderanbietern.
 
 Da wir als Auftragsverarbeiter handeln, können wir über Ihre Rechte nicht selbst entscheiden. Bitte richten Sie Anträge auf Auskunft, Berichtigung, Löschung, Einschränkung oder Widerspruch an den Kunden, der Verantwortlicher ist. Wenden Sie sich an uns und können wir den betreffenden Kunden identifizieren, leiten wir Ihre Anfrage unverzüglich an ihn weiter und teilen Ihnen dies mit. Unsere eigenen Kontaktdaten finden Sie in Abschnitt 3.
 

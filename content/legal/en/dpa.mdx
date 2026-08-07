@@ -5,9 +5,9 @@ description: Customermates' Data Processing Agreement under Art. 28 GDPR governi
 
 # Data Processing Agreement (DPA)
 
-_Version 2026-08-06, last updated 6 August 2026; effective for each Customer when concluded under Section 2_
+_Version 2026-08-07, last updated 7 August 2026; effective for each Customer when concluded under Section 2_
 
-This Data Processing Agreement ("DPA") supplements and forms an integral part of the Terms and Conditions (the "Main Agreement") between Benjamin Wagner, operating as Customermates, An den Kasernen 25, 68167 Mannheim, Germany (the "Provider" or "Processor"), and the customer (the "Customer" or "Controller"). It governs the processing of personal data carried out by the Provider on behalf of the Customer within the framework of the software-as-a-service offering, including the optional connected-account feature (email, messaging, and calendar), in accordance with Art. 28 GDPR.
+This Data Processing Agreement ("DPA") supplements and forms an integral part of the Terms and Conditions (the "Main Agreement") between Benjamin Wagner, operating as Customermates, An den Kasernen 25, 68167 Mannheim, Germany (the "Provider" or "Processor"), and the customer (the "Customer" or "Controller"). It governs the processing of personal data carried out by the Provider on behalf of the Customer within the framework of the software-as-a-service offering, including the optional connected-account feature (email, messaging and social-network operations, and calendar), in accordance with Art. 28 GDPR.
 
 This version takes effect for a Customer only when concluded under Section 2. Publication, display, or access to this document does not by itself conclude or amend a DPA for an existing customer.
 
@@ -15,7 +15,7 @@ This version takes effect for a Customer only when concluded under Section 2. Pu
 
 The subject matter of this DPA is the processing of personal data that the Provider performs on behalf of and on the documented instructions of the Customer in performing the Main Agreement.
 
-With respect to the personal data covered by this DPA, in particular the content of the Customer's connected mailboxes, messages, contacts, and calendars and the personal data of the Customer's correspondents, the Customer acts as the controller and the Provider acts as the processor within the meaning of Art. 4 GDPR. The underlying communication platforms that the Customer connects (for example Google, Microsoft, LinkedIn, Meta/WhatsApp, Meta/Instagram, and Telegram) act as independent controllers for their own services.
+With respect to the personal data covered by this DPA, in particular the Customer's connected mailboxes, messages, contacts, calendars, social content and engagement data, profiles, relationship requests, and Sales Navigator search and list data, the Customer acts as the controller and the Provider acts as the processor within the meaning of Art. 4 GDPR. The underlying communication platforms that the Customer connects (for example Google, Microsoft, LinkedIn, Meta/WhatsApp, Meta/Instagram, and Telegram) act as independent controllers for their own services.
 
 This allocation does not affect the Provider's role as an independent controller for its own website, account, billing, security, and support data, which is described in the Provider's privacy policy and is not the subject of this DPA.
 
@@ -36,13 +36,13 @@ This DPA covers only the managed Service operated by the Provider. Running the s
 The Provider processes personal data solely for the purpose of providing the contractual services under the Main Agreement. The processing comprises:
 
 - **the core CRM service:** creating, storing, displaying, searching, linking, exporting, and deleting the Customer's CRM records, in particular contacts, organisations, deals, services, tasks, notes, and custom fields; the administration of users and permissions; activity and audit logging; product notifications; and the delivery of webhooks to endpoints configured by the Customer; and
-- **where activated, the connected-account feature:** connecting the Customer's own email, messaging, and calendar accounts; retrieving, sending, synchronizing, and displaying messages, contacts, and calendar events; and storing a copy of the associated content to make the feature available to the Customer.
+- **where activated, the connected-account feature:** connecting the Customer's own email, messaging, social-network, and calendar accounts; retrieving, sending, synchronizing, and displaying messages, contacts, and calendar events; retrieving and displaying social posts, comments, reactions, and person or company profiles; listing, sending, accepting, withdrawing, or declining relationship requests; running Sales Navigator lead and company searches; viewing existing lead or account lists and adding entries to them; and storing a copy of synchronized content where described in the Privacy Policy.
 
 The connected-account feature is powered by the transport provider UNIPILE SAS, which is engaged as a subprocessor subject to Section 9. Authentication takes place in a Unipile-hosted flow in which the Customer's user enters the relevant provider credentials or completes the provider's OAuth flow. Those credentials or the OAuth authorization are processed within that flow; the Provider receives neither provider passwords nor OAuth tokens and retains only an opaque account identifier and non-secret account metadata.
 
 ## 4. Categories of Data Subjects and Personal Data
 
-**Categories of data subjects.** The processing concerns the Customer's own users; any natural persons whose personal data the Customer stores in the CRM, for example contacts, leads, prospects, customers, suppliers, partners, and their employees; and the correspondents with whom the Customer communicates (for example the senders, recipients, message participants, contacts, and calendar attendees whose personal data appears in the connected accounts).
+**Categories of data subjects.** The processing concerns the Customer's own users; any natural persons whose personal data the Customer stores in the CRM, for example contacts, leads, prospects, customers, suppliers, partners, and their employees; correspondents with whom the Customer communicates; and other people returned or affected by connected-account operations, including post and comment authors, reactors, profile subjects, parties to relationship requests, Sales Navigator leads, and company representatives.
 
 **Categories of personal data.** Depending on how the Customer configures and uses the service, the processing may cover:
 
@@ -53,11 +53,14 @@ The connected-account feature is powered by the transport provider UNIPILE SAS, 
 - email content, including subject, body, sender and recipient addresses, and attachments;
 - chat and direct-message content across the connected social and messaging channels;
 - contact and participant profile data, including name, avatar, LinkedIn headline or occupation, profile URL, and the email address, phone number, or handle used as an identifier;
+- social posts and engagement data, including post or comment text, authors, reactors, timestamps, reaction types, and counters;
+- person and company profile and relationship data, including provider identifiers, names, profile URLs and images, descriptions, employment, location, industry, network distance, connection status, and request messages;
+- Sales Navigator search inputs, results, and list data, including search URLs and filters, lead and company profiles, list names and membership, and saved status;
 - calendar events, including attendee email addresses and RSVP status;
 - message and account metadata; and
 - the raw inbound payloads received from the underlying providers.
 
-Attachment binaries are streamed or proxied on demand and are not stored by the Provider; only attachment metadata is stored. Because message, contact, and calendar content is determined by the Customer and its correspondents, it may contain further categories of personal data, including special categories of personal data under Art. 9 GDPR where the Customer determines such content. The Customer, as controller, is responsible for the lawfulness of the content it and its correspondents transmit through the service.
+Attachment binaries are streamed or proxied on demand and are not stored by the Provider; only attachment metadata is stored. Because message, contact, calendar, social, relationship, and search content is determined by the Customer, its correspondents, and the underlying platforms, it may contain further categories of personal data, including special categories of personal data under Art. 9 GDPR where the Customer determines such content. The Customer, as controller, is responsible for the lawfulness of the content and operations it initiates through the service.
 
 ## 5. Instructions of the Controller
 
@@ -87,9 +90,9 @@ The Customer grants the Provider a general written authorization to engage subpr
 
 Before a subprocessor processes personal data on the Customer's behalf, the Provider enters into a written contract that imposes the same data-protection obligations required by this DPA in accordance with Art. 28(2) and (4) GDPR. Disclosing a contractual gap does not replace that written contract or authorize processing. Where a subprocessor fails to fulfil its data-protection obligations, the Provider remains fully liable to the Customer for the performance of those obligations.
 
-For the connected-account feature, the Provider uses **UNIPILE SAS** (RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, France) as a subprocessor for the transport of connected-account email, messaging, and calendar data. The executed supplier DPA identifies the Provider as controller and Unipile as processor; in the downstream processing governed by this DPA, the Customer is controller, the Provider is processor, and Unipile performs the supplier role described here. The supplier DPA's annex lists personal master data, contact data, professional data, information disclosed or contained in public directories, and IP addresses, while the operational scope also includes the categories listed in Section 4. Further details are set out at [Subprocessors](/subprocessors).
+For the connected-account feature, the Provider uses **UNIPILE SAS** (RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, France) as a subprocessor for connected email, messaging, social-network, and calendar data and operations. This includes retrieving social posts and engagement, looking up person and company profiles, managing relationship requests, and performing Sales Navigator searches and list operations initiated by the Customer. The executed supplier DPA identifies the Provider as controller and Unipile as processor; in the downstream processing governed by this DPA, the Customer is controller, the Provider is processor, and Unipile performs the supplier role described here. The supplier DPA's annex lists personal master data, contact data, professional data, information disclosed or contained in public directories, and IP addresses, while the operational scope also includes the categories listed in Section 4. Further details are set out at [Subprocessors](/subprocessors).
 
-For the storage of the personal data processed on the Customer's behalf, the Provider engages **Neon, LLC**, an affiliate of Databricks, Inc. (https://neon.com), as a subprocessor operating the managed PostgreSQL database. The Provider has configured its production database in the European Union (Frankfurt am Main). This region is a product setting chosen by the Provider and not a data residency contractually guaranteed to the Provider; the Provider informs the Customer of a change of region using the notification procedure set out in this Section. Neon, LLC is established in a third country and engages subprocessors there; the transfer mechanism applicable to it is indicated at [Subprocessors](/subprocessors).
+For the storage of the personal data processed on the Customer's behalf, the Provider engages **Databricks, Inc. (Neon)** (https://neon.com) as the contracted subprocessor operating the managed PostgreSQL database through Neon, LLC. The Provider has configured its primary production database in the AWS Frankfurt region (`eu-central-1`). This is a selected product setting and not a contractually guaranteed data-residency commitment; the Provider informs the Customer of a change of region using the notification procedure set out in this Section. The Neon Platform Services Product Specific Schedule dated 5 August 2026 adds Grafana Labs in the United States to the full current Databricks subprocessor list. That list identifies some cloud and AI providers as customer-selected; the Provider has not selected an AI-backed Databricks service for its Neon database. Databricks is established in a third country, and the transfer mechanism for restricted transfers to Databricks is indicated at [Subprocessors](/subprocessors).
 
 **Forward Email, LLC** hosts and stores the Provider's final operator mailbox and is not used for the connected-account feature or ordinary CRM processing. Where the Customer attaches or reproduces personal data covered by this DPA in a support or feedback request delivered to that mailbox, Forward Email stores and otherwise processes that fragment as a subprocessor. For ordinary account and business correspondence, it supports processing for which the Provider is an independent controller and which is outside this DPA. Forward Email's standard data processing agreement is accepted electronically through its service Terms and incorporates the EU Standard Contractual Clauses for applicable transfers; details are stated at [Subprocessors](/subprocessors).
 
@@ -142,4 +145,4 @@ An den Kasernen 25<br />
 68167 Mannheim<br />
 mail@customermates.com
 
-*Last Update: 06.08.2026*
+*Last Update: 07.08.2026*

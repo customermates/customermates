@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-08-06, last updated 6 August 2026_
+_Version 2026-08-07, last updated 7 August 2026_
 
 ## Scope of This Policy
 
@@ -55,13 +55,13 @@ We have concluded a data processing agreement (DPA) for the use of the above-men
 
 ### Neon
 
-For the provision and management of our database, we use the service Neon, offered by Neon, LLC, an affiliate of Databricks, Inc. (hereinafter "Neon"). Neon provides the managed PostgreSQL database in which the data of our application is stored.
+For the provision and management of our database, we use the Neon managed PostgreSQL service under a contract with Databricks, Inc., the parent company of Neon, LLC (hereinafter "Neon"). Neon provides the managed PostgreSQL database in which the data of our application is stored.
 
-We have configured our production database in the European Union, in the Frankfurt am Main region (aws-eu-central-1). For as long as this configuration applies, the stored application data is held within the European Union. The region is a product setting we have chosen and not a guaranteed data residency committed to us by the provider; access from the United States for administration, maintenance, and support is described below.
+Customermates has configured its primary production database in the AWS Frankfurt region (`eu-central-1`). This is a selected product setting, not a contractually guaranteed data-residency commitment. Databricks, its affiliates, and applicable subprocessors may process or access data from other countries as described below.
 
 For personal data that Customermates processes as controller, processing through Neon is based on Art. 6 para. 1 lit. b GDPR insofar as necessary to provide our contractual services and on Art. 6 para. 1 lit. f GDPR for our legitimate interest in reliable and secure application operation. For customer-controlled content, the customer determines the legal basis and Customermates processes the data on documented instructions. Neon processes both categories on our behalf under a data processing agreement pursuant to Art. 28 GDPR. Our counterparty is Databricks, Inc., United States. The agreement consists of the Neon Platform Services Product Specific Schedule (https://neon.com/platform-terms), which places the service under the Databricks Master Cloud Services Agreement (https://www.databricks.com/legal/mcsa) and the Databricks Data Processing Addendum (https://www.databricks.com/legal/dpa), and is accepted by using the service.
 
-Although the database itself is operated in Frankfurt am Main, Neon, LLC is established in the United States and is an affiliate of Databricks, Inc. Access to the data from the United States, in particular for the administration, maintenance, and support of the service, can therefore not be ruled out, and Neon engages subprocessors established in the United States. According to Neon's subprocessor list as of 16 April 2026, these are Salesforce, Grafana, Amazon Web Services, and Microsoft Azure, each located in the United States; the current list is available at https://neon.com/subprocessors. For these transfers, Databricks relies on the standard contractual clauses of the EU Commission of 2021 (Implementing Decision (EU) 2021/914) pursuant to Art. 46 GDPR.
+Databricks, Inc. and its affiliate Neon, LLC are established in the United States, so access from the United States for administration, maintenance, and support cannot be ruled out. The Neon Platform Services Product Specific Schedule dated 5 August 2026 states that the service uses Grafana Labs in the United States in addition to the subprocessors on Databricks' current list at https://www.databricks.com/legal/databricks-subprocessors. That list covers cloud infrastructure, support, communications, and technical or operational affiliates in the countries stated there, and identifies some cloud and AI providers as customer-selected. Customermates uses Neon only as a managed PostgreSQL database in the selected AWS Frankfurt region and has not selected an AI-backed Databricks service for this processing. For restricted transfers to Databricks, the Databricks Data Processing Addendum incorporates the standard contractual clauses of the EU Commission of 2021 (Implementing Decision (EU) 2021/914) pursuant to Art. 46 GDPR.
 
 ### Data Processing Agreement
 
@@ -202,6 +202,12 @@ The provider of the pages automatically collects and stores information in so-ca
 
 A merge of this data with other data sources will not be done. The collection of this data is based on Art. 6 para. 1 lit. f GDPR. The website operator has a legitimate interest in the technically error-free presentation and optimization of his website - for this purpose, the server log files must be collected.
 
+### Externally Hosted Flags and Directory Badges
+
+The language selector and country fields can load flag images directly from `flagcdn.com`. The footer can load directory badges directly from `uneed.best`, `b.sf-syn.com` (SourceForge), `twelve.tools`, `wired.business`, `startupfa.me`, and `open-launch.com`. When such an image is displayed, your browser connects directly to the relevant domain. The operator of that domain can receive the IP address, the requested image URL, the time of the request, browser and device request headers, and, depending on the browser's referrer policy, the referring page. We do not intentionally send CRM content or account identifiers with these image requests and do not receive visitor-level response data from the image hosts.
+
+We initiate these requests on the basis of Art. 6 para. 1 lit. f GDPR, based on our legitimate interest in making language and country choices recognizable and in displaying factual references to directories that list Customermates. The image hosts process the request data under their own terms; they are listed as other recipients, not as subprocessors for customer-controlled CRM content. Their infrastructure may involve processing outside the EEA, and the location and transfer safeguards depend on the operator concerned. The current domains and their roles are also listed at [Subprocessors and Other Recipients](/subprocessors).
+
 ### Vercel Web Analytics
 
 We use Vercel Web Analytics, a usage measurement service of Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter "Vercel"). Vercel Web Analytics is active on all pages of our website and of the web application, including the pages available after login.
@@ -300,7 +306,7 @@ https://www.lemonsqueezy.com/terms
 
 ## 6. Connected Accounts (Email, Messaging, and Calendar)
 
-Our CRM system offers an optional connected-account feature that lets you connect your own email mailboxes (Gmail/Google, Microsoft/Outlook, and IMAP), messaging accounts (LinkedIn, including its Sales Navigator and Recruiter variants, as well as WhatsApp, Instagram, and Telegram), and calendars, so that you can send, receive, and manage your business communications and appointments directly within the CRM. The use of this feature is optional and only takes effect if you actively choose to connect an account.
+Our CRM system offers an optional connected-account feature that lets you connect your own email mailboxes (Gmail/Google, Microsoft/Outlook, and IMAP), messaging accounts (LinkedIn, including its Sales Navigator and Recruiter variants, as well as WhatsApp, Instagram, and Telegram), and calendars. Depending on the connected provider, the feature can send, receive, and manage business communications and appointments; retrieve and display social posts, comments, reactions, and person or company profiles; list, send, accept, withdraw, or decline relationship requests; run Sales Navigator lead and company searches; and view existing lead or account lists and add entries to them. The use of this feature is optional and only takes effect if you actively choose to connect an account.
 
 The technical transport of connected-account data is provided by our service provider **UNIPILE SAS**, RCS Roanne 885265595, 168 rue de la Rotonde, 42153 Riorges, France (hereinafter "Unipile").
 
@@ -313,18 +319,21 @@ When you use the connected-account feature, the following personal data may be p
 - email content, including subject, body, sender and recipient addresses, and attachments;
 - chat and direct-message content across the connected messaging channels;
 - contact and participant profile data (name, avatar, LinkedIn headline/occupation, profile URL, and the relevant email address, phone number, or handle);
+- social posts and engagement data (post or comment text, authors, reactors, timestamps, reaction types, and counters);
+- person and company profile and relationship data (provider identifiers, names, profile URLs and images, descriptions, employment, location, industry, network distance, connection status, and request messages);
+- Sales Navigator search inputs, results, and list data (search URLs and filters, lead and company profiles, list names and membership, and saved status);
 - calendar events, including attendee email addresses and RSVP status;
 - message and account metadata.
 
-Attachment files are transmitted on demand and are not stored by Customermates; only attachment metadata is stored. In addition to the processing at Unipile, Customermates stores a copy of the connected-account content in its own database (see section 2, "Neon"), in particular message bodies (text and HTML), subjects, sender and recipient identifiers, thread participant profiles, calendar events with attendee email addresses, and the raw inbound data received from the providers.
+Attachment files are transmitted on demand and are not stored by Customermates; only attachment metadata is stored. In addition to the processing at Unipile, Customermates stores a copy of the synchronized connected-account content in its own database (see section 2, "Neon"), in particular message bodies (text and HTML), subjects, sender and recipient identifiers, thread participant profiles, calendar events with attendee email addresses, and the raw inbound data received from the providers. Social posts and engagement, profile lookups, relationship requests, and Sales Navigator search, result, and list data are retrieved or transmitted through Unipile when a customer requests the relevant operation and are returned to the requesting user or a customer-authorized API or MCP client. Customermates does not store that operation data as connected-account content unless the customer separately saves information as a CRM record. Relationship-request and list actions modify the underlying platform on the customer's instruction.
 
-The data processed via the connected-account feature includes personal data of your own users as well as of third parties with whom you communicate (your correspondents) whose data appears in messages, contacts, and calendar entries.
+The data processed via the connected-account feature includes personal data of your own users as well as third parties, including correspondents, post and comment authors, reactors, profile subjects, parties to relationship requests, Sales Navigator leads, and company representatives.
 
 Please note that connecting an account also ingests the content of conversations with people who are not users of our service. This content is determined by you and your correspondents and may contain special categories of personal data within the meaning of Art. 9 GDPR. As controller for this content, you are responsible for having a legal basis for its processing and for fulfilling your information duties toward the people concerned.
 
 ### Roles and Data Processing on Behalf
 
-For the content of connected accounts (your mailboxes, messages, contacts, and calendars, including the personal data of your correspondents), you are the controller within the meaning of Art. 4 no. 7 GDPR. Customermates processes this data exclusively on your behalf and according to your instructions as a processor pursuant to Art. 28 GDPR. Customermates engages Unipile as a subprocessor for this purpose. The underlying communication platforms (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram, and Telegram) act as independent controllers for their own respective services.
+For connected-account content and operations (including mailboxes, messages, contacts, calendars, social content and engagement data, profiles, relationship requests, and Sales Navigator search and list data), you are the controller within the meaning of Art. 4 no. 7 GDPR. Customermates processes this data exclusively on your behalf and according to your instructions as a processor pursuant to Art. 28 GDPR. Customermates engages Unipile as a subprocessor for this purpose. The underlying communication platforms (Google, Microsoft, LinkedIn, Meta/WhatsApp/Instagram, and Telegram) act as independent controllers for their own respective services.
 
 A list of the subprocessors we engage is available at [Subprocessors](/subprocessors), and further information on the data processing agreement is available at [Data Processing Agreement](/dpa).
 
@@ -360,7 +369,7 @@ We do not apply a fixed retention period to stored connected-account content whi
 
 If you are not a customer of ours but your personal data reaches our systems because one of our customers communicates with you or stores your data in its CRM, that customer and not Customermates is the controller for this data. We process it exclusively on that customer's documented instructions as a processor pursuant to Art. 28 GDPR.
 
-The categories of data concerned are those set out in section 6, in particular contact and profile data and the content of messages and calendar entries. They reach us from the customer directly or, for connected accounts, from the email, messaging and calendar providers the customer has connected.
+The categories of data concerned are those set out in section 6, in particular contact and profile data; message and calendar content; social-post and engagement data; relationship-request data; and Sales Navigator search, result, and list data. They reach us from the customer directly or, for connected accounts, from the email, messaging, social-network, and calendar providers the customer has connected.
 
 Because we act as a processor, we cannot decide on your rights ourselves. Please address requests for information, rectification, erasure, restriction or objection to the customer who is the controller. If you contact us and we can identify the customer concerned, we forward your request to them without undue delay and inform you that we have done so. Our own contact details are set out in section 3.
 

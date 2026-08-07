@@ -33,8 +33,8 @@ describe("legal document versions", () => {
 
   it("keeps the subprocessor update date aligned across languages", () => {
     expect(legal("en", "subprocessors")).toContain(
-      "_Last updated: 6 August 2026_",
+      "_Last updated: 7 August 2026_",
     );
-    expect(legal("de", "subprocessors")).toContain("_Stand: 6. August 2026_");
+    expect(legal("de", "subprocessors")).toContain("_Stand: 7. August 2026_");
   });
 });
