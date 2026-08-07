@@ -60,10 +60,9 @@ type Props = {
   selections: TerminologySelectionMap;
   onPreset?: (entityType: EntityType, presetKey: string) => void;
   readOnly?: boolean;
-  hideHeader?: boolean;
 };
 
-export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly = false, hideHeader = false }: Props) {
+export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly = false }: Props) {
   const t = useTranslations();
   const { presetLabel } = useEntityTerminology();
 
@@ -165,7 +164,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
       <div className="relative">
         <svg
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden size-full text-border sm:block"
+          className="pointer-events-none absolute inset-0 hidden size-full text-input sm:block"
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
         >
@@ -226,28 +225,28 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-2 z-20 hidden -translate-x-1/2 bg-card px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-1/2 top-2 z-20 hidden -translate-x-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
         >
           {t("EntityTerminology.relationships.workAt")}
         </div>
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 bg-card px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
         >
           {t("EntityTerminology.relationships.involvedIn")}
         </div>
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-[59%] top-1/2 z-20 hidden -translate-1/2 bg-card px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-[59%] top-1/2 z-20 hidden -translate-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
         >
           {t("EntityTerminology.relationships.linkedTo")}
         </div>
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-2 left-1/2 z-20 hidden -translate-x-1/2 bg-card px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute bottom-2 left-1/2 z-20 hidden -translate-x-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
         >
           {t("EntityTerminology.relationships.include")}
         </div>
@@ -258,38 +257,31 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      {!hideHeader && (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold">{t("EntityTerminology.relationships.dataModelTitle")}</span>
+    <section aria-labelledby="terminology-data-model-label" className="flex flex-col gap-1.5">
+      <p className="text-xs font-normal text-muted-foreground" id="terminology-data-model-label">
+        {t("EntityTerminology.relationships.dataModelLabel")}
+      </p>
 
-          <span className="text-xs text-muted-foreground">
-            {t("EntityTerminology.relationships.dataModelSubtitle")}
-          </span>
-        </div>
-      )}
-
-      <section className="flex flex-col gap-4 rounded-xl border bg-card/40 p-4">
+      <div className="flex flex-col">
         {relationshipMap()}
 
-        <div
-          aria-labelledby="terminology-task-group-label"
-          className="flex flex-col gap-2 border-t pt-3 sm:flex-row sm:items-center"
-          role="group"
-        >
-          <span className="text-xs font-medium whitespace-nowrap" id="terminology-task-group-label">
-            {t("EntityTerminology.relationships.workItems")}
-          </span>
+        <div aria-labelledby="terminology-task-relationship-label" className="flex flex-col items-center" role="group">
+          <div className="relative flex min-h-14 w-full items-center justify-center py-2">
+            <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-input" />
 
-          <div className="w-full sm:w-56">{node(EntityType.task)}</div>
+            <span
+              className="relative z-10 max-w-[calc(100%-2rem)] bg-background px-2 text-center text-[10px] leading-relaxed text-muted-foreground"
+              id="terminology-task-relationship-label"
+            >
+              {t("EntityTerminology.relationships.taskScope", {
+                tasks: entityLabel(EntityType.task),
+              })}
+            </span>
+          </div>
 
-          <span className="min-w-0 flex-1 text-xs text-muted-foreground">
-            {t("EntityTerminology.relationships.taskScope", {
-              tasks: entityLabel(EntityType.task),
-            })}
-          </span>
+          <div className="w-full sm:w-[calc(50%-3rem)]">{node(EntityType.task)}</div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

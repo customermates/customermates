@@ -42,6 +42,7 @@ describe("entity terminology catalogs", () => {
   });
 
   it.each(Object.entries(catalogs))("keeps %s data-model relationships complete and dynamic", (_locale, messages) => {
+    expect(messages.EntityTerminology.relationships.dataModelLabel).not.toBe("");
     expect(messages.EntityTerminology.relationships.howRecordsConnect).not.toBe("");
     expect(messages.EntityTerminology.relationships.linkedTo).not.toBe("");
     expect(messages.EntityTerminology.relationships.contactOrganizationSummary).toContain("{contacts}");
@@ -53,7 +54,6 @@ describe("entity terminology catalogs", () => {
     expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{deals}");
     expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{services}");
     expect(messages.EntityTerminology.relationships.taskScope).toContain("{tasks}");
-    expect(messages.EntityTerminology.relationships.workItems).not.toBe("");
   });
 
   it("renders German relationship copy without inflecting a configured record name", () => {

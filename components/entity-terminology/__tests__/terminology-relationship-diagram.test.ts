@@ -81,8 +81,13 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(taskSelect).toContain("Follow-ups");
     expect(html.match(/data-selected=/g)).toHaveLength(5);
     expect(html).toContain("Follow-ups can be linked to any record in this model.");
-    expect(html).toContain("Work items");
+    expect(html).toContain("Your data model — choose the names your team uses; relationships stay the same.");
+    expect(html).toContain('id="terminology-task-relationship-label"');
     expect(html).toContain('role="group"');
+    expect(html).not.toContain("Work items");
+    expect(html).not.toContain("border-t");
+    expect(html).not.toContain("rounded-xl");
+    expect(html).not.toContain("bg-card/40");
     expect(html).not.toContain("Option A");
     expect(html).not.toContain("Temporary comparison");
     expect(html).not.toContain('role="tablist"');
@@ -100,6 +105,8 @@ describe("TerminologyRelationshipDiagram", () => {
       expect(html.match(new RegExp(`data-relationship="${relationship}"`, "g"))).toHaveLength(2);
 
     expect(html).toContain('<svg aria-hidden="true"');
+    expect(html).toContain("text-input");
+    expect(html).toContain("bg-input");
     expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
     expect(html).toContain("Companies are linked to Jobs.");
     expect(html).not.toContain("border-l-");

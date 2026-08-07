@@ -1226,8 +1226,7 @@
     "relationships": {
       "contactDealSummary": "{contacts} sind an Datensätzen vom Typ „{deals}“ beteiligt.",
       "contactOrganizationSummary": "{contacts} arbeiten bei Datensätzen vom Typ „{organizations}“.",
-      "dataModelSubtitle": "Wähle die Bezeichnungen, die dein Team verwendet. Die Beziehungen bleiben unverändert.",
-      "dataModelTitle": "Dein Datenmodell",
+      "dataModelLabel": "Dein Datenmodell – wähle die Bezeichnungen, die dein Team verwendet; die Beziehungen bleiben unverändert.",
       "dealServiceSummary": "{deals} enthalten Datensätze vom Typ „{services}“.",
       "howRecordsConnect": "So sind Datensätze verknüpft",
       "include": "enthalten",
@@ -1236,8 +1235,7 @@
       "organizationDealSummary": "{organizations} sind mit Datensätzen vom Typ „{deals}“ verknüpft.",
       "selectLabel": "Bezeichnung für {entity}",
       "taskScope": "{tasks} können mit jedem Datensatz in diesem Modell verknüpft werden.",
-      "workAt": "arbeiten bei",
-      "workItems": "Aufgaben"
+      "workAt": "arbeiten bei"
     }
   },
   "EntityTimeline": {

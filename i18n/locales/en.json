@@ -1226,8 +1226,7 @@
     "relationships": {
       "contactDealSummary": "{contacts} are involved in {deals}.",
       "contactOrganizationSummary": "{contacts} work at {organizations}.",
-      "dataModelSubtitle": "Choose the names your team uses. Relationships stay the same.",
-      "dataModelTitle": "Your data model",
+      "dataModelLabel": "Your data model — choose the names your team uses; relationships stay the same.",
       "dealServiceSummary": "{deals} include {services}.",
       "howRecordsConnect": "How records connect",
       "include": "include",
@@ -1236,8 +1235,7 @@
       "organizationDealSummary": "{organizations} are linked to {deals}.",
       "selectLabel": "Name for {entity}",
       "taskScope": "{tasks} can be linked to any record in this model.",
-      "workAt": "work at",
-      "workItems": "Work items"
+      "workAt": "work at"
     }
   },
   "EntityTimeline": {
