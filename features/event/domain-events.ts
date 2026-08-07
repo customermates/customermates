@@ -3,7 +3,7 @@ import type { OrganizationDto } from "@/features/organizations/organization.sche
 import type { DealDto } from "@/features/deals/deal.schema";
 import type { ServiceDto } from "@/features/services/service.schema";
 import type { TaskDto } from "@/features/tasks/task.schema";
-import type { RoleDto } from "@/features/role/get-roles.interactor";
+import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 

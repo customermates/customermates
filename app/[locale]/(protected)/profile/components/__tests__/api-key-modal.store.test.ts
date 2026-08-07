@@ -14,7 +14,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 import { ApiKeyModalStore } from "../api-key-modal.store";
-import { executeAiConnectionKeyCreation } from "@/components/ai-connection/ai-connection-flow";
+import { executeAiConnectionKeyCreation } from "@/components/ai-connection/ai-connection-key-creation";
 
 const refresh = vi.fn();
 const rootStore = {

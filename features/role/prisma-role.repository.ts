@@ -13,6 +13,12 @@ import { BaseRepository } from "@/core/base/base-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 
+export function mapRoleWithAssignments<T extends { _count: { users: number } }>(role: T) {
+  const { _count, ...data } = role;
+
+  return { ...data, hasUsersAssigned: _count.users > 0 };
+}
+
 export class PrismaRoleRepo
   extends BaseRepository
   implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo
@@ -35,6 +41,17 @@ export class PrismaRoleRepo
     } as const;
   }
 
+  private get withAssignmentsSelect() {
+    return {
+      ...this.baseSelect,
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+    } as const;
+  }
+
   getSortableFields() {
     return [{ field: "type", resolvedFields: ["isSystemRole", "name"] }];
   }
@@ -44,10 +61,10 @@ export class PrismaRoleRepo
 
     const roles = await this.prisma.userRole.findMany({
       ...args,
-      select: this.baseSelect,
+      select: this.withAssignmentsSelect,
     });
 
-    return roles;
+    return roles.map(mapRoleWithAssignments);
   }
 
   async getCount() {

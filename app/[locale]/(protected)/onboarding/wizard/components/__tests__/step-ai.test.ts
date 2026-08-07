@@ -96,8 +96,17 @@ describe("StepAi provider chooser", () => {
       "gemini",
     ]);
     expect(providerButtons.join(" ")).not.toMatch(/connector|api.?key|mcp/i);
-    expect(buttonContaining(html, "OnboardingWizard.ai.choices.skip")).not.toContain("data-provider=");
-    expectButtonDisabled(buttonContaining(html, "OnboardingWizard.finish"), true);
+    const skipButton = buttonContaining(html, "OnboardingWizard.ai.choices.skip");
+    const finishButton = buttonContaining(html, "OnboardingWizard.finish");
+
+    expect(skipButton).not.toContain("data-provider=");
+    expect(skipButton).toContain('data-size="default"');
+    expect(skipButton).toContain("h-9");
+    expect(skipButton).not.toContain("h-auto");
+    expect(finishButton).toContain('data-size="default"');
+    expect(finishButton).toContain("h-9");
+    expect(finishButton).not.toContain("h-auto");
+    expectButtonDisabled(finishButton, true);
   });
 
   it("exposes visible and programmatic selection when returning from a provider", () => {

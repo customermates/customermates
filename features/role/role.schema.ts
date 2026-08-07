@@ -20,3 +20,9 @@ export const RoleDtoSchema = z.object({
 });
 
 export type RoleDto = Data<typeof RoleDtoSchema>;
+
+export const RoleWithAssignmentsDtoSchema = RoleDtoSchema.extend({
+  hasUsersAssigned: z.boolean(),
+});
+
+export type RoleWithAssignmentsDto = Data<typeof RoleWithAssignmentsDtoSchema>;

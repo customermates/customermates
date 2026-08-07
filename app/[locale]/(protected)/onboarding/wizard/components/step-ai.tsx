@@ -19,9 +19,8 @@ export const StepAi = observer(() => {
       <div className="flex flex-col-reverse gap-2 xs:flex-row xs:justify-end">
         {stepAiStore.route.screen === "providers" ? (
           <Button
-            className="h-auto w-full whitespace-normal xs:w-fit"
+            className="w-full xs:w-fit"
             disabled={interactionDisabled}
-            size="sm"
             type="button"
             variant="ghost"
             onClick={stepAiStore.selectSkip}
@@ -31,7 +30,7 @@ export const StepAi = observer(() => {
         ) : null}
 
         <Button
-          className="h-auto w-full whitespace-normal xs:w-fit"
+          className="w-full xs:w-fit"
           disabled={!stepAiStore.canFinish || onboardingWizardStore.isSubmitting}
           type="button"
           onClick={() => void onboardingWizardStore.complete()}

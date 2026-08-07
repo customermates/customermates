@@ -27,9 +27,8 @@ type Props = {
 
 export const RoleModal = observer(({ store }: Props) => {
   const t = useTranslations();
-  const { form, isDisabledOrSystemRole, isLoading, hasUsersAssigned, isSystemRole } = store;
+  const { form, isDisabledOrSystemRole, isLoading, canDeleteRole, isSystemRole } = store;
   const { showDeleteConfirmation } = useDeleteConfirmation();
-  const canDeleteRole = Boolean(form.id && !isDisabledOrSystemRole && !hasUsersAssigned);
 
   function renderResourcePermissions(resource: Resource) {
     const permission = form.permissions[resource];

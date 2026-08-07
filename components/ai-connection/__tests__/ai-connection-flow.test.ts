@@ -38,7 +38,9 @@ vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 
-import { AiConnectionProviderGrid, ClaudeSetup, executeAiConnectionKeyCreation } from "../ai-connection-flow";
+import { AiConnectionClaudeSetup } from "../ai-connection-claude-setup";
+import { executeAiConnectionKeyCreation } from "../ai-connection-key-creation";
+import { AiConnectionProviderGrid } from "../ai-connection-provider-grid";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -87,9 +89,9 @@ describe("executeAiConnectionKeyCreation", () => {
   });
 });
 
-describe("ClaudeSetup", () => {
+describe("AiConnectionClaudeSetup", () => {
   it("remains observer-wrapped so the first Claude selection rerenders", () => {
-    expect((ClaudeSetup as unknown as { $$typeof?: symbol }).$$typeof).toBe(Symbol.for("react.memo"));
+    expect((AiConnectionClaudeSetup as unknown as { $$typeof?: symbol }).$$typeof).toBe(Symbol.for("react.memo"));
   });
 });
 
