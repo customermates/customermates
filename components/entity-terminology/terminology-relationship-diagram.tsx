@@ -2,13 +2,14 @@
 
 import type { LucideIcon } from "lucide-react";
 
-import { Building2, ChevronDown, ChevronRight, Package, TrendingUp, Users } from "lucide-react";
+import { Building2, CheckCircle2, Package, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import type { TerminologySelectionMap } from "@/features/entity-terminology/entity-terminology.types";
 
 import { cn } from "@/core/utils/cn";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   CANONICAL_TERMINOLOGY_PRESET_KEY,
@@ -22,37 +23,37 @@ type EntityStyle = {
   icon: LucideIcon;
   square: string;
   glyph: string;
-  accent: string;
 };
 
-const ENTITY_STYLE: Record<string, EntityStyle> = {
+const ENTITY_STYLE: Record<EntityType, EntityStyle> = {
   [EntityType.contact]: {
     icon: Users,
     square: "bg-blue-500/10",
     glyph: "text-blue-600 dark:text-blue-400",
-    accent: "border-l-blue-500",
   },
   [EntityType.organization]: {
     icon: Building2,
     square: "bg-violet-500/10",
     glyph: "text-violet-600 dark:text-violet-400",
-    accent: "border-l-violet-500",
   },
   [EntityType.deal]: {
     icon: TrendingUp,
     square: "bg-emerald-500/10",
     glyph: "text-emerald-600 dark:text-emerald-400",
-    accent: "border-l-emerald-500",
   },
   [EntityType.service]: {
     icon: Package,
     square: "bg-amber-500/10",
     glyph: "text-amber-600 dark:text-amber-400",
-    accent: "border-l-amber-500",
+  },
+  [EntityType.task]: {
+    icon: CheckCircle2,
+    square: "bg-cyan-500/10",
+    glyph: "text-cyan-600 dark:text-cyan-400",
   },
 };
 
-const CARD_BASE = "w-full items-center gap-2.5 border-l-4 py-1.5 text-sm font-medium";
+const CARD_BASE = "w-full items-center gap-2.5 py-1.5 text-sm font-medium";
 
 const CARD_SURFACE = "h-9 rounded-md border border-input bg-input-background px-3 shadow-xs";
 
@@ -60,20 +61,26 @@ type Props = {
   selections: TerminologySelectionMap;
   onPreset?: (entityType: EntityType, presetKey: string) => void;
   readOnly?: boolean;
-  hideHeader?: boolean;
 };
 
-export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly = false, hideHeader = false }: Props) {
+export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly = false }: Props) {
   const t = useTranslations();
   const { presetLabel } = useEntityTerminology();
+
+  const selectedPresetKey = (entityType: EntityType) => {
+    const selected = selections[entityType];
+    return isTerminologyPresetKey(entityType, selected) ? selected : CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];
+  };
+
+  const entityLabel = (entityType: EntityType) => presetLabel(entityType, selectedPresetKey(entityType), "plural");
+  const taskScopeLabel = t("EntityTerminology.relationships.taskScope", {
+    tasks: entityLabel(EntityType.task),
+  });
 
   const node = (entityType: EntityType) => {
     const style = ENTITY_STYLE[entityType];
     const Icon = style.icon;
-    const selected = selections[entityType];
-    const presetKey = isTerminologyPresetKey(entityType, selected)
-      ? selected
-      : CANONICAL_TERMINOLOGY_PRESET_KEY[entityType];
+    const presetKey = selectedPresetKey(entityType);
 
     const glyph = (
       <span className={cn("flex size-6 shrink-0 items-center justify-center rounded", style.square)}>
@@ -83,7 +90,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
     if (readOnly || !onPreset) {
       return (
-        <div className={cn(CARD_BASE, CARD_SURFACE, "flex", style.accent)}>
+        <div className={cn(CARD_BASE, CARD_SURFACE, "flex")}>
           {glyph}
 
           <span className="min-w-0 truncate">{presetLabel(entityType, presetKey, "plural")}</span>
@@ -93,7 +100,13 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
     return (
       <Select value={presetKey} onValueChange={(next) => onPreset(entityType, next)}>
-        <SelectTrigger className={cn(CARD_BASE, "justify-between", style.accent)} id={`terminology-${entityType}`}>
+        <SelectTrigger
+          aria-label={t("EntityTerminology.relationships.selectLabel", {
+            entity: presetLabel(entityType, presetKey, "singular"),
+          })}
+          className={cn(CARD_BASE, "justify-between")}
+          id={`terminology-${entityType}`}
+        >
           <span className="flex min-w-0 items-center gap-2.5">
             {glyph}
 
@@ -112,65 +125,240 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
     );
   };
 
-  const horizontalEdge = (edgeLabel: string) => (
-    <div className="flex w-12 flex-col items-center sm:w-16">
-      <span className="text-center text-[10px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
-        {edgeLabel}
+  const relationshipList = () => (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-medium text-foreground">
+        {t("EntityTerminology.relationships.howRecordsConnect")}
       </span>
 
-      <div className="flex w-full items-center text-muted-foreground/50">
-        <div className="h-px flex-1 bg-current" />
+      <ul className="grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-2">
+        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="contact-organization">
+          {t("EntityTerminology.relationships.contactOrganizationSummary", {
+            contacts: entityLabel(EntityType.contact),
+            organizations: entityLabel(EntityType.organization),
+          })}
+        </li>
 
-        <ChevronRight aria-hidden="true" className="-ml-1.5 size-3 shrink-0" />
-      </div>
+        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="contact-deal">
+          {t("EntityTerminology.relationships.contactDealSummary", {
+            contacts: entityLabel(EntityType.contact),
+            deals: entityLabel(EntityType.deal),
+          })}
+        </li>
+
+        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="organization-deal">
+          {t("EntityTerminology.relationships.organizationDealSummary", {
+            deals: entityLabel(EntityType.deal),
+            organizations: entityLabel(EntityType.organization),
+          })}
+        </li>
+
+        <li className="rounded-md border bg-muted/20 px-2.5 py-2" data-relationship="deal-service">
+          {t("EntityTerminology.relationships.dealServiceSummary", {
+            deals: entityLabel(EntityType.deal),
+            services: entityLabel(EntityType.service),
+          })}
+        </li>
+      </ul>
     </div>
   );
 
-  return (
-    <div className="flex flex-col gap-3">
-      {!hideHeader && (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold">{t("EntityTerminology.relationships.dataModelTitle")}</span>
+  const relationshipMap = () => (
+    <>
+      <div className="relative">
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 hidden size-full text-border sm:block"
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
+          <g data-relationship="contact-organization">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="42"
+              x2="45"
+              y1="13"
+              y2="13"
+            />
 
-          <span className="text-xs text-muted-foreground">
-            {t("EntityTerminology.relationships.dataModelSubtitle")}
-          </span>
-        </div>
-      )}
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="55"
+              x2="58"
+              y1="13"
+              y2="13"
+            />
+          </g>
 
-      <div className="flex flex-col gap-1.5">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5 sm:gap-2">
+          <g data-relationship="contact-deal">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="21"
+              x2="21"
+              y1="26"
+              y2="42"
+            />
+
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="21"
+              x2="21"
+              y1="58"
+              y2="74"
+            />
+          </g>
+
+          <g data-relationship="organization-deal">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="79"
+              x2="57"
+              y1="26"
+              y2="44"
+            />
+
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="43"
+              x2="21"
+              y1="56"
+              y2="74"
+            />
+          </g>
+
+          <g data-relationship="deal-service">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="42"
+              x2="45"
+              y1="87"
+              y2="87"
+            />
+
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="55"
+              x2="58"
+              y1="87"
+              y2="87"
+            />
+          </g>
+        </svg>
+
+        <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-24 sm:gap-y-16">
           {node(EntityType.contact)}
 
-          {horizontalEdge(t("EntityTerminology.relationships.workAt"))}
-
           {node(EntityType.organization)}
-        </div>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-1.5 sm:gap-2">
-          <div className="flex flex-col items-center gap-0.5 text-muted-foreground/50">
-            <div className="h-2 w-px bg-current" />
-
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              {t("EntityTerminology.relationships.involvedIn")}
-            </span>
-
-            <div className="flex flex-col items-center">
-              <div className="h-2 w-px bg-current" />
-
-              <ChevronDown aria-hidden="true" className="-mt-1.5 size-3 shrink-0" />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5 sm:gap-2">
           {node(EntityType.deal)}
-
-          {horizontalEdge(t("EntityTerminology.relationships.include"))}
 
           {node(EntityType.service)}
         </div>
+
+        <Badge
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[13%] z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="contact-organization"
+          variant="secondary"
+        >
+          {t("EntityTerminology.relationships.workAt")}
+        </Badge>
+
+        <Badge
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="contact-deal"
+          variant="secondary"
+        >
+          {t("EntityTerminology.relationships.involvedIn")}
+        </Badge>
+
+        <Badge
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="organization-deal"
+          variant="secondary"
+        >
+          {t("EntityTerminology.relationships.linkedTo")}
+        </Badge>
+
+        <Badge
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[87%] z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="deal-service"
+          variant="secondary"
+        >
+          {t("EntityTerminology.relationships.include")}
+        </Badge>
       </div>
-    </div>
+
+      <div className="sr-only">{relationshipList()}</div>
+    </>
+  );
+
+  return (
+    <section aria-labelledby="terminology-data-model-label" className="flex flex-col gap-1.5">
+      <p className="text-xs font-normal text-muted-foreground" id="terminology-data-model-label">
+        {t("EntityTerminology.relationships.dataModelLabel")}
+      </p>
+
+      <div className="flex flex-col">
+        {relationshipMap()}
+
+        <div aria-labelledby="terminology-task-relationship-label" className="flex flex-col items-center" role="group">
+          <span className="sr-only" id="terminology-task-relationship-label">
+            {taskScopeLabel}
+          </span>
+
+          <div className="relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14">
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border sm:hidden"
+            />
+
+            <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
+
+            <Badge
+              aria-hidden="true"
+              className="pointer-events-none hidden max-w-[calc(100%-2rem)] text-center text-[10px] leading-relaxed sm:inline-flex"
+              data-relationship-label="task-all-records"
+              variant="secondary"
+            >
+              {taskScopeLabel}
+            </Badge>
+
+            <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
+          </div>
+
+          <div data-task-selector className="w-full">
+            {node(EntityType.task)}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

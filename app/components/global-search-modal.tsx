@@ -123,7 +123,16 @@ export const GlobalSearchModal = observer(() => {
       <CommandList>
         {showNoResults && <CommandEmpty>{t("GlobalSearch.noResults")}</CommandEmpty>}
 
-        {!hasQuery && recentItems.length === 0 && <CommandEmpty>{t("GlobalSearch.emptyPrompt")}</CommandEmpty>}
+        {!hasQuery && recentItems.length === 0 && (
+          <CommandEmpty>
+            {t("GlobalSearch.emptyPrompt", {
+              contacts: plural(EntityType.contact),
+              deals: plural(EntityType.deal),
+              organizations: plural(EntityType.organization),
+              services: plural(EntityType.service),
+            })}
+          </CommandEmpty>
+        )}
 
         {groupedResults.map((group, groupIdx) => (
           <CommandGroup

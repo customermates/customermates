@@ -2,9 +2,9 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { RefreshCw } from "lucide-react";
 import { WebhookDeliveryStatus } from "@/generated/prisma";
 
-import { Button } from "@/components/ui/button";
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
 import { getEntityName } from "@/features/event/entity-name.utils";
 import { AppModal } from "@/components/modal";
@@ -22,23 +22,34 @@ export const WebhookDeliveryModal = observer(() => {
   const delivery = store.form;
 
   return (
-    <AppModal size="xl" store={store} title={t("WebhookDeliveryModal.title")}>
+    <AppModal
+      actions={
+        store.canManage &&
+        (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed)
+          ? [
+              {
+                id: "resend-webhook-delivery",
+                label: t("WebhookDeliveryModal.resend"),
+                icon: RefreshCw,
+                busy: store.isResending,
+                onClick: () => store.resend(),
+              },
+            ]
+          : []
+      }
+      size="xl"
+      store={store}
+      title={t("WebhookDeliveryModal.title")}
+    >
       <AppCard>
         <AppCardHeader>
-          <div className="flex items-center gap-2 mr-auto">
-            <h2 className="text-x-lg grow">{t("WebhookDeliveryModal.title")}</h2>
+          <div className="flex min-w-0 items-center gap-2">
+            <h2 className="grow truncate text-x-lg">{t("WebhookDeliveryModal.title")}</h2>
 
             <AppChip size="sm" variant={WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR[delivery.status]}>
               {t(`WebhookDeliveryModal.deliveryStatus.${delivery.status}`)}
             </AppChip>
           </div>
-
-          {store.canManage &&
-            (delivery.status === WebhookDeliveryStatus.success || delivery.status === WebhookDeliveryStatus.failed) && (
-              <Button disabled={store.isResending} size="sm" variant="secondary" onClick={() => void store.resend()}>
-                {t("WebhookDeliveryModal.resend")}
-              </Button>
-            )}
         </AppCardHeader>
 
         <AppCardBody>

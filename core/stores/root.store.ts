@@ -18,7 +18,7 @@ import { CompanyStore } from "@/app/[locale]/(protected)/company/components/comp
 import { ContactDetailStore } from "@/app/[locale]/(protected)/contacts/components/contact-detail.store";
 import { OrganizationDetailStore } from "@/app/[locale]/(protected)/organizations/components/organization-detail.store";
 import { OrganizationsStore } from "@/app/[locale]/(protected)/organizations/components/organizations.store";
-import { StepAiStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-ai.store";
+import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { StepProfileStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/step-profile.store";
 import { OnboardingWizardStore } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.store";
 import { ProfileSettingsStore } from "@/app/[locale]/(protected)/profile/components/profile-settings.store";
@@ -105,7 +105,7 @@ export class RootStore {
   private _verifyEmailStore?: VerifyEmailStore;
   private _mcpConsentStore?: McpConsentStore;
   private _inviteByEmailStore?: InviteByEmailStore;
-  private _stepAiStore?: StepAiStore;
+  private _stepAiStore?: AiConnectionStore;
   private _stepProfileStore?: StepProfileStore;
   private _onboardingWizardStore?: OnboardingWizardStore;
   private _resetPasswordStore?: ResetPasswordStore;
@@ -264,7 +264,7 @@ export class RootStore {
   }
 
   get stepAiStore() {
-    return (this._stepAiStore ??= new StepAiStore(this));
+    return (this._stepAiStore ??= new AiConnectionStore(this));
   }
 
   get inviteByEmailStore() {

@@ -1,4 +1,4 @@
-import type { RoleDto } from "./role.schema";
+import type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
 import type { GetResult, P13nRepo } from "@/core/base/base-get.interactor";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -9,11 +9,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { RoleDtoSchema } from "./role.schema";
+import { RoleWithAssignmentsDtoSchema as RoleDtoSchema } from "./role.schema";
 import { BaseGetRepo, BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 
-export type { RoleDto } from "./role.schema";
+export type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
 
 export abstract class GetRolesRepo extends BaseGetRepo<RoleDto> {}
 

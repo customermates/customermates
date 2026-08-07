@@ -327,6 +327,41 @@ path:focus {
 }
 
 @layer utilities {
+  .inline-link,
+  .inline-links a,
+  .prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    color: inherit;
+    text-decoration-color: currentColor;
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+    transition:
+      opacity 150ms ease,
+      text-decoration-thickness 150ms ease;
+  }
+
+  .inline-link:hover,
+  .inline-link:focus-visible,
+  .inline-links a:hover,
+  .inline-links a:focus-visible,
+  .prose :where(a:hover, a:focus-visible):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    text-decoration-thickness: 0.12em;
+  }
+
+  .inline-link:active,
+  .inline-links a:active,
+  .prose :where(a:active):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    opacity: 0.7;
+  }
+
+  .inline-link:focus-visible,
+  .inline-links a:focus-visible,
+  .prose :where(a:focus-visible):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    border-radius: 0.125rem;
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
   .text-x-4xl {
     @apply relative text-4xl md:text-5xl lg:text-7xl px-4 tracking-tight font-bold text-transparent bg-clip-text bg-linear-to-b from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-gray-100 dark:to-gray-400;
   }

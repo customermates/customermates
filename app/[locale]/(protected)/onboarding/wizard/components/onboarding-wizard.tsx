@@ -1,8 +1,6 @@
 "use client";
 
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
-
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -13,13 +11,11 @@ import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { StepProfile } from "./step-profile";
-import { StepTerminology } from "./step-terminology";
 import { StepAi } from "./step-ai";
 import { StepInvite } from "./step-invite";
 
 type Props = {
   profileCompleted: boolean;
-  initialTerminology: EntityTerminologyOverride[];
   isInvited?: boolean;
   sessionEmail?: string;
   sessionFirstName?: string;
@@ -30,7 +26,6 @@ type Props = {
 export const OnboardingWizard = observer(
   ({
     profileCompleted,
-    initialTerminology,
     isInvited = false,
     sessionEmail = "",
     sessionFirstName,
@@ -40,11 +35,17 @@ export const OnboardingWizard = observer(
     const t = useTranslations();
     const { onboardingWizardStore } = useRootStore();
     const { currentStep, currentStepIndex, totalSteps, isFirstStep, isSubmitting, next, back } = onboardingWizardStore;
+    const headingRef = useRef<HTMLHeadingElement>(null);
+    const previousStep = useRef(currentStep);
 
     useEffect(() => {
-      onboardingWizardStore.initTerminology(initialTerminology);
       onboardingWizardStore.setInitialStep(profileCompleted ? 1 : 0);
-    }, [profileCompleted, initialTerminology]);
+    }, [onboardingWizardStore, profileCompleted]);
+
+    useEffect(() => {
+      if (previousStep.current !== currentStep) headingRef.current?.focus();
+      previousStep.current = currentStep;
+    }, [currentStep]);
 
     const renderStep = () => {
       switch (currentStep) {
@@ -58,8 +59,6 @@ export const OnboardingWizard = observer(
               lastName={sessionLastName}
             />
           );
-        case "terminology":
-          return <StepTerminology />;
         case "ai":
           return <StepAi />;
         case "invite":
@@ -82,7 +81,9 @@ export const OnboardingWizard = observer(
               </div>
             )}
 
-            <h1 className="text-2xl font-semibold">{t(`OnboardingWizard.steps.${currentStep}.title`)}</h1>
+            <h1 ref={headingRef} className="text-2xl font-semibold" tabIndex={-1}>
+              {t(`OnboardingWizard.steps.${currentStep}.title`)}
+            </h1>
 
             <p className="text-sm text-muted-foreground">{t(`OnboardingWizard.steps.${currentStep}.subtitle`)}</p>
           </div>

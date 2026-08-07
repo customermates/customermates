@@ -82,14 +82,12 @@ export function DetailHeader({
   provider,
   providerLabel,
   subtitle,
-  action,
 }: {
   avatar: ReactNode;
   title: string;
   provider?: MessagingProvider;
   providerLabel?: string;
   subtitle: string;
-  action?: ReactNode;
 }) {
   const ProviderIcon = provider ? getProviderIcon(provider) : null;
 
@@ -108,8 +106,6 @@ export function DetailHeader({
 
         <p className="text-muted-foreground text-xs">{subtitle}</p>
       </div>
-
-      {action}
     </AppCardHeader>
   );
 }

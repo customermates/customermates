@@ -39,7 +39,7 @@ export const TaskDetailView = observer(({ layout = "drawer" }: Props) => {
           <p className="text-x-sm">
             {t.rich(systemTaskAlertConfig.translationKey, {
               link: (chunks) => (
-                <AppLink inheritSize className="text-current" href={systemTaskAlertConfig.linkHref}>
+                <AppLink inheritSize appearance="inline" href={systemTaskAlertConfig.linkHref}>
                   {chunks}
                 </AppLink>
               ),

@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { observer } from "mobx-react-lite";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { EntityType, Resource } from "@/generated/prisma";
 
 import { FormNumberInput } from "@/components/forms/form-number-input";
@@ -15,12 +15,14 @@ import { useEntityHref } from "@/components/entity-detail/hooks/use-entity-drawe
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
 
 export const DealServicesSelection = observer(() => {
   const { dealDetailStore, intlStore, userStore } = useRootStore();
   const { form, fetchedEntity, canManage, addService, deleteService, serviceAmountById, totalQuantity, totalValue } =
     dealDetailStore;
   const entityHref = useEntityHref();
+  const locale = useLocale();
   const t = useTranslations();
   const { plural } = useEntityTerminology();
 
@@ -174,7 +176,9 @@ export const DealServicesSelection = observer(() => {
 
       {(form.services || []).length === 0 && (
         <p className="text-x-sm text-subdued">
-          {t("DealModal.noServicesAdded", { entity: plural(EntityType.service).toLocaleLowerCase() })}
+          {t("DealModal.noServicesAdded", {
+            entity: terminologyLabelForSentence(plural(EntityType.service), locale),
+          })}
         </p>
       )}
     </div>

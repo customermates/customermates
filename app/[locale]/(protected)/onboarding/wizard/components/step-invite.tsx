@@ -37,8 +37,6 @@ const InviteLink = observer(() => {
       ) : (
         <p className="text-xs text-destructive">{t("OnboardingWizard.invite.linkFailed")}</p>
       )}
-
-      <p className="text-xs text-muted-foreground">{t("OnboardingWizard.invite.linkValidity")}</p>
     </div>
   );
 });

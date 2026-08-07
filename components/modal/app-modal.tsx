@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { BaseModalStore } from "@/core/base/base-modal.store";
+import type { AppModalActionProps } from "./app-modal-action";
 
 import { observer } from "mobx-react-lite";
 
@@ -9,11 +10,18 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { UnsavedChangesGuard } from "./unsaved-changes-guard";
+import { AppModalAction, APP_MODAL_ACTION_RAIL_CLASS } from "./app-modal-action";
+
+export type AppModalActions =
+  | readonly []
+  | readonly [AppModalActionProps]
+  | readonly [AppModalActionProps, AppModalActionProps];
 
 export type ModalSize = "sm" | "md" | "lg" | "xl";
 
@@ -26,6 +34,7 @@ const sizeClassMap: Record<ModalSize, string> = {
 
 type SharedProps = {
   title: ReactNode;
+  actions?: AppModalActions;
   size?: ModalSize;
   children: ReactNode;
 };
@@ -38,11 +47,27 @@ function hasStore(props: Props): props is SharedProps & StoreProps {
   return props.store !== undefined;
 }
 
+function AppModalActionRail({ actions }: { actions: readonly AppModalActionProps[] }) {
+  return (
+    <TooltipProvider>
+      <div className={APP_MODAL_ACTION_RAIL_CLASS} data-slot="app-modal-actions">
+        {actions.map((action) => (
+          <AppModalAction key={action.id} {...action} />
+        ))}
+      </div>
+    </TooltipProvider>
+  );
+}
+
 export const AppModal = observer((props: Props) => {
-  const { title, size = "md", children } = props;
+  const { title, actions = [], size = "md", children } = props;
   const store = hasStore(props) ? props.store : undefined;
   const isOpen = hasStore(props) ? props.store.isOpen : props.open;
   const isWide = useIsWiderThan("md");
+  const actionCount = actions.length;
+  const hasActions = actionCount > 0;
+
+  if (actionCount > 2) throw new Error("AppModal supports at most two header actions");
   const focusReturn = useOverlayFocusReturn(isOpen, store?.focusReturnTarget, store?.focusReturnFallback);
 
   function requestClose() {
@@ -63,22 +88,34 @@ export const AppModal = observer((props: Props) => {
       {isWide ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogContent
+            aria-describedby={undefined}
             className={cn("flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none", sizeClassMap[size])}
+            data-overlay-action-count={hasActions ? actionCount : undefined}
+            data-overlay-actions={hasActions ? "" : undefined}
             {...focusReturn}
           >
             <VisuallyHidden.Root>
               <DialogTitle>{title}</DialogTitle>
             </VisuallyHidden.Root>
 
+            {hasActions ? <AppModalActionRail actions={actions} /> : null}
+
             {children}
           </DialogContent>
         </Dialog>
       ) : (
         <Drawer open={isOpen} repositionInputs={false} onOpenChange={handleOpenChange}>
-          <DrawerContent className="gap-0" {...focusReturn}>
+          <DrawerContent
+            className="gap-0"
+            data-overlay-action-count={hasActions ? actionCount : undefined}
+            data-overlay-actions={hasActions ? "" : undefined}
+            {...focusReturn}
+          >
             <VisuallyHidden.Root>
               <DrawerTitle>{title}</DrawerTitle>
             </VisuallyHidden.Root>
+
+            {hasActions ? <AppModalActionRail actions={actions} /> : null}
 
             {children}
           </DrawerContent>

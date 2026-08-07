@@ -5,7 +5,7 @@ import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
+import { OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
 import { Button } from "@/components/ui/button";
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -63,10 +63,7 @@ function DialogContent({
 
         {showCloseButton && (
           <DialogPrimitive.Close
-            className={cn(
-              OVERLAY_CLOSE_CLASS,
-              "top-4 right-4 data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-            )}
+            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS)}
             data-slot="dialog-close"
           >
             <XIcon />

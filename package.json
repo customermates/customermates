@@ -139,6 +139,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "4.1.4",
     "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
     "jsonc-eslint-parser": "2.4.1",
     "postcss": "8.4.49",
     "prettier": "3.6.2",

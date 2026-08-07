@@ -51,7 +51,7 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
         <CardHeroHeader
           subtitle={t.rich("SignInForm.switchToSignUp", {
             registerLink: (chunks) => (
-              <AppLink inheritSize href="/auth/signup">
+              <AppLink inheritSize appearance="inline" href="/auth/signup">
                 {chunks}
               </AppLink>
             ),
@@ -130,17 +130,17 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
               <p className="text-x-xs text-subdued text-center mt-2">
                 {t.rich("SignInForm.agreeToTerms", {
                   dataPrivacyLink: (chunks) => (
-                    <AppLink inheritSize className="text-inherit underline" href="/privacy" target="_blank">
+                    <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
                       {chunks}
                     </AppLink>
                   ),
                   dpaLink: (chunks) => (
-                    <AppLink inheritSize className="text-inherit underline" href="/dpa" target="_blank">
+                    <AppLink inheritSize appearance="inline" href="/dpa" target="_blank">
                       {chunks}
                     </AppLink>
                   ),
                   termsOfServiceLink: (chunks) => (
-                    <AppLink inheritSize className="text-inherit underline" href="/terms" target="_blank">
+                    <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
                       {chunks}
                     </AppLink>
                   ),

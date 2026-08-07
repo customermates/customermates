@@ -7,14 +7,15 @@ export const CONFIGURABLE_TERMINOLOGY_ENTITY_TYPES = [
   EntityType.organization,
   EntityType.deal,
   EntityType.service,
+  EntityType.task,
 ] as const;
 
 export const ENTITY_TERMINOLOGY_PRESETS: Record<EntityType, string[]> = {
-  [EntityType.contact]: ["contact", "person", "client"],
+  [EntityType.contact]: ["contact", "person", "client", "lead"],
   [EntityType.organization]: ["organization", "company", "account"],
-  [EntityType.deal]: ["deal", "opportunity", "project"],
-  [EntityType.service]: ["service", "product", "offering"],
-  [EntityType.task]: ["task"],
+  [EntityType.deal]: ["deal", "opportunity", "project", "job"],
+  [EntityType.service]: ["service", "product", "offering", "package"],
+  [EntityType.task]: ["task", "todo", "actionItem", "followUp"],
 };
 
 export const CANONICAL_TERMINOLOGY_PRESET_KEY: Record<EntityType, string> = {
@@ -60,7 +61,10 @@ export function terminologySelectionsFromOverrides(overrides: EntityTerminologyO
   const selections = defaultTerminologySelections();
 
   for (const override of overrides) {
-    if (selections[override.entityType] !== undefined && override.presetKey)
+    if (
+      selections[override.entityType] !== undefined &&
+      isTerminologyPresetKey(override.entityType, override.presetKey)
+    )
       selections[override.entityType] = override.presetKey;
   }
 

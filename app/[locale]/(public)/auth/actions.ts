@@ -18,7 +18,13 @@ import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
-  return serializeResult(getSignInWithEmailInteractor().invoke(data));
+  const result = await getSignInWithEmailInteractor().invoke(data);
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+
+  const serialized = await serializeResult(result);
+  if (serialized.ok) return { ok: true as const, data: { url: serialized.data.callbackURL ?? "/" } };
+
+  return serialized;
 }
 
 export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {

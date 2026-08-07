@@ -30,6 +30,7 @@ export class SignInWithEmailInteractor {
       email: data.email,
       password: data.password,
       rememberMe: data.rememberMe,
+      callbackURL: data.callbackURL,
     });
 
     if (isRedirect(res)) return res;
