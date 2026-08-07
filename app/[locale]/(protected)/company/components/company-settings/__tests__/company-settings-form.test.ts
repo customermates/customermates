@@ -62,19 +62,11 @@ beforeEach(() => {
 });
 
 describe("CompanySettingsForm terminology permissions", () => {
-  it("keeps the data model read-only without company-management access", () => {
-    const html = renderForm(false);
+  it.each([false, true])("keeps the initial %s permission render hydration-safe", (canManage) => {
+    const html = renderForm(canManage);
 
     expect(html).toContain('data-read-only="true"');
     expect(html).toContain('data-has-on-preset="false"');
-    expect(html).not.toContain('role="separator"');
-  });
-
-  it("passes the preset setter to company managers", () => {
-    const html = renderForm(true);
-
-    expect(html).toContain('data-read-only="false"');
-    expect(html).toContain('data-has-on-preset="true"');
     expect(html).not.toContain('role="separator"');
   });
 });

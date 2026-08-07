@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -25,7 +25,12 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
   const formId = useId();
   const { companySettingsStore: store, terminologyStore } = useRootStore();
   const { plural } = useEntityTerminology();
-  const canManage = store.canManage;
+  const [hasMounted, setHasMounted] = useState(false);
+  const canManage = hasMounted && store.canManage;
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     store.onInitOrRefresh({ currency });
