@@ -1,7 +1,7 @@
 "use client";
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { ColumnDef, ColumnSizingState, SortingState, VisibilityState } from "@tanstack/react-table";
+import type { ColumnDef, SortingState, VisibilityState } from "@tanstack/react-table";
 import type { KeyboardEvent, PointerEvent } from "react";
 
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
@@ -36,20 +36,7 @@ type Props<E extends HasId> = {
   onRowHref?: (item: E) => string | undefined;
 };
 
-type ResizeDraft = {
-  columnId: string;
-  width: number;
-};
-
-type ActiveResize = {
-  handle: HTMLButtonElement;
-  session: ColumnResizeSession;
-};
-
-type LastTouchTap = {
-  columnId: string;
-  at: number;
-};
+const fixedWidthStyle = (width: number) => ({ width, minWidth: width, maxWidth: width });
 
 export const DataTable = observer(function DataTable<E extends HasId>({
   store,
@@ -58,25 +45,23 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowHref,
 }: Props<E>) {
   const navigateToHref = useNavigateToHref();
-  const [resizeDraft, setResizeDraft] = useState<ResizeDraft>();
-  const activeResizeRef = useRef<ActiveResize | undefined>(undefined);
-  const lastTouchTapRef = useRef<LastTouchTap | undefined>(undefined);
+  const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
+  const activeResizeRef = useRef<{ handle: HTMLButtonElement; session: ColumnResizeSession }>();
+  const lastTouchTapRef = useRef<{ columnId: string; at: number }>();
 
-  const resetColumnWidth = useCallback(
-    (columnId: string) => {
-      store.setViewOptions({
-        columnWidths: withoutColumnWidth(store.columnWidths, columnId),
-      });
-    },
-    [store],
-  );
+  function resetColumnWidth(columnId: string) {
+    store.setViewOptions({ columnWidths: withoutColumnWidth(store.columnWidths, columnId) });
+  }
+
+  const getColumnWidth = (columnId: string) =>
+    resizeSession?.columnId === columnId ? resizeSession.currentWidth : store.columnWidths[columnId];
 
   const cancelActiveResize = useCallback(() => {
     const active = activeResizeRef.current;
     if (!active) return;
 
     activeResizeRef.current = undefined;
-    setResizeDraft(undefined);
+    setResizeSession(undefined);
     if (active.handle.hasPointerCapture(active.session.pointerId))
       active.handle.releasePointerCapture(active.session.pointerId);
   }, []);
@@ -101,7 +86,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     };
   }, [cancelActiveResize]);
 
-  const onResizePointerDown = useCallback((event: PointerEvent<HTMLButtonElement>, columnId: string) => {
+  function onResizePointerDown(event: PointerEvent<HTMLButtonElement>, columnId: string) {
     if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
 
     const headerCell = event.currentTarget.closest("th");
@@ -117,77 +102,63 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     });
 
     activeResizeRef.current = { handle: event.currentTarget, session };
-    setResizeDraft({ columnId, width: session.currentWidth });
+    setResizeSession(session);
     event.currentTarget.focus({ preventScroll: true });
     event.currentTarget.setPointerCapture(event.pointerId);
-  }, []);
+  }
 
-  const onResizePointerMove = useCallback((event: PointerEvent<HTMLButtonElement>) => {
+  function onResizePointerMove(event: PointerEvent<HTMLButtonElement>) {
     const active = activeResizeRef.current;
     if (!active || active.session.pointerId !== event.pointerId) return;
 
     event.preventDefault();
     const session = updateColumnResize(active.session, event.clientX);
-    activeResizeRef.current = { ...active, session };
-    setResizeDraft({
-      columnId: session.columnId,
-      width: session.currentWidth,
-    });
-  }, []);
+    active.session = session;
+    setResizeSession(session);
+  }
 
-  const onResizePointerUp = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      const active = activeResizeRef.current;
-      if (!active || active.session.pointerId !== event.pointerId) return;
+  function onResizePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    const active = activeResizeRef.current;
+    if (!active || active.session.pointerId !== event.pointerId) return;
 
-      event.stopPropagation();
-      const session = updateColumnResize(active.session, event.clientX);
-      activeResizeRef.current = undefined;
-      setResizeDraft(undefined);
-      if (event.currentTarget.hasPointerCapture(event.pointerId))
-        event.currentTarget.releasePointerCapture(event.pointerId);
+    event.stopPropagation();
+    const session = updateColumnResize(active.session, event.clientX);
+    cancelActiveResize();
 
-      if (shouldCommitColumnResize(session)) {
-        lastTouchTapRef.current = undefined;
-        store.setViewOptions({
-          columnWidth: { uid: session.columnId, width: session.currentWidth },
-        });
-        return;
-      }
+    if (shouldCommitColumnResize(session)) {
+      lastTouchTapRef.current = undefined;
+      store.setViewOptions({
+        columnWidth: { uid: session.columnId, width: session.currentWidth },
+      });
+      return;
+    }
 
-      if (session.pointerType !== "touch") return;
-      const previousTap = lastTouchTapRef.current;
-      if (previousTap?.columnId === session.columnId && isTouchResetDoubleTap(previousTap.at, event.timeStamp)) {
-        lastTouchTapRef.current = undefined;
-        resetColumnWidth(session.columnId);
-      } else {
-        lastTouchTapRef.current = {
-          columnId: session.columnId,
-          at: event.timeStamp,
-        };
-      }
-    },
-    [resetColumnWidth, store],
-  );
+    if (session.pointerType !== "touch" || session.hasMoved) return;
+    const previousTap = lastTouchTapRef.current;
+    if (previousTap?.columnId === session.columnId && isTouchResetDoubleTap(previousTap.at, event.timeStamp)) {
+      lastTouchTapRef.current = undefined;
+      resetColumnWidth(session.columnId);
+      return;
+    }
 
-  const onResizeKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLButtonElement>, columnId: string) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        resetColumnWidth(columnId);
-        return;
-      }
+    lastTouchTapRef.current = { columnId: session.columnId, at: event.timeStamp };
+  }
 
-      const headerCell = event.currentTarget.closest("th");
-      if (!headerCell) return;
-      const width = keyboardColumnWidth(headerCell.getBoundingClientRect().width, event.key, event.shiftKey);
-      if (width === undefined) return;
-
+  function onResizeKeyDown(event: KeyboardEvent<HTMLButtonElement>, columnId: string) {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      store.setViewOptions({ columnWidth: { uid: columnId, width } });
-    },
-    [resetColumnWidth, store],
-  );
+      resetColumnWidth(columnId);
+      return;
+    }
+
+    const headerCell = event.currentTarget.closest("th");
+    if (!headerCell) return;
+    const width = keyboardColumnWidth(headerCell.getBoundingClientRect().width, event.key, event.shiftKey);
+    if (width === undefined) return;
+
+    event.preventDefault();
+    store.setViewOptions({ columnWidth: { uid: columnId, width } });
+  }
   const sorting: SortingState = useMemo(
     () =>
       store.sortDescriptor
@@ -206,8 +177,6 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     for (const uid of store.hiddenColumns) visibility[uid] = false;
     return visibility;
   }, [store.hiddenColumns]);
-
-  const columnSizing: ColumnSizingState = useMemo(() => ({ ...store.columnWidths }), [store.columnWidths]);
 
   const selectionColumn: ColumnDef<E> = useMemo(
     () => ({
@@ -257,7 +226,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const table = useReactTable<E>({
     data: store.items,
     columns: allColumns,
-    state: { sorting, columnVisibility, columnSizing },
+    state: { sorting, columnVisibility },
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
     manualPagination: true,
@@ -281,16 +250,17 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
-              const isSelectionCol = header.column.id === "__select";
+              const columnId = header.column.id;
+              const isSelectionCol = columnId === "__select";
               const canSort = header.column.getCanSort() && !isSelectionCol;
               const canResize = header.column.getCanResize() && !isSelectionCol;
               const sorted = header.column.getIsSorted();
-              const persistedWidth = store.columnWidths[header.column.id];
-              const liveWidth = resizeDraft?.columnId === header.column.id ? resizeDraft.width : persistedWidth;
+              const isResizing = resizeSession?.columnId === columnId;
+              const liveWidth = getColumnWidth(columnId);
               const accessibleColumnLabel = columnResizeLabel(
-                header.column.id,
+                columnId,
                 header.column.columnDef.header,
-                store.columnsDefinition.find((column) => column.uid === header.column.id)?.label,
+                store.columnsDefinition.find((column) => column.uid === columnId)?.label,
               );
               return (
                 <TableHead
@@ -303,11 +273,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   )}
                   style={
                     liveWidth != null
-                      ? {
-                          width: liveWidth,
-                          minWidth: liveWidth,
-                          maxWidth: liveWidth,
-                        }
+                      ? fixedWidthStyle(liveWidth)
                       : canResize
                         ? { minWidth: MIN_COLUMN_WIDTH }
                         : undefined
@@ -323,12 +289,11 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                           onClick={() => {
                             const currentField = store.sortDescriptor?.field;
                             const currentDir = store.sortDescriptor?.direction;
-                            const fieldId = header.column.id;
                             const nextDirection: Prisma.SortOrder =
-                              currentField === fieldId && currentDir === "asc" ? "desc" : "asc";
+                              currentField === columnId && currentDir === "asc" ? "desc" : "asc";
                             store.setQueryOptions({
                               sortDescriptor: {
-                                field: fieldId,
+                                field: columnId,
                                 direction: nextDirection,
                               },
                             });
@@ -358,40 +323,30 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     <button
                       aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"
                       aria-label={`Resize ${accessibleColumnLabel} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.`}
-                      className={cn(
-                        "group/resize-handle absolute right-0 top-0 z-10 flex h-full w-3 translate-x-1/2 cursor-col-resize touch-none select-none items-stretch justify-center border-0 bg-transparent p-0 opacity-0 outline-none",
-                        "group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-background",
-                        resizeDraft?.columnId === header.column.id && "opacity-100",
-                        "[@media(any-pointer:coarse)]:w-6 [@media(any-pointer:coarse)]:opacity-100",
-                      )}
+                      className="group/resize-handle absolute inset-y-0 right-0 z-10 flex w-3 translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 opacity-0 outline-none group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[state=resizing]:opacity-100 any-pointer-coarse:w-6 any-pointer-coarse:opacity-100"
                       data-slot="column-resize-handle"
-                      data-state={resizeDraft?.columnId === header.column.id ? "resizing" : undefined}
+                      data-state={isResizing ? "resizing" : undefined}
                       title="Drag to resize. Double-click, double-tap, or press Enter to reset."
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
-                        if (event.detail === 0) resetColumnWidth(header.column.id);
+                        if (event.detail === 0) resetColumnWidth(columnId);
                       }}
                       onDoubleClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        resetColumnWidth(header.column.id);
+                        resetColumnWidth(columnId);
                       }}
-                      onKeyDown={(event) => onResizeKeyDown(event, header.column.id)}
+                      onKeyDown={(event) => onResizeKeyDown(event, columnId)}
                       onLostPointerCapture={cancelActiveResize}
                       onPointerCancel={cancelActiveResize}
-                      onPointerDown={(event) => onResizePointerDown(event, header.column.id)}
+                      onPointerDown={(event) => onResizePointerDown(event, columnId)}
                       onPointerMove={onResizePointerMove}
                       onPointerUp={onResizePointerUp}
                     >
                       <span
                         aria-hidden="true"
-                        className={cn(
-                          "w-px bg-border transition-colors",
-                          "group-hover/resize-header:bg-primary/60 group-focus-visible/resize-handle:bg-primary",
-                          resizeDraft?.columnId === header.column.id && "w-0.5 bg-primary",
-                          "[@media(any-pointer:coarse)]:bg-primary/60",
-                        )}
+                        className="w-0.5 rounded-full bg-foreground/45 transition-colors group-hover/resize-handle:bg-foreground/70 group-focus-visible/resize-handle:bg-foreground/70 group-data-[state=resizing]/resize-handle:bg-foreground/70"
                         data-slot="column-resize-indicator"
                       />
                     </button>
@@ -427,10 +382,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 }}
               >
                 {row.getVisibleCells().map((cell) => {
-                  const isSelectionCell = cell.column.id === "__select";
-                  const isNameCell = cell.column.id === "name";
-                  const persistedWidth = store.columnWidths[cell.column.id];
-                  const liveWidth = resizeDraft?.columnId === cell.column.id ? resizeDraft.width : persistedWidth;
+                  const columnId = cell.column.id;
+                  const isSelectionCell = columnId === "__select";
+                  const isNameCell = columnId === "name";
+                  const liveWidth = getColumnWidth(columnId);
                   const content = flexRender(cell.column.columnDef.cell, cell.getContext());
                   const rowHref = onRowHref?.(row.original);
                   const wrapped =
@@ -458,15 +413,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     <TableCell
                       key={cell.id}
                       className={isSelectionCell ? "w-10" : undefined}
-                      style={
-                        liveWidth != null && !isSelectionCell
-                          ? {
-                              width: liveWidth,
-                              minWidth: liveWidth,
-                              maxWidth: liveWidth,
-                            }
-                          : undefined
-                      }
+                      style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
                     >
                       {liveWidth != null && !isSelectionCell ? (
                         <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>

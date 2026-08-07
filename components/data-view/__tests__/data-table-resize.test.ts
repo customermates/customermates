@@ -2,14 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   beginColumnResize,
-  COLUMN_RESIZE_KEYBOARD_LARGE_STEP,
-  COLUMN_RESIZE_KEYBOARD_STEP,
   columnResizeLabel,
   isTouchResetDoubleTap,
   keyboardColumnWidth,
   MIN_COLUMN_WIDTH,
   shouldCommitColumnResize,
-  TOUCH_RESET_DOUBLE_TAP_MS,
   updateColumnResize,
   withoutColumnWidth,
 } from "../data-table-resize";
@@ -26,10 +23,7 @@ function start(renderedWidth = 237.5) {
 
 describe("data-table column resizing", () => {
   it("uses the rendered column width instead of TanStack's unsized 150px default", () => {
-    const session = start();
-
-    expect(session.startWidth).toBe(237.5);
-    expect(session.currentWidth).toBe(237.5);
+    expect(start()).toMatchObject({ startWidth: 237.5, currentWidth: 237.5 });
   });
 
   it.each([1, 3, 5])("turns an initial %ipx pointer move into the same visible delta", (delta) => {
@@ -43,6 +37,13 @@ describe("data-table column resizing", () => {
     const session = updateColumnResize(start(), 500);
 
     expect(session.currentWidth).toBe(session.startWidth);
+    expect(shouldCommitColumnResize(session)).toBe(false);
+  });
+
+  it("does not commit a drag that returns to its starting coordinate", () => {
+    const session = updateColumnResize(updateColumnResize(start(), 510), 500);
+
+    expect(session.hasMoved).toBe(true);
     expect(shouldCommitColumnResize(session)).toBe(false);
   });
 
@@ -62,8 +63,8 @@ describe("data-table column resizing", () => {
   });
 
   it("supports small and accelerated keyboard resizing plus the minimum shortcut", () => {
-    expect(keyboardColumnWidth(200, "ArrowLeft")).toBe(200 - COLUMN_RESIZE_KEYBOARD_STEP);
-    expect(keyboardColumnWidth(200, "ArrowRight", true)).toBe(200 + COLUMN_RESIZE_KEYBOARD_LARGE_STEP);
+    expect(keyboardColumnWidth(200, "ArrowLeft")).toBe(190);
+    expect(keyboardColumnWidth(200, "ArrowRight", true)).toBe(230);
     expect(keyboardColumnWidth(82, "ArrowLeft")).toBe(MIN_COLUMN_WIDTH);
     expect(keyboardColumnWidth(200, "Home")).toBe(MIN_COLUMN_WIDTH);
     expect(keyboardColumnWidth(200, "Enter")).toBeUndefined();
@@ -77,8 +78,8 @@ describe("data-table column resizing", () => {
 
   it("recognizes only a timely second touch tap as reset", () => {
     expect(isTouchResetDoubleTap(undefined, 1000)).toBe(false);
-    expect(isTouchResetDoubleTap(1000, 1000 + TOUCH_RESET_DOUBLE_TAP_MS)).toBe(true);
-    expect(isTouchResetDoubleTap(1000, 1001 + TOUCH_RESET_DOUBLE_TAP_MS)).toBe(false);
+    expect(isTouchResetDoubleTap(1000, 1400)).toBe(true);
+    expect(isTouchResetDoubleTap(1000, 1401)).toBe(false);
     expect(isTouchResetDoubleTap(1000, 999)).toBe(false);
   });
 
