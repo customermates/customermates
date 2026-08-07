@@ -52,11 +52,12 @@ export function AiConnectionProviderGrid({ disabled, onSelect, registerRef, sele
   return (
     <div
       aria-label={t("OnboardingWizard.ai.providers.ariaLabel")}
-      className="grid grid-cols-1 gap-2 xs:grid-cols-2 sm:grid-cols-5"
+      className="grid grid-cols-1 gap-2 xs:grid-cols-2 sm:grid-cols-6"
       role="group"
     >
-      {AI_CONNECTION_PROVIDERS.map((provider) => {
+      {AI_CONNECTION_PROVIDERS.map((provider, index) => {
         const isSelected = selectedProvider === provider;
+        const isSecondRow = index >= 3;
 
         return (
           <Button
@@ -64,7 +65,8 @@ export function AiConnectionProviderGrid({ disabled, onSelect, registerRef, sele
             ref={(element) => registerRef(provider, element)}
             aria-pressed={isSelected}
             className={cn(
-              "relative h-auto min-h-14 w-full justify-start whitespace-normal rounded-xl px-3 py-2 text-left xs:min-h-24 xs:flex-col xs:justify-center xs:gap-2 xs:px-2 xs:text-center",
+              "relative h-auto min-h-14 min-w-0 w-full justify-start whitespace-normal rounded-xl px-3 py-2 text-left xs:min-h-24 xs:flex-col xs:justify-center xs:gap-2 xs:px-2 xs:text-center sm:col-span-2",
+              isSecondRow && "sm:col-span-3",
               isSelected && "border-primary bg-primary/5 shadow-[inset_0_0_0_1px_var(--primary)]",
             )}
             data-provider={provider}
@@ -80,7 +82,7 @@ export function AiConnectionProviderGrid({ disabled, onSelect, registerRef, sele
               <AiClientLogo className="size-5" provider={provider} />
             </span>
 
-            <span className="min-w-0 text-sm font-medium">{t(`OnboardingWizard.ai.choices.${provider}`)}</span>
+            <span className="w-full min-w-0 text-sm font-medium">{t(`OnboardingWizard.ai.choices.${provider}`)}</span>
 
             {isSelected ? <Check aria-hidden className="absolute right-2 top-2 size-3.5 text-primary" /> : null}
           </Button>

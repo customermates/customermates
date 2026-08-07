@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const feedback = vi.hoisted(() => ({
@@ -7,6 +9,21 @@ const feedback = vi.hoisted(() => ({
 
 vi.mock("sonner", () => ({
   toast: { error: feedback.toastError },
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => {
+    const provider = key.split(".").at(-1);
+    const labels: Record<string, string> = {
+      claude: "Claude",
+      chatgpt: "ChatGPT",
+      codex: "Codex",
+      cursor: "Cursor",
+      gemini: "Gemini",
+    };
+
+    return labels[provider ?? ""] ?? key;
+  },
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -21,7 +38,7 @@ vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({
   createApiKeyAction: vi.fn(),
 }));
 
-import { ClaudeSetup, executeAiConnectionKeyCreation } from "../ai-connection-flow";
+import { AiConnectionProviderGrid, ClaudeSetup, executeAiConnectionKeyCreation } from "../ai-connection-flow";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -73,5 +90,31 @@ describe("executeAiConnectionKeyCreation", () => {
 describe("ClaudeSetup", () => {
   it("remains observer-wrapped so the first Claude selection rerenders", () => {
     expect((ClaudeSetup as unknown as { $$typeof?: symbol }).$$typeof).toBe(Symbol.for("react.memo"));
+  });
+});
+
+describe("AiConnectionProviderGrid", () => {
+  it("renders the five quick connections in a balanced responsive two-row grid", () => {
+    const html = renderToStaticMarkup(
+      createElement(AiConnectionProviderGrid, {
+        disabled: false,
+        onSelect: vi.fn(),
+        registerRef: vi.fn(),
+        selectedProvider: null,
+      }),
+    );
+
+    expect(html).toContain("sm:grid-cols-6");
+    expect(html).not.toContain("sm:grid-cols-5");
+    expect(html.match(/sm:col-span-2/g)).toHaveLength(3);
+    expect(html.match(/sm:col-span-3/g)).toHaveLength(2);
+
+    for (const provider of ["claude", "chatgpt", "codex", "cursor", "gemini"])
+      expect(html).toContain(`data-provider="${provider}"`);
+
+    for (const label of ["Claude", "ChatGPT", "Codex", "Cursor", "Gemini"]) expect(html).toContain(`>${label}</span>`);
+
+    expect(html).not.toContain("truncate");
+    expect(html).not.toContain("overflow-hidden");
   });
 });
