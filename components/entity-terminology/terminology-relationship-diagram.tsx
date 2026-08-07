@@ -281,7 +281,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
         <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1 z-20 hidden -translate-x-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-[13%] z-20 hidden -translate-1/2 sm:inline-flex"
           data-relationship-label="contact-organization"
           variant="secondary"
         >
@@ -308,7 +308,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
         <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-1 left-1/2 z-20 hidden -translate-x-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-[87%] z-20 hidden -translate-1/2 sm:inline-flex"
           data-relationship-label="deal-service"
           variant="secondary"
         >

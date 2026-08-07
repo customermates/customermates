@@ -119,6 +119,12 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(html.match(/data-relationship-label=/g)).toHaveLength(5);
     expect(html.match(/data-slot="badge"/g)).toHaveLength(5);
     expect(html.match(/data-variant="secondary"/g)).toHaveLength(5);
+    expect(html).toMatch(
+      /class="[^"]*top-\[13%\][^"]*-translate-1\/2[^"]*"[^>]*data-relationship-label="contact-organization"/,
+    );
+    expect(html).toMatch(
+      /class="[^"]*top-\[87%\][^"]*-translate-1\/2[^"]*"[^>]*data-relationship-label="deal-service"/,
+    );
     expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
     expect(html).toContain("Companies are linked to Jobs.");
     expect(html).not.toContain("border-l-");
