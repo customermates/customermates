@@ -99,4 +99,13 @@ describe("ApiKeyModal add wizard", () => {
     expect(createCard).toContain("OnboardingWizard.ai.createKeyIntro");
     expect(createCard).toContain("lucide-arrow-right");
   });
+
+  it("promotes quick-connection titles into the modal header and moves Back into the footer", () => {
+    const html = renderModal("wizard", "codex");
+
+    expect(html.match(/OnboardingWizard\.ai\.screen\.setup\.title/g)).toHaveLength(1);
+    expect(html).toContain("Common.actions.back");
+    expect(html).not.toContain("ApiKeyModal.backToOptions");
+    expect(html).not.toContain("<h2>OnboardingWizard.ai.screen.setup.title</h2>");
+  });
 });

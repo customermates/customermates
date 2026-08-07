@@ -93,11 +93,22 @@ export const ApiKeyModal = observer(() => {
     previousCreationPath.current = creationPath;
   }, [creationPath]);
 
+  const wizardTitle =
+    aiConnectionStore.route.screen === "providers"
+      ? t("ApiKeyModal.addTitle")
+      : aiConnectionStore.route.screen === "claude"
+        ? t("OnboardingWizard.ai.screen.claude.title")
+        : aiConnectionStore.route.screen === "skip"
+          ? t("OnboardingWizard.ai.screen.skip.title")
+          : t("OnboardingWizard.ai.screen.setup.title", {
+              provider: t(`OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}`),
+            });
+
   const title = isView
     ? viewingKey?.name || t("ApiKeysCard.unnamed")
     : isPlain || createdKey
       ? t("ApiKeyModal.title")
-      : t("ApiKeyModal.addTitle");
+      : wizardTitle;
 
   const providerIntro = (
     <div className="flex flex-col gap-4">
@@ -206,6 +217,7 @@ export const ApiKeyModal = observer(() => {
                 backLabel={t("ApiKeyModal.backToOptions")}
                 beforeProviders={providerIntro}
                 store={aiConnectionStore}
+                substepHeaderMode="dialog"
                 onKeyCreated={apiKeyModalStore.refreshAfterQuickConnection}
               />
             ) : null}
@@ -225,6 +237,20 @@ export const ApiKeyModal = observer(() => {
 
           {isWizard ? (
             <AppCardFooter>
+              {aiConnectionStore.route.screen !== "providers" ? (
+                <Button
+                  className="mr-auto"
+                  disabled={aiConnectionStore.isCreating}
+                  type="button"
+                  variant="ghost"
+                  onClick={aiConnectionStore.backToProviders}
+                >
+                  <ArrowLeft aria-hidden />
+
+                  {t("Common.actions.back")}
+                </Button>
+              ) : null}
+
               <Button disabled={aiConnectionStore.isCreating} variant="secondary" onClick={close}>
                 {t("Common.actions.cancel")}
               </Button>

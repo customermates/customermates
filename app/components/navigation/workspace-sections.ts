@@ -13,13 +13,13 @@ type WorkspaceSubroute = {
 export const WORKSPACE_SECTIONS: Record<WorkspaceSection, WorkspaceSubroute[]> = {
   profile: [
     { slug: "settings", labelKey: "NavigationBar.settings" },
-    { slug: "api-keys", labelKey: "ApiKeysCard.title", resource: Resource.api },
     {
       slug: "connected-accounts",
       labelKey: "NavigationBar.connectedAccounts",
       resource: Resource.inboxMessages,
       cloudOnly: true,
     },
+    { slug: "api-keys", labelKey: "ApiKeysCard.title", resource: Resource.api },
   ],
   company: [
     { slug: "subscription", labelKey: "NavigationBar.subscription", resource: Resource.company, cloudOnly: true },

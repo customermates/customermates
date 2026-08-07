@@ -90,7 +90,7 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(html).toContain('data-task-selector="true" class="w-full"');
     expect(html).not.toContain("sm:w-[calc(50%-3rem)]");
     expect(html).not.toContain("Work items");
-    expect(html).not.toContain("border-t");
+    expect(html).not.toMatch(/class="[^"]*\sborder-t(?:\s|")/);
     expect(html).not.toContain("rounded-xl");
     expect(html).not.toContain("bg-card/40");
     expect(html).not.toContain("Option A");
@@ -112,7 +112,10 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(html).toContain('<svg aria-hidden="true"');
     expect(html).toContain("text-border");
     expect(html).toContain("bg-border");
-    expect(html.match(/stroke-width="1"/g)).toHaveLength(4);
+    expect(html.match(/stroke-width="1.5"/g)).toHaveLength(4);
+    expect(html.match(/data-relationship-label=/g)).toHaveLength(4);
+    expect(html.match(/data-slot="badge"/g)).toHaveLength(4);
+    expect(html.match(/data-variant="secondary"/g)).toHaveLength(4);
     expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
     expect(html).toContain("Companies are linked to Jobs.");
     expect(html).not.toContain("border-l-");

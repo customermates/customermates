@@ -9,6 +9,7 @@ import { EntityType } from "@/generated/prisma";
 import type { TerminologySelectionMap } from "@/features/entity-terminology/entity-terminology.types";
 
 import { cn } from "@/core/utils/cn";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   CANONICAL_TERMINOLOGY_PRESET_KEY,
@@ -174,7 +175,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="contact-organization"
             stroke="currentColor"
-            strokeWidth="1"
+            strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
             x1="42"
             x2="58"
@@ -185,7 +186,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="contact-deal"
             stroke="currentColor"
-            strokeWidth="1"
+            strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
             x1="21"
             x2="21"
@@ -196,7 +197,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="organization-deal"
             stroke="currentColor"
-            strokeWidth="1"
+            strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
             x1="79"
             x2="21"
@@ -207,7 +208,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           <line
             data-relationship="deal-service"
             stroke="currentColor"
-            strokeWidth="1"
+            strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
             x1="42"
             x2="58"
@@ -226,33 +227,41 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           {node(EntityType.service)}
         </div>
 
-        <div
+        <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-2 z-20 hidden -translate-x-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-1/2 top-1 z-20 hidden -translate-x-1/2 sm:inline-flex"
+          data-relationship-label="contact-organization"
+          variant="secondary"
         >
           {t("EntityTerminology.relationships.workAt")}
-        </div>
+        </Badge>
 
-        <div
+        <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-[21%] top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="contact-deal"
+          variant="secondary"
         >
           {t("EntityTerminology.relationships.involvedIn")}
-        </div>
+        </Badge>
 
-        <div
+        <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute left-[59%] top-1/2 z-20 hidden -translate-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute left-[59%] top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          data-relationship-label="organization-deal"
+          variant="secondary"
         >
           {t("EntityTerminology.relationships.linkedTo")}
-        </div>
+        </Badge>
 
-        <div
+        <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-2 left-1/2 z-20 hidden -translate-x-1/2 bg-background px-1.5 text-[10px] text-muted-foreground sm:block"
+          className="pointer-events-none absolute bottom-1 left-1/2 z-20 hidden -translate-x-1/2 sm:inline-flex"
+          data-relationship-label="deal-service"
+          variant="secondary"
         >
           {t("EntityTerminology.relationships.include")}
-        </div>
+        </Badge>
       </div>
 
       <div className="sr-only">{relationshipList()}</div>

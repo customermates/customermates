@@ -34,6 +34,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.",
+  "app/[locale]/(protected)/profile/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.",
   "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.choices.",
   "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.install.instruction.",
   "components/ai-connection/ai-connection-flow.tsx :: t :: OnboardingWizard.ai.methods.",

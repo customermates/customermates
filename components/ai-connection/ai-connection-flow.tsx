@@ -95,13 +95,16 @@ export function AiConnectionProviderGrid({ disabled, onSelect, registerRef, sele
 type SubstepHeaderProps = {
   backDisabled: boolean;
   backLabel: string;
+  mode: "dialog" | "inline";
   headingRef: Ref<HTMLHeadingElement>;
   subtitle: string;
   title: string;
   onBack: () => void;
 };
 
-function SubstepHeader({ backDisabled, backLabel, headingRef, subtitle, title, onBack }: SubstepHeaderProps) {
+function SubstepHeader({ backDisabled, backLabel, mode, headingRef, subtitle, title, onBack }: SubstepHeaderProps) {
+  if (mode === "dialog") return <p className="text-sm text-muted-foreground">{subtitle}</p>;
+
   return (
     <div className="flex flex-col gap-3">
       <Button className="-ml-2 w-fit" disabled={backDisabled} size="sm" type="button" variant="ghost" onClick={onBack}>
@@ -451,6 +454,7 @@ type Props = {
   backLabel?: string;
   beforeProviders?: ReactNode;
   disabled?: boolean;
+  substepHeaderMode?: "dialog" | "inline";
   store: AiConnectionStore;
   onKeyCreated?: (credential: AiConnectionCredential) => Promise<void> | void;
 };
@@ -476,7 +480,7 @@ export async function executeAiConnectionKeyCreation({
 }
 
 export const AiConnectionFlow = observer(
-  ({ backLabel, beforeProviders, disabled = false, store, onKeyCreated }: Props) => {
+  ({ backLabel, beforeProviders, disabled = false, substepHeaderMode = "inline", store, onKeyCreated }: Props) => {
     const t = useTranslations();
     const providerRefs = useRef<Partial<Record<AiConnectionProvider, HTMLButtonElement | null>>>({});
     const screenHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -533,6 +537,7 @@ export const AiConnectionFlow = observer(
             backDisabled={interactionDisabled}
             backLabel={resolvedBackLabel}
             headingRef={screenHeadingRef}
+            mode={substepHeaderMode}
             subtitle={t("OnboardingWizard.ai.screen.claude.subtitle")}
             title={t("OnboardingWizard.ai.screen.claude.title")}
             onBack={store.backToProviders}
@@ -556,6 +561,7 @@ export const AiConnectionFlow = observer(
           backDisabled={interactionDisabled}
           backLabel={resolvedBackLabel}
           headingRef={screenHeadingRef}
+          mode={substepHeaderMode}
           subtitle={t("OnboardingWizard.ai.screen.skip.subtitle")}
           title={t("OnboardingWizard.ai.screen.skip.title")}
           onBack={store.backToProviders}
@@ -573,6 +579,7 @@ export const AiConnectionFlow = observer(
           backDisabled={interactionDisabled}
           backLabel={resolvedBackLabel}
           headingRef={screenHeadingRef}
+          mode={substepHeaderMode}
           subtitle={
             isConnector
               ? t("OnboardingWizard.ai.screen.setup.connectorSubtitle", {
