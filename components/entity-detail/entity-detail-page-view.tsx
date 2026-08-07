@@ -10,6 +10,7 @@ import { EntityDetailLayout } from "@/components/entity-detail/entity-detail-lay
 import { ENTITY_DETAIL } from "@/components/entity-detail/entity-detail.registry";
 import { EntityTimelinePanel } from "@/features/messaging/activities/activities-panel";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 type Props = {
   entityType: EntityType;
@@ -19,6 +20,7 @@ type Props = {
 
 export const EntityDetailPageView = observer(({ entityType, id, timelineInitial }: Props) => {
   const t = useTranslations();
+  const { singular } = useEntityTerminology();
   const root = useRootStore();
   const config = ENTITY_DETAIL[entityType];
   const store = config.store(root);
@@ -30,7 +32,7 @@ export const EntityDetailPageView = observer(({ entityType, id, timelineInitial 
       entityId={id}
       entityType={entityType}
       historyPanel={<EntityTimelinePanel entityId={id} entityType={entityType} initial={timelineInitial} />}
-      identity={config.identity(store.fetchedEntity ?? {}, t)}
+      identity={config.identity(store.fetchedEntity ?? {}, t, singular(entityType))}
       masterData={<Master layout="page" />}
       store={store}
     />

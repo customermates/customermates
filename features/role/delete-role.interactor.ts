@@ -1,4 +1,4 @@
-import type { RoleDto } from "./get-roles.interactor";
+import type { RoleDto } from "./role.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
 

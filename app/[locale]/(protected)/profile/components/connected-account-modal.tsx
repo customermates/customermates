@@ -7,17 +7,15 @@ import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { AppModal } from "@/components/modal";
+import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { Icon } from "@/components/shared/icon";
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
@@ -46,81 +44,66 @@ export const ConnectedAccountModal = observer(() => {
   const ProviderIcon = getProviderIcon(account.provider);
   const providerLabel = getProviderDisplayLabel(account, t);
   const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
+  const canReconnect =
+    canUpdate &&
+    (account.status === "credentials" ||
+      account.status === "permissions" ||
+      account.status === "error" ||
+      account.status === "stopped");
+  const canResync = canUpdate && (account.status === "ok" || account.status === "connecting");
+  const hasAccountActions = account.isOwner && (canReconnect || canResync || canDelete);
   const canShareAccounts = getEffectiveEntitlements({
     appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
+  const primaryAction: AppModalActionProps | null = hasAccountActions
+    ? canReconnect
+      ? {
+          id: "reconnect-account",
+          label: t("ConnectedAccountsCard.reactivate"),
+          icon: Plug,
+          onClick: () => connectedAccountsStore.reconnect(account.id),
+        }
+      : canResync
+        ? {
+            id: "resync-account",
+            label: t("ConnectedAccountsCard.resync"),
+            icon: RefreshCw,
+            onClick: () => connectedAccountsStore.resync(account.id),
+          }
+        : null
+    : null;
+  const destructiveAction: AppModalActionProps | null =
+    hasAccountActions && canDelete
+      ? {
+          id: "disconnect-account",
+          label: t("ConnectedAccountsCard.disconnect"),
+          icon: Trash2,
+          variant: "destructive",
+          onClick: () =>
+            showDeleteConfirmation(async () => {
+              await connectedAccountsStore.disconnect(account.id);
+              close();
+            }, title),
+        }
+      : null;
+  const modalActions: AppModalActions = primaryAction
+    ? destructiveAction
+      ? [primaryAction, destructiveAction]
+      : [primaryAction]
+    : destructiveAction
+      ? [destructiveAction]
+      : [];
 
   return (
-    <AppModal store={connectedAccountModalStore} title={title}>
+    <AppModal actions={modalActions} store={connectedAccountModalStore} title={title}>
       <AppCard>
         <AppCardHeader>
-          <div className="mr-auto flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <ProviderIcon className="size-4 shrink-0" />
 
             <h2 className="text-x-lg truncate">{title}</h2>
           </div>
-
-          {account.isOwner && (
-            <div className="flex items-center gap-2">
-              {canUpdate &&
-                (account.status === "credentials" ||
-                  account.status === "permissions" ||
-                  account.status === "error" ||
-                  account.status === "stopped") && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => void connectedAccountsStore.reconnect(account.id)}
-                      >
-                        <Icon icon={Plug} />
-                      </Button>
-                    </TooltipTrigger>
-
-                    <TooltipContent>{t("ConnectedAccountsCard.reactivate")}</TooltipContent>
-                  </Tooltip>
-                )}
-
-              {canUpdate && (account.status === "ok" || account.status === "connecting") && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => void connectedAccountsStore.resync(account.id)}
-                    >
-                      <Icon icon={RefreshCw} />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("ConnectedAccountsCard.resync")}</TooltipContent>
-                </Tooltip>
-              )}
-
-              {canDelete && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() =>
-                        showDeleteConfirmation(async () => {
-                          await connectedAccountsStore.disconnect(account.id);
-                          close();
-                        }, title)
-                      }
-                    >
-                      <Icon icon={Trash2} />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("ConnectedAccountsCard.disconnect")}</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          )}
         </AppCardHeader>
 
         <AppCardBody>

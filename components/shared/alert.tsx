@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Alert as UiAlert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/core/utils/cn";
 
-const alertColorVariants = cva("[&_a]:text-inherit [&_a]:underline", {
+const alertColorVariants = cva("inline-links", {
   variants: {
     color: {
       default: "",

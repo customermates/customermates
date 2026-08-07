@@ -4,7 +4,6 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -30,24 +29,28 @@ export const WebhookModal = observer(() => {
   const { showDeleteConfirmation } = useDeleteConfirmation();
 
   return (
-    <AppModal store={webhookModalStore} title={t("WebhookModal.title")}>
+    <AppModal
+      actions={
+        form?.id && canManage
+          ? [
+              {
+                id: "delete-webhook",
+                label: t("Common.actions.delete"),
+                icon: Trash2,
+                variant: "destructive",
+                disabled: isDisabled,
+                onClick: () => showDeleteConfirmation(() => void webhookModalStore.delete()),
+              },
+            ]
+          : []
+      }
+      store={webhookModalStore}
+      title={t("WebhookModal.title")}
+    >
       <AppForm store={webhookModalStore}>
         <AppCard>
           <AppCardHeader>
-            <div className="flex w-full justify-between items-center gap-3">
-              <h2 className="text-x-lg">{t("WebhookModal.title")}</h2>
-
-              {form?.id && canManage && (
-                <Button
-                  disabled={isDisabled}
-                  size="icon"
-                  variant="destructive"
-                  onClick={() => showDeleteConfirmation(() => void webhookModalStore.delete())}
-                >
-                  <Icon icon={Trash2} />
-                </Button>
-              )}
-            </div>
+            <h2 className="truncate text-x-lg">{t("WebhookModal.title")}</h2>
           </AppCardHeader>
 
           <AppCardBody>

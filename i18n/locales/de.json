@@ -11,14 +11,22 @@
     "label": "AGPL · Open Source"
   },
   "ApiKeyModal": {
+    "addDescription": "Erstelle einen Key für deine eigene Integration oder wähle eine KI für eine geführte Einrichtung.",
+    "addTitle": "API-Key hinzufügen",
+    "backToOptions": "Alle API-Key-Optionen",
+    "done": "Fertig",
     "expiresIn": "Läuft ab",
     "expiresInPlaceholder": "Datum wählen",
     "keyCreated": "API-Schlüssel erfolgreich erstellt",
     "keyWarning": "Kopieren Sie diesen Schlüssel jetzt. Sie können ihn später nicht mehr sehen. Der Schlüssel sollte nur mit Vorsicht verwendet werden, da andere sich als Sie ausgeben könnten, wenn der Schlüssel verloren geht.",
+    "quickDescription": "Wähle deine KI. Wir zeigen dir nur die Einrichtung, die sie benötigt.",
+    "quickTitle": "Schnellverbindungen",
+    "standardDescription": "Wähle einen Namen und optional ein Ablaufdatum.",
+    "standardTitle": "Standard-API-Key",
     "title": "API-Schlüssel erstellen"
   },
   "ApiKeysCard": {
-    "title": "API-Schlüssel",
+    "title": "API & Konnektoren",
     "unnamed": "Unbenannt"
   },
   "AuditLogModal": {
@@ -947,8 +955,9 @@
     "aggregationType": "Aggregationstyp",
     "aggregationTypes": {
       "count": "Anzahl {entities}",
-      "dealQuantity": "Anzahl Services in Deals",
-      "dealValue": "Dealwert bezogen auf {entity}",
+      "dealQuantity": "Anzahl {services} in {deals}",
+      "dealValue": "{deal}-Wert",
+      "dealValueRelated": "{deal}-Wert bezogen auf {entity}",
       "field": "Feld"
     },
     "barColors": "Balkenfarben",
@@ -990,7 +999,7 @@
     "startDate": "Start Datum",
     "tabs": {
       "config": "Konfiguration",
-      "dealFilters": "Deal-Filter",
+      "dealFilters": "Filter für {deals}",
       "display": "Darstellung",
       "filters": "{entityType} Filter"
     },
@@ -1136,6 +1145,10 @@
           "plural": "Kontakte",
           "singular": "Kontakt"
         },
+        "lead": {
+          "plural": "Leads",
+          "singular": "Lead"
+        },
         "person": {
           "plural": "Personen",
           "singular": "Person"
@@ -1145,6 +1158,10 @@
         "deal": {
           "plural": "Deals",
           "singular": "Deal"
+        },
+        "job": {
+          "plural": "Aufträge",
+          "singular": "Auftrag"
         },
         "opportunity": {
           "plural": "Chancen",
@@ -1171,8 +1188,12 @@
       },
       "service": {
         "offering": {
-          "plural": "Angebote",
-          "singular": "Angebot"
+          "plural": "Leistungen",
+          "singular": "Leistung"
+        },
+        "package": {
+          "plural": "Pakete",
+          "singular": "Paket"
         },
         "product": {
           "plural": "Produkte",
@@ -1184,17 +1205,36 @@
         }
       },
       "task": {
+        "actionItem": {
+          "plural": "Action Items",
+          "singular": "Action Item"
+        },
+        "followUp": {
+          "plural": "Follow-ups",
+          "singular": "Follow-up"
+        },
         "task": {
           "plural": "Aufgaben",
           "singular": "Aufgabe"
+        },
+        "todo": {
+          "plural": "To-dos",
+          "singular": "To-do"
         }
       }
     },
     "relationships": {
-      "dataModelSubtitle": "Jeder Knoten ist eine Entität. Benenne sie direkt um, die Verbindungen bleiben bestehen.",
-      "dataModelTitle": "Dein Datenmodell",
+      "contactDealSummary": "{contacts} sind an Datensätzen vom Typ „{deals}“ beteiligt.",
+      "contactOrganizationSummary": "{contacts} arbeiten bei Datensätzen vom Typ „{organizations}“.",
+      "dataModelLabel": "Dein Datenmodell: Wähle die Bezeichnungen, die dein Team verwendet; die Beziehungen bleiben unverändert.",
+      "dealServiceSummary": "{deals} enthalten Datensätze vom Typ „{services}“.",
+      "howRecordsConnect": "So sind Datensätze verknüpft",
       "include": "enthalten",
       "involvedIn": "sind beteiligt an",
+      "linkedTo": "sind verknüpft mit",
+      "organizationDealSummary": "{organizations} sind mit Datensätzen vom Typ „{deals}“ verknüpft.",
+      "selectLabel": "Bezeichnung für {entity}",
+      "taskScope": "{tasks} können mit jedem Datensatz in diesem Modell verknüpft werden.",
       "workAt": "arbeiten bei"
     }
   },
@@ -1276,7 +1316,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Leeren",
-    "emptyPrompt": "Tippe los, um in Kontakten, Organisationen, Deals und Services zu suchen.",
+    "emptyPrompt": "Tippe los und durchsuche: {contacts}, {organizations}, {deals} und {services}.",
     "groupRecent": "Zuletzt geöffnet",
     "hintNavigate": "Navigieren",
     "hintOpen": "Öffnen",
@@ -1527,17 +1567,24 @@
   "OnboardingWizard": {
     "ai": {
       "choices": {
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
         "claudeCode": "Claude Code",
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
-        "connector": "Claude & ChatGPT (Connector)",
         "cursor": "Cursor",
         "gemini": "Gemini",
         "skip": "Später einrichten"
       },
       "connector": {
-        "chatgptHint": "In ChatGPT: Einstellungen, Connectors, Custom Connector hinzufügen, dann die URL einfügen.",
+        "chatgptDescription": "Verwende die URL unten als benutzerdefinierten MCP-Connector und wähle OAuth als Authentifizierung.",
+        "chatgptSteps": "In ChatGPT: Einstellungen → Connectors → Connector hinzufügen → Custom connector (MCP). Füge die URL ein, wähle OAuth, speichere und melde dich anschließend bei Customermates an, um den Zugriff zu erlauben.",
+        "chatgptTitle": "Customermates-Connector hinzufügen",
         "claudeButton": "Zu Claude hinzufügen",
+        "claudeDescription": "Öffne den vorausgefüllten Dialog für benutzerdefinierte Connectors in Claude, melde dich bei Customermates an und erteile den Zugriff.",
+        "claudeTitle": "Claude-Konto verbinden",
+        "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Customermates prüft die externe Verbindung nicht automatisch. <guide>Vollständige Anleitung lesen</guide>.",
+        "paidPlan": "Benutzerdefinierte Connectors erfordern einen kostenpflichtigen Claude- oder ChatGPT-Tarif.",
         "urlLabel": "MCP-Server-URL"
       },
       "createKey": "API-Key erstellen",
@@ -1545,7 +1592,6 @@
       "errors": {
         "createFailed": "API-Key konnte nicht erstellt werden. Bitte erneut versuchen."
       },
-      "fullGuide": "Vollständige Anleitung →",
       "install": {
         "instruction": {
           "claudeCode": "In einem Terminal ausführen:",
@@ -1554,9 +1600,49 @@
           "cursor": "In Cursor: Settings → Tools & MCP → Add new MCP server öffnen und einfügen:",
           "gemini": "Zu ~/.gemini/settings.json hinzufügen (in bestehenden mcpServers mergen, falls vorhanden):"
         },
+        "keyNote": "Kopiere diese Einrichtung jetzt. Der API-Key wird nur einmal angezeigt und kann später in deinem Profil widerrufen werden. <guide>Vollständige Anleitung lesen</guide>.",
         "label": "Customermates mit {tool} verbinden"
       },
-      "skipHint": "Du kannst das später in deinem Profil einrichten."
+      "local": {
+        "ariaLabel": "Lokale Claude-App",
+        "description": "Wir erstellen einen Key und zeigen dir nur den Einrichtungsausschnitt, den du brauchst.",
+        "title": "Wähle deine lokale Claude-App"
+      },
+      "methods": {
+        "account": {
+          "description": "Für Claude im Web, auf dem Desktop und auf Mobilgeräten. Melde dich einmal an; du brauchst keinen API-Key und keine Konfigurationsdatei.",
+          "meta": "Benutzerdefinierter Connector · OAuth",
+          "note": "Erfordert einen Claude-Tarif mit benutzerdefinierten Connectors.",
+          "recommended": "Empfohlen",
+          "title": "Claude-Konto"
+        },
+        "ariaLabel": "Verbindungsmethoden für Claude",
+        "local": {
+          "description": "Erstelle einen API-Key und füge einen lokalen Konfigurationsausschnitt hinzu.",
+          "meta": "Lokale Einrichtung · API-Key",
+          "note": "Am besten für Claude Code oder Claude Desktop ohne benutzerdefinierte Connectors.",
+          "title": "Claude Code oder Desktop"
+        }
+      },
+      "providers": {
+        "ariaLabel": "KI-Clients"
+      },
+      "screen": {
+        "back": "Alle KI-Clients",
+        "claude": {
+          "subtitle": "Beide Optionen nutzen MCP und dieselben Customermates-Tools. Wähle die Einrichtung passend dazu, wo du Claude nutzt.",
+          "title": "Wie nutzt du Claude?"
+        },
+        "setup": {
+          "apiKeySubtitle": "Erstelle einen API-Key und folge dann der Anleitung für {provider}.",
+          "connectorSubtitle": "Füge Customermates als benutzerdefinierten Connector hinzu. Du brauchst keinen API-Key und keine Konfigurationsdatei.",
+          "title": "{provider} verbinden"
+        },
+        "skip": {
+          "subtitle": "Du kannst das Onboarding jetzt abschließen und später in deinem Profil eine KI verbinden.",
+          "title": "KI später einrichten"
+        }
+      }
     },
     "avatarDescription": "Optional. Füge einen Link zu einem Foto von dir ein. Der Link muss öffentlich zugänglich sein (jede Person mit dem Link kann das Bild sehen). Lässt du das Feld leer, zeigen wir deine Initialen.",
     "back": "Zurück",
@@ -1565,9 +1651,8 @@
     "invite": {
       "emailCount": "{current} von {max} E-Mails · mit Komma oder Enter trennen",
       "emailPlaceholder": "kollegin@beispiel.de",
-      "linkDescription": "Jede Person mit diesem Link kann deinem Team beitreten.",
+      "linkDescription": "Jede Person mit diesem Link kann deinem Team beitreten. Der Link ist 7 Tage gültig.",
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
-      "linkValidity": "Der Link ist 7 Tage gültig.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
       "sentSuccess": "{count} Einladung(en) gesendet.",
@@ -1581,8 +1666,8 @@
     "steps": {
       "ai": {
         "placeholder": "Platzhalter KI-Integration",
-        "subtitle": "Lass Claude Code oder Codex dein CRM für dich führen.",
-        "title": "KI-Agent verbinden"
+        "subtitle": "Wähle eine KI aus, die du jetzt verbinden möchtest. Weitere kannst du später hinzufügen.",
+        "title": "KI verbinden"
       },
       "invite": {
         "placeholder": "Platzhalter Team einladen",
@@ -1592,10 +1677,6 @@
       "profile": {
         "subtitle": "Erzähle uns, wer du bist, damit wir deinen Workspace einrichten können.",
         "title": "Dein Profil"
-      },
-      "terminology": {
-        "subtitle": "Lege fest, wie die zentralen Datensätze in deinem Workspace heißen.",
-        "title": "Benenne deine Datensätze"
       }
     }
   },
@@ -1748,7 +1829,7 @@
     "title": "Aufgabe"
   },
   "TasksCard": {
-    "systemTaskTooltip": "Dies ist eine Systemaufgabe, die nicht manuell gelöscht werden kann. Öffne die Aufgabe für weitere Informationen."
+    "systemTaskTooltip": "Vom System verwaltet: {task}. Der Eintrag kann nicht manuell gelöscht werden. Öffne ihn für weitere Informationen."
   },
   "TrialExpiredOffer": {
     "body": "Ihr Testzeitraum ist vor Kurzem abgelaufen, aber ich möchte Sie gerne weiter begleiten. Wenn Sie möchten, verlängere ich den Test und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",

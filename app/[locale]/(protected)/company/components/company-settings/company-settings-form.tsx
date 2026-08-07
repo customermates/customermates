@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -9,7 +9,6 @@ import { EntityType, type Currency } from "@/generated/prisma";
 import { AppForm } from "@/components/forms/form-context";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormActions } from "@/components/card/form-actions";
-import { Separator } from "@/components/ui/separator";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { TerminologyRelationshipDiagram } from "@/components/entity-terminology/terminology-relationship-diagram";
@@ -26,7 +25,12 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
   const formId = useId();
   const { companySettingsStore: store, terminologyStore } = useRootStore();
   const { plural } = useEntityTerminology();
-  const canManage = store.canManage;
+  const [hasMounted, setHasMounted] = useState(false);
+  const canManage = hasMounted && store.canManage;
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     store.onInitOrRefresh({ currency });
@@ -63,8 +67,6 @@ export const CompanySettingsForm = observer(({ currency }: Props) => {
             })}
           </p>
         </div>
-
-        <Separator />
 
         <TerminologyRelationshipDiagram
           readOnly={!canManage}

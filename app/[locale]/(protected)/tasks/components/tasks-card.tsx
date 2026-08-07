@@ -18,6 +18,7 @@ import { DataViewContainer, standardTailColumns, useDataViewSync } from "@/compo
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEntityHref, useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 type Props = {
   tasks: GetResult<TaskDto>;
@@ -25,6 +26,8 @@ type Props = {
 
 export const TasksCard = observer(({ tasks }: Props) => {
   const t = useTranslations();
+  const { singular } = useEntityTerminology();
+  const taskLabel = singular(EntityType.task);
 
   const { tasksStore, intlStore, userModalStore } = useRootStore();
   const openEntity = useOpenEntity();
@@ -53,7 +56,7 @@ export const TasksCard = observer(({ tasks }: Props) => {
                       <Icon className="shrink-0 text-warning ml-auto" icon={Info} size="lg" />
                     </TooltipTrigger>
 
-                    <TooltipContent>{t("TasksCard.systemTaskTooltip")}</TooltipContent>
+                    <TooltipContent>{t("TasksCard.systemTaskTooltip", { task: taskLabel })}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
@@ -103,7 +106,7 @@ export const TasksCard = observer(({ tasks }: Props) => {
       },
       ...standardTailColumns({ store: tasksStore, intlStore, userModalStore }),
     ];
-  }, [t, tasksStore.customColumns, intlStore, userModalStore, openEntity, entityHref]);
+  }, [t, taskLabel, tasksStore.customColumns, intlStore, userModalStore, openEntity, entityHref]);
 
   return (
     <DataViewContainer

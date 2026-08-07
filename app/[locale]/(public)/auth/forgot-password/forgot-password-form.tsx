@@ -36,7 +36,7 @@ export const ForgotPasswordForm = observer(() => {
         <CardHeroHeader
           subtitle={t.rich("ForgotPasswordForm.backToSignIn", {
             backToSignInLink: (chunks) => (
-              <AppLink inheritSize href="/auth/signin">
+              <AppLink inheritSize appearance="inline" href="/auth/signin">
                 {chunks}
               </AppLink>
             ),

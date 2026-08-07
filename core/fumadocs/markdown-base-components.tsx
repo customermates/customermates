@@ -70,11 +70,7 @@ export const markdownBaseComponents: Pick<
     </li>
   ),
   a: ({ className, children, ...props }) => (
-    <AppLink
-      inheritSize
-      className={cn("underline decoration-current", className)}
-      {...(props as ComponentProps<typeof AppLink>)}
-    >
+    <AppLink inheritSize appearance="inline" className={className} {...(props as ComponentProps<typeof AppLink>)}>
       {children}
     </AppLink>
   ),

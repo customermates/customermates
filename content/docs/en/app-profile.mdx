@@ -23,8 +23,9 @@ URLs are locale-prefixed. For example `https://customermates.com/en/profile/sett
 | Settings tab | Sidebar sub-item | `#nav-profile-settings` | Identity (name, country, avatar) and preferences (theme, language) in one form |
 | Save / reset settings | Form footer | `#profile-settings-save` / `#profile-settings-reset` | Persists or discards (reset appears with unsaved changes) |
 | API keys tab | Sidebar sub-item | `#nav-profile-api-keys` | Manage keys for MCP/REST clients |
-| Generate API key | API keys card | `#profile-api-keys-generate` | Opens the key modal |
-| Create the key | Key modal | `#api-key-save` | Key is shown once, so copy it immediately |
+| Add an API key | API keys card | `#profile-api-keys-generate` | Opens a wizard for a standard key or a guided AI connection |
+| Create a standard key | Add-key wizard | `#api-key-save` | Opens after Standard API key; the key is shown once, so copy it immediately |
+| Connect an AI client | Add-key wizard | none | Choose Claude, ChatGPT, Codex, Cursor, or Gemini for client-specific setup |
 | Revoke a key | Key row | none | Row button labeled Revoke |
 | Connected accounts tab | Sidebar sub-item | `#nav-profile-connected-accounts` | Messaging accounts for the Inbox |
 | Connect an account | Card header | `#profile-connected-accounts-connect` | Opens the hosted-auth window (email, LinkedIn, WhatsApp, Instagram, Telegram) |
@@ -35,7 +36,8 @@ URLs are locale-prefixed. For example `https://customermates.com/en/profile/sett
 - Locate controls via the stable ids above. For example, the CSS selector `#profile-api-keys-generate` finds the generate button. The ids are stable; visible labels and layout are not.
 - Rows never carry ids. Open records via their URL, or via the drawer deep-link `?open=<entityType>:{id}` on entity pages. The Profile tabs are plain routes, so navigate by tab URL and act on rows via their visible buttons (e.g. **Revoke**) or by clicking the row.
 - Prefer MCP tools over clicking when a tool exists. See [MCP](/docs/mcp). Driving the UI is for the few actions with no tool, like connecting a messaging account.
-- The generated API key is shown exactly once, in the modal after `#api-key-save`. Copy it in the same step; there is no way to display it again.
+- The Add modal first offers a standard named/expiring key and five guided AI connections. Claude and ChatGPT can use their custom-connector path; local Claude, Codex, Cursor, and Gemini create a key and show only that client's setup snippet.
+- A generated API key is shown exactly once, whether created through `#api-key-save` or a quick connection. Copy the displayed key or snippet in the same step; there is no way to display the plaintext key again.
 - Connecting an account opens a separate hosted-auth window: expect a popup, not in-page navigation.
 
 ## Related

@@ -46,6 +46,7 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       isSystemRole: computed,
       isDisabledOrSystemRole: computed,
       hasUsersAssigned: computed,
+      canDeleteRole: computed,
     });
   }
 
@@ -68,9 +69,13 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
   get hasUsersAssigned() {
     if (!this.form.id) return false;
 
-    const users = this.rootStore.usersStore.items.filter((user) => user.roleId === this.form.id);
+    const role = this.rootStore.rolesStore.items.find((item) => item.id === this.form.id);
 
-    return users.length > 0;
+    return Boolean(role?.hasUsersAssigned);
+  }
+
+  get canDeleteRole() {
+    return Boolean(this.form.id && !this.isDisabledOrSystemRole && !this.hasUsersAssigned);
   }
 
   add = () => {
@@ -162,7 +167,11 @@ export class RoleModalStore extends BaseModalStore<UpsertRoleData> {
       const res = await upsertRoleAction(toJS(this.form));
 
       if (res.ok) {
-        await this.rootStore.rolesStore.upsertItem(res.data);
+        const currentRole = this.rootStore.rolesStore.items.find((role) => role.id === res.data.id);
+        await this.rootStore.rolesStore.upsertItem({
+          ...res.data,
+          hasUsersAssigned: currentRole?.hasUsersAssigned ?? false,
+        });
         this.close();
       } else this.setError(res.error);
     } finally {

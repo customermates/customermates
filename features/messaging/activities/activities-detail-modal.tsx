@@ -9,12 +9,9 @@ import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, ExternalLink, MapPin, 
 import { MessagingProvider } from "@/generated/prisma";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { AppModal } from "@/components/modal/app-modal";
+import { AppModal, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IntlLink as Link } from "@/i18n/navigation";
 import { EmailFrame } from "@/app/[locale]/(protected)/inbox/components/email-frame";
 import { SanitizedHtml } from "@/app/[locale]/(protected)/inbox/components/sanitized-html";
 import { sanitizeHtml } from "@/components/shared/sanitize-html";
@@ -57,25 +54,6 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
   return (
     <AppCard>
       <DetailHeader
-        action={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                asChild
-                aria-label={t("ContactHistory.ariaOpenInInbox")}
-                className="text-muted-foreground hover:text-foreground shrink-0"
-                size="icon-sm"
-                variant="ghost"
-              >
-                <Link href={`/inbox?threadId=${encodeURIComponent(message.messagingThreadId)}`}>
-                  <ExternalLink className="size-4" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("ContactHistory.openInInbox")}</TooltipContent>
-          </Tooltip>
-        }
         avatar={
           <IdentityAvatar
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
@@ -137,17 +115,6 @@ const CalendarEventDetail = observer(
     return (
       <AppCard>
         <DetailHeader
-          action={
-            event.conferenceUrl && (
-              <Button asChild className="shrink-0" size="sm" variant="outline">
-                <a href={event.conferenceUrl} rel="noopener noreferrer" target="_blank">
-                  <ExternalLink className="size-3.5" />
-
-                  {t("ContactHistory.calendarJoinMeeting")}
-                </a>
-              </Button>
-            )
-          }
           avatar={
             organizerName ? (
               <IdentityAvatar badge={calendarBadge} name={organizerName} />
@@ -230,23 +197,11 @@ const ActivityDetail = observer(({ payload, at }: { payload: Record<string, unkn
   const t = useTranslations();
   const fullName = payloadString(payload, "fullName");
   const headline = payloadString(payload, "headline");
-  const profileUrl = payloadString(payload, "profileUrl");
   const pictureUrl = payloadString(payload, "pictureUrl");
 
   return (
     <AppCard>
       <DetailHeader
-        action={
-          profileUrl && (
-            <Button asChild className="shrink-0" size="sm" variant="outline">
-              <a href={profileUrl} rel="noopener noreferrer" target="_blank">
-                <ExternalLink className="size-3.5" />
-
-                {t("ContactHistory.linkedinOpenProfile")}
-              </a>
-            </Button>
-          )
-        }
         avatar={
           <IdentityAvatar
             badge={<TypeBadge icon={Plus} label={t("EntityTimeline.types.activities")} tone="activity" />}
@@ -289,9 +244,48 @@ export const TimelineDetailModal = observer(() => {
               date: intlStore.formatNumericalShortDateTime(entry.at),
             })
           : t("ContactHistory.linkedinConnectionAccepted");
+  const activityProfileUrl = entry?.kind === "activity" ? payloadString(entry.payload, "profileUrl") : null;
+
+  const actions: AppModalActions =
+    entry?.kind === "message"
+      ? [
+          {
+            id: "open-message-in-inbox",
+            label: t("ContactHistory.ariaOpenInInbox"),
+            icon: ExternalLink,
+            href: `/inbox?threadId=${encodeURIComponent(entry.message.messagingThreadId)}`,
+          },
+        ]
+      : entry?.kind === "calendar_event" && entry.event.conferenceUrl
+        ? [
+            {
+              id: "join-calendar-meeting",
+              label: t("ContactHistory.calendarJoinMeeting"),
+              icon: ExternalLink,
+              href: entry.event.conferenceUrl,
+              external: true,
+            },
+          ]
+        : entry?.kind === "activity" && activityProfileUrl
+          ? [
+              {
+                id: "open-linkedin-profile",
+                label: t("ContactHistory.linkedinOpenProfile"),
+                icon: ExternalLink,
+                href: activityProfileUrl,
+                external: true,
+              },
+            ]
+          : [];
 
   return (
-    <AppModal open={isOpen} size={entry?.kind === "activity" ? "md" : "lg"} title={title} onClose={store.close}>
+    <AppModal
+      actions={actions}
+      open={isOpen}
+      size={entry?.kind === "activity" ? "md" : "lg"}
+      title={title}
+      onClose={store.close}
+    >
       {entry?.kind === "message" && <MessageDetail entry={entry} />}
 
       {entry?.kind === "calendar_event" && <CalendarEventDetail event={entry.event} />}

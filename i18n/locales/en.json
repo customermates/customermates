@@ -11,14 +11,22 @@
     "label": "AGPL · Open source"
   },
   "ApiKeyModal": {
+    "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
+    "addTitle": "Add an API key",
+    "backToOptions": "All API key options",
+    "done": "Done",
     "expiresIn": "Expires in",
     "expiresInPlaceholder": "Pick a date",
     "keyCreated": "API key created successfully",
     "keyWarning": "Make sure to copy this key now. You won't be able to see it again. The key should only be used with caution because others could impersonate you if the key gets lost.",
+    "quickDescription": "Pick the AI you use and we'll show only the setup it needs.",
+    "quickTitle": "Quick connections",
+    "standardDescription": "Choose a name and an optional expiration date.",
+    "standardTitle": "Standard API key",
     "title": "Create API Key"
   },
   "ApiKeysCard": {
-    "title": "API Keys",
+    "title": "API & Connectors",
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
@@ -947,8 +955,9 @@
     "aggregationType": "Aggregation Type",
     "aggregationTypes": {
       "count": "Count {entities}",
-      "dealQuantity": "Number of Services in Deals",
-      "dealValue": "Deal Value related to {entity}",
+      "dealQuantity": "Number of {services} in {deals}",
+      "dealValue": "{deal} value",
+      "dealValueRelated": "{deal} value related to {entity}",
       "field": "Field"
     },
     "barColors": "Bar Colors",
@@ -990,7 +999,7 @@
     "startDate": "Start Date",
     "tabs": {
       "config": "Configuration",
-      "dealFilters": "Deal Filters",
+      "dealFilters": "Filters for {deals}",
       "display": "Display",
       "filters": "{entityType} Filters"
     },
@@ -1136,6 +1145,10 @@
           "plural": "Contacts",
           "singular": "Contact"
         },
+        "lead": {
+          "plural": "Leads",
+          "singular": "Lead"
+        },
         "person": {
           "plural": "People",
           "singular": "Person"
@@ -1145,6 +1158,10 @@
         "deal": {
           "plural": "Deals",
           "singular": "Deal"
+        },
+        "job": {
+          "plural": "Jobs",
+          "singular": "Job"
         },
         "opportunity": {
           "plural": "Opportunities",
@@ -1174,6 +1191,10 @@
           "plural": "Offerings",
           "singular": "Offering"
         },
+        "package": {
+          "plural": "Packages",
+          "singular": "Package"
+        },
         "product": {
           "plural": "Products",
           "singular": "Product"
@@ -1184,17 +1205,36 @@
         }
       },
       "task": {
+        "actionItem": {
+          "plural": "Action items",
+          "singular": "Action item"
+        },
+        "followUp": {
+          "plural": "Follow-ups",
+          "singular": "Follow-up"
+        },
         "task": {
           "plural": "Tasks",
           "singular": "Task"
+        },
+        "todo": {
+          "plural": "To-dos",
+          "singular": "To-do"
         }
       }
     },
     "relationships": {
-      "dataModelSubtitle": "Each node is a live entity. Rename it inline, the connections stay intact.",
-      "dataModelTitle": "Your data model",
+      "contactDealSummary": "{contacts} are involved in {deals}.",
+      "contactOrganizationSummary": "{contacts} work at {organizations}.",
+      "dataModelLabel": "Your data model: choose the names your team uses; relationships stay the same.",
+      "dealServiceSummary": "{deals} include {services}.",
+      "howRecordsConnect": "How records connect",
       "include": "include",
       "involvedIn": "are involved in",
+      "linkedTo": "are linked to",
+      "organizationDealSummary": "{organizations} are linked to {deals}.",
+      "selectLabel": "Name for {entity}",
+      "taskScope": "{tasks} can be linked to any record in this model.",
       "workAt": "work at"
     }
   },
@@ -1276,7 +1316,7 @@
   },
   "GlobalSearch": {
     "clearRecent": "Clear",
-    "emptyPrompt": "Start typing to search across your contacts, organizations, deals, and services.",
+    "emptyPrompt": "Start typing to search across: {contacts}, {organizations}, {deals}, and {services}.",
     "groupRecent": "Recently opened",
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
@@ -1527,17 +1567,24 @@
   "OnboardingWizard": {
     "ai": {
       "choices": {
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
         "claudeCode": "Claude Code",
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
-        "connector": "Claude & ChatGPT (connector)",
         "cursor": "Cursor",
         "gemini": "Gemini",
         "skip": "Skip for now"
       },
       "connector": {
-        "chatgptHint": "In ChatGPT: Settings, Connectors, Add custom connector, then paste the URL.",
+        "chatgptDescription": "Use the URL below as a custom MCP connector and choose OAuth authentication.",
+        "chatgptSteps": "In ChatGPT: Settings → Connectors → Add connector → Custom connector (MCP). Paste the URL, choose OAuth, save, then sign in to Customermates and approve access.",
+        "chatgptTitle": "Add the Customermates connector",
         "claudeButton": "Add to Claude",
+        "claudeDescription": "Open Claude's prefilled custom-connector dialog, then sign in to Customermates and approve access.",
+        "claudeTitle": "Connect your Claude account",
+        "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection. <guide>Read the full setup guide</guide>.",
+        "paidPlan": "Custom connectors require a paid Claude or ChatGPT plan.",
         "urlLabel": "MCP server URL"
       },
       "createKey": "Create API key",
@@ -1545,7 +1592,6 @@
       "errors": {
         "createFailed": "Could not create the API key. Please try again."
       },
-      "fullGuide": "Full setup guide →",
       "install": {
         "instruction": {
           "claudeCode": "Run this in any terminal:",
@@ -1554,9 +1600,49 @@
           "cursor": "In Cursor, open Settings → Tools & MCP → Add new MCP server, then paste:",
           "gemini": "Add this to ~/.gemini/settings.json (merge into mcpServers if it already exists):"
         },
+        "keyNote": "Copy this setup now. The API key is shown once and can be revoked later from your profile. <guide>Read the full setup guide</guide>.",
         "label": "Connect Customermates to {tool}"
       },
-      "skipHint": "You can set this up later from your profile."
+      "local": {
+        "ariaLabel": "Local Claude app",
+        "description": "We'll create one key and show only the setup snippet you need.",
+        "title": "Choose your local Claude app"
+      },
+      "methods": {
+        "account": {
+          "description": "For Claude on web, desktop, and mobile. Sign in once; no API key or configuration file.",
+          "meta": "Custom connector · OAuth",
+          "note": "Requires a Claude plan with custom connectors.",
+          "recommended": "Recommended",
+          "title": "Claude account"
+        },
+        "ariaLabel": "Claude connection methods",
+        "local": {
+          "description": "Create an API key and add one local configuration snippet.",
+          "meta": "Local setup · API key",
+          "note": "Best for Claude Code or Claude Desktop without custom connectors.",
+          "title": "Claude Code or Desktop"
+        }
+      },
+      "providers": {
+        "ariaLabel": "AI clients"
+      },
+      "screen": {
+        "back": "All AI clients",
+        "claude": {
+          "subtitle": "Both options use MCP and the same Customermates tools. Choose the setup that matches where you use Claude.",
+          "title": "How do you use Claude?"
+        },
+        "setup": {
+          "apiKeySubtitle": "Create an API key, then follow the setup made for {provider}.",
+          "connectorSubtitle": "Add Customermates as a custom connector. No API key or configuration file is needed.",
+          "title": "Connect {provider}"
+        },
+        "skip": {
+          "subtitle": "You can finish onboarding now and connect one from your profile whenever you're ready.",
+          "title": "Set up an AI later"
+        }
+      }
     },
     "avatarDescription": "Optional. Paste a link to a photo of yourself. It must be publicly accessible (so anyone with the link can see it). Leave it blank and we'll show your initials instead.",
     "back": "Back",
@@ -1565,9 +1651,8 @@
     "invite": {
       "emailCount": "{current} of {max} emails · separate with a comma or press Enter",
       "emailPlaceholder": "colleague@example.com",
-      "linkDescription": "Anyone with this link can join your team.",
+      "linkDescription": "Anyone with this link can join your team. The link is valid for 7 days.",
       "linkFailed": "Could not create the invite link.",
-      "linkValidity": "The link is valid for 7 days.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
       "sentSuccess": "Sent {count} invitation(s).",
@@ -1581,8 +1666,8 @@
     "steps": {
       "ai": {
         "placeholder": "AI integration placeholder",
-        "subtitle": "Let Claude Code or Codex run your CRM for you.",
-        "title": "Connect an AI agent"
+        "subtitle": "Choose one to connect now. You can add the others later.",
+        "title": "Connect your AI"
       },
       "invite": {
         "placeholder": "Invite team placeholder",
@@ -1592,10 +1677,6 @@
       "profile": {
         "subtitle": "Tell us who you are so we can set up your workspace.",
         "title": "Your profile"
-      },
-      "terminology": {
-        "subtitle": "Choose what to call the core records in your workspace.",
-        "title": "Name your records"
       }
     }
   },
@@ -1748,7 +1829,7 @@
     "title": "Task"
   },
   "TasksCard": {
-    "systemTaskTooltip": "This is a system task that cannot be manually deleted. Open the task for more information."
+    "systemTaskTooltip": "System-managed {task}. It cannot be deleted manually; open it for more information."
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
