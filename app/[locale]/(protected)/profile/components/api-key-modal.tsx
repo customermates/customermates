@@ -195,19 +195,6 @@ export const ApiKeyModal = observer(() => {
               </Alert>
             ) : isPlain ? (
               <>
-                <Button
-                  className="-ml-2 w-fit"
-                  disabled={isLoading}
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                  onClick={apiKeyModalStore.backToOptions}
-                >
-                  <ArrowLeft aria-hidden />
-
-                  {t("ApiKeyModal.backToOptions")}
-                </Button>
-
                 <FormInput required id="name" />
 
                 <ExpiresInPicker />
@@ -225,8 +212,10 @@ export const ApiKeyModal = observer(() => {
 
           {isPlain && !createdKey ? (
             <AppCardFooter>
-              <Button disabled={isLoading} variant="secondary" onClick={close}>
-                {t("Common.actions.cancel")}
+              <Button disabled={isLoading} type="button" variant="secondary" onClick={apiKeyModalStore.backToOptions}>
+                <ArrowLeft aria-hidden />
+
+                {t("Common.actions.back")}
               </Button>
 
               <Button disabled={isLoading || !hasUnsavedChanges} id="api-key-save" type="submit">

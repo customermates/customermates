@@ -86,6 +86,7 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(html).not.toContain("–");
     expect(html).toContain('aria-labelledby="terminology-task-relationship-label"');
     expect(html).toContain('id="terminology-task-relationship-label"');
+    expect(html).toContain('data-relationship-label="task-all-records"');
     expect(html).toContain('role="group"');
     expect(html).toContain('data-task-selector="true" class="w-full"');
     expect(html).not.toContain("sm:w-[calc(50%-3rem)]");
@@ -112,10 +113,12 @@ describe("TerminologyRelationshipDiagram", () => {
     expect(html).toContain('<svg aria-hidden="true"');
     expect(html).toContain("text-border");
     expect(html).toContain("bg-border");
-    expect(html.match(/stroke-width="1.5"/g)).toHaveLength(4);
-    expect(html.match(/data-relationship-label=/g)).toHaveLength(4);
-    expect(html.match(/data-slot="badge"/g)).toHaveLength(4);
-    expect(html.match(/data-variant="secondary"/g)).toHaveLength(4);
+    expect(html.match(/stroke-width="1.5"/g)).toHaveLength(8);
+    expect(html.match(/data-relationship-segment="start"/g)).toHaveLength(4);
+    expect(html.match(/data-relationship-segment="end"/g)).toHaveLength(4);
+    expect(html.match(/data-relationship-label=/g)).toHaveLength(5);
+    expect(html.match(/data-slot="badge"/g)).toHaveLength(5);
+    expect(html.match(/data-variant="secondary"/g)).toHaveLength(5);
     expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
     expect(html).toContain("Companies are linked to Jobs.");
     expect(html).not.toContain("border-l-");
@@ -130,8 +133,9 @@ describe("TerminologyRelationshipDiagram", () => {
     );
 
     expect(html).toContain('<div class="sr-only"><div class="flex flex-col gap-2">');
-    expect(html).toContain("sr-only sm:not-sr-only");
-    expect(html).toContain("relative flex min-h-6 w-full items-center justify-center sm:min-h-14 sm:py-2");
+    expect(html).toContain('class="sr-only" id="terminology-task-relationship-label"');
+    expect(html).toContain("relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14");
+    expect(html).toContain("bg-border sm:hidden");
     expect(html).not.toContain("sm:sr-only");
   });
 

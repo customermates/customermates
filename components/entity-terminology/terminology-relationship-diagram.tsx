@@ -172,49 +172,101 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
         >
-          <line
-            data-relationship="contact-organization"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-            x1="42"
-            x2="58"
-            y1="13"
-            y2="13"
-          />
+          <g data-relationship="contact-organization">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="42"
+              x2="45"
+              y1="13"
+              y2="13"
+            />
 
-          <line
-            data-relationship="contact-deal"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-            x1="21"
-            x2="21"
-            y1="26"
-            y2="74"
-          />
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="55"
+              x2="58"
+              y1="13"
+              y2="13"
+            />
+          </g>
 
-          <line
-            data-relationship="organization-deal"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-            x1="79"
-            x2="21"
-            y1="26"
-            y2="74"
-          />
+          <g data-relationship="contact-deal">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="21"
+              x2="21"
+              y1="26"
+              y2="42"
+            />
 
-          <line
-            data-relationship="deal-service"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            vectorEffect="non-scaling-stroke"
-            x1="42"
-            x2="58"
-            y1="87"
-            y2="87"
-          />
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="21"
+              x2="21"
+              y1="58"
+              y2="74"
+            />
+          </g>
+
+          <g data-relationship="organization-deal">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="79"
+              x2="57"
+              y1="26"
+              y2="44"
+            />
+
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="43"
+              x2="21"
+              y1="56"
+              y2="74"
+            />
+          </g>
+
+          <g data-relationship="deal-service">
+            <line
+              data-relationship-segment="start"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="42"
+              x2="45"
+              y1="87"
+              y2="87"
+            />
+
+            <line
+              data-relationship-segment="end"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+              x1="55"
+              x2="58"
+              y1="87"
+              y2="87"
+            />
+          </g>
         </svg>
 
         <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-24 sm:gap-y-16">
@@ -247,7 +299,7 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
 
         <Badge
           aria-hidden="true"
-          className="pointer-events-none absolute left-[59%] top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-1/2 sm:inline-flex"
           data-relationship-label="organization-deal"
           variant="secondary"
         >
@@ -278,15 +330,28 @@ export function TerminologyRelationshipDiagram({ selections, onPreset, readOnly 
         {relationshipMap()}
 
         <div aria-labelledby="terminology-task-relationship-label" className="flex flex-col items-center" role="group">
-          <div className="relative flex min-h-6 w-full items-center justify-center sm:min-h-14 sm:py-2">
-            <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border" />
+          <span className="sr-only" id="terminology-task-relationship-label">
+            {taskScopeLabel}
+          </span>
 
+          <div className="relative flex min-h-6 w-full flex-col items-center justify-center sm:min-h-14">
             <span
-              className="sr-only sm:not-sr-only sm:relative sm:z-10 sm:max-w-[calc(100%-2rem)] sm:bg-background sm:px-2 sm:text-center sm:text-[10px] sm:leading-relaxed sm:text-muted-foreground"
-              id="terminology-task-relationship-label"
+              aria-hidden="true"
+              className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border sm:hidden"
+            />
+
+            <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
+
+            <Badge
+              aria-hidden="true"
+              className="pointer-events-none hidden max-w-[calc(100%-2rem)] text-center text-[10px] leading-relaxed sm:inline-flex"
+              data-relationship-label="task-all-records"
+              variant="secondary"
             >
               {taskScopeLabel}
-            </span>
+            </Badge>
+
+            <span aria-hidden="true" className="hidden w-px flex-1 bg-border sm:block" />
           </div>
 
           <div data-task-selector className="w-full">
