@@ -386,9 +386,8 @@
         "updated": "Deal Updated"
       },
       "legal": {
-        "contract_notice_sent": "Contract Notice Sent",
         "documents_accepted": "Legal Documents Accepted",
-        "information_notice_sent": "Legal Information Notice Sent"
+        "notice_sent": "Legal Notice Sent"
       },
       "message": {
         "received": "Message Received",
@@ -1503,10 +1502,6 @@
     "youPrefix": "You:"
   },
   "LegalDocumentNotice": {
-    "acceptedContractBody": "We updated the legal documents listed below. An authorised system administrator has already accepted this release for the business customer; this notice is provided for your records because every active system administrator receives it.",
-    "acceptedContractDateLabel": "Company-wide effective date",
-    "acceptedContractRecord": "No further acceptance is required from you. The company-wide date shown above remains part of the release record.",
-    "acceptedContractSubject": "Updated Customermates legal documents — for your records",
     "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
     "contractDeadlineLabel": "Objection and acceptance deadline",
     "contractObjection": "Please send any objection before the stated deadline by replying to this email. Silence or inactivity is not acceptance. If updated contractual documents are not accepted by the deadline, access to the managed-service user interface may be restricted until an authorised administrator accepts them.",
@@ -1523,10 +1518,10 @@
     "informationSubject": "Customermates legal information updated",
     "informationTitle": "Legal information updated",
     "liveLabel": "Live document",
-    "revisionLabel": "Version-specific source",
     "signoff": "Best regards,\nBen",
     "subprocessorDeadlineLabel": "Subprocessor objection deadline",
-    "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds."
+    "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
+    "subprocessorObjectionWithDeadline": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and by {deadline}, giving reasonable data-protection grounds. This supplier deadline is separate from the Terms and DPA deadline shown above."
   },
   "LegalUpdateBanner": {
     "admin": "Legal documents updated. Review and accept the updated Terms and DPA by {date} to keep using Customermates.",

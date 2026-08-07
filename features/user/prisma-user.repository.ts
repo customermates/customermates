@@ -465,6 +465,7 @@ export class PrismaUserRepo
       select: {
         id: true,
         companyId: true,
+        createdAt: true,
         email: true,
         firstName: true,
         displayLanguage: true,
@@ -475,6 +476,7 @@ export class PrismaUserRepo
     return users.map((user) => ({
       id: user.id,
       companyId: user.companyId,
+      createdAt: user.createdAt,
       email: user.email,
       firstName: user.firstName,
       displayLanguage: user.displayLanguage,

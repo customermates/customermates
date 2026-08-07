@@ -54,8 +54,7 @@ export enum DomainEvent {
   MESSAGING_CALENDAR_CHANGED = "messaging.calendar.changed",
   MESSAGING_CALENDAR_EVENT_CHANGED = "messaging.calendar_event.changed",
   MESSAGING_RELATION_CREATED = "messaging.relation.created",
-  LEGAL_CONTRACT_NOTICE_SENT = "legal.contract_notice_sent",
-  LEGAL_INFORMATION_NOTICE_SENT = "legal.information_notice_sent",
+  LEGAL_NOTICE_SENT = "legal.notice_sent",
   LEGAL_DOCUMENTS_ACCEPTED = "legal.documents_accepted",
 }
 
@@ -419,13 +418,7 @@ export type DomainEventMap = {
       providerUserId: string;
     };
   };
-  [DomainEvent.LEGAL_CONTRACT_NOTICE_SENT]: {
-    userId: string;
-    companyId: string;
-    entityId: string;
-    payload: LegalNoticeAuditPayload;
-  };
-  [DomainEvent.LEGAL_INFORMATION_NOTICE_SENT]: {
+  [DomainEvent.LEGAL_NOTICE_SENT]: {
     userId: string;
     companyId: string;
     entityId: string;

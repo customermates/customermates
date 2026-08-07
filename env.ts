@@ -16,7 +16,6 @@ export const env = {
 
   NODE_ENV: (process.env.NODE_ENV as "development" | "test" | "production" | undefined) ?? "development",
   VERCEL_ENV: process.env.VERCEL_ENV as "development" | "preview" | "production" | undefined,
-  VERCEL_GIT_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA,
   NEXT_RUNTIME: process.env.NEXT_RUNTIME as "nodejs" | "edge" | undefined,
   CI: process.env.CI,
 

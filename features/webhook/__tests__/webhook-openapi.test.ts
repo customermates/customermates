@@ -50,13 +50,12 @@ function documentedWebhookSchemas() {
 }
 
 describe("webhook OpenAPI coverage", () => {
-  it.each([
-    DomainEvent.LEGAL_CONTRACT_NOTICE_SENT,
-    DomainEvent.LEGAL_INFORMATION_NOTICE_SENT,
-    DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-  ])("does not expose the internal %s audit event as a customer webhook", (event) => {
-    expect(WebhookEventSchema.safeParse(event).success).toBe(false);
-  });
+  it.each([DomainEvent.LEGAL_NOTICE_SENT, DomainEvent.LEGAL_DOCUMENTS_ACCEPTED])(
+    "does not expose the internal %s audit event as a customer webhook",
+    (event) => {
+      expect(WebhookEventSchema.safeParse(event).success).toBe(false);
+    },
+  );
 
   it("documents exactly the subscribable events", () => {
     const documented = documentedWebhookSchemas().map(({ key, schema }) => {

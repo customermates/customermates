@@ -386,9 +386,8 @@
         "updated": "Deal aktualisiert"
       },
       "legal": {
-        "contract_notice_sent": "Vertragsmitteilung versandt",
         "documents_accepted": "Rechtsdokumente angenommen",
-        "information_notice_sent": "Rechtliche Information versandt"
+        "notice_sent": "Rechtsmitteilung versandt"
       },
       "message": {
         "received": "Nachricht empfangen",
@@ -1503,10 +1502,6 @@
     "youPrefix": "Du:"
   },
   "LegalDocumentNotice": {
-    "acceptedContractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Ein berechtigter Systemadministrator hat diese Fassung bereits für den Geschäftskunden angenommen; diese Mitteilung dient Ihren Unterlagen, da sie an jeden aktiven Systemadministrator versandt wird.",
-    "acceptedContractDateLabel": "Unternehmensweites Wirksamkeitsdatum",
-    "acceptedContractRecord": "Eine weitere Annahme durch Sie ist nicht erforderlich. Der oben angegebene unternehmensweite Termin bleibt Bestandteil des Veröffentlichungsnachweises.",
-    "acceptedContractSubject": "Aktualisierte Customermates-Rechtsdokumente — für Ihre Unterlagen",
     "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
     "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",
     "contractObjection": "Bitte teilen Sie einen Widerspruch vor der angegebenen Frist durch Antwort auf diese E-Mail mit. Schweigen oder Untätigkeit gelten nicht als Zustimmung. Werden geänderte Vertragsdokumente nicht fristgerecht angenommen, kann der Zugang zur Benutzeroberfläche des verwalteten Dienstes bis zur Annahme durch einen berechtigten Administrator beschränkt werden.",
@@ -1523,10 +1518,10 @@
     "informationSubject": "Rechtliche Informationen von Customermates aktualisiert",
     "informationTitle": "Rechtliche Informationen aktualisiert",
     "liveLabel": "Aktuelles Dokument",
-    "revisionLabel": "Versionsbezogene Quelle",
     "signoff": "Viele Grüße\nBen",
     "subprocessorDeadlineLabel": "Widerspruchsfrist für Unterauftragsverarbeiter",
-    "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe."
+    "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe.",
+    "subprocessorObjectionWithDeadline": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und bis zum {deadline} unter Angabe berechtigter datenschutzrechtlicher Gründe. Diese Lieferantenfrist gilt unabhängig von der oben genannten Frist für AGB und AVV."
   },
   "LegalUpdateBanner": {
     "admin": "Rechtsdokumente wurden aktualisiert. Prüfen und akzeptieren Sie die aktualisierten AGB und den AVV bis zum {date}, um Customermates weiter zu nutzen.",

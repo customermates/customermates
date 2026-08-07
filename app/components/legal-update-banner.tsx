@@ -4,28 +4,15 @@
 
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
-import { useEffect } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
-import { useRouter } from "@/i18n/navigation";
 type Props = { status: LegalUpdateStatus };
 
 export function LegalUpdateBanner({ status }: Props) {
   const t = useTranslations();
   const format = useFormatter();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!status.contractNoticeSent || status.contractAccepted || !status.effectiveAt) return;
-
-    const delay = new Date(status.effectiveAt).getTime() - Date.now();
-    if (!Number.isFinite(delay)) return;
-    const timeout = window.setTimeout(() => router.refresh(), Math.max(0, delay));
-
-    return () => window.clearTimeout(timeout);
-  }, [router, status.contractAccepted, status.contractNoticeSent, status.effectiveAt]);
 
   if (status.contractNoticeSent && !status.contractAccepted && status.effectiveAt) {
     const date = format.dateTime(new Date(status.effectiveAt), {

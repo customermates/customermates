@@ -334,7 +334,6 @@ model AuditLog {
   @@index([companyId])
   @@index([userId])
   @@index([entityId])
-  @@index([companyId, event, entityId, userId])
 }
 
 model Contact {

@@ -27,7 +27,6 @@ const email: Parameters<EmailService["send"]>[0] = {
   to: "recipient@example.com",
   subject: "Legal update",
   react: createElement("div", null, "Legal update") as unknown as ReactElement<Record<string, unknown>>,
-  idempotencyKey: "legal:company:user:versions",
 };
 
 describe("EmailService", () => {
@@ -37,12 +36,10 @@ describe("EmailService", () => {
     mockEnv.RESEND_API_KEY = "test-key";
   });
 
-  it("returns the Resend message ID and forwards the idempotency key", async () => {
+  it("resolves without exposing provider metadata", async () => {
     resendSend.mockResolvedValue({ data: { id: "message-123" }, error: null });
 
-    await expect(new EmailService().send(email)).resolves.toEqual({
-      id: "message-123",
-    });
+    await expect(new EmailService().send(email)).resolves.toBeUndefined();
     expect(resendConstructor).toHaveBeenCalledWith("test-key");
     expect(resendSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -51,7 +48,6 @@ describe("EmailService", () => {
         subject: email.subject,
         to: email.to,
       }),
-      { idempotencyKey: email.idempotencyKey },
     );
   });
 
@@ -66,21 +62,17 @@ describe("EmailService", () => {
     );
   });
 
-  it("throws when Resend returns no provider message ID", async () => {
+  it("does not require a provider message ID", async () => {
     resendSend.mockResolvedValue({ data: {}, error: null });
 
-    await expect(new EmailService().send(email)).rejects.toThrow(
-      "Resend accepted the request without returning a message ID",
-    );
+    await expect(new EmailService().send(email)).resolves.toBeUndefined();
   });
 
-  it("returns a deterministic local-only ID without calling Resend", async () => {
+  it("resolves locally without calling Resend", async () => {
     mockEnv.NODE_ENV = "test";
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    await expect(new EmailService().send(email)).resolves.toEqual({
-      id: `local:${email.idempotencyKey}`,
-    });
+    await expect(new EmailService().send(email)).resolves.toBeUndefined();
     expect(resendSend).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
   });

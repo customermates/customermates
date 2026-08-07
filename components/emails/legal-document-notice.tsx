@@ -10,7 +10,6 @@ type DocumentLink = {
   name: string;
   version: string;
   liveUrl: string;
-  revisionUrl: string;
 };
 
 type Props = {
@@ -21,7 +20,6 @@ type Props = {
   greeting: string;
   liveLabel: string;
   objections: string[];
-  revisionLabel: string;
   signoff: string;
   subject: string;
   title: string;
@@ -35,7 +33,6 @@ export default function LegalDocumentNotice({
   greeting,
   liveLabel,
   objections,
-  revisionLabel,
   signoff,
   subject,
   title,
@@ -68,10 +65,6 @@ export default function LegalDocumentNotice({
             <br />
 
             <EmailLink href={document.liveUrl}>{liveLabel}</EmailLink>
-
-            {" · "}
-
-            <EmailLink href={document.revisionUrl}>{revisionLabel}</EmailLink>
           </Text>
         ))}
       </Section>

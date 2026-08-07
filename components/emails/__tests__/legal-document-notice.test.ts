@@ -12,7 +12,6 @@ describe("LegalDocumentNotice", () => {
       deadlineLabel: "Objection and acceptance deadline",
       documentName: "Terms and Conditions",
       liveLabel: "Live document",
-      revisionLabel: "Version-specific source",
       title: "Legal documents updated",
     },
     {
@@ -21,11 +20,9 @@ describe("LegalDocumentNotice", () => {
       deadlineLabel: "Widerspruchs- und Annahmefrist",
       documentName: "Allgemeine Geschäftsbedingungen",
       liveLabel: "Aktuelles Dokument",
-      revisionLabel: "Versionsbezogene Quelle",
       title: "Rechtsdokumente aktualisiert",
     },
-  ])("renders the visible $locale copy and immutable document links", (copy) => {
-    const commit = "a".repeat(40);
+  ])("renders the visible $locale copy and current live-document link", (copy) => {
     const html = renderToStaticMarkup(
       createElement(LegalDocumentNotice, {
         body: copy.body,
@@ -36,13 +33,11 @@ describe("LegalDocumentNotice", () => {
             name: copy.documentName,
             version: "2026-08-07",
             liveUrl: `https://customermates.com/${copy.locale}/terms`,
-            revisionUrl: `https://github.com/customermates/customermates/blob/${commit}/content/legal/${copy.locale}/terms.mdx`,
           },
         ],
         greeting: copy.locale === "de" ? "Hallo Ben," : "Hi Ben,",
         liveLabel: copy.liveLabel,
         objections: [copy.body],
-        revisionLabel: copy.revisionLabel,
         signoff: copy.locale === "de" ? "Viele Grüße\nBen" : "Best regards,\nBen",
         subject: copy.title,
         title: copy.title,
@@ -54,10 +49,7 @@ describe("LegalDocumentNotice", () => {
     expect(html).toContain(copy.documentName);
     expect(html).toContain("2026-08-07");
     expect(html).toContain(`https://customermates.com/${copy.locale}/terms`);
-    expect(html).toContain(
-      `https://github.com/customermates/customermates/blob/${commit}/content/legal/${copy.locale}/terms.mdx`,
-    );
     expect(html).toContain(copy.liveLabel);
-    expect(html).toContain(copy.revisionLabel);
+    expect(html).not.toContain("github.com/customermates/customermates/blob");
   });
 });

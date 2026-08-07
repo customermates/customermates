@@ -69,8 +69,7 @@ const entityNameExtractors: {
   [DomainEvent.MESSAGING_CALENDAR_CHANGED]: (eventData) => eventData.payload.connectedAccountId,
   [DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED]: (eventData) => eventData.payload.connectedAccountId,
   [DomainEvent.MESSAGING_RELATION_CREATED]: (eventData) => eventData.payload.connectedAccountId,
-  [DomainEvent.LEGAL_CONTRACT_NOTICE_SENT]: (eventData) => eventData.entityId,
-  [DomainEvent.LEGAL_INFORMATION_NOTICE_SENT]: (eventData) => eventData.entityId,
+  [DomainEvent.LEGAL_NOTICE_SENT]: (eventData) => eventData.entityId,
   [DomainEvent.LEGAL_DOCUMENTS_ACCEPTED]: (eventData) => eventData.entityId,
 };
 

@@ -14,7 +14,6 @@ vi.mock("@/env", () => ({
     APP_MODE: "cloud",
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
-    VERCEL_GIT_COMMIT_SHA: "a".repeat(40),
   },
 }));
 
@@ -24,9 +23,9 @@ const { EventService } = await import("@/features/event/event.service");
 const { DomainEventListener } = await import("@/features/event/domain-event.listener");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
-const { LEGAL_CONTRACT_KEY, LEGAL_INFORMATION_KEY, currentLegalDocumentVersions } = await import(
-  "@/constants/legal-documents"
-);
+const { GetLegalStatusInteractor } = await import("@/features/legal/get-legal-status.interactor");
+const { AcceptLegalDocumentsInteractor } = await import("@/features/legal/accept-legal-documents.interactor");
+const { currentLegalDocumentVersions } = await import("@/constants/legal-documents");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
@@ -130,7 +129,7 @@ describe("registration against a real database", () => {
       prisma.auditLog.findFirstOrThrow({
         where: {
           companyId: user.companyId,
-          entityId: LEGAL_CONTRACT_KEY,
+          entityId: user.companyId,
           event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
           userId: user.id,
         },
@@ -139,43 +138,30 @@ describe("registration against a real database", () => {
     const eventData = acceptance.eventData as {
       payload: {
         acceptanceType: string;
-        contractKey: string;
-        informationKey: string;
+        acceptingEmail: string;
         locale: string;
       };
     };
 
     expect(eventData.payload).toMatchObject({
       acceptanceType: "initial-onboarding",
-      contractKey: LEGAL_CONTRACT_KEY,
-      informationKey: LEGAL_INFORMATION_KEY,
+      acceptingEmail: registrationEmail,
       locale: "en",
     });
 
     const noticePayload: LegalNoticeAuditPayload = {
       versions: currentLegalDocumentVersions(),
-      contractKey: LEGAL_CONTRACT_KEY,
-      informationKey: LEGAL_INFORMATION_KEY,
       changedDocuments: ["terms", "dpa", "privacy", "subprocessors"],
-      recipient: { id: user.id, email: user.email },
+      recipientEmail: user.email,
       locale: "de",
-      noticeAt: "2026-08-07T09:00:00.000Z",
       effectiveAt: "2026-08-21T09:00:00.000Z",
-      providerMessageId: "combined-message",
-      deployedGitCommit: "a".repeat(40),
-      acceptanceType: null,
     };
     await runWithoutTenant(() =>
       runInTransaction(
         async () => {
           await eventService.publish(
-            DomainEvent.LEGAL_CONTRACT_NOTICE_SENT,
-            { entityId: LEGAL_CONTRACT_KEY, payload: noticePayload },
-            { systemCompanyId: user.companyId, systemUserId: user.id },
-          );
-          await eventService.publish(
-            DomainEvent.LEGAL_INFORMATION_NOTICE_SENT,
-            { entityId: LEGAL_INFORMATION_KEY, payload: noticePayload },
+            DomainEvent.LEGAL_NOTICE_SENT,
+            { entityId: user.id, payload: noticePayload },
             { systemCompanyId: user.companyId, systemUserId: user.id },
           );
         },
@@ -187,53 +173,139 @@ describe("registration against a real database", () => {
       prisma.auditLog.findMany({
         where: {
           companyId: user.companyId,
-          event: {
-            in: [DomainEvent.LEGAL_CONTRACT_NOTICE_SENT, DomainEvent.LEGAL_INFORMATION_NOTICE_SENT],
-          },
+          event: DomainEvent.LEGAL_NOTICE_SENT,
           userId: user.id,
         },
       }),
     );
-    expect(combinedEvents).toHaveLength(2);
-    expect(
-      combinedEvents.map(
-        (entry) => (entry.eventData as { payload: { providerMessageId: string } }).payload.providerMessageId,
-      ),
-    ).toEqual(["combined-message", "combined-message"]);
+    expect(combinedEvents).toHaveLength(1);
+    expect(combinedEvents[0].entityId).toBe(user.id);
+    expect((combinedEvents[0].eventData as { payload: LegalNoticeAuditPayload }).payload).toEqual(noticePayload);
 
     await expect(
       runWithoutTenant(() =>
         runInTransaction(
           async () => {
             await eventService.publish(
-              DomainEvent.LEGAL_CONTRACT_NOTICE_SENT,
-              { entityId: LEGAL_CONTRACT_KEY, payload: noticePayload },
+              DomainEvent.LEGAL_NOTICE_SENT,
+              { entityId: user.id, payload: noticePayload },
               { systemCompanyId: user.companyId, systemUserId: user.id },
             );
-            await eventService.publish(
-              DomainEvent.LEGAL_INFORMATION_NOTICE_SENT,
-              { entityId: LEGAL_INFORMATION_KEY, payload: noticePayload },
-              { systemCompanyId: user.companyId, systemUserId: user.id },
-            );
-            throw new Error("forced combined-event rollback");
+            throw new Error("forced notice rollback");
           },
           { companyId: user.companyId },
         ),
       ),
-    ).rejects.toThrow("forced combined-event rollback");
+    ).rejects.toThrow("forced notice rollback");
     expect(
       await runWithoutTenant(() =>
         prisma.auditLog.count({
           where: {
             companyId: user.companyId,
-            event: {
-              in: [DomainEvent.LEGAL_CONTRACT_NOTICE_SENT, DomainEvent.LEGAL_INFORMATION_NOTICE_SENT],
-            },
+            event: DomainEvent.LEGAL_NOTICE_SENT,
             userId: user.id,
           },
         }),
       ),
-    ).toBe(2);
+    ).toBe(1);
+  });
+
+  it("enforces and clears one company-wide deadline across an administrator and member", async () => {
+    const suffix = Date.now();
+    const repo = new PrismaUserRepo();
+    const admin = await runWithoutTenant(() =>
+      repo.createCompanyAndUser({
+        email: `legal-admin-${suffix}@example.com`,
+        firstName: "Legal",
+        lastName: "Admin",
+        country: "de",
+        agreeToTerms: true,
+        avatarUrl: null,
+      }),
+    );
+    companyIds.push(admin.companyId);
+    const member = await runWithoutTenant(() =>
+      repo.registerExistingCompany({
+        email: `legal-member-${suffix}@example.com`,
+        firstName: "Legal",
+        lastName: "Member",
+        country: "de",
+        agreeToTerms: false,
+        avatarUrl: null,
+        companyId: admin.companyId,
+      }),
+    );
+    const auditRepo = new PrismaAuditLogRepo();
+    const eventService = new EventService(
+      [],
+      {
+        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
+        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
+      },
+      {
+        create: vi.fn().mockResolvedValue([]),
+        createUnscoped: vi.fn().mockResolvedValue([]),
+      },
+      auditRepo,
+      { dispatch: vi.fn().mockResolvedValue(undefined) },
+    );
+    const versions = currentLegalDocumentVersions();
+    await runWithoutTenant(async () => {
+      await eventService.publish(
+        DomainEvent.LEGAL_NOTICE_SENT,
+        {
+          entityId: admin.id,
+          payload: {
+            versions,
+            changedDocuments: ["terms", "dpa", "privacy", "subprocessors"],
+            recipientEmail: admin.email,
+            locale: "en",
+            effectiveAt: "2026-08-06T00:00:00.000Z",
+          },
+        },
+        { systemCompanyId: admin.companyId, systemUserId: admin.id },
+      );
+      await eventService.publish(
+        DomainEvent.LEGAL_NOTICE_SENT,
+        {
+          entityId: member.id,
+          payload: {
+            versions,
+            changedDocuments: ["privacy"],
+            recipientEmail: member.email,
+            locale: "en",
+            effectiveAt: null,
+          },
+        },
+        { systemCompanyId: admin.companyId, systemUserId: member.id },
+      );
+    });
+
+    const statusInteractor = new GetLegalStatusInteractor(auditRepo);
+    const afterDeadline = new Date("2026-08-07T00:00:00.000Z");
+    await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
+      contractAccepted: false,
+      mustAccept: true,
+    });
+    await expect(statusInteractor.invoke(member, afterDeadline)).resolves.toMatchObject({
+      contractAccepted: false,
+      mustAccept: true,
+    });
+
+    await new AcceptLegalDocumentsInteractor(
+      { getActiveUserOrThrow: vi.fn().mockResolvedValue(admin) } as never,
+      auditRepo,
+      eventService,
+    ).invoke({ agreeToLegalDocuments: true });
+
+    await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
+      contractAccepted: true,
+      mustAccept: false,
+    });
+    await expect(statusInteractor.invoke(member, afterDeadline)).resolves.toMatchObject({
+      contractAccepted: true,
+      mustAccept: false,
+    });
   });
 
   it("rolls back the company, user, and queued acceptance evidence together", async () => {
@@ -285,7 +357,7 @@ describe("registration against a real database", () => {
           where: {
             event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
             eventData: {
-              path: ["payload", "acceptingUser", "email"],
+              path: ["payload", "acceptingEmail"],
               equals: rollbackEmail,
             },
           },

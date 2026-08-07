@@ -9,15 +9,12 @@ type SendArgs = {
   subject: string;
   react: React.ReactElement<Record<string, unknown>>;
   from?: string;
-  idempotencyKey?: string;
 };
-
-export type EmailSendResult = { id: string };
 
 const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
 
 export class EmailService {
-  async send(args: SendArgs): Promise<EmailSendResult> {
+  async send(args: SendArgs): Promise<void> {
     if (env.NODE_ENV !== "production") {
       console.log("[EmailService] EMAIL (local only)", {
         from: args.from ?? defaultSender,
@@ -26,26 +23,20 @@ export class EmailService {
         props: args.react.props,
       });
 
-      return { id: `local:${args.idempotencyKey ?? "email"}` };
+      return;
     }
 
     if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
     const resend = new Resend(env.RESEND_API_KEY);
 
-    const { data, error } = await resend.emails.send(
-      {
-        from: args.from ?? defaultSender,
-        to: args.to,
-        subject: args.subject,
-        react: args.react,
-      },
-      { idempotencyKey: args.idempotencyKey },
-    );
+    const { error } = await resend.emails.send({
+      from: args.from ?? defaultSender,
+      to: args.to,
+      subject: args.subject,
+      react: args.react,
+    });
 
     if (error) throw new Error(`Resend rejected the email: ${error.message}`);
-    if (!data?.id) throw new Error("Resend accepted the request without returning a message ID");
-
-    return { id: data.id };
   }
 }

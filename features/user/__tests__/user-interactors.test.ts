@@ -19,15 +19,13 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor } from "../upsert/update-user-details.interactor";
-import { LEGAL_CONTRACT_KEY, LEGAL_INFORMATION_KEY, LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError } from "@/core/errors/app-errors";
 
 const USER_ID = "test-user-id";
 const mutableEnv = MOCK_ENV_MODULE.env as unknown as {
   APP_MODE: "cloud" | "demo" | "self-hosted";
-  NODE_ENV: "test" | "production";
-  VERCEL_GIT_COMMIT_SHA?: string;
 };
 
 const mockTenantUser = createMockUser({
@@ -45,8 +43,6 @@ describe("RegisterUserInteractor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mutableEnv.APP_MODE = "self-hosted";
-    mutableEnv.NODE_ENV = "test";
-    mutableEnv.VERCEL_GIT_COMMIT_SHA = "a".repeat(40);
 
     mockAuthService = {
       resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: USER_ID } } }),
@@ -107,36 +103,15 @@ describe("RegisterUserInteractor", () => {
       1,
       DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
       expect.objectContaining({
-        entityId: LEGAL_CONTRACT_KEY,
-        payload: expect.objectContaining({
+        entityId: mockTenantUser.companyId,
+        payload: {
           acceptanceType: "initial-onboarding",
-          contractKey: LEGAL_CONTRACT_KEY,
-          deployedGitCommit: "a".repeat(40),
-          informationKey: LEGAL_INFORMATION_KEY,
+          acceptingEmail: "jane@example.com",
           locale: "de",
           versions: LEGAL_DOCUMENT_VERSIONS,
-          acceptingUser: { id: USER_ID, email: "jane@example.com" },
-        }),
+        },
       }),
     );
-  });
-
-  it("fails closed when production registration cannot record an immutable deployment commit", async () => {
-    mutableEnv.APP_MODE = "cloud";
-    mutableEnv.NODE_ENV = "production";
-    mutableEnv.VERCEL_GIT_COMMIT_SHA = undefined;
-
-    await expect(
-      createInteractor().invoke({
-        email: "jane@example.com",
-        firstName: "Jane",
-        lastName: "Doe",
-        country: "de",
-        avatarUrl: null,
-        agreeToTerms: true,
-      }),
-    ).rejects.toThrow("immutable legal-version evidence");
-    expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
   it("rejects an unchecked new cloud company before creating records", async () => {

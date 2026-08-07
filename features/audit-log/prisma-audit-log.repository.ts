@@ -1,6 +1,5 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
-import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
 import type { LegalAuditRepo } from "@/features/legal/get-legal-status.interactor";
 import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
@@ -13,6 +12,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { DomainEvent } from "@/features/event/domain-events";
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
@@ -118,47 +118,22 @@ export class PrismaAuditLogRepo
   }
 
   @BypassTenantGuard
-  async findLegalEventUnscoped(args: {
-    companyId: string;
-    event: DomainEvent;
-    entityId?: string;
-    excludeEntityId?: string;
-    userId?: string;
-    order?: "asc" | "desc";
-  }) {
-    return this.prisma.auditLog.findFirst({
+  async findLegalEventsUnscoped(companyId: string) {
+    const records = await this.prisma.auditLog.findMany({
       where: {
-        companyId: args.companyId,
-        event: args.event,
-        entityId: args.entityId ?? (args.excludeEntityId ? { not: args.excludeEntityId } : undefined),
-        userId: args.userId,
-      },
-      orderBy: { createdAt: args.order ?? "desc" },
-      select: {
-        createdAt: true,
-        entityId: true,
-        eventData: true,
-        userId: true,
-      },
-    });
-  }
-
-  @BypassTenantGuard
-  async findLegalEventsUnscoped(args: { companyId: string; event: DomainEvent; entityId: string; userId?: string }) {
-    return this.prisma.auditLog.findMany({
-      where: {
-        companyId: args.companyId,
-        event: args.event,
-        entityId: args.entityId,
-        userId: args.userId,
+        companyId,
+        event: { in: [DomainEvent.LEGAL_NOTICE_SENT, DomainEvent.LEGAL_DOCUMENTS_ACCEPTED] },
       },
       orderBy: { createdAt: "asc" },
       select: {
         createdAt: true,
         entityId: true,
+        event: true,
         eventData: true,
         userId: true,
       },
     });
+
+    return records.map((record) => ({ ...record, event: record.event as DomainEvent }));
   }
 }

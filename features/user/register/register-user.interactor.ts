@@ -8,12 +8,7 @@ import { z } from "zod";
 import { getLocale } from "next-intl/server";
 import { CountryCode } from "@/generated/prisma";
 
-import {
-  ALL_LEGAL_DOCUMENTS,
-  LEGAL_CONTRACT_KEY,
-  LEGAL_INFORMATION_KEY,
-  currentLegalDocumentVersions,
-} from "@/constants/legal-documents";
+import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { env } from "@/env";
 
 import { DomainEvent } from "@/features/event/domain-events";
@@ -26,7 +21,6 @@ import { Transaction } from "@/core/decorators/transaction.decorator";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { getLegalDeploymentCommit } from "@/features/legal/legal-deployment-commit";
 
 const Schema = z.object({
   email: z.email(),
@@ -88,21 +82,13 @@ export class RegisterUserInteractor {
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {
-        const acceptedAt = new Date().toISOString();
         const locale = (await getLocale()) === "de" ? "de" : "en";
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
-          entityId: LEGAL_CONTRACT_KEY,
+          entityId: tenantUser.companyId,
           payload: {
             versions: currentLegalDocumentVersions(),
-            contractKey: LEGAL_CONTRACT_KEY,
-            informationKey: LEGAL_INFORMATION_KEY,
-            changedDocuments: [...ALL_LEGAL_DOCUMENTS],
-            acceptingUser: { id: tenantUser.id, email: tenantUser.email },
+            acceptingEmail: tenantUser.email,
             locale,
-            noticeAt: null,
-            effectiveAt: acceptedAt,
-            providerMessageId: null,
-            deployedGitCommit: getLegalDeploymentCommit(),
             acceptanceType: "initial-onboarding",
           },
         });

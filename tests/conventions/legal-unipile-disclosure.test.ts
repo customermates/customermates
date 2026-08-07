@@ -1,9 +1,9 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT } from "./walk";
+import { REPO_ROOT, walkFiles } from "./walk";
 
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 
@@ -307,7 +307,10 @@ describe("registration acceptance covers the DPA", () => {
     expect(navigation).toMatch(/if \(isLegalUpdateRoute\)/);
     expect(protectedLayout).toContain("!isLegalUpdateRoute");
     expect(routeGuard).toContain('return redirectTo("/legal-update")');
-    expect(banner).toContain("router.refresh()");
+    expect(banner).not.toContain("useEffect");
+    expect(banner).not.toContain("useRouter");
+    expect(banner).not.toContain("setTimeout");
+    expect(banner).not.toContain("router.refresh()");
     expect(banner).toContain("status.contractNoticeSent");
     expect(view).toContain("status.contractNoticeSent");
     expect(view).toContain("!status.mustAccept");
@@ -317,6 +320,16 @@ describe("registration acceptance covers the DPA", () => {
     expect(action).not.toContain("revalidatePath");
     expect(action).not.toContain("getLocale");
   });
+
+  it("keeps the UI-only legal restriction out of API routes", () => {
+    const apiSources = walkFiles(join(REPO_ROOT, "app", "api"), (path) => /\.(?:ts|tsx)$/.test(path))
+      .map((path) => readFileSync(path, "utf8"))
+      .join("\n");
+
+    expect(apiSources).not.toContain("getLegalStatusInteractor");
+    expect(apiSources).not.toContain("skipLegalAcceptanceCheck");
+    expect(apiSources).not.toContain("/legal-update");
+  });
 });
 
 describe("legal update workflow disclosure", () => {
@@ -324,13 +337,13 @@ describe("legal update workflow disclosure", () => {
     const en = legal("en", "terms");
     const de = legal("de", "terms");
 
-    expect(en).toMatch(/automated change notice to every active system administrator/i);
+    expect(en).toMatch(/automated change notices by email to active system administrators until an authorised/i);
     expect(en).toMatch(/14 calendar days after the first such notice has been successfully sent/i);
     expect(en).toMatch(/Silence or inactivity does not constitute acceptance/i);
     expect(en).toMatch(/restrict access to the managed-service user interface/i);
     expect(en).toMatch(/Price changes remain subject to the separate two-month procedure/i);
 
-    expect(de).toMatch(/automatisierte Änderungsmitteilung an jeden aktiven Systemadministrator/i);
+    expect(de).toMatch(/automatisierte Änderungsmitteilungen per E-Mail an aktive Systemadministratoren, bis ein berechtigter/i);
     expect(de).toMatch(/14 Kalendertage nach dem ersten erfolgreichen Versand/i);
     expect(de).toMatch(/Schweigen oder Untätigkeit gelten nicht als Zustimmung/i);
     expect(de).toMatch(/Zugang zur Benutzeroberfläche des verwalteten Dienstes/i);
@@ -347,6 +360,17 @@ describe("legal update workflow disclosure", () => {
     expect(de).toMatch(/gesonderten Mitteilungs- und Widerspruchsverfahren/i);
   });
 
+  it("keeps supplier-originated subprocessor notices tied to the supplier's actual remaining deadline", () => {
+    const constants = readFileSync(join(REPO_ROOT, "constants/legal-documents.ts"), "utf8");
+    const notices = readFileSync(
+      join(REPO_ROOT, "ee/lifecycle/send-legal-document-notices.interactor.ts"),
+      "utf8",
+    );
+
+    expect(constants).toContain("SUBPROCESSOR_OBJECTION_DEADLINE");
+    expect(notices).toContain("resolveSubprocessorObjectionDeadline(now");
+  });
+
   it("discloses the audit evidence fields, retention behavior, and Resend legal notices", () => {
     const enPrivacy = legal("en", "privacy");
     const dePrivacy = legal("de", "privacy");
@@ -354,26 +378,70 @@ describe("legal update workflow disclosure", () => {
     const deSubprocessors = legal("de", "subprocessors");
 
     for (const phrase of [
-      "deterministic legal-version key",
-      "email-address snapshot",
-      "Resend provider message ID",
-      "deployed Git commit",
+      "company and user identifiers",
+      "audit-record creation time",
+      "current document versions",
+      "exact documents included in the email",
+      "snapshot of the recipient's email address",
+      "effective or objection date",
       "initial onboarding",
       "cascade",
     ]) expect(enPrivacy).toContain(phrase);
 
     for (const phrase of [
-      "deterministischen Rechtsdokument-Versionsschlüssel",
-      "E-Mail-Adressmomentaufnahme",
-      "Resend-Nachrichtenkennung",
-      "eingesetzten Git-Commit",
+      "Unternehmens- und Nutzerkennungen",
+      "Erstellungszeitpunkt des Audit-Eintrags",
+      "aktuellen Dokumentversionen",
+      "genau in der E-Mail aufgeführten Dokumente",
+      "Momentaufnahme der E-Mail-Adresse des Empfängers",
+      "Wirksamkeits- oder Widerspruchstermin",
       "erstmaligen Onboarding",
       "Kaskadenlöschverhalten",
     ]) expect(dePrivacy).toContain(phrase);
+
+    for (const stale of ["deterministic legal-version key", "Resend provider message ID", "deployed Git commit"])
+      expect(enPrivacy).not.toContain(stale);
+    for (const stale of [
+      "deterministischen Rechtsdokument-Versionsschlüssel",
+      "Resend-Nachrichtenkennung",
+      "eingesetzten Git-Commit",
+    ])
+      expect(dePrivacy).not.toContain(stale);
 
     expect(enPrivacy).toMatch(/notices about updated Terms.*Data Processing Agreement.*Privacy Policy.*subprocessors/i);
     expect(dePrivacy).toMatch(/Mitteilungen über aktualisierte AGB.*AVV.*Datenschutzerklärung.*Unterauftragsverarbeiter/i);
     expect(enSubprocessors).toMatch(/Resend[\s\S]*notices about updated Terms/i);
     expect(deSubprocessors).toMatch(/Resend[\s\S]*Mitteilungen über aktualisierte AGB/i);
+  });
+
+  it("keeps the legal flow free of superseded deployment and deterministic-key machinery", () => {
+    const productionPaths = [
+      "constants/legal-documents.ts",
+      "ee/lifecycle/send-legal-document-notices.interactor.ts",
+      "features/email/email.service.ts",
+      "features/legal/accept-legal-documents.interactor.ts",
+      "features/legal/get-legal-status.interactor.ts",
+      "features/user/register/register-user.interactor.ts",
+      "components/emails/legal-document-notice.tsx",
+      "env.ts",
+    ];
+    const productionFlow = productionPaths.map((path) => readFileSync(join(REPO_ROOT, path), "utf8")).join("\n");
+
+    for (const stale of [
+      "VERCEL_GIT_COMMIT_SHA",
+      "deployedGitCommit",
+      "providerMessageId",
+      "idempotencyKey",
+      "revisionUrl",
+      "LEGAL_CONTRACT_KEY",
+      "LEGAL_INFORMATION_KEY",
+    ])
+      expect(productionFlow).not.toContain(stale);
+
+    const schema = readFileSync(join(REPO_ROOT, "prisma/schema.prisma"), "utf8");
+    expect(schema).not.toContain("@@index([companyId, event, entityId, userId])");
+    expect(
+      existsSync(join(REPO_ROOT, "prisma/migrations/20260807133000_legal_audit_lookup/migration.sql")),
+    ).toBe(false);
   });
 });
