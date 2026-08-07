@@ -9,10 +9,16 @@ import en from "@/i18n/locales/en.json";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string>) => {
-    if (key === "EntityTerminology.relationships.linkedToAny")
-      return `${values?.tasks} can be linked to any record above.`;
-    if (key === "EntityTerminology.relationships.selectLabel") return `Name for ${values?.entity}`;
-    return key;
+    const prefix = "EntityTerminology.relationships.";
+    if (!key.startsWith(prefix)) return key;
+
+    const message = (en.EntityTerminology.relationships as Record<string, string>)[key.slice(prefix.length)];
+    if (!message) return key;
+
+    return Object.entries(values ?? {}).reduce(
+      (formatted, [name, value]) => formatted.replace(`{${name}}`, value),
+      message,
+    );
   },
 }));
 
@@ -73,7 +79,30 @@ describe("TerminologyRelationshipDiagram", () => {
       "followUp",
     ]);
     expect(taskSelect).toContain("Follow-ups");
-    expect(html).toContain("Follow-ups can be linked to any record above.");
+    expect(html.match(/data-selected=/g)).toHaveLength(5);
+    expect(html).toContain("Follow-ups can be linked to any record in this model.");
+    expect(html).toContain("Work items");
+    expect(html).toContain('role="group"');
+    expect(html).not.toContain("Option A");
+    expect(html).not.toContain("Temporary comparison");
+    expect(html).not.toContain('role="tablist"');
+  });
+
+  it("renders all four record relationships, including Organization to Deal", () => {
+    const html = renderToStaticMarkup(
+      createElement(TerminologyRelationshipDiagram, {
+        selections,
+        onPreset: vi.fn(),
+      }),
+    );
+
+    for (const relationship of ["contact-organization", "contact-deal", "organization-deal", "deal-service"])
+      expect(html.match(new RegExp(`data-relationship="${relationship}"`, "g"))).toHaveLength(2);
+
+    expect(html).toContain('<svg aria-hidden="true"');
+    expect(html.match(/<li\s[^>]+data-relationship=/g)).toHaveLength(4);
+    expect(html).toContain("Companies are linked to Jobs.");
+    expect(html).not.toContain("border-l-");
   });
 
   it("renders five static labels and no selectors for read-only users", () => {
@@ -87,12 +116,14 @@ describe("TerminologyRelationshipDiagram", () => {
     );
 
     expect(html).not.toContain("data-selected=");
-    expect(html).not.toContain('id="terminology-');
+    for (const entityType of Object.values(EntityType)) expect(html).not.toContain(`id="terminology-${entityType}"`);
+
     expect(html).toContain("Leads");
     expect(html).toContain("Companies");
     expect(html).toContain("Jobs");
     expect(html).toContain("Packages");
     expect(html).toContain("Follow-ups");
+    expect(html).not.toContain("border-l-");
     expect(onPreset).not.toHaveBeenCalled();
   });
 });

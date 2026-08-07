@@ -1224,13 +1224,20 @@
       }
     },
     "relationships": {
-      "dataModelSubtitle": "Each node is a live entity. Rename it inline, the connections stay intact.",
+      "contactDealSummary": "{contacts} are involved in {deals}.",
+      "contactOrganizationSummary": "{contacts} work at {organizations}.",
+      "dataModelSubtitle": "Choose the names your team uses. Relationships stay the same.",
       "dataModelTitle": "Your data model",
+      "dealServiceSummary": "{deals} include {services}.",
+      "howRecordsConnect": "How records connect",
       "include": "include",
       "involvedIn": "are involved in",
-      "linkedToAny": "{tasks} can be linked to any record above.",
+      "linkedTo": "are linked to",
+      "organizationDealSummary": "{organizations} are linked to {deals}.",
       "selectLabel": "Name for {entity}",
-      "workAt": "work at"
+      "taskScope": "{tasks} can be linked to any record in this model.",
+      "workAt": "work at",
+      "workItems": "Work items"
     }
   },
   "EntityTimeline": {

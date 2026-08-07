@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EntityType } from "@/generated/prisma";
+import { createTranslator } from "next-intl";
 
 import en from "@/i18n/locales/en.json";
 import de from "@/i18n/locales/de.json";
@@ -38,7 +39,32 @@ describe("entity terminology catalogs", () => {
 
   it.each(Object.entries(catalogs))("keeps %s onboarding at Profile, Invite, and AI only", (_locale, messages) => {
     expect(Object.keys(messages.OnboardingWizard.steps)).toEqual(["ai", "invite", "profile"]);
-    expect(messages.EntityTerminology.relationships.linkedToAny).toContain("{tasks}");
+  });
+
+  it.each(Object.entries(catalogs))("keeps %s data-model relationships complete and dynamic", (_locale, messages) => {
+    expect(messages.EntityTerminology.relationships.howRecordsConnect).not.toBe("");
+    expect(messages.EntityTerminology.relationships.linkedTo).not.toBe("");
+    expect(messages.EntityTerminology.relationships.contactOrganizationSummary).toContain("{contacts}");
+    expect(messages.EntityTerminology.relationships.contactOrganizationSummary).toContain("{organizations}");
+    expect(messages.EntityTerminology.relationships.contactDealSummary).toContain("{contacts}");
+    expect(messages.EntityTerminology.relationships.contactDealSummary).toContain("{deals}");
+    expect(messages.EntityTerminology.relationships.organizationDealSummary).toContain("{organizations}");
+    expect(messages.EntityTerminology.relationships.organizationDealSummary).toContain("{deals}");
+    expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{deals}");
+    expect(messages.EntityTerminology.relationships.dealServiceSummary).toContain("{services}");
+    expect(messages.EntityTerminology.relationships.taskScope).toContain("{tasks}");
+    expect(messages.EntityTerminology.relationships.workItems).not.toBe("");
+  });
+
+  it("renders German relationship copy without inflecting a configured record name", () => {
+    const t = createTranslator({ locale: "de", messages: de });
+
+    expect(
+      t("EntityTerminology.relationships.organizationDealSummary", {
+        deals: "Aufträge",
+        organizations: "Unternehmen",
+      }),
+    ).toBe("Unternehmen sind mit Datensätzen vom Typ „Aufträge“ verknüpft.");
   });
 
   it.each(Object.entries(catalogs))("keeps %s workspace copy terminology-aware", (_locale, messages) => {

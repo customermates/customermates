@@ -1224,13 +1224,20 @@
       }
     },
     "relationships": {
-      "dataModelSubtitle": "Jeder Knoten ist eine Entität. Benenne sie direkt um, die Verbindungen bleiben bestehen.",
+      "contactDealSummary": "{contacts} sind an Datensätzen vom Typ „{deals}“ beteiligt.",
+      "contactOrganizationSummary": "{contacts} arbeiten bei Datensätzen vom Typ „{organizations}“.",
+      "dataModelSubtitle": "Wähle die Bezeichnungen, die dein Team verwendet. Die Beziehungen bleiben unverändert.",
       "dataModelTitle": "Dein Datenmodell",
+      "dealServiceSummary": "{deals} enthalten Datensätze vom Typ „{services}“.",
+      "howRecordsConnect": "So sind Datensätze verknüpft",
       "include": "enthalten",
       "involvedIn": "sind beteiligt an",
-      "linkedToAny": "{tasks} können mit jedem der obigen Datensätze verknüpft werden.",
+      "linkedTo": "sind verknüpft mit",
+      "organizationDealSummary": "{organizations} sind mit Datensätzen vom Typ „{deals}“ verknüpft.",
       "selectLabel": "Bezeichnung für {entity}",
-      "workAt": "arbeiten bei"
+      "taskScope": "{tasks} können mit jedem Datensatz in diesem Modell verknüpft werden.",
+      "workAt": "arbeiten bei",
+      "workItems": "Aufgaben"
     }
   },
   "EntityTimeline": {
