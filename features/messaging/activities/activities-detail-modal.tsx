@@ -57,25 +57,6 @@ const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntryDto, { 
   return (
     <AppCard>
       <DetailHeader
-        action={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                asChild
-                aria-label={t("ContactHistory.ariaOpenInInbox")}
-                className="text-muted-foreground hover:text-foreground shrink-0"
-                size="icon-sm"
-                variant="ghost"
-              >
-                <Link href={`/inbox?threadId=${encodeURIComponent(message.messagingThreadId)}`}>
-                  <ExternalLink className="size-4" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("ContactHistory.openInInbox")}</TooltipContent>
-          </Tooltip>
-        }
         avatar={
           <IdentityAvatar
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
@@ -137,17 +118,6 @@ const CalendarEventDetail = observer(
     return (
       <AppCard>
         <DetailHeader
-          action={
-            event.conferenceUrl && (
-              <Button asChild className="shrink-0" size="sm" variant="outline">
-                <a href={event.conferenceUrl} rel="noopener noreferrer" target="_blank">
-                  <ExternalLink className="size-3.5" />
-
-                  {t("ContactHistory.calendarJoinMeeting")}
-                </a>
-              </Button>
-            )
-          }
           avatar={
             organizerName ? (
               <IdentityAvatar badge={calendarBadge} name={organizerName} />
@@ -230,23 +200,11 @@ const ActivityDetail = observer(({ payload, at }: { payload: Record<string, unkn
   const t = useTranslations();
   const fullName = payloadString(payload, "fullName");
   const headline = payloadString(payload, "headline");
-  const profileUrl = payloadString(payload, "profileUrl");
   const pictureUrl = payloadString(payload, "pictureUrl");
 
   return (
     <AppCard>
       <DetailHeader
-        action={
-          profileUrl && (
-            <Button asChild className="shrink-0" size="sm" variant="outline">
-              <a href={profileUrl} rel="noopener noreferrer" target="_blank">
-                <ExternalLink className="size-3.5" />
-
-                {t("ContactHistory.linkedinOpenProfile")}
-              </a>
-            </Button>
-          )
-        }
         avatar={
           <IdentityAvatar
             badge={<TypeBadge icon={Plus} label={t("EntityTimeline.types.activities")} tone="activity" />}
@@ -289,9 +247,55 @@ export const TimelineDetailModal = observer(() => {
               date: intlStore.formatNumericalShortDateTime(entry.at),
             })
           : t("ContactHistory.linkedinConnectionAccepted");
+  const activityProfileUrl = entry?.kind === "activity" ? payloadString(entry.payload, "profileUrl") : null;
+
+  const actions =
+    entry?.kind === "message" ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button asChild aria-label={t("ContactHistory.ariaOpenInInbox")} size="icon" variant="secondary">
+            <Link href={`/inbox?threadId=${encodeURIComponent(entry.message.messagingThreadId)}`}>
+              <ExternalLink className="size-4" />
+            </Link>
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent>{t("ContactHistory.openInInbox")}</TooltipContent>
+      </Tooltip>
+    ) : entry?.kind === "calendar_event" && entry.event.conferenceUrl ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button asChild aria-label={t("ContactHistory.calendarJoinMeeting")} size="icon" variant="secondary">
+            <a href={entry.event.conferenceUrl} rel="noopener noreferrer" target="_blank">
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent>{t("ContactHistory.calendarJoinMeeting")}</TooltipContent>
+      </Tooltip>
+    ) : entry?.kind === "activity" && activityProfileUrl ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button asChild aria-label={t("ContactHistory.linkedinOpenProfile")} size="icon" variant="secondary">
+            <a href={activityProfileUrl} rel="noopener noreferrer" target="_blank">
+              <ExternalLink className="size-4" />
+            </a>
+          </Button>
+        </TooltipTrigger>
+
+        <TooltipContent>{t("ContactHistory.linkedinOpenProfile")}</TooltipContent>
+      </Tooltip>
+    ) : null;
 
   return (
-    <AppModal open={isOpen} size={entry?.kind === "activity" ? "md" : "lg"} title={title} onClose={store.close}>
+    <AppModal
+      actions={actions}
+      open={isOpen}
+      size={entry?.kind === "activity" ? "md" : "lg"}
+      title={title}
+      onClose={store.close}
+    >
       {entry?.kind === "message" && <MessageDetail entry={entry} />}
 
       {entry?.kind === "calendar_event" && <CalendarEventDetail event={entry.event} />}

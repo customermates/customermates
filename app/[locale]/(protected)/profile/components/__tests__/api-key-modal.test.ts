@@ -1,4 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
+import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
 
 import { createElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -26,7 +27,20 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/components/modal", () => ({
-  AppModal: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  AppModal: ({ actions, children }: { actions?: ReactNode; children: ReactNode }) =>
+    createElement(
+      "div",
+      null,
+      actions ? createElement("div", { "data-slot": "app-modal-actions" }, actions) : null,
+      children,
+    ),
+}));
+
+vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  Tooltip: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+  TooltipTrigger: ({ children }: { children: ReactNode }) => children,
+  TooltipContent: ({ children }: { children: ReactNode }) => createElement("span", null, children),
 }));
 
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
@@ -43,8 +57,11 @@ import { ApiKeyModal } from "../api-key-modal";
 
 function renderModal(path: "wizard" | "plain" = "wizard", provider?: "codex" | "cursor" | "gemini") {
   const rootStore = {
-    apiKeysStore: { refresh: vi.fn() },
-    intlStore: { formatDescriptiveLongDate: vi.fn() },
+    apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
+    intlStore: {
+      formatDescriptiveLongDate: vi.fn(),
+      formatNumericalShortDateTime: vi.fn(),
+    },
     registerModalStore: vi.fn(),
     terminologyStore: { overrides: {} },
     userStore: {
@@ -64,6 +81,38 @@ function renderModal(path: "wizard" | "plain" = "wizard", provider?: "codex" | "
   return renderToStaticMarkup(createElement(ApiKeyModal));
 }
 
+function renderViewModal() {
+  const rootStore = {
+    apiKeysStore: { delete: vi.fn(), refresh: vi.fn() },
+    intlStore: {
+      formatDescriptiveLongDate: vi.fn(),
+      formatNumericalShortDateTime: vi.fn(() => "date"),
+    },
+    registerModalStore: vi.fn(),
+    terminologyStore: { overrides: {} },
+    userStore: {
+      can: vi.fn().mockReturnValue(true),
+      canAccess: vi.fn().mockReturnValue(true),
+      canManage: vi.fn().mockReturnValue(true),
+      user: null,
+    },
+  } as unknown as RootStore;
+  const store = new ApiKeyModalStore(rootStore);
+  const key: ApiKey = {
+    id: "key-1",
+    name: "Gemini",
+    createdAt: new Date("2026-08-06T12:00:00.000Z"),
+    expiresAt: new Date("2027-08-06T12:00:00.000Z"),
+    lastRequest: null,
+  };
+
+  Object.assign(rootStore, { apiKeyModalStore: store });
+  store.view(key);
+  testContext.rootStore = rootStore;
+
+  return renderToStaticMarkup(createElement(ApiKeyModal));
+}
+
 beforeEach(() => {
   testContext.rootStore = null;
   vi.stubGlobal("window", { location: { origin: "http://localhost:4001" } });
@@ -73,6 +122,7 @@ describe("ApiKeyModal add wizard", () => {
   it("starts with one standard key option and the same five quick connections", () => {
     const html = renderModal();
 
+    expect(html).not.toContain('data-slot="app-modal-actions"');
     expect(html.match(/data-api-key-option="plain"/g)).toHaveLength(1);
     expect(html.match(/data-provider=/g)).toHaveLength(5);
     expect(html).toContain("ApiKeyModal.quickTitle");
@@ -114,5 +164,15 @@ describe("ApiKeyModal add wizard", () => {
     expect(html).not.toContain("Common.actions.cancel");
     expect(html).not.toContain("ApiKeyModal.backToOptions");
     expect(html).not.toContain("<h2>OnboardingWizard.ai.screen.setup.title</h2>");
+  });
+
+  it("places the view-mode Delete action in the modal rail instead of the content header", () => {
+    const html = renderViewModal();
+    const actionRail = html.match(/<div data-slot="app-modal-actions">[\s\S]*?<\/div>/)?.[0];
+    const contentHeader = html.match(/<div[^>]*data-slot="card-header"[^>]*>[\s\S]*?<\/div>/)?.[0];
+
+    expect(actionRail).toContain('aria-label="Common.actions.delete"');
+    expect(contentHeader).toContain("Gemini");
+    expect(contentHeader).not.toContain("Common.actions.delete");
   });
 });

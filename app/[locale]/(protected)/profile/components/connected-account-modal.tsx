@@ -46,81 +46,95 @@ export const ConnectedAccountModal = observer(() => {
   const ProviderIcon = getProviderIcon(account.provider);
   const providerLabel = getProviderDisplayLabel(account, t);
   const shownFolders = account.folders.filter((folder) => account.selectedFolderIds.includes(folder.id)).length;
+  const canReconnect =
+    canUpdate &&
+    (account.status === "credentials" ||
+      account.status === "permissions" ||
+      account.status === "error" ||
+      account.status === "stopped");
+  const canResync = canUpdate && (account.status === "ok" || account.status === "connecting");
+  const hasAccountActions = account.isOwner && (canReconnect || canResync || canDelete);
   const canShareAccounts = getEffectiveEntitlements({
     appMode: rootStore.appMode,
     plan: subscriptionStore.subscription?.plan ?? "pro",
   }).sharedAccounts;
 
   return (
-    <AppModal store={connectedAccountModalStore} title={title}>
+    <AppModal
+      actions={
+        hasAccountActions ? (
+          <>
+            {canReconnect ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={t("ConnectedAccountsCard.reactivate")}
+                    size="icon"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void connectedAccountsStore.reconnect(account.id)}
+                  >
+                    <Icon icon={Plug} />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent>{t("ConnectedAccountsCard.reactivate")}</TooltipContent>
+              </Tooltip>
+            ) : null}
+
+            {canResync ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={t("ConnectedAccountsCard.resync")}
+                    size="icon"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void connectedAccountsStore.resync(account.id)}
+                  >
+                    <Icon icon={RefreshCw} />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent>{t("ConnectedAccountsCard.resync")}</TooltipContent>
+              </Tooltip>
+            ) : null}
+
+            {canDelete ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={t("ConnectedAccountsCard.disconnect")}
+                    size="icon"
+                    type="button"
+                    variant="destructive"
+                    onClick={() =>
+                      showDeleteConfirmation(async () => {
+                        await connectedAccountsStore.disconnect(account.id);
+                        close();
+                      }, title)
+                    }
+                  >
+                    <Icon icon={Trash2} />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent>{t("ConnectedAccountsCard.disconnect")}</TooltipContent>
+              </Tooltip>
+            ) : null}
+          </>
+        ) : null
+      }
+      store={connectedAccountModalStore}
+      title={title}
+    >
       <AppCard>
         <AppCardHeader>
-          <div className="mr-auto flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <ProviderIcon className="size-4 shrink-0" />
 
             <h2 className="text-x-lg truncate">{title}</h2>
           </div>
-
-          {account.isOwner && (
-            <div className="flex items-center gap-2">
-              {canUpdate &&
-                (account.status === "credentials" ||
-                  account.status === "permissions" ||
-                  account.status === "error" ||
-                  account.status === "stopped") && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => void connectedAccountsStore.reconnect(account.id)}
-                      >
-                        <Icon icon={Plug} />
-                      </Button>
-                    </TooltipTrigger>
-
-                    <TooltipContent>{t("ConnectedAccountsCard.reactivate")}</TooltipContent>
-                  </Tooltip>
-                )}
-
-              {canUpdate && (account.status === "ok" || account.status === "connecting") && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => void connectedAccountsStore.resync(account.id)}
-                    >
-                      <Icon icon={RefreshCw} />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("ConnectedAccountsCard.resync")}</TooltipContent>
-                </Tooltip>
-              )}
-
-              {canDelete && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() =>
-                        showDeleteConfirmation(async () => {
-                          await connectedAccountsStore.disconnect(account.id);
-                          close();
-                        }, title)
-                      }
-                    >
-                      <Icon icon={Trash2} />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("ConnectedAccountsCard.disconnect")}</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          )}
         </AppCardHeader>
 
         <AppCardBody>

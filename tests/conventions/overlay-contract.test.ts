@@ -181,6 +181,26 @@ function functionSource(file: string, functionName: string) {
   return text.slice(start, next === -1 ? text.length : next);
 }
 
+const APP_MODAL_HEADER = /<AppCardHeader\b[^>]*>[\s\S]*?<\/AppCardHeader>/g;
+const INTERACTIVE_HEADER_DESCENDANT = /<(?:Button|button|a|Link|IntlLink|Checkbox|Switch|[A-Z][A-Za-z]+Trigger)\b/;
+
+function appModalHeaderActionViolations(sources: { file: string; text: string }[]) {
+  const found: string[] = [];
+
+  for (const { file, text } of sources) {
+    if (!text.includes("<AppModal")) continue;
+
+    for (const match of text.matchAll(APP_MODAL_HEADER)) {
+      if (!INTERACTIVE_HEADER_DESCENDANT.test(match[0])) continue;
+
+      const line = text.slice(0, match.index).split("\n").length;
+      found.push(`${file}:${line}: ${match[0].replace(/\s+/g, " ").slice(0, 160)}`);
+    }
+  }
+
+  return found;
+}
+
 describe("overlay contract", () => {
   it("keeps the decision guide beside the shared primitives", () => {
     const guide = readFileSync(join(REPO_ROOT, "components/ui/overlay-contract.md"), "utf8");
@@ -261,6 +281,43 @@ describe("overlay contract", () => {
     expect(drawer).not.toContain("drawer-content:text-center");
     expect(alertDialog).not.toContain("place-items-center");
     expect(appCardHeader).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
+  });
+
+  it("keeps AppModal actions in the shared top-right action row", () => {
+    const sources = sourceFiles().map((absolute) => ({
+      file: relative(REPO_ROOT, absolute),
+      text: readFileSync(absolute, "utf8"),
+    }));
+    const found = appModalHeaderActionViolations(sources);
+    const appModal = readFileSync(join(REPO_ROOT, "components/modal/app-modal.tsx"), "utf8");
+    const appCardHeader = readFileSync(join(REPO_ROOT, "components/card/app-card-header.tsx"), "utf8");
+    const drawer = readFileSync(join(REPO_ROOT, "components/ui/drawer.tsx"), "utf8");
+
+    expect(
+      found,
+      `AppModal headers contain titles and metadata only. Pass controls through <AppModal actions={...}>:\n${found.join("\n")}`,
+    ).toEqual([]);
+    expect(appModal).toContain('data-slot="app-modal-actions"');
+    expect(appModal).toContain("data-overlay-actions={hasActions");
+    expect(appCardHeader).toContain("in-data-overlay-actions:pr-36!");
+    expect(drawer).toContain("group-data-[overlay-actions]/drawer-content:hidden!");
+
+    expect(
+      appModalHeaderActionViolations([
+        {
+          file: "bad.tsx",
+          text: "<AppModal><AppCardHeader><h2>Title</h2><Button>Delete</Button></AppCardHeader></AppModal>",
+        },
+      ]),
+    ).toHaveLength(1);
+    expect(
+      appModalHeaderActionViolations([
+        {
+          file: "good.tsx",
+          text: "<AppModal actions={<Button>Delete</Button>}><AppCardHeader><h2>Title</h2></AppCardHeader></AppModal>",
+        },
+      ]),
+    ).toEqual([]);
   });
 
   it("keeps delegated sheet card footers above the bottom safe area", () => {

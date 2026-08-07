@@ -16,6 +16,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { FormLabel } from "@/components/forms/form-label";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -147,16 +148,16 @@ export const ApiKeyModal = observer(() => {
   );
 
   return (
-    <AppModal size="xl" store={apiKeyModalStore} title={title}>
-      <AppForm store={apiKeyModalStore}>
-        <AppCard>
-          <AppCardHeader>
-            <h2 className="mr-auto text-x-lg">{title}</h2>
-
-            {isView && viewingKey ? (
+    <AppModal
+      actions={
+        isView && viewingKey ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
               <Button
+                aria-label={t("Common.actions.delete")}
+                disabled={isLoading}
                 size="icon"
-                title="Delete"
+                type="button"
                 variant="destructive"
                 onClick={() =>
                   showDeleteConfirmation(async () => {
@@ -167,7 +168,20 @@ export const ApiKeyModal = observer(() => {
               >
                 <Icon icon={Trash2} />
               </Button>
-            ) : null}
+            </TooltipTrigger>
+
+            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
+          </Tooltip>
+        ) : null
+      }
+      size="xl"
+      store={apiKeyModalStore}
+      title={title}
+    >
+      <AppForm store={apiKeyModalStore}>
+        <AppCard>
+          <AppCardHeader>
+            <h2 className="truncate text-x-lg">{title}</h2>
           </AppCardHeader>
 
           <AppCardBody>

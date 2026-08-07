@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import { EntityType, WidgetGroupByType } from "@/generated/prisma";
 
@@ -63,24 +64,34 @@ export const WidgetModal = observer(({ customColumns, filterableFields }: Props)
   }, [customColumns, filterableFields]);
 
   return (
-    <AppModal store={widgetModalStore} title={t("Dashboard.widget")}>
+    <AppModal
+      actions={
+        canManage && form.id ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                aria-label={t("Common.actions.delete")}
+                disabled={isDisabled}
+                size="icon"
+                type="button"
+                variant="destructive"
+                onClick={() => showDeleteConfirmation(() => void widgetModalStore.delete())}
+              >
+                <Icon icon={Trash2} />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("Common.actions.delete")}</TooltipContent>
+          </Tooltip>
+        ) : null
+      }
+      store={widgetModalStore}
+      title={t("Dashboard.widget")}
+    >
       <AppForm store={widgetModalStore}>
         <AppCard>
           <AppCardHeader>
-            <div className="flex w-full justify-between items-center gap-3">
-              <h2 className="text-x-lg">{t("Dashboard.widget")}</h2>
-
-              {canManage && form.id && (
-                <Button
-                  disabled={isDisabled}
-                  size="icon"
-                  variant="destructive"
-                  onClick={() => showDeleteConfirmation(() => void widgetModalStore.delete())}
-                >
-                  <Icon icon={Trash2} />
-                </Button>
-              )}
-            </div>
+            <h2 className="truncate text-x-lg">{t("Dashboard.widget")}</h2>
           </AppCardHeader>
 
           <AppCardBody className="min-h-40">

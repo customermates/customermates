@@ -13,6 +13,7 @@ export function AppCardHeader({ className, ...props }: Props) {
       className={cn(
         "z-0 flex w-full shrink-0 items-center gap-4 p-6 pb-0 *:min-w-0",
         "in-data-overlay-close:pr-14",
+        "in-data-overlay-actions:pr-36!",
         OVERLAY_HEADER_ALIGNMENT_CLASS,
         className,
       )}

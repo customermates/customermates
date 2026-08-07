@@ -209,35 +209,39 @@ export const CustomColumnModal = observer(() => {
   }
 
   return (
-    <AppModal store={store} title={form.id ? t("Common.actions.editCustomFields") : t("Common.actions.addCustomField")}>
+    <AppModal
+      actions={
+        form.id ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={t("Common.actions.deleteCustomFields")}
+                  className="size-8"
+                  disabled={store.isDisabled}
+                  size="icon"
+                  type="button"
+                  variant="destructive"
+                  onClick={() => showDeleteConfirmation(() => store.deleteColumn(), form.label)}
+                >
+                  <Icon icon={Trash2} />
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.deleteCustomFields")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : null
+      }
+      store={store}
+      title={form.id ? t("Common.actions.editCustomFields") : t("Common.actions.addCustomField")}
+    >
       <AppForm store={store}>
         <AppCard>
           <AppCardHeader>
-            <h2 className="text-x-lg grow">
+            <h2 className="grow truncate text-x-lg">
               {form.id ? t("Common.actions.editCustomFields") : t("Common.actions.addCustomField")}
             </h2>
-
-            {form.id && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label={t("Common.actions.deleteCustomFields")}
-                      className="size-8"
-                      disabled={store.isDisabled}
-                      size="icon"
-                      type="button"
-                      variant="destructive"
-                      onClick={() => showDeleteConfirmation(() => store.deleteColumn(), form.label)}
-                    >
-                      <Icon icon={Trash2} />
-                    </Button>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("Common.actions.deleteCustomFields")}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </AppCardHeader>
 
           <AppCardBody>
