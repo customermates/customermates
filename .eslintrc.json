@@ -185,6 +185,10 @@
     "no-restricted-syntax": [
       "error",
       {
+        "message": "Call useTranslations() without a namespace and pass the full translation key. This keeps translation access consistent across shared components.",
+        "selector": "CallExpression[callee.name='useTranslations'][arguments.length>0]"
+      },
+      {
         "message": "Avoid 'window.location.href = ...' \u2014 it bypasses the unsaved-changes guard. Either use the router from '@/i18n/navigation' or wrap the assignment in 'navigationGuard.tryNavigate(...)' (see components/shared/language-selector.tsx for an example).",
         "selector": "AssignmentExpression[left.object.object.name='window'][left.object.property.name='location'][left.property.name='href']"
       }

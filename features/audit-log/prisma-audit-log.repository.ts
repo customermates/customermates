@@ -1,9 +1,9 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
-import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { RepoArgs } from "@/core/utils/types";
-import type { LegalAuditRepo } from "@/features/legal/legal-status.service";
+import type { LegalAuditRepo } from "@/features/legal/get-legal-status.interactor";
+import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 
 import type { Prisma } from "@/generated/prisma";
 

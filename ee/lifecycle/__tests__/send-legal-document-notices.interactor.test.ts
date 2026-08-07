@@ -34,7 +34,7 @@ import {
   type LegalAcceptanceAuditPayload,
   type LegalNoticeAuditPayload,
 } from "@/constants/legal-documents";
-import type { LegalAuditRecord } from "@/features/legal/legal-status.service";
+import type { LegalAuditRecord } from "@/features/legal/get-legal-status.interactor";
 import {
   SendLegalDocumentNoticesInteractor,
   type LegalNoticeRecipient,
@@ -216,6 +216,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     await interactor().invoke(new Date("2026-08-08T09:00:00.000Z"));
     expect(emailService.send).toHaveBeenCalledTimes(4);
     expect(emailService.send.mock.calls[3][0].to).toBe("admin-1@example.com");
+    expect(emailService.send.mock.calls[3][0].idempotencyKey).toBe(emailService.send.mock.calls[0][0].idempotencyKey);
     expect(eventService.publish).toHaveBeenCalledTimes(5);
   });
 

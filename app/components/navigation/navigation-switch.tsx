@@ -4,7 +4,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { Company } from "@/generated/prisma";
 import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-import type { LegalUpdateStatus } from "@/features/legal/legal-status.service";
+import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { useLayoutEffect } from "react";
 

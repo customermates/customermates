@@ -5,6 +5,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
+import { getLocale } from "next-intl/server";
 import { CountryCode } from "@/generated/prisma";
 
 import {
@@ -26,7 +27,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { getLegalDeploymentCommit } from "@/features/legal/legal-deployment-commit";
-import { resolveUserLocale } from "@/i18n/user-locale";
 
 const Schema = z.object({
   email: z.email(),
@@ -35,7 +35,6 @@ const Schema = z.object({
   country: z.enum(CountryCode),
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
   agreeToTerms: z.boolean(),
-  legalLocale: z.enum(["en", "de"]).optional(),
 });
 const NewCloudCompanySchema = Schema.superRefine((data, ctx) => {
   if (data.agreeToTerms !== true) {
@@ -90,6 +89,7 @@ export class RegisterUserInteractor {
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {
         const acceptedAt = new Date().toISOString();
+        const locale = (await getLocale()) === "de" ? "de" : "en";
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: LEGAL_CONTRACT_KEY,
           payload: {
@@ -98,7 +98,7 @@ export class RegisterUserInteractor {
             informationKey: LEGAL_INFORMATION_KEY,
             changedDocuments: [...ALL_LEGAL_DOCUMENTS],
             acceptingUser: { id: tenantUser.id, email: tenantUser.email },
-            locale: data.legalLocale ?? resolveUserLocale(tenantUser),
+            locale,
             noticeAt: null,
             effectiveAt: acceptedAt,
             providerMessageId: null,

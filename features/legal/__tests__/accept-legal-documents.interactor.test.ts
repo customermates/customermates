@@ -6,9 +6,11 @@ import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "self-hosted",
 }));
+const mockLocale = vi.hoisted(() => ({ value: "de" }));
 const runInTransaction = vi.hoisted(() => vi.fn((fn: () => Promise<unknown>) => fn()));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
+vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve(mockLocale.value) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/decorators/transaction-runner", () => ({
   runInTransaction,
@@ -25,7 +27,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { AcceptLegalDocumentsInteractor, type AcceptLegalDocumentsData } from "../accept-legal-documents.interactor";
-import type { LegalAuditRecord, LegalAuditRepo } from "../legal-status.service";
+import type { LegalAuditRecord, LegalAuditRepo } from "../get-legal-status.interactor";
 
 const user = createMockUser({
   id: "admin-1",
@@ -98,6 +100,7 @@ describe("AcceptLegalDocumentsInteractor", () => {
       return fn();
     });
     mockEnv.APP_MODE = "cloud";
+    mockLocale.value = "de";
     userService = { getActiveUserOrThrow: vi.fn().mockResolvedValue(user) };
     findLegalEventUnscoped = vi.fn((args) =>
       Promise.resolve(args.event === DomainEvent.LEGAL_CONTRACT_NOTICE_SENT ? contractNotice() : null),
@@ -111,9 +114,9 @@ describe("AcceptLegalDocumentsInteractor", () => {
   }
 
   it("records a later company-wide acceptance from an authorised administrator", async () => {
-    await expect(interactor().invoke({ agreeToLegalDocuments: true, locale: "de" })).resolves.toEqual({
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).resolves.toEqual({
       ok: true,
-      data: { agreeToLegalDocuments: true, locale: "de" },
+      data: { agreeToLegalDocuments: true },
     });
 
     expect(runInTransaction).toHaveBeenCalledWith(expect.any(Function), {

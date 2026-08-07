@@ -34,7 +34,7 @@ import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWidgetCalculatorRepo } from "@/features/widget/calculator/prisma-widget-calculator.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
-import { PrismaAuditLogRepo } from "@/ee/audit-log/prisma-audit-log.repository";
+import { PrismaAuditLogRepo } from "@/features/audit-log/prisma-audit-log.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
@@ -283,12 +283,12 @@ import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycl
 import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import { SendLegalDocumentNoticesInteractor } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import { LegalStatusService } from "@/features/legal/legal-status.service";
+import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-documents.interactor";
 // Webhook delivery interactor (workflow task consumer)
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
-// EE Audit Log interactors
-import { GetAuditLogsInteractor } from "@/ee/audit-log/get/get-audit-logs.interactor";
+// Audit log interactors
+import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
 import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
 // Validators
@@ -322,9 +322,9 @@ export const getSupportRepo = () => new PrismaSupportRepo();
 export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
-export const getLegalStatusService = () => new LegalStatusService(getAuditLogRepo());
+export const getGetLegalStatusInteractor = () => new GetLegalStatusInteractor(getAuditLogRepo());
 export const getRouteGuardService = () =>
-  new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getLegalStatusService());
+  new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getGetLegalStatusInteractor());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getUserPendingAuthorizationTaskListener = () => new UserPendingAuthorizationTaskListener(getTaskRepo());
 
@@ -1370,7 +1370,7 @@ export const getGetSubscriptionInteractor = () =>
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
 
-// --- EE Audit Log ---
+// --- Audit log ---
 
 export const getGetAuditLogsInteractor = () => new GetAuditLogsInteractor(getAuditLogRepo(), getP13nRepo());
 

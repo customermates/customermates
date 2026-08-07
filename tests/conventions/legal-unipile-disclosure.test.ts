@@ -302,16 +302,20 @@ describe("registration acceptance covers the DPA", () => {
       join(REPO_ROOT, "app/[locale]/(protected)/legal-update/actions.ts"),
       "utf8",
     );
+    const routeGuard = readFileSync(join(REPO_ROOT, "features/auth/route-guard.service.ts"), "utf8");
 
     expect(navigation).toMatch(/if \(isLegalUpdateRoute\)/);
     expect(protectedLayout).toContain("!isLegalUpdateRoute");
-    expect(banner).toContain("isPublicPathname(pathname)");
-    expect(banner).toContain("window.location.replace");
+    expect(routeGuard).toContain('return redirectTo("/legal-update")');
+    expect(banner).toContain("router.refresh()");
+    expect(banner).toContain("status.contractNoticeSent");
     expect(view).toContain("status.contractNoticeSent");
     expect(view).toContain("!status.mustAccept");
-    expect(view).toContain('t("signOut")');
-    expect(action).toContain('revalidatePath("/", "layout")');
-    expect(action).toContain("RedirectType.replace");
+    expect(view).toContain('t("LegalUpdateView.signOut")');
+    expect(action).toContain("refresh()");
+    expect(action).toContain('redirect("/")');
+    expect(action).not.toContain("revalidatePath");
+    expect(action).not.toContain("getLocale");
   });
 });
 

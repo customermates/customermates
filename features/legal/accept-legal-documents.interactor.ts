@@ -1,9 +1,10 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
 import type { UserService } from "@/features/user/user.service";
-import type { LegalAuditRepo } from "./legal-status.service";
+import type { LegalAuditRepo } from "./get-legal-status.interactor";
 
 import { z } from "zod";
+import { getLocale } from "next-intl/server";
 
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -17,14 +18,12 @@ import {
   LEGAL_INFORMATION_KEY,
   currentLegalDocumentVersions,
 } from "@/constants/legal-documents";
-import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 
-import { legalNoticePayload } from "./legal-status.service";
+import { legalNoticePayload } from "./get-legal-status.interactor";
 
 const Schema = z.object({
   agreeToLegalDocuments: z.literal(true),
-  locale: z.enum(["en", "de"]).optional(),
 });
 export type AcceptLegalDocumentsData = Data<typeof Schema>;
 
@@ -41,6 +40,7 @@ export class AcceptLegalDocumentsInteractor {
     const user = await this.userService.getActiveUserOrThrow();
     if (env.APP_MODE !== "cloud" || !user.role?.isSystemRole)
       throw new ForbiddenError("Only a managed-cloud system administrator may accept legal documents");
+    const locale = (await getLocale()) === "de" ? "de" : "en";
 
     return runWithTenant(user, () =>
       runInTransaction(
@@ -71,7 +71,7 @@ export class AcceptLegalDocumentsInteractor {
               changedDocuments:
                 notice.changedDocuments.length > 0 ? notice.changedDocuments : [...CONTRACT_LEGAL_DOCUMENTS],
               acceptingUser: { id: user.id, email: user.email },
-              locale: data.locale ?? resolveUserLocale(user),
+              locale,
               noticeAt: notice.noticeAt,
               effectiveAt: notice.effectiveAt ?? new Date().toISOString(),
               providerMessageId: notice.providerMessageId,

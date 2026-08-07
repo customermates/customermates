@@ -7,15 +7,30 @@ import { toast } from "sonner";
 
 const RESULT_PARAMS = ["account_id", "provider", "state", "status", "error_type", "error_detail", "error_title"];
 
-const ALREADY_EXISTS = { title: "alreadyExistsToastTitle", description: "alreadyExistsToastDescription" } as const;
-const INVALID_CREDENTIALS = {
-  title: "invalidCredentialsToastTitle",
-  description: "invalidCredentialsToastDescription",
+const ALREADY_EXISTS = {
+  title: "ConnectedAccountsCard.alreadyExistsToastTitle",
+  description: "ConnectedAccountsCard.alreadyExistsToastDescription",
 } as const;
-const EXPIRED_LINK = { title: "expiredLinkToastTitle", description: "expiredLinkToastDescription" } as const;
-const CHECKPOINT = { title: "checkpointToastTitle", description: "checkpointToastDescription" } as const;
-const DISCONNECTED = { title: "disconnectedToastTitle", description: "disconnectedToastDescription" } as const;
-const FAILED = { title: "failedToastTitle", description: "failedToastDescription" } as const;
+const INVALID_CREDENTIALS = {
+  title: "ConnectedAccountsCard.invalidCredentialsToastTitle",
+  description: "ConnectedAccountsCard.invalidCredentialsToastDescription",
+} as const;
+const EXPIRED_LINK = {
+  title: "ConnectedAccountsCard.expiredLinkToastTitle",
+  description: "ConnectedAccountsCard.expiredLinkToastDescription",
+} as const;
+const CHECKPOINT = {
+  title: "ConnectedAccountsCard.checkpointToastTitle",
+  description: "ConnectedAccountsCard.checkpointToastDescription",
+} as const;
+const DISCONNECTED = {
+  title: "ConnectedAccountsCard.disconnectedToastTitle",
+  description: "ConnectedAccountsCard.disconnectedToastDescription",
+} as const;
+const FAILED = {
+  title: "ConnectedAccountsCard.failedToastTitle",
+  description: "ConnectedAccountsCard.failedToastDescription",
+} as const;
 
 function connectErrorKeys(errorType: string | null, errorTitle: string | null) {
   switch (errorType?.split("/").pop()) {
@@ -43,7 +58,7 @@ function connectErrorKeys(errorType: string | null, errorTitle: string | null) {
 }
 
 export function ConnectedAccountsStatusToast() {
-  const t = useTranslations("ConnectedAccountsCard");
+  const t = useTranslations();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -53,10 +68,15 @@ export function ConnectedAccountsStatusToast() {
     if (!connected && errorType === null && errorTitle === null) return;
 
     const timer = setTimeout(() => {
-      if (connected) toast.success(t("connectedToastTitle"), { description: t("connectedToastDescription") });
-      else {
+      if (connected) {
+        toast.success(t("ConnectedAccountsCard.connectedToastTitle"), {
+          description: t("ConnectedAccountsCard.connectedToastDescription"),
+        });
+      } else {
         const keys = connectErrorKeys(errorType, errorTitle);
-        toast.error(t(keys.title), { description: t(keys.description) });
+        toast.error(t(keys.title), {
+          description: t(keys.description),
+        });
       }
     }, 0);
 

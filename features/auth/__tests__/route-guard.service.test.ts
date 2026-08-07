@@ -2,7 +2,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
 import type { UserService } from "../../user/user.service";
 import type { RouteGuardSubscriptionRepo } from "../route-guard.service";
-import type { LegalStatusService } from "@/features/legal/legal-status.service";
+import type { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -33,7 +33,7 @@ function makeService() {
     {
       getSubscriptionOrThrowUnscoped: mocks.getSubscriptionOrThrowUnscoped,
     } as unknown as RouteGuardSubscriptionRepo,
-    { getStatus: mocks.getLegalStatus } as unknown as LegalStatusService,
+    { invoke: mocks.getLegalStatus } as unknown as GetLegalStatusInteractor,
   );
 }
 

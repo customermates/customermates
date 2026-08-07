@@ -23,7 +23,7 @@ const { RegisterUserInteractor } = await import("@/features/user/register/regist
 const { EventService } = await import("@/features/event/event.service");
 const { DomainEventListener } = await import("@/features/event/domain-event.listener");
 const { DomainEvent } = await import("@/features/event/domain-events");
-const { PrismaAuditLogRepo } = await import("@/ee/audit-log/prisma-audit-log.repository");
+const { PrismaAuditLogRepo } = await import("@/features/audit-log/prisma-audit-log.repository");
 const { LEGAL_CONTRACT_KEY, LEGAL_INFORMATION_KEY, currentLegalDocumentVersions } = await import(
   "@/constants/legal-documents"
 );
@@ -121,7 +121,6 @@ describe("registration against a real database", () => {
       country: "de",
       agreeToTerms: true,
       avatarUrl: null,
-      legalLocale: "de",
     });
     expect("ok" in result && result.ok).toBe(true);
 
@@ -150,7 +149,7 @@ describe("registration against a real database", () => {
       acceptanceType: "initial-onboarding",
       contractKey: LEGAL_CONTRACT_KEY,
       informationKey: LEGAL_INFORMATION_KEY,
-      locale: "de",
+      locale: "en",
     });
 
     const noticePayload: LegalNoticeAuditPayload = {
@@ -276,7 +275,6 @@ describe("registration against a real database", () => {
         country: "de",
         agreeToTerms: true,
         avatarUrl: null,
-        legalLocale: "en",
       }),
     ).rejects.toThrow("forced registration rollback");
 

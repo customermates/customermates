@@ -1,5 +1,5 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { AuditLogDto } from "@/ee/audit-log/audit-log.dto";
+import type { AuditLogDto } from "@/features/audit-log/audit-log.dto";
 
 import { Resource } from "@/generated/prisma";
 

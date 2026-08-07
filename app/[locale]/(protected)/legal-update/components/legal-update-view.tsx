@@ -2,7 +2,7 @@
 
 /* eslint-disable react/jsx-newline -- Legal prose deliberately mixes text and links. */
 
-import type { LegalUpdateStatus } from "@/features/legal/legal-status.service";
+import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -22,7 +22,7 @@ import { acceptLegalDocumentsAction } from "../actions";
 type Props = { status: LegalUpdateStatus };
 
 export function LegalUpdateView({ status }: Props) {
-  const t = useTranslations("LegalUpdateView");
+  const t = useTranslations();
   const format = useFormatter();
   const [checked, setChecked] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -36,27 +36,29 @@ export function LegalUpdateView({ status }: Props) {
   return (
     <AppCard className="max-w-2xl">
       <CardHeroHeader
-        subtitle={deadline ? t("subtitle", { date: deadline }) : t("informationSubtitle")}
-        title={t("title")}
+        subtitle={
+          deadline ? t("LegalUpdateView.subtitle", { date: deadline }) : t("LegalUpdateView.informationSubtitle")
+        }
+        title={t("LegalUpdateView.title")}
       />
 
       <AppCardBody>
         <p className="text-sm text-subdued">
-          {t("description")}{" "}
+          {t("LegalUpdateView.description")}{" "}
           <AppLink href="/terms" target="_blank">
-            {t("terms")}
+            {t("LegalUpdateView.terms")}
           </AppLink>
           ,{" "}
           <AppLink href="/dpa" target="_blank">
-            {t("dpa")}
+            {t("LegalUpdateView.dpa")}
           </AppLink>
           ,{" "}
           <AppLink href="/privacy" target="_blank">
-            {t("privacy")}
+            {t("LegalUpdateView.privacy")}
           </AppLink>{" "}
-          {t("and")}{" "}
+          {t("LegalUpdateView.and")}{" "}
           <AppLink href="/subprocessors" target="_blank">
-            {t("subprocessors")}
+            {t("LegalUpdateView.subprocessors")}
           </AppLink>
           .
         </p>
@@ -70,19 +72,19 @@ export function LegalUpdateView({ status }: Props) {
               onCheckedChange={(value) => setChecked(value === true)}
             />
 
-            <span>{t("acceptance")}</span>
+            <span>{t("LegalUpdateView.acceptance")}</span>
           </label>
         ) : null}
 
         {!status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
-          <p className="text-sm text-subdued">{t("memberWaiting")}</p>
+          <p className="text-sm text-subdued">{t("LegalUpdateView.memberWaiting")}</p>
         ) : null}
       </AppCardBody>
 
       <AppCardFooter>
         {!status.mustAccept ? (
           <Button asChild variant="outline">
-            <AppLink href="/">{t("continue")}</AppLink>
+            <AppLink href="/">{t("LegalUpdateView.continue")}</AppLink>
           </Button>
         ) : null}
 
@@ -90,12 +92,12 @@ export function LegalUpdateView({ status }: Props) {
           <>
             {!status.isSystemAdministrator ? (
               <Button variant="outline" onClick={() => window.location.reload()}>
-                {t("retry")}
+                {t("LegalUpdateView.retry")}
               </Button>
             ) : null}
 
             <Button variant="outline" onClick={() => void signOutAction()}>
-              {t("signOut")}
+              {t("LegalUpdateView.signOut")}
             </Button>
           </>
         ) : null}
@@ -113,7 +115,7 @@ export function LegalUpdateView({ status }: Props) {
           >
             {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
 
-            {t("accept")}
+            {t("LegalUpdateView.accept")}
           </Button>
         ) : null}
       </AppCardFooter>

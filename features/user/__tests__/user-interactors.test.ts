@@ -9,8 +9,10 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const mockLocale = vi.hoisted(() => ({ value: "de" }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve(mockLocale.value) }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -98,7 +100,6 @@ describe("RegisterUserInteractor", () => {
       country: "de",
       avatarUrl: null,
       agreeToTerms: true,
-      legalLocale: "de",
     });
 
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));

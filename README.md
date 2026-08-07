@@ -153,7 +153,7 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 Customermates uses an open-core licensing model.
 
-The Community Edition (first-party code outside `ee/` plus `ee/audit-log/`) is licensed under [AGPL-3.0-only](./LICENSE). Audit logging is therefore free for production self-hosting.
+The Community Edition—all first-party code outside `ee/`, including `features/audit-log/`—is licensed under [AGPL-3.0-only](./LICENSE). Audit logging is therefore free for production self-hosting.
 
 Other first-party files in `ee/` are source-available under the [Customermates Commercial License](./ee/LICENSE.md), subject to its AGPL client-material exception. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
 

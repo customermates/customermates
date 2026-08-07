@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -14,9 +14,11 @@ describe("open-core licence boundary", () => {
     const rootLicense = source("LICENSE");
     const readme = source("README.md");
 
-    expect(rootLicense).toContain("Files outside `ee/`, and files in `ee/audit-log/`");
+    expect(rootLicense).toContain("Files outside `ee/` are licensed");
     expect(rootLicense).toContain("AGPL-3.0-only");
-    expect(readme).toContain("first-party code outside `ee/` plus `ee/audit-log/`");
+    expect(readme).toContain("including `features/audit-log/`");
+    expect(existsSync(join(REPO_ROOT, "features/audit-log/prisma-audit-log.repository.ts"))).toBe(true);
+    expect(existsSync(join(REPO_ROOT, "ee/audit-log"))).toBe(false);
   });
 
   it("permits the mixed Community image without licensing Enterprise Features", () => {
@@ -32,7 +34,7 @@ describe("open-core licence boundary", () => {
       "does not authorise you to deliberately make an Enterprise Feature operational",
     );
     expect(commercialLicense).toContain("Inert compiled routes, schemas, interface declarations");
-    expect(enterpriseReadme).toContain("Source under `ee/audit-log/` remains AGPL-licensed");
+    expect(enterpriseReadme).toContain("First-party files in `ee/` are Commercial Software");
   });
 
   it("defines the image and revision-specific licence terms deterministically", () => {

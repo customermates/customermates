@@ -1,5 +1,5 @@
-import type { Data } from "@/core/validation/validation.utils";
 import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
+import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import deepEqual from "fast-deep-equal/es6";

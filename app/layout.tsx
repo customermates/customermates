@@ -13,7 +13,7 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 
 import type { Company } from "@/generated/prisma";
 import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
-import type { LegalUpdateStatus } from "@/features/legal/legal-status.service";
+import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
@@ -26,7 +26,7 @@ import {
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
   getGetMyConnectedAccountsInteractor,
-  getLegalStatusService,
+  getGetLegalStatusInteractor,
 } from "@/core/di";
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
@@ -165,7 +165,7 @@ export default async function RootLayout({ children }: Props) {
         getGetSubscriptionInteractor().invoke(),
         getGetUnreadThreadCountInteractor().invoke(),
         getGetMyConnectedAccountsInteractor().invoke(),
-        getLegalStatusService().getStatus(user),
+        getGetLegalStatusInteractor().invoke(user),
       ]);
       company = companyResult.data;
       terminology = companyResult.data.terminology.presets;

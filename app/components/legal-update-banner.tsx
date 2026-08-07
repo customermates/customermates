@@ -2,48 +2,30 @@
 
 /* eslint-disable react/jsx-newline -- Legal prose deliberately mixes text and links. */
 
-import type { LegalUpdateStatus } from "@/features/legal/legal-status.service";
+import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { useEffect } from "react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
-import { usePathname } from "@/i18n/navigation";
-import { isPublicPathname } from "@/i18n/routing";
-
+import { useRouter } from "@/i18n/navigation";
 type Props = { status: LegalUpdateStatus };
 
 export function LegalUpdateBanner({ status }: Props) {
-  const t = useTranslations("LegalUpdateBanner");
+  const t = useTranslations();
   const format = useFormatter();
-  const locale = useLocale();
-  const pathname = usePathname();
-  const isPublicRoute = isPublicPathname(pathname);
+  const router = useRouter();
 
   useEffect(() => {
-    if (!status.contractNoticeSent || status.contractAccepted || !status.effectiveAt || isPublicRoute) return;
+    if (!status.contractNoticeSent || status.contractAccepted || !status.effectiveAt) return;
 
-    const effectiveAt = new Date(status.effectiveAt).getTime();
-    if (!Number.isFinite(effectiveAt)) return;
-    let redirected = false;
-    const enforceDeadline = () => {
-      if (redirected || Date.now() < effectiveAt) return;
-      redirected = true;
-      window.location.replace(`/${locale}/legal-update`);
-    };
+    const delay = new Date(status.effectiveAt).getTime() - Date.now();
+    if (!Number.isFinite(delay)) return;
+    const timeout = window.setTimeout(() => router.refresh(), Math.max(0, delay));
 
-    enforceDeadline();
-    const timeout = window.setTimeout(enforceDeadline, Math.max(0, effectiveAt - Date.now()));
-    window.addEventListener("focus", enforceDeadline);
-    document.addEventListener("visibilitychange", enforceDeadline);
-
-    return () => {
-      window.clearTimeout(timeout);
-      window.removeEventListener("focus", enforceDeadline);
-      document.removeEventListener("visibilitychange", enforceDeadline);
-    };
-  }, [isPublicRoute, locale, status.contractAccepted, status.contractNoticeSent, status.effectiveAt]);
+    return () => window.clearTimeout(timeout);
+  }, [router, status.contractAccepted, status.contractNoticeSent, status.effectiveAt]);
 
   if (status.contractNoticeSent && !status.contractAccepted && status.effectiveAt) {
     const date = format.dateTime(new Date(status.effectiveAt), {
@@ -56,8 +38,10 @@ export function LegalUpdateBanner({ status }: Props) {
           color="warning"
           description={
             <span>
-              {status.isSystemAdministrator ? t("admin", { date }) : t("member", { date })}{" "}
-              <AppLink href="/legal-update">{t("review")}</AppLink>
+              {status.isSystemAdministrator
+                ? t("LegalUpdateBanner.admin", { date })
+                : t("LegalUpdateBanner.member", { date })}{" "}
+              <AppLink href="/legal-update">{t("LegalUpdateBanner.review")}</AppLink>
             </span>
           }
         />
@@ -72,7 +56,8 @@ export function LegalUpdateBanner({ status }: Props) {
           color="primary"
           description={
             <span>
-              {t("information")} <AppLink href="/legal-update">{t("review")}</AppLink>
+              {t("LegalUpdateBanner.information")}{" "}
+              <AppLink href="/legal-update">{t("LegalUpdateBanner.review")}</AppLink>
             </span>
           }
         />

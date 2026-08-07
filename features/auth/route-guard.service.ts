@@ -1,7 +1,7 @@
 import type { AuthService } from "./auth.service";
 import type { UserService } from "../user/user.service";
 import type { Redirect } from "./auth-outcome";
-import type { LegalStatusService } from "@/features/legal/legal-status.service";
+import type { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 
 import { Action, Status } from "@/generated/prisma";
 
@@ -28,7 +28,7 @@ export class RouteGuardService {
     private authService: AuthService,
     private userService: UserService,
     private subscriptionRepo: RouteGuardSubscriptionRepo,
-    private legalStatusService: LegalStatusService,
+    private getLegalStatusInteractor: GetLegalStatusInteractor,
   ) {}
   private static readonly STATUS_REDIRECTS: Partial<Record<Status, string>> = {
     [Status.inactive]: "/auth/error?type=inactiveUser",
@@ -50,7 +50,7 @@ export class RouteGuardService {
       return redirectTo("/onboarding/wizard");
 
     if (!options?.skipLegalAcceptanceCheck && env.APP_MODE === "cloud") {
-      const legalStatus = await this.legalStatusService.getStatus(user);
+      const legalStatus = await this.getLegalStatusInteractor.invoke(user);
       if (legalStatus.mustAccept) return redirectTo("/legal-update");
     }
 

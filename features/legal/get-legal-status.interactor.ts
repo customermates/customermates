@@ -63,10 +63,10 @@ function dateFromIso(value: string | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export class LegalStatusService {
+export class GetLegalStatusInteractor {
   constructor(private repo: LegalAuditRepo) {}
 
-  async getStatus(user: TenantUser, now = new Date()): Promise<LegalUpdateStatus> {
+  async invoke(user: TenantUser, now = new Date()): Promise<LegalUpdateStatus> {
     const isSystemAdministrator = user.role?.isSystemRole === true;
     if (env.APP_MODE !== "cloud") return { ...NO_LEGAL_UPDATE, isSystemAdministrator };
 

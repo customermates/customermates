@@ -7,11 +7,11 @@ This is a source-available commercial license, not an open-source license. By ex
 
 ## 1. Definitions
 
-**Commercial Software** means first-party software and associated material in `ee/`, and corresponding object code, other than `ee/audit-log/`, Third-Party Components, and the AGPL Client Material described in Section 6.
+**Commercial Software** means first-party software and associated material in `ee/`, and corresponding object code, other than Third-Party Components and the AGPL Client Material described in Section 6.
 
 **Commercial Agreement** means a written enterprise licence, order, or subscription agreement accepted by Benjamin Wagner, doing business as Customermates ("Customermates").
 
-**Community Edition** means the first-party material outside `ee/` together with `ee/audit-log/`, all of which is licensed under AGPL-3.0-only, plus any Third-Party Components under their respective licences.
+**Community Edition** means the first-party material outside `ee/`, all of which is licensed under AGPL-3.0-only, plus any Third-Party Components under their respective licences.
 
 **Applicable Documentation** means the repository-root `README.md` and `ee/README.md` supplied in the same source revision as the relevant software.
 

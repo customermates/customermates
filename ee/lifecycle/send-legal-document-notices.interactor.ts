@@ -1,6 +1,6 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { EventService } from "@/features/event/event.service";
-import type { LegalAuditRecord } from "@/features/legal/legal-status.service";
+import type { LegalAuditRecord } from "@/features/legal/get-legal-status.interactor";
 import type { LegalDocument, LegalDocumentVersions } from "@/constants/legal-documents";
 
 import type { Locale } from "@/generated/prisma";
@@ -17,7 +17,11 @@ import {
   LEGAL_INFORMATION_KEY,
   currentLegalDocumentVersions,
 } from "@/constants/legal-documents";
-import { LegalAuditRepo, legalAcceptancePayload, legalNoticePayload } from "@/features/legal/legal-status.service";
+import {
+  LegalAuditRepo,
+  legalAcceptancePayload,
+  legalNoticePayload,
+} from "@/features/legal/get-legal-status.interactor";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { getTranslator } from "@/i18n/get-translator";
 import { env } from "@/env";

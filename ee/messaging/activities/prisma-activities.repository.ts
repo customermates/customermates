@@ -8,7 +8,7 @@ import { type Prisma, type EntityType, Action, MessagingProvider, Resource } fro
 
 import { BaseRepository } from "@/core/base/base-repository";
 import { getContactRepo, getCustomColumnRepo } from "@/core/di";
-import { extractAuditChanges } from "@/ee/audit-log/audit-log-changes";
+import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";

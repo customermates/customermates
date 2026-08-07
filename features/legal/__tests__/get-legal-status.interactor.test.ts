@@ -15,7 +15,7 @@ import {
   type LegalAcceptanceAuditPayload,
   type LegalNoticeAuditPayload,
 } from "@/constants/legal-documents";
-import { LegalStatusService, type LegalAuditRecord, type LegalAuditRepo } from "../legal-status.service";
+import { GetLegalStatusInteractor, type LegalAuditRecord, type LegalAuditRepo } from "../get-legal-status.interactor";
 
 const NOW = new Date("2026-08-07T12:00:00.000Z");
 const DEADLINE = "2026-08-21T00:00:00.000Z";
@@ -68,7 +68,7 @@ function nonSystemRole() {
   return { ...role, isSystemRole: false };
 }
 
-describe("LegalStatusService", () => {
+describe("GetLegalStatusInteractor", () => {
   let records: LegalAuditRecord[];
   let repo: LegalAuditRepo;
   let findLegalEventUnscoped: Mock<LegalAuditRepo["findLegalEventUnscoped"]>;
@@ -99,21 +99,21 @@ describe("LegalStatusService", () => {
 
   it("starts the banner and deadline only after a successful contract notice record exists", async () => {
     const user = createMockUser({ id: "user-1", companyId: "company-1" });
-    const service = new LegalStatusService(repo);
+    const interactor = new GetLegalStatusInteractor(repo);
 
-    expect(await service.getStatus(user, NOW)).toMatchObject({
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
       contractNoticeSent: false,
       mustAccept: false,
     });
 
     records.push(record(DomainEvent.LEGAL_CONTRACT_NOTICE_SENT, noticePayload()));
-    expect(await service.getStatus(user, NOW)).toMatchObject({
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
       contractNoticeSent: true,
       contractAccepted: false,
       effectiveAt: DEADLINE,
       mustAccept: false,
     });
-    expect(await service.getStatus(user, new Date("2026-08-21T00:00:00.000Z"))).toMatchObject({ mustAccept: true });
+    expect(await interactor.invoke(user, new Date("2026-08-21T00:00:00.000Z"))).toMatchObject({ mustAccept: true });
   });
 
   it("restores company-wide access after any administrator records the current contract acceptance", async () => {
@@ -125,7 +125,7 @@ describe("LegalStatusService", () => {
       companyId: "company-1",
       role: nonSystemRole(),
     });
-    const status = await new LegalStatusService(repo).getStatus(member, new Date("2026-08-22T00:00:00.000Z"));
+    const status = await new GetLegalStatusInteractor(repo).invoke(member, new Date("2026-08-22T00:00:00.000Z"));
 
     expect(status).toMatchObject({ contractAccepted: true, mustAccept: false });
   });
@@ -142,13 +142,13 @@ describe("LegalStatusService", () => {
       companyId: "company-1",
       role: nonSystemRole(),
     });
-    const service = new LegalStatusService(repo);
+    const interactor = new GetLegalStatusInteractor(repo);
 
-    expect(await service.getStatus(member, NOW)).toMatchObject({
+    expect(await interactor.invoke(member, NOW)).toMatchObject({
       informationNoticeVisible: true,
       mustAccept: false,
     });
-    expect(await service.getStatus(member, new Date("2026-08-21T00:00:00.000Z"))).toMatchObject({
+    expect(await interactor.invoke(member, new Date("2026-08-21T00:00:00.000Z"))).toMatchObject({
       informationNoticeVisible: false,
       mustAccept: false,
     });
@@ -168,7 +168,7 @@ describe("LegalStatusService", () => {
       role: nonSystemRole(),
     });
 
-    expect(await new LegalStatusService(repo).getStatus(member, NOW)).toMatchObject({
+    expect(await new GetLegalStatusInteractor(repo).invoke(member, NOW)).toMatchObject({
       informationNoticeVisible: false,
     });
 
@@ -178,7 +178,7 @@ describe("LegalStatusService", () => {
     });
     records.push(record(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, acceptancePayload("later-update")));
 
-    expect(await new LegalStatusService(repo).getStatus(member, NOW)).toMatchObject({
+    expect(await new GetLegalStatusInteractor(repo).invoke(member, NOW)).toMatchObject({
       informationNoticeVisible: true,
     });
   });
@@ -201,7 +201,7 @@ describe("LegalStatusService", () => {
     );
 
     expect(
-      await new LegalStatusService(repo).getStatus(createMockUser({ id: "user-1", companyId: "company-1" }), NOW),
+      await new GetLegalStatusInteractor(repo).invoke(createMockUser({ id: "user-1", companyId: "company-1" }), NOW),
     ).toMatchObject({
       contractAccepted: true,
       informationNoticeVisible: true,
@@ -211,7 +211,7 @@ describe("LegalStatusService", () => {
 
   it("does not query or enforce managed-service documents outside cloud mode", async () => {
     mockEnv.APP_MODE = "self-hosted";
-    const status = await new LegalStatusService(repo).getStatus(createMockUser(), NOW);
+    const status = await new GetLegalStatusInteractor(repo).invoke(createMockUser(), NOW);
 
     expect(status.mustAccept).toBe(false);
     expect(findLegalEventUnscoped).not.toHaveBeenCalled();

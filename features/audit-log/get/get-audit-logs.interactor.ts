@@ -2,7 +2,7 @@ import type { P13nRepo } from "@/core/base/base-get.interactor";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { type AuditLogDto } from "@/ee/audit-log/audit-log.dto";
+import { type AuditLogDto } from "@/features/audit-log/audit-log.dto";
 
 import { z } from "zod";
 
