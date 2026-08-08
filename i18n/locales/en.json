@@ -1527,9 +1527,6 @@
     "adminDescription": "Accept by {date}.",
     "contractReview": "Review Terms and DPA",
     "contractTitle": "Legal documents updated",
-    "informationDescription": "Review the latest legal documents.",
-    "informationReview": "Review documents",
-    "informationTitle": "Legal information updated",
     "memberDescription": "A company administrator must accept by {date}."
   },
   "LegalUpdateView": {

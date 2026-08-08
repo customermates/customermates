@@ -43,20 +43,10 @@ export function LegalUpdateAlert({ status, onNavigate }: Props) {
             }),
       }
     : null;
-  const model =
-    contractModel ??
-    (status.informationNoticeVisible
-      ? {
-          title: t("LegalUpdateAlert.informationTitle"),
-          action: t("LegalUpdateAlert.informationReview"),
-          description: t("LegalUpdateAlert.informationDescription"),
-        }
-      : null);
+  if (!contractModel) return null;
 
-  if (!model) return null;
-
-  const hasContractUpdate = contractModel !== null;
-  const isWarning = hasContractUpdate && status.mustAccept;
+  const model = contractModel;
+  const isWarning = status.mustAccept;
   const AlertIcon = isWarning ? AlertCircle : Info;
 
   return (

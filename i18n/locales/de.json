@@ -1527,9 +1527,6 @@
     "adminDescription": "Bis zum {date} akzeptieren.",
     "contractReview": "AGB und AVV prüfen",
     "contractTitle": "Rechtsdokumente aktualisiert",
-    "informationDescription": "Prüfen Sie die aktuellen Rechtsdokumente.",
-    "informationReview": "Dokumente prüfen",
-    "informationTitle": "Rechtliche Informationen aktualisiert",
     "memberDescription": "Ein Unternehmensadministrator muss bis zum {date} akzeptieren."
   },
   "LegalUpdateView": {
