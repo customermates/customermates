@@ -11,10 +11,18 @@
     "label": "AGPL · Open source"
   },
   "ApiKeyModal": {
+    "addDescription": "Crea una chiave per la tua integrazione oppure scegli un client IA per la configurazione guidata.",
+    "addTitle": "Aggiungi una chiave API",
+    "backToOptions": "Tutte le opzioni per le chiavi API",
+    "done": "Fatto",
     "expiresIn": "Scade tra",
     "expiresInPlaceholder": "Scegli una data",
     "keyCreated": "Chiave API creata",
     "keyWarning": "Copia subito questa chiave: non potrai più visualizzarla. Usala con attenzione, perché se andasse persa qualcuno potrebbe spacciarsi per te.",
+    "quickDescription": "Scegli l’IA che usi e ti mostreremo solo la configurazione necessaria.",
+    "quickTitle": "Connessioni rapide",
+    "standardDescription": "Scegli un nome e, facoltativamente, una data di scadenza.",
+    "standardTitle": "Chiave API standard",
     "title": "Crea una chiave API"
   },
   "ApiKeysCard": {
@@ -41,6 +49,8 @@
     "userId": "Utente"
   },
   "AuditLogsCard": {
+    "emptyBody": "Le modifiche allo spazio di lavoro vengono registrate qui man mano che avvengono.",
+    "emptyTitle": "Ancora nessuna attività",
     "searchTooltip": "Cerca per ID elemento",
     "title": "Registri di controllo"
   },
@@ -170,35 +180,6 @@
     },
     "company": "Azienda",
     "country": "Paese",
-    "currencies": {
-      "aed": "Dirham degli Emirati Arabi Uniti",
-      "aud": "Dollaro australiano",
-      "brl": "Real brasiliano",
-      "cad": "Dollaro canadese",
-      "chf": "Franco svizzero",
-      "cny": "Yuan cinese",
-      "czk": "Corona ceca",
-      "dkk": "Corona danese",
-      "eur": "Euro",
-      "gbp": "Sterlina britannica",
-      "hkd": "Dollaro di Hong Kong",
-      "huf": "Fiorino ungherese",
-      "ils": "Shekel israeliano",
-      "inr": "Rupia indiana",
-      "jpy": "Yen giapponese",
-      "krw": "Won sudcoreano",
-      "mxn": "Peso messicano",
-      "nok": "Corona norvegese",
-      "nzd": "Dollaro neozelandese",
-      "pln": "Zloty polacco",
-      "sar": "Riyal saudita",
-      "sek": "Corona svedese",
-      "sgd": "Dollaro di Singapore",
-      "try": "Lira turca",
-      "twd": "Dollaro di Taiwan",
-      "usd": "Dollaro statunitense",
-      "zar": "Rand sudafricano"
-    },
     "currency": "Valuta",
     "customColumn": {
       "deleteMessage": "Vuoi davvero eliminare questa colonna? L'azione non può essere annullata.",
@@ -238,15 +219,34 @@
     "default": "Predefinito",
     "defaultColor": "Colore predefinito",
     "defaultData": {
-      "todo": {
+      "contact": {
+        "columnLabel": "Pipeline di vendita",
+        "options": {
+          "contact": "Contatto",
+          "inProgress": "In corso",
+          "lost": "Perso",
+          "new": "Nuovo",
+          "qualified": "Qualificato",
+          "won": "Acquisito"
+        }
+      },
+      "deal": {
         "columnLabel": "Stato",
-        "name": "La mia prima attività",
-        "states": {
+        "options": {
+          "abandoned": "Abbandonata",
+          "lost": "Persa",
+          "open": "Aperta",
+          "won": "Vinta"
+        }
+      },
+      "task": {
+        "columnLabel": "Stato",
+        "options": {
           "archived": "Archiviata",
           "blocked": "Bloccata",
           "done": "Completata",
           "inProgress": "In corso",
-          "onHold": "In sospeso",
+          "onHold": "In attesa",
           "open": "Aperta"
         }
       }
@@ -257,6 +257,20 @@
       "title": "Conferma l'eliminazione"
     },
     "email": "E-mail",
+    "emptyState": {
+      "body": "Inizia aggiungendo la tua prima voce «{singular}».",
+      "clearFilters": "Cancella filtri",
+      "cta": "Aggiungi la tua prima voce «{singular}»",
+      "dashboardBody": "Grafici e metriche appariranno qui man mano che aggiungi dati.",
+      "dashboardTitle": "Ancora niente da mostrare",
+      "filteredBody": "Nessuna voce «{plural}» corrisponde ai tuoi filtri.",
+      "filteredTitle": "Nessuna corrispondenza",
+      "genericFilteredBody": "Nessun risultato corrisponde ai tuoi filtri.",
+      "genericTitle": "Ancora niente qui",
+      "readOnlyBody": "Non hai l’autorizzazione per aggiungere voci «{plural}».",
+      "readOnlyTitle": "Ancora nessuna voce «{plural}»",
+      "title": "Ancora nessuna voce «{plural}»"
+    },
     "en": "English",
     "errors": {
       "activityScopeRequiresBoth": "entityType e entityId devono essere forniti insieme per limitare l'ambito a un solo record.",
@@ -281,6 +295,7 @@
       "customFieldInvalidUrl": "L'URL non è valido. Deve rispettare il formato di un URL (ad esempio https://example.com). Per più URL, separali con una virgola (ad esempio https://example.com, https://example.org).",
       "dealNotFound": "ID trattativa non trovato o non accessibile.",
       "draftMessageNotFound": "Questa bozza non è stata trovata. Potrebbe essere già stata inviata o scartata.",
+      "duplicateChannel": "Questo canale è presente più volte. Aggiungi ogni indirizzo e-mail, numero di telefono o handle una sola volta.",
       "duplicateOutboundSuppressed": "Un messaggio identico è stato inviato in questa conversazione poco fa. Modifica il testo o attendi un minuto prima di riprovare.",
       "duplicateWebhookEvents": "Gli eventi duplicati non sono consentiti.",
       "emailAlreadyExists": "Esiste già un account con questa e-mail.",
@@ -320,6 +335,7 @@
       "taskNameCannotBeChangedForSystemTasks": "Il nome delle attività di sistema non può essere modificato.",
       "taskNotFound": "ID attività non trovato o non accessibile.",
       "taskOnlyCustomTasksCanBeDeleted": "Solo le attività personalizzate possono essere eliminate.",
+      "terminologyInvalidPreset": "Scegli uno dei modelli di nome disponibili.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
       "unipileDisconnectedAccount": "Il canale è scollegato. Ricollegalo e riprova.",
@@ -368,6 +384,10 @@
         "created": "Trattativa creata",
         "deleted": "Trattativa eliminata",
         "updated": "Trattativa aggiornata"
+      },
+      "legal": {
+        "documents_accepted": "Documenti legali accettati",
+        "notice_sent": "Avviso legale inviato"
       },
       "message": {
         "received": "Messaggio ricevuto",
@@ -668,117 +688,6 @@
       "whatsapp": "WhatsApp"
     },
     "role": "Ruolo",
-    "seedData": {
-      "column": {
-        "articleNumber": "Codice articolo",
-        "billableHours": "Ore fatturabili",
-        "salesPipeline": "Pipeline commerciale",
-        "stock": "Scorte"
-      },
-      "contact": {
-        "alex": {
-          "email": "alex.murphy@northlight.example",
-          "first": "Alex",
-          "last": "Murphy"
-        },
-        "elena": {
-          "email": "elena.costa@harborline.example",
-          "first": "Elena",
-          "last": "Costa"
-        },
-        "linnea": {
-          "email": "linnea.holm@kestrelstudios.example",
-          "first": "Linnea",
-          "last": "Holm"
-        },
-        "marius": {
-          "email": "marius.becker@marlowecole.example",
-          "first": "Marius",
-          "last": "Becker"
-        },
-        "priya": {
-          "email": "priya.iyer@northlight.example",
-          "first": "Priya",
-          "last": "Iyer"
-        },
-        "rashid": {
-          "email": "rashid.khan@atlasmobility.example",
-          "first": "Rashid",
-          "last": "Khan"
-        },
-        "sara": {
-          "email": "sara.romero@atlasmobility.example",
-          "first": "Sara",
-          "last": "Romero"
-        },
-        "tomas": {
-          "email": "tomas.lindberg@harborline.example",
-          "first": "Tomas",
-          "last": "Lindberg"
-        }
-      },
-      "deal": {
-        "atlasDiscovery": "Sprint di analisi Atlas",
-        "atlasExpansion": "Ampliamento della flotta Atlas",
-        "atlasPilot": "Rilascio pilota Atlas",
-        "atlasRetainer": "Contratto ricorrente Atlas",
-        "harborDiscovery": "Workshop di analisi Harbor",
-        "harborRollout": "Pacchetto di rilascio Harbor",
-        "kestrelFlagship": "Lancio di punta Kestrel",
-        "kestrelRetainer": "Implementazione e contratto Kestrel",
-        "marloweBulk": "Ordine cumulativo Marlowe",
-        "marloweImplementation": "Implementazione completa Marlowe",
-        "northLightDiscovery": "Analisi North Light",
-        "northLightStarter": "Ordine iniziale North Light"
-      },
-      "organization": {
-        "atlasMobility": "Atlas Mobility",
-        "harborAndLine": "Harbor & Line",
-        "kestrelStudios": "Kestrel Studios",
-        "marloweAndCole": "Marlowe & Cole",
-        "northLight": "North Light Group"
-      },
-      "pipeline": {
-        "lost": "Persa",
-        "new": "Nuova",
-        "qualified": "Qualificata",
-        "quoted": "Preventivo inviato",
-        "won": "Vinta"
-      },
-      "service": {
-        "discovery": "Analisi",
-        "enterpriseKit": "Kit enterprise",
-        "implementation": "Implementazione",
-        "premiumKit": "Kit premium",
-        "retainer": "Contratto ricorrente",
-        "starterKit": "Kit iniziale"
-      },
-      "task": {
-        "checkStock": "Verificare i livelli di scorta",
-        "confirmBulkOrder": "Confermare i dettagli dell'ordine cumulativo",
-        "contractReview": "Rivedere il contratto di ampliamento",
-        "discoveryWorkshop": "Condurre il workshop di analisi",
-        "followUp": "Ricontattare dopo la pausa",
-        "gatherRequirements": "Raccogliere i requisiti",
-        "implementationPlan": "Redigere il piano di implementazione",
-        "introCall": "Chiamata di presentazione",
-        "kickoffPrep": "Preparare i materiali di avvio",
-        "postMortem": "Scrivere la retrospettiva del progetto",
-        "retainerCheckIn": "Pianificare il punto sul contratto ricorrente",
-        "sendQuote": "Inviare il preventivo",
-        "shipStarterKits": "Spedire i kit iniziali"
-      },
-      "widget": {
-        "activeDealsByStage": "Trattative attive",
-        "dealsByStage": "Trattative per fase",
-        "dealValueByOrg": "Valore delle trattative per organizzazione",
-        "tasksByStatus": "Attività per stato",
-        "topDealsByValue": "Principali trattative per valore",
-        "totalContacts": "Contatti",
-        "valueByStage": "Valore della pipeline",
-        "valuePerService": "Valore per servizio"
-      }
-    },
     "single": "Singolo",
     "sort": {
       "ascending": "Crescente",
@@ -928,7 +837,7 @@
     "title": "Invita un utente"
   },
   "CompanySettings": {
-    "currencyDescription": "Usata per tutti gli importi del CRM, come il valore di trattative e servizi."
+    "currencyDescription": "Usata per tutti i valori monetari del CRM, ad esempio: {deals}, {services}."
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",
@@ -950,7 +859,7 @@
     "connectedAt": "Collegato",
     "connectedToastDescription": "La tua cronologia viene importata in background. Può richiedere qualche minuto, puoi continuare a lavorare.",
     "connectedToastTitle": "Canale collegato",
-    "description": "Collega i canali da cui attinge la tua posta in arrivo, come e-mail, WhatsApp e LinkedIn. I canali sono privati per impostazione predefinita e possono essere condivisi con il tuo spazio di lavoro se necessario. Anche le singole conversazioni possono essere condivise separatamente.",
+    "description": "Collega i canali da cui attinge la tua posta in arrivo, come e-mail, WhatsApp e LinkedIn. I canali sono privati per impostazione predefinita e possono essere condivisi con il tuo spazio di lavoro. Collegandone uno, ci autorizzi a trattarne i messaggi, i contatti e il calendario per tuo conto. Consulta la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>, i nostri <subprocessorsLink>sub-responsabili</subprocessorsLink> e i nostri <termsOfServiceLink>Termini</termsOfServiceLink>.",
     "disconnect": "Scollega",
     "disconnectedToastDescription": "Questo account non è più collegato presso il provider. Ricollegalo con le tue credenziali attuali.",
     "disconnectedToastTitle": "Account scollegato",
@@ -1057,8 +966,9 @@
     "aggregationType": "Tipo di aggregazione",
     "aggregationTypes": {
       "count": "Numero di {entities}",
-      "dealQuantity": "Numero di servizi nelle trattative",
-      "dealValue": "Valore della trattativa collegato a {entity}",
+      "dealQuantity": "Numero di {services} nelle {deals}",
+      "dealValue": "Valore di {deal}",
+      "dealValueRelated": "Valore di {deal} relativo a {entity}",
       "field": "Campo"
     },
     "barColors": "Colori delle barre",
@@ -1100,7 +1010,7 @@
     "startDate": "Data di inizio",
     "tabs": {
       "config": "Configurazione",
-      "dealFilters": "Filtri sulle trattative",
+      "dealFilters": "Filtri per {deals}",
       "display": "Visualizzazione",
       "filters": "Filtri {entityType}"
     },
@@ -1120,9 +1030,8 @@
     }
   },
   "DealModal": {
-    "noServicesAdded": "Nessun servizio aggiunto",
+    "noServicesAdded": "Ancora nessuna voce «{entity}» aggiunta",
     "quantityLabel": "Quantità",
-    "servicesLabel": "Servizi",
     "title": "Trattativa",
     "totalLabel": "Totale",
     "valueLabel": "Valore"
@@ -1236,6 +1145,110 @@
     "tooltipUnverified": "Questo profilo non è ancora stato confermato. Viene verificato automaticamente quando invii il primo messaggio.",
     "unverified": "Non verificato"
   },
+  "EntityTerminology": {
+    "presets": {
+      "contact": {
+        "client": {
+          "plural": "Clienti",
+          "singular": "Cliente"
+        },
+        "contact": {
+          "plural": "Contatti",
+          "singular": "Contatto"
+        },
+        "lead": {
+          "plural": "Lead",
+          "singular": "Lead"
+        },
+        "person": {
+          "plural": "Persone",
+          "singular": "Persona"
+        }
+      },
+      "deal": {
+        "deal": {
+          "plural": "Trattative",
+          "singular": "Trattativa"
+        },
+        "job": {
+          "plural": "Lavori",
+          "singular": "Lavoro"
+        },
+        "opportunity": {
+          "plural": "Opportunità",
+          "singular": "Opportunità"
+        },
+        "project": {
+          "plural": "Progetti",
+          "singular": "Progetto"
+        }
+      },
+      "organization": {
+        "account": {
+          "plural": "Account",
+          "singular": "Account"
+        },
+        "company": {
+          "plural": "Aziende",
+          "singular": "Azienda"
+        },
+        "organization": {
+          "plural": "Organizzazioni",
+          "singular": "Organizzazione"
+        }
+      },
+      "service": {
+        "offering": {
+          "plural": "Offerte",
+          "singular": "Offerta"
+        },
+        "package": {
+          "plural": "Pacchetti",
+          "singular": "Pacchetto"
+        },
+        "product": {
+          "plural": "Prodotti",
+          "singular": "Prodotto"
+        },
+        "service": {
+          "plural": "Servizi",
+          "singular": "Servizio"
+        }
+      },
+      "task": {
+        "actionItem": {
+          "plural": "Azioni",
+          "singular": "Azione"
+        },
+        "followUp": {
+          "plural": "Follow-up",
+          "singular": "Follow-up"
+        },
+        "task": {
+          "plural": "Attività",
+          "singular": "Attività"
+        },
+        "todo": {
+          "plural": "Cose da fare",
+          "singular": "Cosa da fare"
+        }
+      }
+    },
+    "relationships": {
+      "contactDealSummary": "Le voci «{contacts}» sono coinvolte nelle voci «{deals}».",
+      "contactOrganizationSummary": "Le voci «{contacts}» lavorano presso le voci «{organizations}».",
+      "dataModelLabel": "Il tuo modello di dati: scegli i nomi usati dal tuo team; le relazioni restano invariate.",
+      "dealServiceSummary": "Le voci «{deals}» includono voci «{services}».",
+      "howRecordsConnect": "Come si collegano i record",
+      "include": "includono",
+      "involvedIn": "sono coinvolti in",
+      "linkedTo": "sono collegati a",
+      "organizationDealSummary": "Le voci «{organizations}» sono collegate alle voci «{deals}».",
+      "selectLabel": "Nome per {entity}",
+      "taskScope": "Le voci «{tasks}» possono essere collegate a qualsiasi record di questo modello.",
+      "workAt": "lavorano presso"
+    }
+  },
   "EntityTimeline": {
     "loadOlder": "Carica i più vecchi",
     "types": {
@@ -1293,6 +1306,7 @@
     "compare": "Confronti",
     "compareViewAll": "Vedi tutti i confronti",
     "copyrightText": "© {year} Customermates. Tutti i diritti riservati.",
+    "dpa": "DPA",
     "features": "Funzionalità",
     "featuresViewAll": "Vedi tutte le funzionalità",
     "helpAndFeedback": "Aiuto",
@@ -1303,6 +1317,7 @@
     "resources": "Risorse",
     "solutions": "Soluzioni",
     "solutionsViewAll": "Vedi tutti i settori",
+    "subprocessors": "Sub-responsabili",
     "terms": "Condizioni"
   },
   "ForgotPasswordForm": {
@@ -1314,12 +1329,8 @@
   },
   "GlobalSearch": {
     "clearRecent": "Cancella",
-    "emptyPrompt": "Inizia a digitare per cercare tra contatti, organizzazioni, trattative e servizi.",
-    "groupContact": "Contatti",
-    "groupDeal": "Trattative",
-    "groupOrganization": "Organizzazioni",
+    "emptyPrompt": "Inizia a digitare per cercare tra: {contacts}, {organizations}, {deals} e {services}.",
     "groupRecent": "Aperti di recente",
-    "groupService": "Servizi",
     "hintNavigate": "Naviga",
     "hintOpen": "Apri",
     "loading": "Ricerca...",
@@ -1497,6 +1508,49 @@
     "unlinkedParticipants": "Alcuni partecipanti non sono collegati a un contatto",
     "youPrefix": "Tu:"
   },
+  "LegalDocumentNotice": {
+    "contractBody": "Abbiamo aggiornato i documenti legali elencati di seguito. Esaminali per il cliente aziendale e fai in modo che un amministratore di sistema autorizzato li accetti elettronicamente.",
+    "contractDeadlineLabel": "Termine per l’opposizione e l’accettazione",
+    "contractObjection": "Invia eventuali obiezioni prima del termine indicato rispondendo a questa e-mail. Il silenzio o l’inattività non costituiscono accettazione. Se i documenti contrattuali aggiornati non vengono accettati entro il termine, l’accesso all’interfaccia utente del servizio gestito può essere limitato finché un amministratore autorizzato non li accetta.",
+    "contractSubject": "Azione richiesta: documenti legali di Customermates aggiornati",
+    "contractTitle": "Documenti legali aggiornati",
+    "documents": {
+      "dpa": "Accordo sul trattamento dei dati",
+      "privacy": "Informativa sulla privacy",
+      "subprocessors": "Sub-responsabili",
+      "terms": "Termini e condizioni"
+    },
+    "greeting": "Ciao {firstName},",
+    "informationBody": "Abbiamo aggiornato le informazioni legali elencate di seguito. Questo avviso non richiede l’accettazione, a meno che l’e-mail non indichi anche Termini o un Accordo sul trattamento dei dati aggiornati.",
+    "informationSubject": "Informazioni legali di Customermates aggiornate",
+    "informationTitle": "Informazioni legali aggiornate",
+    "liveLabel": "Documento in vigore",
+    "signoff": "Cordiali saluti,\nBen",
+    "subprocessorDeadlineLabel": "Termine per l’opposizione al sub-responsabile",
+    "subprocessorObjection": "Non è richiesta alcuna accettazione. Se ti opponi alla modifica del sub-responsabile indicata, rispondi senza indebito ritardo e prima del termine specificato, fornendo ragionevoli motivi relativi alla protezione dei dati.",
+    "subprocessorObjectionWithDeadline": "Non è richiesta alcuna accettazione. Se ti opponi alla modifica del sub-responsabile indicata, rispondi senza indebito ritardo ed entro il {deadline}, fornendo ragionevoli motivi relativi alla protezione dei dati. Questo termine del fornitore è distinto dal termine per i Termini e il DPA indicato sopra."
+  },
+  "LegalUpdateAlert": {
+    "adminDescription": "Accetta entro il {date}.",
+    "contractReview": "Esamina Termini e DPA",
+    "contractTitle": "Documenti legali aggiornati",
+    "memberDescription": "Un amministratore dell’azienda deve accettare entro il {date}."
+  },
+  "LegalUpdateView": {
+    "accept": "Accetta e continua",
+    "acceptance": "Sono autorizzato ad agire per il cliente aziendale e accetto i Termini e il DPA vigenti.",
+    "and": "e",
+    "description": "Esamina i documenti vigenti:",
+    "dpa": "DPA",
+    "memberWaiting": "Un amministratore dell’azienda deve accettare i Termini e il DPA aggiornati. Potrai riprovare dopo l’accettazione oppure uscire.",
+    "privacy": "Informativa sulla privacy",
+    "retry": "Riprova",
+    "signOut": "Esci",
+    "subprocessors": "Sub-responsabili",
+    "subtitle": "Un amministratore aziendale autorizzato deve accettare entro il {date}.",
+    "terms": "Termini",
+    "title": "Documenti legali aggiornati"
+  },
   "Loading": {
     "text": "Caricamento..."
   },
@@ -1528,13 +1582,9 @@
     "title": "Passa a un piano superiore per la messaggistica"
   },
   "NavigationBar": {
-    "addContact": "Aggiungi un contatto",
-    "addDeal": "Aggiungi una trattativa",
-    "addOrganization": "Aggiungi un'organizzazione",
+    "addEntity": "Aggiungi {entity}",
     "addPickerDescription": "Scegli il tipo di record che vuoi creare.",
     "addPickerTitle": "Crea nuovo…",
-    "addService": "Aggiungi un servizio",
-    "addTask": "Aggiungi un'attività",
     "affiliate": "Programma di affiliazione",
     "apiDocs": "Documentazione API",
     "automation": "Automazione",
@@ -1568,22 +1618,30 @@
     "title": "Ops! Sei finito nel vuoto"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Accetto l'<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink> e i <termsOfServiceLink>Termini e condizioni</termsOfServiceLink>"
+    "agreeToTerms": "Sono autorizzato ad agire per il cliente aziendale e accetto i <termsOfServiceLink>Termini</termsOfServiceLink> e il <dpaLink>DPA</dpaLink>. Ho letto l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+    "invitedAgreeToTerms": "Accetto di rispettare i <termsOfServiceLink>Termini</termsOfServiceLink> e ho letto il <dpaLink>DPA</dpaLink> e l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>."
   },
   "OnboardingWizard": {
     "ai": {
       "choices": {
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
         "claudeCode": "Claude Code",
         "claudeDesktop": "Claude Desktop",
         "codex": "Codex",
-        "connector": "Claude e ChatGPT (connettore)",
         "cursor": "Cursor",
         "gemini": "Gemini",
         "skip": "Salta per ora"
       },
       "connector": {
-        "chatgptHint": "In ChatGPT: Impostazioni, Connettori, Aggiungi connettore personalizzato, poi incolla l'URL.",
+        "chatgptDescription": "Usa l’URL qui sotto come connettore MCP personalizzato e scegli l’autenticazione OAuth.",
+        "chatgptSteps": "In ChatGPT: Impostazioni → Connettori → Aggiungi connettore → Connettore personalizzato (MCP). Incolla l’URL, scegli OAuth, salva, quindi accedi a Customermates e approva l’accesso.",
+        "chatgptTitle": "Aggiungi il connettore Customermates",
         "claudeButton": "Aggiungi a Claude",
+        "claudeDescription": "Apri la finestra precompilata di Claude per il connettore personalizzato, quindi accedi a Customermates e approva l’accesso.",
+        "claudeTitle": "Collega il tuo account Claude",
+        "externalNote": "Questa configurazione avviene in una nuova scheda o nella tua IA. Customermates non verifica automaticamente la connessione esterna. <guide>Leggi la guida completa alla configurazione</guide>.",
+        "paidPlan": "I connettori personalizzati richiedono un piano Claude o ChatGPT a pagamento.",
         "urlLabel": "URL del server MCP"
       },
       "createKey": "Crea una chiave API",
@@ -1591,7 +1649,6 @@
       "errors": {
         "createFailed": "Impossibile creare la chiave API. Riprova."
       },
-      "fullGuide": "Guida completa alla configurazione →",
       "install": {
         "instruction": {
           "claudeCode": "Esegui questo comando in un terminale qualsiasi:",
@@ -1600,42 +1657,59 @@
           "cursor": "In Cursor apri Impostazioni → Strumenti e MCP → Aggiungi nuovo server MCP, poi incolla:",
           "gemini": "Aggiungi questo a ~/.gemini/settings.json (uniscilo a mcpServers se esiste già):"
         },
+        "keyNote": "Copia ora questa configurazione. La chiave API viene mostrata una sola volta e potrà essere revocata in seguito dal tuo profilo. <guide>Leggi la guida completa alla configurazione</guide>.",
         "label": "Collega Customermates a {tool}"
       },
-      "skipHint": "Puoi configurarlo più tardi dal tuo profilo."
+      "local": {
+        "ariaLabel": "App Claude locale",
+        "description": "Creeremo una chiave e mostreremo solo il frammento di configurazione che ti serve.",
+        "title": "Scegli la tua app Claude locale"
+      },
+      "methods": {
+        "account": {
+          "description": "Per Claude sul web, desktop e dispositivi mobili. Accedi una sola volta; non servono chiavi API o file di configurazione.",
+          "meta": "Connettore personalizzato · OAuth",
+          "note": "Richiede un piano Claude con connettori personalizzati.",
+          "recommended": "Consigliato",
+          "title": "Account Claude"
+        },
+        "ariaLabel": "Metodi di connessione a Claude",
+        "local": {
+          "description": "Crea una chiave API e aggiungi un frammento di configurazione locale.",
+          "meta": "Configurazione locale · Chiave API",
+          "note": "Ideale per Claude Code o Claude Desktop senza connettori personalizzati.",
+          "title": "Claude Code o Desktop"
+        }
+      },
+      "providers": {
+        "ariaLabel": "Client IA"
+      },
+      "screen": {
+        "back": "Tutti i client IA",
+        "claude": {
+          "subtitle": "Entrambe le opzioni usano MCP e gli stessi strumenti Customermates. Scegli la configurazione adatta a come usi Claude.",
+          "title": "Come usi Claude?"
+        },
+        "setup": {
+          "apiKeySubtitle": "Crea una chiave API, quindi segui la configurazione preparata per {provider}.",
+          "connectorSubtitle": "Aggiungi Customermates come connettore personalizzato. Non servono chiavi API o file di configurazione.",
+          "title": "Collega {provider}"
+        },
+        "skip": {
+          "subtitle": "Puoi terminare ora l’onboarding e collegare un’IA dal tuo profilo quando vuoi.",
+          "title": "Configura un’IA più tardi"
+        }
+      }
     },
     "avatarDescription": "Facoltativo. Incolla il link a una tua foto. Deve essere accessibile pubblicamente (chiunque abbia il link deve poterla vedere). Lascia il campo vuoto e mostreremo le tue iniziali.",
     "back": "Indietro",
     "continue": "Continua",
-    "demoData": {
-      "cleanDescription": "Salta i dati di esempio. Inizierai con un'area di lavoro vuota.",
-      "cleanLabel": "Inizia da zero",
-      "description": "Vuoi che prepariamo la tua area di lavoro con dei dati di esempio o preferisci partire da zero?",
-      "keepDescription": "Inizia con contatti, trattative, servizi e attività di esempio, così puoi esplorare subito l'app.",
-      "keepLabel": "Mantieni i dati demo",
-      "recommended": "Consigliato",
-      "title": "Dati demo"
-    },
-    "entities": {
-      "description": "Scegli quello che ti si addice di più. Adatteremo la tua pipeline iniziale, i servizi e i widget della dashboard. Potrai cambiare i tipi di colonna e rinominare tutto in seguito: questa scelta definisce solo la struttura di partenza.",
-      "product": {
-        "description": "Vendi beni fisici o digitali a unità. Aggiungeremo campi per i codici articolo e le giacenze.",
-        "example": "Un kit iniziale con SKU, quantità e giacenze.",
-        "title": "Prodotti"
-      },
-      "service": {
-        "description": "Vendi tempo, competenze o incarichi ricorrenti. Aggiungeremo un campo per le ore fatturabili.",
-        "example": "Uno sprint di analisi, un progetto di implementazione, un canone mensile.",
-        "title": "Servizi"
-      }
-    },
     "finish": "Fine",
     "invite": {
       "emailCount": "{current} di {max} e-mail · separale con una virgola o premi Invio",
       "emailPlaceholder": "collega@esempio.com",
       "linkDescription": "Chiunque abbia questo link può unirsi al tuo team.",
       "linkFailed": "Impossibile creare il link di invito.",
-      "linkValidity": "Il link è valido per 7 giorni.",
       "loadingLink": "Generazione del link…",
       "send": "Invia gli inviti",
       "sentSuccess": "{count, plural, one {# invito inviato.} other {# inviti inviati.}}",
@@ -1651,14 +1725,6 @@
         "placeholder": "Segnaposto per l'integrazione IA",
         "subtitle": "Lascia che Claude Code o Codex gestiscano il tuo CRM al posto tuo.",
         "title": "Collega un agente IA"
-      },
-      "demoData": {
-        "subtitle": "Inizia con contatti, trattative e attività di esempio, oppure parti da un'area di lavoro vuota.",
-        "title": "Dati demo"
-      },
-      "entities": {
-        "subtitle": "Dicci cosa vendi e configureremo la tua area di lavoro di conseguenza.",
-        "title": "Cosa vendi?"
       },
       "invite": {
         "placeholder": "Segnaposto per l'invito del team",
@@ -1732,7 +1798,7 @@
     "title": "Servizio"
   },
   "SignInForm": {
-    "agreeToTerms": "Accedendo, accetti i nostri <termsOfServiceLink>Termini</termsOfServiceLink> e la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+    "agreeToTerms": "Consulta i nostri <termsOfServiceLink>Termini</termsOfServiceLink>, il <dpaLink>DPA</dpaLink> e l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
     "buttonLabel": "Continua con {provider}",
     "forgotPassword": "Password dimenticata?",
     "or": "OPPURE",
@@ -1743,7 +1809,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accetta l'invito",
-    "agreeToTerms": "Registrandoti, accetti i nostri <termsOfServiceLink>Termini</termsOfServiceLink> e la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+    "agreeToTerms": "Consulta i nostri <termsOfServiceLink>Termini</termsOfServiceLink>, il <dpaLink>DPA</dpaLink> e l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
     "buttonLabel": "Registrati con {provider}",
     "inviteSubtitle": "Sei stato invitato a unirti a un team su Customermates. Scegli il tuo metodo di accesso per accettare l'invito.",
     "inviteTitle": "Accetta l'invito aziendale",
@@ -1759,22 +1825,18 @@
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
       "features": {
-        "business": {
-          "0": "Tutto ciò che c'è in Pro",
-          "1": "3 account collegati per utente",
-          "2": "Account condivisi e assistenza prioritaria"
-        },
-        "pro": {
-          "0": "Tutto ciò che c'è in Starter",
-          "1": "Posta in arrivo unificata",
-          "2": "1 account collegato per utente"
-        },
-        "starter": {
-          "0": "CRM completo: contatti, trattative, organizzazioni, attività",
-          "1": "Registro di controllo",
-          "2": "Accesso completo alle API",
-          "3": "Accesso al server MCP"
-        }
+        "business": [
+          "Tutto ciò che c'è in Pro",
+          "3 account collegati per utente",
+          "Account condivisi e assistenza prioritaria"
+        ],
+        "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata", "1 account collegato per utente"],
+        "starter": [
+          "CRM completo: contatti, trattative, organizzazioni, attività",
+          "Registro di controllo",
+          "Accesso completo alle API",
+          "Accesso al server MCP"
+        ]
       },
       "mostPopular": "Il più scelto",
       "perUserMonth": "per utente / mese",
@@ -1828,7 +1890,7 @@
     "title": "Attività"
   },
   "TasksCard": {
-    "systemTaskTooltip": "Questa è un'attività di sistema che non può essere eliminata manualmente. Aprila per saperne di più."
+    "systemTaskTooltip": "Voce «{task}» gestita dal sistema. Non può essere eliminata manualmente; aprila per maggiori informazioni."
   },
   "TrialExpiredOffer": {
     "body": "La tua prova è terminata da poco, ma mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la tua prova e rivedere insieme a te la configurazione.",
@@ -1899,6 +1961,8 @@
     "title": "Verifica dell'e-mail"
   },
   "WebhookDeliveriesCard": {
+    "emptyBody": "I tentativi di consegna appariranno qui quando viene attivato un webhook.",
+    "emptyTitle": "Ancora nessuna consegna",
     "title": "Invii recenti"
   },
   "WebhookDeliveryModal": {
@@ -1928,6 +1992,8 @@
     "urlDescription": "L'URL dell'endpoint a cui verranno inviati gli eventi webhook tramite richieste POST."
   },
   "WebhooksCard": {
+    "emptyBody": "Aggiungi un webhook per inviare gli eventi dello spazio di lavoro ai tuoi sistemi.",
+    "emptyTitle": "Ancora nessun webhook",
     "title": "Webhook"
   }
 }
