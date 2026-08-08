@@ -11,14 +11,14 @@ const LegalDocumentVersionsSchema = z.object({
   terms: z.iso.date(),
 });
 
-const LegalNoticeAuditPayloadSchema = z.object({
+export const LegalNoticeAuditPayloadSchema = z.object({
   versions: LegalDocumentVersionsSchema,
   changedDocuments: z.array(z.enum(ALL_LEGAL_DOCUMENTS)).min(1),
   recipientEmail: z.string().min(1),
   effectiveAt: z.iso.datetime().nullable(),
 });
 
-const LegalAcceptanceAuditPayloadSchema = z.object({
+export const LegalAcceptanceAuditPayloadSchema = z.object({
   versions: LegalDocumentVersionsSchema,
   acceptingEmail: z.string().min(1),
   acceptanceType: z.enum(["initial-onboarding", "later-update"]),
@@ -42,16 +42,6 @@ export type LegalAuditRecord =
       event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED;
       payload: LegalAcceptanceAuditPayload | null;
     });
-
-export function parseLegalNoticeAuditPayload(value: unknown): LegalNoticeAuditPayload | null {
-  const parsed = LegalNoticeAuditPayloadSchema.safeParse(value);
-  return parsed.success ? parsed.data : null;
-}
-
-export function parseLegalAcceptanceAuditPayload(value: unknown): LegalAcceptanceAuditPayload | null {
-  const parsed = LegalAcceptanceAuditPayloadSchema.safeParse(value);
-  return parsed.success ? parsed.data : null;
-}
 
 export function hasValidLegalNoticeEffectiveAt(
   payload: LegalNoticeAuditPayload | null | undefined,

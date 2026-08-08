@@ -393,11 +393,13 @@ describe("registration against a real database", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(afterDeadline);
     try {
-      await expect(statusInteractor.invoke(admin)).resolves.toMatchObject({
+      activeTenantUser.value = admin;
+      await expect(statusInteractor.invoke()).resolves.toMatchObject({
         contractAccepted: false,
         mustAccept: true,
       });
-      await expect(statusInteractor.invoke(member)).resolves.toMatchObject({
+      activeTenantUser.value = member;
+      await expect(statusInteractor.invoke()).resolves.toMatchObject({
         contractAccepted: false,
         mustAccept: true,
       });
@@ -407,11 +409,12 @@ describe("registration against a real database", () => {
         agreeToLegalDocuments: true,
       });
 
-      await expect(statusInteractor.invoke(admin)).resolves.toMatchObject({
+      await expect(statusInteractor.invoke()).resolves.toMatchObject({
         contractAccepted: true,
         mustAccept: false,
       });
-      await expect(statusInteractor.invoke(member)).resolves.toMatchObject({
+      activeTenantUser.value = member;
+      await expect(statusInteractor.invoke()).resolves.toMatchObject({
         contractAccepted: true,
         mustAccept: false,
       });

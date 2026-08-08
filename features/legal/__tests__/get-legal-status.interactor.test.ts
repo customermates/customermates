@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createMockDiModule } from "@/tests/helpers/interactor-test-setup";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
 }));
 vi.mock("@/env", () => ({ env: mockEnv }));
+
+let mockUser = createMockUser({ id: "user-1", companyId: "company-1" });
+vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -58,6 +62,7 @@ describe("GetLegalStatusInteractor", () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
     mockEnv.APP_MODE = "cloud";
+    mockUser = createMockUser({ id: "user-1", companyId: "company-1" });
     records = [];
     findLegalEventsUnscoped = vi.fn(() => Promise.resolve(records));
     repo = { findLegalEventsUnscoped } as unknown as LegalAuditRepo;
@@ -68,16 +73,16 @@ describe("GetLegalStatusInteractor", () => {
   });
 
   it("starts the banner and server-side deadline only after a current contract notice exists", async () => {
-    const user = createMockUser({ id: "user-1", companyId: "company-1" });
     const interactor = new GetLegalStatusInteractor(repo);
 
-    expect(await interactor.invoke(user)).toEqual({
+    expect(await interactor.invoke()).toEqual({
       contractAccepted: false,
       contractNoticeSent: false,
       effectiveAt: null,
       isSystemAdministrator: true,
       mustAccept: false,
     });
+    expect(findLegalEventsUnscoped).toHaveBeenLastCalledWith(mockUser.companyId);
 
     records.push(
       record(
@@ -87,20 +92,20 @@ describe("GetLegalStatusInteractor", () => {
         }),
       ),
     );
-    expect(await interactor.invoke(user)).toMatchObject({
+    expect(await interactor.invoke()).toMatchObject({
       contractNoticeSent: false,
       mustAccept: false,
     });
 
     records.push(record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ effectiveAt: null })));
-    expect(await interactor.invoke(user)).toMatchObject({
+    expect(await interactor.invoke()).toMatchObject({
       contractNoticeSent: false,
       effectiveAt: null,
       mustAccept: false,
     });
 
     records.push(record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload()));
-    expect(await interactor.invoke(user)).toMatchObject({
+    expect(await interactor.invoke()).toMatchObject({
       contractNoticeSent: true,
       contractAccepted: false,
       effectiveAt: DEADLINE,
@@ -108,7 +113,7 @@ describe("GetLegalStatusInteractor", () => {
     });
 
     vi.setSystemTime(new Date(DEADLINE));
-    expect(await interactor.invoke(user)).toMatchObject({ mustAccept: true });
+    expect(await interactor.invoke()).toMatchObject({ mustAccept: true });
   });
 
   it("uses the earliest current contract notice as the company deadline", async () => {
@@ -125,9 +130,8 @@ describe("GetLegalStatusInteractor", () => {
       }),
     );
 
-    const status = await new GetLegalStatusInteractor(repo).invoke(
-      createMockUser({ id: "admin-2", companyId: "company-1" }),
-    );
+    mockUser = createMockUser({ id: "admin-2", companyId: "company-1" });
+    const status = await new GetLegalStatusInteractor(repo).invoke();
     expect(status.effectiveAt).toBe(DEADLINE);
   });
 
@@ -145,9 +149,8 @@ describe("GetLegalStatusInteractor", () => {
       }),
     );
 
-    await expect(
-      new GetLegalStatusInteractor(repo).invoke(createMockUser({ id: "admin-2", companyId: "company-1" })),
-    ).resolves.toMatchObject({
+    mockUser = createMockUser({ id: "admin-2", companyId: "company-1" });
+    await expect(new GetLegalStatusInteractor(repo).invoke()).resolves.toMatchObject({
       contractNoticeSent: true,
       effectiveAt: DEADLINE,
       mustAccept: false,
@@ -165,13 +168,13 @@ describe("GetLegalStatusInteractor", () => {
 
     const role = createMockUser().role;
     if (!role) throw new Error("Expected the fixture user to have a role");
-    const member = createMockUser({
+    mockUser = createMockUser({
       id: "member-1",
       companyId: "company-1",
       role: { ...role, isSystemRole: false },
     });
 
-    expect(await new GetLegalStatusInteractor(repo).invoke(member)).toEqual({
+    expect(await new GetLegalStatusInteractor(repo).invoke()).toEqual({
       contractAccepted: true,
       contractNoticeSent: true,
       effectiveAt: null,
@@ -191,20 +194,23 @@ describe("GetLegalStatusInteractor", () => {
       ),
     );
 
-    expect(await new GetLegalStatusInteractor(repo).invoke(createMockUser())).toMatchObject({
+    expect(await new GetLegalStatusInteractor(repo).invoke()).toMatchObject({
       contractNoticeSent: false,
       effectiveAt: null,
       mustAccept: false,
     });
   });
 
-  it("does not query or enforce managed-service documents outside cloud mode", async () => {
-    mockEnv.APP_MODE = "self-hosted";
+  it.each(["self-hosted", "demo"] as const)(
+    "does not query or enforce managed-service documents in %s mode",
+    async (appMode) => {
+      mockEnv.APP_MODE = appMode;
 
-    expect(await new GetLegalStatusInteractor(repo).invoke(createMockUser())).toMatchObject({
-      contractNoticeSent: false,
-      mustAccept: false,
-    });
-    expect(findLegalEventsUnscoped).not.toHaveBeenCalled();
-  });
+      expect(await new GetLegalStatusInteractor(repo).invoke()).toMatchObject({
+        contractNoticeSent: false,
+        mustAccept: false,
+      });
+      expect(findLegalEventsUnscoped).not.toHaveBeenCalled();
+    },
+  );
 });

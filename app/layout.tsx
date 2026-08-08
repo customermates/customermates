@@ -165,7 +165,7 @@ export default async function RootLayout({ children }: Props) {
         getGetSubscriptionInteractor().invoke(),
         getGetUnreadThreadCountInteractor().invoke(),
         getGetMyConnectedAccountsInteractor().invoke(),
-        getGetLegalStatusInteractor().invoke(user),
+        getGetLegalStatusInteractor().invoke(),
       ]);
       company = companyResult.data;
       terminology = companyResult.data.terminology.presets;

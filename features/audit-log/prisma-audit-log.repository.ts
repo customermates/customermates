@@ -14,7 +14,7 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { DomainEvent } from "@/features/event/domain-events";
-import { parseLegalAcceptanceAuditPayload, parseLegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
+import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from "@/features/legal/legal-audit.schema";
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
@@ -155,19 +155,21 @@ export class PrismaAuditLogRepo
       };
 
       if (event === DomainEvent.LEGAL_NOTICE_SENT) {
+        const payload = LegalNoticeAuditPayloadSchema.safeParse(this.auditPayload(record.eventData));
         legalRecords.push({
           ...base,
           event: DomainEvent.LEGAL_NOTICE_SENT,
-          payload: parseLegalNoticeAuditPayload(this.auditPayload(record.eventData)),
+          payload: payload.success ? payload.data : null,
         });
         continue;
       }
 
       if (event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED) {
+        const payload = LegalAcceptanceAuditPayloadSchema.safeParse(this.auditPayload(record.eventData));
         legalRecords.push({
           ...base,
           event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-          payload: parseLegalAcceptanceAuditPayload(this.auditPayload(record.eventData)),
+          payload: payload.success ? payload.data : null,
         });
       }
     }

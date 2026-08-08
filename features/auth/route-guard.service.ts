@@ -50,7 +50,7 @@ export class RouteGuardService {
       return redirectTo("/onboarding/wizard");
 
     if (!options?.skipLegalAcceptanceCheck && env.APP_MODE === "cloud") {
-      const legalStatus = await this.getLegalStatusInteractor.invoke(user);
+      const legalStatus = await this.getLegalStatusInteractor.invoke();
       if (legalStatus.mustAccept) return redirectTo("/legal-update");
     }
 

@@ -1,7 +1,9 @@
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
-import type { TenantUser } from "@/features/user/user.schema";
 
 import { CONTRACT_LEGAL_DOCUMENTS, hasCurrentLegalDocumentVersions } from "@/constants/legal-documents";
+import { UserAccessor } from "@/core/base/user-accessor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
 import { hasValidLegalNoticeEffectiveAt } from "@/features/legal/legal-audit.schema";
 import { env } from "@/env";
@@ -21,18 +23,22 @@ const NO_LEGAL_UPDATE: Omit<LegalUpdateStatus, "isSystemAdministrator"> = {
   mustAccept: false,
 };
 
-export class GetLegalStatusInteractor {
-  constructor(private repo: LegalAuditRepo) {}
+@AllowInDemoMode
+@TenantInteractor()
+export class GetLegalStatusInteractor extends UserAccessor {
+  constructor(private repo: LegalAuditRepo) {
+    super();
+  }
 
-  async invoke(user: TenantUser): Promise<LegalUpdateStatus> {
-    const isSystemAdministrator = user.role?.isSystemRole === true;
+  async invoke(): Promise<LegalUpdateStatus> {
+    const isSystemAdministrator = this.user.role?.isSystemRole === true;
     if (env.APP_MODE !== "cloud") return { ...NO_LEGAL_UPDATE, isSystemAdministrator };
 
-    const records = await this.repo.findLegalEventsUnscoped(user.companyId);
+    const records = await this.repo.findLegalEventsUnscoped(this.companyId);
     const contractAccepted = records.some(
       (record) =>
         record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
-        record.entityId === user.companyId &&
+        record.entityId === this.companyId &&
         hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
     );
 

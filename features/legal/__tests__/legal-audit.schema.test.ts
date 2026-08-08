@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import {
   hasValidLegalNoticeEffectiveAt,
-  parseLegalAcceptanceAuditPayload,
-  parseLegalNoticeAuditPayload,
+  LegalAcceptanceAuditPayloadSchema,
+  LegalNoticeAuditPayloadSchema,
   type LegalAcceptanceAuditPayload,
   type LegalNoticeAuditPayload,
 } from "../legal-audit.schema";
@@ -22,10 +22,10 @@ const acceptancePayload: LegalAcceptanceAuditPayload = {
   acceptanceType: "later-update",
 };
 
-describe("legal audit payload parsing", () => {
+describe("legal audit payload schemas", () => {
   it("accepts complete notice and acceptance payloads", () => {
-    expect(parseLegalNoticeAuditPayload(noticePayload)).toEqual(noticePayload);
-    expect(parseLegalAcceptanceAuditPayload(acceptancePayload)).toEqual(acceptancePayload);
+    expect(LegalNoticeAuditPayloadSchema.parse(noticePayload)).toEqual(noticePayload);
+    expect(LegalAcceptanceAuditPayloadSchema.parse(acceptancePayload)).toEqual(acceptancePayload);
   });
 
   it.each([
@@ -36,7 +36,7 @@ describe("legal audit payload parsing", () => {
     { ...noticePayload, changedDocuments: ["unknown"] },
     { ...noticePayload, effectiveAt: "not-a-date" },
   ])("rejects malformed notice evidence %#", (payload) => {
-    expect(parseLegalNoticeAuditPayload(payload)).toBeNull();
+    expect(LegalNoticeAuditPayloadSchema.safeParse(payload).success).toBe(false);
   });
 
   it.each([
@@ -46,7 +46,7 @@ describe("legal audit payload parsing", () => {
     { ...acceptancePayload, versions: { terms: "2026-08-07" } },
     { ...acceptancePayload, acceptanceType: "silent" },
   ])("rejects malformed acceptance evidence %#", (payload) => {
-    expect(parseLegalAcceptanceAuditPayload(payload)).toBeNull();
+    expect(LegalAcceptanceAuditPayloadSchema.safeParse(payload).success).toBe(false);
   });
 
   it("requires an actual valid deadline where a workflow needs one", () => {

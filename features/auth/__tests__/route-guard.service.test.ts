@@ -121,6 +121,7 @@ describe("RouteGuardService.resolveAccess", () => {
       redirect: "/legal-update",
     });
     expect(mocks.getLegalStatus).toHaveBeenCalledTimes(1);
+    expect(mocks.getLegalStatus).toHaveBeenCalledWith();
     expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
