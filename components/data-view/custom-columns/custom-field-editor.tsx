@@ -4,7 +4,6 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { Mail, Phone } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 import { CustomColumnType } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -36,13 +35,12 @@ function formStringToNumber(value: string | undefined): number | undefined {
 }
 
 export const CustomFieldEditor = observer(({ column, value, onChange, id, label, hideLabel = false }: Props) => {
-  const t = useTranslations();
   const copy = useCopyToClipboard();
   const { intlStore } = useRootStore();
 
   const inputId = `custom-field-editor-${column.id}`;
   const resolvedLabel = label === undefined ? column.label : label;
-  const formLabel: string | null | undefined = hideLabel ? null : (resolvedLabel ?? t("Common.inputs." + inputId));
+  const formLabel = hideLabel ? null : resolvedLabel;
 
   switch (column.type) {
     case CustomColumnType.singleSelect:

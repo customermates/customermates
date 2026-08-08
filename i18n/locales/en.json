@@ -30,11 +30,9 @@
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
-    "changes": "Changes",
     "createdAt": "Created At",
     "deletedField": "Deleted field",
     "deletedFieldChanged": "Value changed on a field that has since been deleted.",
-    "emptyHistory": "No change history available for this entry.",
     "entity": "Element",
     "entityId": "Element ID",
     "event": "Event",
@@ -44,7 +42,6 @@
     "relationsAdded": "{field} Added",
     "relationsDeleted": "{field} Removed",
     "title": "Audit Log Details",
-    "titleHistory": "Change History",
     "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}",
     "userId": "User"
   },
@@ -97,79 +94,39 @@
     "actions": {
       "add": "Add",
       "addCustomField": "Add Field",
-      "approve": "Approve",
       "back": "Back",
       "cancel": "Cancel",
       "clear": "Clear",
-      "close": "Close",
-      "collapse": "Collapse",
       "contact": "Contact",
-      "continue": "Continue",
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
-      "create": "Create",
       "delete": "Delete",
       "deleteCustomFields": "Delete Field",
       "discard": "Discard",
-      "edit": "Edit",
       "editCustomFields": "Edit Field",
-      "expand": "Expand",
       "labelData": "Data",
       "labelHistory": "History",
       "labelNotes": "Notes",
       "loadMore": "Load more",
       "openApp": "Open app",
-      "openFullPage": "Open full page",
       "openList": "Open list",
-      "readMore": "See more",
       "refresh": "Refresh",
       "reset": "Reset",
       "save": "Save",
-      "scheduleDemo": "Schedule Demo",
-      "showAll": "Show all",
-      "showFewer": "Show fewer",
-      "showHistory": "Show history",
-      "showMasterData": "Show data",
-      "showNotes": "Show notes",
-      "showSideBySide": "Show both",
-      "signIn": "Login",
-      "submit": "Submit",
-      "update": "Update",
-      "view": "View"
+      "signIn": "Login"
     },
     "ariaLabels": {
-      "close": "Close",
-      "closeMenu": "Close menu",
       "collapseSearch": "Collapse search",
-      "dataTable": "Data table",
-      "dragToMove": "Drag to move",
-      "footer": "Footer",
-      "mainContent": "Main content",
-      "navigation": "Navigation",
-      "nothingFound": "Nothing found",
-      "openMenu": "Open menu",
-      "profileActions": "Profile Actions",
-      "profileAndActions": "Profile & Actions",
       "selectOption": "Select an option",
       "switchToCardView": "Switch to card view",
       "switchToKanbanView": "Switch to kanban view",
       "switchToKanbanViewDisabled": "Add a single-select custom field to enable kanban view",
       "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
-      "tooltipAdd": "Add",
       "tooltipFields": "Appearance",
-      "tooltipFilters": "Filters",
-      "tooltipGroupBy": "Group by",
-      "tooltipSearch": "Search",
-      "tooltipSort": "Sort"
+      "tooltipFilters": "Filters"
     },
-    "avatarUrl": "Profile Picture",
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
-    "backToProdCta": "Back to Homepage",
-    "benjamin": {
-      "name": "Benjamin Wagner",
-      "title": "Founder @ Customermates"
-    },
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -179,12 +136,6 @@
       "warning": "Yellow"
     },
     "company": "Company",
-    "country": "Country",
-    "currency": "Currency",
-    "customColumn": {
-      "deleteMessage": "Are you sure you want to delete this column? This action cannot be undone.",
-      "deleteTitle": "Delete Column"
-    },
     "customColumnTypes": {
       "currency": "Currency",
       "date": "Date",
@@ -197,27 +148,19 @@
       "plain": "Text",
       "singleSelect": "Single Select"
     },
-    "dark": "Dark",
     "datePresets": {
       "endTime": "End time",
-      "in2Weeks": "In 2 weeks",
-      "in3Days": "In 3 days",
       "inAMonth": "In a month",
       "inAWeek": "In a week",
       "inAYear": "In a year",
       "next7Days": "Next 7 days",
       "next30Days": "Next 30 days",
       "nextMonth": "Next month",
-      "nextWeek": "Next week",
       "startTime": "Start time",
       "thisMonth": "This month",
-      "thisWeek": "This week",
-      "today": "Today",
-      "tomorrow": "Tomorrow"
+      "today": "Today"
     },
-    "de": "Deutsch",
     "default": "Default",
-    "defaultColor": "Default Color",
     "defaultData": {
       "contact": {
         "columnLabel": "Sales Pipeline",
@@ -271,7 +214,6 @@
       "readOnlyTitle": "No {plural} yet",
       "title": "No {plural} yet"
     },
-    "en": "English",
     "errors": {
       "activityScopeRequiresBoth": "entityType and entityId must be provided together to scope to one record.",
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
@@ -389,10 +331,6 @@
         "documents_accepted": "Legal Documents Accepted",
         "notice_sent": "Legal Notice Sent"
       },
-      "message": {
-        "received": "Message Received",
-        "sent": "Message Sent"
-      },
       "messaging": {
         "calendar": {
           "changed": "Calendar Changed"
@@ -449,41 +387,28 @@
       }
     },
     "filters": {
-      "activeFilters": "Active Filters",
       "apply": "Apply",
       "clearAll": "Clear All",
       "clearSearch": "Clear search",
-      "closeFilters": "Close Filters",
       "daysPlaceholder": "Days",
       "daysPreset": "{count, plural, =1 {1 day} other {# days}}",
       "daysSuffix": "days",
-      "editCurrent": "Edit filters",
       "fields": {
-        "assignedUserId": "Assigned",
+        "calendarId": "Calendar",
         "connectedAccountId": "Channel",
-        "contactIds": "Contact",
         "createdAt": "Created at",
-        "dealIds": "Deal",
-        "emails": "Emails",
         "event": "Event",
-        "organizationIds": "Organization",
-        "participantContactId": "Contact",
         "participants": "Participants",
         "provider": "Provider",
-        "serviceIds": "Service",
+        "startsAt": "Starts at",
         "state": "State",
         "status": "Status",
-        "taskIds": "Task",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
-        "unread": "Unread",
         "updatedAt": "Updated at",
+        "url": "URL",
         "userIds": "Assigned"
       },
-      "filterBy": "Filter by {field}",
-      "filterCount": "{count} filter{count, plural, =1 {} other {s}}",
-      "noFilters": "No filters applied",
-      "openFilters": "Open Filters",
       "operators": {
         "allSet": "fully linked",
         "between": "between",
@@ -504,76 +429,48 @@
       },
       "presets": {
         "add": "Save as preset…",
-        "cancelEditing": "Cancel",
-        "clearPreset": "Clear preset",
-        "createOrUpdate": "Create or update preset",
-        "deleteConfirm": "Are you sure you want to delete this saved filter?",
         "label": "Preset",
         "namePlaceholder": "Preset name",
-        "new": "+ Create new filter",
-        "none": "No preset",
-        "select": "Saved filters"
+        "none": "No preset"
       },
       "searchLabel": "Search",
       "selectOperator": "Select a condition…",
       "unavailableValue": "Filter not available"
     },
-    "firstName": "First name",
     "imageAlt": {
-      "avatar": "Profile picture of {name}",
-      "background": "Background pattern",
       "countryFlag": "Flag of {country}",
-      "feature": "Feature illustration for {feature}",
-      "hero": "Hero image for {page}",
-      "logo": "Customermates logo",
-      "mission": "Mission illustration for {mission}",
-      "providerIcon": "{provider} sign-in icon"
+      "logo": "Customermates logo"
     },
     "inputs": {
-      "add": "Add",
       "addOption": "Add \"{value}\"",
-      "address": "Address",
       "aggregationType": "Metric",
-      "agreeToTerms": "I agree to the terms and conditions",
       "amount": "Amount",
-      "apiKey": "API Key",
-      "assignedUserId": "Assigned User",
       "avatarUrl": "Avatar URL",
       "company": "Company",
       "confirmEmail": "Confirm Email",
       "confirmPassword": "Confirm Password",
-      "contactIds": "Contacts",
       "country": "Country",
       "currency": "Currency",
-      "customFieldValues": "Custom Fields",
-      "dealIds": "Deals",
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
         "barColors": "Bar Colors",
         "displayType": "Display Type",
-        "groupBy": "Group By",
-        "horizontal": "Show horizontally",
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
         "showFilters": "Show filters",
         "showLegend": "Show legend",
-        "useGroupColors": "Use option colors",
-        "vertical": "Show vertically"
+        "useGroupColors": "Use option colors"
       },
-      "displayType": "Display Type",
       "email": "Email",
       "emails": "Emails",
       "emptyContent": "No results found",
-      "endDate": "End Date",
       "entityType": "Element",
       "events": "Events",
-      "expiresIn": "Expires at",
       "feedback": "Feedback",
       "firstName": "First Name",
       "formattingLocale": "Formatting Locale",
       "groupByValue": "Grouping",
-      "inviteLink": "Invitation Link",
       "isTemplate": "Share as template for other users of your organization",
       "label": "Label",
       "lastName": "Last Name",
@@ -585,76 +482,17 @@
         "currency": "Currency",
         "displayFormat": "Format"
       },
-      "organizationId": "Organization",
-      "organizationIds": "Organizations",
-      "pageSize": "Page Size",
       "password": "Password",
-      "permissions": {
-        "api": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "auditLog": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "company": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "contacts": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "deals": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "organizations": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "services": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "tasks": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "users": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        },
-        "widgets": {
-          "canManage": "Manage rights",
-          "readAccess": "Read rights"
-        }
-      },
-      "phone": "Phone",
-      "phones": "Phone",
-      "presetId": "Saved filters",
-      "provider": "Provider",
-      "rememberMe": "Remember me",
       "roleId": "Role",
       "secret": "Secret",
-      "serviceIds": "Services",
-      "services": "Services",
-      "startDate": "Start Date",
-      "state": "State",
       "status": "Status",
-      "taskIds": "Tasks",
       "template": "Template",
       "theme": "Theme",
-      "title": "Title",
       "type": "Type",
       "url": "URL",
       "userIds": "Assigned"
     },
-    "label": "Label",
     "language": "Language",
-    "lastName": "Last name",
-    "light": "Light",
     "locales": {
       "de": "German",
       "en": "English",
@@ -663,8 +501,6 @@
       "it": "Italian",
       "system": "System"
     },
-    "multiple": "Multiple",
-    "name": "Name",
     "navigationGuard": {
       "message": "You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.",
       "title": "Unsaved Changes"
@@ -687,70 +523,44 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
-    "role": "Role",
-    "single": "Single",
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "direction": "Direction",
       "field": "Sort by"
     },
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
-        "description": "A user has accepted your invitation. Please approve the user to accept the invitation.",
         "title": "Approve User"
       }
     },
     "table": {
-      "ariaLabel": "Data table",
       "columns": {
-        "account": "Account",
-        "age": "Age",
         "amount": "Amount",
-        "assignedUser": "Assigned",
         "avatarUrl": "Avatar",
         "channels": "Channels",
         "contacts": "Contacts",
-        "created": "Created at",
         "createdAt": "Created at",
         "deals": "Deals",
         "description": "Description",
-        "displayName": "Display Name",
         "email": "E-Mail",
-        "emailAddress": "Email Address",
-        "emails": "Emails",
-        "enabled": "Enabled",
-        "endDate": "End Date",
         "entity": "Element",
         "entityId": "Element ID",
         "event": "Event",
         "events": "Events",
         "expiresAt": "Expires at",
         "firstName": "First Name",
-        "id": "id",
         "identifiers": "Channels",
-        "lastMessageAt": "Last message",
         "lastName": "Last Name",
         "lastRequest": "Last used",
         "name": "Name",
         "notes": "Notes",
-        "organization": "Organization",
         "organizations": "Organizations",
-        "participants": "Participants",
-        "phones": "Phone",
         "role": "Role",
-        "selectLabel": "Table Columns",
         "services": "Services",
-        "startDate": "Start Date",
-        "state": "State",
         "status": "Status",
         "statusCode": "Status Code",
-        "subject": "Subject",
         "tasks": "Tasks",
-        "team": "Team",
-        "title": "Title",
-        "total": "Total",
         "totalQuantity": "Service Quantity",
         "totalValue": "Deal Value",
         "type": "Type",
@@ -763,63 +573,24 @@
       "groupBy": "Group By",
       "layout": "Layout",
       "nextPage": "Next page",
-      "pageSize": "Page size",
       "paginationEmpty": "0 of 0",
       "paginationRange": "{from}-{to} of {total}",
       "previousPage": "Previous page",
-      "search": "Search...",
-      "ungrouped": "Ungrouped"
+      "search": "Search..."
     },
     "tags": {
       "feature": "Feature",
       "industry": "Industry"
     },
-    "theme": "Theme",
     "themes": {
       "dark": "Dark",
       "light": "Light",
       "system": "System"
     },
-    "type": "Type",
-    "types": {
-      "array": "array",
-      "bigint": "bigint",
-      "boolean": "boolean",
-      "date": "date",
-      "float": "float",
-      "function": "function",
-      "integer": "integer",
-      "map": "map",
-      "nan": "nan",
-      "never": "never",
-      "null": "null",
-      "number": "number",
-      "object": "object",
-      "promise": "promise",
-      "set": "set",
-      "string": "string",
-      "symbol": "symbol",
-      "undefined": "undefined",
-      "unknown": "unknown",
-      "void": "void"
-    },
-    "username": "Username",
-    "userRoles": {
-      "admin": "Admin",
-      "member": "Member"
-    },
     "userStatuses": {
       "active": "Active",
       "inactive": "Inactive",
       "pendingAuthorization": "Waiting for approval"
-    },
-    "validations": {
-      "cuid": "cuid",
-      "datetime": "datetime",
-      "email": "email",
-      "regex": "regex",
-      "url": "url",
-      "uuid": "uuid"
     }
   },
   "CompanyInvite": {
@@ -922,15 +693,13 @@
     "calendarCancelled": "Cancelled",
     "calendarJoinMeeting": "Join meeting",
     "calendarMeeting": "Meeting",
-    "calendarOrganizer": "Organizer",
     "calendarResponseMaybe": "Maybe",
     "calendarResponseNo": "Declined",
     "calendarResponseNoreply": "No reply",
     "calendarResponseYes": "Accepted",
     "linkedinConnectionAccepted": "LinkedIn connection accepted",
     "linkedinOpenProfile": "Open LinkedIn profile",
-    "noActivity": "No activity yet for this contact.",
-    "openInInbox": "Open in inbox"
+    "noActivity": "No activity yet for this contact."
   },
   "ContactModal": {
     "title": "Contact"
@@ -963,16 +732,12 @@
   },
   "Dashboard": {
     "addCard": "Add Chart",
-    "aggregationType": "Aggregation Type",
     "aggregationTypes": {
       "count": "Count {entities}",
       "dealQuantity": "Number of {services} in {deals}",
       "dealValue": "{deal} value",
-      "dealValueRelated": "{deal} value related to {entity}",
-      "field": "Field"
+      "dealValueRelated": "{deal} value related to {entity}"
     },
-    "barColors": "Bar Colors",
-    "displayType": "Display Type",
     "displayTypes": {
       "doughnutChart": "Doughnut Chart",
       "horizontalBarChart": "Horizontal Bar Chart",
@@ -981,53 +746,17 @@
       "verticalBarChart": "Vertical Bar Chart",
       "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
     },
-    "endDate": "End Date",
-    "entityType": "Element",
-    "entityTypes": {
-      "contact": "Contact",
-      "deal": "Deal",
-      "organization": "Organization",
-      "service": "Service",
-      "task": "Task"
-    },
-    "greeting": "Good day",
-    "greetingName": "Good day, {name}",
-    "groupBy": "Group By",
     "groupBys": {
-      "contact": "Contact",
-      "deal": "Deal",
-      "none": "No Grouping",
-      "organization": "Organization",
-      "service": "Service"
+      "none": "No Grouping"
     },
-    "horizontal": "Show horizontally",
-    "isTemplate": "Share as template for other users of your organization",
-    "limit": "Max. number of entries",
-    "reverseXAxis": "Reverse X-axis",
-    "reverseYAxis": "Reverse Y-axis",
-    "selectWidgetTemplate": "Chart Template",
     "selectWidgetTemplateDescription": "You can select existing charts from members of your organizations and use them as a template for your new chart.",
-    "startDate": "Start Date",
     "tabs": {
       "config": "Configuration",
       "dealFilters": "Filters for {deals}",
       "display": "Display",
       "filters": "{entityType} Filters"
     },
-    "ungrouped": "Ungrouped",
-    "widget": "Chart",
-    "widgetTitle": "Title",
-    "widgetType": "Type",
-    "widgetTypes": {
-      "quantity": {
-        "description": "Shows the total quantity of services assigned to deals per period. Quantities are aggregated by your Group by selection to compare segments.",
-        "short": "Service quantity over time"
-      },
-      "value": {
-        "description": "Shows the total monetary value of deal-related services per period. Values are aggregated by your Group by selection (e.g., organization, contact, service, or custom column).",
-        "short": "Deal value over time"
-      }
-    }
+    "widget": "Chart"
   },
   "DealModal": {
     "noServicesAdded": "No {entity} added yet",
@@ -1383,8 +1112,6 @@
     "taglinePre": "Bring your own AI. Customermates speaks"
   },
   "Inbox": {
-    "ariaBackToInbox": "Back to inbox",
-    "attachmentAudio": "Voice message",
     "attachmentCount": "{count, plural, one {# attachment:} other {# attachments:}}",
     "attachmentFile": "File",
     "attachmentImage": "Image",
@@ -1393,8 +1120,6 @@
     "attachmentUnavailable": "Attachment unavailable",
     "attachmentUnknown": "Unsupported",
     "attachmentUnsupported": "This message type isn't supported here. Open in the native app.",
-    "attachmentVideo": "Video",
-    "attachmentVoice": "Voice note",
     "compose": {
       "attachFiles": "Attach files",
       "attachRemove": "Remove attachment",
@@ -1404,11 +1129,8 @@
       "ccLabel": "Cc",
       "createContact": "Create \"{query}\"",
       "draftDiscard": "Discard",
-      "draftDiscarded": "Draft discarded",
       "draftDiscardFailed": "Couldn't discard the draft",
       "draftEdit": "Edit",
-      "draftLabel": "Draft",
-      "draftSaved": "Draft saved",
       "draftSendNow": "Send draft",
       "emailContent": "Email content",
       "emojiPicker": "Insert emoji",
@@ -1423,9 +1145,6 @@
       "saveDraft": "Save as draft",
       "send": "Send",
       "sendAs": "Send as",
-      "sending": "Sending…",
-      "sendQueuedDescription": "Your provider is sending it now. The message appears in your inbox once the provider confirms delivery.",
-      "sendQueuedTitle": "Message queued",
       "subjectPlaceholder": "Subject",
       "toLabel": "To",
       "typeMessage": "Type a message...",
@@ -1433,10 +1152,8 @@
       "updateDraft": "Update draft",
       "writeReply": "Write a reply..."
     },
-    "conversation": "Conversation",
     "dateToday": "Today",
     "dateYesterday": "Yesterday",
-    "description": "Messages from your connected channels.",
     "edited": "(edited)",
     "emptyState": "No messages yet. Connect a channel in your profile to start receiving messages.",
     "fileTypeExcel": "Excel spreadsheet",
@@ -1448,7 +1165,6 @@
     "hideQuotedText": "Hide quoted text",
     "learnMore": "Learn more",
     "linkedinContact": "LinkedIn contact",
-    "linkedinConversation": "LinkedIn conversation",
     "loadMedia": "Load media",
     "mediaUnavailable": "Media unavailable",
     "messageDeleted": "This message was deleted",
@@ -1482,14 +1198,12 @@
       "people": "People",
       "title": "Thread settings",
       "tooltip": "Manage visibility and people",
-      "visibility": "Visibility",
       "visibilityHint": "Private conversations are only visible to you. Share to CRM makes just this conversation visible to your whole team.",
       "visibilityTitle": "Visibility Settings"
     },
     "shareToCrmActive": "Shared to CRM, visible to your whole team",
     "shareToCrmPrivate": "Private Thread",
     "shareToCrmPrivateToast": "Conversation is now private",
-    "shareToCrmShare": "Share",
     "shareToCrmShared": "Shared Thread",
     "shareToCrmSharedToast": "Shared to CRM",
     "shareToCrmUpdateFailed": "Could not update visibility",
@@ -1504,7 +1218,6 @@
       "spam": "Spam",
       "unread": "Unread"
     },
-    "title": "Inbox",
     "unlinkedParticipants": "Some participants not linked to a contact",
     "youPrefix": "You:"
   },
@@ -1586,29 +1299,19 @@
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
     "affiliate": "Affiliate Program",
-    "apiDocs": "API Documentation",
     "automation": "Automation",
-    "blog": "Blog",
     "connectedAccounts": "Channels",
-    "contacts": "Contacts",
     "crm": "CRM",
     "dashboard": "Dashboard",
-    "deals": "Deals",
     "docs": "Documentation",
-    "faq": "FAQ",
     "features": "Features",
     "inbox": "Inbox",
     "members": "Members",
-    "mission": "Mission",
-    "organizations": "Organizations",
     "overview": "Overview",
     "pricing": "Pricing",
     "search": "Search",
-    "services": "Services",
     "settings": "Settings",
     "subscription": "Subscription",
-    "tasks": "Tasks",
-    "webhooks": "Webhooks",
     "workspace": "Workspace"
   },
   "NotFoundPage": {
@@ -1701,7 +1404,6 @@
         }
       }
     },
-    "avatarDescription": "Optional. Paste a link to a photo of yourself. It must be publicly accessible (so anyone with the link can see it). Leave it blank and we'll show your initials instead.",
     "back": "Back",
     "continue": "Continue",
     "finish": "Finish",
@@ -1722,12 +1424,10 @@
     "progress": "Step {current} of {total}",
     "steps": {
       "ai": {
-        "placeholder": "AI integration placeholder",
         "subtitle": "Choose one to connect now. You can add the others later.",
         "title": "Connect your AI"
       },
       "invite": {
-        "placeholder": "Invite team placeholder",
         "subtitle": "Share a link or send email invitations.",
         "title": "Invite your team"
       },
@@ -1761,9 +1461,7 @@
     "title": "Reset your password"
   },
   "RoleModal": {
-    "descriptionLabel": "Description",
     "manageAccess": "Manage",
-    "nameLabel": "Name",
     "no": "No",
     "readAccess": "Read access",
     "readAll": "All",
@@ -1780,8 +1478,7 @@
       "organizations": "Organizations",
       "services": "Services",
       "tasks": "Tasks",
-      "users": "Users & Roles",
-      "widgets": "Dashboard & Charts"
+      "users": "Users & Roles"
     },
     "systemAlert": "This is a system role and cannot be edited or deleted.",
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
@@ -1934,9 +1631,7 @@
     "lightMode": "Light Mode",
     "profile": "My Profile",
     "settings": "Settings",
-    "signOut": "Sign Out",
-    "tasks": "Tasks",
-    "theme": "Theme"
+    "signOut": "Sign Out"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Controls the UI language: labels, buttons, etc.",
@@ -1971,12 +1666,10 @@
     },
     "entity": "Element",
     "event": "Event",
-    "failed": "Failed",
     "requestBody": "Request Body",
     "resend": "Resend",
     "responseMessage": "Response Message",
     "statusCode": "Status Code",
-    "success": "Success",
     "title": "Event Details",
     "url": "URL"
   },

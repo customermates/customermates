@@ -11,15 +11,10 @@ const REPO_ROOT = process.cwd();
 const STRICT = process.argv.includes("--strict");
 
 const SHARED_VALUE_PREFIXES = [
-  "Common.types.",
-  "Common.validations.",
   "Common.providers.",
   "Common.filters.operators.",
   "Common.seedData.contact.",
   "Common.seedData.organization.",
-  "Common.benjamin.name",
-  "Common.de",
-  "Common.en",
   "DocsSidebar.mcp",
   "DocsSidebar.n8n",
   "DocsSidebar.openapi",
@@ -40,7 +35,11 @@ const GLOSSARY: Record<string, Record<string, string>> = {
   Contacts: { fr: "contact", it: "contatt", es: "contact" },
   Task: { fr: "tâche", it: "attività", es: "tarea" },
   Tasks: { fr: "tâche", it: "attività", es: "tarea" },
-  Inbox: { fr: "boîte de réception", it: "posta in arrivo", es: "bandeja de entrada" },
+  Inbox: {
+    fr: "boîte de réception",
+    it: "posta in arrivo",
+    es: "bandeja de entrada",
+  },
 };
 
 const LENGTH_RATIO_LIMIT = 2.6;
@@ -148,7 +147,9 @@ for (const locale of others) {
     for (const [value, keys] of collisions) {
       const sources = new Set(keys.map((key) => reference.get(key)));
       if (sources.size > 1) {
-        collided.push(`${namespace}: ${JSON.stringify(value)} <- ${[...sources].map((s) => JSON.stringify(s)).join(" + ")}`);
+        collided.push(
+          `${namespace}: ${JSON.stringify(value)} <- ${[...sources].map((s) => JSON.stringify(s)).join(" + ")}`,
+        );
       }
     }
   }

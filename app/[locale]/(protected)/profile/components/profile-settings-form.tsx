@@ -123,7 +123,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;
           if (locale !== previousDisplayLanguage) {
-            const targetLocale = locale === Locale.system ? currentLocale : appLocaleOrDefault(locale);
+            const targetLocale = locale === Locale.system ? detectBrowserUiLocale() : appLocaleOrDefault(locale);
             navigationGuard.tryNavigate(() => {
               window.location.href = `/${targetLocale}${pathname}`;
             });

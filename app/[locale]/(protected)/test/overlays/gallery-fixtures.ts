@@ -68,7 +68,7 @@ export const GERMAN_FIXTURES: GermanFixture[] = [
   { sourceKey: "Inbox.compose.retry", value: "Erneut versuchen" },
   { sourceKey: "ConnectedAccountsCard.resync", value: "Neu synchronisieren" },
   { sourceKey: "RolesCard.custom", value: "Benutzerdefiniert" },
-  { sourceKey: "Common.actions.update", value: "Aktualisieren" },
+  { sourceKey: "Common.actions.refresh", value: "Aktualisieren" },
   { sourceKey: "Inbox.settings.title", value: "Unterhaltungseinstellungen" },
   { sourceKey: "Common.ariaLabels.themeSwitcher", value: "Darstellungsmodus-Umschalter" },
 ];

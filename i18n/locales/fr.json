@@ -26,25 +26,22 @@
     "title": "Créer une clé API"
   },
   "ApiKeysCard": {
-    "title": "Clés API",
+    "title": "API et connecteurs",
     "unnamed": "Sans nom"
   },
   "AuditLogModal": {
-    "changes": "Modifications",
     "createdAt": "Créé le",
     "deletedField": "Champ supprimé",
     "deletedFieldChanged": "Valeur modifiée sur un champ supprimé depuis.",
-    "emptyHistory": "Aucun historique de modification pour cette entrée.",
     "entity": "Élément",
     "entityId": "ID de l'élément",
     "event": "Évènement",
     "eventAt": "{event} le {date}",
     "eventData": "Données de l'évènement",
     "noValue": "Aucune valeur",
-    "relationsAdded": "{field} ajoutés",
-    "relationsDeleted": "{field} supprimés",
+    "relationsAdded": "Ajouts : {field}",
+    "relationsDeleted": "Suppressions : {field}",
     "title": "Détails du journal d'audit",
-    "titleHistory": "Historique des modifications",
     "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}",
     "userId": "Utilisateur"
   },
@@ -97,79 +94,39 @@
     "actions": {
       "add": "Ajouter",
       "addCustomField": "Ajouter un champ",
-      "approve": "Approuver",
       "back": "Retour",
       "cancel": "Annuler",
       "clear": "Effacer",
-      "close": "Fermer",
-      "collapse": "Réduire",
       "contact": "Contacter",
-      "continue": "Continuer",
       "continueSetup": "Poursuivre la configuration",
       "copy": "Copier dans le presse-papiers",
-      "create": "Créer",
       "delete": "Supprimer",
       "deleteCustomFields": "Supprimer le champ",
       "discard": "Abandonner",
-      "edit": "Modifier",
       "editCustomFields": "Modifier le champ",
-      "expand": "Développer",
       "labelData": "Données",
       "labelHistory": "Historique",
       "labelNotes": "Notes",
       "loadMore": "Charger plus",
       "openApp": "Ouvrir l'application",
-      "openFullPage": "Ouvrir en pleine page",
       "openList": "Ouvrir la liste",
-      "readMore": "Voir plus",
       "refresh": "Actualiser",
       "reset": "Réinitialiser",
       "save": "Enregistrer",
-      "scheduleDemo": "Planifier une démo",
-      "showAll": "Tout afficher",
-      "showFewer": "Afficher moins",
-      "showHistory": "Afficher l'historique",
-      "showMasterData": "Afficher les données",
-      "showNotes": "Afficher les notes",
-      "showSideBySide": "Afficher les deux",
-      "signIn": "Connexion",
-      "submit": "Envoyer",
-      "update": "Mettre à jour",
-      "view": "Afficher"
+      "signIn": "Connexion"
     },
     "ariaLabels": {
-      "close": "Fermer",
-      "closeMenu": "Fermer le menu",
       "collapseSearch": "Réduire la recherche",
-      "dataTable": "Tableau de données",
-      "dragToMove": "Faire glisser pour déplacer",
-      "footer": "Pied de page",
-      "mainContent": "Contenu principal",
-      "navigation": "Navigation",
-      "nothingFound": "Aucun résultat",
-      "openMenu": "Ouvrir le menu",
-      "profileActions": "Actions du profil",
-      "profileAndActions": "Profil et actions",
       "selectOption": "Sélectionner une option",
       "switchToCardView": "Passer à la vue cartes",
       "switchToKanbanView": "Passer à la vue kanban",
       "switchToKanbanViewDisabled": "Ajoutez un champ personnalisé à choix unique pour activer la vue kanban",
       "switchToTableView": "Passer à la vue tableau",
       "themeSwitcher": "Sélecteur de thème",
-      "tooltipAdd": "Ajouter",
       "tooltipFields": "Apparence",
-      "tooltipFilters": "Filtres",
-      "tooltipGroupBy": "Grouper par",
-      "tooltipSearch": "Rechercher",
-      "tooltipSort": "Trier"
+      "tooltipFilters": "Filtres"
     },
-    "avatarUrl": "Photo de profil",
     "avatarUrlDescription": "Vous pouvez indiquer le lien d'une image qui servira d'avatar. L'image doit être accessible publiquement.",
-    "backToProdCta": "Retour à l'accueil",
-    "benjamin": {
-      "name": "Benjamin Wagner",
-      "title": "Fondateur @ Customermates"
-    },
     "colors": {
       "default": "Bleu",
       "destructive": "Rouge",
@@ -179,12 +136,6 @@
       "warning": "Jaune"
     },
     "company": "Entreprise",
-    "country": "Pays",
-    "currency": "Devise",
-    "customColumn": {
-      "deleteMessage": "Voulez-vous vraiment supprimer cette colonne ? Cette action est irréversible.",
-      "deleteTitle": "Supprimer la colonne"
-    },
     "customColumnTypes": {
       "currency": "Devise",
       "date": "Date",
@@ -197,27 +148,19 @@
       "plain": "Texte",
       "singleSelect": "Choix unique"
     },
-    "dark": "Sombre",
     "datePresets": {
       "endTime": "Heure de fin",
-      "in2Weeks": "Dans 2 semaines",
-      "in3Days": "Dans 3 jours",
       "inAMonth": "Dans un mois",
       "inAWeek": "Dans une semaine",
       "inAYear": "Dans un an",
       "next7Days": "7 prochains jours",
       "next30Days": "30 prochains jours",
       "nextMonth": "Mois prochain",
-      "nextWeek": "Semaine prochaine",
       "startTime": "Heure de début",
       "thisMonth": "Ce mois-ci",
-      "thisWeek": "Cette semaine",
-      "today": "Aujourd'hui",
-      "tomorrow": "Demain"
+      "today": "Aujourd'hui"
     },
-    "de": "Deutsch",
     "default": "Par défaut",
-    "defaultColor": "Couleur par défaut",
     "defaultData": {
       "contact": {
         "columnLabel": "Pipeline commercial",
@@ -271,7 +214,6 @@
       "readOnlyTitle": "Aucun élément « {plural} » pour le moment",
       "title": "Aucun élément « {plural} » pour le moment"
     },
-    "en": "English",
     "errors": {
       "activityScopeRequiresBoth": "entityType et entityId doivent être fournis ensemble pour cibler un seul enregistrement.",
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
@@ -280,7 +222,7 @@
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "contactNotFound": "ID de contact introuvable ou inaccessible.",
-      "contactRefRequired": "id doit être un UUID de contact, un e-mail ou un téléphone, ou 'fournisseur:valeur' pour un identifiant (par exemple 'linkedin:jdoe').",
+      "contactRefRequired": "id doit être un UUID de contact, une adresse e-mail ou un numéro de téléphone, ou 'provider:value' pour un identifiant (par exemple 'linkedin:jdoe').",
       "customColumnIdNotFound": "ID de colonne personnalisée introuvable ou inaccessible.",
       "customColumnNotFound": "ID de colonne personnalisée introuvable ou inaccessible. Colonnes disponibles : {validValues}.",
       "customColumnTypeMismatch": "Cette colonne personnalisée est de type {actualType}, pas {expectedType}. Définissez le type sur {actualType} pour la mettre à jour.",
@@ -389,10 +331,6 @@
         "documents_accepted": "Documents juridiques acceptés",
         "notice_sent": "Notification juridique envoyée"
       },
-      "message": {
-        "received": "Message reçu",
-        "sent": "Message envoyé"
-      },
       "messaging": {
         "calendar": {
           "changed": "Agenda modifié"
@@ -449,41 +387,28 @@
       }
     },
     "filters": {
-      "activeFilters": "Filtres actifs",
       "apply": "Appliquer",
       "clearAll": "Tout effacer",
       "clearSearch": "Effacer la recherche",
-      "closeFilters": "Fermer les filtres",
       "daysPlaceholder": "Jours",
       "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
       "daysSuffix": "jours",
-      "editCurrent": "Modifier les filtres",
       "fields": {
-        "assignedUserId": "Assigné à",
+        "calendarId": "Calendrier",
         "connectedAccountId": "Canal",
-        "contactIds": "Contact",
         "createdAt": "Créé le",
-        "dealIds": "Affaire",
-        "emails": "E-mails",
         "event": "Évènement",
-        "organizationIds": "Organisation",
-        "participantContactId": "Contact",
         "participants": "Participants",
         "provider": "Fournisseur",
-        "serviceIds": "Service",
+        "startsAt": "Commence le",
         "state": "État",
         "status": "Statut",
-        "taskIds": "Tâche",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
-        "unread": "Non lu",
         "updatedAt": "Mis à jour le",
+        "url": "URL",
         "userIds": "Assigné à"
       },
-      "filterBy": "Filtrer par {field}",
-      "filterCount": "{count} filtre{count, plural, =1 {} other {s}}",
-      "noFilters": "Aucun filtre appliqué",
-      "openFilters": "Ouvrir les filtres",
       "operators": {
         "allSet": "entièrement lié",
         "between": "entre",
@@ -504,76 +429,48 @@
       },
       "presets": {
         "add": "Enregistrer comme préréglage…",
-        "cancelEditing": "Annuler",
-        "clearPreset": "Effacer le préréglage",
-        "createOrUpdate": "Créer ou mettre à jour le préréglage",
-        "deleteConfirm": "Voulez-vous vraiment supprimer ce filtre enregistré ?",
         "label": "Préréglage",
         "namePlaceholder": "Nom du préréglage",
-        "new": "+ Créer un filtre",
-        "none": "Aucun préréglage",
-        "select": "Filtres enregistrés"
+        "none": "Aucun préréglage"
       },
       "searchLabel": "Rechercher",
       "selectOperator": "Sélectionner une condition…",
       "unavailableValue": "Filtre non disponible"
     },
-    "firstName": "Prénom",
     "imageAlt": {
-      "avatar": "Photo de profil de {name}",
-      "background": "Motif d'arrière-plan",
       "countryFlag": "Drapeau de {country}",
-      "feature": "Illustration de la fonctionnalité {feature}",
-      "hero": "Image principale de {page}",
-      "logo": "Logo Customermates",
-      "mission": "Illustration de la mission {mission}",
-      "providerIcon": "Icône de connexion {provider}"
+      "logo": "Logo Customermates"
     },
     "inputs": {
-      "add": "Ajouter",
       "addOption": "Ajouter \"{value}\"",
-      "address": "Adresse",
       "aggregationType": "Indicateur",
-      "agreeToTerms": "J'accepte les conditions générales",
       "amount": "Montant",
-      "apiKey": "Clé API",
-      "assignedUserId": "Utilisateur assigné",
       "avatarUrl": "URL de l'avatar",
       "company": "Entreprise",
       "confirmEmail": "Confirmer l'e-mail",
       "confirmPassword": "Confirmer le mot de passe",
-      "contactIds": "Contacts",
       "country": "Pays",
       "currency": "Devise",
-      "customFieldValues": "Champs personnalisés",
-      "dealIds": "Affaires",
       "description": "Description",
       "displayLanguage": "Langue d'affichage",
       "displayOptions": {
         "barColors": "Couleurs des barres",
         "displayType": "Type d'affichage",
-        "groupBy": "Grouper par",
-        "horizontal": "Afficher à l'horizontale",
         "reverseXAxis": "Inverser l'axe X",
         "reverseYAxis": "Inverser l'axe Y",
         "showFilters": "Afficher les filtres",
         "showLegend": "Afficher la légende",
-        "useGroupColors": "Utiliser les couleurs des options",
-        "vertical": "Afficher à la verticale"
+        "useGroupColors": "Utiliser les couleurs des options"
       },
-      "displayType": "Type d'affichage",
       "email": "E-mail",
       "emails": "E-mails",
       "emptyContent": "Aucun résultat",
-      "endDate": "Date de fin",
       "entityType": "Élément",
       "events": "Évènements",
-      "expiresIn": "Expire le",
       "feedback": "Commentaires",
       "firstName": "Prénom",
       "formattingLocale": "Format régional",
       "groupByValue": "Regroupement",
-      "inviteLink": "Lien d'invitation",
       "isTemplate": "Partager comme modèle avec les autres utilisateurs de votre organisation",
       "label": "Libellé",
       "lastName": "Nom",
@@ -585,76 +482,17 @@
         "currency": "Devise",
         "displayFormat": "Format"
       },
-      "organizationId": "Organisation",
-      "organizationIds": "Organisations",
-      "pageSize": "Taille de page",
       "password": "Mot de passe",
-      "permissions": {
-        "api": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "auditLog": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "company": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "contacts": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "deals": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "organizations": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "services": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "tasks": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "users": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        },
-        "widgets": {
-          "canManage": "Droits de gestion",
-          "readAccess": "Droits de lecture"
-        }
-      },
-      "phone": "Téléphone",
-      "phones": "Téléphone",
-      "presetId": "Filtres enregistrés",
-      "provider": "Fournisseur",
-      "rememberMe": "Se souvenir de moi",
       "roleId": "Rôle",
       "secret": "Secret",
-      "serviceIds": "Services",
-      "services": "Services",
-      "startDate": "Date de début",
-      "state": "État",
       "status": "Statut",
-      "taskIds": "Tâches",
       "template": "Modèle",
       "theme": "Thème",
-      "title": "Titre",
       "type": "Type",
       "url": "URL",
       "userIds": "Assigné à"
     },
-    "label": "Libellé",
     "language": "Langue",
-    "lastName": "Nom",
-    "light": "Clair",
     "locales": {
       "de": "Allemand",
       "en": "Anglais",
@@ -663,8 +501,6 @@
       "it": "Italien",
       "system": "Système"
     },
-    "multiple": "Multiple",
-    "name": "Nom",
     "navigationGuard": {
       "message": "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ? Vos modifications seront perdues.",
       "title": "Modifications non enregistrées"
@@ -687,70 +523,44 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
-    "role": "Rôle",
-    "single": "Unique",
     "sort": {
       "ascending": "Croissant",
       "descending": "Décroissant",
-      "direction": "Sens",
       "field": "Trier par"
     },
     "systemTasks": {
       "userPendingAuthorization": {
         "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche.",
-        "description": "Un utilisateur a accepté votre invitation. Approuvez-le pour valider l'invitation.",
         "title": "Approuver l'utilisateur"
       }
     },
     "table": {
-      "ariaLabel": "Tableau de données",
       "columns": {
-        "account": "Compte",
-        "age": "Ancienneté",
         "amount": "Montant",
-        "assignedUser": "Assigné à",
         "avatarUrl": "Avatar",
         "channels": "Canaux",
         "contacts": "Contacts",
-        "created": "Créé le",
         "createdAt": "Créé le",
         "deals": "Affaires",
         "description": "Description",
-        "displayName": "Nom affiché",
         "email": "E-mail",
-        "emailAddress": "Adresse e-mail",
-        "emails": "E-mails",
-        "enabled": "Activé",
-        "endDate": "Date de fin",
         "entity": "Élément",
         "entityId": "ID de l'élément",
         "event": "Évènement",
         "events": "Évènements",
         "expiresAt": "Expire le",
         "firstName": "Prénom",
-        "id": "id",
         "identifiers": "Canaux",
-        "lastMessageAt": "Dernier message",
         "lastName": "Nom",
         "lastRequest": "Dernière utilisation",
         "name": "Nom",
         "notes": "Notes",
-        "organization": "Organisation",
         "organizations": "Organisations",
-        "participants": "Participants",
-        "phones": "Téléphone",
         "role": "Rôle",
-        "selectLabel": "Colonnes du tableau",
         "services": "Services",
-        "startDate": "Date de début",
-        "state": "État",
         "status": "Statut",
         "statusCode": "Code de statut",
-        "subject": "Objet",
         "tasks": "Tâches",
-        "team": "Équipe",
-        "title": "Titre",
-        "total": "Total",
         "totalQuantity": "Quantité de services",
         "totalValue": "Valeur de l'affaire",
         "type": "Type",
@@ -763,63 +573,24 @@
       "groupBy": "Grouper par",
       "layout": "Disposition",
       "nextPage": "Page suivante",
-      "pageSize": "Taille de page",
       "paginationEmpty": "0 sur 0",
       "paginationRange": "{from}-{to} sur {total}",
       "previousPage": "Page précédente",
-      "search": "Rechercher...",
-      "ungrouped": "Non groupé"
+      "search": "Rechercher..."
     },
     "tags": {
       "feature": "Fonctionnalité",
       "industry": "Secteur"
     },
-    "theme": "Thème",
     "themes": {
       "dark": "Sombre",
       "light": "Clair",
       "system": "Système"
     },
-    "type": "Type",
-    "types": {
-      "array": "array",
-      "bigint": "bigint",
-      "boolean": "boolean",
-      "date": "date",
-      "float": "float",
-      "function": "function",
-      "integer": "integer",
-      "map": "map",
-      "nan": "nan",
-      "never": "never",
-      "null": "null",
-      "number": "number",
-      "object": "object",
-      "promise": "promise",
-      "set": "set",
-      "string": "string",
-      "symbol": "symbol",
-      "undefined": "undefined",
-      "unknown": "unknown",
-      "void": "void"
-    },
-    "username": "Nom d'utilisateur",
-    "userRoles": {
-      "admin": "Administrateur",
-      "member": "Membre"
-    },
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",
       "pendingAuthorization": "En attente d'approbation"
-    },
-    "validations": {
-      "cuid": "cuid",
-      "datetime": "datetime",
-      "email": "email",
-      "regex": "regex",
-      "url": "url",
-      "uuid": "uuid"
     }
   },
   "CompanyInvite": {
@@ -922,15 +693,13 @@
     "calendarCancelled": "Annulé",
     "calendarJoinMeeting": "Rejoindre la réunion",
     "calendarMeeting": "Réunion",
-    "calendarOrganizer": "Organisateur",
     "calendarResponseMaybe": "Peut-être",
     "calendarResponseNo": "Refusé",
     "calendarResponseNoreply": "Sans réponse",
     "calendarResponseYes": "Accepté",
     "linkedinConnectionAccepted": "Invitation LinkedIn acceptée",
     "linkedinOpenProfile": "Ouvrir le profil LinkedIn",
-    "noActivity": "Aucune activité pour ce contact.",
-    "openInInbox": "Ouvrir dans la boîte de réception"
+    "noActivity": "Aucune activité pour ce contact."
   },
   "ContactModal": {
     "title": "Contact"
@@ -938,7 +707,7 @@
   "ContactPage": {
     "description": "Une question, envie d'une démonstration ou d'explorer un partenariat ? Écrivez-moi et je vous réponds sous 24 heures.",
     "form": {
-      "messagePlaceholder": "Sur quoi travaillez-vous, et comment puis-je aider ?",
+      "messagePlaceholder": "Sur quoi travaillez-vous et comment puis-je vous aider ?",
       "submit": "Envoyer le message",
       "successBody": "Je vous réponds à l'adresse indiquée, généralement sous 24 heures.",
       "successCta": "Envoyer un autre message",
@@ -963,16 +732,12 @@
   },
   "Dashboard": {
     "addCard": "Ajouter un graphique",
-    "aggregationType": "Type d'agrégation",
     "aggregationTypes": {
       "count": "Nombre de {entities}",
       "dealQuantity": "Nombre de {services} dans les {deals}",
       "dealValue": "Valeur de {deal}",
-      "dealValueRelated": "Valeur de {deal} liée à {entity}",
-      "field": "Champ"
+      "dealValueRelated": "Valeur de {deal} liée à {entity}"
     },
-    "barColors": "Couleurs des barres",
-    "displayType": "Type d'affichage",
     "displayTypes": {
       "doughnutChart": "Graphique en anneau",
       "horizontalBarChart": "Histogramme horizontal",
@@ -981,53 +746,17 @@
       "verticalBarChart": "Histogramme vertical",
       "verticalBarChartWithLabels": "Histogramme vertical avec étiquettes"
     },
-    "endDate": "Date de fin",
-    "entityType": "Élément",
-    "entityTypes": {
-      "contact": "Contact",
-      "deal": "Affaire",
-      "organization": "Organisation",
-      "service": "Service",
-      "task": "Tâche"
-    },
-    "greeting": "Bonjour",
-    "greetingName": "Bonjour {name}",
-    "groupBy": "Grouper par",
     "groupBys": {
-      "contact": "Contact",
-      "deal": "Affaire",
-      "none": "Aucun regroupement",
-      "organization": "Organisation",
-      "service": "Service"
+      "none": "Aucun regroupement"
     },
-    "horizontal": "Afficher à l'horizontale",
-    "isTemplate": "Partager comme modèle avec les autres utilisateurs de votre organisation",
-    "limit": "Nombre maximal d'entrées",
-    "reverseXAxis": "Inverser l'axe X",
-    "reverseYAxis": "Inverser l'axe Y",
-    "selectWidgetTemplate": "Modèle de graphique",
     "selectWidgetTemplateDescription": "Vous pouvez sélectionner des graphiques existants créés par des membres de vos organisations et les utiliser comme modèle pour votre nouveau graphique.",
-    "startDate": "Date de début",
     "tabs": {
       "config": "Configuration",
       "dealFilters": "Filtres pour {deals}",
       "display": "Affichage",
       "filters": "Filtres {entityType}"
     },
-    "ungrouped": "Non groupé",
-    "widget": "Graphique",
-    "widgetTitle": "Titre",
-    "widgetType": "Type",
-    "widgetTypes": {
-      "quantity": {
-        "description": "Affiche la quantité totale de services assignés aux affaires par période. Les quantités sont agrégées selon votre sélection de regroupement afin de comparer les segments.",
-        "short": "Quantité de services dans le temps"
-      },
-      "value": {
-        "description": "Affiche la valeur monétaire totale des services liés aux affaires par période. Les valeurs sont agrégées selon votre sélection de regroupement (par exemple organisation, contact, service ou colonne personnalisée).",
-        "short": "Valeur des affaires dans le temps"
-      }
-    }
+    "widget": "Graphique"
   },
   "DealModal": {
     "noServicesAdded": "Aucun élément « {entity} » ajouté pour le moment",
@@ -1043,10 +772,10 @@
     "total": "Total"
   },
   "DocsPage": {
-    "connectToChatGPT": "Connecter à ChatGPT",
-    "connectToClaude": "Connecter à Claude",
-    "connectToCursor": "Connecter à Cursor",
-    "connectToVsCode": "Connecter à VS Code",
+    "connectToChatGPT": "Connecter ChatGPT",
+    "connectToClaude": "Connecter Claude",
+    "connectToCursor": "Connecter Cursor",
+    "connectToVsCode": "Connecter VS Code",
     "copyFailed": "Échec de la copie.",
     "copyMcpCommand": "Copier la commande MCP",
     "copyMcpConfig": "Copier la configuration MCP",
@@ -1352,14 +1081,14 @@
       "featureStarter": "Starter : le CRM complet",
       "period": "/ utilisateur / mois",
       "price": "à partir de 12 €",
-      "tag": "Hébergé à Francfort. Commencez gratuitement, sans carte bancaire.",
+      "tag": "Géré à Francfort. Commencez gratuitement, sans carte bancaire.",
       "title": "Cloud"
     },
     "compare": {
       "cancelAnytime": "Résiliable à tout moment",
       "gdpr": "Conforme au RGPD",
       "noLimits": "Formules transparentes",
-      "openSource": "Open source"
+      "openSource": "Open core"
     },
     "eyebrow": "Tarifs",
     "selfHosted": {
@@ -1383,8 +1112,6 @@
     "taglinePre": "Apportez votre propre IA. Customermates parle"
   },
   "Inbox": {
-    "ariaBackToInbox": "Retour à la boîte de réception",
-    "attachmentAudio": "Message vocal",
     "attachmentCount": "{count, plural, one {# pièce jointe :} other {# pièces jointes :}}",
     "attachmentFile": "Fichier",
     "attachmentImage": "Image",
@@ -1393,8 +1120,6 @@
     "attachmentUnavailable": "Pièce jointe indisponible",
     "attachmentUnknown": "Non pris en charge",
     "attachmentUnsupported": "Ce type de message n'est pas pris en charge ici. Ouvrez-le dans l'application native.",
-    "attachmentVideo": "Vidéo",
-    "attachmentVoice": "Note vocale",
     "compose": {
       "attachFiles": "Joindre des fichiers",
       "attachRemove": "Supprimer la pièce jointe",
@@ -1404,11 +1129,8 @@
       "ccLabel": "Cc",
       "createContact": "Créer \"{query}\"",
       "draftDiscard": "Abandonner",
-      "draftDiscarded": "Brouillon abandonné",
       "draftDiscardFailed": "Impossible d'abandonner le brouillon",
       "draftEdit": "Modifier",
-      "draftLabel": "Brouillon",
-      "draftSaved": "Brouillon enregistré",
       "draftSendNow": "Envoyer le brouillon",
       "emailContent": "Contenu de l'e-mail",
       "emojiPicker": "Insérer un émoji",
@@ -1423,9 +1145,6 @@
       "saveDraft": "Enregistrer comme brouillon",
       "send": "Envoyer",
       "sendAs": "Envoyer en tant que",
-      "sending": "Envoi…",
-      "sendQueuedDescription": "Votre fournisseur est en train de l'envoyer. Le message apparaîtra dans votre boîte de réception dès que la remise sera confirmée.",
-      "sendQueuedTitle": "Message en file d'attente",
       "subjectPlaceholder": "Objet",
       "toLabel": "À",
       "typeMessage": "Écrivez un message...",
@@ -1433,10 +1152,8 @@
       "updateDraft": "Mettre à jour le brouillon",
       "writeReply": "Écrivez une réponse..."
     },
-    "conversation": "Conversation",
     "dateToday": "Aujourd'hui",
     "dateYesterday": "Hier",
-    "description": "Messages de vos canaux connectés.",
     "edited": "(modifié)",
     "emptyState": "Aucun message pour l'instant. Connectez un canal dans votre profil pour commencer à recevoir des messages.",
     "fileTypeExcel": "Feuille de calcul Excel",
@@ -1448,7 +1165,6 @@
     "hideQuotedText": "Masquer le texte cité",
     "learnMore": "En savoir plus",
     "linkedinContact": "Contact LinkedIn",
-    "linkedinConversation": "Conversation LinkedIn",
     "loadMedia": "Charger le média",
     "mediaUnavailable": "Média indisponible",
     "messageDeleted": "Ce message a été supprimé",
@@ -1482,14 +1198,12 @@
       "people": "Personnes",
       "title": "Paramètres de la conversation",
       "tooltip": "Gérer la visibilité et les personnes",
-      "visibility": "Visibilité",
       "visibilityHint": "Les conversations privées ne sont visibles que par vous. Le partage vers le CRM rend uniquement cette conversation visible par toute votre équipe.",
       "visibilityTitle": "Paramètres de visibilité"
     },
     "shareToCrmActive": "Partagée vers le CRM, visible par toute votre équipe",
     "shareToCrmPrivate": "Conversation privée",
     "shareToCrmPrivateToast": "La conversation est désormais privée",
-    "shareToCrmShare": "Partager",
     "shareToCrmShared": "Conversation partagée",
     "shareToCrmSharedToast": "Partagée vers le CRM",
     "shareToCrmUpdateFailed": "Impossible de mettre à jour la visibilité",
@@ -1504,7 +1218,6 @@
       "spam": "Spam",
       "unread": "Non lue"
     },
-    "title": "Boîte de réception",
     "unlinkedParticipants": "Certains participants ne sont pas liés à un contact",
     "youPrefix": "Vous :"
   },
@@ -1531,10 +1244,10 @@
     "subprocessorObjectionWithDeadline": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et au plus tard le {deadline}, en exposant des motifs raisonnables liés à la protection des données. Cette échéance fournisseur est distincte de la date limite relative aux conditions générales et au DPA indiquée ci-dessus."
   },
   "LegalUpdateAlert": {
-    "adminDescription": "Acceptez avant le {date}.",
+    "adminDescription": "Acceptez au plus tard le {date}.",
     "contractReview": "Examiner les conditions générales et le DPA",
     "contractTitle": "Documents juridiques mis à jour",
-    "memberDescription": "Un administrateur de l’entreprise doit accepter avant le {date}."
+    "memberDescription": "Un administrateur de l’entreprise doit accepter au plus tard le {date}."
   },
   "LegalUpdateView": {
     "accept": "Accepter et continuer",
@@ -1547,7 +1260,7 @@
     "retry": "Réessayer",
     "signOut": "Se déconnecter",
     "subprocessors": "Sous-traitants",
-    "subtitle": "Un administrateur habilité de l’entreprise doit accepter avant le {date}.",
+    "subtitle": "Un administrateur habilité de l’entreprise doit accepter au plus tard le {date}.",
     "terms": "Conditions générales",
     "title": "Documents juridiques mis à jour"
   },
@@ -1586,29 +1299,19 @@
     "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
     "addPickerTitle": "Créer…",
     "affiliate": "Programme d'affiliation",
-    "apiDocs": "Documentation de l'API",
     "automation": "Automatisation",
-    "blog": "Blog",
     "connectedAccounts": "Canaux",
-    "contacts": "Contacts",
     "crm": "CRM",
     "dashboard": "Tableau de bord",
-    "deals": "Affaires",
     "docs": "Documentation",
-    "faq": "FAQ",
     "features": "Fonctionnalités",
     "inbox": "Boîte de réception",
     "members": "Membres",
-    "mission": "Mission",
-    "organizations": "Organisations",
     "overview": "Aperçu",
     "pricing": "Tarifs",
     "search": "Rechercher",
-    "services": "Services",
     "settings": "Paramètres",
     "subscription": "Abonnement",
-    "tasks": "Tâches",
-    "webhooks": "Webhooks",
     "workspace": "Espace de travail"
   },
   "NotFoundPage": {
@@ -1667,7 +1370,7 @@
       },
       "methods": {
         "account": {
-          "description": "Pour Claude sur le Web, ordinateur et mobile. Connectez-vous une fois ; aucune clé API ni aucun fichier de configuration n’est nécessaire.",
+          "description": "Pour Claude sur le Web, sur ordinateur et sur mobile. Connectez-vous une seule fois ; aucune clé API ni aucun fichier de configuration n’est nécessaire.",
           "meta": "Connecteur personnalisé · OAuth",
           "note": "Nécessite une formule Claude avec des connecteurs personnalisés.",
           "recommended": "Recommandé",
@@ -1701,7 +1404,6 @@
         }
       }
     },
-    "avatarDescription": "Facultatif. Collez le lien d'une photo de vous. Elle doit être accessible publiquement (toute personne disposant du lien peut la voir). Laissez le champ vide et nous afficherons vos initiales.",
     "back": "Retour",
     "continue": "Continuer",
     "finish": "Terminer",
@@ -1722,12 +1424,10 @@
     "progress": "Étape {current} sur {total}",
     "steps": {
       "ai": {
-        "placeholder": "Espace réservé à l'intégration IA",
-        "subtitle": "Choisissez-en un à connecter maintenant. Vous pourrez ajouter les autres plus tard.",
-        "title": "Connecter un agent IA"
+        "subtitle": "Choisissez l’IA à connecter maintenant. Vous pourrez en ajouter d’autres plus tard.",
+        "title": "Connecter votre IA"
       },
       "invite": {
-        "placeholder": "Espace réservé à l'invitation de l'équipe",
         "subtitle": "Partagez un lien ou envoyez des invitations par e-mail.",
         "title": "Invitez votre équipe"
       },
@@ -1761,9 +1461,7 @@
     "title": "Réinitialisez votre mot de passe"
   },
   "RoleModal": {
-    "descriptionLabel": "Description",
     "manageAccess": "Gérer",
-    "nameLabel": "Nom",
     "no": "Non",
     "readAccess": "Accès en lecture",
     "readAll": "Tous",
@@ -1780,8 +1478,7 @@
       "organizations": "Organisations",
       "services": "Services",
       "tasks": "Tâches",
-      "users": "Utilisateurs et rôles",
-      "widgets": "Tableau de bord et graphiques"
+      "users": "Utilisateurs et rôles"
     },
     "systemAlert": "Il s'agit d'un rôle système qui ne peut être ni modifié ni supprimé.",
     "systemDescription": "Accès complet à toutes les fonctionnalités et à tous les paramètres. Ne peut être ni modifié ni supprimé.",
@@ -1821,7 +1518,7 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Fin de la période en cours",
-    "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise facturée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
+    "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
       "features": {
@@ -1897,7 +1594,7 @@
     "systemTaskTooltip": "Élément « {task} » géré par le système. Il ne peut pas être supprimé manuellement ; ouvrez-le pour plus d’informations."
   },
   "TrialExpiredOffer": {
-    "body": "Votre essai s'est terminé récemment, mais j'aimerais beaucoup vous aider à tirer une vraie valeur de Customermates. Si vous le souhaitez, je peux prolonger votre essai et parcourir votre configuration avec vous.",
+    "body": "Votre essai s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger votre essai et passer en revue votre configuration avec vous.",
     "cta": "Prendre contact",
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
@@ -1912,7 +1609,7 @@
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
-    "subject": "Votre compte est inactif, nous pouvons vous aider à redémarrer",
+    "subject": "Votre compte est inactif — nous pouvons vous aider à repartir",
     "title": "Compte désactivé"
   },
   "TrialInactivationReminder": {
@@ -1929,7 +1626,7 @@
     "body": "Ravi de vous compter parmi nous. Je suis Ben, fondateur de Customermates, et j'aimerais vous aider à démarrer rapidement et à simplifier vos premières étapes de configuration.",
     "dismiss": "Si vous avez des questions ou souhaitez une présentation personnalisée, répondez simplement à cet e-mail. Il arrive directement dans ma boîte de réception.",
     "greeting": "Bonjour {firstName},",
-    "planNote": "Votre essai inclut tout le contenu de la formule Pro, vous pouvez donc tester immédiatement l'expérience de messagerie complète.",
+    "planNote": "Votre essai comprend toutes les fonctionnalités de la formule Pro ; vous pouvez donc tester immédiatement l’expérience de messagerie complète.",
     "signoff": "Cordialement,\nBen",
     "subject": "Bienvenue chez Customermates",
     "title": "Bienvenue dans votre essai"
@@ -1942,9 +1639,7 @@
     "lightMode": "Mode clair",
     "profile": "Mon profil",
     "settings": "Paramètres",
-    "signOut": "Se déconnecter",
-    "tasks": "Tâches",
-    "theme": "Thème"
+    "signOut": "Se déconnecter"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Détermine la langue de l'interface : libellés, boutons, etc.",
@@ -1979,12 +1674,10 @@
     },
     "entity": "Élément",
     "event": "Évènement",
-    "failed": "Échec",
     "requestBody": "Corps de la requête",
     "resend": "Renvoyer",
     "responseMessage": "Message de réponse",
     "statusCode": "Code de statut",
-    "success": "Succès",
     "title": "Détails de l'évènement",
     "url": "URL"
   },
