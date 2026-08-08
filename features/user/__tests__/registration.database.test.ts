@@ -1,4 +1,6 @@
 import { describe, it, expect, afterAll, vi } from "vitest";
+
+import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import type { LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
@@ -54,7 +56,9 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("registration against a real database", () => {
+const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
+
+describeDatabase("registration against a real database", () => {
   it("provisions a workspace with default select fields and no demo records", async () => {
     const repo = new PrismaUserRepo();
     const user = await runWithoutTenant(() =>

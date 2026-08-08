@@ -7,15 +7,38 @@ export type PlanEntitlements = {
   messaging: boolean;
   includedAccountsPerUser: number | "unlimited";
   sharedAccounts: boolean;
+  hostedAiCreditsPerActiveUser: number | "contract" | null;
 };
+
+export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = 500;
 
 export type EntitlementFeature = "messaging" | "sharedAccounts";
 
 const PLAN_ENTITLEMENTS: Record<SubscriptionPlan, PlanEntitlements> = {
-  starter: { messaging: false, includedAccountsPerUser: 0, sharedAccounts: false },
-  pro: { messaging: true, includedAccountsPerUser: 1, sharedAccounts: false },
-  business: { messaging: true, includedAccountsPerUser: 3, sharedAccounts: true },
-  enterprise: { messaging: true, includedAccountsPerUser: "unlimited", sharedAccounts: true },
+  starter: {
+    messaging: false,
+    includedAccountsPerUser: 0,
+    sharedAccounts: false,
+    hostedAiCreditsPerActiveUser: 200,
+  },
+  pro: {
+    messaging: true,
+    includedAccountsPerUser: 1,
+    sharedAccounts: false,
+    hostedAiCreditsPerActiveUser: 500,
+  },
+  business: {
+    messaging: true,
+    includedAccountsPerUser: 3,
+    sharedAccounts: true,
+    hostedAiCreditsPerActiveUser: 1200,
+  },
+  enterprise: {
+    messaging: true,
+    includedAccountsPerUser: "unlimited",
+    sharedAccounts: true,
+    hostedAiCreditsPerActiveUser: "contract",
+  },
 };
 
 export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
@@ -23,7 +46,7 @@ export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
 }
 
 export function getEffectiveEntitlements(input: { appMode: AppMode; plan: SubscriptionPlan }): PlanEntitlements {
-  if (input.appMode === "self-hosted") return PLAN_ENTITLEMENTS.starter;
+  if (input.appMode === "self-hosted") return { ...PLAN_ENTITLEMENTS.starter, hostedAiCreditsPerActiveUser: null };
 
   return getEntitlements(input.plan);
 }

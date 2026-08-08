@@ -29,8 +29,8 @@ function registeredToolNames(): Map<string, string> {
 }
 
 function routeToolBindings(): number {
-  const routeText = readFileSync(join(REPO_ROOT, "app", "api", "v1", "mcp", "route.ts"), "utf8");
-  const registration = routeText.slice(routeText.indexOf("const TOOL_GROUPS"));
+  const registryText = readFileSync(join(REPO_ROOT, "features", "mcp-tools", "all-tools.ts"), "utf8");
+  const registration = registryText.slice(registryText.indexOf("export const TOOL_GROUPS"));
   const bindings = [...registration.matchAll(/\b[A-Za-z0-9]+Tool\b/g)]
     .map((match) => match[0])
     .filter((name) => name !== "McpTool");

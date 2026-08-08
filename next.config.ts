@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
   htmlLimitedBots: /.*/,
 
   devIndicators: {
-    position: "bottom-right",
+    position: "top-left",
   },
 
   compress: true,

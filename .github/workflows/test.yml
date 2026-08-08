@@ -15,6 +15,7 @@ jobs:
     env:
       APP_MODE: self-hosted
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/customermates_test"
+      RUN_DATABASE_TESTS: "true"
     services:
       postgres:
         image: postgres:16-alpine

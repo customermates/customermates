@@ -108,7 +108,11 @@ export class PrismaCompanyRepo
     return this.prisma.inviteToken.findUnique({ where: { token } });
   }
 
-  @Transaction
+  @BypassTenantGuard
+  async withSubscriptionCompanyLockUnscoped<T>(companyId: string, fn: () => Promise<T>) {
+    return this.withCompanyTransaction(companyId, fn);
+  }
+
   @BypassTenantGuard
   async upsertSubscriptionUnscoped(data: RepoArgs<SubscriptionRepo, "upsertSubscriptionUnscoped">) {
     const payload = {
@@ -120,12 +124,15 @@ export class PrismaCompanyRepo
       quantity: data.quantity,
       trialEndDate: data.trialEndDate,
       currentPeriodEnd: data.currentPeriodEnd,
+      agentCreditAnchorAt: data.agentCreditAnchorAt,
     };
 
-    await this.prisma.subscription.upsert({
-      where: { companyId: data.companyId },
-      create: payload,
-      update: payload,
+    await this.withCompanyTransaction(data.companyId, async () => {
+      await this.prisma.subscription.upsert({
+        where: { companyId: data.companyId },
+        create: payload,
+        update: payload,
+      });
     });
   }
 

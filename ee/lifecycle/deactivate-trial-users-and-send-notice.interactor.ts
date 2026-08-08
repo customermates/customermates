@@ -12,7 +12,7 @@ import { env } from "@/env";
 export abstract class DeactivateTrialUsersAndSendNoticeRepo {
   abstract findUsersWithTrialEndedBetween6And7Days(): Promise<User[]>;
   abstract claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
-  abstract deactivateUser(userId: string): Promise<void>;
+  abstract deactivateUserOrThrow(userId: string): Promise<void>;
 }
 
 @SystemInteractor
@@ -29,7 +29,7 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
       const claimed = await this.repo.claimTrialInactivationNoticeSent({ userId: user.id, sentAt: new Date() });
       if (!claimed) continue;
 
-      await this.repo.deactivateUser(user.id);
+      await this.repo.deactivateUserOrThrow(user.id);
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

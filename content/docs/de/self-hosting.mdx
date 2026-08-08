@@ -7,7 +7,7 @@ Self-Hosting erfordert zwei Dateien (`docker-compose.yml` und `.env`) plus `dock
 
 ## Self-Host vs Cloud
 
-Beide betreiben dieselbe Kernanwendung. Der Self-Host-Build entspricht dem Starter-Funktionsumfang: das volle Kern-CRM inklusive Audit-Logging. Das gemeinsame Postfach, Kalender-Sync, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten); in der Cloud sind Postfach und Kalender-Sync Teil des Pro-Tarifs, SSO und White-Label Teil des Enterprise-Tarifs. Für ein Self-Hosted-Deployment mit diesen Features kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth funktioniert in beiden Varianten, sobald Sie die Provider-Env-Vars setzen; ohne sie melden sich Self-Hosted-Installationen per E-Mail an.
+Beide betreiben dieselbe Kernanwendung. Der Self-Host-Build entspricht dem Starter-Kern-CRM inklusive Audit-Logging und unterstützt externe MCP-Clients mit Ihrem eigenen KI-Anbieter. Der von Customermates gehostete In-App-Assistent und seine Tarif-Credits sind nur in der Cloud verfügbar. Das gemeinsame Postfach, Kalender-Sync, Enterprise-SSO und White-Labeling sind Enterprise-Edition-Features (die `ee/`-Komponenten); in der Cloud sind Postfach und Kalender-Sync Teil des Pro-Tarifs, SSO und White-Label Teil des Enterprise-Tarifs. Für ein Self-Hosted-Deployment mit diesen Features kontaktieren Sie uns für eine Enterprise-Edition-Vereinbarung. Anmeldung per Google- und Microsoft-OAuth funktioniert in beiden Varianten, sobald Sie die Provider-Env-Vars setzen; ohne sie melden sich Self-Hosted-Installationen per E-Mail an.
 
 | Wenn Sie… | Nehmen Sie |
 |---|---|
@@ -28,13 +28,14 @@ Beide betreiben dieselbe Kernanwendung. Der Self-Host-Build entspricht dem Start
 | Support-SLA | inkl. in Paid-Plans | Community |
 | Gemeinsames Postfach und Kalender-Sync | ab dem Pro-Tarif | nicht enthalten (Cloud-Funktion) |
 | Audit-Log | in jedem Plan enthalten | enthalten |
+| KI-Zugriff | Gehosteter Assistent mit Credits plus externes MCP | Externes MCP mit eigenem Anbieter; kein gehosteter Assistent |
 | Enterprise-Features (Enterprise-SSO, White-Label) | Enterprise-Plan | Enterprise-Vereinbarung |
 | Google-/Microsoft-OAuth-Anmeldung | ✓ | ✓, Provider-Env-Vars setzen |
 | Pricing | pro Nutzer, Tarife ab 12 €/Monat | kostenlos (Kern-CRM); Enterprise-Features per Vereinbarung |
 
 **Datenhoheit:** Die Cloud speichert Daten in unserer EU-Region, DSGVO-konform, mit üblicher Verschlüsselung at-rest und in-transit. Wenn Ihre Compliance verlangt, dass Daten auf Ihrer Infra liegen: Self-Host.
 
-**Kostenform:** Cloud ist pro Nutzer über Tarife bepreist, ab 12 €/Nutzer/Monat, und skaliert mit Ihrem Messaging-Umfang. Self-Host ist kostenlos für die Kernanwendung plus was Sie für Infrastruktur zahlen (ein kleiner VPS trägt Hunderte User). Für ein kleines Team ist Cloud oft günstiger, wenn Sie die Zeit fürs eigene Postgres-Backup einrechnen. Für ein größeres Team ist Self-Host meist die günstigere Variante.
+**Kostenform:** Cloud ist pro Nutzer über Tarife bepreist, ab 12 €/Nutzer/Monat; Messaging-Kapazität und Kontingente des gehosteten Assistenten wachsen mit dem Tarif. Self-Host ist kostenlos für die Kernanwendung plus Infrastruktur und Ihren eigenen KI-Anbieter. Für ein kleines Team ist Cloud oft günstiger, wenn Sie die Zeit fürs eigene Postgres-Backup einrechnen. Für ein größeres Team ist Self-Host meist die günstigere Variante.
 
 Sie können zwischen beiden wechseln: Export von einem, Import ins andere. Das Datenmodell ist identisch.
 

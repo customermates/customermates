@@ -1,7 +1,7 @@
 ---
 title: "Preise: Das Agentic Open-Source CRM"
 titleAccent: einfach, ehrlich, europäisch.
-description: "Faire, transparente Preise für das Agentic Open-Source CRM. KI-Agenten bedienen das CRM über natives MCP, und ein zentraler Posteingang deckt E-Mail, LinkedIn, WhatsApp, Instagram und Telegram ab. Jede CRM-Kernfunktion in jedem Tarif ab 12 €, mit Preisen, die mit dem Messaging-Umfang wachsen. Eine Pipedrive-Alternative mit DSGVO-konformem Hosting."
+description: "Faire, transparente Preise für das Agentic Open-Source CRM. KI-Agenten bedienen das CRM über natives MCP, und der gehostete Assistent ist mit einem monatlichen Credit-Kontingent enthalten. Jede CRM-Kernfunktion ist ab 12 € verfügbar; höhere Tarife bieten mehr Messaging-Kapazität und mehr gehostete KI-Credits."
 
 pricing:
   ariaLabelSlider: Anzahl der Nutzer
@@ -27,7 +27,8 @@ pricing:
     buttonVariant: bordered
     features:
       - Kontakte, Unternehmen, Deals, Services & Aufgaben
-      - "KI-Assistent via MCP: verbinden Sie Claude, ChatGPT oder Gemini"
+      - "Monatliches Kontingent für den gehosteten KI-Assistenten: 200 Credits pro aktivem Nutzer"
+      - "Externe KI via MCP: Claude, ChatGPT oder Gemini verbinden"
       - REST-API, Webhooks & n8n-Automatisierung
   - title: Pro
     description: CRM + zentraler Posteingang. Inklusive 7 Tage kostenloser Testphase.
@@ -43,6 +44,7 @@ pricing:
     buttonVariant: bordered
     features:
       - Alles aus Starter
+      - "Monatliches Kontingent für den gehosteten KI-Assistenten: 500 Credits pro aktivem Nutzer"
       - "Zentraler Posteingang: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
       - 1 verbundenes Konto pro Nutzer inklusive
       - Kalender-Synchronisation & LinkedIn Sales Navigator
@@ -63,6 +65,7 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Alles aus Pro
+      - "Monatliches Kontingent für den gehosteten KI-Assistenten: 1.200 Credits pro aktivem Nutzer"
       - 3 verbundene Konten pro Nutzer inklusive
       - "Geteilte Konten: teamweite Postfach-Sichtbarkeit"
       - Ein teamweiter Verlauf über alle Kanäle
@@ -76,6 +79,7 @@ pricing:
     buttonVariant: solid
     features:
       - Alles aus Business
+      - Endliches, vertraglich konfiguriertes Credit-Kontingent pro aktivem Nutzer/Monat
       - Individuelle KI-Agenten, Lead-Suche & -Anreicherung
       - Done-for-you-Einrichtung
       - SSO, White-Label & unbegrenzte verbundene Konten (Fair Use)
@@ -146,6 +150,18 @@ comparison:
         pro: true
         business: true
         enterprise: true
+  - title: KI & Automatisierung
+    rows:
+      - label: Monatliches Kontingent für den gehosteten KI-Assistenten pro aktivem Nutzer
+        starter: "200"
+        pro: "500"
+        business: "1.200"
+        enterprise: "Begrenzt, vertraglich konfiguriert"
+      - label: Externe KI-Clients via MCP mit eigenem Anbieter
+        starter: true
+        pro: true
+        business: true
+        enterprise: true
   - title: CRM-Kern
     rows:
       - label: Kontakte, Unternehmen, Deals, Services & Aufgaben
@@ -168,7 +184,7 @@ comparison:
         pro: true
         business: true
         enterprise: true
-      - label: KI-Assistent via MCP
+      - label: Externer KI-Zugriff via MCP
         starter: true
         pro: true
         business: true
@@ -230,6 +246,9 @@ faq:
   - id: pricing-faq-7
     title: Wie funktioniert die monatliche Abrechnung?
     content: "Sie zahlen pro aktivem Nutzer. Wenn Sie Nutzer hinzufügen oder entfernen, wird die Änderung anteilig mit der nächsten Rechnung verrechnet. Tarif-Upgrades gelten sofort mit anteiliger Berechnung für den Rest des Abrechnungszeitraums, Downgrades gelten sofort und der nicht genutzte Anteil wird gutgeschrieben."
+  - id: pricing-faq-8
+    title: Wie funktionieren Credits für den gehosteten KI-Assistenten?
+    content: "Die gehostete KI-Verarbeitung in Customermates nutzt Credits. Einfache Anfragen verbrauchen meist einen Credit; mehrstufige Aufgaben können mehr verbrauchen. Bezahlte Kontingente werden am monatlichen Abrechnungsstichtag zurückgesetzt, auch bei jährlicher Abrechnung; nicht genutzte Credits werden nicht übertragen. Jeder aktive Nutzer in der Testphase erhält 500 Credits; es gibt kein Workspace-weites Limit. Neue bezahlte Plätze erhalten für den verbleibenden Abrechnungszeitraum ein auf ganze Credits gerundetes anteiliges Kontingent. Upgrades erhöhen das aktuelle Kontingent sofort, Downgrades senken es sofort. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter, werden von Customermates nicht gemessen und verbrauchen keine Customermates-Credits. Der gehostete Assistent ist nur in der Cloud verfügbar. Es gibt keine Aufladungen oder automatischen Mehrkosten."
 
 cta:
   action: Bereit loszulegen?

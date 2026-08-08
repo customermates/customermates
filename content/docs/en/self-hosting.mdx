@@ -7,7 +7,7 @@ Self-hosting requires two files (`docker-compose.yml` and `.env`) plus `docker c
 
 ## Self-host vs cloud
 
-Both run the same core application. The self-hosted build matches the Starter feature set: the full core CRM including audit logging. The unified inbox, calendar sync, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components); on the cloud, the inbox and calendar sync come with the Pro tier, SSO and white-label with the Enterprise plan. For a self-hosted deployment that includes them, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in works in either deployment once you set the provider env vars; without them, self-hosted installs sign in with email.
+Both run the same core application. The self-hosted build matches the Starter core CRM feature set, including audit logging, and supports external MCP clients using your own AI provider. The Customermates-hosted in-app Assistant and its plan credits are cloud-only. The unified inbox, calendar sync, enterprise SSO, and white-labeling are Enterprise Edition features (the `ee/` components); on the cloud, the inbox and calendar sync come with the Pro tier, SSO and white-label with the Enterprise plan. For a self-hosted deployment that includes them, contact us for an Enterprise Edition agreement. Google and Microsoft OAuth sign-in works in either deployment once you set the provider env vars; without them, self-hosted installs sign in with email.
 
 | If you… | Pick |
 |---|---|
@@ -28,13 +28,14 @@ Both run the same core application. The self-hosted build matches the Starter fe
 | Support SLA | included on paid plans | community |
 | Unified inbox and calendar sync | from the Pro plan | not included (Cloud feature) |
 | Audit log | included on every plan | included |
+| AI access | Hosted Assistant credits plus external MCP | External MCP with your provider; no hosted Assistant |
 | Enterprise features (enterprise SSO, white-label) | Enterprise plan | Enterprise agreement |
 | Google/Microsoft OAuth sign-in | ✓ | ✓, set the provider env vars |
 | Pricing | per user, tiers from €12/month | free (core CRM); Enterprise features by agreement |
 
 **Data custody:** Cloud stores data in our EU region, GDPR-compliant, with the usual encryption-at-rest and in-transit. If your compliance posture requires data on your own infra, self-host.
 
-**Cost shape:** Cloud is priced per user across tiers, starting at €12/user/month, and scales with your messaging usage. Self-host is free for the core application plus whatever you pay for infrastructure (a small VPS handles hundreds of users). For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
+**Cost shape:** Cloud is priced per user across tiers, starting at €12/user/month; messaging capacity and hosted Assistant allowances grow with the plan. Self-host is free for the core application plus whatever you pay for infrastructure and your own AI provider. For a small team, cloud is often cheaper once you account for the time to run Postgres backups yourself. For a larger team, self-host is usually the lower cost.
 
 You can migrate between them: export from one, import to the other. The data model is identical.
 

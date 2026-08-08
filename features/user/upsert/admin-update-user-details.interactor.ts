@@ -33,7 +33,7 @@ export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchem
 export abstract class AdminUpdateUserDetailsRepo {
   abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
   abstract findOrThrowCompanyWide(email: string): Promise<TenantUser>;
-  abstract adminUpdateDetails(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
+  abstract adminUpdateDetailsOrThrow(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
 }
 
 export abstract class UpdateUserRoleRepo {
@@ -90,7 +90,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       }
     }
 
-    await this.userRepo.adminUpdateDetails({
+    await this.userRepo.adminUpdateDetailsOrThrow({
       userId: targetUserId,
       ...data,
     });

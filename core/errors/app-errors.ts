@@ -40,6 +40,18 @@ export class DemoModeError extends AppError {
   }
 }
 
+export class AgentLimitExceededError extends AppError {
+  constructor(message = "Your AI usage limit is reached.") {
+    super(message, 429);
+  }
+}
+
+export class AgentSessionUnavailableError extends AppError {
+  constructor(message = "The assistant session could not be started. Please try again.") {
+    super(message, 503);
+  }
+}
+
 const RETRY_HALTING_ERROR_NAME = "FatalError";
 const WEBHOOK_FAILURE_MESSAGE_PREFIX = "Webhook target responded";
 

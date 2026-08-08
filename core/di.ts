@@ -291,6 +291,23 @@ import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.int
 import { GetAuditLogsInteractor } from "@/features/audit-log/get/get-audit-logs.interactor";
 import { PrismaSupportRepo } from "@/features/support/prisma-support.repository";
 import { CreateSupportTicketInteractor } from "@/features/support/create-support-ticket.interactor";
+import { PrismaAgentChatRepo } from "@/features/agent-chat/prisma-agent-chat.repository";
+import { AgentUsageService } from "@/features/agent-chat/agent-usage.service";
+import { SendAgentMessageInteractor } from "@/features/agent-chat/send-agent-message.interactor";
+import { GetAgentConfigInteractor } from "@/features/agent-chat/get-agent-config.interactor";
+import { RespondToApprovalInteractor } from "@/features/agent-chat/respond-to-approval.interactor";
+import { RespondToUiCommandInteractor } from "@/features/agent-chat/respond-to-ui-command.interactor";
+import { GetAgentConversationInteractor } from "@/features/agent-chat/get-agent-conversation.interactor";
+import { CreateChatSupportTicketInteractor } from "@/features/agent-chat/create-chat-support-ticket.interactor";
+import { SeedAgentDemoDataInteractor } from "@/features/agent-chat/seed-agent-demo-data.interactor";
+import { PrismaAgentWorkspaceSetupRepo } from "@/features/agent-chat/prisma-agent-workspace-setup.repository";
+import { ListAgentConversationsInteractor } from "@/features/agent-chat/list-agent-conversations.interactor";
+import { DeleteAgentConversationInteractor } from "@/features/agent-chat/delete-agent-conversation.interactor";
+import { ArchiveAgentConversationInteractor } from "@/features/agent-chat/archive-agent-conversation.interactor";
+import { RestoreAgentConversationInteractor } from "@/features/agent-chat/restore-agent-conversation.interactor";
+import { MarkAgentConversationReadInteractor } from "@/features/agent-chat/mark-agent-conversation-read.interactor";
+import { ApplyAgentWorkspaceSetupInteractor } from "@/features/agent-chat/apply-agent-workspace-setup.interactor";
+import { CleanupAgentWorkspaceSetupInteractor } from "@/features/agent-chat/cleanup-agent-workspace-setup.interactor";
 // Validators
 
 // ─── Section 2: Repos ───────────────────────────────────────────────────────
@@ -316,6 +333,8 @@ export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getSupportRepo = () => new PrismaSupportRepo();
+export const getAgentChatRepo = () => new PrismaAgentChatRepo();
+export const getAgentWorkspaceSetupRepo = () => new PrismaAgentWorkspaceSetupRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────
 
@@ -1418,3 +1437,71 @@ export const getDeliverWebhookInteractor = () =>
 
 export const getCreateSupportTicketInteractor = () =>
   new CreateSupportTicketInteractor(getSupportRepo(), getEmailService());
+
+export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
+
+export const getSendAgentMessageInteractor = () =>
+  new SendAgentMessageInteractor(getAgentChatRepo(), getAgentUsageService());
+
+export const getGetAgentConfigInteractor = () =>
+  new GetAgentConfigInteractor(getAgentChatRepo(), getAgentUsageService());
+
+export const getRespondToApprovalInteractor = () => new RespondToApprovalInteractor(getAgentChatRepo());
+
+export const getRespondToUiCommandInteractor = () => new RespondToUiCommandInteractor(getAgentChatRepo());
+
+export const getGetAgentConversationInteractor = () =>
+  new GetAgentConversationInteractor(getAgentChatRepo(), getAgentWorkspaceSetupRepo());
+
+export const getListAgentConversationsInteractor = () => new ListAgentConversationsInteractor(getAgentChatRepo());
+
+export const getDeleteAgentConversationInteractor = () => new DeleteAgentConversationInteractor(getAgentChatRepo());
+
+export const getArchiveAgentConversationInteractor = () => new ArchiveAgentConversationInteractor(getAgentChatRepo());
+
+export const getRestoreAgentConversationInteractor = () => new RestoreAgentConversationInteractor(getAgentChatRepo());
+
+export const getMarkAgentConversationReadInteractor = () => new MarkAgentConversationReadInteractor(getAgentChatRepo());
+
+export const getApplyAgentWorkspaceSetupInteractor = () =>
+  new ApplyAgentWorkspaceSetupInteractor({
+    chatRepo: getAgentChatRepo(),
+    setupRepo: getAgentWorkspaceSetupRepo(),
+    getCompanySettings: getGetCompanySettingsInteractor(),
+    updateCompanySettings: getUpdateCompanySettingsInteractor(),
+    upsertCustomColumn: getUpsertCustomColumnInteractor(),
+    createOrganizations: getCreateManyOrganizationsInteractor(),
+    createContacts: getCreateManyContactsInteractor(),
+    createServices: getCreateManyServicesInteractor(),
+    createDeals: getCreateManyDealsInteractor(),
+    createTasks: getCreateManyTasksInteractor(),
+    upsertWidget: getUpsertWidgetInteractor(),
+  });
+
+export const getCleanupAgentWorkspaceSetupInteractor = () =>
+  new CleanupAgentWorkspaceSetupInteractor({
+    chatRepo: getAgentChatRepo(),
+    setupRepo: getAgentWorkspaceSetupRepo(),
+    getCompanySettings: getGetCompanySettingsInteractor(),
+    updateCompanySettings: getUpdateCompanySettingsInteractor(),
+    deleteWidget: getDeleteWidgetInteractor(),
+    deleteTask: getDeleteTaskInteractor(),
+    deleteDeal: getDeleteDealInteractor(),
+    deleteService: getDeleteServiceInteractor(),
+    deleteContact: getDeleteContactInteractor(),
+    deleteOrganization: getDeleteOrganizationInteractor(),
+    deleteCustomColumn: getDeleteCustomColumnInteractor(),
+  });
+
+export const getCreateChatSupportTicketInteractor = () =>
+  new CreateChatSupportTicketInteractor(getAgentChatRepo(), getCreateSupportTicketInteractor());
+
+export const getSeedAgentDemoDataInteractor = () =>
+  new SeedAgentDemoDataInteractor(
+    getAgentChatRepo(),
+    getCreateManyOrganizationsInteractor(),
+    getCreateManyContactsInteractor(),
+    getCreateManyServicesInteractor(),
+    getCreateManyDealsInteractor(),
+    getCreateManyTasksInteractor(),
+  );

@@ -1,0 +1,295 @@
+import { z } from "zod";
+
+import { type Data } from "@/core/validation/validation.utils";
+
+import type { AgentActivityDescriptor } from "./agent-activity";
+import { AgentActivityDescriptorSchema, describeAgentTool } from "./agent-activity";
+import {
+  AgentWorkspaceSetupPlanSchema,
+  PrepareAgentWorkspaceSetupSchema,
+  type AgentWorkspaceSetupPlan,
+  type PrepareAgentWorkspaceSetupData,
+} from "./agent-workspace-setup";
+import { sanitizeAgentVisibleText, stripLegacyUserPageContextPrefix } from "./agent-output-safety";
+import type { AgentWorkspaceSetupCleanupSummary } from "./agent-workspace-setup.repository";
+
+export const AgentPageContextSchema = z.object({
+  route: z.string().max(500),
+});
+
+export const SendAgentMessageSchema = z.object({
+  conversationId: z.uuid().optional(),
+  clientRequestId: z.uuid(),
+  text: z.string().min(1).max(20000),
+  pageContext: AgentPageContextSchema.optional(),
+  locale: z.enum(["en", "de"]).optional(),
+  retry: z.boolean().default(false),
+});
+
+export type SendAgentMessageData = Data<typeof SendAgentMessageSchema>;
+
+export const AgentWorkspaceSetupCleanupSummarySchema = z.object({
+  deletedResources: z.number().int().nonnegative(),
+  retainedResources: z.number().int().nonnegative(),
+  missingResources: z.number().int().nonnegative(),
+  retainedReasons: z.array(z.enum(["edited", "dependent"])),
+});
+
+export type AgentMessagePart =
+  | { type: "text"; text: string }
+  | {
+      type: "activity";
+      id: string;
+      activity: AgentActivityDescriptor;
+      status: "running" | "done" | "error" | "cancelled";
+    }
+  | {
+      type: "approval";
+      id: string;
+      activity: AgentActivityDescriptor;
+      status: "pending" | "approved" | "rejected" | "timeout" | "cancelled";
+    }
+  | {
+      type: "workspace_setup";
+      id: string;
+      setup: PrepareAgentWorkspaceSetupData;
+      plan: AgentWorkspaceSetupPlan;
+      planHash: string;
+      setupId?: string;
+      status: "preparing" | "ready" | "superseded" | "applied" | "partiallyCleaned" | "cleaned" | "notEmpty" | "failed";
+      cleanupSummary?: AgentWorkspaceSetupCleanupSummary;
+    };
+
+const ACTIVITY_STATUSES = ["running", "done", "error", "cancelled"] as const;
+const APPROVAL_STATUSES = ["pending", "approved", "rejected", "timeout", "cancelled"] as const;
+const PERSISTED_WORKSPACE_SETUP_STATUSES = ["preparing", "ready", "failed"] as const;
+
+function includes<T extends string>(values: readonly T[], value: unknown): value is T {
+  return typeof value === "string" && values.includes(value as T);
+}
+
+export function clientSafeAgentMessageParts(
+  value: unknown,
+  options: { sanitizeText?: boolean; stripLegacyUserContext?: boolean } = {},
+): AgentMessagePart[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((raw): AgentMessagePart[] => {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
+    const part = raw as Record<string, unknown>;
+
+    if (part.type === "text" && typeof part.text === "string") {
+      const withoutLegacyContext = options.stripLegacyUserContext
+        ? stripLegacyUserPageContextPrefix(part.text)
+        : part.text;
+      return [
+        {
+          type: "text",
+          text: options.sanitizeText ? sanitizeAgentVisibleText(withoutLegacyContext) : withoutLegacyContext,
+        },
+      ];
+    }
+
+    if (part.type === "activity" && typeof part.id === "string") {
+      const activity = AgentActivityDescriptorSchema.safeParse(part.activity);
+      if (!activity.success || !includes(ACTIVITY_STATUSES, part.status)) return [];
+      return [
+        {
+          type: "activity",
+          id: part.id,
+          activity: activity.data,
+          status: part.status,
+        },
+      ];
+    }
+
+    if (part.type === "approval" && typeof part.id === "string") {
+      const activity = AgentActivityDescriptorSchema.safeParse(part.activity);
+      if (!activity.success || !includes(APPROVAL_STATUSES, part.status)) return [];
+      return [
+        {
+          type: "approval",
+          id: part.id,
+          activity: activity.data,
+          status: part.status,
+        },
+      ];
+    }
+
+    if (part.type === "workspace_setup" && typeof part.id === "string") {
+      const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.setup);
+      const plan = AgentWorkspaceSetupPlanSchema.safeParse(part.plan);
+      if (
+        !setup.success ||
+        !plan.success ||
+        typeof part.planHash !== "string" ||
+        !/^[a-f0-9]{64}$/.test(part.planHash) ||
+        !includes(PERSISTED_WORKSPACE_SETUP_STATUSES, part.status)
+      )
+        return [];
+      return [
+        {
+          type: "workspace_setup",
+          id: part.id,
+          setup: setup.data,
+          plan: plan.data,
+          planHash: part.planHash,
+          status: part.status,
+        },
+      ];
+    }
+
+    if (part.type === "tool_use" && typeof part.id === "string" && typeof part.name === "string") {
+      return [
+        {
+          type: "activity",
+          id: part.id,
+          activity: describeAgentTool(part.name, part.input),
+          status: includes(ACTIVITY_STATUSES, part.status) ? part.status : "done",
+        },
+      ];
+    }
+
+    return [];
+  });
+}
+
+export function hasRenderableAgentMessageParts(parts: readonly AgentMessagePart[]) {
+  return parts.some((part) => part.type !== "text" || part.text.trim().length > 0);
+}
+
+const TOOL_INPUT_DETAIL_MAX_CHARS = 4000;
+const TOOL_INPUT_STRING_MAX_CHARS = 1000;
+const TOOL_INPUT_MAX_DEPTH = 4;
+const TOOL_INPUT_MAX_ITEMS = 30;
+const SENSITIVE_TOOL_INPUT_KEY = /(?:password|passcode|secret|token|authorization|cookie|credential|api[_-]?key)/i;
+
+function sanitizeToolInputValue(value: unknown, depth: number): unknown {
+  if (value == null || typeof value === "number" || typeof value === "boolean") return value;
+  if (typeof value === "string")
+    return value.length > TOOL_INPUT_STRING_MAX_CHARS ? `${value.slice(0, TOOL_INPUT_STRING_MAX_CHARS)}…` : value;
+
+  if (depth >= TOOL_INPUT_MAX_DEPTH) return "[truncated]";
+  if (Array.isArray(value)) {
+    const items = value.slice(0, TOOL_INPUT_MAX_ITEMS).map((item) => sanitizeToolInputValue(item, depth + 1));
+    if (value.length > TOOL_INPUT_MAX_ITEMS) items.push(`[${value.length - TOOL_INPUT_MAX_ITEMS} more items]`);
+    return items;
+  }
+  if (typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>);
+    const sanitized = Object.fromEntries(
+      entries
+        .slice(0, TOOL_INPUT_MAX_ITEMS)
+        .map(([key, item]) => [
+          key,
+          SENSITIVE_TOOL_INPUT_KEY.test(key) ? "[redacted]" : sanitizeToolInputValue(item, depth + 1),
+        ]),
+    );
+    if (entries.length > TOOL_INPUT_MAX_ITEMS)
+      sanitized._truncated = `${entries.length - TOOL_INPUT_MAX_ITEMS} more fields`;
+    return sanitized;
+  }
+  return String(value);
+}
+
+export function sanitizeAgentToolInput(value: unknown): unknown {
+  const sanitized = sanitizeToolInputValue(value, 0);
+  const serialized = JSON.stringify(sanitized);
+  if (serialized.length <= TOOL_INPUT_DETAIL_MAX_CHARS) return sanitized;
+
+  return {
+    preview: `${serialized.slice(0, TOOL_INPUT_DETAIL_MAX_CHARS)}…`,
+    truncated: true,
+  };
+}
+
+export type AgentDataCounts = {
+  contacts: boolean;
+  organizations: boolean;
+  deals: boolean;
+  services: boolean;
+  tasks: boolean;
+  connectedAccounts: boolean;
+};
+
+export type AgentConversationSummary = {
+  id: string;
+  title: string | null;
+  preview: string;
+  updatedAt: Date;
+  unreadSupport: boolean;
+};
+
+export const SUGGESTION_PAGE_IDS = [
+  "dashboard",
+  "inbox",
+  "tasks",
+  "contacts",
+  "organizations",
+  "deals",
+  "services",
+  "connected-accounts",
+  "default",
+] as const;
+
+export type SuggestionPageId = (typeof SUGGESTION_PAGE_IDS)[number];
+
+export function suggestionPageId(pathname: string): SuggestionPageId {
+  if (pathname.startsWith("/profile/connected-accounts")) return "connected-accounts";
+  const first = pathname.split("/")[1] ?? "";
+  return SUGGESTION_PAGE_IDS.includes(first as SuggestionPageId) && first !== "default"
+    ? (first as SuggestionPageId)
+    : "default";
+}
+
+export function suggestionVariant(pageId: SuggestionPageId, counts: AgentDataCounts): "data" | "empty" {
+  switch (pageId) {
+    case "contacts":
+      return counts.contacts ? "data" : "empty";
+    case "organizations":
+      return counts.organizations ? "data" : "empty";
+    case "deals":
+      return counts.deals ? "data" : "empty";
+    case "services":
+      return counts.services ? "data" : "empty";
+    case "tasks":
+      return counts.tasks ? "data" : "empty";
+    case "inbox":
+    case "connected-accounts":
+      return counts.connectedAccounts ? "data" : "empty";
+    default:
+      return counts.contacts || counts.deals ? "data" : "empty";
+  }
+}
+
+export function partsToText(parts: unknown): string {
+  if (!Array.isArray(parts)) return "";
+
+  return parts
+    .filter((part): part is { type: "text"; text: string } => part?.type === "text" && typeof part.text === "string")
+    .map((part) => part.text)
+    .join("\n");
+}
+
+export const TRANSCRIPT_FALLBACK_SUBJECT = "Support request";
+export const TRANSCRIPT_FALLBACK_BODY = "No conversation context.";
+
+export function buildTicketContentFromTranscript(messages: { role: string; parts: unknown }[]) {
+  const transcript = messages
+    .map((message) => {
+      const rawText = partsToText(message.parts);
+      const text = sanitizeAgentVisibleText(
+        message.role === "user" ? stripLegacyUserPageContextPrefix(rawText) : rawText,
+      ).slice(0, 300);
+      const role =
+        message.role === "user" ? "user" : message.role === "support" ? "Customermates human support" : "assistant";
+      return `${role}: ${text}`;
+    })
+    .filter((line) => !line.endsWith(": "))
+    .join("\n");
+
+  return {
+    subject: transcript.split("\n")[0]?.slice(0, 200) || TRANSCRIPT_FALLBACK_SUBJECT,
+    body: transcript || TRANSCRIPT_FALLBACK_BODY,
+  };
+}

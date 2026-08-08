@@ -1,7 +1,7 @@
 ---
 title: "Pricing: The Agentic Open-Source CRM"
 titleAccent: simple, honest, European.
-description: "Fair, transparent pricing for the Agentic Open-Source CRM. AI agents operate the CRM through native MCP, and a unified inbox covers email, LinkedIn, WhatsApp, Instagram, and Telegram. Every core CRM feature in every tier from €12, with pricing that scales as you add messaging. A Pipedrive alternative with GDPR-compliant hosting."
+description: "Fair, transparent pricing for the Agentic Open-Source CRM. AI agents operate the CRM through native MCP, and the hosted Assistant is included with a monthly credit allowance. Every core CRM feature is available from €12, while higher tiers add messaging capacity and more hosted AI credits."
 
 pricing:
   ariaLabelSlider: Number of users
@@ -27,7 +27,8 @@ pricing:
     buttonVariant: bordered
     features:
       - Contacts, organizations, deals, services & tasks
-      - "AI assistant via MCP: connect Claude, ChatGPT or Gemini"
+      - "Monthly hosted AI allowance: 200 credits per active user"
+      - "External AI via MCP: connect Claude, ChatGPT or Gemini"
       - REST API, webhooks & n8n automation
   - title: Pro
     description: CRM + unified inbox. Includes your 7-day free trial.
@@ -43,6 +44,7 @@ pricing:
     buttonVariant: bordered
     features:
       - Everything in Starter
+      - "Monthly hosted AI allowance: 500 credits per active user"
       - "Unified inbox: Email, LinkedIn, WhatsApp, Instagram, Telegram"
       - 1 connected account per user included
       - Calendar sync & LinkedIn Sales Navigator
@@ -63,6 +65,7 @@ pricing:
     cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
       - Everything in Pro
+      - "Monthly hosted AI allowance: 1,200 credits per active user"
       - 3 connected accounts per user included
       - "Shared accounts: team-wide inbox visibility"
       - One team-wide timeline across every channel
@@ -76,6 +79,7 @@ pricing:
     buttonVariant: solid
     features:
       - Everything in Business
+      - Finite, contract-configured hosted AI allowance per active user/month
       - Custom AI agents, lead finding & enrichment
       - Done-for-you setup
       - SSO, white-label & unlimited connected accounts (fair use)
@@ -146,6 +150,18 @@ comparison:
         pro: true
         business: true
         enterprise: true
+  - title: AI & automation
+    rows:
+      - label: Monthly hosted AI Assistant allowance per active user
+        starter: "200"
+        pro: "500"
+        business: "1,200"
+        enterprise: "Finite, contract-configured"
+      - label: External AI clients via MCP using your provider
+        starter: true
+        pro: true
+        business: true
+        enterprise: true
   - title: Core CRM
     rows:
       - label: Contacts, organizations, deals, services & tasks
@@ -168,7 +184,7 @@ comparison:
         pro: true
         business: true
         enterprise: true
-      - label: AI assistant via MCP
+      - label: External AI access via MCP
         starter: true
         pro: true
         business: true
@@ -230,6 +246,9 @@ faq:
   - id: pricing-faq-7
     title: How does monthly billing work?
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
+  - id: pricing-faq-8
+    title: How do hosted AI credits work?
+    content: "Hosted AI processing in Customermates uses credits. Simple requests usually use one credit; multi-step work can use more. Paid allowances reset on the monthly billing-anniversary day, even when billed annually; unused credits do not roll over. Every active trial user receives 500 credits, and there is no workspace-wide cap. New paid seats receive a whole-credit prorated allowance for the remaining billing period. Upgrades increase the current allowance immediately; downgrades reduce it immediately. External MCP clients use your own AI provider, are not metered by Customermates, and do not consume Customermates credits. The hosted Assistant is cloud-only. There are no top-ups or automatic overage charges."
 
 cta:
   action: Ready to get started?

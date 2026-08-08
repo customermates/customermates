@@ -1,0 +1,61 @@
+import { z } from "zod";
+
+import { AgentApprovalDecision } from "@/generated/prisma";
+
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AgentSessionUnavailableError, ForbiddenError } from "@/core/errors/app-errors";
+import { type Data, type Validated } from "@/core/validation/validation.utils";
+
+import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { isRememberableAgentTool, sanitizePreAuthorizedAgentTools } from "./agent-approval";
+
+export const RespondToApprovalSchema = z
+  .object({
+    conversationId: z.uuid(),
+    requestId: z.string().min(1),
+    decision: z.enum(["approve", "reject", "always"]),
+  })
+  .strict();
+
+export type RespondToApprovalData = Data<typeof RespondToApprovalSchema>;
+
+@TenantInteractor()
+export class RespondToApprovalInteractor extends AuthenticatedInteractor<RespondToApprovalData, { resolved: true }> {
+  constructor(private repo: PrismaAgentChatRepo) {
+    super();
+  }
+
+  @Validate(RespondToApprovalSchema)
+  @Transaction
+  async invoke(data: RespondToApprovalData): Validated<{ resolved: true }> {
+    const conversation = await this.repo.findConversation(data.conversationId);
+    if (!conversation) throw new AgentSessionUnavailableError("Conversation not found.");
+
+    const resolved = await this.repo.resolvePendingApprovalRequest({
+      conversationId: data.conversationId,
+      requestId: data.requestId,
+      decision: data.decision === "reject" ? AgentApprovalDecision.reject : AgentApprovalDecision.approve,
+      requireRememberable: data.decision === "always",
+    });
+    if (!resolved) throw new AgentSessionUnavailableError("Approval request is unavailable or expired.");
+    if (!resolved.resolved) throw new ForbiddenError("Persistent approval is not available for this action.");
+
+    if (data.decision === "always") {
+      if (!isRememberableAgentTool(resolved.toolName))
+        throw new ForbiddenError("Persistent approval is not available.");
+
+      const settings = await this.repo.getUserAgentSettingsOrThrow();
+      const remembered = sanitizePreAuthorizedAgentTools([...settings.preAuthorizedAgentTools, resolved.toolName]);
+      if (
+        remembered.length !== settings.preAuthorizedAgentTools.length ||
+        remembered.some((toolName, index) => settings.preAuthorizedAgentTools[index] !== toolName)
+      )
+        await this.repo.setPreAuthorizedAgentTools(remembered);
+    }
+
+    return { ok: true as const, data: { resolved: true } };
+  }
+}

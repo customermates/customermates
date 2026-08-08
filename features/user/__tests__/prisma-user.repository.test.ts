@@ -5,8 +5,16 @@ import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 
 const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
+const transactionUserUpdate = vi.fn().mockResolvedValue({ id: "user-1" });
+const transactionClient = {
+  $executeRaw: vi.fn().mockResolvedValue(0),
+  user: { update: transactionUserUpdate },
+};
 
 const prismaMock = {
+  $transaction: vi.fn(async (callback: (tx: typeof transactionClient) => Promise<unknown>) =>
+    callback(transactionClient),
+  ),
   user: {
     findFirst: vi.fn().mockResolvedValue(null),
     findMany: vi.fn().mockResolvedValue([]),
@@ -20,8 +28,12 @@ const prismaMock = {
 };
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
-vi.mock("next-intl/server", () => ({ getTranslations: () => Promise.resolve((key: string) => key) }));
-vi.mock("@/core/decorators/transaction.decorator", () => ({ Transaction: () => undefined }));
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve((key: string) => key),
+}));
+vi.mock("@/core/decorators/transaction.decorator", () => ({
+  Transaction: () => undefined,
+}));
 
 const { PrismaUserRepo } = await import("../prisma-user.repository");
 
@@ -67,7 +79,11 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     const created = customColumnCreate.mock.calls.map((call) => call[0].data);
 
     for (const data of created) {
-      const options = data.options.options as Array<{ isDefault: boolean; value: string; color: string }>;
+      const options = data.options.options as Array<{
+        isDefault: boolean;
+        value: string;
+        color: string;
+      }>;
 
       expect(options.length).toBeGreaterThan(1);
       for (const option of options as Array<{ color: string }>) expect(CHIP_COLORS).toContain(option.color);
@@ -87,6 +103,32 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   });
 });
 
+describe("PrismaUserRepo.deactivateUserOrThrow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("takes the hosted-AI company lock before deactivating the seat", async () => {
+    const companyId = "00000000-0000-4000-8000-000000000001";
+    const userId = "00000000-0000-4000-8000-000000000002";
+    prismaMock.user.findUniqueOrThrow.mockResolvedValueOnce({ companyId });
+
+    await new PrismaUserRepo().deactivateUserOrThrow(userId);
+
+    expect(prismaMock.user.findUniqueOrThrow).toHaveBeenCalledWith({
+      where: { id: userId },
+      select: { companyId: true },
+    });
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
+    expect(transactionUserUpdate).toHaveBeenCalledWith({
+      where: { id: userId, companyId },
+      data: { status: Status.inactive, agentCreditActivatedAt: null },
+    });
+    expect(transactionClient.$executeRaw).toHaveBeenCalledBefore(transactionUserUpdate);
+  });
+});
+
 describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
   it("returns the UTC creation timestamp needed for historical-notice suppression", async () => {
     const createdAt = new Date("2026-08-07T23:59:59.000Z");
@@ -103,7 +145,11 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
     ]);
 
     await expect(new PrismaUserRepo().findActiveLegalNoticeRecipientsUnscoped()).resolves.toEqual([
-      expect.objectContaining({ id: "user-1", createdAt, isSystemAdministrator: true }),
+      expect.objectContaining({
+        id: "user-1",
+        createdAt,
+        isSystemAdministrator: true,
+      }),
     ]);
     expect(prismaMock.user.findMany).toHaveBeenCalledWith(
       expect.objectContaining({

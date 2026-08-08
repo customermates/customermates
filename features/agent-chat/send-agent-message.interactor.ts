@@ -1,0 +1,285 @@
+import { randomUUID } from "node:crypto";
+
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { getTenantUser } from "@/core/decorators/tenant-context";
+import { type Validated } from "@/core/validation/validation.utils";
+import { AgentLimitExceededError, AgentSessionUnavailableError } from "@/core/errors/app-errors";
+import { env } from "@/env";
+
+import { resolveUserLocale } from "@/i18n/user-locale";
+
+import {
+  SendAgentMessageSchema,
+  clientSafeAgentMessageParts,
+  hasRenderableAgentMessageParts,
+  type AgentMessagePart,
+  type SendAgentMessageData,
+  partsToText,
+} from "./agent-chat.schema";
+import type { AgentRunContext } from "./agent-runner";
+import type { AgentUsageService } from "./agent-usage.service";
+import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
+import { laneModelId } from "./llm.service";
+import { buildAgentSystemPrompt } from "./system-prompt";
+import { getAgentAiToolDefinitions, selectAgentToolNames } from "./agent-tools";
+import {
+  AGENT_REPLAY_COUNT,
+  AGENT_REPLAY_MAX_CHARS,
+  conservativeAgentInitialContextBytes,
+} from "./agent-provider-context";
+import { sanitizeAgentConversationTitle } from "./agent-output-safety";
+
+type AdmittedAgentRun = { disposition: "run" } & Omit<AgentRunContext, "appBaseUrl">;
+
+export type SendAgentMessageResult =
+  | AdmittedAgentRun
+  | {
+      disposition: "completedReplay";
+      conversationId: string;
+      userMessageId: string;
+      clientRequestId: string;
+      assistantMessage: {
+        id: string;
+        parts: AgentMessagePart[];
+        createdAt: Date;
+      };
+      terminalCode: NonNullable<AgentTurnRequestSnapshot["terminalCode"]>;
+      affectedResources: AgentTurnRequestSnapshot["affectedResources"];
+    }
+  | {
+      disposition: "running" | "failed" | "uncertain" | "conflict";
+      clientRequestId: string;
+      conversationId?: string;
+      userMessageId?: string;
+      retryAllowed: boolean;
+    };
+
+@TenantInteractor()
+export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgentMessageData, SendAgentMessageResult> {
+  constructor(
+    private repo: PrismaAgentChatRepo,
+    private usageService: AgentUsageService,
+  ) {
+    super();
+  }
+
+  @Validate(SendAgentMessageSchema)
+  @Transaction
+  async invoke(data: SendAgentMessageData): Validated<SendAgentMessageResult> {
+    const user = getTenantUser();
+    const now = new Date();
+    const model = laneModelId("agent");
+    await this.repo.normalizeExpiredAgentRunLease(now, model);
+
+    const replay = await this.repo.findAgentTurnRequestForAdmission(data.clientRequestId, now, model);
+    const pageRoute = data.pageContext?.route ?? null;
+    const decision = decideAgentTurnAdmission(replay?.snapshot ?? null, {
+      clientRequestId: data.clientRequestId,
+      conversationId: data.conversationId,
+      text: data.text,
+      pageRoute,
+      retry: data.retry,
+    });
+
+    if (decision.disposition === "completed") {
+      const assistantMessage = replay?.assistantMessage;
+      const terminalCode = decision.turn.terminalCode;
+      const safeParts = assistantMessage
+        ? clientSafeAgentMessageParts(assistantMessage.parts, {
+            sanitizeText: true,
+          })
+        : [];
+      if (!assistantMessage || !terminalCode || !hasRenderableAgentMessageParts(safeParts)) {
+        return {
+          ok: true as const,
+          data: {
+            disposition: "uncertain",
+            clientRequestId: data.clientRequestId,
+            conversationId: decision.turn.conversationId,
+            userMessageId: decision.turn.userMessageId,
+            retryAllowed: false,
+          },
+        };
+      }
+
+      return {
+        ok: true as const,
+        data: {
+          disposition: "completedReplay",
+          conversationId: decision.turn.conversationId,
+          userMessageId: decision.turn.userMessageId,
+          clientRequestId: data.clientRequestId,
+          assistantMessage: {
+            id: assistantMessage.id,
+            parts: safeParts,
+            createdAt: assistantMessage.createdAt,
+          },
+          terminalCode,
+          affectedResources: decision.turn.affectedResources,
+        },
+      };
+    }
+
+    if (
+      decision.disposition === "running" ||
+      decision.disposition === "failed" ||
+      decision.disposition === "uncertain"
+    ) {
+      return {
+        ok: true as const,
+        data: {
+          disposition: decision.disposition,
+          clientRequestId: data.clientRequestId,
+          conversationId: decision.turn.conversationId,
+          userMessageId: decision.turn.userMessageId,
+          retryAllowed: decision.disposition === "failed",
+        },
+      };
+    }
+
+    if (decision.disposition === "conflict") {
+      return {
+        ok: true as const,
+        data: {
+          disposition: "conflict",
+          clientRequestId: data.clientRequestId,
+          retryAllowed: false,
+        },
+      };
+    }
+
+    let conversation =
+      decision.disposition === "retry"
+        ? await this.repo.findConversation(decision.turn.conversationId)
+        : data.conversationId
+          ? await this.repo.findConversation(data.conversationId)
+          : null;
+    if ((decision.disposition === "retry" || data.conversationId) && !conversation)
+      throw new AgentSessionUnavailableError("Conversation not found.");
+
+    const userName = `${user.firstName} ${user.lastName}`.trim();
+    const locale = data.locale ?? resolveUserLocale(user);
+    const priorUserTexts = conversation
+      ? (await this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT))
+          .filter((message) => message.role === "user")
+          .map((message) => partsToText(message.parts))
+          .filter(Boolean)
+      : [];
+    const toolNames = selectAgentToolNames({ text: data.text, pageRoute, priorUserTexts });
+    const requiredContextBytes = conservativeAgentInitialContextBytes({
+      systemPrompt: buildAgentSystemPrompt({
+        userName,
+        appBaseUrl: env.BASE_URL,
+      }),
+      currentText: data.text,
+      pageRoute,
+      toolDefinitions: getAgentAiToolDefinitions(toolNames),
+    });
+    if (requiredContextBytes === null)
+      throw new AgentSessionUnavailableError("The Assistant request context could not be measured safely.");
+
+    const creditAdmission = await this.usageService.prepareTurn(user.id, now, requiredContextBytes);
+    if (!creditAdmission.reservation) {
+      throw new AgentLimitExceededError(
+        `The hosted Assistant cannot start another turn. Reason: ${creditAdmission.summary.blockedReason ?? "unavailable"}. Reset: ${creditAdmission.summary.resetAt.toISOString()}.`,
+      );
+    }
+
+    const runId = randomUUID();
+    const claimed = await this.repo.claimAgentRunLease(runId, new Date(now.getTime() + AGENT_RUN_LEASE_MS));
+    if (!claimed) throw new AgentSessionUnavailableError("Another assistant turn is already running.");
+    let reservationCreated = false;
+    try {
+      await this.usageService.reserveUsage({
+        reservationId: runId,
+        companyId: user.companyId,
+        userId: user.id,
+        reservation: creditAdmission.reservation,
+      });
+      reservationCreated = true;
+
+      conversation ??= await this.repo.createConversation({
+        title: sanitizeAgentConversationTitle(data.text),
+      });
+      const turnRequestId = decision.disposition === "retry" ? decision.turn.id : randomUUID();
+      const userMessageId = decision.disposition === "retry" ? decision.turn.userMessageId : randomUUID();
+      if (decision.disposition === "retry") {
+        const retried = await this.repo.retryAgentTurnRequest({
+          turnRequestId,
+          priorRunId: decision.turn.runId,
+          priorAttemptCount: decision.turn.attemptCount,
+          runId,
+        });
+        if (!retried) throw new AgentSessionUnavailableError("The assistant retry could not be started.");
+      } else {
+        await this.repo.createAgentTurnRequest({
+          turnRequestId,
+          clientRequestId: data.clientRequestId,
+          conversationId: conversation.id,
+          text: data.text,
+          pageRoute,
+          runId,
+          userMessageId,
+        });
+      }
+      await this.repo.touchConversation(conversation.id);
+
+      const [recent, settings] = await Promise.all([
+        this.repo.listRecentMessages(conversation.id, AGENT_REPLAY_COUNT),
+        this.repo.getUserAgentSettingsOrThrow(),
+      ]);
+      const pageContext = data.pageContext ? `<page_context route="${data.pageContext.route}"/>\n` : "";
+      const messages = recent
+        .map((message) => {
+          const text = partsToText(message.parts);
+          return {
+            role: message.role as string,
+            text: message.id === userMessageId ? `${pageContext}${text}` : text.slice(0, AGENT_REPLAY_MAX_CHARS),
+          };
+        })
+        .filter((message) => message.text);
+
+      return {
+        ok: true as const,
+        data: {
+          disposition: "run",
+          companyId: user.companyId,
+          userId: user.id,
+          runId,
+          turnRequestId,
+          userMessageId,
+          clientRequestId: data.clientRequestId,
+          userName,
+          conversationId: conversation.id,
+          locale,
+          preAuthorized: settings.preAuthorizedAgentTools,
+          toolNames,
+          messages,
+          turnBudget: creditAdmission.reservation.budget,
+        },
+      };
+    } catch (error) {
+      await Promise.allSettled([
+        ...(reservationCreated
+          ? [
+              this.usageService.releaseReservation({
+                reservationId: runId,
+                companyId: user.companyId,
+                userId: user.id,
+              }),
+            ]
+          : []),
+        this.repo.releaseAgentRunLeaseUnscoped({
+          companyId: user.companyId,
+          userId: user.id,
+          runId,
+        }),
+      ]);
+      throw error;
+    }
+  }
+}

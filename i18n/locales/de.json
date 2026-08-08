@@ -7,6 +7,202 @@
     "subject": "Einige Ihrer verbundenen Konten wurden entfernt",
     "title": "Verbundene Konten entfernt"
   },
+  "AgentChat": {
+    "activity": {
+      "complete": "Aktivität",
+      "failed": "Aktivität benötigt Aufmerksamkeit",
+      "input": "Eingabe",
+      "result": "Ergebnis",
+      "working": "In Bearbeitung…"
+    },
+    "approval": {
+      "always": "Freigegeben (ab jetzt immer erlaubt)",
+      "alwaysAction": "Immer erlauben",
+      "approve": "Freigegeben",
+      "approveAction": "Freigeben",
+      "reject": "Abgelehnt",
+      "rejectAction": "Ablehnen",
+      "timeout": "Zeit abgelaufen, keine Antwort",
+      "title": "Der Assistent möchte ausführen:"
+    },
+    "credits": {
+      "blocked": {
+        "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
+        "credits_exhausted": "Du hast die gehosteten KI-Credits dieses Monats verbraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
+        "enterprise_allowance_missing": "Das gehostete KI-Kontingent deines Enterprise-Tarifs ist noch nicht konfiguriert. Kontaktiere Customermates, um neue Anfragen zu aktivieren.",
+        "self_hosted": "Der gehostete Assistent ist nur in der Cloud verfügbar. Self-Hosted-Workspaces können externe MCP-Clients mit dem eigenen KI-Anbieter verwenden.",
+        "subscription_unavailable": "Für neue Anfragen an den gehosteten Assistenten ist ein aktives Cloud-Abonnement erforderlich. Dein Verlauf bleibt zugänglich."
+      },
+      "contact": "Kontakt aufnehmen",
+      "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
+      "recentTurn": "{credits, plural, one {Letzte Anfrage: # Credit} other {Letzte Anfrage: # Credits}}",
+      "remaining": "{remaining, number} von {limit, number} Credits verbleibend",
+      "resetShort": "Zurücksetzung am {resetAt}",
+      "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
+      "usedPercent": "{pct} % verbraucht",
+      "viewPlans": "Tarife ansehen"
+    },
+    "empty": "Frag mich alles zu deinem CRM. Ich kann Daten nachschlagen, mit deiner Freigabe Einträge anlegen und ändern und dir die App zeigen.",
+    "errors": {
+      "approvalFailed": "Die Freigabe konnte nicht übermittelt werden.",
+      "limitReached": "Dein KI-Nutzungslimit ist erreicht.",
+      "sendFailed": "Der Assistent konnte deine Nachricht nicht verarbeiten.",
+      "turnFailed": "Beim Assistenten ist ein Fehler aufgetreten."
+    },
+    "placeholder": "Frag dein CRM…",
+    "send": "Senden",
+    "setup": {
+      "actionFailed": "Die Aktion konnte nicht abgeschlossen werden. Du kannst es erneut versuchen.",
+      "applyPlan": "Einrichtung anwenden",
+      "cancel": "Abbrechen",
+      "cleanupReasonDependent": "weiterhin verknüpft",
+      "cleanupReasonEdited": "bearbeitet",
+      "cleanupSummary": "{deleted} entfernt · {retained} behalten · {missing} bereits nicht vorhanden",
+      "cleanupSummaryReasons": "{deleted} entfernt · {retained} behalten · {missing} bereits nicht vorhanden · Behalten: {reasons}",
+      "confirmFullCleanup": "Endgültig entfernen",
+      "contacts": "Kontakte",
+      "deals": "Deals",
+      "description": "Ein kleiner, verknüpfter Startpunkt für deinen Anwendungsfall.",
+      "dueInDays": "in {days} Tagen fällig",
+      "editPlan": "Plan anpassen",
+      "editPrompt": "Ich möchte diesen Einrichtungsplan ändern. Frag mich bitte, was ich anpassen möchte.",
+      "entities": {
+        "contact": "Kontakt",
+        "deal": "Deal",
+        "organization": "Organisation",
+        "service": "Leistung",
+        "task": "Aufgabe"
+      },
+      "fields": "Felder",
+      "fullCleanup": "Einige Einträge wurden bearbeitet und deshalb behalten. Du kannst auch diese entfernen; weiterhin verknüpfte Einträge bleiben geschützt. Dies kann nicht rückgängig gemacht werden.",
+      "organizations": "Organisationen",
+      "pending": {
+        "apply": {
+          "description": "Die geprüfte Einrichtung wird jetzt angewendet …",
+          "label": "Wird angewendet"
+        },
+        "fullCleanup": {
+          "description": "Bearbeitete Einträge aus dieser Einrichtung werden ebenfalls entfernt …",
+          "label": "Wird vollständig entfernt"
+        },
+        "safeCleanup": {
+          "description": "Unveränderte Einträge aus dieser Einrichtung werden entfernt …",
+          "label": "Wird entfernt"
+        }
+      },
+      "records": "Einträge",
+      "removeEdited": "Bearbeitete Einträge entfernen …",
+      "removeSetup": "Einrichtungsdaten entfernen",
+      "review": "Plan prüfen",
+      "safeCleanup": "Du kannst diese Einrichtung wieder entfernen. Bearbeitete oder weiterhin verknüpfte Einträge bleiben dabei erhalten.",
+      "safety": "Noch wurde nichts geändert. Anwenden erstellt genau die geprüften Felder, verknüpften Starteinträge und persönlichen Widgets.",
+      "sampleData": "Starteinträge",
+      "sampleDataDetail": "{organizations} Organisationen, {contacts} Kontakte, {services} Leistungen, {deals} Deals und {tasks} Aufgaben",
+      "services": "Leistungen",
+      "status": {
+        "applied": {
+          "description": "Diese Einrichtung ist in deinem Arbeitsbereich aktiv.",
+          "label": "Angewendet"
+        },
+        "cleaned": {
+          "description": "Die von dieser Einrichtung erstellten Einträge wurden entfernt.",
+          "label": "Entfernt"
+        },
+        "failed": {
+          "description": "Die Einrichtung konnte nicht abgeschlossen werden.",
+          "label": "Fehlgeschlagen"
+        },
+        "notEmpty": {
+          "description": "Der Arbeitsbereich enthält inzwischen Daten; dieser Startplan wurde nicht angewendet.",
+          "label": "Nicht angewendet"
+        },
+        "partiallyCleaned": {
+          "description": "Bearbeitete oder verknüpfte Einträge wurden sicher beibehalten.",
+          "label": "Teilweise entfernt"
+        },
+        "preparing": {
+          "description": "Der Einrichtungsplan wird erstellt.",
+          "label": "Wird vorbereitet"
+        },
+        "ready": {
+          "description": "Prüfe den Plan, bevor du ihn anwendest.",
+          "label": "Bereit zur Prüfung"
+        },
+        "superseded": {
+          "description": "Ein neuerer Einrichtungsplan ersetzt diese Version.",
+          "label": "Ersetzt"
+        }
+      },
+      "summary": "Zusammenfassung der Einrichtung",
+      "tasks": "Aufgaben",
+      "terminology": "Begriffe",
+      "title": "Arbeitsbereich einrichten",
+      "widgets": "Widgets"
+    },
+    "stop": "Stopp",
+    "support": {
+      "ack": "Danke, ich habe eine Support-Anfrage für das Customermates-Team eröffnet. Es meldet sich hier, und du bekommst die Antwort zusätzlich per E-Mail.",
+      "badge": "Customermates · Support",
+      "requested": "Das Customermates-Team wurde benachrichtigt und meldet sich.",
+      "talkToHuman": "Mit einem Menschen sprechen"
+    },
+    "title": "Assistent",
+    "tour": {
+      "done": "Fertig",
+      "next": "Weiter",
+      "skip": "Überspringen"
+    },
+    "tourUi": {
+      "back": "Zurück",
+      "pause": "Pausieren",
+      "resume": "Tour fortsetzen",
+      "title": "Geführte Tour"
+    },
+    "ui": {
+      "activityCancelled": "{count} Arbeitsschritte gestoppt",
+      "activityComplete": "{count} Arbeitsschritte abgeschlossen",
+      "activityError": "{count} Arbeitsschritte benötigen Aufmerksamkeit",
+      "activityRunning": "{count} Arbeitsschritte werden ausgeführt …",
+      "archive": "Chat archivieren",
+      "archived": "Archiviert",
+      "archivedChats": "Archivierte Chats",
+      "assistantWorking": "Der Assistent antwortet",
+      "back": "Zurück zum Chat",
+      "cancel": "Abbrechen",
+      "chats": "Chats",
+      "creditUnavailable": "Kontingent nicht verfügbar",
+      "deleteChat": "Chat löschen",
+      "deleteChatBody": "Nachrichten, Freigaben, Assistentenaktionen und Einrichtungsdaten dieses Chats werden endgültig gelöscht. KI-Nutzungs- und Abrechnungsdaten, über den Chat erstellte CRM-Einträge und separat erstellte Support-Tickets bleiben erhalten.",
+      "deleteChatTitle": "Chat endgültig löschen?",
+      "deletePermanently": "Endgültig löschen",
+      "editQueued": "Vorgemerkte Nachricht bearbeiten",
+      "history": "Chatverlauf",
+      "jumpToLatest": "Zu den neuesten Nachrichten",
+      "loadChatFailed": "Der Chat konnte nicht geladen werden. Wähle ihn erneut, um es noch einmal zu versuchen.",
+      "loadingChat": "Chat wird geladen …",
+      "loadingOlderMessages": "Ältere Nachrichten werden geladen",
+      "loadMoreChats": "Weitere Chats laden",
+      "loadOlderMessages": "Frühere Nachrichten laden",
+      "newChat": "Neuer Chat",
+      "noChatMatches": "Keine passenden Chats gefunden.",
+      "noChats": "Noch keine Chats",
+      "noChatsBody": "Starte einen Chat, um Fragen und Arbeitsschritte später wiederzufinden.",
+      "queueAction": "Nachricht vormerken",
+      "queued": "Als Nächstes",
+      "refreshHistoryFailed": "Der Chatverlauf konnte nicht aktualisiert werden. Deine vorhandenen Chats bleiben sichtbar.",
+      "removeQueued": "Vorgemerkte Nachricht entfernen",
+      "responseComplete": "Antwort abgeschlossen",
+      "restore": "Wiederherstellen",
+      "retryTurn": "Erneut versuchen",
+      "searchChats": "Chats durchsuchen",
+      "searchingChats": "Chats werden durchsucht",
+      "turnFailed": "Diese Antwort konnte nicht abgeschlossen werden.",
+      "undo": "Rückgängig",
+      "unreadReplies": "{count} ungelesene {count, plural, one {Support-Antwort} other {Support-Antworten}}",
+      "unreadSupport": "Ungelesene Support-Antworten",
+      "untitled": "Neuer Chat"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open Source"
   },
@@ -1340,9 +1536,9 @@
       "badge": "Beliebt",
       "compareText": "Tarife vergleichen",
       "ctaText": "Kostenlos starten",
-      "featureBusiness": "Business: 3 Konten pro Nutzer, geteilte Konten & Priority-Support",
-      "featurePro": "Pro: zentraler Posteingang, 1 verbundenes Konto pro Nutzer",
-      "featureStarter": "Starter: das komplette CRM",
+      "featureBusiness": "Business: 1.200 gehostete KI-Credits, 3 Konten und geteilte Postfächer",
+      "featurePro": "Pro: 500 gehostete KI-Credits und zentraler Posteingang",
+      "featureStarter": "Starter: komplettes CRM und 200 gehostete KI-Credits",
       "period": "/ Nutzer / Monat",
       "price": "ab 12 €",
       "tag": "Gehostet in Frankfurt. Kostenlos starten, keine Kreditkarte.",
@@ -1817,6 +2013,7 @@
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
+      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert, auch bei jährlicher Abrechnung. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter und verbrauchen diese Credits nicht.",
       "features": {
         "business": ["Alles aus Pro", "3 verbundene Konten pro Nutzer", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Gemeinsamer Posteingang", "1 verbundenes Konto pro Nutzer"],
@@ -1827,6 +2024,7 @@
           "MCP-Server-Zugriff"
         ]
       },
+      "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
       "mostPopular": "Am beliebtesten",
       "perUserMonth": "pro Nutzer / Monat",
       "price": {

@@ -15,11 +15,18 @@ import type { EmailService } from "@/features/email/email.service";
 
 import type { PrismaSupportRepo } from "./prisma-support.repository";
 
-export const CreateSupportTicketSchema = z.object({
-  subject: z.string().min(1).max(200),
-  body: z.string().min(1).max(10000),
-  source: z.enum(SupportTicketSource),
-});
+export const CreateSupportTicketSchema = z
+  .object({
+    subject: z.string().min(1).max(200),
+    body: z.string().min(1).max(10000),
+    source: z.enum(SupportTicketSource),
+    idempotencyId: z.uuid().optional(),
+    agentConversationId: z.uuid().optional(),
+  })
+  .refine((data) => !data.agentConversationId || data.source === SupportTicketSource.chat, {
+    path: ["agentConversationId"],
+    message: "Only hosted Assistant tickets can reference a conversation.",
+  });
 
 export type CreateSupportTicketData = Data<typeof CreateSupportTicketSchema>;
 
@@ -38,20 +45,28 @@ export class CreateSupportTicketInteractor extends AuthenticatedInteractor<Creat
   async invoke(data: CreateSupportTicketData): Validated<CreatedTicket> {
     const user = getTenantUser();
 
-    const ticket = await this.repo.createSupportTicket({ subject: data.subject, body: data.body, source: data.source });
-
-    await this.emailService.send({
-      to: env.RESEND_OPERATOR_EMAIL,
-      subject: `Support ticket #${ticket.number} from ${user.firstName} ${user.lastName}`,
-      react: React.createElement(SupportEscalation, {
-        userName: `${user.firstName} ${user.lastName}`,
-        userEmail: user.email,
-        companyName: user.companyId,
-        conversationTitle: `#${ticket.number}: ${data.subject}`,
-        lastMessages: data.body,
-      }),
+    const creation = await this.repo.createSupportTicketOrThrow({
+      subject: data.subject,
+      body: data.body,
+      source: data.source,
+      ...(data.idempotencyId ? { idempotencyId: data.idempotencyId } : {}),
+      ...(data.agentConversationId ? { agentConversationId: data.agentConversationId } : {}),
     });
 
-    return { ok: true as const, data: ticket };
+    if (creation.created) {
+      await this.emailService.send({
+        to: env.RESEND_OPERATOR_EMAIL,
+        subject: `Support ticket #${creation.number} from ${user.firstName} ${user.lastName}`,
+        react: React.createElement(SupportEscalation, {
+          userName: `${user.firstName} ${user.lastName}`,
+          userEmail: user.email,
+          companyName: user.companyId,
+          conversationTitle: `#${creation.number}: ${data.subject}`,
+          lastMessages: data.body,
+        }),
+      });
+    }
+
+    return { ok: true as const, data: { id: creation.id, number: creation.number } };
   }
 }

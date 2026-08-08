@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`gated-tools > snapshots the surface so new tools force a conscious gating decision 1`] = `
+[
+  "connect_messaging_account",
+  "create_contacts",
+  "create_deals",
+  "create_organizations",
+  "create_services",
+  "create_tasks",
+  "delete_records",
+  "discard_message_draft",
+  "linkedin_manage_sales_lists",
+  "manage_custom_columns",
+  "manage_record_links",
+  "manage_social_relations",
+  "manage_team",
+  "manage_webhooks",
+  "manage_widgets",
+  "request_support",
+  "save_message_draft",
+  "send_chat_message",
+  "send_email",
+  "update_contacts",
+  "update_deals",
+  "update_messaging_thread",
+  "update_organizations",
+  "update_record_notes",
+  "update_services",
+  "update_tasks",
+  "update_workspace_settings",
+]
+`;
+
+exports[`gated-tools > snapshots the surface so new tools force a conscious gating decision 2`] = `
+[
+  "fetch",
+  "get_activities",
+  "get_calendars",
+  "get_docs_page",
+  "get_messaging_threads",
+  "get_record_schema",
+  "get_records",
+  "get_social_post_engagement",
+  "get_social_posts",
+  "get_social_profile",
+  "get_workspace_context",
+  "linkedin_get_sales_search_parameters",
+  "linkedin_search_sales_companies",
+  "linkedin_search_sales_leads",
+  "list_records",
+  "list_users",
+  "search",
+  "search_docs",
+  "search_records",
+]
+`;

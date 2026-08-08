@@ -7,6 +7,202 @@
     "subject": "Some of your connected accounts were removed",
     "title": "Connected accounts removed"
   },
+  "AgentChat": {
+    "activity": {
+      "complete": "Activity",
+      "failed": "Activity needs attention",
+      "input": "Input",
+      "result": "Result",
+      "working": "Working…"
+    },
+    "approval": {
+      "always": "Approved (always allowed from now on)",
+      "alwaysAction": "Always allow",
+      "approve": "Approved",
+      "approveAction": "Approve",
+      "reject": "Rejected",
+      "rejectAction": "Reject",
+      "timeout": "Timed out without a response",
+      "title": "The assistant wants to run:"
+    },
+    "credits": {
+      "blocked": {
+        "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
+        "credits_exhausted": "You have used this month's hosted AI credits. New requests resume on {resetAt}; your history remains accessible.",
+        "enterprise_allowance_missing": "Your Enterprise hosted AI allowance has not been configured yet. Contact Customermates to enable new requests.",
+        "self_hosted": "The hosted Assistant is cloud-only. Self-hosted workspaces can continue to use external MCP clients with their own AI provider.",
+        "subscription_unavailable": "A current cloud subscription is required for new hosted Assistant requests. Your history remains accessible."
+      },
+      "contact": "Contact us",
+      "planAndReset": "{plan} plan · resets {resetAt}",
+      "recentTurn": "{credits, plural, one {Last turn used # credit} other {Last turn used # credits}}",
+      "remaining": "{remaining, number} of {limit, number} credits remaining",
+      "resetShort": "Resets {resetAt}",
+      "usage": "{pct}% of monthly hosted AI credits used",
+      "usedPercent": "{pct}% used",
+      "viewPlans": "View plans"
+    },
+    "empty": "Ask anything about your CRM. I can look things up, create and update records with your approval, and show you around the app.",
+    "errors": {
+      "approvalFailed": "The approval could not be delivered.",
+      "limitReached": "Your AI usage limit is reached.",
+      "sendFailed": "The assistant could not process your message.",
+      "turnFailed": "The assistant ran into an error."
+    },
+    "placeholder": "Ask your CRM…",
+    "send": "Send",
+    "setup": {
+      "actionFailed": "The action couldn’t be completed. You can try again.",
+      "applyPlan": "Apply setup",
+      "cancel": "Cancel",
+      "cleanupReasonDependent": "still linked",
+      "cleanupReasonEdited": "edited",
+      "cleanupSummary": "{deleted} removed · {retained} kept · {missing} already missing",
+      "cleanupSummaryReasons": "{deleted} removed · {retained} kept · {missing} already missing · Kept: {reasons}",
+      "confirmFullCleanup": "Remove permanently",
+      "contacts": "Contacts",
+      "deals": "Deals",
+      "description": "A small, connected starting point tailored to your use case.",
+      "dueInDays": "due in {days} days",
+      "editPlan": "Edit plan",
+      "editPrompt": "I’d like to change this workspace setup plan. Please ask me what I want to adjust.",
+      "entities": {
+        "contact": "Contact",
+        "deal": "Deal",
+        "organization": "Organization",
+        "service": "Service",
+        "task": "Task"
+      },
+      "fields": "Fields",
+      "fullCleanup": "Some setup items were edited, so safe cleanup kept them. You can remove those too; still-linked items remain protected. This cannot be undone.",
+      "organizations": "Organizations",
+      "pending": {
+        "apply": {
+          "description": "The reviewed workspace setup is being applied…",
+          "label": "Applying"
+        },
+        "fullCleanup": {
+          "description": "Edited items created by this setup are being removed too…",
+          "label": "Removing edited items"
+        },
+        "safeCleanup": {
+          "description": "Unchanged items created by this setup are being removed…",
+          "label": "Removing"
+        }
+      },
+      "records": "Records",
+      "removeEdited": "Remove edited items…",
+      "removeSetup": "Remove setup data",
+      "review": "Review plan",
+      "safeCleanup": "You can remove this setup later. Safe cleanup keeps anything you edited or that is still linked to other data.",
+      "safety": "Nothing has changed yet. Apply creates exactly the reviewed fields, linked starter records, and personal widgets.",
+      "sampleData": "Starter records",
+      "sampleDataDetail": "{organizations} organizations, {contacts} contacts, {services} services, {deals} deals and {tasks} tasks",
+      "services": "Services",
+      "status": {
+        "applied": {
+          "description": "This setup is active in your workspace.",
+          "label": "Applied"
+        },
+        "cleaned": {
+          "description": "Items created by this setup were removed.",
+          "label": "Removed"
+        },
+        "failed": {
+          "description": "The workspace setup could not be completed.",
+          "label": "Failed"
+        },
+        "notEmpty": {
+          "description": "The workspace now contains data, so this starter plan was not applied.",
+          "label": "Not applied"
+        },
+        "partiallyCleaned": {
+          "description": "Edited or linked items were safely kept.",
+          "label": "Partially removed"
+        },
+        "preparing": {
+          "description": "The workspace setup plan is being prepared.",
+          "label": "Preparing"
+        },
+        "ready": {
+          "description": "Review the plan before applying it.",
+          "label": "Ready to review"
+        },
+        "superseded": {
+          "description": "A newer setup plan replaces this version.",
+          "label": "Replaced"
+        }
+      },
+      "summary": "Workspace setup summary",
+      "tasks": "Tasks",
+      "terminology": "Terminology",
+      "title": "Set up your workspace",
+      "widgets": "Widgets"
+    },
+    "stop": "Stop",
+    "support": {
+      "ack": "Thanks, I opened a support request for the Customermates team. They will get back to you here, and you will also receive the reply by email.",
+      "badge": "Customermates · Support",
+      "requested": "The Customermates team was notified and will follow up.",
+      "talkToHuman": "Talk to a human"
+    },
+    "title": "Assistant",
+    "tour": {
+      "done": "Done",
+      "next": "Next",
+      "skip": "Skip"
+    },
+    "tourUi": {
+      "back": "Back",
+      "pause": "Pause",
+      "resume": "Resume tour",
+      "title": "Guided tour"
+    },
+    "ui": {
+      "activityCancelled": "{count} {count, plural, one {step} other {steps}} stopped",
+      "activityComplete": "{count} {count, plural, one {step} other {steps}} completed",
+      "activityError": "{count} {count, plural, one {step needs} other {steps need}} attention",
+      "activityRunning": "Running {count} {count, plural, one {step} other {steps}}…",
+      "archive": "Archive chat",
+      "archived": "Archived",
+      "archivedChats": "Archived chats",
+      "assistantWorking": "Assistant is responding",
+      "back": "Back to chat",
+      "cancel": "Cancel",
+      "chats": "Chats",
+      "creditUnavailable": "Allowance unavailable",
+      "deleteChat": "Delete chat",
+      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, assistant actions, and setup history. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
+      "deleteChatTitle": "Permanently delete this chat?",
+      "deletePermanently": "Delete permanently",
+      "editQueued": "Edit queued message",
+      "history": "Chat history",
+      "jumpToLatest": "Jump to latest",
+      "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
+      "loadingChat": "Loading chat…",
+      "loadingOlderMessages": "Loading older messages",
+      "loadMoreChats": "Load more chats",
+      "loadOlderMessages": "Load earlier messages",
+      "newChat": "New chat",
+      "noChatMatches": "No matching chats found.",
+      "noChats": "No chats yet",
+      "noChatsBody": "Start a chat to return to your questions and completed work later.",
+      "queueAction": "Queue message",
+      "queued": "Up next",
+      "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
+      "removeQueued": "Remove queued message",
+      "responseComplete": "Response complete",
+      "restore": "Restore",
+      "retryTurn": "Try again",
+      "searchChats": "Search chats",
+      "searchingChats": "Searching chats",
+      "turnFailed": "This response couldn’t be completed.",
+      "undo": "Undo",
+      "unreadReplies": "{count} unread support {count, plural, one {reply} other {replies}}",
+      "unreadSupport": "Unread support replies",
+      "untitled": "New chat"
+    }
+  },
   "AgplGithubBadge": {
     "label": "AGPL · Open source"
   },
@@ -1340,9 +1536,9 @@
       "badge": "Popular",
       "compareText": "Compare plans",
       "ctaText": "Start free",
-      "featureBusiness": "Business: 3 accounts per user, shared accounts & priority support",
-      "featurePro": "Pro: unified inbox, 1 connected account per user",
-      "featureStarter": "Starter: the full CRM",
+      "featureBusiness": "Business: 1,200 hosted AI credits, 3 accounts and shared inboxes",
+      "featurePro": "Pro: 500 hosted AI credits and unified inbox",
+      "featureStarter": "Starter: full CRM and 200 hosted AI credits",
       "period": "/ user / month",
       "price": "from €12",
       "tag": "Managed in Frankfurt. Start free, no credit card.",
@@ -1817,6 +2013,7 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "creditNote": "Hosted AI credits refresh monthly, even on annual billing. External MCP clients use your own AI provider and do not consume these credits.",
       "features": {
         "business": ["Everything in Pro", "3 connected accounts per user", "Shared accounts and priority support"],
         "pro": ["Everything in Starter", "Unified inbox", "1 connected account per user"],
@@ -1827,6 +2024,7 @@
           "MCP server access"
         ]
       },
+      "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
       "mostPopular": "Most popular",
       "perUserMonth": "per user / month",
       "price": {

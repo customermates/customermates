@@ -11,7 +11,7 @@ import { env } from "@/env";
 
 export abstract class DeactivateUsersAfterSubscriptionGracePeriodRepo {
   abstract findUsersPastSubscriptionGracePeriod(): Promise<User[]>;
-  abstract deactivateUser(userId: string): Promise<void>;
+  abstract deactivateUserOrThrow(userId: string): Promise<void>;
 }
 
 @SystemInteractor
@@ -25,7 +25,7 @@ export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
     const users = await this.repo.findUsersPastSubscriptionGracePeriod();
 
     for (const user of users) {
-      await this.repo.deactivateUser(user.id);
+      await this.repo.deactivateUserOrThrow(user.id);
 
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;

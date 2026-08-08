@@ -156,40 +156,46 @@ model OauthConsent {
 }
 
 model User {
-  id                              String             @id @default(uuid())
-  email                           String             @unique
+  id                              String              @id @default(uuid())
+  email                           String              @unique
   firstName                       String
   lastName                        String
   companyId                       String
   roleId                          String?
-  role                            UserRole?          @relation(fields: [roleId], references: [id])
-  status                          Status             @default(pendingAuthorization)
-  displayLanguage                 Locale             @default(system)
-  formattingLocale                Locale             @default(system)
+  role                            UserRole?           @relation(fields: [roleId], references: [id])
+  status                          Status              @default(pendingAuthorization)
+  displayLanguage                 Locale              @default(system)
+  formattingLocale                Locale              @default(system)
   auditLogs                       AuditLog[]
-  theme                           Theme              @default(system)
-  country                         CountryCode        @default(de)
+  theme                           Theme               @default(system)
+  country                         CountryCode         @default(de)
   avatarUrl                       String?
-  agreeToTerms                    Boolean            @default(false)
+  agreeToTerms                    Boolean             @default(false)
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?
   trialInactivationReminderSentAt DateTime?
   trialInactivationNoticeSentAt   DateTime?
   onboardingWizardCompletedAt     DateTime?
-  createdAt                       DateTime           @default(now())
-  updatedAt                       DateTime           @updatedAt
-  company                         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens                   InviteToken[]      @relation("TokenCreator")
+  preAuthorizedAgentTools         String[]            @default([])
+  agentWeeklyLimitCents           Int?
+  agentMonthlyLimitCents          Int?
+  agentCreditActivatedAt          DateTime?
+  createdAt                       DateTime            @default(now())
+  updatedAt                       DateTime            @updatedAt
+  company                         Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]       @relation("TokenCreator")
   deals                           DealUser[]
   contacts                        ContactUser[]
   organizations                   OrganizationUser[]
   services                        ServiceUser[]
   tasks                           TaskUser[]
-  relatedTasks                    Task[]             @relation("TaskRelatedUser")
+  relatedTasks                    Task[]              @relation("TaskRelatedUser")
   widgets                         Widget[]
   p13n                            P13n[]
   connectedAccounts               ConnectedAccount[]
+  agentConversations              AgentConversation[]
+  agentRunLease                   AgentRunLease?
 
   @@index([companyId])
   @@index([companyId, status])
@@ -240,6 +246,8 @@ model Company {
   calendarEvents              CalendarEvent[]
   subscription                Subscription?
   entityTerminology           EntityTerminology[]
+  agentConversations          AgentConversation[]
+  agentRunLeases              AgentRunLease[]
 }
 
 model EntityTerminology {
@@ -797,18 +805,20 @@ model WebhookDelivery {
 }
 
 model Subscription {
-  id                    String             @id @default(uuid())
-  companyId             String             @unique
-  company               Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  lemonSqueezyId        String?            @unique
-  lemonSqueezyVariantId String?
-  status                SubscriptionStatus @default(trial)
-  plan                  SubscriptionPlan   @default(pro)
-  quantity              Int?
-  trialEndDate          DateTime?
-  currentPeriodEnd      DateTime?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  id                            String             @id @default(uuid())
+  companyId                     String             @unique
+  company                       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lemonSqueezyId                String?            @unique
+  lemonSqueezyVariantId         String?
+  status                        SubscriptionStatus @default(trial)
+  plan                          SubscriptionPlan   @default(pro)
+  quantity                      Int?
+  trialEndDate                  DateTime?
+  currentPeriodEnd              DateTime?
+  agentCreditAnchorAt           DateTime?
+  enterpriseAgentCreditsPerUser Int?
+  createdAt                     DateTime           @default(now())
+  updatedAt                     DateTime           @updatedAt
 
   @@index([companyId])
   @@index([lemonSqueezyId])
@@ -1568,19 +1578,22 @@ enum UnipileWebhookSource {
 }
 
 model SupportTicket {
-  id         String              @id @default(uuid())
-  number     Int                 @unique @default(autoincrement())
-  companyId  String
-  userId     String
-  subject    String
-  body       String
-  status     SupportTicketStatus @default(open)
-  source     SupportTicketSource
-  createdAt  DateTime            @default(now())
-  resolvedAt DateTime?
+  id                  String              @id @default(uuid())
+  number              Int                 @unique @default(autoincrement())
+  companyId           String
+  userId              String
+  subject             String
+  body                String
+  status              SupportTicketStatus @default(open)
+  source              SupportTicketSource
+  agentConversationId String?
+  createdAt           DateTime            @default(now())
+  resolvedAt          DateTime?
+  agentConversation   AgentConversation?  @relation(fields: [agentConversationId], references: [id], onDelete: SetNull)
 
   @@index([companyId, status])
   @@index([status, createdAt])
+  @@index([agentConversationId])
 }
 
 enum SupportTicketStatus {
@@ -1591,4 +1604,247 @@ enum SupportTicketStatus {
 enum SupportTicketSource {
   chat
   mcp
+}
+
+model AgentConversation {
+  id                   String                 @id @default(uuid())
+  companyId            String
+  userId               String
+  title                String?
+  userLastReadAt       DateTime?
+  userLastReadSequence BigInt?
+  archivedAt           DateTime?
+  selectedAt           DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  company              Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages             AgentMessage[]
+  approvals            AgentApproval[]
+  uiCommandResults     AgentUiCommandResult[]
+  turnRequests         AgentTurnRequest[]
+  workspaceSetups      AgentWorkspaceSetup[]
+  supportTickets       SupportTicket[]
+
+  @@index([companyId, userId, archivedAt, updatedAt])
+  @@index([companyId, userId, archivedAt, selectedAt])
+}
+
+model AgentMessage {
+  id             String            @id @default(uuid())
+  conversationId String
+  companyId      String
+  turnRequestId  String?
+  role           AgentMessageRole
+  parts          Json
+  searchText     String
+  sequence       BigInt            @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  turnRequest    AgentTurnRequest? @relation(fields: [turnRequestId], references: [id], onDelete: SetNull)
+
+  @@unique([conversationId, sequence])
+  @@index([conversationId, role, sequence])
+  @@index([companyId])
+}
+
+model AgentUsageEvent {
+  id                         String             @id @default(uuid())
+  companyId                  String
+  userId                     String
+  sessionId                  String?
+  state                      AgentUsageState    @default(reserved)
+  model                      String             @default("")
+  inputTokens                Int                @default(0)
+  outputTokens               Int                @default(0)
+  cacheReadTokens            Int                @default(0)
+  cacheWriteTokens           Int                @default(0)
+  costMicrocents             Int                @default(0)
+  reservedCredits            Int                @default(0)
+  chargedCredits             Int                @default(0)
+  policyBreach               Boolean            @default(false)
+  planSnapshot               SubscriptionPlan
+  subscriptionStatusSnapshot SubscriptionStatus
+  allowanceCreditsSnapshot   Int
+  periodStart                DateTime
+  periodEnd                  DateTime
+  providerStartedAt          DateTime?
+  settledAt                  DateTime?
+  createdAt                  DateTime           @default(now())
+
+  @@index([userId, createdAt])
+  @@index([companyId, createdAt])
+  @@index([userId, periodStart, periodEnd, state])
+}
+
+enum AgentUsageState {
+  reserved
+  settled
+  retained
+  released
+}
+
+model AgentTurnRequest {
+  id                 String                 @id @default(uuid())
+  companyId          String
+  userId             String
+  conversationId     String
+  clientRequestId    String
+  text               String
+  pageRoute          String?
+  status             AgentTurnStatus
+  runId              String
+  attemptCount       Int                    @default(1)
+  providerStartedAt  DateTime?
+  userMessageId      String
+  assistantMessageId String?
+  terminalCode       AgentTurnTerminalCode?
+  affectedResources  Json                   @default("[]")
+  terminalAt         DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  conversation       AgentConversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages           AgentMessage[]
+
+  @@unique([companyId, userId, clientRequestId])
+  @@index([companyId, userId, runId, status])
+  @@index([conversationId, companyId, userId, status])
+}
+
+enum AgentTurnStatus {
+  running
+  completed
+  failed
+  uncertain
+}
+
+enum AgentTurnTerminalCode {
+  completed
+  partial
+  error
+  cancelled
+  policyBreach
+}
+
+model AgentWorkspaceSetup {
+  id               String                        @id @default(uuid())
+  companyId        String
+  userId           String
+  conversationId   String
+  reviewMessageId  String
+  commandId        String
+  plan             Json
+  planHash         String
+  schemaVersion    Int
+  revision         Int
+  priorTerminology Json
+  status           AgentWorkspaceSetupStatus
+  appliedAt        DateTime
+  cleanedAt        DateTime?
+  createdAt        DateTime                      @default(now())
+  updatedAt        DateTime                      @updatedAt
+  conversation     AgentConversation             @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  resources        AgentWorkspaceSetupResource[]
+
+  @@unique([conversationId, reviewMessageId, commandId])
+  @@index([companyId, userId, conversationId])
+  @@index([companyId, userId, status])
+}
+
+model AgentWorkspaceSetupResource {
+  id               String                   @id @default(uuid())
+  setupId          String
+  companyId        String
+  kind             AgentSetupResourceKind
+  resourceId       String
+  initialUpdatedAt DateTime
+  status           AgentSetupResourceStatus
+  cleanupReason    AgentSetupCleanupReason?
+  resolvedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+  setup            AgentWorkspaceSetup      @relation(fields: [setupId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, setupId, createdAt, id])
+  @@index([setupId, companyId, status])
+}
+
+enum AgentWorkspaceSetupStatus {
+  applied
+  partiallyCleaned
+  cleaned
+}
+
+enum AgentSetupResourceKind {
+  customColumn
+  organization
+  contact
+  service
+  deal
+  task
+  widget
+}
+
+enum AgentSetupResourceStatus {
+  active
+  retained
+  deleted
+  missing
+}
+
+enum AgentSetupCleanupReason {
+  edited
+  dependent
+}
+
+enum AgentMessageRole {
+  user
+  assistant
+  support
+}
+
+model AgentApproval {
+  id             String                @id @default(uuid())
+  conversationId String
+  companyId      String
+  requestId      String
+  toolName       String
+  decision       AgentApprovalDecision
+  createdAt      DateTime              @default(now())
+  conversation   AgentConversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, requestId])
+  @@index([companyId])
+}
+
+model AgentUiCommandResult {
+  id             String            @id @default(uuid())
+  conversationId String
+  companyId      String
+  commandId      String
+  name           String
+  ok             Boolean
+  result         String
+  createdAt      DateTime          @default(now())
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, commandId])
+  @@index([companyId])
+}
+
+model AgentRunLease {
+  userId    String   @id
+  companyId String
+  runId     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([expiresAt])
+}
+
+enum AgentApprovalDecision {
+  approve
+  reject
 }

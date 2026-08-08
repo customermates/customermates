@@ -3,6 +3,14 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import {
+  FORM_SCOPES,
+  NAV_KEYS,
+  TOOLBAR_SCOPES_WITH_ADD,
+  TOOLBAR_SCOPES_WITHOUT_ADD,
+} from "@/features/agent-chat/ui-anchors";
+import { AGENT_UI_TARGETS } from "@/features/agent-chat/ui-targets";
+
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const ENFORCED = true;
@@ -12,47 +20,6 @@ const LITERAL_ID_PATTERN = /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
 const DOCS_LOCALES = ["en", "de"] as const;
 
-const TOOLBAR_SCOPES_WITH_ADD = [
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "tasks",
-  "company-members",
-  "company-webhooks",
-  "company-roles",
-];
-const TOOLBAR_SCOPES_WITHOUT_ADD = ["company-audit-logs", "company-webhook-deliveries"];
-const FORM_SCOPES = [
-  "profile-settings",
-  "company-settings",
-  "member-modal",
-  "webhook-modal",
-  "widget-modal",
-];
-const NAV_KEYS = [
-  "dashboard",
-  "inbox",
-  "tasks",
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "profile",
-  "profile-settings",
-  "profile-api-keys",
-  "profile-connected-accounts",
-  "company",
-  "company-subscription",
-  "company-settings",
-  "company-members",
-  "company-roles",
-  "company-audit-logs",
-  "company-webhooks",
-  "company-webhook-deliveries",
-  "documentation",
-  "feedback",
-];
 const RESERVED_LITERAL_PREFIXES = [
   "nav-",
   "entity-",
@@ -173,5 +140,13 @@ describe("app-guide anchor id fidelity", () => {
       const undocumented = [...expected].filter((id) => !documented.has(id)).sort();
       expect(undocumented, `${locale} app-guide pages missing ids`).toEqual([]);
     }
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("offers the agent only targets that exist in code", () => {
+    const inCode = codeIds();
+    const unknown = AGENT_UI_TARGETS.map((target) => target.id)
+      .filter((id) => !inCode.has(id))
+      .sort();
+    expect(unknown, "AGENT_UI_TARGETS references ids that no component renders").toEqual([]);
   });
 });
