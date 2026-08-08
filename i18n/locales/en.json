@@ -385,6 +385,10 @@
         "deleted": "Deal Deleted",
         "updated": "Deal Updated"
       },
+      "legal": {
+        "documents_accepted": "Legal Documents Accepted",
+        "notice_sent": "Legal Notice Sent"
+      },
       "message": {
         "received": "Message Received",
         "sent": "Message Sent"
@@ -848,7 +852,7 @@
     "connectedAt": "Connected",
     "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
     "connectedToastTitle": "Channel connected",
-    "description": "Connect the channels your inbox pulls from, like email, WhatsApp, and LinkedIn. Channels are private by default, and can be shared with your workspace if needed. Individual threads can also be shared separately.",
+    "description": "Connect the channels your inbox pulls from, like email, WhatsApp and LinkedIn. Channels are private by default and can be shared with your workspace. By connecting one, you authorize us to process its messages, contacts and calendar on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
     "disconnect": "Disconnect",
     "disconnectedToastDescription": "This account is no longer connected at the provider. Reconnect it with your current login details.",
     "disconnectedToastTitle": "Account disconnected",
@@ -1295,6 +1299,7 @@
     "compare": "Compare",
     "compareViewAll": "View all comparisons",
     "copyrightText": "© {year} Customermates. All rights reserved.",
+    "dpa": "DPA",
     "features": "Features",
     "featuresViewAll": "View all features",
     "helpAndFeedback": "Help",
@@ -1305,6 +1310,7 @@
     "resources": "Resources",
     "solutions": "Solutions",
     "solutionsViewAll": "View all industries",
+    "subprocessors": "Subprocessors",
     "terms": "Terms"
   },
   "ForgotPasswordForm": {
@@ -1346,7 +1352,7 @@
       "cancelAnytime": "Cancel anytime",
       "gdpr": "GDPR compliant",
       "noLimits": "Transparent tiers",
-      "openSource": "Open source"
+      "openSource": "Open core"
     },
     "eyebrow": "Pricing",
     "selfHosted": {
@@ -1358,7 +1364,7 @@
       "featureUsers": "Unlimited users",
       "period": "forever",
       "price": "Free",
-      "tag": "Run on your server with Docker Compose. Full source. AGPLv3.",
+      "tag": "Run on your server with Docker Compose. AGPL Community Edition with source-available components.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparent tiers, no hidden costs. Self-host free forever, or start on Cloud with no credit card.",
@@ -1495,6 +1501,49 @@
     "unlinkedParticipants": "Some participants not linked to a contact",
     "youPrefix": "You:"
   },
+  "LegalDocumentNotice": {
+    "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
+    "contractDeadlineLabel": "Objection and acceptance deadline",
+    "contractObjection": "Please send any objection before the stated deadline by replying to this email. Silence or inactivity is not acceptance. If updated contractual documents are not accepted by the deadline, access to the managed-service user interface may be restricted until an authorised administrator accepts them.",
+    "contractSubject": "Action required: updated Customermates legal documents",
+    "contractTitle": "Legal documents updated",
+    "documents": {
+      "dpa": "Data Processing Agreement",
+      "privacy": "Privacy Policy",
+      "subprocessors": "Subprocessors",
+      "terms": "Terms and Conditions"
+    },
+    "greeting": "Hi {firstName},",
+    "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
+    "informationSubject": "Customermates legal information updated",
+    "informationTitle": "Legal information updated",
+    "liveLabel": "Live document",
+    "signoff": "Best regards,\nBen",
+    "subprocessorDeadlineLabel": "Subprocessor objection deadline",
+    "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
+    "subprocessorObjectionWithDeadline": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and by {deadline}, giving reasonable data-protection grounds. This supplier deadline is separate from the Terms and DPA deadline shown above."
+  },
+  "LegalUpdateAlert": {
+    "adminDescription": "Accept by {date}.",
+    "contractReview": "Review Terms and DPA",
+    "contractTitle": "Legal documents updated",
+    "memberDescription": "A company administrator must accept by {date}."
+  },
+  "LegalUpdateView": {
+    "accept": "Accept and continue",
+    "acceptance": "I am authorised to act for the business customer and accept the current Terms and DPA.",
+    "and": "and",
+    "description": "Review the current",
+    "dpa": "DPA",
+    "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
+    "privacy": "Privacy Policy",
+    "retry": "Retry",
+    "signOut": "Sign out",
+    "subprocessors": "Subprocessors",
+    "subtitle": "An authorised company administrator must accept by {date}.",
+    "terms": "Terms",
+    "title": "Legal documents updated"
+  },
   "Loading": {
     "text": "Loading..."
   },
@@ -1562,7 +1611,8 @@
     "title": "Oops! You've entered the void"
   },
   "OnboardingForm": {
-    "agreeToTerms": "I agree to the <dataPrivacyLink>Privacy Policy</dataPrivacyLink> and the <termsOfServiceLink>Terms & Conditions</termsOfServiceLink>"
+    "agreeToTerms": "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "invitedAgreeToTerms": "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1741,7 +1791,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "By signing in, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Continue with {provider}",
     "forgotPassword": "Forgot password?",
     "or": "OR",
@@ -1752,7 +1802,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Accept invitation",
-    "agreeToTerms": "By registering, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+    "agreeToTerms": "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
     "buttonLabel": "Register with {provider}",
     "inviteSubtitle": "You have been invited to join a team on Customermates. Choose your sign-in method to accept the invitation.",
     "inviteTitle": "Accept Company Invitation",

@@ -11,10 +11,14 @@ type SendArgs = {
   from?: string;
 };
 
+type SendOptions = {
+  throwOnProviderError?: boolean;
+};
+
 const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
 
 export class EmailService {
-  async send(args: SendArgs): Promise<void> {
+  async send(args: SendArgs, options: SendOptions = {}): Promise<void> {
     if (env.NODE_ENV !== "production") {
       console.log("[EmailService] EMAIL (local only)", {
         from: args.from ?? defaultSender,
@@ -30,11 +34,13 @@ export class EmailService {
 
     const resend = new Resend(env.RESEND_API_KEY);
 
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: args.from ?? defaultSender,
       to: args.to,
       subject: args.subject,
       react: args.react,
     });
+
+    if (options.throwOnProviderError && error) throw new Error(`Resend rejected the email: ${error.message}`);
   }
 }

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
+import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
@@ -92,6 +93,33 @@ const ConnectAction = observer(() => {
   );
 });
 
+const ConnectedAccountsAlert = () => {
+  const t = useTranslations();
+
+  return (
+    <Alert
+      color="primary"
+      description={t.rich("ConnectedAccountsCard.description", {
+        dataPrivacyLink: (chunks) => (
+          <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+            {chunks}
+          </AppLink>
+        ),
+        subprocessorsLink: (chunks) => (
+          <AppLink inheritSize appearance="inline" href="/subprocessors" target="_blank">
+            {chunks}
+          </AppLink>
+        ),
+        termsOfServiceLink: (chunks) => (
+          <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
+            {chunks}
+          </AppLink>
+        ),
+      })}
+    />
+  );
+};
+
 export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   const t = useTranslations();
   const { connectedAccountsStore, connectedAccountModalStore, intlStore, userStore } = useRootStore();
@@ -110,7 +138,7 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
   if (connectedAccountsStore.items.length === 0) {
     return (
       <div className="flex w-full max-w-3xl flex-col gap-4">
-        <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
+        <ConnectedAccountsAlert />
 
         <p className="text-subdued text-x-md">{t("ConnectedAccountsCard.emptyState")}</p>
       </div>
@@ -119,7 +147,7 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
 
   return (
     <div className="flex w-full max-w-3xl flex-col gap-4">
-      <Alert color="primary" description={t("ConnectedAccountsCard.description")} />
+      <ConnectedAccountsAlert />
 
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
         {connectedAccountsStore.items.map((account) => {

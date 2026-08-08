@@ -16,12 +16,14 @@ export default async function OnboardingWizardPage() {
     if (!user.role?.isSystemRole) redirect("/");
   }
 
-  let isInvited = false;
-  if (!user) {
+  let isInvited = Boolean(session.user.companyId);
+  if (!user && !isInvited) {
     const cookieStore = await cookies();
     const inviteTokenValue = cookieStore.get("inviteToken")?.value;
     if (inviteTokenValue) {
-      const validation = await getInviteTokenValidationInteractor().invoke({ token: inviteTokenValue });
+      const validation = await getInviteTokenValidationInteractor().invoke({
+        token: inviteTokenValue,
+      });
       isInvited = validation.ok && validation.data.valid;
     }
   }

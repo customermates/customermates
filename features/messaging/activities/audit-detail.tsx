@@ -14,7 +14,7 @@ import remarkGfm from "remark-gfm";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 
-import { isEmpty, partitionRelationIds } from "@/ee/audit-log/audit-log-changes";
+import { isEmpty, partitionRelationIds } from "@/features/audit-log/audit-log-changes";
 import { NotesDiff } from "@/app/[locale]/(protected)/company/components/audit-log/notes-diff";
 
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";

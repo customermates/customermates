@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
+import { CustomColumnType, EntityType, Status } from "@/generated/prisma";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 
@@ -9,6 +9,7 @@ const customColumnCreate = vi.fn().mockResolvedValue({ id: "column-1" });
 const prismaMock = {
   user: {
     findFirst: vi.fn().mockResolvedValue(null),
+    findMany: vi.fn().mockResolvedValue([]),
     create: vi.fn().mockResolvedValue({ id: "user-1" }),
     findUniqueOrThrow: vi.fn().mockResolvedValue({ id: "user-1", email: "owner@example.com" }),
   },
@@ -83,5 +84,32 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
     expect(prismaMock.userRole.create).toHaveBeenCalledTimes(1);
     expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     expect(customColumnCreate).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
+  it("returns the UTC creation timestamp needed for historical-notice suppression", async () => {
+    const createdAt = new Date("2026-08-07T23:59:59.000Z");
+    prismaMock.user.findMany.mockResolvedValueOnce([
+      {
+        id: "user-1",
+        companyId: "company-1",
+        createdAt,
+        email: "owner@example.com",
+        firstName: "Owner",
+        displayLanguage: "en",
+        role: { isSystemRole: true },
+      },
+    ]);
+
+    await expect(new PrismaUserRepo().findActiveLegalNoticeRecipientsUnscoped()).resolves.toEqual([
+      expect.objectContaining({ id: "user-1", createdAt, isSystemAdministrator: true }),
+    ]);
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { status: Status.active },
+        select: expect.objectContaining({ createdAt: true }),
+      }),
+    );
   });
 });

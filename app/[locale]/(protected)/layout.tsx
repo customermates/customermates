@@ -44,7 +44,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, []);
+  }, [globalSearchModalStore]);
 
   return (
     <>

@@ -9,7 +9,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { MessagingMessageDtoSchema } from "../inbox/inbox.schema";
 import { MessagingProviderSchema } from "../messaging.schema";
-import { AuditChangeSchema } from "@/ee/audit-log/audit-log-changes";
+import { AuditChangeSchema } from "@/features/audit-log/audit-log-changes";
 
 const CalendarEventDtoSchema = CalendarEventSchema.pick({
   id: true,

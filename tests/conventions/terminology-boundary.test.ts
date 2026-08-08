@@ -32,7 +32,7 @@ const CANONICAL_SURFACES = [
 const CANONICAL_FILES = ["features/messaging/activities/audit-detail.tsx", "features/messaging/activities/activities-panel.tsx"];
 
 const CANONICAL_FILTER_REPOSITORIES = [
-  "ee/audit-log/prisma-audit-log.repository.ts",
+  "features/audit-log/prisma-audit-log.repository.ts",
   "ee/messaging/activities/prisma-activities.repository.ts",
   "features/webhook/prisma-webhook.repository.ts",
   "features/webhook/prisma-webhook-delivery.repository.ts",

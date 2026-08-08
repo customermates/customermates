@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">Open Source CRM with AI agents, APIs, MCP, and self-hosting.</p>
+<p align="center">Open-core CRM with an AGPL-licensed Community Edition, AI agents, APIs, MCP, and self-hosting.</p>
 
 <p align="center">
   <a href="https://customermates.com">Website</a> |
@@ -153,6 +153,10 @@ Start here: [customermates.com/docs](https://customermates.com/docs)
 
 Customermates uses an open-core licensing model.
 
-The community edition is licensed under [AGPLv3](./LICENSE). Files in `ee/` are subject to the commercial terms in [`ee/LICENSE.md`](./ee/LICENSE.md).
+The Community Edition—all first-party code outside `ee/`, including `features/audit-log/`—is licensed under [AGPL-3.0-only](./LICENSE). Audit logging is therefore free for production self-hosting.
+
+Other first-party files in `ee/` are source-available under the [Customermates Commercial License](./ee/LICENSE.md), subject to its AGPL client-material exception. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
+
+The official Community image at `ghcr.io/customermates/customermates` is built from the shared codebase and contains compiled Commercial Software. The limited Community Build permission allows anyone to run its unmodified commercial support components where documented `APP_MODE=self-hosted` operation necessarily executes them for entitlement bookkeeping, feature denial, and audit-only shared activity timelines; it does not license Enterprise Feature use.
 
 Contributor terms are available in [`.github/CLA.md`](./.github/CLA.md).

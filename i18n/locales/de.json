@@ -385,6 +385,10 @@
         "deleted": "Deal gelöscht",
         "updated": "Deal aktualisiert"
       },
+      "legal": {
+        "documents_accepted": "Rechtsdokumente angenommen",
+        "notice_sent": "Rechtsmitteilung versandt"
+      },
       "message": {
         "received": "Nachricht empfangen",
         "sent": "Nachricht gesendet"
@@ -848,7 +852,7 @@
     "connectedAt": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
-    "description": "Verbinde die Kanäle, aus denen deine Inbox Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können bei Bedarf mit deinem Workspace geteilt werden. Einzelne Threads lassen sich auch separat teilen.",
+    "description": "Verbinde die Kanäle, aus denen deine Inbox Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
     "disconnect": "Trennen",
     "disconnectedToastDescription": "Dieses Konto ist beim Anbieter nicht mehr verbunden. Verbinde es mit deinen aktuellen Anmeldedaten neu.",
     "disconnectedToastTitle": "Konto getrennt",
@@ -1295,6 +1299,7 @@
     "compare": "Vergleich",
     "compareViewAll": "Alle Vergleiche ansehen",
     "copyrightText": "© {year} Customermates. Alle Rechte vorbehalten.",
+    "dpa": "AVV",
     "features": "Features",
     "featuresViewAll": "Alle Features ansehen",
     "helpAndFeedback": "Hilfe",
@@ -1305,6 +1310,7 @@
     "resources": "Ressourcen",
     "solutions": "Lösungen",
     "solutionsViewAll": "Alle Branchen ansehen",
+    "subprocessors": "Unterauftragsverarbeiter",
     "terms": "AGB"
   },
   "ForgotPasswordForm": {
@@ -1346,7 +1352,7 @@
       "cancelAnytime": "Jederzeit kündbar",
       "gdpr": "DSGVO-konform",
       "noLimits": "Transparente Tarife",
-      "openSource": "Open Source"
+      "openSource": "Open Core"
     },
     "eyebrow": "Preise",
     "selfHosted": {
@@ -1358,7 +1364,7 @@
       "featureUsers": "Unbegrenzte Nutzer",
       "period": "für immer",
       "price": "Kostenlos",
-      "tag": "Auf Ihrem Server mit Docker Compose. Voller Source. AGPLv3.",
+      "tag": "Auf Ihrem Server mit Docker Compose. AGPL-Community-Edition mit quellverfügbaren kommerziellen Komponenten.",
       "title": "Self-Hosted"
     },
     "subtitle": "Transparente Tarife, keine versteckten Kosten. Self-host für immer kostenlos, oder starte mit der Cloud ohne Kreditkarte.",
@@ -1495,6 +1501,49 @@
     "unlinkedParticipants": "Einige Teilnehmer nicht verknüpft",
     "youPrefix": "Du:"
   },
+  "LegalDocumentNotice": {
+    "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
+    "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",
+    "contractObjection": "Bitte teilen Sie einen Widerspruch vor der angegebenen Frist durch Antwort auf diese E-Mail mit. Schweigen oder Untätigkeit gelten nicht als Zustimmung. Werden geänderte Vertragsdokumente nicht fristgerecht angenommen, kann der Zugang zur Benutzeroberfläche des verwalteten Dienstes bis zur Annahme durch einen berechtigten Administrator beschränkt werden.",
+    "contractSubject": "Handlung erforderlich: aktualisierte Customermates-Rechtsdokumente",
+    "contractTitle": "Rechtsdokumente aktualisiert",
+    "documents": {
+      "dpa": "Auftragsverarbeitungsvertrag",
+      "privacy": "Datenschutzerklärung",
+      "subprocessors": "Unterauftragsverarbeiter",
+      "terms": "Allgemeine Geschäftsbedingungen"
+    },
+    "greeting": "Hallo {firstName},",
+    "informationBody": "Wir haben die unten aufgeführten rechtlichen Informationen aktualisiert. Eine Annahme ist nicht erforderlich, sofern diese E-Mail nicht zugleich geänderte AGB oder einen geänderten Auftragsverarbeitungsvertrag nennt.",
+    "informationSubject": "Rechtliche Informationen von Customermates aktualisiert",
+    "informationTitle": "Rechtliche Informationen aktualisiert",
+    "liveLabel": "Aktuelles Dokument",
+    "signoff": "Viele Grüße\nBen",
+    "subprocessorDeadlineLabel": "Widerspruchsfrist für Unterauftragsverarbeiter",
+    "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe.",
+    "subprocessorObjectionWithDeadline": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und bis zum {deadline} unter Angabe berechtigter datenschutzrechtlicher Gründe. Diese Lieferantenfrist gilt unabhängig von der oben genannten Frist für AGB und AVV."
+  },
+  "LegalUpdateAlert": {
+    "adminDescription": "Bis zum {date} akzeptieren.",
+    "contractReview": "AGB und AVV prüfen",
+    "contractTitle": "Rechtsdokumente aktualisiert",
+    "memberDescription": "Ein Unternehmensadministrator muss bis zum {date} akzeptieren."
+  },
+  "LegalUpdateView": {
+    "accept": "Akzeptieren und fortfahren",
+    "acceptance": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und akzeptiere die aktuellen AGB und den AVV.",
+    "and": "sowie",
+    "description": "Prüfen Sie die aktuellen",
+    "dpa": "AVV",
+    "memberWaiting": "Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV akzeptieren. Danach können Sie es erneut versuchen oder sich abmelden.",
+    "privacy": "Datenschutzerklärung",
+    "retry": "Erneut versuchen",
+    "signOut": "Abmelden",
+    "subprocessors": "Unterauftragsverarbeiter",
+    "subtitle": "Ein berechtigter Unternehmensadministrator muss bis zum {date} akzeptieren.",
+    "terms": "AGB",
+    "title": "Rechtsdokumente aktualisiert"
+  },
   "Loading": {
     "text": "Laden..."
   },
@@ -1562,7 +1611,8 @@
     "title": "Huch! Du hast die Leere betreten"
   },
   "OnboardingForm": {
-    "agreeToTerms": "Ich stimme der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> und den <termsOfServiceLink>Nutzungsbedingungen</termsOfServiceLink> zu"
+    "agreeToTerms": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
+    "invitedAgreeToTerms": "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen."
   },
   "OnboardingWizard": {
     "ai": {
@@ -1741,7 +1791,7 @@
     "title": "Service"
   },
   "SignInForm": {
-    "agreeToTerms": "Beim Anmelden stimmst du unseren <termsOfServiceLink>AGBs</termsOfServiceLink> und der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zu",
+    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
     "buttonLabel": "Anmelden mit {provider}",
     "forgotPassword": "Passwort vergessen?",
     "or": "ODER",
@@ -1752,7 +1802,7 @@
   },
   "SignUpForm": {
     "acceptInviteCta": "Einladung annehmen",
-    "agreeToTerms": "Beim Registrieren stimmst du unseren <termsOfServiceLink>AGBs</termsOfServiceLink> und der <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zu",
+    "agreeToTerms": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
     "buttonLabel": "Registrieren mit {provider}",
     "inviteSubtitle": "Du wurdest eingeladen, einem Team auf Customermates beizutreten. Wähle deine Anmeldemethode, um die Einladung anzunehmen.",
     "inviteTitle": "Firmeneinladung annehmen",

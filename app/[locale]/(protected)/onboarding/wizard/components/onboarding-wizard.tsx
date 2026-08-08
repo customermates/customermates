@@ -55,6 +55,7 @@ export const OnboardingWizard = observer(
               avatarUrl={sessionAvatarUrl}
               email={sessionEmail}
               firstName={sessionFirstName}
+              isInvited={isInvited}
               lastName={sessionLastName}
             />
           );

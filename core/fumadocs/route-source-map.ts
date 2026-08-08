@@ -84,6 +84,14 @@ export const ROUTE_SOURCE_MAP: Record<
     source: legalSource,
     path: ["terms"],
   },
+  "/subprocessors": {
+    source: legalSource,
+    path: ["subprocessors"],
+  },
+  "/dpa": {
+    source: legalSource,
+    path: ["dpa"],
+  },
   "/auth/signin": {
     source: authSource,
     path: ["signin"],

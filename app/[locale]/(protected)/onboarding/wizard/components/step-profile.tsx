@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
@@ -18,11 +20,12 @@ type Props = {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  isInvited?: boolean;
 };
 
-export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: Props) => {
+export const StepProfile = observer(({ email, firstName, lastName, avatarUrl, isInvited = false }: Props) => {
   const t = useTranslations();
-  const { stepProfileStore: store } = useRootStore();
+  const { stepProfileStore: store, appMode } = useRootStore();
   const { isLoading } = store;
 
   useEffect(
@@ -33,6 +36,24 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
   useEffect(() => {
     store.setWithUnsavedChangesGuard(false);
   }, []);
+
+  const legalDocumentLinks = {
+    dataPrivacyLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+    dpaLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/dpa" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+    termsOfServiceLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+  };
 
   return (
     <AppForm store={store}>
@@ -47,26 +68,16 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl }: 
 
         <FormAutocompleteCountry required id="country" />
 
-        <FormCheckbox
-          required
-          id="agreeToTerms"
-          label={
-            <span>
-              {t.rich("OnboardingForm.agreeToTerms", {
-                dataPrivacyLink: (chunks) => (
-                  <AppLink appearance="inline" href="/privacy" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                termsOfServiceLink: (chunks) => (
-                  <AppLink appearance="inline" href="/terms" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-              })}
-            </span>
-          }
-        />
+        {appMode === "cloud" ? (
+          <FormCheckbox
+            required
+            id="agreeToTerms"
+            label={t.rich(
+              isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms",
+              legalDocumentLinks,
+            )}
+          />
+        ) : null}
 
         <Button className="self-end mt-2" disabled={isLoading} type="submit">
           {isLoading && <Loader2 className="size-4 animate-spin" />}

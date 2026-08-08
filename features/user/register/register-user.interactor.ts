@@ -7,6 +7,9 @@ import type { Redirect } from "@/features/auth/auth-outcome";
 import { z } from "zod";
 import { CountryCode } from "@/generated/prisma";
 
+import { currentLegalDocumentVersions } from "@/constants/legal-documents";
+import { env } from "@/env";
+
 import { DomainEvent } from "@/features/event/domain-events";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -28,7 +31,7 @@ const Schema = z
     agreeToTerms: z.boolean(),
   })
   .superRefine((data, ctx) => {
-    if (data.agreeToTerms !== true) {
+    if (env.APP_MODE === "cloud" && data.agreeToTerms !== true) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.termsNotAgreed },
@@ -61,12 +64,27 @@ export class RegisterUserInteractor {
     const session = sessionResult.session;
 
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
+    const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
 
     const tenantUser = companyId
-      ? await this.repo.registerExistingCompany({ ...data, companyId })
+      ? await this.repo.registerExistingCompany({
+          ...data,
+          companyId,
+        })
       : await this.repo.createCompanyAndUser(data);
 
     await runWithTenant(tenantUser, async () => {
+      if (isNewCloudCompany) {
+        await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
+          entityId: tenantUser.companyId,
+          payload: {
+            versions: currentLegalDocumentVersions(),
+            acceptingEmail: tenantUser.email,
+            acceptanceType: "initial-onboarding",
+          },
+        });
+      }
+
       await this.eventService.publish(DomainEvent.USER_REGISTERED, {
         entityId: tenantUser.id,
         payload: {

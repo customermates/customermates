@@ -2,8 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 
 import type { z } from "zod";
 
-import type { DomainEvent } from "@/features/event/domain-events";
-import { type DomainEventMap } from "@/features/event/domain-events";
+import { DomainEvent, type DomainEventMap } from "@/features/event/domain-events";
 import { WebhookEventSchema } from "../webhook.schema";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 import type { WebhookMessagingMessageReceivedSchema } from "@/ee/messaging/webhooks/message/message-received.openapi";
@@ -27,7 +26,14 @@ type SchemaObject = {
 
 function documentedWebhookSchemas() {
   const document = generateOpenApiSpec() as {
-    webhooks?: Record<string, { post?: { requestBody?: { content?: Record<string, { schema?: SchemaObject }> } } }>;
+    webhooks?: Record<
+      string,
+      {
+        post?: {
+          requestBody?: { content?: Record<string, { schema?: SchemaObject }> };
+        };
+      }
+    >;
     components?: { schemas?: Record<string, SchemaObject> };
   };
 
@@ -44,6 +50,13 @@ function documentedWebhookSchemas() {
 }
 
 describe("webhook OpenAPI coverage", () => {
+  it.each([DomainEvent.LEGAL_NOTICE_SENT, DomainEvent.LEGAL_DOCUMENTS_ACCEPTED])(
+    "does not expose the internal %s audit event as a customer webhook",
+    (event) => {
+      expect(WebhookEventSchema.safeParse(event).success).toBe(false);
+    },
+  );
+
   it("documents exactly the subscribable events", () => {
     const documented = documentedWebhookSchemas().map(({ key, schema }) => {
       const event = schema?.properties?.event;
@@ -62,7 +75,10 @@ describe("webhook OpenAPI coverage", () => {
         "entityId",
         "payload",
       ]);
-      expect(schema?.properties?.timestamp, key).toMatchObject({ type: "string", format: "date-time" });
+      expect(schema?.properties?.timestamp, key).toMatchObject({
+        type: "string",
+        format: "date-time",
+      });
     }
   });
 

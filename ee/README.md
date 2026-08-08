@@ -3,14 +3,10 @@
   <a href="https://customermates.com">Get an Enterprise License</a>
 </div>
 
-# Enterprise Edition
+# Commercial Components under `ee/`
 
-Welcome to the Enterprise Edition of Customermates.
+First-party files in `ee/` are Commercial Software under [`ee/LICENSE.md`](./LICENSE.md), subject to the AGPL client-material exception stated there. Third-party components retain their supplied licences.
 
-The [`ee/`](https://github.com/customermates/customermates/tree/main/ee) subfolder is the place for all the **Enterprise Edition** features from our hosted and enterprise-grade offerings, included but not limited to the following:
+Commercial Software currently supports hosted or Enterprise functionality such as the unified inbox, connected-account messaging and calendar integrations, and cloud subscription and lifecycle operations. Production use of Commercial Software outside the limited Community Build permission, including any Enterprise Feature, requires a Commercial Agreement.
 
-- Audit Logging
-- Single Sign-On
-- Whitelabeling
-
-> _WARNING: This repository is copyrighted. You are not allowed to use this code to host your own version of Customermates without obtaining a proper license first._
+The official Community image at `ghcr.io/customermates/customermates` contains compiled Commercial Software because the Community and hosted editions share a build. The limited Community Build permission in [`ee/LICENSE.md`](./LICENSE.md) permits unmodified commercial support code to run where documented self-hosted operation requires it for entitlement bookkeeping, denial of unavailable features, and audit-only shared activity timelines. It does not grant permission to make Enterprise Features operational or to use them. That shared support code remains Commercial Software usable in a Community Build only under the limited permission.

@@ -1,6 +1,6 @@
-import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 import type { Data } from "@/core/validation/validation.utils";
 import type { UserReferenceSchema } from "@/core/base/base-entity.schema";
+import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 
 export type AuditLogDto = {
   id: string;

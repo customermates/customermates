@@ -29,7 +29,7 @@ type Props = {
 
 export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
   const t = useTranslations();
-  const { signUpStore } = useRootStore();
+  const { signUpStore, appMode } = useRootStore();
   const { isLoading, form } = signUpStore;
 
   useEffect(() => {
@@ -127,20 +127,27 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
               {isInvited ? t("SignUpForm.acceptInviteCta") : t("SignUpForm.signUpCta")}
             </Button>
 
-            <p className="text-x-xs text-subdued text-center mt-2">
-              {t.rich("SignUpForm.agreeToTerms", {
-                dataPrivacyLink: (chunks) => (
-                  <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-                termsOfServiceLink: (chunks) => (
-                  <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
-                    {chunks}
-                  </AppLink>
-                ),
-              })}
-            </p>
+            {appMode === "cloud" && !isInvited ? (
+              <p className="text-x-xs text-subdued text-center mt-2">
+                {t.rich("SignUpForm.agreeToTerms", {
+                  dataPrivacyLink: (chunks) => (
+                    <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  dpaLink: (chunks) => (
+                    <AppLink inheritSize appearance="inline" href="/dpa" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                  termsOfServiceLink: (chunks) => (
+                    <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
+                      {chunks}
+                    </AppLink>
+                  ),
+                })}
+              </p>
+            ) : null}
           </div>
         </AppCardFooter>
       </AppCard>

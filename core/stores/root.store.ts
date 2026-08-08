@@ -9,6 +9,7 @@ import { VerifyEmailStore } from "@/app/[locale]/(public)/auth/verify-email/veri
 import { McpConsentStore } from "@/app/[locale]/(public)/auth/mcp-consent/mcp-consent.store";
 import { SubscriptionStore } from "@/app/[locale]/(protected)/company/components/subscription/subscription.store";
 import { SubscriptionExpiredStore } from "@/app/[locale]/(protected)/subscription-expired/components/subscription-expired.store";
+import { LegalUpdateStore } from "@/app/[locale]/(protected)/legal-update/components/legal-update.store";
 import { CompanyInviteModalStore } from "@/app/[locale]/(protected)/company/components/company-invite/company-invite-modal.store";
 import { InviteByEmailStore } from "@/app/[locale]/(protected)/company/components/company-invite/invite-by-email.store";
 import { UserModalStore } from "@/app/[locale]/(protected)/company/components/user/user-modal.store";
@@ -115,6 +116,7 @@ export class RootStore {
   private _signUpStore?: SignUpStore;
   private _subscriptionStore?: SubscriptionStore;
   private _subscriptionExpiredStore?: SubscriptionExpiredStore;
+  private _legalUpdateStore?: LegalUpdateStore;
   private _profileSettingsStore?: ProfileSettingsStore;
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
@@ -317,6 +319,10 @@ export class RootStore {
 
   get subscriptionExpiredStore() {
     return (this._subscriptionExpiredStore ??= new SubscriptionExpiredStore(this));
+  }
+
+  get legalUpdateStore() {
+    return (this._legalUpdateStore ??= new LegalUpdateStore(this));
   }
 
   get userModalStore() {
