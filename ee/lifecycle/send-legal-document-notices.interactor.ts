@@ -14,11 +14,8 @@ import {
   hasCurrentLegalDocumentVersions,
 } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import {
-  hasValidLegalNoticeEffectiveAt,
-  type LegalAuditRecord,
-  type LegalAuditRepo,
-} from "@/features/legal/legal-audit.repo";
+import { hasValidLegalNoticeEffectiveAt, type LegalAuditRecord } from "@/features/legal/legal-audit.schema";
+import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
@@ -38,11 +35,6 @@ export type LegalNoticeRecipient = {
 export abstract class SendLegalDocumentNoticesRepo {
   abstract findActiveLegalNoticeRecipientsUnscoped(): Promise<LegalNoticeRecipient[]>;
 }
-
-type SendLegalDocumentNoticesOptions = {
-  now?: Date;
-  supplierSubprocessorObjectionDeadline?: string | null;
-};
 
 type VersionEvidence = {
   createdAt: Date;
@@ -67,14 +59,10 @@ export class SendLegalDocumentNoticesInteractor {
     private eventService: EventService,
   ) {}
 
-  async invoke(options: SendLegalDocumentNoticesOptions = {}): Promise<void> {
+  async invoke(): Promise<void> {
     if (env.APP_MODE !== "cloud") return;
 
-    const now = options.now ?? new Date();
-    const configuredSupplierDeadline =
-      options.supplierSubprocessorObjectionDeadline === undefined
-        ? SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE
-        : options.supplierSubprocessorObjectionDeadline;
+    const now = new Date();
     const recipients = await this.recipientRepo.findActiveLegalNoticeRecipientsUnscoped();
     const recipientsByCompany = new Map<string, LegalNoticeRecipient[]>();
 
@@ -89,7 +77,7 @@ export class SendLegalDocumentNoticesInteractor {
         companyId,
         companyRecipients.sort((a, b) => Number(b.isSystemAdministrator) - Number(a.isSystemAdministrator)),
         now,
-        configuredSupplierDeadline,
+        SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE,
       );
     }
   }
@@ -101,17 +89,23 @@ export class SendLegalDocumentNoticesInteractor {
     configuredSupplierDeadline: string | null,
   ): Promise<void> {
     const records = await this.auditRepo.findLegalEventsUnscoped(companyId);
-    const contractAccepted = this.isCurrentContractAccepted(records, companyId);
+    const contractAccepted = records.some(
+      (record) =>
+        record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+        record.entityId === companyId &&
+        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
+    );
     let contractEffectiveAt = this.findCurrentNoticeDeadline(records, CONTRACT_LEGAL_DOCUMENTS);
     let subprocessorEffectiveAt =
       configuredSupplierDeadline === null ? this.findCurrentNoticeDeadline(records, ["subprocessors"]) : null;
 
     for (const recipient of recipients) {
-      const contractDocuments =
-        recipient.isSystemAdministrator && !contractAccepted
-          ? this.getChangedContractDocuments(records, companyId, recipient)
-          : [];
-      const informationDocuments = this.getChangedInformationDocuments(records, recipient);
+      const { contractDocuments, informationDocuments } = this.getChangedDocuments(
+        records,
+        companyId,
+        recipient,
+        contractAccepted,
+      );
       const changedDocuments = [...contractDocuments, ...informationDocuments];
       if (changedDocuments.length === 0) continue;
 
@@ -120,7 +114,7 @@ export class SendLegalDocumentNoticesInteractor {
       let effectiveAt: string | null = null;
 
       if (includesContract) {
-        contractEffectiveAt ??= this.addDays(now, 14).toISOString();
+        contractEffectiveAt ??= new Date(now.getTime() + 14 * DAY_IN_MS).toISOString();
         effectiveAt = contractEffectiveAt;
         if (includesSubprocessors) {
           subprocessorEffectiveAt ??= this.resolveSupplierSubprocessorObjectionDeadline(
@@ -158,7 +152,6 @@ export class SendLegalDocumentNoticesInteractor {
           versions: currentLegalDocumentVersions(),
           changedDocuments: plan.changedDocuments,
           recipientEmail: plan.recipient.email,
-          locale,
           effectiveAt: plan.effectiveAt,
         },
       },
@@ -166,12 +159,8 @@ export class SendLegalDocumentNoticesInteractor {
     );
   }
 
-  private addDays(date: Date, days: number): Date {
-    return new Date(date.getTime() + days * DAY_IN_MS);
-  }
-
   private resolveSupplierSubprocessorObjectionDeadline(now: Date, configuredDeadline: string | null): string {
-    if (configuredDeadline === null) return this.addDays(now, 14).toISOString();
+    if (configuredDeadline === null) return new Date(now.getTime() + 14 * DAY_IN_MS).toISOString();
 
     const deadline = new Date(configuredDeadline);
     if (Number.isNaN(deadline.getTime())) throw new Error("The supplier subprocessor objection deadline is invalid");
@@ -179,75 +168,45 @@ export class SendLegalDocumentNoticesInteractor {
     return deadline.toISOString();
   }
 
-  private userExistedAtRelease(recipient: LegalNoticeRecipient, document: LegalDocument): boolean {
-    return recipient.createdAt.toISOString().slice(0, 10) <= LEGAL_DOCUMENT_VERSIONS[document];
-  }
-
-  private latestEvidence(candidates: VersionEvidence[]): VersionEvidence | null {
-    return candidates.reduce<VersionEvidence | null>(
-      (latest, candidate) => (!latest || candidate.createdAt > latest.createdAt ? candidate : latest),
-      null,
-    );
-  }
-
-  private getContractBaselineVersion(
+  private getBaselineVersion(
     records: LegalAuditRecord[],
     companyId: string,
     recipientId: string,
     document: LegalDocument,
+    kind: "contract" | "information",
   ): string | null {
-    const evidence = records.flatMap<VersionEvidence>((record) => {
-      if (record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED && record.entityId === companyId && record.payload)
-        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+    const latestEvidence = records.reduce<VersionEvidence | null>((latest, record) => {
+      let versions: LegalDocumentVersions | null = null;
 
-      if (
-        record.event === DomainEvent.LEGAL_NOTICE_SENT &&
-        record.entityId === recipientId &&
-        record.payload?.changedDocuments.includes(document) &&
-        hasValidLegalNoticeEffectiveAt(record.payload)
-      )
-        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
-
-      return [];
-    });
-
-    return this.latestEvidence(evidence)?.versions[document] ?? null;
-  }
-
-  private getInformationBaselineVersion(
-    records: LegalAuditRecord[],
-    recipientId: string,
-    document: LegalDocument,
-  ): string | null {
-    const evidence = records.flatMap<VersionEvidence>((record) => {
-      if (
+      if (kind === "contract") {
+        if (record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED && record.entityId === companyId && record.payload)
+          versions = record.payload.versions;
+        else if (
+          record.event === DomainEvent.LEGAL_NOTICE_SENT &&
+          record.entityId === recipientId &&
+          record.payload?.changedDocuments.includes(document) &&
+          hasValidLegalNoticeEffectiveAt(record.payload)
+        )
+          versions = record.payload.versions;
+      } else if (
         record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
         record.userId === recipientId &&
         record.payload?.acceptanceType === "initial-onboarding"
       )
-        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
-
-      if (
+        versions = record.payload.versions;
+      else if (
         record.event === DomainEvent.LEGAL_NOTICE_SENT &&
         record.entityId === recipientId &&
         record.payload?.changedDocuments.includes(document) &&
         (document !== "subprocessors" || hasValidLegalNoticeEffectiveAt(record.payload))
       )
-        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+        versions = record.payload.versions;
 
-      return [];
-    });
+      if (!versions || (latest && latest.createdAt >= record.createdAt)) return latest;
+      return { createdAt: record.createdAt, versions };
+    }, null);
 
-    return this.latestEvidence(evidence)?.versions[document] ?? null;
-  }
-
-  private isCurrentContractAccepted(records: LegalAuditRecord[], companyId: string): boolean {
-    return records.some(
-      (record) =>
-        record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
-        record.entityId === companyId &&
-        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
-    );
+    return latestEvidence?.versions[document] ?? null;
   }
 
   private findCurrentNoticeDeadline(records: LegalAuditRecord[], documents: readonly LegalDocument[]): string | null {
@@ -275,29 +234,36 @@ export class SendLegalDocumentNoticesInteractor {
     return earliest?.effectiveAt ?? null;
   }
 
-  private getChangedContractDocuments(
+  private getChangedDocuments(
     records: LegalAuditRecord[],
     companyId: string,
     recipient: LegalNoticeRecipient,
-  ): LegalDocument[] {
-    return CONTRACT_LEGAL_DOCUMENTS.filter(
-      (document) =>
-        this.getContractBaselineVersion(records, companyId, recipient.id, document) !==
-        LEGAL_DOCUMENT_VERSIONS[document],
-    );
-  }
-
-  private getChangedInformationDocuments(
-    records: LegalAuditRecord[],
-    recipient: LegalNoticeRecipient,
-  ): LegalDocument[] {
-    const documents = recipient.isSystemAdministrator ? INFORMATION_LEGAL_DOCUMENTS : (["privacy"] as const);
-
-    return documents.filter((document) => {
-      const baseline = this.getInformationBaselineVersion(records, recipient.id, document);
+    contractAccepted: boolean,
+  ): {
+    contractDocuments: LegalDocument[];
+    informationDocuments: LegalDocument[];
+  } {
+    const contractDocuments =
+      recipient.isSystemAdministrator && !contractAccepted
+        ? CONTRACT_LEGAL_DOCUMENTS.filter(
+            (document) =>
+              this.getBaselineVersion(records, companyId, recipient.id, document, "contract") !==
+              LEGAL_DOCUMENT_VERSIONS[document],
+          )
+        : [];
+    const relevantInformationDocuments = recipient.isSystemAdministrator
+      ? INFORMATION_LEGAL_DOCUMENTS
+      : (["privacy"] as const);
+    const informationDocuments = relevantInformationDocuments.filter((document) => {
+      const baseline = this.getBaselineVersion(records, companyId, recipient.id, document, "information");
       if (baseline !== null) return baseline !== LEGAL_DOCUMENT_VERSIONS[document];
-      return this.userExistedAtRelease(recipient, document);
+      return recipient.createdAt.toISOString().slice(0, 10) <= LEGAL_DOCUMENT_VERSIONS[document];
     });
+
+    return {
+      contractDocuments: [...contractDocuments],
+      informationDocuments: [...informationDocuments],
+    };
   }
 
   private async buildEmail(plan: LegalNoticePlan, locale: Exclude<Locale, "system">) {

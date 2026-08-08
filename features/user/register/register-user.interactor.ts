@@ -5,7 +5,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 import { CountryCode } from "@/generated/prisma";
 
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
@@ -22,23 +21,24 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import { isRedirect } from "@/features/auth/auth-outcome";
 
-const Schema = z.object({
-  email: z.email(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  country: z.enum(CountryCode),
-  avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
-  agreeToTerms: z.boolean(),
-});
-const NewCloudCompanySchema = Schema.superRefine((data, ctx) => {
-  if (data.agreeToTerms !== true) {
-    ctx.addIssue({
-      code: "custom",
-      params: { error: CustomErrorCode.termsNotAgreed },
-      path: ["agreeToTerms"],
-    });
-  }
-});
+const Schema = z
+  .object({
+    email: z.email(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    country: z.enum(CountryCode),
+    avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
+    agreeToTerms: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (env.APP_MODE === "cloud" && data.agreeToTerms !== true) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.termsNotAgreed },
+        path: ["agreeToTerms"],
+      });
+    }
+  });
 export type RegisterUserData = Data<typeof Schema>;
 
 export abstract class RegisterUserRepo {
@@ -66,29 +66,20 @@ export class RegisterUserInteractor {
     const companyId = await this.repo.findCompanyIdUnscoped(session.user.id);
     const isNewCloudCompany = env.APP_MODE === "cloud" && !companyId;
 
-    if (isNewCloudCompany) {
-      const acceptance = await NewCloudCompanySchema.safeParseAsync(data);
-      if (!acceptance.success) return { ok: false as const, error: acceptance.error };
-    }
-
-    const registrationData = { ...data, agreeToTerms: isNewCloudCompany };
-
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
-          ...registrationData,
+          ...data,
           companyId,
         })
-      : await this.repo.createCompanyAndUser(registrationData);
+      : await this.repo.createCompanyAndUser(data);
 
     await runWithTenant(tenantUser, async () => {
       if (isNewCloudCompany) {
-        const locale = (await getLocale()) === "de" ? "de" : "en";
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: tenantUser.companyId,
           payload: {
             versions: currentLegalDocumentVersions(),
             acceptingEmail: tenantUser.email,
-            locale,
             acceptanceType: "initial-onboarding",
           },
         });

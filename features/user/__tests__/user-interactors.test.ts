@@ -9,12 +9,8 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const mockLocale = vi.hoisted(() => ({ value: "de" }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
-vi.mock("next-intl/server", () => ({
-  getLocale: () => Promise.resolve(mockLocale.value),
-}));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -109,7 +105,6 @@ describe("RegisterUserInteractor", () => {
         payload: {
           acceptanceType: "initial-onboarding",
           acceptingEmail: "jane@example.com",
-          locale: "de",
           versions: LEGAL_DOCUMENT_VERSIONS,
         },
       }),
@@ -161,6 +156,24 @@ describe("RegisterUserInteractor", () => {
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
+  it("rejects an unchecked invited cloud user before updating records", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
+
+    const result = await createInteractor().invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: false,
+    });
+
+    expect("ok" in result && result.ok).toBe(false);
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
+
   it("does not record managed-service acceptance for an invited cloud user", async () => {
     (MOCK_ENV_MODULE.env as { APP_MODE: "cloud" | "demo" | "self-hosted" }).APP_MODE = "cloud";
     mockRepo.findCompanyIdUnscoped.mockResolvedValue("existing-company-id");
@@ -178,7 +191,7 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({
         companyId: "existing-company-id",
-        agreeToTerms: false,
+        agreeToTerms: true,
       }),
     );
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
@@ -192,10 +205,24 @@ describe("RegisterUserInteractor", () => {
       lastName: "Doe",
       country: "de",
       avatarUrl: null,
-      agreeToTerms: true,
+      agreeToTerms: false,
     });
 
     expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
+    expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
+  });
+
+  it("preserves a submitted self-hosted acknowledgement without creating managed-service acceptance", async () => {
+    await createInteractor().invoke({
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      agreeToTerms: true,
+    });
+
+    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 

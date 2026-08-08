@@ -45,7 +45,6 @@ export function LegalUpdateAlert({ status, onNavigate }: Props) {
     : null;
   if (!contractModel) return null;
 
-  const model = contractModel;
   const isWarning = status.mustAccept;
   const AlertIcon = isWarning ? AlertCircle : Info;
 
@@ -62,22 +61,24 @@ export function LegalUpdateAlert({ status, onNavigate }: Props) {
                   ? "border-warning/30 bg-warning/10 text-warning hover:bg-warning/15 hover:text-warning"
                   : "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
               )}
-              tooltip={model.title}
+              tooltip={contractModel.title}
             >
               <IntlLink
-                aria-label={`${model.title}: ${model.description} ${model.action}`}
+                aria-label={`${contractModel.title}: ${contractModel.description} ${contractModel.action}`}
                 href="/legal-update"
                 onClick={onNavigate}
               >
                 <AlertIcon className="mt-0.5 shrink-0 group-data-[collapsible=icon]:mt-0" />
 
                 <span className="flex min-w-0 flex-1 flex-col gap-1 whitespace-normal group-data-[collapsible=icon]:hidden">
-                  <span className="text-xs font-semibold leading-4 whitespace-normal">{model.title}</span>
+                  <span className="text-xs font-semibold leading-4 whitespace-normal">{contractModel.title}</span>
 
-                  <span className="text-[11px] leading-4 whitespace-normal opacity-90">{model.description}</span>
+                  <span className="text-[11px] leading-4 whitespace-normal opacity-90">
+                    {contractModel.description}
+                  </span>
 
                   <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium">
-                    {model.action}
+                    {contractModel.action}
 
                     <ArrowRight className="size-3" />
                   </span>

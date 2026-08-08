@@ -1535,7 +1535,6 @@
     "and": "sowie",
     "description": "Prüfen Sie die aktuellen",
     "dpa": "AVV",
-    "informationSubtitle": "Bitte prüfen Sie die aktualisierten rechtlichen Informationen.",
     "memberWaiting": "Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV akzeptieren. Danach können Sie es erneut versuchen oder sich abmelden.",
     "privacy": "Datenschutzerklärung",
     "retry": "Erneut versuchen",
@@ -1613,7 +1612,7 @@
   },
   "OnboardingForm": {
     "agreeToTerms": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
-    "invitedLegalNotice": "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>."
+    "invitedAgreeToTerms": "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen."
   },
   "OnboardingWizard": {
     "ai": {

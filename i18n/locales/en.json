@@ -1535,7 +1535,6 @@
     "and": "and",
     "description": "Review the current",
     "dpa": "DPA",
-    "informationSubtitle": "Please review the updated legal information.",
     "memberWaiting": "A company administrator must accept the updated Terms and DPA. You can retry after they have done so or sign out.",
     "privacy": "Privacy Policy",
     "retry": "Retry",
@@ -1613,7 +1612,7 @@
   },
   "OnboardingForm": {
     "agreeToTerms": "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-    "invitedLegalNotice": "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>."
+    "invitedAgreeToTerms": "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>."
   },
   "OnboardingWizard": {
     "ai": {

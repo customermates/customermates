@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "self-hosted",
@@ -11,8 +11,20 @@ const mockLegalDocumentNotice = vi.hoisted(() =>
     type: "legal-document-notice",
   })),
 );
+const mockSupplierDeadline = vi.hoisted(() => ({
+  value: null as string | null,
+}));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
+vi.mock("@/constants/legal-documents", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    get SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE() {
+      return mockSupplierDeadline.value;
+    },
+  };
+});
 vi.mock("@/components/emails/legal-document-notice", () => ({
   default: mockLegalDocumentNotice,
 }));
@@ -20,14 +32,13 @@ vi.mock("@/core/decorators/system-interactor.decorator", () => ({
   SystemInteractor: (target: unknown) => target,
 }));
 
-import {
-  currentLegalDocumentVersions,
-  type LegalAcceptanceAuditPayload,
-  type LegalDocumentVersions,
-  type LegalNoticeAuditPayload,
-} from "@/constants/legal-documents";
+import { currentLegalDocumentVersions, type LegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import type { LegalAuditRecord } from "@/features/legal/legal-audit.repo";
+import type {
+  LegalAcceptanceAuditPayload,
+  LegalAuditRecord,
+  LegalNoticeAuditPayload,
+} from "@/features/legal/legal-audit.schema";
 import {
   SendLegalDocumentNoticesInteractor,
   type LegalNoticeRecipient,
@@ -103,7 +114,6 @@ function acceptanceRecord(
     payload: {
       versions: args.versions ?? currentLegalDocumentVersions(),
       acceptingEmail: `${userId}@example.com`,
-      locale: "en",
       acceptanceType: args.acceptanceType ?? "later-update",
     },
   });
@@ -127,7 +137,6 @@ function noticeRecord(args: {
       versions: args.versions ?? currentLegalDocumentVersions(),
       changedDocuments: args.changedDocuments,
       recipientEmail: `${args.recipientId}@example.com`,
-      locale: "en",
       effectiveAt: args.effectiveAt ?? null,
     },
   });
@@ -149,10 +158,13 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   let eventService: { publish: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
     mockEnv.APP_MODE = "cloud";
+    mockSupplierDeadline.value = null;
     records = [];
     recipients = [recipient("admin-1", true), recipient("admin-2", true), recipient("member-1", false)];
-    eventCreatedAt = NOW;
+    eventCreatedAt = new Date();
     recipientRepo = {
       findActiveLegalNoticeRecipientsUnscoped: vi.fn(() => Promise.resolve(recipients)),
     };
@@ -179,6 +191,10 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     };
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   function interactor() {
     return new SendLegalDocumentNoticesInteractor(
       recipientRepo as never,
@@ -189,23 +205,17 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   }
 
   async function invoke(now = NOW) {
-    eventCreatedAt = now;
-    return interactor().invoke({ now });
+    vi.setSystemTime(now);
+    eventCreatedAt = new Date();
+    return interactor().invoke();
   }
 
   it("rejects invalid or expired supplier objection deadlines when a Subprocessor notice is pending", async () => {
-    await expect(
-      interactor().invoke({
-        now: NOW,
-        supplierSubprocessorObjectionDeadline: "not-a-date",
-      }),
-    ).rejects.toThrow("supplier subprocessor objection deadline is invalid");
-    await expect(
-      interactor().invoke({
-        now: NOW,
-        supplierSubprocessorObjectionDeadline: "2026-08-07T08:59:59.000Z",
-      }),
-    ).rejects.toThrow("supplier subprocessor objection deadline must be in the future");
+    mockSupplierDeadline.value = "not-a-date";
+    await expect(invoke()).rejects.toThrow("supplier subprocessor objection deadline is invalid");
+
+    mockSupplierDeadline.value = "2026-08-07T08:59:59.000Z";
+    await expect(invoke()).rejects.toThrow("supplier subprocessor objection deadline must be in the future");
 
     expect(recipientRepo.findActiveLegalNoticeRecipientsUnscoped).toHaveBeenCalledTimes(2);
     expect(auditRepo.findLegalEventsUnscoped).toHaveBeenCalledTimes(2);
@@ -223,12 +233,8 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       }),
     );
 
-    await expect(
-      interactor().invoke({
-        now: NOW,
-        supplierSubprocessorObjectionDeadline: "2026-08-06T09:00:00.000Z",
-      }),
-    ).resolves.toBeUndefined();
+    mockSupplierDeadline.value = "2026-08-06T09:00:00.000Z";
+    await expect(invoke()).resolves.toBeUndefined();
 
     expect(emailService.send).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
@@ -259,21 +265,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     recipients = [recipient("admin-1", true), recipient("admin-2", true)];
     emailService.send.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("recipient rejected"));
     const supplierDeadline = "2026-08-12T10:00:00.000Z";
+    mockSupplierDeadline.value = supplierDeadline;
 
-    await expect(
-      interactor().invoke({
-        now: NOW,
-        supplierSubprocessorObjectionDeadline: supplierDeadline,
-      }),
-    ).rejects.toThrow("recipient rejected");
+    await expect(invoke()).rejects.toThrow("recipient rejected");
     expect(records).toHaveLength(1);
 
     emailService.send.mockReset().mockResolvedValue(undefined);
     mockLegalDocumentNotice.mockClear();
-    await interactor().invoke({
-      now: NOW,
-      supplierSubprocessorObjectionDeadline: supplierDeadline,
-    });
+    await invoke();
 
     expect(emailService.send).toHaveBeenCalledTimes(1);
     const props = mockLegalDocumentNotice.mock.calls[0][0] as {
@@ -319,7 +318,6 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       expect(Object.keys(data.payload).sort()).toEqual([
         "changedDocuments",
         "effectiveAt",
-        "locale",
         "recipientEmail",
         "versions",
       ]);
@@ -470,14 +468,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
     recipients = [
       recipient("later-member", false, {
-        createdAt: new Date("2026-08-08T00:00:00.000Z"),
+        createdAt: new Date("2026-08-09T00:00:00.000Z"),
       }),
       recipient("same-day-member", false, {
-        createdAt: new Date("2026-08-07T23:59:59.000Z"),
+        createdAt: new Date("2026-08-08T23:59:59.000Z"),
       }),
     ];
 
-    await invoke(new Date("2026-08-09T09:00:00.000Z"));
+    await invoke(new Date("2026-08-10T09:00:00.000Z"));
 
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(emailService.send.mock.calls[0][0].to).toBe("same-day-member@example.com");

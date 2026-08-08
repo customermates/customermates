@@ -14,8 +14,7 @@ export default async function LegalUpdatePage() {
   const user = await getUserService().getActiveUserOrThrow();
   const status = await getGetLegalStatusInteractor().invoke(user);
 
-  if (!status.contractNoticeSent && !status.informationNoticeVisible) redirect("/");
-  if (status.contractAccepted && !status.informationNoticeVisible) redirect("/");
+  if (!status.contractNoticeSent || status.contractAccepted || !status.effectiveAt) redirect("/");
 
   return (
     <CenteredCardPage>

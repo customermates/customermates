@@ -69,15 +69,14 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl, is
         <FormAutocompleteCountry required id="country" />
 
         {appMode === "cloud" ? (
-          isInvited ? (
-            <p className="text-x-xs text-subdued">{t.rich("OnboardingForm.invitedLegalNotice", legalDocumentLinks)}</p>
-          ) : (
-            <FormCheckbox
-              required
-              id="agreeToTerms"
-              label={<span>{t.rich("OnboardingForm.agreeToTerms", legalDocumentLinks)}</span>}
-            />
-          )
+          <FormCheckbox
+            required
+            id="agreeToTerms"
+            label={t.rich(
+              isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms",
+              legalDocumentLinks,
+            )}
+          />
         ) : null}
 
         <Button className="self-end mt-2" disabled={isLoading} type="submit">

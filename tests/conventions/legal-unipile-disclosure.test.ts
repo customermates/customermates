@@ -14,7 +14,7 @@ const LOCALES = ["en", "de"] as const;
 
 const LEGAL_COPY_MESSAGES = [
   ["OnboardingForm", "agreeToTerms"],
-  ["OnboardingForm", "invitedLegalNotice"],
+  ["OnboardingForm", "invitedAgreeToTerms"],
   ["SignUpForm", "agreeToTerms"],
   ["SignInForm", "agreeToTerms"],
 ] as const;
@@ -252,16 +252,20 @@ describe("registration legal copy covers the DPA", () => {
       ? {
           onboarding:
             "I am authorised to act for the business customer and accept the <termsOfServiceLink>Terms</termsOfServiceLink> and <dpaLink>DPA</dpaLink>. I have read the <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+          invited:
+            "I agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
           auth: "See our <termsOfServiceLink>Terms</termsOfServiceLink>, <dpaLink>DPA</dpaLink>, and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
         }
       : {
           onboarding:
             "Ich bin berechtigt, für den Geschäftskunden zu handeln, und stimme den <termsOfServiceLink>AGB</termsOfServiceLink> sowie dem <dpaLink>AVV</dpaLink> zu. Die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> habe ich gelesen.",
+          invited:
+            "Ich verpflichte mich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und habe den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen.",
           auth: "Siehe unsere <termsOfServiceLink>AGB</termsOfServiceLink>, unseren <dpaLink>AVV</dpaLink> und unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink>.",
         };
 
     expect(messages.OnboardingForm.agreeToTerms).toBe(expected.onboarding);
-    expect(messages.OnboardingForm.invitedLegalNotice).toBe(expected.auth);
+    expect(messages.OnboardingForm.invitedAgreeToTerms).toBe(expected.invited);
     expect(messages.SignUpForm.agreeToTerms).toBe(expected.auth);
     expect(messages.SignInForm.agreeToTerms).toBe(expected.auth);
   });
@@ -279,7 +283,7 @@ describe("registration legal copy covers the DPA", () => {
     }
   });
 
-  it("keeps acceptance at cloud-company creation while showing invitees informational onboarding links", () => {
+  it("requires personal cloud onboarding acknowledgement without treating invitees as company acceptors", () => {
     const signInPage = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/page.tsx"), "utf8");
     const signInForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/sign-in-form.tsx"), "utf8");
     const signUpForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signup/sign-up-form.tsx"), "utf8");
@@ -287,13 +291,18 @@ describe("registration legal copy covers the DPA", () => {
       join(REPO_ROOT, "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx"),
       "utf8",
     );
+    const registration = readFileSync(join(REPO_ROOT, "features/user/register/register-user.interactor.ts"), "utf8");
 
     expect(signInPage).toContain("getInviteTokenValidationInteractor");
     expect(signInForm).toContain('appMode === "cloud" && !isInvited');
     expect(signUpForm).toContain('appMode === "cloud" && !isInvited');
     expect(onboarding).toContain('appMode === "cloud"');
+    expect(onboarding).toContain("<FormCheckbox");
+    expect(onboarding).toContain("required");
     expect(onboarding).toContain("isInvited ?");
-    expect(onboarding).toMatch(/t\.rich\(\s*"OnboardingForm\.invitedLegalNotice"/);
+    expect(onboarding).toContain('"OnboardingForm.invitedAgreeToTerms"');
+    expect(registration).toContain('env.APP_MODE === "cloud" && data.agreeToTerms !== true');
+    expect(registration).toContain("if (isNewCloudCompany)");
   });
 
   it("keeps the legal acceptance page in the app shell while public legal pages remain readable", () => {
@@ -305,6 +314,7 @@ describe("registration legal copy covers the DPA", () => {
       join(REPO_ROOT, "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx"),
       "utf8",
     );
+    const page = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/legal-update/page.tsx"), "utf8");
     const action = readFileSync(
       join(REPO_ROOT, "app/[locale]/(protected)/legal-update/actions.ts"),
       "utf8",
@@ -329,11 +339,15 @@ describe("registration legal copy covers the DPA", () => {
     expect(alert).toContain("status.mustAccept");
     expect(alert).toContain("border-primary/30 bg-primary/10 text-primary");
     expect(alert).toContain("border-warning/30 bg-warning/10 text-warning");
-    expect(view).toContain("status.contractNoticeSent");
+    expect(page).toContain("status.contractNoticeSent");
+    expect(page).toContain("status.contractAccepted");
+    expect(page).toContain("status.effectiveAt");
+    expect(page).not.toContain("informationNoticeVisible");
+    expect(view).not.toContain("informationNoticeVisible");
     expect(view).not.toContain('t("LegalUpdateView.continue")');
     expect(view).toContain("<Label");
     expect(view).not.toContain("items-start gap-3 text-sm");
-    expect(view).toContain('variant="secondary"');
+    expect(view).toContain('variant="outline"');
     expect(view).toContain('t("LegalUpdateView.signOut")');
     expect(action).toContain("refresh()");
     expect(action).toContain('redirect("/")');
@@ -419,12 +433,18 @@ describe("legal update workflow disclosure", () => {
       "Kaskadenlöschverhalten",
     ]) expect(dePrivacy).toContain(phrase);
 
-    for (const stale of ["deterministic legal-version key", "Resend provider message ID", "deployed Git commit"])
+    for (const stale of [
+      "deterministic legal-version key",
+      "Resend provider message ID",
+      "deployed Git commit",
+      "selected locale",
+    ])
       expect(enPrivacy).not.toContain(stale);
     for (const stale of [
       "deterministischen Rechtsdokument-Versionsschlüssel",
       "Resend-Nachrichtenkennung",
       "eingesetzten Git-Commit",
+      "gewählte Sprache",
     ])
       expect(dePrivacy).not.toContain(stale);
 

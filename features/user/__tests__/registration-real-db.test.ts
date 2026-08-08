@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, vi } from "vitest";
-import type { LegalNoticeAuditPayload } from "@/constants/legal-documents";
+import type { LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { createTranslator } from "next-intl";
@@ -45,8 +45,11 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 
 const email = `real-db-check-${Date.now()}@example.com`;
 const companyIds: string[] = [];
+const authUserIds: string[] = [];
 
 afterAll(async () => {
+  for (const authUserId of authUserIds)
+    await runWithoutTenant(() => prisma.authUser.delete({ where: { id: authUserId } }));
   for (const companyId of companyIds) await runWithoutTenant(() => prisma.company.delete({ where: { id: companyId } }));
   await prisma.$disconnect();
 });
@@ -152,21 +155,18 @@ describe("registration against a real database", () => {
       payload: {
         acceptanceType: string;
         acceptingEmail: string;
-        locale: string;
       };
     };
 
     expect(eventData.payload).toMatchObject({
       acceptanceType: "initial-onboarding",
       acceptingEmail: registrationEmail,
-      locale: "en",
     });
 
     const noticePayload: LegalNoticeAuditPayload = {
       versions: currentLegalDocumentVersions(),
       changedDocuments: ["terms", "dpa", "privacy", "subprocessors"],
       recipientEmail: user.email,
-      locale: "de",
       effectiveAt: "2026-08-21T09:00:00.000Z",
     };
     await runWithoutTenant(() =>
@@ -223,6 +223,90 @@ describe("registration against a real database", () => {
     ).toBe(1);
   });
 
+  it("persists an invited cloud user's acknowledgement without company-wide acceptance", async () => {
+    const suffix = Date.now();
+    const repo = new PrismaUserRepo();
+    const administrator = await runWithoutTenant(() =>
+      repo.createCompanyAndUser({
+        email: `invite-admin-${suffix}@example.com`,
+        firstName: "Invite",
+        lastName: "Admin",
+        country: "de",
+        agreeToTerms: true,
+        avatarUrl: null,
+      }),
+    );
+    companyIds.push(administrator.companyId);
+
+    const authUserId = `auth-invite-${suffix}`;
+    const invitedEmail = `invite-member-${suffix}@example.com`;
+    await runWithoutTenant(() =>
+      prisma.authUser.create({
+        data: {
+          id: authUserId,
+          name: "Invited Member",
+          email: invitedEmail,
+          companyId: administrator.companyId,
+        },
+      }),
+    );
+    authUserIds.push(authUserId);
+
+    const eventService = new EventService(
+      [],
+      {
+        getWebhooksForEvent: vi.fn().mockResolvedValue([]),
+        getWebhooksForEventUnscoped: vi.fn().mockResolvedValue([]),
+      },
+      {
+        create: vi.fn().mockResolvedValue([]),
+        createUnscoped: vi.fn().mockResolvedValue([]),
+      },
+      new PrismaAuditLogRepo(),
+      { dispatch: vi.fn().mockResolvedValue(undefined) },
+    );
+    const interactor = new RegisterUserInteractor(
+      {
+        resolveSession: vi.fn().mockResolvedValue({ session: { user: { id: authUserId } } }),
+        sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
+      } as never,
+      repo,
+      eventService,
+    );
+
+    const result = await interactor.invoke({
+      email: invitedEmail,
+      firstName: "Invited",
+      lastName: "Member",
+      country: "de",
+      agreeToTerms: true,
+      avatarUrl: null,
+    });
+    expect("ok" in result && result.ok).toBe(true);
+
+    const invitedUser = await runWithoutTenant(() =>
+      prisma.user.findUniqueOrThrow({
+        where: { email: invitedEmail },
+        select: { agreeToTerms: true, companyId: true, status: true },
+      }),
+    );
+    expect(invitedUser).toEqual({
+      agreeToTerms: true,
+      companyId: administrator.companyId,
+      status: "pendingAuthorization",
+    });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.auditLog.count({
+          where: {
+            companyId: administrator.companyId,
+            event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+          },
+        }),
+      ),
+    ).toBe(0);
+  });
+
   it("enforces and clears one company-wide deadline across an administrator and member", async () => {
     const suffix = Date.now();
     const repo = new PrismaUserRepo();
@@ -272,7 +356,6 @@ describe("registration against a real database", () => {
             versions,
             changedDocuments: ["terms", "dpa", "privacy", "subprocessors"],
             recipientEmail: admin.email,
-            locale: "en",
             effectiveAt: "2026-08-06T00:00:00.000Z",
           },
         },
@@ -286,7 +369,6 @@ describe("registration against a real database", () => {
             versions,
             changedDocuments: ["privacy"],
             recipientEmail: member.email,
-            locale: "en",
             effectiveAt: null,
           },
         },
@@ -308,28 +390,34 @@ describe("registration against a real database", () => {
 
     const statusInteractor = new GetLegalStatusInteractor(auditRepo);
     const afterDeadline = new Date("2026-08-07T00:00:00.000Z");
-    await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
-      contractAccepted: false,
-      mustAccept: true,
-    });
-    await expect(statusInteractor.invoke(member, afterDeadline)).resolves.toMatchObject({
-      contractAccepted: false,
-      mustAccept: true,
-    });
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(afterDeadline);
+    try {
+      await expect(statusInteractor.invoke(admin)).resolves.toMatchObject({
+        contractAccepted: false,
+        mustAccept: true,
+      });
+      await expect(statusInteractor.invoke(member)).resolves.toMatchObject({
+        contractAccepted: false,
+        mustAccept: true,
+      });
 
-    activeTenantUser.value = admin;
-    await new AcceptLegalDocumentsInteractor(auditRepo, eventService).invoke({
-      agreeToLegalDocuments: true,
-    });
+      activeTenantUser.value = admin;
+      await new AcceptLegalDocumentsInteractor(auditRepo, eventService).invoke({
+        agreeToLegalDocuments: true,
+      });
 
-    await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
-      contractAccepted: true,
-      mustAccept: false,
-    });
-    await expect(statusInteractor.invoke(member, afterDeadline)).resolves.toMatchObject({
-      contractAccepted: true,
-      mustAccept: false,
-    });
+      await expect(statusInteractor.invoke(admin)).resolves.toMatchObject({
+        contractAccepted: true,
+        mustAccept: false,
+      });
+      await expect(statusInteractor.invoke(member)).resolves.toMatchObject({
+        contractAccepted: true,
+        mustAccept: false,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("rolls back the company, user, and queued acceptance evidence together", async () => {

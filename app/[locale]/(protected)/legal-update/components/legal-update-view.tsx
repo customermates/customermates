@@ -4,9 +4,9 @@
 
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
-import { useState, useTransition } from "react";
+import { useEffect } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { observer } from "mobx-react-lite";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -16,17 +16,17 @@ import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { signOutAction } from "@/app/[locale]/actions";
-
-import { acceptLegalDocumentsAction } from "../actions";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = { status: LegalUpdateStatus };
 
-export function LegalUpdateView({ status }: Props) {
+export const LegalUpdateView = observer(({ status }: Props) => {
   const t = useTranslations();
   const format = useFormatter();
-  const [checked, setChecked] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const { legalUpdateStore: store, loadingOverlayStore } = useRootStore();
+
+  useEffect(() => store.onInitOrRefresh(), [store]);
+
   const deadline = status.effectiveAt
     ? format.dateTime(new Date(status.effectiveAt), {
         dateStyle: "long",
@@ -37,9 +37,7 @@ export function LegalUpdateView({ status }: Props) {
   return (
     <AppCard className="max-w-2xl">
       <CardHeroHeader
-        subtitle={
-          deadline ? t("LegalUpdateView.subtitle", { date: deadline }) : t("LegalUpdateView.informationSubtitle")
-        }
+        subtitle={deadline ? t("LegalUpdateView.subtitle", { date: deadline }) : undefined}
         title={t("LegalUpdateView.title")}
       />
 
@@ -64,52 +62,41 @@ export function LegalUpdateView({ status }: Props) {
           .
         </p>
 
-        {status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
+        {status.isSystemAdministrator ? (
           <Label className="cursor-pointer gap-3 font-normal leading-normal" htmlFor="legal-acceptance">
             <Checkbox
               aria-required="true"
-              checked={checked}
+              checked={store.checked}
               id="legal-acceptance"
-              onCheckedChange={(value) => setChecked(value === true)}
+              onCheckedChange={(value) => store.setChecked(value === true)}
             />
 
             <span>{t("LegalUpdateView.acceptance")}</span>
           </Label>
         ) : null}
 
-        {!status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
+        {!status.isSystemAdministrator ? (
           <p className="text-sm text-subdued">{t("LegalUpdateView.memberWaiting")}</p>
         ) : null}
       </AppCardBody>
 
-      {status.contractNoticeSent && !status.contractAccepted ? (
-        <AppCardFooter>
-          <Button variant="secondary" onClick={() => void signOutAction()}>
-            {t("LegalUpdateView.signOut")}
+      <AppCardFooter>
+        <Button disabled={loadingOverlayStore.isLoading} variant="outline" onClick={() => void store.signOut()}>
+          {t("LegalUpdateView.signOut")}
+        </Button>
+
+        {!status.isSystemAdministrator ? (
+          <Button disabled={loadingOverlayStore.isLoading} onClick={() => window.location.reload()}>
+            {t("LegalUpdateView.retry")}
           </Button>
+        ) : null}
 
-          {!status.isSystemAdministrator ? (
-            <Button onClick={() => window.location.reload()}>{t("LegalUpdateView.retry")}</Button>
-          ) : null}
-
-          {status.isSystemAdministrator ? (
-            <Button
-              disabled={!checked || isPending}
-              onClick={() =>
-                startTransition(async () => {
-                  await acceptLegalDocumentsAction({
-                    agreeToLegalDocuments: true,
-                  });
-                })
-              }
-            >
-              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-
-              {t("LegalUpdateView.accept")}
-            </Button>
-          ) : null}
-        </AppCardFooter>
-      ) : null}
+        {status.isSystemAdministrator ? (
+          <Button disabled={!store.checked || loadingOverlayStore.isLoading} onClick={() => void store.accept()}>
+            {t("LegalUpdateView.accept")}
+          </Button>
+        ) : null}
+      </AppCardFooter>
     </AppCard>
   );
-}
+});

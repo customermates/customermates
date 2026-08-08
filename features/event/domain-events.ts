@@ -6,7 +6,7 @@ import type { TaskDto } from "@/features/tasks/task.schema";
 import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookDto } from "@/features/webhook/webhook.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/constants/legal-documents";
+import type { LegalAcceptanceAuditPayload, LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 
 import type { CountryCode, Status, Currency, EntityType, MessagingProvider } from "@/generated/prisma";
 

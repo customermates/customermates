@@ -1,7 +1,8 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { RepoArgs } from "@/core/utils/types";
-import type { LegalAuditRecord, LegalAuditRepo } from "@/features/legal/legal-audit.repo";
+import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
+import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 
 import type { Prisma } from "@/generated/prisma";
@@ -13,7 +14,7 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { DomainEvent } from "@/features/event/domain-events";
-import { parseLegalAcceptanceAuditPayload, parseLegalNoticeAuditPayload } from "@/features/legal/legal-audit.repo";
+import { parseLegalAcceptanceAuditPayload, parseLegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>

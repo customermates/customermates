@@ -3,14 +3,13 @@ import type { EventService } from "@/features/event/event.service";
 import type { LegalAuditRepo } from "./legal-audit.repo";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { hasValidLegalNoticeEffectiveAt } from "./legal-audit.repo";
+import { hasValidLegalNoticeEffectiveAt } from "./legal-audit.schema";
 import {
   CONTRACT_LEGAL_DOCUMENTS,
   currentLegalDocumentVersions,
@@ -40,8 +39,6 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
     if (env.APP_MODE !== "cloud" || !this.user.role?.isSystemRole)
       throw new ForbiddenError("Only a managed-cloud system administrator may accept legal documents");
 
-    const locale = (await getLocale()) === "de" ? "de" : "en";
-
     const records = await this.auditRepo.findLegalEventsUnscoped(this.companyId);
     const existing = records.find(
       (record) =>
@@ -67,7 +64,6 @@ export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
       payload: {
         versions: currentLegalDocumentVersions(),
         acceptingEmail: this.user.email,
-        locale,
         acceptanceType: "later-update",
       },
     });

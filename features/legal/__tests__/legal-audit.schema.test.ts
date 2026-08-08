@@ -1,28 +1,24 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  currentLegalDocumentVersions,
-  type LegalAcceptanceAuditPayload,
-  type LegalNoticeAuditPayload,
-} from "@/constants/legal-documents";
+import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import {
   hasValidLegalNoticeEffectiveAt,
   parseLegalAcceptanceAuditPayload,
   parseLegalNoticeAuditPayload,
-} from "../legal-audit.repo";
+  type LegalAcceptanceAuditPayload,
+  type LegalNoticeAuditPayload,
+} from "../legal-audit.schema";
 
 const noticePayload: LegalNoticeAuditPayload = {
   versions: currentLegalDocumentVersions(),
   changedDocuments: ["terms", "dpa"],
   recipientEmail: "admin@example.com",
-  locale: "en",
   effectiveAt: "2026-08-22T00:00:00.000Z",
 };
 
 const acceptancePayload: LegalAcceptanceAuditPayload = {
   versions: currentLegalDocumentVersions(),
   acceptingEmail: "admin@example.com",
-  locale: "en",
   acceptanceType: "later-update",
 };
 
@@ -55,7 +51,12 @@ describe("legal audit payload parsing", () => {
 
   it("requires an actual valid deadline where a workflow needs one", () => {
     expect(hasValidLegalNoticeEffectiveAt({ ...noticePayload, effectiveAt: null })).toBe(false);
-    expect(hasValidLegalNoticeEffectiveAt({ ...noticePayload, effectiveAt: "not-a-date" })).toBe(false);
+    expect(
+      hasValidLegalNoticeEffectiveAt({
+        ...noticePayload,
+        effectiveAt: "not-a-date",
+      }),
+    ).toBe(false);
     expect(hasValidLegalNoticeEffectiveAt(noticePayload)).toBe(true);
   });
 });

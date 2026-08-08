@@ -6,7 +6,6 @@ import { createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "self-hosted",
 }));
-const mockLocale = vi.hoisted(() => ({ value: "de" }));
 const runInTransaction = vi.hoisted(() => vi.fn((fn: () => Promise<unknown>) => fn()));
 let mockUser = createMockUser({
   id: "admin-1",
@@ -15,23 +14,17 @@ let mockUser = createMockUser({
 });
 
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("next-intl/server", () => ({
-  getLocale: () => Promise.resolve(mockLocale.value),
-}));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/decorators/transaction-runner", () => ({ runInTransaction }));
 
-import {
-  currentLegalDocumentVersions,
-  type LegalAcceptanceAuditPayload,
-  type LegalNoticeAuditPayload,
-} from "@/constants/legal-documents";
+import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { AcceptLegalDocumentsInteractor, type AcceptLegalDocumentsData } from "../accept-legal-documents.interactor";
-import type { LegalAuditRecord, LegalAuditRepo } from "../legal-audit.repo";
+import type { LegalAcceptanceAuditPayload, LegalAuditRecord, LegalNoticeAuditPayload } from "../legal-audit.schema";
+import type { LegalAuditRepo } from "../legal-audit.repo";
 
 const user = mockUser;
 
@@ -40,7 +33,6 @@ function noticeRecord(overrides: Partial<LegalNoticeAuditPayload> = {}): LegalAu
     versions: currentLegalDocumentVersions(),
     changedDocuments: ["terms", "dpa"],
     recipientEmail: user.email,
-    locale: "en",
     effectiveAt: "2026-08-21T00:00:00.000Z",
     ...overrides,
   };
@@ -57,7 +49,6 @@ function acceptanceRecord(overrides: Partial<LegalAcceptanceAuditPayload> = {}):
   const payload: LegalAcceptanceAuditPayload = {
     versions: currentLegalDocumentVersions(),
     acceptingEmail: user.email,
-    locale: "en",
     acceptanceType: "later-update",
     ...overrides,
   };
@@ -83,7 +74,6 @@ describe("AcceptLegalDocumentsInteractor", () => {
       return fn();
     });
     mockEnv.APP_MODE = "cloud";
-    mockLocale.value = "de";
     mockUser = user;
     records = [noticeRecord()];
     findLegalEventsUnscoped = vi.fn(() => Promise.resolve(records));
@@ -107,7 +97,6 @@ describe("AcceptLegalDocumentsInteractor", () => {
       payload: {
         acceptanceType: "later-update",
         acceptingEmail: user.email,
-        locale: "de",
         versions: currentLegalDocumentVersions(),
       },
     });
