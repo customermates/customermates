@@ -1523,17 +1523,19 @@
     "subprocessorObjection": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und vor Ablauf der angegebenen Frist unter Angabe berechtigter datenschutzrechtlicher Gründe.",
     "subprocessorObjectionWithDeadline": "Eine Annahme ist nicht erforderlich. Wenn Sie der aufgeführten Änderung bei den Unterauftragsverarbeitern widersprechen, antworten Sie unverzüglich und bis zum {deadline} unter Angabe berechtigter datenschutzrechtlicher Gründe. Diese Lieferantenfrist gilt unabhängig von der oben genannten Frist für AGB und AVV."
   },
-  "LegalUpdateBanner": {
-    "admin": "Rechtsdokumente wurden aktualisiert. Prüfen und akzeptieren Sie die aktualisierten AGB und den AVV bis zum {date}, um Customermates weiter zu nutzen.",
-    "information": "Rechtliche Informationen wurden aktualisiert.",
-    "member": "Rechtsdokumente wurden aktualisiert. Ein Unternehmensadministrator muss die aktualisierten AGB und den AVV bis zum {date} akzeptieren.",
-    "review": "Dokumente prüfen"
+  "LegalUpdateAlert": {
+    "adminDescription": "Bis zum {date} akzeptieren.",
+    "contractReview": "AGB und AVV prüfen",
+    "contractTitle": "Rechtsdokumente aktualisiert",
+    "informationDescription": "Prüfen Sie die aktuellen Rechtsdokumente.",
+    "informationReview": "Dokumente prüfen",
+    "informationTitle": "Rechtliche Informationen aktualisiert",
+    "memberDescription": "Ein Unternehmensadministrator muss bis zum {date} akzeptieren."
   },
   "LegalUpdateView": {
     "accept": "Akzeptieren und fortfahren",
     "acceptance": "Ich bin berechtigt, für den Geschäftskunden zu handeln, und akzeptiere die aktuellen AGB und den AVV.",
     "and": "sowie",
-    "continue": "Weiter zu Customermates",
     "description": "Prüfen Sie die aktuellen",
     "dpa": "AVV",
     "informationSubtitle": "Bitte prüfen Sie die aktualisierten rechtlichen Informationen.",

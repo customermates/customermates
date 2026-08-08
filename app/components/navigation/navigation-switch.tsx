@@ -18,7 +18,6 @@ import { DocsSidebar } from "@/app/[locale]/(static)/docs/components/docs-sideba
 import { DocsTopBar } from "@/app/[locale]/(static)/docs/components/docs-topbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { LegalUpdateBanner } from "@/app/components/legal-update-banner";
 
 type Props = {
   isAuthenticated: boolean;
@@ -57,7 +56,6 @@ export function NavigationSwitch({
   const isDocsRoute = pathname === "/docs" || pathname.startsWith("/docs/");
   const isOnboardingWizard = pathname === "/onboarding/wizard" || pathname.startsWith("/onboarding/wizard/");
   const isAuthRoute = pathname.startsWith("/auth/");
-  const isLegalUpdateRoute = pathname === "/legal-update" || pathname.startsWith("/legal-update/");
   const hideAppShell = !isAuthenticated || isOnboardingWizard || isAuthRoute;
   const { userStore, companyStore, subscriptionStore, terminologyStore } = useRootStore();
 
@@ -96,21 +94,12 @@ export function NavigationSwitch({
     );
   }
 
-  if (isLegalUpdateRoute) {
-    return (
-      <div className="h-svh flex">
-        <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
-          <div className="flex flex-col flex-1 overflow-x-clip">{children}</div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <SidebarProvider defaultOpen={defaultSidebarOpen}>
       <AppSidebar
         channelsNeedingActionCount={channelsNeedingActionCount}
         emailVerified={emailVerified}
+        legalStatus={legalStatus}
         subscription={subscription}
         systemTaskCount={systemTaskCount}
         trialDaysLeft={trialDaysLeft}
@@ -121,8 +110,6 @@ export function NavigationSwitch({
       <SidebarInset className="min-w-0 overflow-x-clip">
         <TopBarActionsProvider>
           <AppTopBar />
-
-          {legalStatus ? <LegalUpdateBanner status={legalStatus} /> : null}
 
           <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
         </TopBarActionsProvider>

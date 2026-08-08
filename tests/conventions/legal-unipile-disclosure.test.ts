@@ -296,10 +296,11 @@ describe("registration legal copy covers the DPA", () => {
     expect(onboarding).toMatch(/t\.rich\(\s*"OnboardingForm\.invitedLegalNotice"/);
   });
 
-  it("keeps the forced legal route isolated while public legal pages remain readable", () => {
+  it("keeps the legal acceptance page in the app shell while public legal pages remain readable", () => {
     const navigation = readFileSync(join(REPO_ROOT, "app/components/navigation/navigation-switch.tsx"), "utf8");
     const protectedLayout = readFileSync(join(REPO_ROOT, "app/[locale]/(protected)/layout.tsx"), "utf8");
-    const banner = readFileSync(join(REPO_ROOT, "app/components/legal-update-banner.tsx"), "utf8");
+    const sidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
+    const alert = readFileSync(join(REPO_ROOT, "app/components/navigation/legal-update-alert.tsx"), "utf8");
     const view = readFileSync(
       join(REPO_ROOT, "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx"),
       "utf8",
@@ -310,16 +311,27 @@ describe("registration legal copy covers the DPA", () => {
     );
     const routeGuard = readFileSync(join(REPO_ROOT, "features/auth/route-guard.service.ts"), "utf8");
 
-    expect(navigation).toMatch(/if \(isLegalUpdateRoute\)/);
+    expect(navigation).not.toContain("isLegalUpdateRoute");
+    expect(navigation).toContain("legalStatus={legalStatus}");
     expect(protectedLayout).not.toContain("isLegalUpdateRoute");
     expect(routeGuard).toContain('return redirectTo("/legal-update")');
-    expect(banner).not.toContain("useEffect");
-    expect(banner).not.toContain("useRouter");
-    expect(banner).not.toContain("setTimeout");
-    expect(banner).not.toContain("router.refresh()");
-    expect(banner).toContain("status.contractNoticeSent");
+    expect(sidebar).toContain("<LegalUpdateAlert");
+    expect(sidebar).toContain("<NavMain");
+    expect(sidebar.indexOf("<LegalUpdateAlert")).toBeLessThan(sidebar.indexOf("<NavMain"));
+    expect(alert).toContain('href="/legal-update"');
+    expect(alert).toContain("aria-label");
+    expect(alert).not.toContain("useEffect");
+    expect(alert).not.toContain("useRouter");
+    expect(alert).not.toContain("setTimeout");
+    expect(alert).toContain("status.contractNoticeSent");
+    expect(alert).toContain("status.mustAccept");
+    expect(alert).toContain("border-primary/30 bg-primary/10 text-primary");
+    expect(alert).toContain("border-warning/30 bg-warning/10 text-warning");
     expect(view).toContain("status.contractNoticeSent");
-    expect(view).toContain("!status.mustAccept");
+    expect(view).not.toContain('t("LegalUpdateView.continue")');
+    expect(view).toContain("<Label");
+    expect(view).not.toContain("items-start gap-3 text-sm");
+    expect(view).toContain('variant="secondary"');
     expect(view).toContain('t("LegalUpdateView.signOut")');
     expect(action).toContain("refresh()");
     expect(action).toContain('redirect("/")');

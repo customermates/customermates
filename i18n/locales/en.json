@@ -1523,17 +1523,19 @@
     "subprocessorObjection": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and before the stated deadline, giving reasonable data-protection grounds.",
     "subprocessorObjectionWithDeadline": "No acceptance is required. If you object to the listed subprocessor change, reply without undue delay and by {deadline}, giving reasonable data-protection grounds. This supplier deadline is separate from the Terms and DPA deadline shown above."
   },
-  "LegalUpdateBanner": {
-    "admin": "Legal documents updated. Review and accept the updated Terms and DPA by {date} to keep using Customermates.",
-    "information": "Legal information has been updated.",
-    "member": "Legal documents updated. A company administrator must accept the updated Terms and DPA by {date}.",
-    "review": "Review documents"
+  "LegalUpdateAlert": {
+    "adminDescription": "Accept by {date}.",
+    "contractReview": "Review Terms and DPA",
+    "contractTitle": "Legal documents updated",
+    "informationDescription": "Review the latest legal documents.",
+    "informationReview": "Review documents",
+    "informationTitle": "Legal information updated",
+    "memberDescription": "A company administrator must accept by {date}."
   },
   "LegalUpdateView": {
     "accept": "Accept and continue",
     "acceptance": "I am authorised to act for the business customer and accept the current Terms and DPA.",
     "and": "and",
-    "continue": "Continue to Customermates",
     "description": "Review the current",
     "dpa": "DPA",
     "informationSubtitle": "Please review the updated legal information.",

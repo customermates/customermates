@@ -15,6 +15,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { signOutAction } from "@/app/[locale]/actions";
 
 import { acceptLegalDocumentsAction } from "../actions";
@@ -64,7 +65,7 @@ export function LegalUpdateView({ status }: Props) {
         </p>
 
         {status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
-          <label className="flex items-start gap-3 text-sm" htmlFor="legal-acceptance">
+          <Label className="cursor-pointer gap-3 font-normal leading-normal" htmlFor="legal-acceptance">
             <Checkbox
               aria-required="true"
               checked={checked}
@@ -73,7 +74,7 @@ export function LegalUpdateView({ status }: Props) {
             />
 
             <span>{t("LegalUpdateView.acceptance")}</span>
-          </label>
+          </Label>
         ) : null}
 
         {!status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
@@ -81,44 +82,34 @@ export function LegalUpdateView({ status }: Props) {
         ) : null}
       </AppCardBody>
 
-      <AppCardFooter>
-        {!status.mustAccept ? (
-          <Button asChild variant="outline">
-            <AppLink href="/">{t("LegalUpdateView.continue")}</AppLink>
+      {status.contractNoticeSent && !status.contractAccepted ? (
+        <AppCardFooter>
+          <Button variant="secondary" onClick={() => void signOutAction()}>
+            {t("LegalUpdateView.signOut")}
           </Button>
-        ) : null}
 
-        {status.contractNoticeSent && !status.contractAccepted ? (
-          <>
-            {!status.isSystemAdministrator ? (
-              <Button variant="outline" onClick={() => window.location.reload()}>
-                {t("LegalUpdateView.retry")}
-              </Button>
-            ) : null}
+          {!status.isSystemAdministrator ? (
+            <Button onClick={() => window.location.reload()}>{t("LegalUpdateView.retry")}</Button>
+          ) : null}
 
-            <Button variant="outline" onClick={() => void signOutAction()}>
-              {t("LegalUpdateView.signOut")}
+          {status.isSystemAdministrator ? (
+            <Button
+              disabled={!checked || isPending}
+              onClick={() =>
+                startTransition(async () => {
+                  await acceptLegalDocumentsAction({
+                    agreeToLegalDocuments: true,
+                  });
+                })
+              }
+            >
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+
+              {t("LegalUpdateView.accept")}
             </Button>
-          </>
-        ) : null}
-
-        {status.isSystemAdministrator && status.contractNoticeSent && !status.contractAccepted ? (
-          <Button
-            disabled={!checked || isPending}
-            onClick={() =>
-              startTransition(async () => {
-                await acceptLegalDocumentsAction({
-                  agreeToLegalDocuments: true,
-                });
-              })
-            }
-          >
-            {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-
-            {t("LegalUpdateView.accept")}
-          </Button>
-        ) : null}
-      </AppCardFooter>
+          ) : null}
+        </AppCardFooter>
+      ) : null}
     </AppCard>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { TenantUser } from "@/features/user/user.schema";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
+import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
@@ -47,6 +48,7 @@ import { visibleSubroutes } from "./navigation/workspace-sections";
 import { NavMain } from "./navigation/nav-main";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
+import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 type Props = {
@@ -57,6 +59,7 @@ type Props = {
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   emailVerified: boolean | null;
+  legalStatus: LegalUpdateStatus | null;
 };
 
 export const AppSidebar = observer(
@@ -68,6 +71,7 @@ export const AppSidebar = observer(
     subscription,
     trialDaysLeft,
     emailVerified,
+    legalStatus,
   }: Props) => {
     const t = useTranslations();
     const pathname = usePathname();
@@ -306,6 +310,8 @@ export const AppSidebar = observer(
           />
 
           <SidebarContent>
+            {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
+
             <NavMain
               groups={navGroups}
               pathname={intlPathname}
