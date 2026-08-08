@@ -1,4 +1,3 @@
-import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { TenantUser } from "@/features/user/user.schema";
 
@@ -47,7 +46,19 @@ export class GetLegalStatusInteractor {
         ),
     );
     const contractNoticeSent = currentContractNoticeRecords.length > 0;
-    const contractEffectiveAt = this.earliestValidEffectiveAt(currentContractNoticeRecords);
+    const contractEffectiveAt =
+      currentContractNoticeRecords.reduce<{
+        createdAt: Date;
+        effectiveAt: Date;
+      } | null>((current, record) => {
+        if (!record.payload?.effectiveAt) return current;
+
+        const effectiveAt = new Date(record.payload.effectiveAt);
+        if (Number.isNaN(effectiveAt.getTime())) return current;
+        if (current && current.createdAt <= record.createdAt) return current;
+
+        return { createdAt: record.createdAt, effectiveAt };
+      }, null)?.effectiveAt ?? null;
     const mustAccept =
       contractNoticeSent && !contractAccepted && contractEffectiveAt !== null && new Date() >= contractEffectiveAt;
 
@@ -58,19 +69,5 @@ export class GetLegalStatusInteractor {
       isSystemAdministrator,
       mustAccept,
     };
-  }
-
-  private earliestValidEffectiveAt(records: LegalAuditRecord[]): Date | null {
-    return (
-      records.reduce<{ createdAt: Date; effectiveAt: Date } | null>((current, record) => {
-        if (record.event !== DomainEvent.LEGAL_NOTICE_SENT || !record.payload?.effectiveAt) return current;
-
-        const effectiveAt = new Date(record.payload.effectiveAt);
-        if (Number.isNaN(effectiveAt.getTime())) return current;
-        if (current && current.createdAt <= record.createdAt) return current;
-
-        return { createdAt: record.createdAt, effectiveAt };
-      }, null)?.effectiveAt ?? null
-    );
   }
 }
