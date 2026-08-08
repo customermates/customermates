@@ -45,19 +45,19 @@ export function LegalUpdateView({ status }: Props) {
       <AppCardBody>
         <p className="text-sm text-subdued">
           {t("LegalUpdateView.description")}{" "}
-          <AppLink href="/terms" target="_blank">
+          <AppLink appearance="inline" href="/terms" target="_blank">
             {t("LegalUpdateView.terms")}
           </AppLink>
           ,{" "}
-          <AppLink href="/dpa" target="_blank">
+          <AppLink appearance="inline" href="/dpa" target="_blank">
             {t("LegalUpdateView.dpa")}
           </AppLink>
           ,{" "}
-          <AppLink href="/privacy" target="_blank">
+          <AppLink appearance="inline" href="/privacy" target="_blank">
             {t("LegalUpdateView.privacy")}
           </AppLink>{" "}
           {t("LegalUpdateView.and")}{" "}
-          <AppLink href="/subprocessors" target="_blank">
+          <AppLink appearance="inline" href="/subprocessors" target="_blank">
             {t("LegalUpdateView.subprocessors")}
           </AppLink>
           .

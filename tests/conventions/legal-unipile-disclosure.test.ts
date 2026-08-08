@@ -12,7 +12,12 @@ import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 
 const LOCALES = ["en", "de"] as const;
 
-const ACCEPTANCE_MESSAGE_KEYS = ["OnboardingForm", "SignUpForm", "SignInForm"] as const;
+const LEGAL_COPY_MESSAGES = [
+  ["OnboardingForm", "agreeToTerms"],
+  ["OnboardingForm", "invitedLegalNotice"],
+  ["SignUpForm", "agreeToTerms"],
+  ["SignInForm", "agreeToTerms"],
+] as const;
 
 const REMOVED_SUBJECTS = ["newsletter", "zoom", "google ads", "supabase"];
 
@@ -225,22 +230,20 @@ describe("legal document versions stay coupled to the acceptance record", () => 
   });
 });
 
-describe("registration acceptance covers the DPA", () => {
-  it.each(LOCALES)("acceptance messages (%s) link the DPA", (name) => {
+describe("registration legal copy covers the DPA", () => {
+  it.each(LOCALES)("legal-document messages (%s) link the DPA", (name) => {
     const messages = locale(name);
 
-    for (const key of ACCEPTANCE_MESSAGE_KEYS)
-      expect(messages[key].agreeToTerms, `${key}.agreeToTerms is missing the DPA link`).toContain("<dpaLink>");
+    for (const [namespace, key] of LEGAL_COPY_MESSAGES)
+      expect(messages[namespace][key], `${namespace}.${key} is missing the DPA link`).toContain("<dpaLink>");
   });
 
   it("keeps rich-text tags identical across locales", () => {
     const en = locale("en");
     const de = locale("de");
 
-    for (const key of ACCEPTANCE_MESSAGE_KEYS)
-      expect(richTags(de[key].agreeToTerms), `${key}.agreeToTerms tag mismatch`).toEqual(
-        richTags(en[key].agreeToTerms),
-      );
+    for (const [namespace, key] of LEGAL_COPY_MESSAGES)
+      expect(richTags(de[namespace][key]), `${namespace}.${key} tag mismatch`).toEqual(richTags(en[namespace][key]));
   });
 
   it.each(LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
@@ -258,11 +261,12 @@ describe("registration acceptance covers the DPA", () => {
         };
 
     expect(messages.OnboardingForm.agreeToTerms).toBe(expected.onboarding);
+    expect(messages.OnboardingForm.invitedLegalNotice).toBe(expected.auth);
     expect(messages.SignUpForm.agreeToTerms).toBe(expected.auth);
     expect(messages.SignInForm.agreeToTerms).toBe(expected.auth);
   });
 
-  it("renders a DPA link in every acceptance surface", () => {
+  it("renders a DPA link in every legal-copy surface", () => {
     const surfaces = [
       "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx",
       "app/[locale]/(public)/auth/signup/sign-up-form.tsx",
@@ -275,7 +279,7 @@ describe("registration acceptance covers the DPA", () => {
     }
   });
 
-  it("limits hosted legal copy and acceptance to non-invited cloud company creation", () => {
+  it("keeps acceptance at cloud-company creation while showing invitees informational onboarding links", () => {
     const signInPage = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/page.tsx"), "utf8");
     const signInForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signin/sign-in-form.tsx"), "utf8");
     const signUpForm = readFileSync(join(REPO_ROOT, "app/[locale]/(public)/auth/signup/sign-up-form.tsx"), "utf8");
@@ -287,7 +291,9 @@ describe("registration acceptance covers the DPA", () => {
     expect(signInPage).toContain("getInviteTokenValidationInteractor");
     expect(signInForm).toContain('appMode === "cloud" && !isInvited');
     expect(signUpForm).toContain('appMode === "cloud" && !isInvited');
-    expect(onboarding).toContain('appMode === "cloud" && !isInvited');
+    expect(onboarding).toContain('appMode === "cloud"');
+    expect(onboarding).toContain("isInvited ?");
+    expect(onboarding).toMatch(/t\.rich\(\s*"OnboardingForm\.invitedLegalNotice"/);
   });
 
   it("keeps the forced legal route isolated while public legal pages remain readable", () => {
@@ -305,7 +311,7 @@ describe("registration acceptance covers the DPA", () => {
     const routeGuard = readFileSync(join(REPO_ROOT, "features/auth/route-guard.service.ts"), "utf8");
 
     expect(navigation).toMatch(/if \(isLegalUpdateRoute\)/);
-    expect(protectedLayout).toContain("!isLegalUpdateRoute");
+    expect(protectedLayout).not.toContain("isLegalUpdateRoute");
     expect(routeGuard).toContain('return redirectTo("/legal-update")');
     expect(banner).not.toContain("useEffect");
     expect(banner).not.toContain("useRouter");
@@ -367,8 +373,8 @@ describe("legal update workflow disclosure", () => {
       "utf8",
     );
 
-    expect(constants).toContain("SUBPROCESSOR_OBJECTION_DEADLINE");
-    expect(notices).toContain("resolveSubprocessorObjectionDeadline(now");
+    expect(constants).toContain("SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE");
+    expect(notices).toContain("resolveSupplierSubprocessorObjectionDeadline");
   });
 
   it("discloses the audit evidence fields, retention behavior, and Resend legal notices", () => {

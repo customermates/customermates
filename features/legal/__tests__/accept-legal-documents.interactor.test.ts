@@ -1,16 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
+import { createMockDiModule, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "self-hosted",
 }));
 const mockLocale = vi.hoisted(() => ({ value: "de" }));
 const runInTransaction = vi.hoisted(() => vi.fn((fn: () => Promise<unknown>) => fn()));
+let mockUser = createMockUser({
+  id: "admin-1",
+  companyId: "company-1",
+  email: "admin@example.com",
+});
 
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve(mockLocale.value) }));
+vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve(mockLocale.value),
+}));
+vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/decorators/transaction-runner", () => ({ runInTransaction }));
 
@@ -23,9 +31,9 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { AcceptLegalDocumentsInteractor, type AcceptLegalDocumentsData } from "../accept-legal-documents.interactor";
-import type { LegalAuditRecord, LegalAuditRepo } from "../get-legal-status.interactor";
+import type { LegalAuditRecord, LegalAuditRepo } from "../legal-audit.repo";
 
-const user = createMockUser({ id: "admin-1", companyId: "company-1", email: "admin@example.com" });
+const user = mockUser;
 
 function noticeRecord(overrides: Partial<LegalNoticeAuditPayload> = {}): LegalAuditRecord {
   const payload: LegalNoticeAuditPayload = {
@@ -40,13 +48,7 @@ function noticeRecord(overrides: Partial<LegalNoticeAuditPayload> = {}): LegalAu
     createdAt: new Date("2026-08-07T00:00:00.000Z"),
     entityId: user.id,
     event: DomainEvent.LEGAL_NOTICE_SENT,
-    eventData: {
-      event: DomainEvent.LEGAL_NOTICE_SENT,
-      companyId: user.companyId,
-      entityId: user.id,
-      payload,
-      userId: user.id,
-    },
+    payload,
     userId: user.id,
   };
 }
@@ -63,19 +65,12 @@ function acceptanceRecord(overrides: Partial<LegalAcceptanceAuditPayload> = {}):
     createdAt: new Date("2026-08-08T00:00:00.000Z"),
     entityId: user.companyId,
     event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-    eventData: {
-      event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
-      companyId: user.companyId,
-      entityId: user.companyId,
-      payload,
-      userId: user.id,
-    },
+    payload,
     userId: user.id,
   };
 }
 
 describe("AcceptLegalDocumentsInteractor", () => {
-  let userService: { getActiveUserOrThrow: ReturnType<typeof vi.fn> };
   let records: LegalAuditRecord[];
   let findLegalEventsUnscoped: ReturnType<typeof vi.fn>;
   let auditRepo: LegalAuditRepo;
@@ -84,12 +79,12 @@ describe("AcceptLegalDocumentsInteractor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     runInTransaction.mockImplementation((fn: () => Promise<unknown>) => {
-      expect(getTenantUser().id).toBe(user.id);
+      expect(getTenantUser().id).toBe(mockUser.id);
       return fn();
     });
     mockEnv.APP_MODE = "cloud";
     mockLocale.value = "de";
-    userService = { getActiveUserOrThrow: vi.fn().mockResolvedValue(user) };
+    mockUser = user;
     records = [noticeRecord()];
     findLegalEventsUnscoped = vi.fn(() => Promise.resolve(records));
     auditRepo = { findLegalEventsUnscoped } as unknown as LegalAuditRepo;
@@ -97,7 +92,7 @@ describe("AcceptLegalDocumentsInteractor", () => {
   });
 
   function interactor() {
-    return new AcceptLegalDocumentsInteractor(userService as never, auditRepo, eventService as never);
+    return new AcceptLegalDocumentsInteractor(auditRepo, eventService as never);
   }
 
   it("records a minimal company-wide acceptance from an authorised administrator", async () => {
@@ -106,7 +101,7 @@ describe("AcceptLegalDocumentsInteractor", () => {
       data: { agreeToLegalDocuments: true },
     });
 
-    expect(runInTransaction).toHaveBeenCalledWith(expect.any(Function), { companyId: user.companyId });
+    expect(runInTransaction).toHaveBeenCalledWith(expect.any(Function), undefined);
     expect(eventService.publish).toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
       entityId: user.companyId,
       payload: {
@@ -129,7 +124,11 @@ describe("AcceptLegalDocumentsInteractor", () => {
   });
 
   it("does not deduplicate an acceptance with an old Terms version", async () => {
-    records.push(acceptanceRecord({ versions: { ...currentLegalDocumentVersions(), terms: "2026-08-06" } }));
+    records.push(
+      acceptanceRecord({
+        versions: { ...currentLegalDocumentVersions(), terms: "2026-08-06" },
+      }),
+    );
 
     await interactor().invoke({ agreeToLegalDocuments: true });
 
@@ -142,7 +141,16 @@ describe("AcceptLegalDocumentsInteractor", () => {
       "The current legal update has not been delivered to the company",
     );
 
-    records = [noticeRecord({ versions: { ...currentLegalDocumentVersions(), dpa: "2026-08-06" } })];
+    records = [noticeRecord({ effectiveAt: null })];
+    await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toThrow(
+      "The current legal update has not been delivered to the company",
+    );
+
+    records = [
+      noticeRecord({
+        versions: { ...currentLegalDocumentVersions(), dpa: "2026-08-06" },
+      }),
+    ];
     await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toThrow(
       "The current legal update has not been delivered to the company",
     );
@@ -151,10 +159,10 @@ describe("AcceptLegalDocumentsInteractor", () => {
 
   it("rejects non-administrators and self-hosted installations", async () => {
     if (!user.role) throw new Error("Expected the fixture user to have a role");
-    userService.getActiveUserOrThrow.mockResolvedValue(createMockUser({ role: { ...user.role, isSystemRole: false } }));
+    mockUser = createMockUser({ role: { ...user.role, isSystemRole: false } });
     await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toBeInstanceOf(ForbiddenError);
 
-    userService.getActiveUserOrThrow.mockResolvedValue(user);
+    mockUser = user;
     mockEnv.APP_MODE = "self-hosted";
     await expect(interactor().invoke({ agreeToLegalDocuments: true })).rejects.toBeInstanceOf(ForbiddenError);
     expect(eventService.publish).not.toHaveBeenCalled();
@@ -166,7 +174,7 @@ describe("AcceptLegalDocumentsInteractor", () => {
     } as unknown as AcceptLegalDocumentsData);
 
     expect(result.ok).toBe(false);
-    expect(userService.getActiveUserOrThrow).not.toHaveBeenCalled();
+    expect(findLegalEventsUnscoped).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
   });
 });

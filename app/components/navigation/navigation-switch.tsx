@@ -122,7 +122,7 @@ export function NavigationSwitch({
         <TopBarActionsProvider>
           <AppTopBar />
 
-          {!isLegalUpdateRoute && legalStatus ? <LegalUpdateBanner status={legalStatus} /> : null}
+          {legalStatus ? <LegalUpdateBanner status={legalStatus} /> : null}
 
           <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
         </TopBarActionsProvider>

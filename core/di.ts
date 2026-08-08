@@ -322,7 +322,6 @@ export const getSupportRepo = () => new PrismaSupportRepo();
 export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getUserService = () => new UserService(getAuthService(), getUserRepo());
-export const getGetLegalStatusInteractor = () => new GetLegalStatusInteractor(getAuditLogRepo());
 export const getRouteGuardService = () =>
   new RouteGuardService(getAuthService(), getUserService(), getCompanyRepo(), getGetLegalStatusInteractor());
 export const getBackgroundTaskService = () => new BackgroundTaskService();
@@ -1405,8 +1404,12 @@ export const getDeleteOrphanedUnipileAccountsInteractor = () =>
 export const getSendLegalDocumentNoticesInteractor = () =>
   new SendLegalDocumentNoticesInteractor(getUserRepo(), getAuditLogRepo(), getEmailService(), getEventService());
 
+// --- Legal ---
+
+export const getGetLegalStatusInteractor = () => new GetLegalStatusInteractor(getAuditLogRepo());
+
 export const getAcceptLegalDocumentsInteractor = () =>
-  new AcceptLegalDocumentsInteractor(getUserService(), getAuditLogRepo(), getEventService());
+  new AcceptLegalDocumentsInteractor(getAuditLogRepo(), getEventService());
 
 // --- Webhook delivery (workflow task) ---
 

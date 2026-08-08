@@ -1,6 +1,5 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { EventService } from "@/features/event/event.service";
-import type { LegalAuditRecord } from "@/features/legal/get-legal-status.interactor";
 import type { LegalDocument, LegalDocumentVersions } from "@/constants/legal-documents";
 import type { Locale } from "@/generated/prisma";
 
@@ -10,22 +9,21 @@ import {
   CONTRACT_LEGAL_DOCUMENTS,
   INFORMATION_LEGAL_DOCUMENTS,
   LEGAL_DOCUMENT_VERSIONS,
-  SUBPROCESSOR_OBJECTION_DEADLINE,
+  SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE,
   currentLegalDocumentVersions,
+  hasCurrentLegalDocumentVersions,
 } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
 import {
-  LegalAuditRepo,
-  hasCurrentLegalVersions,
-  legalAcceptancePayload,
-  legalNoticePayload,
-  noticeIncludesAny,
-} from "@/features/legal/get-legal-status.interactor";
+  hasValidLegalNoticeEffectiveAt,
+  type LegalAuditRecord,
+  type LegalAuditRepo,
+} from "@/features/legal/legal-audit.repo";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 
-const DAY_MS = 86_400_000;
+const DAY_IN_MS = 86_400_000;
 
 export type LegalNoticeRecipient = {
   id: string;
@@ -41,252 +39,284 @@ export abstract class SendLegalDocumentNoticesRepo {
   abstract findActiveLegalNoticeRecipientsUnscoped(): Promise<LegalNoticeRecipient[]>;
 }
 
-export abstract class SendLegalDocumentNoticesAuditRepo extends LegalAuditRepo {}
+type SendLegalDocumentNoticesOptions = {
+  now?: Date;
+  supplierSubprocessorObjectionDeadline?: string | null;
+};
 
 type VersionEvidence = {
   createdAt: Date;
   versions: LegalDocumentVersions;
 };
 
-function addDays(date: Date, days: number): Date {
-  return new Date(date.getTime() + days * DAY_MS);
-}
-
-export function resolveSubprocessorObjectionDeadline(now: Date, configuredDeadline: string | null): string {
-  if (!configuredDeadline) return addDays(now, 14).toISOString();
-
-  const deadline = new Date(configuredDeadline);
-  if (Number.isNaN(deadline.getTime())) throw new Error("The configured subprocessor objection deadline is invalid");
-  return deadline.toISOString();
-}
-
-function releaseDateFor(document: LegalDocument): string {
-  return LEGAL_DOCUMENT_VERSIONS[document];
-}
-
-function userExistedAtRelease(recipient: LegalNoticeRecipient, document: LegalDocument): boolean {
-  return recipient.createdAt.toISOString().slice(0, 10) <= releaseDateFor(document);
-}
-
-function latestEvidence(candidates: VersionEvidence[]): VersionEvidence | null {
-  return candidates.reduce<VersionEvidence | null>(
-    (latest, candidate) => (!latest || candidate.createdAt > latest.createdAt ? candidate : latest),
-    null,
-  );
-}
-
-function contractBaselineVersion(
-  records: LegalAuditRecord[],
-  companyId: string,
-  recipientId: string,
-  document: LegalDocument,
-): string | null {
-  const evidence = records.flatMap<VersionEvidence>((record) => {
-    if (record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED && record.entityId === companyId) {
-      const payload = legalAcceptancePayload(record);
-      return payload ? [{ createdAt: record.createdAt, versions: payload.versions }] : [];
-    }
-
-    if (record.event === DomainEvent.LEGAL_NOTICE_SENT && record.entityId === recipientId) {
-      const payload = legalNoticePayload(record);
-      return payload?.changedDocuments.includes(document)
-        ? [{ createdAt: record.createdAt, versions: payload.versions }]
-        : [];
-    }
-
-    return [];
-  });
-
-  return latestEvidence(evidence)?.versions[document] ?? null;
-}
-
-function informationBaselineVersion(
-  records: LegalAuditRecord[],
-  recipientId: string,
-  document: LegalDocument,
-): string | null {
-  const evidence = records.flatMap<VersionEvidence>((record) => {
-    if (record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED && record.userId === recipientId) {
-      const payload = legalAcceptancePayload(record);
-      return payload?.acceptanceType === "initial-onboarding"
-        ? [{ createdAt: record.createdAt, versions: payload.versions }]
-        : [];
-    }
-
-    if (record.event === DomainEvent.LEGAL_NOTICE_SENT && record.entityId === recipientId) {
-      const payload = legalNoticePayload(record);
-      return payload?.changedDocuments.includes(document)
-        ? [{ createdAt: record.createdAt, versions: payload.versions }]
-        : [];
-    }
-
-    return [];
-  });
-
-  return latestEvidence(evidence)?.versions[document] ?? null;
-}
-
-function currentContractAccepted(records: LegalAuditRecord[], companyId: string): boolean {
-  return records.some(
-    (record) =>
-      record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
-      record.entityId === companyId &&
-      hasCurrentLegalVersions(legalAcceptancePayload(record), CONTRACT_LEGAL_DOCUMENTS),
-  );
-}
-
-function firstCurrentNoticeEffectiveAt(
-  records: LegalAuditRecord[],
-  documents: readonly LegalDocument[],
-): string | null {
-  const record = records.find((candidate) => {
-    if (candidate.event !== DomainEvent.LEGAL_NOTICE_SENT) return false;
-    const payload = legalNoticePayload(candidate);
-    return hasCurrentLegalVersions(payload, documents) && noticeIncludesAny(payload, documents);
-  });
-  const effectiveAt = legalNoticePayload(record ?? null)?.effectiveAt;
-  return effectiveAt && !Number.isNaN(new Date(effectiveAt).getTime()) ? effectiveAt : null;
-}
-
-function changedContractDocuments(
-  records: LegalAuditRecord[],
-  companyId: string,
-  recipient: LegalNoticeRecipient,
-): LegalDocument[] {
-  return CONTRACT_LEGAL_DOCUMENTS.filter(
-    (document) => contractBaselineVersion(records, companyId, recipient.id, document) !== releaseDateFor(document),
-  );
-}
-
-function changedInformationDocuments(records: LegalAuditRecord[], recipient: LegalNoticeRecipient): LegalDocument[] {
-  const documents = recipient.isSystemAdministrator ? INFORMATION_LEGAL_DOCUMENTS : (["privacy"] as const);
-
-  return documents.filter((document) => {
-    const baseline = informationBaselineVersion(records, recipient.id, document);
-    if (baseline !== null) return baseline !== releaseDateFor(document);
-    return userExistedAtRelease(recipient, document);
-  });
-}
+type LegalNoticePlan = {
+  companyId: string;
+  recipient: LegalNoticeRecipient;
+  changedDocuments: LegalDocument[];
+  effectiveAt: string | null;
+  includesContract: boolean;
+  subprocessorEffectiveAt: string | null;
+};
 
 @SystemInteractor
 export class SendLegalDocumentNoticesInteractor {
   constructor(
     private recipientRepo: SendLegalDocumentNoticesRepo,
-    private auditRepo: SendLegalDocumentNoticesAuditRepo,
+    private auditRepo: LegalAuditRepo,
     private emailService: EmailService,
     private eventService: EventService,
-    private configuredSubprocessorObjectionDeadline: string | null = SUBPROCESSOR_OBJECTION_DEADLINE,
   ) {}
 
-  async invoke(now = new Date()): Promise<void> {
+  async invoke(options: SendLegalDocumentNoticesOptions = {}): Promise<void> {
     if (env.APP_MODE !== "cloud") return;
 
+    const now = options.now ?? new Date();
+    const configuredSupplierDeadline =
+      options.supplierSubprocessorObjectionDeadline === undefined
+        ? SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE
+        : options.supplierSubprocessorObjectionDeadline;
     const recipients = await this.recipientRepo.findActiveLegalNoticeRecipientsUnscoped();
-    const companies = new Map<string, LegalNoticeRecipient[]>();
+    const recipientsByCompany = new Map<string, LegalNoticeRecipient[]>();
+
     for (const recipient of recipients) {
-      const companyRecipients = companies.get(recipient.companyId) ?? [];
+      const companyRecipients = recipientsByCompany.get(recipient.companyId) ?? [];
       companyRecipients.push(recipient);
-      companies.set(recipient.companyId, companyRecipients);
+      recipientsByCompany.set(recipient.companyId, companyRecipients);
     }
 
-    for (const [companyId, companyRecipients] of companies) {
+    for (const [companyId, companyRecipients] of recipientsByCompany) {
       await this.sendCompanyNotices(
         companyId,
         companyRecipients.sort((a, b) => Number(b.isSystemAdministrator) - Number(a.isSystemAdministrator)),
         now,
+        configuredSupplierDeadline,
       );
     }
   }
 
-  private async sendCompanyNotices(companyId: string, recipients: LegalNoticeRecipient[], now: Date): Promise<void> {
+  private async sendCompanyNotices(
+    companyId: string,
+    recipients: LegalNoticeRecipient[],
+    now: Date,
+    configuredSupplierDeadline: string | null,
+  ): Promise<void> {
     const records = await this.auditRepo.findLegalEventsUnscoped(companyId);
-    const contractAccepted = currentContractAccepted(records, companyId);
-    let contractEffectiveAt = firstCurrentNoticeEffectiveAt(records, CONTRACT_LEGAL_DOCUMENTS);
-    let subprocessorEffectiveAt = this.configuredSubprocessorObjectionDeadline
-      ? resolveSubprocessorObjectionDeadline(now, this.configuredSubprocessorObjectionDeadline)
-      : firstCurrentNoticeEffectiveAt(records, ["subprocessors"]);
+    const contractAccepted = this.isCurrentContractAccepted(records, companyId);
+    let contractEffectiveAt = this.findCurrentNoticeDeadline(records, CONTRACT_LEGAL_DOCUMENTS);
+    let subprocessorEffectiveAt =
+      configuredSupplierDeadline === null ? this.findCurrentNoticeDeadline(records, ["subprocessors"]) : null;
 
     for (const recipient of recipients) {
       const contractDocuments =
         recipient.isSystemAdministrator && !contractAccepted
-          ? changedContractDocuments(records, companyId, recipient)
+          ? this.getChangedContractDocuments(records, companyId, recipient)
           : [];
-      const informationDocuments = changedInformationDocuments(records, recipient);
+      const informationDocuments = this.getChangedInformationDocuments(records, recipient);
       const changedDocuments = [...contractDocuments, ...informationDocuments];
       if (changedDocuments.length === 0) continue;
 
       const includesContract = contractDocuments.length > 0;
       const includesSubprocessors = informationDocuments.includes("subprocessors");
       let effectiveAt: string | null = null;
+
       if (includesContract) {
-        contractEffectiveAt ??= addDays(now, 14).toISOString();
+        contractEffectiveAt ??= this.addDays(now, 14).toISOString();
         effectiveAt = contractEffectiveAt;
-        if (includesSubprocessors) subprocessorEffectiveAt ??= effectiveAt;
+        if (includesSubprocessors) {
+          subprocessorEffectiveAt ??= this.resolveSupplierSubprocessorObjectionDeadline(
+            now,
+            configuredSupplierDeadline,
+          );
+        }
       } else if (includesSubprocessors) {
-        subprocessorEffectiveAt ??= resolveSubprocessorObjectionDeadline(now, null);
+        subprocessorEffectiveAt ??= this.resolveSupplierSubprocessorObjectionDeadline(now, configuredSupplierDeadline);
         effectiveAt = subprocessorEffectiveAt;
       }
 
-      const locale = resolveUserLocale(recipient);
-      const email = await this.buildEmail({
+      await this.sendNotice({
+        companyId,
         recipient,
-        locale,
         changedDocuments,
         effectiveAt,
         includesContract,
         subprocessorEffectiveAt: includesSubprocessors ? subprocessorEffectiveAt : null,
       });
-      await this.emailService.send(email);
-
-      await this.eventService.publish(
-        DomainEvent.LEGAL_NOTICE_SENT,
-        {
-          entityId: recipient.id,
-          payload: {
-            versions: currentLegalDocumentVersions(),
-            changedDocuments,
-            recipientEmail: recipient.email,
-            locale,
-            effectiveAt,
-          },
-        },
-        { systemCompanyId: companyId, systemUserId: recipient.id },
-      );
     }
   }
 
-  private async buildEmail(args: {
-    recipient: LegalNoticeRecipient;
-    locale: Exclude<Locale, "system">;
-    changedDocuments: LegalDocument[];
-    effectiveAt: string | null;
-    includesContract: boolean;
-    subprocessorEffectiveAt: string | null;
-  }) {
-    const t = await getTranslator(args.locale, "LegalDocumentNotice");
-    const subject = args.includesContract ? t("contractSubject") : t("informationSubject");
-    const documents = args.changedDocuments.map((document) => ({
+  private async sendNotice(plan: LegalNoticePlan): Promise<void> {
+    const locale = resolveUserLocale(plan.recipient);
+    const email = await this.buildEmail(plan, locale);
+
+    await this.emailService.send(email, { throwOnProviderError: true });
+
+    await this.eventService.publish(
+      DomainEvent.LEGAL_NOTICE_SENT,
+      {
+        entityId: plan.recipient.id,
+        payload: {
+          versions: currentLegalDocumentVersions(),
+          changedDocuments: plan.changedDocuments,
+          recipientEmail: plan.recipient.email,
+          locale,
+          effectiveAt: plan.effectiveAt,
+        },
+      },
+      { systemCompanyId: plan.companyId, systemUserId: plan.recipient.id },
+    );
+  }
+
+  private addDays(date: Date, days: number): Date {
+    return new Date(date.getTime() + days * DAY_IN_MS);
+  }
+
+  private resolveSupplierSubprocessorObjectionDeadline(now: Date, configuredDeadline: string | null): string {
+    if (configuredDeadline === null) return this.addDays(now, 14).toISOString();
+
+    const deadline = new Date(configuredDeadline);
+    if (Number.isNaN(deadline.getTime())) throw new Error("The supplier subprocessor objection deadline is invalid");
+    if (deadline <= now) throw new Error("The supplier subprocessor objection deadline must be in the future");
+    return deadline.toISOString();
+  }
+
+  private userExistedAtRelease(recipient: LegalNoticeRecipient, document: LegalDocument): boolean {
+    return recipient.createdAt.toISOString().slice(0, 10) <= LEGAL_DOCUMENT_VERSIONS[document];
+  }
+
+  private latestEvidence(candidates: VersionEvidence[]): VersionEvidence | null {
+    return candidates.reduce<VersionEvidence | null>(
+      (latest, candidate) => (!latest || candidate.createdAt > latest.createdAt ? candidate : latest),
+      null,
+    );
+  }
+
+  private getContractBaselineVersion(
+    records: LegalAuditRecord[],
+    companyId: string,
+    recipientId: string,
+    document: LegalDocument,
+  ): string | null {
+    const evidence = records.flatMap<VersionEvidence>((record) => {
+      if (record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED && record.entityId === companyId && record.payload)
+        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+
+      if (
+        record.event === DomainEvent.LEGAL_NOTICE_SENT &&
+        record.entityId === recipientId &&
+        record.payload?.changedDocuments.includes(document) &&
+        hasValidLegalNoticeEffectiveAt(record.payload)
+      )
+        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+
+      return [];
+    });
+
+    return this.latestEvidence(evidence)?.versions[document] ?? null;
+  }
+
+  private getInformationBaselineVersion(
+    records: LegalAuditRecord[],
+    recipientId: string,
+    document: LegalDocument,
+  ): string | null {
+    const evidence = records.flatMap<VersionEvidence>((record) => {
+      if (
+        record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+        record.userId === recipientId &&
+        record.payload?.acceptanceType === "initial-onboarding"
+      )
+        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+
+      if (
+        record.event === DomainEvent.LEGAL_NOTICE_SENT &&
+        record.entityId === recipientId &&
+        record.payload?.changedDocuments.includes(document) &&
+        (document !== "subprocessors" || hasValidLegalNoticeEffectiveAt(record.payload))
+      )
+        return [{ createdAt: record.createdAt, versions: record.payload.versions }];
+
+      return [];
+    });
+
+    return this.latestEvidence(evidence)?.versions[document] ?? null;
+  }
+
+  private isCurrentContractAccepted(records: LegalAuditRecord[], companyId: string): boolean {
+    return records.some(
+      (record) =>
+        record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+        record.entityId === companyId &&
+        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
+    );
+  }
+
+  private findCurrentNoticeDeadline(records: LegalAuditRecord[], documents: readonly LegalDocument[]): string | null {
+    const earliest = records.reduce<{
+      createdAt: Date;
+      effectiveAt: string;
+    } | null>((current, record) => {
+      if (
+        record.event !== DomainEvent.LEGAL_NOTICE_SENT ||
+        !hasCurrentLegalDocumentVersions(record.payload?.versions, documents) ||
+        record.payload?.changedDocuments.some((document) => documents.includes(document)) !== true ||
+        !hasValidLegalNoticeEffectiveAt(record.payload)
+      )
+        return current;
+
+      const effectiveAt = new Date(record.payload.effectiveAt);
+      if (current && current.createdAt <= record.createdAt) return current;
+
+      return {
+        createdAt: record.createdAt,
+        effectiveAt: effectiveAt.toISOString(),
+      };
+    }, null);
+
+    return earliest?.effectiveAt ?? null;
+  }
+
+  private getChangedContractDocuments(
+    records: LegalAuditRecord[],
+    companyId: string,
+    recipient: LegalNoticeRecipient,
+  ): LegalDocument[] {
+    return CONTRACT_LEGAL_DOCUMENTS.filter(
+      (document) =>
+        this.getContractBaselineVersion(records, companyId, recipient.id, document) !==
+        LEGAL_DOCUMENT_VERSIONS[document],
+    );
+  }
+
+  private getChangedInformationDocuments(
+    records: LegalAuditRecord[],
+    recipient: LegalNoticeRecipient,
+  ): LegalDocument[] {
+    const documents = recipient.isSystemAdministrator ? INFORMATION_LEGAL_DOCUMENTS : (["privacy"] as const);
+
+    return documents.filter((document) => {
+      const baseline = this.getInformationBaselineVersion(records, recipient.id, document);
+      if (baseline !== null) return baseline !== LEGAL_DOCUMENT_VERSIONS[document];
+      return this.userExistedAtRelease(recipient, document);
+    });
+  }
+
+  private async buildEmail(plan: LegalNoticePlan, locale: Exclude<Locale, "system">) {
+    const t = await getTranslator(locale, "LegalDocumentNotice");
+    const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
+    const documents = plan.changedDocuments.map((document) => ({
       name: t(`documents.${document}`),
       version: LEGAL_DOCUMENT_VERSIONS[document],
-      liveUrl: `${env.BASE_URL}/${args.locale}/${document}`,
+      liveUrl: `${env.BASE_URL}/${locale}/${document}`,
     }));
-    const deadline = args.effectiveAt
-      ? new Intl.DateTimeFormat(args.locale, {
-          dateStyle: "long",
-          timeZone: "UTC",
-        }).format(new Date(args.effectiveAt))
-      : null;
-    const hasSubprocessorObjection = args.changedDocuments.includes("subprocessors");
+    const deadline = plan.effectiveAt ? this.formatDate(plan.effectiveAt, locale) : null;
+    const hasSubprocessorObjection = plan.changedDocuments.includes("subprocessors");
     const objections = [
-      ...(args.includesContract ? [t("contractObjection")] : []),
+      ...(plan.includesContract ? [t("contractObjection")] : []),
       ...(hasSubprocessorObjection
         ? [
-            args.includesContract && args.subprocessorEffectiveAt && args.subprocessorEffectiveAt !== args.effectiveAt
+            plan.includesContract && plan.subprocessorEffectiveAt && plan.subprocessorEffectiveAt !== plan.effectiveAt
               ? t("subprocessorObjectionWithDeadline", {
-                  deadline: new Intl.DateTimeFormat(args.locale, {
-                    dateStyle: "long",
-                    timeZone: "UTC",
-                  }).format(new Date(args.subprocessorEffectiveAt)),
+                  deadline: this.formatDate(plan.subprocessorEffectiveAt, locale),
                 })
               : t("subprocessorObjection"),
           ]
@@ -294,20 +324,27 @@ export class SendLegalDocumentNoticesInteractor {
     ];
 
     return {
-      to: args.recipient.email,
+      to: plan.recipient.email,
       subject,
       react: LegalDocumentNotice({
-        body: args.includesContract ? t("contractBody") : t("informationBody"),
+        body: plan.includesContract ? t("contractBody") : t("informationBody"),
         deadline,
-        deadlineLabel: args.includesContract ? t("contractDeadlineLabel") : t("subprocessorDeadlineLabel"),
+        deadlineLabel: plan.includesContract ? t("contractDeadlineLabel") : t("subprocessorDeadlineLabel"),
         documents,
-        greeting: t("greeting", { firstName: args.recipient.firstName }),
+        greeting: t("greeting", { firstName: plan.recipient.firstName }),
         liveLabel: t("liveLabel"),
         objections,
         signoff: t("signoff"),
         subject,
-        title: args.includesContract ? t("contractTitle") : t("informationTitle"),
+        title: plan.includesContract ? t("contractTitle") : t("informationTitle"),
       }),
     };
+  }
+
+  private formatDate(value: string, locale: Exclude<Locale, "system">): string {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "long",
+      timeZone: "UTC",
+    }).format(new Date(value));
   }
 }

@@ -13,7 +13,8 @@ import {
   type LegalAcceptanceAuditPayload,
   type LegalNoticeAuditPayload,
 } from "@/constants/legal-documents";
-import { GetLegalStatusInteractor, type LegalAuditRecord, type LegalAuditRepo } from "../get-legal-status.interactor";
+import { GetLegalStatusInteractor } from "../get-legal-status.interactor";
+import type { LegalAuditRecord, LegalAuditRepo } from "../legal-audit.repo";
 
 const NOW = new Date("2026-08-07T12:00:00.000Z");
 const DEADLINE = "2026-08-21T00:00:00.000Z";
@@ -49,13 +50,11 @@ function record(
 ): LegalAuditRecord {
   const entityId = options.entityId ?? (event === DomainEvent.LEGAL_NOTICE_SENT ? "user-1" : "company-1");
   const userId = options.userId ?? "user-1";
-  return {
-    createdAt: options.createdAt ?? NOW,
-    entityId,
-    event,
-    eventData: { event, payload, userId, companyId: "company-1", entityId },
-    userId,
-  };
+  const base = { createdAt: options.createdAt ?? NOW, entityId, userId };
+
+  return event === DomainEvent.LEGAL_NOTICE_SENT
+    ? { ...base, event, payload: payload as LegalNoticeAuditPayload }
+    : { ...base, event, payload: payload as LegalAcceptanceAuditPayload };
 }
 
 function nonSystemRole() {
@@ -92,10 +91,22 @@ describe("GetLegalStatusInteractor", () => {
     records.push(
       record(
         DomainEvent.LEGAL_NOTICE_SENT,
-        noticePayload({ versions: { ...currentLegalDocumentVersions(), terms: "2026-08-06" } }),
+        noticePayload({
+          versions: { ...currentLegalDocumentVersions(), terms: "2026-08-06" },
+        }),
       ),
     );
-    expect(await interactor.invoke(user, NOW)).toMatchObject({ contractNoticeSent: false, mustAccept: false });
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
+      contractNoticeSent: false,
+      mustAccept: false,
+    });
+
+    records.push(record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ effectiveAt: null })));
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
+      contractNoticeSent: false,
+      effectiveAt: null,
+      mustAccept: false,
+    });
 
     records.push(record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload()));
     expect(await interactor.invoke(user, NOW)).toMatchObject({
@@ -104,7 +115,9 @@ describe("GetLegalStatusInteractor", () => {
       effectiveAt: DEADLINE,
       mustAccept: false,
     });
-    expect(await interactor.invoke(user, new Date(DEADLINE))).toMatchObject({ mustAccept: true });
+    expect(await interactor.invoke(user, new Date(DEADLINE))).toMatchObject({
+      mustAccept: true,
+    });
   });
 
   it("uses the earliest current contract notice as the company deadline", async () => {
@@ -126,6 +139,32 @@ describe("GetLegalStatusInteractor", () => {
       NOW,
     );
     expect(status.effectiveAt).toBe(DEADLINE);
+  });
+
+  it("uses the earliest valid current deadline when an earlier audit payload is malformed", async () => {
+    records.push(
+      record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ effectiveAt: "not-a-date" }), {
+        userId: "admin-1",
+        entityId: "admin-1",
+        createdAt: new Date("2026-08-07T07:00:00.000Z"),
+      }),
+      record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload(), {
+        userId: "admin-2",
+        entityId: "admin-2",
+        createdAt: new Date("2026-08-07T08:00:00.000Z"),
+      }),
+    );
+
+    const status = await new GetLegalStatusInteractor(repo).invoke(
+      createMockUser({ id: "admin-2", companyId: "company-1" }),
+      NOW,
+    );
+
+    expect(status).toMatchObject({
+      contractNoticeSent: true,
+      effectiveAt: DEADLINE,
+      mustAccept: false,
+    });
   });
 
   it("restores company-wide access after any administrator accepts the current Terms and DPA", async () => {
@@ -157,7 +196,11 @@ describe("GetLegalStatusInteractor", () => {
         createdAt: new Date("2026-08-07T00:00:00.000Z"),
       }),
     );
-    const member = createMockUser({ id: "user-1", companyId: "company-1", role: nonSystemRole() });
+    const member = createMockUser({
+      id: "user-1",
+      companyId: "company-1",
+      role: nonSystemRole(),
+    });
     const interactor = new GetLegalStatusInteractor(repo);
 
     expect(await interactor.invoke(member, NOW)).toMatchObject({
@@ -171,13 +214,38 @@ describe("GetLegalStatusInteractor", () => {
     });
   });
 
+  it("requires a valid deadline when a Subprocessor notice drives the information banner", async () => {
+    const user = createMockUser({ id: "user-1", companyId: "company-1" });
+    const interactor = new GetLegalStatusInteractor(repo);
+    records.push(
+      record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ changedDocuments: ["subprocessors"], effectiveAt: null })),
+    );
+
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
+      informationNoticeVisible: false,
+    });
+
+    records.push(
+      record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ changedDocuments: ["privacy"], effectiveAt: null }), {
+        createdAt: new Date("2026-08-07T11:00:00.000Z"),
+      }),
+    );
+    expect(await interactor.invoke(user, NOW)).toMatchObject({
+      informationNoticeVisible: true,
+    });
+  });
+
   it("uses only the accepting user's initial onboarding as an informational acknowledgement", async () => {
     records.push(record(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, acceptancePayload("initial-onboarding")));
     records.push(
       record(DomainEvent.LEGAL_NOTICE_SENT, noticePayload({ changedDocuments: ["privacy"], effectiveAt: null })),
     );
 
-    const creator = createMockUser({ id: "user-1", companyId: "company-1", role: nonSystemRole() });
+    const creator = createMockUser({
+      id: "user-1",
+      companyId: "company-1",
+      role: nonSystemRole(),
+    });
     expect(await new GetLegalStatusInteractor(repo).invoke(creator, NOW)).toMatchObject({
       informationNoticeVisible: false,
     });
@@ -188,7 +256,10 @@ describe("GetLegalStatusInteractor", () => {
         userId: "admin-2",
       }),
     );
-    const laterAdministrator = createMockUser({ id: "admin-2", companyId: "company-1" });
+    const laterAdministrator = createMockUser({
+      id: "admin-2",
+      companyId: "company-1",
+    });
     expect(await new GetLegalStatusInteractor(repo).invoke(laterAdministrator, NOW)).toMatchObject({
       informationNoticeVisible: true,
     });
@@ -199,7 +270,10 @@ describe("GetLegalStatusInteractor", () => {
       record(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, acceptancePayload("later-update"), { userId: "admin-2" }),
       record(
         DomainEvent.LEGAL_NOTICE_SENT,
-        noticePayload({ changedDocuments: ["privacy", "subprocessors"], effectiveAt: DEADLINE }),
+        noticePayload({
+          changedDocuments: ["privacy", "subprocessors"],
+          effectiveAt: DEADLINE,
+        }),
         { entityId: "admin-1", userId: "admin-1" },
       ),
     );
@@ -218,7 +292,10 @@ describe("GetLegalStatusInteractor", () => {
     records.push(
       record(
         DomainEvent.LEGAL_NOTICE_SENT,
-        noticePayload({ changedDocuments: ["privacy", "subprocessors"], effectiveAt: DEADLINE }),
+        noticePayload({
+          changedDocuments: ["privacy", "subprocessors"],
+          effectiveAt: DEADLINE,
+        }),
       ),
     );
 

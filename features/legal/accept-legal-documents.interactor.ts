@@ -1,84 +1,77 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
-import type { UserService } from "@/features/user/user.service";
-import type { LegalAuditRepo } from "./get-legal-status.interactor";
+import type { LegalAuditRepo } from "./legal-audit.repo";
 
 import { z } from "zod";
 import { getLocale } from "next-intl/server";
 
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { ForbiddenError } from "@/core/errors/app-errors";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { runWithTenant } from "@/core/decorators/tenant-context";
-import { Validate } from "@/core/decorators/validate.decorator";
-import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Write } from "@/core/decorators/write.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
-import { CONTRACT_LEGAL_DOCUMENTS, currentLegalDocumentVersions } from "@/constants/legal-documents";
-import { env } from "@/env";
-
+import { hasValidLegalNoticeEffectiveAt } from "./legal-audit.repo";
 import {
-  hasCurrentLegalVersions,
-  legalAcceptancePayload,
-  legalNoticePayload,
-  noticeIncludesAny,
-} from "./get-legal-status.interactor";
+  CONTRACT_LEGAL_DOCUMENTS,
+  currentLegalDocumentVersions,
+  hasCurrentLegalDocumentVersions,
+} from "@/constants/legal-documents";
+import { env } from "@/env";
 
 const Schema = z.object({
   agreeToLegalDocuments: z.literal(true),
 });
 export type AcceptLegalDocumentsData = Data<typeof Schema>;
 
-export class AcceptLegalDocumentsInteractor {
+@TenantInteractor()
+export class AcceptLegalDocumentsInteractor extends AuthenticatedInteractor<
+  AcceptLegalDocumentsData,
+  AcceptLegalDocumentsData
+> {
   constructor(
-    private userService: UserService,
     private auditRepo: LegalAuditRepo,
     private eventService: EventService,
-  ) {}
+  ) {
+    super();
+  }
 
-  @Validate(Schema)
-  @ValidateOutput(Schema)
+  @Write({ input: Schema, output: Schema })
   async invoke(data: AcceptLegalDocumentsData): Validated<AcceptLegalDocumentsData> {
-    const user = await this.userService.getActiveUserOrThrow();
-    if (env.APP_MODE !== "cloud" || !user.role?.isSystemRole)
+    if (env.APP_MODE !== "cloud" || !this.user.role?.isSystemRole)
       throw new ForbiddenError("Only a managed-cloud system administrator may accept legal documents");
+
     const locale = (await getLocale()) === "de" ? "de" : "en";
 
-    return runWithTenant(user, () =>
-      runInTransaction(
-        async () => {
-          const records = await this.auditRepo.findLegalEventsUnscoped(user.companyId);
-          const existing = records.find(
-            (record) =>
-              record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
-              record.entityId === user.companyId &&
-              hasCurrentLegalVersions(legalAcceptancePayload(record), CONTRACT_LEGAL_DOCUMENTS),
-          );
-          if (existing) return { ok: true as const, data };
-
-          const currentNotice = records.find((record) => {
-            if (record.event !== DomainEvent.LEGAL_NOTICE_SENT) return false;
-            const payload = legalNoticePayload(record);
-            return (
-              hasCurrentLegalVersions(payload, CONTRACT_LEGAL_DOCUMENTS) &&
-              noticeIncludesAny(payload, CONTRACT_LEGAL_DOCUMENTS)
-            );
-          });
-          if (!currentNotice)
-            throw new ForbiddenError("The current legal update has not been delivered to the company");
-
-          await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
-            entityId: user.companyId,
-            payload: {
-              versions: currentLegalDocumentVersions(),
-              acceptingEmail: user.email,
-              locale,
-              acceptanceType: "later-update",
-            },
-          });
-
-          return { ok: true as const, data };
-        },
-        { companyId: user.companyId },
-      ),
+    const records = await this.auditRepo.findLegalEventsUnscoped(this.companyId);
+    const existing = records.find(
+      (record) =>
+        record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+        record.entityId === this.companyId &&
+        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
     );
+    if (existing) return { ok: true as const, data };
+
+    const currentNotice = records.find(
+      (record) =>
+        record.event === DomainEvent.LEGAL_NOTICE_SENT &&
+        hasValidLegalNoticeEffectiveAt(record.payload) &&
+        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS) &&
+        record.payload?.changedDocuments.some((document) =>
+          CONTRACT_LEGAL_DOCUMENTS.some((contractDocument) => contractDocument === document),
+        ) === true,
+    );
+    if (!currentNotice) throw new ForbiddenError("The current legal update has not been delivered to the company");
+
+    await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
+      entityId: this.companyId,
+      payload: {
+        versions: currentLegalDocumentVersions(),
+        acceptingEmail: this.user.email,
+        locale,
+        acceptanceType: "later-update",
+      },
+    });
+
+    return { ok: true as const, data };
   }
 }

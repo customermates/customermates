@@ -27,15 +27,11 @@ import { TimelineDetailModal } from "@/features/messaging/activities/activities-
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLegalUpdateRoute =
-    pathname === "/legal-update" || pathname.endsWith("/legal-update") || pathname.includes("/legal-update/");
   const { closeAllModals, globalSearchModalStore } = useRootStore();
 
   useEffect(() => closeAllModals(), [pathname, closeAllModals]);
 
   useEffect(() => {
-    if (isLegalUpdateRoute) return;
-
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
@@ -48,7 +44,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [globalSearchModalStore, isLegalUpdateRoute]);
+  }, [globalSearchModalStore]);
 
   return (
     <>
@@ -56,45 +52,41 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
       <Toaster />
 
+      <DeleteConfirmationModal />
+
+      <NavigationGuardModal />
+
       <LoadingOverlay />
 
       <UnexpectedErrorToaster />
 
       <TranslationSync />
 
-      {!isLegalUpdateRoute ? (
-        <>
-          <DeleteConfirmationModal />
+      <GlobalSearchModal />
 
-          <NavigationGuardModal />
+      <CompanyUserModal />
 
-          <GlobalSearchModal />
+      <CompanyInviteModal />
 
-          <CompanyUserModal />
+      <EntityDrawer />
 
-          <CompanyInviteModal />
+      <FeedbackModal />
 
-          <EntityDrawer />
+      <CustomColumnModal />
 
-          <FeedbackModal />
+      <AuditLogModal />
 
-          <CustomColumnModal />
+      <ApiKeyModal />
 
-          <AuditLogModal />
+      <ConnectedAccountModal />
 
-          <ApiKeyModal />
+      <ConnectUpsellModal />
 
-          <ConnectedAccountModal />
+      <TimelineDetailModal />
 
-          <ConnectUpsellModal />
+      <WebhookDeliveryModal />
 
-          <TimelineDetailModal />
-
-          <WebhookDeliveryModal />
-
-          <WebhookModal />
-        </>
-      ) : null}
+      <WebhookModal />
     </>
   );
 }

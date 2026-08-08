@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
@@ -35,6 +37,24 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl, is
     store.setWithUnsavedChangesGuard(false);
   }, []);
 
+  const legalDocumentLinks = {
+    dataPrivacyLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+    dpaLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/dpa" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+    termsOfServiceLink: (chunks: ReactNode) => (
+      <AppLink inheritSize appearance="inline" href="/terms" target="_blank">
+        {chunks}
+      </AppLink>
+    ),
+  };
+
   return (
     <AppForm store={store}>
       <div className="flex flex-col gap-3">
@@ -48,32 +68,16 @@ export const StepProfile = observer(({ email, firstName, lastName, avatarUrl, is
 
         <FormAutocompleteCountry required id="country" />
 
-        {appMode === "cloud" && !isInvited ? (
-          <FormCheckbox
-            required
-            id="agreeToTerms"
-            label={
-              <span>
-                {t.rich("OnboardingForm.agreeToTerms", {
-                  dataPrivacyLink: (chunks) => (
-                    <AppLink appearance="inline" href="/privacy" target="_blank">
-                      {chunks}
-                    </AppLink>
-                  ),
-                  dpaLink: (chunks) => (
-                    <AppLink appearance="inline" href="/dpa" target="_blank">
-                      {chunks}
-                    </AppLink>
-                  ),
-                  termsOfServiceLink: (chunks) => (
-                    <AppLink appearance="inline" href="/terms" target="_blank">
-                      {chunks}
-                    </AppLink>
-                  ),
-                })}
-              </span>
-            }
-          />
+        {appMode === "cloud" ? (
+          isInvited ? (
+            <p className="text-x-xs text-subdued">{t.rich("OnboardingForm.invitedLegalNotice", legalDocumentLinks)}</p>
+          ) : (
+            <FormCheckbox
+              required
+              id="agreeToTerms"
+              label={<span>{t.rich("OnboardingForm.agreeToTerms", legalDocumentLinks)}</span>}
+            />
+          )
         ) : null}
 
         <Button className="self-end mt-2" disabled={isLoading} type="submit">

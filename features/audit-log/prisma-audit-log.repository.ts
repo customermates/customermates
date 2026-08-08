@@ -1,7 +1,7 @@
 import type { DomainEventMap } from "@/features/event/domain-events";
 import type { CreateAuditLogRepo } from "@/features/event/event.service";
 import type { RepoArgs } from "@/core/utils/types";
-import type { LegalAuditRepo } from "@/features/legal/get-legal-status.interactor";
+import type { LegalAuditRecord, LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { GetAuditLogsRepo } from "./get/get-audit-logs.interactor";
 
 import type { Prisma } from "@/generated/prisma";
@@ -13,11 +13,19 @@ import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { DomainEvent } from "@/features/event/domain-events";
+import { parseLegalAcceptanceAuditPayload, parseLegalNoticeAuditPayload } from "@/features/legal/legal-audit.repo";
 
 export class PrismaAuditLogRepo
   extends BaseRepository<Prisma.AuditLogWhereInput>
   implements GetAuditLogsRepo, CreateAuditLogRepo, LegalAuditRepo
 {
+  private auditPayload(eventData: Prisma.JsonValue): unknown {
+    if (!eventData || typeof eventData !== "object" || Array.isArray(eventData) || !("payload" in eventData))
+      return null;
+
+    return eventData.payload;
+  }
+
   private get baseSelect() {
     return {
       id: true,
@@ -118,11 +126,13 @@ export class PrismaAuditLogRepo
   }
 
   @BypassTenantGuard
-  async findLegalEventsUnscoped(companyId: string) {
+  async findLegalEventsUnscoped(companyId: string): Promise<LegalAuditRecord[]> {
     const records = await this.prisma.auditLog.findMany({
       where: {
         companyId,
-        event: { in: [DomainEvent.LEGAL_NOTICE_SENT, DomainEvent.LEGAL_DOCUMENTS_ACCEPTED] },
+        event: {
+          in: [DomainEvent.LEGAL_NOTICE_SENT, DomainEvent.LEGAL_DOCUMENTS_ACCEPTED],
+        },
       },
       orderBy: { createdAt: "asc" },
       select: {
@@ -134,6 +144,33 @@ export class PrismaAuditLogRepo
       },
     });
 
-    return records.map((record) => ({ ...record, event: record.event as DomainEvent }));
+    const legalRecords: LegalAuditRecord[] = [];
+    for (const record of records) {
+      const event = record.event as DomainEvent;
+      const base = {
+        createdAt: record.createdAt,
+        entityId: record.entityId,
+        userId: record.userId,
+      };
+
+      if (event === DomainEvent.LEGAL_NOTICE_SENT) {
+        legalRecords.push({
+          ...base,
+          event: DomainEvent.LEGAL_NOTICE_SENT,
+          payload: parseLegalNoticeAuditPayload(this.auditPayload(record.eventData)),
+        });
+        continue;
+      }
+
+      if (event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED) {
+        legalRecords.push({
+          ...base,
+          event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+          payload: parseLegalAcceptanceAuditPayload(this.auditPayload(record.eventData)),
+        });
+      }
+    }
+
+    return legalRecords;
   }
 }

@@ -1,26 +1,16 @@
+import type { LegalDocument } from "@/constants/legal-documents";
+import type { LegalAuditRecord, LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { TenantUser } from "@/features/user/user.schema";
-import type { Prisma } from "@/generated/prisma";
-import type { LegalAcceptanceAuditPayload, LegalDocument, LegalNoticeAuditPayload } from "@/constants/legal-documents";
 
 import {
   CONTRACT_LEGAL_DOCUMENTS,
   INFORMATION_LEGAL_DOCUMENTS,
   LEGAL_DOCUMENT_VERSIONS,
+  hasCurrentLegalDocumentVersions,
 } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
+import { hasValidLegalNoticeEffectiveAt } from "@/features/legal/legal-audit.repo";
 import { env } from "@/env";
-
-export type LegalAuditRecord = {
-  createdAt: Date;
-  entityId: string;
-  event: DomainEvent;
-  eventData: Prisma.JsonValue;
-  userId: string;
-};
-
-export abstract class LegalAuditRepo {
-  abstract findLegalEventsUnscoped(companyId: string): Promise<LegalAuditRecord[]>;
-}
 
 export type LegalUpdateStatus = {
   contractAccepted: boolean;
@@ -39,50 +29,6 @@ const NO_LEGAL_UPDATE: Omit<LegalUpdateStatus, "isSystemAdministrator"> = {
   mustAccept: false,
 };
 
-function eventPayload(record: LegalAuditRecord | null): unknown {
-  const eventData = record?.eventData;
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData) || !("payload" in eventData)) return null;
-  return eventData.payload;
-}
-
-export function legalNoticePayload(record: LegalAuditRecord | null): LegalNoticeAuditPayload | null {
-  return eventPayload(record) as LegalNoticeAuditPayload | null;
-}
-
-export function legalAcceptancePayload(record: LegalAuditRecord | null): LegalAcceptanceAuditPayload | null {
-  return eventPayload(record) as LegalAcceptanceAuditPayload | null;
-}
-
-export function hasCurrentLegalVersions(
-  payload: LegalNoticeAuditPayload | LegalAcceptanceAuditPayload | null,
-  documents: readonly LegalDocument[],
-): boolean {
-  return (
-    payload !== null &&
-    documents.every((document) => payload.versions?.[document] === LEGAL_DOCUMENT_VERSIONS[document])
-  );
-}
-
-export function noticeIncludesAny(
-  payload: LegalNoticeAuditPayload | null,
-  documents: readonly LegalDocument[],
-): boolean {
-  return payload !== null && payload.changedDocuments.some((document) => documents.includes(document));
-}
-
-function dateFromIso(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function latest(records: LegalAuditRecord[]): LegalAuditRecord | null {
-  return records.reduce<LegalAuditRecord | null>(
-    (current, record) => (!current || record.createdAt > current.createdAt ? record : current),
-    null,
-  );
-}
-
 export class GetLegalStatusInteractor {
   constructor(private repo: LegalAuditRepo) {}
 
@@ -91,55 +37,60 @@ export class GetLegalStatusInteractor {
     if (env.APP_MODE !== "cloud") return { ...NO_LEGAL_UPDATE, isSystemAdministrator };
 
     const records = await this.repo.findLegalEventsUnscoped(user.companyId);
-    const acceptanceRecord = latest(
-      records.filter((record) => {
-        if (record.event !== DomainEvent.LEGAL_DOCUMENTS_ACCEPTED || record.entityId !== user.companyId) return false;
-        return hasCurrentLegalVersions(legalAcceptancePayload(record), CONTRACT_LEGAL_DOCUMENTS);
-      }),
+    const acceptanceRecord = this.latest(
+      records.filter(
+        (record) =>
+          record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+          record.entityId === user.companyId &&
+          hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS),
+      ),
     );
-    const acceptance = legalAcceptancePayload(acceptanceRecord);
-    const contractAccepted = acceptance !== null;
-    const initialAcceptanceRecord = latest(
-      records.filter((record) => {
-        if (record.event !== DomainEvent.LEGAL_DOCUMENTS_ACCEPTED || record.userId !== user.id) return false;
-        return legalAcceptancePayload(record)?.acceptanceType === "initial-onboarding";
-      }),
+    const contractAccepted = acceptanceRecord !== null;
+    const initialAcceptanceRecord = this.latest(
+      records.filter(
+        (record) =>
+          record.event === DomainEvent.LEGAL_DOCUMENTS_ACCEPTED &&
+          record.userId === user.id &&
+          record.payload?.acceptanceType === "initial-onboarding",
+      ),
     );
-    const initialAcceptance = legalAcceptancePayload(initialAcceptanceRecord);
 
     const noticeRecords = records.filter((record) => record.event === DomainEvent.LEGAL_NOTICE_SENT);
-    const contractNoticeRecord = noticeRecords.find((record) => {
-      const payload = legalNoticePayload(record);
-      return (
-        hasCurrentLegalVersions(payload, CONTRACT_LEGAL_DOCUMENTS) &&
-        noticeIncludesAny(payload, CONTRACT_LEGAL_DOCUMENTS)
-      );
-    });
-    const contractNotice = legalNoticePayload(contractNoticeRecord ?? null);
-    const contractNoticeSent = contractNotice !== null;
-    const contractEffectiveAt = dateFromIso(contractNotice?.effectiveAt);
+    const currentContractNoticeRecords = noticeRecords.filter(
+      (record) =>
+        hasValidLegalNoticeEffectiveAt(record.payload) &&
+        hasCurrentLegalDocumentVersions(record.payload?.versions, CONTRACT_LEGAL_DOCUMENTS) &&
+        this.includesAny(record.payload?.changedDocuments, CONTRACT_LEGAL_DOCUMENTS),
+    );
+    const contractNoticeSent = currentContractNoticeRecords.length > 0;
+    const contractEffectiveAt = this.earliestValidEffectiveAt(currentContractNoticeRecords);
     const mustAccept =
       contractNoticeSent && !contractAccepted && contractEffectiveAt !== null && now >= contractEffectiveAt;
 
     const informationDocuments = isSystemAdministrator ? INFORMATION_LEGAL_DOCUMENTS : (["privacy"] as const);
-    const informationNoticeRecord = latest(
-      noticeRecords.filter((record) => {
-        if (record.entityId !== user.id) return false;
-        const payload = legalNoticePayload(record);
-        return informationDocuments.some(
-          (document) =>
-            payload?.changedDocuments.includes(document) === true &&
-            payload.versions?.[document] === LEGAL_DOCUMENT_VERSIONS[document],
-        );
-      }),
+    const informationNoticeRecord = this.latest(
+      noticeRecords.filter(
+        (record) =>
+          record.entityId === user.id &&
+          informationDocuments.some(
+            (document) =>
+              record.payload?.changedDocuments.includes(document) === true &&
+              record.payload.versions?.[document] === LEGAL_DOCUMENT_VERSIONS[document] &&
+              (document !== "subprocessors" || hasValidLegalNoticeEffectiveAt(record.payload)),
+          ),
+      ),
     );
-    const informationNotice = legalNoticePayload(informationNoticeRecord);
+    const informationNotice = informationNoticeRecord?.payload;
     const informationVisibleUntil = informationNoticeRecord
       ? new Date(informationNoticeRecord.createdAt.getTime() + 14 * 86_400_000)
       : null;
-    const informationAcknowledged = hasCurrentLegalVersions(initialAcceptance, informationDocuments);
+    const informationAcknowledged = hasCurrentLegalDocumentVersions(
+      initialAcceptanceRecord?.payload?.versions,
+      informationDocuments,
+    );
     const informationNoticeVisible =
       informationNotice !== null &&
+      informationNotice !== undefined &&
       !informationAcknowledged &&
       informationVisibleUntil !== null &&
       now < informationVisibleUntil;
@@ -152,5 +103,33 @@ export class GetLegalStatusInteractor {
       isSystemAdministrator,
       mustAccept,
     };
+  }
+
+  private includesAny(
+    changedDocuments: readonly LegalDocument[] | null | undefined,
+    documents: readonly LegalDocument[],
+  ): boolean {
+    return changedDocuments?.some((document) => documents.includes(document)) === true;
+  }
+
+  private latest(records: LegalAuditRecord[]): LegalAuditRecord | null {
+    return records.reduce<LegalAuditRecord | null>(
+      (current, record) => (!current || record.createdAt > current.createdAt ? record : current),
+      null,
+    );
+  }
+
+  private earliestValidEffectiveAt(records: LegalAuditRecord[]): Date | null {
+    return (
+      records.reduce<{ createdAt: Date; effectiveAt: Date } | null>((current, record) => {
+        if (record.event !== DomainEvent.LEGAL_NOTICE_SENT || !record.payload?.effectiveAt) return current;
+
+        const effectiveAt = new Date(record.payload.effectiveAt);
+        if (Number.isNaN(effectiveAt.getTime())) return current;
+        if (current && current.createdAt <= record.createdAt) return current;
+
+        return { createdAt: record.createdAt, effectiveAt };
+      }, null)?.effectiveAt ?? null
+    );
   }
 }

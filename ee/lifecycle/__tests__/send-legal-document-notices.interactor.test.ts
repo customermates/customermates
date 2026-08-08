@@ -13,7 +13,9 @@ const mockLegalDocumentNotice = vi.hoisted(() =>
 );
 
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("@/components/emails/legal-document-notice", () => ({ default: mockLegalDocumentNotice }));
+vi.mock("@/components/emails/legal-document-notice", () => ({
+  default: mockLegalDocumentNotice,
+}));
 vi.mock("@/core/decorators/system-interactor.decorator", () => ({
   SystemInteractor: (target: unknown) => target,
 }));
@@ -25,15 +27,16 @@ import {
   type LegalNoticeAuditPayload,
 } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import type { LegalAuditRecord } from "@/features/legal/get-legal-status.interactor";
+import type { LegalAuditRecord } from "@/features/legal/legal-audit.repo";
 import {
-  resolveSubprocessorObjectionDeadline,
   SendLegalDocumentNoticesInteractor,
   type LegalNoticeRecipient,
 } from "../send-legal-document-notices.interactor";
 
 const NOW = new Date("2026-08-07T09:00:00.000Z");
 const OLD_CREATED_AT = new Date("2026-08-01T09:00:00.000Z");
+
+type TestLegalAuditRecord = LegalAuditRecord & { companyId: string };
 
 function recipient(
   id: string,
@@ -58,21 +61,26 @@ function eventRecord(args: {
   companyId?: string;
   createdAt?: Date;
   payload: LegalNoticeAuditPayload | LegalAcceptanceAuditPayload;
-}): LegalAuditRecord {
+}): TestLegalAuditRecord {
   const companyId = args.companyId ?? "company-1";
-  return {
+  const base = {
+    companyId,
     createdAt: args.createdAt ?? NOW,
     entityId: args.entityId,
-    event: args.event,
-    eventData: {
-      companyId,
-      entityId: args.entityId,
-      event: args.event,
-      payload: args.payload,
-      userId: args.userId,
-    },
     userId: args.userId,
   };
+
+  return args.event === DomainEvent.LEGAL_NOTICE_SENT
+    ? {
+        ...base,
+        event: args.event,
+        payload: args.payload as LegalNoticeAuditPayload,
+      }
+    : {
+        ...base,
+        event: args.event,
+        payload: args.payload as LegalAcceptanceAuditPayload,
+      };
 }
 
 function acceptanceRecord(
@@ -83,7 +91,7 @@ function acceptanceRecord(
     acceptanceType?: LegalAcceptanceAuditPayload["acceptanceType"];
     versions?: LegalDocumentVersions;
   } = {},
-): LegalAuditRecord {
+): TestLegalAuditRecord {
   const companyId = args.companyId ?? "company-1";
   const userId = args.userId ?? "admin-1";
   return eventRecord({
@@ -108,7 +116,7 @@ function noticeRecord(args: {
   effectiveAt?: string | null;
   companyId?: string;
   createdAt?: Date;
-}): LegalAuditRecord {
+}): TestLegalAuditRecord {
   return eventRecord({
     event: DomainEvent.LEGAL_NOTICE_SENT,
     entityId: args.recipientId,
@@ -130,10 +138,12 @@ function documentNames(email: { react: { props: { documents: { name: string }[] 
 }
 
 describe("SendLegalDocumentNoticesInteractor", () => {
-  let records: LegalAuditRecord[];
+  let records: TestLegalAuditRecord[];
   let recipients: LegalNoticeRecipient[];
   let eventCreatedAt: Date;
-  let recipientRepo: { findActiveLegalNoticeRecipientsUnscoped: ReturnType<typeof vi.fn> };
+  let recipientRepo: {
+    findActiveLegalNoticeRecipientsUnscoped: ReturnType<typeof vi.fn>;
+  };
   let auditRepo: { findLegalEventsUnscoped: ReturnType<typeof vi.fn> };
   let emailService: { send: ReturnType<typeof vi.fn> };
   let eventService: { publish: ReturnType<typeof vi.fn> };
@@ -148,9 +158,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     };
     auditRepo = {
       findLegalEventsUnscoped: vi.fn((companyId: string) =>
-        Promise.resolve(
-          records.filter((record) => (record.eventData as { companyId?: string }).companyId === companyId),
-        ),
+        Promise.resolve(records.filter((record) => record.companyId === companyId)),
       ),
     };
     emailService = { send: vi.fn(() => Promise.resolve()) };
@@ -171,26 +179,80 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     };
   });
 
-  function interactor(subprocessorObjectionDeadline?: string | null) {
+  function interactor() {
     return new SendLegalDocumentNoticesInteractor(
       recipientRepo as never,
       auditRepo as never,
       emailService as never,
       eventService as never,
-      subprocessorObjectionDeadline,
     );
   }
 
   async function invoke(now = NOW) {
     eventCreatedAt = now;
-    return interactor().invoke(now);
+    return interactor().invoke({ now });
   }
 
-  it("uses an actual supplier objection deadline and rejects an invalid configured date", () => {
-    expect(resolveSubprocessorObjectionDeadline(NOW, "2026-08-12T12:00:00+02:00")).toBe("2026-08-12T10:00:00.000Z");
-    expect(() => resolveSubprocessorObjectionDeadline(NOW, "not-a-date")).toThrow(
-      "configured subprocessor objection deadline is invalid",
+  it("rejects invalid or expired supplier objection deadlines when a Subprocessor notice is pending", async () => {
+    await expect(
+      interactor().invoke({
+        now: NOW,
+        supplierSubprocessorObjectionDeadline: "not-a-date",
+      }),
+    ).rejects.toThrow("supplier subprocessor objection deadline is invalid");
+    await expect(
+      interactor().invoke({
+        now: NOW,
+        supplierSubprocessorObjectionDeadline: "2026-08-07T08:59:59.000Z",
+      }),
+    ).rejects.toThrow("supplier subprocessor objection deadline must be in the future");
+
+    expect(recipientRepo.findActiveLegalNoticeRecipientsUnscoped).toHaveBeenCalledTimes(2);
+    expect(auditRepo.findLegalEventsUnscoped).toHaveBeenCalledTimes(2);
+    expect(emailService.send).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("ignores an expired supplier deadline after valid current Subprocessor evidence exists", async () => {
+    recipients = [recipient("admin-1", true)];
+    records.push(
+      noticeRecord({
+        recipientId: "admin-1",
+        changedDocuments: ["terms", "dpa", "privacy", "subprocessors"],
+        effectiveAt: "2026-08-20T09:00:00.000Z",
+      }),
     );
+
+    await expect(
+      interactor().invoke({
+        now: NOW,
+        supplierSubprocessorObjectionDeadline: "2026-08-06T09:00:00.000Z",
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(emailService.send).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("retries contract and Subprocessor notices whose recorded deadline is missing or invalid", async () => {
+    recipients = [recipient("admin-1", true)];
+    records.push(
+      noticeRecord({
+        recipientId: "admin-1",
+        changedDocuments: ["terms", "dpa", "subprocessors"],
+        effectiveAt: null,
+      }),
+    );
+
+    await invoke();
+
+    expect(documentNames(emailService.send.mock.calls[0][0])).toEqual([
+      "Terms and Conditions",
+      "Data Processing Agreement",
+      "Privacy Policy",
+      "Subprocessors",
+    ]);
+    expect(eventService.publish.mock.calls[0][1].payload.effectiveAt).toBe("2026-08-21T09:00:00.000Z");
   });
 
   it("preserves a separate supplier deadline for a combined notice retried on the next run", async () => {
@@ -198,12 +260,20 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     emailService.send.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("recipient rejected"));
     const supplierDeadline = "2026-08-12T10:00:00.000Z";
 
-    await expect(interactor(supplierDeadline).invoke(NOW)).rejects.toThrow("recipient rejected");
+    await expect(
+      interactor().invoke({
+        now: NOW,
+        supplierSubprocessorObjectionDeadline: supplierDeadline,
+      }),
+    ).rejects.toThrow("recipient rejected");
     expect(records).toHaveLength(1);
 
     emailService.send.mockReset().mockResolvedValue(undefined);
     mockLegalDocumentNotice.mockClear();
-    await interactor(supplierDeadline).invoke(NOW);
+    await interactor().invoke({
+      now: NOW,
+      supplierSubprocessorObjectionDeadline: supplierDeadline,
+    });
 
     expect(emailService.send).toHaveBeenCalledTimes(1);
     const props = mockLegalDocumentNotice.mock.calls[0][0] as {
@@ -220,6 +290,9 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     await invoke();
 
     expect(emailService.send).toHaveBeenCalledTimes(3);
+    expect(emailService.send).toHaveBeenCalledWith(expect.anything(), {
+      throwOnProviderError: true,
+    });
     expect(documentNames(emailService.send.mock.calls[0][0])).toEqual([
       "Terms and Conditions",
       "Data Processing Agreement",
@@ -239,7 +312,10 @@ describe("SendLegalDocumentNoticesInteractor", () => {
       const [event, data, options] = eventService.publish.mock.calls[index];
       expect(event).toBe(DomainEvent.LEGAL_NOTICE_SENT);
       expect(data.entityId).toBe(expectedEntityId);
-      expect(options).toEqual({ systemCompanyId: "company-1", systemUserId: expectedEntityId });
+      expect(options).toEqual({
+        systemCompanyId: "company-1",
+        systemUserId: expectedEntityId,
+      });
       expect(Object.keys(data.payload).sort()).toEqual([
         "changedDocuments",
         "effectiveAt",
@@ -279,6 +355,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
         recipientId: "admin-1",
         changedDocuments: ["terms", "privacy"],
         createdAt: new Date("2026-08-06T00:00:00.000Z"),
+        effectiveAt: "2026-08-20T00:00:00.000Z",
         versions: {
           ...currentLegalDocumentVersions(),
           dpa: "2026-08-06",
@@ -348,6 +425,28 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(eventService.publish.mock.calls[0][1].payload.effectiveAt).toBe("2026-08-20T09:00:00.000Z");
   });
 
+  it("skips a malformed first deadline and reuses the earliest valid current deadline", async () => {
+    recipients = [recipient("admin-3", true)];
+    records.push(
+      noticeRecord({
+        recipientId: "admin-1",
+        changedDocuments: ["terms", "dpa"],
+        effectiveAt: "not-a-date",
+        createdAt: new Date("2026-08-05T09:00:00.000Z"),
+      }),
+      noticeRecord({
+        recipientId: "admin-2",
+        changedDocuments: ["terms", "dpa"],
+        effectiveAt: "2026-08-20T09:00:00.000Z",
+        createdAt: new Date("2026-08-06T09:00:00.000Z"),
+      }),
+    );
+
+    await invoke();
+
+    expect(eventService.publish.mock.calls[0][1].payload.effectiveAt).toBe("2026-08-20T09:00:00.000Z");
+  });
+
   it("gives Subprocessor-only notices a shared objection deadline and Privacy-only notices none", async () => {
     recipients = [recipient("admin-2", true), recipient("member-1", false)];
     records.push(
@@ -370,8 +469,12 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
     recipients = [
-      recipient("later-member", false, { createdAt: new Date("2026-08-08T00:00:00.000Z") }),
-      recipient("same-day-member", false, { createdAt: new Date("2026-08-07T23:59:59.000Z") }),
+      recipient("later-member", false, {
+        createdAt: new Date("2026-08-08T00:00:00.000Z"),
+      }),
+      recipient("same-day-member", false, {
+        createdAt: new Date("2026-08-07T23:59:59.000Z"),
+      }),
     ];
 
     await invoke(new Date("2026-08-09T09:00:00.000Z"));
@@ -379,6 +482,33 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(emailService.send.mock.calls[0][0].to).toBe("same-day-member@example.com");
     expect(eventService.publish.mock.calls[0][1].entityId).toBe("same-day-member");
+  });
+
+  it("loads each company's audit history once and keeps its evidence isolated", async () => {
+    recipients = [recipient("admin-1", true), recipient("admin-2", true, { companyId: "company-2" })];
+    records.push(acceptanceRecord({ companyId: "company-1", userId: "admin-1" }));
+
+    await invoke();
+
+    expect(auditRepo.findLegalEventsUnscoped.mock.calls).toEqual([["company-1"], ["company-2"]]);
+    expect(documentNames(emailService.send.mock.calls[0][0])).toEqual(["Privacy Policy", "Subprocessors"]);
+    expect(documentNames(emailService.send.mock.calls[1][0])).toEqual([
+      "Terms and Conditions",
+      "Data Processing Agreement",
+      "Privacy Policy",
+      "Subprocessors",
+    ]);
+  });
+
+  it("processes administrators before members even when repository order is member-first", async () => {
+    recipients = [recipient("member-1", false), recipient("admin-1", true)];
+    emailService.send.mockRejectedValueOnce(new Error("provider unavailable"));
+
+    await expect(invoke()).rejects.toThrow("provider unavailable");
+
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(emailService.send.mock.calls[0][0].to).toBe("admin-1@example.com");
+    expect(eventService.publish).not.toHaveBeenCalled();
   });
 
   it("fails fast, preserves earlier success, and retries only missing recipients", async () => {

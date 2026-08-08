@@ -1,9 +1,14 @@
 import { describe, it, expect, afterAll, vi } from "vitest";
 import type { LegalNoticeAuditPayload } from "@/constants/legal-documents";
+import type { TenantUser } from "@/features/user/user.schema";
 
 import { createTranslator } from "next-intl";
 
 import messages from "@/i18n/locales/en.json";
+
+const activeTenantUser = vi.hoisted(() => ({
+  value: null as TenantUser | null,
+}));
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -15,6 +20,14 @@ vi.mock("@/env", () => ({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: "test",
   },
+}));
+vi.mock("@/core/di", () => ({
+  getUserService: () => ({
+    getActiveUserOrThrow: () => {
+      if (!activeTenantUser.value) throw new Error("No active tenant user configured for the test");
+      return Promise.resolve(activeTenantUser.value);
+    },
+  }),
 }));
 
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
@@ -281,6 +294,18 @@ describe("registration against a real database", () => {
       );
     });
 
+    await runWithoutTenant(() =>
+      prisma.auditLog.create({
+        data: {
+          companyId: admin.companyId,
+          entityId: admin.companyId,
+          event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
+          eventData: { payload: { versions } },
+          userId: admin.id,
+        },
+      }),
+    );
+
     const statusInteractor = new GetLegalStatusInteractor(auditRepo);
     const afterDeadline = new Date("2026-08-07T00:00:00.000Z");
     await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
@@ -292,11 +317,10 @@ describe("registration against a real database", () => {
       mustAccept: true,
     });
 
-    await new AcceptLegalDocumentsInteractor(
-      { getActiveUserOrThrow: vi.fn().mockResolvedValue(admin) } as never,
-      auditRepo,
-      eventService,
-    ).invoke({ agreeToLegalDocuments: true });
+    activeTenantUser.value = admin;
+    await new AcceptLegalDocumentsInteractor(auditRepo, eventService).invoke({
+      agreeToLegalDocuments: true,
+    });
 
     await expect(statusInteractor.invoke(admin, afterDeadline)).resolves.toMatchObject({
       contractAccepted: true,

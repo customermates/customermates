@@ -5,10 +5,7 @@ export const LEGAL_DOCUMENT_VERSIONS = {
   terms: "2026-08-07",
 } as const;
 
-// For a supplier-originated subprocessor change, set this to the supplier's
-// actual remaining objection deadline when bumping the Subprocessors version.
-// Customermates-initiated changes use the standard 14-day period from delivery.
-export const SUBPROCESSOR_OBJECTION_DEADLINE: string | null = null;
+export const SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE: string | null = null;
 
 export type LegalDocument = keyof typeof LEGAL_DOCUMENT_VERSIONS;
 export type LegalDocumentVersions = Record<LegalDocument, string>;
@@ -35,4 +32,11 @@ export type LegalAcceptanceAuditPayload = {
 
 export function currentLegalDocumentVersions(): LegalDocumentVersions {
   return { ...LEGAL_DOCUMENT_VERSIONS };
+}
+
+export function hasCurrentLegalDocumentVersions(
+  versions: Partial<LegalDocumentVersions> | null | undefined,
+  documents: readonly LegalDocument[],
+): boolean {
+  return documents.every((document) => versions?.[document] === LEGAL_DOCUMENT_VERSIONS[document]);
 }

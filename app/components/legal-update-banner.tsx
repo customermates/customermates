@@ -28,7 +28,9 @@ export function LegalUpdateBanner({ status }: Props) {
               {status.isSystemAdministrator
                 ? t("LegalUpdateBanner.admin", { date })
                 : t("LegalUpdateBanner.member", { date })}{" "}
-              <AppLink href="/legal-update">{t("LegalUpdateBanner.review")}</AppLink>
+              <AppLink appearance="inline" href="/legal-update">
+                {t("LegalUpdateBanner.review")}
+              </AppLink>
             </span>
           }
         />
@@ -44,7 +46,9 @@ export function LegalUpdateBanner({ status }: Props) {
           description={
             <span>
               {t("LegalUpdateBanner.information")}{" "}
-              <AppLink href="/legal-update">{t("LegalUpdateBanner.review")}</AppLink>
+              <AppLink appearance="inline" href="/legal-update">
+                {t("LegalUpdateBanner.review")}
+              </AppLink>
             </span>
           }
         />

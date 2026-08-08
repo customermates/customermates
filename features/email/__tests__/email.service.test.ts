@@ -51,15 +51,24 @@ describe("EmailService", () => {
     );
   });
 
-  it("throws when Resend reports a provider error", async () => {
+  it("throws when strict provider-error handling is requested", async () => {
     resendSend.mockResolvedValue({
       data: null,
       error: { message: "provider rejected request" },
     });
 
-    await expect(new EmailService().send(email)).rejects.toThrow(
+    await expect(new EmailService().send(email, { throwOnProviderError: true })).rejects.toThrow(
       "Resend rejected the email: provider rejected request",
     );
+  });
+
+  it("preserves best-effort delivery for existing callers", async () => {
+    resendSend.mockResolvedValue({
+      data: null,
+      error: { message: "provider rejected request" },
+    });
+
+    await expect(new EmailService().send(email)).resolves.toBeUndefined();
   });
 
   it("does not require a provider message ID", async () => {
