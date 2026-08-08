@@ -5,7 +5,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { Locale, Theme } from "@/generated/prisma";
 
@@ -50,7 +50,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
   const pathname = usePathname();
   const currentLocale = useLocale();
   const { setTheme, systemTheme } = useTheme();
-  const formId = useId();
+  const formId = "profile-settings-form";
   const [mounted, setMounted] = useState(false);
   const { profileSettingsStore: store, userStore, navigationGuard } = useRootStore();
   const { savedState } = store;

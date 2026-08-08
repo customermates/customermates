@@ -10,6 +10,30 @@ import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "@
 
 const ENFORCED = true;
 
+const PRODUCT_NAMES = [
+  "ChatGPT",
+  "Claude",
+  "Claude Code",
+  "Claude Desktop",
+  "Codex",
+  "Cursor",
+  "Customermates",
+  "Gemini",
+  "Gmail",
+  "IMAP",
+  "Instagram",
+  "LinkedIn",
+  "MCP",
+  "Next.js",
+  "OAuth",
+  "Outlook",
+  "Sentry",
+  "Telegram",
+  "WhatsApp",
+];
+
+const ALLOWED_LOCALIZED_NUMBERS = new Set(["fr:ContactPage.description"]);
+
 function listBundleLocales(): string[] {
   return readdirSync(join(REPO_ROOT, "i18n", "locales"))
     .filter((name) => name.endsWith(".json"))
@@ -44,6 +68,10 @@ function listContentFiles(root: string): string[] {
   return walkFiles(root, (path) => !basename(path).startsWith("."))
     .map((path) => relative(root, path))
     .sort();
+}
+
+function numericTokens(value: string): string[] {
+  return [...value.matchAll(/\d+(?:[.,]\d+)?/g)].map((match) => match[0].replace(",", ".")).sort();
 }
 
 describe("i18n parity", () => {
@@ -128,6 +156,42 @@ describe("i18n parity", () => {
       }
     }
     expect(mismatches, `ICU placeholder mismatches:\n${mismatches.join("\n")}`).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("preserves product names in translated messages", () => {
+    const mismatches: string[] = [];
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const [key, referenceValue] of referenceLeaves) {
+        const value = leaves.get(key);
+        if (value === undefined) continue;
+        for (const product of PRODUCT_NAMES) {
+          if (referenceValue.includes(product) !== value.includes(product)) {
+            mismatches.push(`${key}: ${DEFAULT_LOCALE} and ${locale} disagree on ${product}`);
+          }
+        }
+      }
+    }
+    expect(mismatches, `product-name translation drift:\n${mismatches.join("\n")}`).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("preserves meaningful numbers in translated messages", () => {
+    const mismatches: string[] = [];
+    for (const locale of otherAppLocales) {
+      const leaves = loadLocaleLeaves(locale);
+      for (const [key, referenceValue] of referenceLeaves) {
+        const value = leaves.get(key);
+        if (value === undefined || ALLOWED_LOCALIZED_NUMBERS.has(`${locale}:${key}`)) continue;
+        const referenceNumbers = numericTokens(referenceValue);
+        const localeNumbers = numericTokens(value);
+        if (referenceNumbers.join(",") !== localeNumbers.join(",")) {
+          mismatches.push(
+            `${key}: ${DEFAULT_LOCALE}=[${referenceNumbers.join(", ")}] ${locale}=[${localeNumbers.join(", ")}]`,
+          );
+        }
+      }
+    }
+    expect(mismatches, `numeric translation drift:\n${mismatches.join("\n")}`).toEqual([]);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("mirrors every content collection across content locales", () => {

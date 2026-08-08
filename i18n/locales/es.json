@@ -1371,7 +1371,7 @@
       "featureUsers": "Usuarios ilimitados",
       "period": "para siempre",
       "price": "Gratis",
-      "tag": "Ejecútalo en tu servidor con Docker Compose. Código fuente completo. AGPLv3.",
+      "tag": "Ejecútalo en tu servidor con Docker Compose. Edición Community AGPL con componentes de código fuente disponible.",
       "title": "Autoalojado"
     },
     "subtitle": "Planes transparentes, sin costes ocultos. Autoalójalo gratis para siempre, o empieza en el Cloud sin tarjeta de crédito.",
@@ -1520,7 +1520,7 @@
       "subprocessors": "Subencargados",
       "terms": "Términos y condiciones"
     },
-    "greeting": "Hola {firstName},",
+    "greeting": "Hola {firstName}:",
     "informationBody": "Hemos actualizado la información legal que se indica a continuación. Este aviso no requiere aceptación, salvo que el correo también identifique Términos o un Acuerdo de tratamiento de datos actualizados.",
     "informationSubject": "Información legal de Customermates actualizada",
     "informationTitle": "Información legal actualizada",
@@ -1708,7 +1708,7 @@
     "invite": {
       "emailCount": "{current} de {max} correos · sepáralos con una coma o pulsa Intro",
       "emailPlaceholder": "companero@ejemplo.com",
-      "linkDescription": "Cualquiera con este enlace puede unirse a tu equipo.",
+      "linkDescription": "Cualquiera que tenga este enlace puede unirse a tu equipo. El enlace es válido durante 7 días.",
       "linkFailed": "No se pudo crear el enlace de invitación.",
       "loadingLink": "Generando el enlace…",
       "send": "Enviar las invitaciones",
@@ -1723,7 +1723,7 @@
     "steps": {
       "ai": {
         "placeholder": "Marcador de posición para la integración de IA",
-        "subtitle": "Deja que Claude Code o Codex lleven tu CRM por ti.",
+        "subtitle": "Elige uno para conectarlo ahora. Podrás añadir los demás más adelante.",
         "title": "Conecta un agente de IA"
       },
       "invite": {

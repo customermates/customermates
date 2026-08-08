@@ -92,4 +92,14 @@ describe("locale consumer audit", () => {
 
     expect(problems, `locale consumers bound to the wrong domain:\n${problems.join("\n")}`).toEqual([]);
   });
+
+  it.skipIf(!ENFORCED)("keeps the locale preference submit target stable across hydration", () => {
+    const source = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/profile/components/profile-settings-form.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('const formId = "profile-settings-form";');
+    expect(source).not.toContain("useId(");
+  });
 });

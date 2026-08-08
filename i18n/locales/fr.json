@@ -1371,7 +1371,7 @@
       "featureUsers": "Utilisateurs illimités",
       "period": "pour toujours",
       "price": "Gratuit",
-      "tag": "À exécuter sur votre serveur avec Docker Compose. Code source complet. AGPLv3.",
+      "tag": "À exécuter sur votre serveur avec Docker Compose. Édition communautaire AGPL avec des composants à code source disponible.",
       "title": "Auto-hébergé"
     },
     "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement pour toujours, ou démarrez sur le Cloud sans carte bancaire.",
@@ -1708,7 +1708,7 @@
     "invite": {
       "emailCount": "{current} sur {max} adresses · séparez-les par une virgule ou appuyez sur Entrée",
       "emailPlaceholder": "collegue@example.com",
-      "linkDescription": "Toute personne disposant de ce lien peut rejoindre votre équipe.",
+      "linkDescription": "Toute personne disposant de ce lien peut rejoindre votre équipe. Le lien est valable pendant 7 jours.",
       "linkFailed": "Impossible de créer le lien d'invitation.",
       "loadingLink": "Génération du lien…",
       "send": "Envoyer les invitations",
@@ -1723,7 +1723,7 @@
     "steps": {
       "ai": {
         "placeholder": "Espace réservé à l'intégration IA",
-        "subtitle": "Laissez Claude Code ou Codex piloter votre CRM.",
+        "subtitle": "Choisissez-en un à connecter maintenant. Vous pourrez ajouter les autres plus tard.",
         "title": "Connecter un agent IA"
       },
       "invite": {
