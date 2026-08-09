@@ -1,10 +1,12 @@
 "use client";
 
-import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
+
+import { ScrollReturnButton } from "./scroll-return-button";
+import { scrollToAnchor } from "./use-scroll-return";
 
 type Props = {
   className?: string;
@@ -104,7 +106,7 @@ export function MessagesScrollContainer({
 
     stickToBottom.current = true;
     setIsAwayFromLatest(false);
-    el.scrollTo({ behavior: "smooth", top: el.scrollHeight });
+    scrollToAnchor(el, "bottom");
     requestAnimationFrame(() => el.focus({ preventScroll: true }));
   };
 
@@ -140,19 +142,13 @@ export function MessagesScrollContainer({
         </div>
       </div>
 
-      {jumpToLatestLabel && isAwayFromLatest && (
-        <Button
-          aria-label={jumpToLatestLabel}
-          className="absolute bottom-3 left-1/2 h-8 -translate-x-1/2 gap-1.5 rounded-full border bg-background/95 px-3 text-xs shadow-md backdrop-blur"
-          size="sm"
-          type="button"
-          variant="outline"
-          onClick={jumpToLatest}
-        >
-          <ArrowDown aria-hidden="true" className="size-3.5" />
-
-          {jumpToLatestLabel}
-        </Button>
+      {jumpToLatestLabel && (
+        <ScrollReturnButton
+          direction="bottom"
+          isAway={isAwayFromLatest}
+          label={jumpToLatestLabel}
+          onReturn={jumpToLatest}
+        />
       )}
     </div>
   );
