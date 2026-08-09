@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -14,7 +16,33 @@ import { FAQSection } from "@/components/marketing/faq-section";
 import { FeatureSection } from "@/components/marketing/feature-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource, pricingSource } from "@/core/fumadocs/source";
+import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
+import { CONTENT_LOCALES, isContentLocale } from "@/i18n/locale-registry";
+
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+
+  if (!isContentLocale(locale)) return {};
+
+  const homepagePage = homepageSource.getPage(["homepage"], locale);
+
+  if (!homepagePage) return {};
+
+  const translatedLocales = CONTENT_LOCALES.filter(
+    (contentLocale) => homepageSource.getPage(["homepage"], contentLocale) !== undefined,
+  );
+
+  return buildHomepageMetadata({
+    locale,
+    rootMetadata: homepagePage.data.rootMetadata,
+    translatedLocales,
+  });
+}
 
 export default async function HomePage() {
   const locale = await getLocale();

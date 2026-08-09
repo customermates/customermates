@@ -50,7 +50,6 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
   const pathname = usePathname();
   const currentLocale = useLocale();
   const { setTheme, systemTheme } = useTheme();
-  const formId = "profile-settings-form";
   const [mounted, setMounted] = useState(false);
   const { profileSettingsStore: store, userStore, navigationGuard } = useRootStore();
   const { savedState } = store;
@@ -114,7 +113,6 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
 
   return (
     <AppForm
-      id={formId}
       store={store}
       onSubmit={(event) => {
         const previousDisplayLanguage = store.savedState.displayLanguage;
@@ -172,7 +170,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           <FormSelect required id="theme" items={themeItems} label={t("Common.inputs.theme")} />
         </div>
 
-        <FormActions anchorScope="profile-settings" formId={formId} store={store} />
+        <FormActions anchorScope="profile-settings" store={store} />
       </div>
     </AppForm>
   );
