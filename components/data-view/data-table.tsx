@@ -37,7 +37,11 @@ type Props<E extends HasId> = {
   onRowHref?: (item: E) => string | undefined;
 };
 
-const fixedWidthStyle = (width: number) => ({ width, minWidth: width, maxWidth: width });
+const fixedWidthStyle = (width: number) => ({
+  width,
+  minWidth: width,
+  maxWidth: width,
+});
 
 export const DataTable = observer(function DataTable<E extends HasId>({
   store,
@@ -48,11 +52,16 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
-  const activeResizeRef = useRef<{ handle: HTMLButtonElement; session: ColumnResizeSession }>();
+  const activeResizeRef = useRef<{
+    handle: HTMLButtonElement;
+    session: ColumnResizeSession;
+  }>();
   const lastTouchTapRef = useRef<{ columnId: string; at: number }>();
 
   function resetColumnWidth(columnId: string) {
-    store.setViewOptions({ columnWidths: withoutColumnWidth(store.columnWidths, columnId) });
+    store.setViewOptions({
+      columnWidths: withoutColumnWidth(store.columnWidths, columnId),
+    });
   }
 
   const getColumnWidth = (columnId: string) =>
@@ -143,7 +152,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       return;
     }
 
-    lastTouchTapRef.current = { columnId: session.columnId, at: event.timeStamp };
+    lastTouchTapRef.current = {
+      columnId: session.columnId,
+      at: event.timeStamp,
+    };
   }
 
   function onResizeKeyDown(event: KeyboardEvent<HTMLButtonElement>, columnId: string) {
@@ -205,7 +217,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         const id = row.original.id;
         return (
           <Checkbox
-            aria-label={t("DataView.selectRow", { id })}
+            aria-label={t("DataView.selectRow", { id: row.index + 1 })}
             checked={store.selectedIds.has(id)}
             onCheckedChange={(checked) => {
               if (checked) store.selectedIds.add(id);
@@ -324,7 +336,9 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   {canResize && (
                     <button
                       aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"
-                      aria-label={t("DataView.resizeColumn", { column: accessibleColumnLabel })}
+                      aria-label={t("DataView.resizeColumn", {
+                        column: accessibleColumnLabel,
+                      })}
                       className="group/resize-handle absolute inset-y-0 right-0 z-10 flex w-3 translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 opacity-0 outline-none group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[state=resizing]:opacity-100 any-pointer-coarse:w-6 any-pointer-coarse:opacity-100"
                       data-slot="column-resize-handle"
                       data-state={isResizing ? "resizing" : undefined}

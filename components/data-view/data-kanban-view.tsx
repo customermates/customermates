@@ -120,7 +120,11 @@ function KanbanCard({
   );
 }
 
-type LoadMoreAction = { label: string; isLoading: boolean; onClick: () => void };
+type LoadMoreAction = {
+  label: string;
+  isLoading: boolean;
+  onClick: () => void;
+};
 
 function KanbanColumn({
   id,
@@ -273,11 +277,18 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {Array.from(groups.entries()).map(([key, items]) => {
             const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
-            const label = key === KANBAN_EMPTY_GROUP_KEY ? t("DataView.noValue") : (option?.label ?? key);
+            const label =
+              key === KANBAN_EMPTY_GROUP_KEY
+                ? t("DataView.noValue")
+                : (option?.label ?? t("Common.inputs.unavailableSelection"));
             const total = store.groupCounts?.[key] ?? items.length;
             const loadMore =
               total > items.length
-                ? { label: loadMoreLabel, isLoading: store.isRefreshing, onClick: () => store.loadMoreInGroup(key) }
+                ? {
+                    label: loadMoreLabel,
+                    isLoading: store.isRefreshing,
+                    onClick: () => store.loadMoreInGroup(key),
+                  }
                 : undefined;
             return (
               <KanbanColumn

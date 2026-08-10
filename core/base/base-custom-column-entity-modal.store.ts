@@ -45,6 +45,7 @@ export abstract class BaseCustomColumnEntityModalStore<
   public lastCreatedId: string | null = null;
   public requestedEntityId: string | null = null;
   public entityLoadState: EntityLoadState = "idle";
+  private entityLoadGeneration = 0;
 
   constructor(
     rootStore: RootStore,
@@ -112,14 +113,27 @@ export abstract class BaseCustomColumnEntityModalStore<
     });
   };
 
-  add = async () => {
+  add = async (): Promise<boolean> => {
+    const generation = ++this.entityLoadGeneration;
     this.fetchedEntity = null;
+    this.requestedEntityId = null;
+    this.entityLoadState = "idle";
+    this.setIsLoading(false);
 
-    if (this.customColumns.length === 0)
-      await this.rootStore.loadingOverlayStore.withLoading(() => this.entityStore.refreshCustomColumns());
+    if (this.customColumns.length === 0) {
+      try {
+        await this.rootStore.loadingOverlayStore.withLoading(() => this.entityStore.refreshCustomColumns());
+      } catch {
+        if (this.entityLoadGeneration === generation) this.entityLoadState = "error";
+        return false;
+      }
+    }
+
+    if (this.entityLoadGeneration !== generation) return false;
 
     this.initialize();
     this.open();
+    return true;
   };
 
   delete = async (): Promise<boolean> => {
@@ -144,7 +158,10 @@ export abstract class BaseCustomColumnEntityModalStore<
     }
   };
 
-  loadById = async (id: string) => {
+  loadById = async (id: string): Promise<boolean> => {
+    const generation = ++this.entityLoadGeneration;
+    const isCurrentRequest = () => this.entityLoadGeneration === generation && this.requestedEntityId === id;
+
     this.fetchedEntity = null;
     this.requestedEntityId = id;
     this.entityLoadState = "loading";
@@ -153,19 +170,24 @@ export abstract class BaseCustomColumnEntityModalStore<
 
     try {
       const result = await this.actions.getById({ id });
+      if (!isCurrentRequest()) return false;
+
       if (result.entity) {
         this.hydrate(result.entity, result.customColumns);
         this.recordRecentItem(result.entity);
+        return true;
       } else {
         this.entityStore.setCustomColumns(result.customColumns);
         this.entityLoadState = "not-found";
         this.close();
+        return false;
       }
-    } catch (error) {
+    } catch {
+      if (!isCurrentRequest()) return false;
       this.entityLoadState = "error";
-      throw error;
+      return false;
     } finally {
-      this.setIsLoading(false);
+      if (isCurrentRequest()) this.setIsLoading(false);
     }
   };
 

@@ -24,6 +24,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { PageState } from "@/components/page-state/page-state";
+import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
@@ -39,6 +40,7 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   store: BaseCustomColumnEntityModalStore<Form, Dto>;
   masterData: ReactNode;
   identity: IdentityProps;
+  fallbackTitle: string;
   canDelete?: boolean;
   historyPanel: ReactNode;
 };
@@ -46,34 +48,40 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
 export const EntityDetailLayout = observer(function EntityDetailLayout<
   Form extends FormEntityDto,
   Dto extends EntityDto,
->({ entityId, entityType, store, masterData, identity, canDelete = true, historyPanel }: Props<Form, Dto>) {
+>({
+  entityId,
+  entityType,
+  store,
+  masterData,
+  identity,
+  fallbackTitle,
+  canDelete = true,
+  historyPanel,
+}: Props<Form, Dto>) {
   const t = useTranslations();
   const router = useRouter();
   const { layoutStore, customColumnModalStore, userStore } = useRootStore();
+  const { stack: entityDrawerStack } = useEntityDrawerStack();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const [hasMounted, setHasMounted] = useState(false);
   const formId = useId();
+  const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
 
   useEffect(() => {
     void store.loadById(entityId);
   }, [entityId, store]);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
+    const drawerIsOpen = entityDrawerStack.length > 0;
+    const drawerWasOpen = drawerWasOpenRef.current;
+    drawerWasOpenRef.current = drawerIsOpen;
+
+    if (drawerWasOpen && !drawerIsOpen && store.fetchedEntity?.id !== entityId) void store.loadById(entityId);
+  }, [entityDrawerStack.length, entityId, store]);
 
   useEffect(() => {
-    const avatarKind =
-      entityType === EntityType.contact ? "contact" : entityType === EntityType.organization ? "organization" : null;
-    layoutStore.setRuntimeTitle(identity.name);
-    layoutStore.setRuntimePictureUrl(avatarKind ? (identity.pictureUrl ?? null) : null);
-    layoutStore.setRuntimeAvatarKind(avatarKind);
-    return () => {
-      layoutStore.setRuntimeTitle(null);
-      layoutStore.setRuntimePictureUrl(null);
-      layoutStore.setRuntimeAvatarKind(null);
-    };
-  }, [identity.name, identity.pictureUrl, entityType, layoutStore]);
+    setHasMounted(true);
+  }, []);
 
   const { canManage, isLoading, isEditingCustomField, toggleEditingCustomField, form } = store;
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
@@ -82,12 +90,45 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
   const hasCurrentEntity = store.fetchedEntity?.id === entityId;
   const requestMatches = store.requestedEntityId === entityId;
-  const showLoading =
-    !hasCurrentEntity && (!requestMatches || store.entityLoadState === "idle" || store.entityLoadState === "loading");
   const showLoadError =
     !hasCurrentEntity && requestMatches && (store.entityLoadState === "error" || store.entityLoadState === "not-found");
+  const showLoading = !hasCurrentEntity && !showLoadError;
   const showEditFieldsAction = canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
+
+  useEffect(() => {
+    const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
+    if (hasCurrentEntity) {
+      const avatarKind =
+        entityType === EntityType.contact ? "contact" : entityType === EntityType.organization ? "organization" : null;
+      layoutStore.setRuntimeIdentity({
+        scope: "entity",
+        key,
+        title: identity.name,
+        pictureUrl: avatarKind ? (identity.pictureUrl ?? null) : null,
+        avatarKind,
+      });
+    } else if (showLoadError) {
+      layoutStore.setRuntimeIdentity({
+        scope: "entity",
+        key,
+        title: fallbackTitle,
+        pictureUrl: null,
+        avatarKind: null,
+      });
+    }
+
+    return () => layoutStore.clearRuntimeIdentity("entity", key);
+  }, [
+    entityId,
+    identity.name,
+    identity.pictureUrl,
+    entityType,
+    fallbackTitle,
+    hasCurrentEntity,
+    layoutStore,
+    showLoadError,
+  ]);
 
   const deleteConfirmationRef = useRef(showDeleteConfirmation);
   deleteConfirmationRef.current = showDeleteConfirmation;

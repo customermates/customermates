@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 
 type ManagerProps = {
   participants: MessagingAttendee[];
@@ -31,7 +32,8 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
     const active = participants.find((p) => p.identifier === activeIdentifier) ?? null;
     const activeLabel = active ? participantLabel(active, provider, t("Inbox.senderUnknown")) : "";
     const trimmedSuggestion = activeLabel.trim();
-    const showSuggestedCreate = store.query.trim().length === 0 && trimmedSuggestion.length > 0;
+    const showSuggestedCreate =
+      !store.isLoading && !store.searchError && store.query.trim().length === 0 && trimmedSuggestion.length > 0;
 
     return (
       <div className="border-border rounded-md border">
@@ -63,6 +65,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
             value={store.query}
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
+              if (store.isLoading || store.searchError || store.pending) return;
               if (store.showCreate) {
                 e.preventDefault();
                 void store.createAndAssign(activeIdentifier, store.query);
@@ -74,16 +77,26 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
             onValueChange={store.setQuery}
           />
 
-          <CommandList>
-            {store.isLoading && (
-              <div className="text-muted-foreground py-3 text-center text-sm">{t("Loading.text")}</div>
+          <CommandList aria-busy={store.isLoading || undefined}>
+            {store.isLoading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
+
+            {!store.isLoading && store.searchError && (
+              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
+
+                <Button size="sm" type="button" variant="outline" onClick={() => void store.retrySearch()}>
+                  {t("ErrorCard.retry")}
+                </Button>
+              </div>
             )}
 
-            {!store.isLoading && store.results.length === 0 && !store.showCreate && !showSuggestedCreate && (
-              <CommandEmpty>{t("Inbox.compose.noContacts")}</CommandEmpty>
-            )}
+            {!store.isLoading &&
+              !store.searchError &&
+              store.results.length === 0 &&
+              !store.showCreate &&
+              !showSuggestedCreate && <CommandEmpty>{t("Inbox.compose.noContacts")}</CommandEmpty>}
 
-            {(showSuggestedCreate || store.showCreate) && (
+            {!store.isLoading && (showSuggestedCreate || store.showCreate) && (
               <CommandGroup>
                 <CommandItem
                   disabled={store.pending}
@@ -103,7 +116,7 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               </CommandGroup>
             )}
 
-            {store.results.length > 0 && (
+            {!store.isLoading && store.results.length > 0 && (
               <CommandGroup>
                 {store.results.map((c) => {
                   const label = `${c.firstName} ${c.lastName}`.trim() || t("Inbox.compose.unnamed");

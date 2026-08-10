@@ -503,6 +503,7 @@
       "template": "Modèle",
       "theme": "Thème",
       "type": "Type",
+      "unavailableSelection": "Sélection indisponible",
       "url": "URL",
       "userIds": "Assigné à"
     },
@@ -606,6 +607,7 @@
       "light": "Clair",
       "system": "Système"
     },
+    "unnamed": "Sans nom",
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",

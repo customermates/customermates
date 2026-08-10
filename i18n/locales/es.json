@@ -503,6 +503,7 @@
       "template": "Plantilla",
       "theme": "Tema",
       "type": "Tipo",
+      "unavailableSelection": "Selección no disponible",
       "url": "URL",
       "userIds": "Asignado a"
     },
@@ -606,6 +607,7 @@
       "light": "Claro",
       "system": "Sistema"
     },
+    "unnamed": "Sin nombre",
     "userStatuses": {
       "active": "Activo",
       "inactive": "Inactivo",

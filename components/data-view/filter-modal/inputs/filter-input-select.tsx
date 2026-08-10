@@ -17,6 +17,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { cn } from "@/core/utils/cn";
+import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 
 type Props = {
   customColumns?: CustomColumnDto[];
@@ -28,28 +29,66 @@ type Props = {
 export const FilterInputSelect = observer(({ customColumns, filter, id, isValidFilter }: Props) => {
   const t = useTranslations();
   const store = useAppForm();
-  const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
+  const { items, getItems, isLoading, retrySelection, scopeKey, selectionError } = useFilterSelectItems(
+    filter,
+    customColumns,
+  );
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [fetchedItems, setFetchedItems] = useState(items);
-  const [asyncLoading, setAsyncLoading] = useState(false);
+  const [optionResult, setOptionResult] = useState<{
+    key: string;
+    resolver: typeof getItems;
+    status: "success" | "error";
+    items: typeof items;
+  } | null>(null);
+  const [optionAttempt, setOptionAttempt] = useState(0);
   const debouncedInput = useDebouncedValue(input);
 
   const raw = store?.getValue(id);
   const selectedKeys: string[] = Array.isArray(raw) ? (raw as string[]) : [];
 
-  useEffect(() => {
-    if (!getItems) {
-      setFetchedItems(items);
-      return;
-    }
+  const optionRequestKey = open && getItems ? JSON.stringify([scopeKey, debouncedInput, optionAttempt]) : null;
+  const asyncLoading =
+    optionRequestKey !== null &&
+    (input !== debouncedInput || optionResult?.key !== optionRequestKey || optionResult.resolver !== getItems);
+  const matchingOptionResult =
+    optionResult?.key === optionRequestKey && optionResult.resolver === getItems ? optionResult : null;
+  const optionError = matchingOptionResult?.status === "error";
+  const fetchedItems = getItems ? (matchingOptionResult?.items ?? []) : items;
 
-    setAsyncLoading(true);
-    void getItems({ searchTerm: debouncedInput || undefined })
-      .then((res) => setFetchedItems(res.items || []))
-      .finally(() => setAsyncLoading(false));
-  }, [debouncedInput, getItems, items]);
+  useEffect(() => {
+    if (!getItems || optionRequestKey === null) return;
+
+    let active = true;
+
+    const [, searchTerm] = JSON.parse(optionRequestKey) as [string, string, number];
+    void getItems({ searchTerm: searchTerm || undefined })
+      .then((res) => {
+        if (active) {
+          setOptionResult({
+            key: optionRequestKey,
+            resolver: getItems,
+            status: "success",
+            items: res.items || [],
+          });
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setOptionResult((previous) => ({
+            key: optionRequestKey,
+            resolver: getItems,
+            status: "error",
+            items: previous?.resolver === getItems ? previous.items : [],
+          }));
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [getItems, optionRequestKey]);
 
   const itemsByKey = useMemo(() => {
     const map = new Map<string, (typeof items)[number]>();
@@ -82,9 +121,16 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
   const loading = isLoading || asyncLoading;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next && selectionError) retrySelection();
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
+          aria-busy={loading || undefined}
           aria-expanded={open}
           className={cn(
             "h-auto min-h-9 w-full justify-between py-1.5 font-normal",
@@ -101,9 +147,11 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
             {selectedKeys.length > 0 ? (
               selectedKeys.map((k) => {
                 const item = itemsByKey.get(k);
+                const itemPending = item === undefined && loading;
                 return (
                   <AppChip
                     key={k}
+                    data-selection-state={item ? "resolved" : itemPending ? "loading" : "unavailable"}
                     endContent={
                       <span
                         aria-label={t("Common.actions.delete")}
@@ -128,7 +176,13 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                     startContent={item?.startContent}
                     variant={item?.color ?? "secondary"}
                   >
-                    {item?.textValue ?? k}
+                    {item ? (
+                      item.textValue
+                    ) : itemPending ? (
+                      <SelectionValueSkeleton />
+                    ) : (
+                      t("Common.inputs.unavailableSelection")
+                    )}
                   </AppChip>
                 );
               })
@@ -145,12 +199,29 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
         <Command shouldFilter={false}>
           <CommandInput placeholder={t("Common.table.search")} value={input} onValueChange={setInput} />
 
-          <CommandList>
-            {loading && <div className="py-3 text-center text-sm text-muted-foreground">{t("Loading.text")}</div>}
+          <CommandList aria-busy={asyncLoading || undefined}>
+            {asyncLoading && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
-            {!loading && filteredItems.length === 0 && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
+            {!asyncLoading && optionError && (
+              <div className="flex flex-col items-center gap-2 px-3 py-4 text-center text-sm" role="alert">
+                <span className="text-muted-foreground">{t("Common.notifications.unexpectedError")}</span>
 
-            {filteredItems.length > 0 && (
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOptionAttempt((value) => value + 1)}
+                >
+                  {t("ErrorCard.retry")}
+                </Button>
+              </div>
+            )}
+
+            {!asyncLoading && !optionError && filteredItems.length === 0 && (
+              <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
+            )}
+
+            {!asyncLoading && !optionError && filteredItems.length > 0 && (
               <CommandGroup>
                 {filteredItems.map((item) => {
                   const selected = selectedKeys.includes(item.key);

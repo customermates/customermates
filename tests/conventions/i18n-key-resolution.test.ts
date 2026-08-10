@@ -487,11 +487,12 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
-  ["app/components/app-topbar.tsx :: t :: leafKey", 1],
-  ["app/components/app-topbar.tsx :: t :: s.labelKey", 1],
-  ["app/components/app-topbar.tsx :: t :: subroute.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 1],
+  ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
   ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
+  ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: taskNameKey", 1],
   ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
   ["components/entity-detail/relation-fields.tsx :: t :: nameKey", 1],
   ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],
@@ -619,7 +620,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["OnboardingForm.agreeToTerms", "OnboardingForm.invitedAgreeToTerms"],
   },
   {
-    file: "app/components/app-topbar.tsx",
+    file: "app/components/app-topbar-crumbs.ts",
     keys: ["UserAvatar.settings"],
     evidence: {
       "UserAvatar.settings": [

@@ -14,7 +14,8 @@ export function useFilterFieldLabel() {
   const { term } = useEntityTerminology();
 
   return (field: string, customColumns?: CustomColumnDto[]) => {
-    if (isCustomField(field)) return customColumns?.find((column) => column.id === field)?.label ?? field;
+    if (isCustomField(field))
+      return customColumns?.find((column) => column.id === field)?.label ?? t("Common.filters.unavailableValue");
 
     const terminologyField = FILTER_FIELD_TERMINOLOGY[field];
 

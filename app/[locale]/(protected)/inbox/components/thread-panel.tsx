@@ -32,9 +32,18 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
     if (store.thread?.id !== threadDetail?.thread.id) store.hydrate(threadDetail);
   }, [threadDetail, store]);
 
-  const thread = store.thread;
-
   if (locked) return <PageSkeleton animated={false} spec={{ kind: "inbox", view: "transcript" }} />;
+
+  const requestedThreadId = threadDetail?.thread.id ?? null;
+  const hasMatchingThread = store.thread?.id === requestedThreadId;
+
+  if (requestedThreadId && !hasMatchingThread) {
+    return (
+      <PageState label={t("PageState.loading")} skeleton={{ kind: "inbox", view: "transcript" }} state="loading" />
+    );
+  }
+
+  const thread = hasMatchingThread ? store.thread : null;
 
   if (!thread) {
     return (

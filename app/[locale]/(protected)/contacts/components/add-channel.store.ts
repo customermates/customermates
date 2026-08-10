@@ -34,10 +34,13 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   liveCandidate: TaggedCandidate | null = null;
   isSearching = false;
   isResolving = false;
+  searchError = false;
   contactId: string | undefined = undefined;
 
   private searchDebouncer = new Debouncer(SEARCH_DEBOUNCE_MS);
   private lookupDebouncer = new Debouncer(LOOKUP_DEBOUNCE_MS);
+  private localSearchGeneration = 0;
+  private liveSearchGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, { value: "" }, Resource.contacts);
@@ -49,6 +52,7 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
       liveCandidate: observable,
       isSearching: observable,
       isResolving: observable,
+      searchError: observable,
       contactId: observable,
       contactChannelKeys: computed,
       mergedCandidates: computed,
@@ -56,6 +60,7 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
       reset: action,
       setOpen: action,
       setQuery: action,
+      retrySearch: action,
       setContactId: action,
       selectCandidate: action,
       addAsNew: action,
@@ -104,8 +109,11 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
     this.query = value;
     this.searchDebouncer.cancel();
     this.lookupDebouncer.cancel();
+    this.localSearchGeneration += 1;
+    this.liveSearchGeneration += 1;
 
     const trimmed = value.trim();
+    this.searchError = false;
     if (trimmed.length < MIN_QUERY_LENGTH) {
       this.candidates = [];
       this.liveCandidate = null;
@@ -124,6 +132,20 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
       this.liveCandidate = null;
       this.isResolving = false;
     }
+  };
+
+  retrySearch = async (): Promise<void> => {
+    const query = this.query.trim();
+    if (query.length < MIN_QUERY_LENGTH) return;
+
+    this.searchError = false;
+    this.isSearching = true;
+    const requests: Promise<void>[] = [this.refreshLocal()];
+    if (this.singleHandleProvider(query)) {
+      this.isResolving = true;
+      requests.push(this.refreshLive());
+    }
+    await Promise.all(requests);
   };
 
   selectCandidate = async (candidate: ChannelCandidateDto): Promise<void> => {
@@ -204,58 +226,82 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
   private refreshLocal = async (): Promise<void> => {
     const requested = this.query.trim();
     if (requested.length < MIN_QUERY_LENGTH) return;
+    const generation = ++this.localSearchGeneration;
+    const isCurrent = () => generation === this.localSearchGeneration && this.query.trim() === requested;
 
-    const [participants, contacts] = await Promise.all([
-      searchChannelCandidatesAction({ query: requested }),
-      getContactsAction({ searchTerm: requested, pagination: { page: 1, pageSize: 10 } }),
-    ]);
+    try {
+      const [participants, contacts] = await Promise.all([
+        searchChannelCandidatesAction({ query: requested }),
+        getContactsAction({ searchTerm: requested, pagination: { page: 1, pageSize: 10 } }),
+      ]);
 
-    runInAction(() => {
-      if (this.query.trim() !== requested) return;
-      this.candidates = [
-        ...this.contactCandidates(contacts.items, requested),
-        ...participants.map((candidate): TaggedCandidate => ({ source: "conversation", candidate })),
-      ];
-      this.isSearching = false;
-    });
+      runInAction(() => {
+        if (!isCurrent()) return;
+        this.candidates = [
+          ...this.contactCandidates(contacts.items, requested),
+          ...participants.map((candidate): TaggedCandidate => ({ source: "conversation", candidate })),
+        ];
+      });
+    } catch {
+      runInAction(() => {
+        if (isCurrent()) this.searchError = true;
+      });
+    } finally {
+      runInAction(() => {
+        if (isCurrent()) this.isSearching = false;
+      });
+    }
   };
 
   private refreshLive = async (): Promise<void> => {
     const requested = this.query.trim();
+    const generation = ++this.liveSearchGeneration;
+    const isCurrent = () => generation === this.liveSearchGeneration && this.query.trim() === requested;
     const provider = this.singleHandleProvider(requested);
     if (!provider) {
       runInAction(() => (this.isResolving = false));
       return;
     }
 
-    await this.rootStore.connectedAccountsStore.ensureLoaded();
-    const [account] = this.rootStore.connectedAccountsStore.usableSendersFor(provider);
-    if (!account) {
+    try {
+      await this.rootStore.connectedAccountsStore.ensureLoaded();
+      const [account] = this.rootStore.connectedAccountsStore.usableSendersFor(provider);
+      if (!account) {
+        runInAction(() => {
+          if (isCurrent()) this.liveCandidate = null;
+        });
+        return;
+      }
+
+      const handle = parseChannelHandle(provider, requested);
+      const resolved = await resolveProviderProfileAction({ connectedAccountId: account.id, identifier: handle });
+
       runInAction(() => {
-        if (this.query.trim() === requested) this.liveCandidate = null;
-        this.isResolving = false;
+        if (!isCurrent()) return;
+        if (!resolved.ok) {
+          this.searchError = true;
+          return;
+        }
+        this.liveCandidate = {
+          source: "lookup",
+          candidate: {
+            provider,
+            value: resolved.data.publicIdentifier ?? handle,
+            displayName: resolved.data.displayName ?? null,
+            profileUrl: resolved.data.profileUrl ?? null,
+            messagingId: resolved.data.providerId,
+          },
+        };
       });
-      return;
+    } catch {
+      runInAction(() => {
+        if (isCurrent()) this.searchError = true;
+      });
+    } finally {
+      runInAction(() => {
+        if (isCurrent()) this.isResolving = false;
+      });
     }
-
-    const handle = parseChannelHandle(provider, requested);
-    const resolved = await resolveProviderProfileAction({ connectedAccountId: account.id, identifier: handle });
-
-    runInAction(() => {
-      if (this.query.trim() !== requested) return;
-      this.isResolving = false;
-      if (!resolved.ok) return;
-      this.liveCandidate = {
-        source: "lookup",
-        candidate: {
-          provider,
-          value: resolved.data.publicIdentifier ?? handle,
-          displayName: resolved.data.displayName ?? null,
-          profileUrl: resolved.data.profileUrl ?? null,
-          messagingId: resolved.data.providerId,
-        },
-      };
-    });
   };
 
   private contactCandidates(contacts: ContactDto[], query: string): TaggedCandidate[] {
@@ -294,6 +340,9 @@ export class AddChannelStore extends BaseFormStore<AddChannelForm> {
     this.liveCandidate = null;
     this.isSearching = false;
     this.isResolving = false;
+    this.searchError = false;
+    this.localSearchGeneration += 1;
+    this.liveSearchGeneration += 1;
     this.searchDebouncer.cancel();
     this.lookupDebouncer.cancel();
     this.onInitOrRefresh({ value: "" });

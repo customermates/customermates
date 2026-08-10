@@ -82,7 +82,7 @@ export class DeleteAccountsForPlanInteractor {
       const accountsLabel = removedAccounts
         .map(
           (account) =>
-            `${t(`Common.providers.${account.provider}`)} (${account.displayName ?? account.emailAddress ?? account.id})`,
+            `${t(`Common.providers.${account.provider}`)} (${account.displayName ?? account.emailAddress ?? t("Common.unnamed")})`,
         )
         .join(", ");
 
