@@ -5,12 +5,14 @@ import { join } from "node:path";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 const ENFORCED = true;
 
 const TOOL_NAME_PATTERN = /^ {2}name: ["']([a-z0-9_]+)["'],?$/gm;
 const TOOL_EXPORT_PATTERN = /export const [A-Za-z0-9]+Tool = \{/g;
 const CATALOG_TOOL_PATTERN = /`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g;
-const CATALOG_LOCALES = ["en", "de"];
+const CATALOG_LOCALES = CONTENT_LOCALES;
 const REQUIRED_ANNOTATIONS = ["readOnlyHint", "idempotentHint", "destructiveHint", "openWorldHint"];
 
 function toolFiles(): string[] {

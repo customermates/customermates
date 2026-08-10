@@ -18,6 +18,7 @@ import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { Toc } from "@/components/shared/toc";
 import { AppImage } from "@/components/shared/app-image";
 import { articleSchema, breadcrumbListSchema } from "@/core/seo/schemas";
+import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 export async function generateMetadata({
   params,
@@ -36,7 +37,7 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
   const t = await getTranslations();
   const page = blogPostsSource.getPage([slug], locale);
 
@@ -73,8 +74,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <JsonLd
         schema={breadcrumbListSchema([
-          { name: "Home", path: `/${locale}` },
-          { name: "Blog", path: `/${locale}/blog` },
+          { name: t("StructuredData.breadcrumb.home"), path: `/${locale}` },
+          { name: t("StructuredData.breadcrumb.blog"), path: `/${locale}/blog` },
           { name: hero.title, path: `/${locale}/blog/${slug}` },
         ])}
       />
@@ -105,7 +106,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <time className="whitespace-nowrap flex items-center gap-2" dateTime={new Date(date).toISOString()}>
                   <Icon icon={Calendar} size="md" />
 
-                  {new Date(date).toLocaleDateString(locale, {
+                  {new Date(date).toLocaleDateString(formattingTagFor(locale), {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

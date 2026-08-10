@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { PageHero } from "@/components/marketing/page-hero";
 import { Footer } from "@/app/components/footer";
@@ -35,6 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CompetitorComparePage({ params }: Props) {
   const locale = await getLocale();
+  const t = await getTranslations("StructuredData.breadcrumb");
   const { competitor } = await params;
   const page = comparePagesSource.getPage([competitor], locale);
 
@@ -47,8 +48,8 @@ export default async function CompetitorComparePage({ params }: Props) {
     <div className="flex flex-col items-center justify-center pt-16 md:pt-24">
       <JsonLd
         schema={breadcrumbListSchema([
-          { name: "Home", path: `/${locale}` },
-          { name: "Compare", path: `/${locale}/compare` },
+          { name: t("home"), path: `/${locale}` },
+          { name: t("compare"), path: `/${locale}/compare` },
           { name: page.data.competitorName, path: `/${locale}/compare/${competitor}` },
         ])}
       />

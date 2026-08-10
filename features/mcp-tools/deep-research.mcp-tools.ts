@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+import type { ContentLocale } from "@/i18n/locale-registry";
+
 import { customErrorMessage, formatDatesInResponse, validationError, VALIDATION_ERROR_PREFIX } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsRaw } from "./docs.mcp-tools";
 
 import { env } from "@/env";
+import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
@@ -81,14 +84,14 @@ async function fetchRecord(entity: Entity, key: string) {
     id: `record:${entity}:${recordId}`,
     title: entityNameExtractors[entity](row),
     text,
-    url: `${env.BASE_URL}/en/${entityRoutes[entity]}/${recordId}`,
+    url: `${env.BASE_URL}/${entityRoutes[entity]}/${recordId}`,
     metadata: { entity },
   };
 
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
-function fetchDoc(locale: "en" | "de", slug: string) {
+function fetchDoc(locale: ContentLocale, slug: string) {
   const page = getDocsPageRaw(slug, locale, "docs");
   if (!page) {
     const validSlugs = listDocsSlugs(locale, "docs").join(", ");
@@ -124,14 +127,14 @@ export const searchTool = {
         return result.data.items.slice(0, 3).map((item: any) => ({
           id: `record:${entity}:${item.id}`,
           title: entityNameExtractors[entity](item),
-          url: `${env.BASE_URL}/en/${entityRoutes[entity]}/${item.id}`,
+          url: `${env.BASE_URL}/${entityRoutes[entity]}/${item.id}`,
         }));
       }),
     );
 
-    const docResults = searchDocsRaw(query, "en", "docs")
+    const docResults = searchDocsRaw(query, DEFAULT_LOCALE, "docs")
       .results.slice(0, 3)
-      .map((hit) => ({ id: `doc:en:${hit.slug}`, title: hit.title, url: hit.url }));
+      .map((hit) => ({ id: `doc:${DEFAULT_LOCALE}:${hit.slug}`, title: hit.title, url: hit.url }));
 
     const output = { results: [...recordGroups.flat(), ...docResults] };
 
@@ -157,12 +160,12 @@ export const fetchTool = {
     const key = rest.join(":");
 
     if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
-    if (kind === "doc" && (qualifier === "en" || qualifier === "de") && key.length > 0) return fetchDoc(qualifier, key);
+    if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
 
     return (
       `${VALIDATION_ERROR_PREFIX} Unknown id "${id}". ` +
       `Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
-      `or "doc:<locale>:<slug>" with locale en or de.`
+      `or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`
     );
   },
 };

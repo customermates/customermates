@@ -1,6 +1,7 @@
 "use client";
 
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { Sheet, SheetBody, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -13,9 +14,12 @@ import {
 import { ENTITY_DETAIL } from "@/components/entity-detail/entity-detail.registry";
 import { UnsavedChangesGuard } from "@/components/modal/unsaved-changes-guard";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 export const EntityDrawer = observer(() => {
+  const t = useTranslations();
   const { top, popTop } = useEntityDrawerStack();
+  const { singular } = useEntityTerminology();
   const rootStore = useRootStore();
   const lastLoadedRef = useRef<string | null>(null);
   const [isConfirmingClose, setIsConfirmingClose] = useState(false);
@@ -74,7 +78,7 @@ export const EntityDrawer = observer(() => {
           onCloseAutoFocus={handleCloseAutoFocus}
         >
           <VisuallyHidden.Root>
-            <SheetTitle>{top ? top.entityType : "Detail"}</SheetTitle>
+            <SheetTitle>{top ? singular(top.entityType) : t("Common.details")}</SheetTitle>
           </VisuallyHidden.Root>
 
           <SheetBody className="flex flex-col overflow-hidden px-0">

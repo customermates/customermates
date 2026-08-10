@@ -3,8 +3,10 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 
 import { createZodError } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { Resource, Action } from "@/generated/prisma";
 
@@ -18,7 +20,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 const AccountOwnerDtoSchema = z.object({
-  displayName: z.string(),
+  displayName: z.string().nullable(),
   accountLabel: z.string().nullable(),
   avatarUrl: z.string().nullable(),
 });
@@ -78,7 +80,13 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const thread = await this.repo.findThreadById(data.threadId);
-    if (!thread) return { ok: false as const, error: createZodError("Thread not found") };
+    if (!thread) {
+      const t = await getTranslations();
+      return {
+        ok: false as const,
+        error: createZodError(t("Common.errors.threadNotFound"), [], { error: CustomErrorCode.threadNotFound }),
+      };
+    }
 
     const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
       page: data.page,

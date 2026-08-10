@@ -5,6 +5,7 @@ import type { User } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 import TrialInactivationReminder from "@/components/emails/trial-inactivation-reminder";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
@@ -31,11 +32,14 @@ export class SendTrialInactivationReminderInteractor {
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "TrialInactivationReminder");
+      const layoutCopy = await getEmailLayoutCopy(locale);
 
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),
         react: TrialInactivationReminder({
+          locale,
+          layoutCopy,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

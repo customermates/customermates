@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import SignInProviderButton from "./sign-in-provider-button";
 
@@ -72,6 +73,10 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
                     providerId="google"
                     onClick={() =>
                       void continueWithGoogleAction(callbackURL, "/auth/signin").then((res) => {
+                        if (!res.ok) {
+                          toastZodErrorTree(res.error);
+                          return;
+                        }
                         if (res.data.url) window.location.assign(res.data.url);
                       })
                     }
@@ -87,6 +92,10 @@ export const SignInForm = observer(({ isInvited, socialProviders }: Props) => {
                     providerId="microsoft"
                     onClick={() =>
                       void continueWithMicrosoftAction(callbackURL, "/auth/signin").then((res) => {
+                        if (!res.ok) {
+                          toastZodErrorTree(res.error);
+                          return;
+                        }
                         if (res.data.url) window.location.assign(res.data.url);
                       })
                     }

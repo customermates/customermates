@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 
 import { useServerTheme } from "@/components/server-theme-provider";
 
 type Badge = {
   name: string;
+  platform: string;
+  kind: "featured" | "reviews";
   href: string;
-  alt: string;
   light: string;
   dark: string;
   width: number;
@@ -18,8 +20,9 @@ type Badge = {
 const BADGES: Badge[] = [
   {
     name: "uneed",
+    platform: "Uneed",
+    kind: "featured",
     href: "https://www.uneed.best/tool/customermates",
-    alt: "Featured on Uneed",
     light: "https://www.uneed.best/POTW1.png",
     dark: "https://www.uneed.best/POTW1A.png",
     width: 140,
@@ -27,8 +30,9 @@ const BADGES: Badge[] = [
   },
   {
     name: "sourceforge",
+    platform: "SourceForge",
+    kind: "reviews",
     href: "https://sourceforge.net/software/product/Customermates/?pk_campaign=badge&pk_source=vendor",
-    alt: "Customermates Reviews on SourceForge",
     light: "https://b.sf-syn.com/badge_img/3954503/light-default?variant_id=sf",
     dark: "https://b.sf-syn.com/badge_img/3954503/dark-default?variant_id=sf",
     width: 124,
@@ -36,8 +40,9 @@ const BADGES: Badge[] = [
   },
   {
     name: "twelve-tools",
+    platform: "Twelve Tools",
+    kind: "featured",
     href: "https://twelve.tools",
-    alt: "Featured on Twelve Tools",
     light: "https://twelve.tools/badge2-light.svg",
     dark: "https://twelve.tools/badge2-dark.svg",
     width: 200,
@@ -45,8 +50,9 @@ const BADGES: Badge[] = [
   },
   {
     name: "wired-business",
+    platform: "Wired Business",
+    kind: "featured",
     href: "https://wired.business",
-    alt: "Featured on Wired Business",
     light: "https://wired.business/badge1-light.svg",
     dark: "https://wired.business/badge1-dark.svg",
     width: 200,
@@ -54,8 +60,9 @@ const BADGES: Badge[] = [
   },
   {
     name: "startup-fame",
+    platform: "Startup Fame",
+    kind: "featured",
     href: "https://startupfa.me/s/customermates?utm_source=customermates.com",
-    alt: "Customermates - Featured on Startup Fame",
     light: "https://startupfa.me/badges/featured/light.webp",
     dark: "https://startupfa.me/badges/featured/dark.webp",
     width: 171,
@@ -63,8 +70,9 @@ const BADGES: Badge[] = [
   },
   {
     name: "open-launch",
+    platform: "Open-Launch",
+    kind: "featured",
     href: "https://open-launch.com/projects/customermates",
-    alt: "Featured on Open-Launch",
     light: "https://open-launch.com/api/badge/e6753e76-e978-4100-b29f-a3048622b9a6/featured-light.svg",
     dark: "https://open-launch.com/api/badge/e6753e76-e978-4100-b29f-a3048622b9a6/featured-dark.svg",
     width: 200,
@@ -89,13 +97,18 @@ const MARQUEE_STYLES = `
 }
 `;
 
-type BadgeLinkProps = { badge: Badge; isDark: boolean; ariaHidden?: boolean };
+type BadgeLinkProps = {
+  badge: Badge;
+  isDark: boolean;
+  label: string;
+  ariaHidden?: boolean;
+};
 
-function BadgeLink({ badge, isDark, ariaHidden }: BadgeLinkProps) {
+function BadgeLink({ badge, isDark, label, ariaHidden }: BadgeLinkProps) {
   return (
     <a
       aria-hidden={ariaHidden || undefined}
-      aria-label={ariaHidden ? undefined : badge.alt}
+      aria-label={ariaHidden ? undefined : label}
       className="shrink-0 opacity-70 grayscale transition-[opacity,filter] duration-200 hover:opacity-100 hover:grayscale-0"
       href={badge.href}
       rel="noopener noreferrer"
@@ -104,7 +117,7 @@ function BadgeLink({ badge, isDark, ariaHidden }: BadgeLinkProps) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        alt={ariaHidden ? "" : badge.alt}
+        alt={ariaHidden ? "" : label}
         className="h-8 w-auto"
         height={badge.height}
         loading="lazy"
@@ -116,6 +129,7 @@ function BadgeLink({ badge, isDark, ariaHidden }: BadgeLinkProps) {
 }
 
 export function FooterBadges() {
+  const t = useTranslations();
   const serverTheme = useServerTheme();
   const { resolvedTheme, systemTheme } = useTheme();
   const [isDark, setIsDark] = useState(serverTheme === "dark");
@@ -130,19 +144,27 @@ export function FooterBadges() {
       <style>{MARQUEE_STYLES}</style>
 
       <div className="border-t border-border pt-6 pb-4">
-        <p className="mb-5 text-center text-xs uppercase tracking-[0.2em] text-subdued">Featured on</p>
+        <p className="mb-5 text-center text-xs uppercase tracking-[0.2em] text-subdued">{t("Footer.featuredOn")}</p>
 
         <div className="footer-badges-mask overflow-hidden">
           <div className="footer-badges-track flex w-max items-center gap-10 animate-[footer-badges-marquee_25s_linear_infinite] hover:[animation-play-state:paused]">
             {Array.from({ length: MARQUEE_COPIES }).flatMap((_, copyIndex) =>
-              BADGES.map((badge) => (
-                <BadgeLink
-                  key={`${copyIndex}-${badge.name}`}
-                  ariaHidden={copyIndex > 0}
-                  badge={badge}
-                  isDark={isDark}
-                />
-              )),
+              BADGES.map((badge) => {
+                const label =
+                  badge.kind === "reviews"
+                    ? t("Footer.reviewsOnPlatform", { platform: badge.platform })
+                    : t("Footer.featuredOnPlatform", { platform: badge.platform });
+
+                return (
+                  <BadgeLink
+                    key={`${copyIndex}-${badge.name}`}
+                    ariaHidden={copyIndex > 0}
+                    badge={badge}
+                    isDark={isDark}
+                    label={label}
+                  />
+                );
+              }),
             )}
           </div>
         </div>

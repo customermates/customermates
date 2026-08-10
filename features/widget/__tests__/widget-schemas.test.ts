@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import { AggregationType, EntityType, WidgetGroupByType } from "@/generated/prisma";
 
-import { ChartColor, DisplayType, WidgetDtoSchema } from "../widget.schema";
+import { ChartColor, DiagramDataPointSchema, DisplayType, WidgetDtoSchema } from "../widget.schema";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 const VALID_UUID = "00000000-0000-4000-8000-000000000001";
@@ -55,7 +55,7 @@ describe("WidgetDtoSchema", () => {
         md: { i: VALID_UUID, x: 3, y: 0, w: 3, h: 2 },
         lg: { i: VALID_UUID, x: 6, y: 0, w: 3, h: 2 },
       },
-      data: [{ label: "Total", value: 42, optionColor: "success" }],
+      data: [{ labelKind: "literal", label: "Customer-provided Total", value: 42, optionColor: "success" }],
       groupByType: WidgetGroupByType.customColumn,
       groupByCustomColumnId: VALID_UUID,
     });
@@ -118,8 +118,35 @@ describe("WidgetDtoSchema", () => {
   });
 
   it("rejects a data point colour outside the chip palette", () => {
-    const row = widgetRow({ data: [{ label: "Total", value: 1, optionColor: "neon" }] });
+    const row = widgetRow({
+      data: [{ labelKind: "literal", label: "Customer-provided Total", value: 1, optionColor: "neon" }],
+    });
 
     expect(WidgetDtoSchema.safeParse(row).success).toBe(false);
+  });
+
+  it("enforces the literal and system label variants at runtime", () => {
+    expect(DiagramDataPointSchema.safeParse({ labelKind: "literal", label: "Total", value: 1 }).success).toBe(true);
+    expect(DiagramDataPointSchema.safeParse({ labelKind: "system", systemLabelKey: "total", value: 1 }).success).toBe(
+      true,
+    );
+    expect(DiagramDataPointSchema.safeParse({ labelKind: "literal", label: "", value: 1 }).success).toBe(false);
+    expect(DiagramDataPointSchema.safeParse({ labelKind: "system", value: 1 }).success).toBe(false);
+    expect(
+      DiagramDataPointSchema.safeParse({
+        labelKind: "literal",
+        label: "Total",
+        systemLabelKey: "total",
+        value: 1,
+      }).success,
+    ).toBe(false);
+    expect(
+      DiagramDataPointSchema.safeParse({
+        labelKind: "system",
+        label: "Total",
+        systemLabelKey: "total",
+        value: 1,
+      }).success,
+    ).toBe(false);
   });
 });

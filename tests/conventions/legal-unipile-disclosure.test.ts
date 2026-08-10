@@ -6,11 +6,10 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 // Guards the connected-account disclosure (CUS-56) against one-language drift and
 // against describing processing the product does not perform.
-
-const LOCALES = ["en", "de"] as const;
 
 const LEGAL_COPY_MESSAGES = [
   ["OnboardingForm", "agreeToTerms"],
@@ -44,45 +43,45 @@ function richTags(message: string): string[] {
 }
 
 describe("legal Unipile disclosure parity", () => {
-  it.each(LOCALES)("privacy (%s) names Unipile and links the subprocessor list", (name) => {
+  it.each(CONTENT_LOCALES)("privacy (%s) names Unipile and links the subprocessor list", (name) => {
     const privacy = legal(name, "privacy");
 
     expect(privacy).toMatch(/Unipile/);
     expect(privacy).toMatch(/\/subprocessors/);
   });
 
-  it.each(LOCALES)("terms (%s) disclose the Unipile dependency and incorporate the DPA", (name) => {
+  it.each(CONTENT_LOCALES)("terms (%s) disclose the Unipile dependency and incorporate the DPA", (name) => {
     const terms = legal(name, "terms");
 
     expect(terms).toMatch(/Unipile/);
     expect(terms).toMatch(/\/dpa/);
   });
 
-  it.each(LOCALES)("subprocessors (%s) list Unipile and the database processor", (name) => {
+  it.each(CONTENT_LOCALES)("subprocessors (%s) list Unipile and the database processor", (name) => {
     const subprocessors = legal(name, "subprocessors");
 
     expect(subprocessors).toMatch(/Unipile/);
     expect(subprocessors).toMatch(/Neon/);
   });
 
-  it.each(LOCALES)("dpa (%s) references Art. 28 processing on behalf", (name) => {
+  it.each(CONTENT_LOCALES)("dpa (%s) references Art. 28 processing on behalf", (name) => {
     expect(legal(name, "dpa")).toMatch(/Art\.?\s?28|Article\s?28|Auftragsverarbeitung/);
   });
 });
 
 describe("legal documents describe only what the product does", () => {
-  it.each(LOCALES)("privacy and subprocessors (%s) drop retired subjects", (name) => {
+  it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) drop retired subjects", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`.toLowerCase();
     const present = REMOVED_SUBJECTS.filter((subject) => text.includes(subject));
 
     expect(present, `retired subjects still disclosed: ${present.join(", ")}`).toEqual([]);
   });
 
-  it.each(LOCALES)("privacy (%s) does not claim a consent mechanism the product lacks", (name) => {
+  it.each(CONTENT_LOCALES)("privacy (%s) does not claim a consent mechanism the product lacks", (name) => {
     expect(legal(name, "privacy")).not.toMatch(/Google Ads/i);
   });
 
-  it.each(LOCALES)("privacy and subprocessors (%s) disclose every external image host", (name) => {
+  it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) disclose every external image host", (name) => {
     const privacy = legal(name, "privacy");
     const subprocessors = legal(name, "subprocessors");
 
@@ -94,7 +93,7 @@ describe("legal documents describe only what the product does", () => {
     expect(privacy).toMatch(name === "en" ? /IP address.*image URL.*browser.*referr/i : /IP-Adresse.*Bild-URL.*Browser.*verweis/i);
   });
 
-  it.each(LOCALES)("legal documents (%s) cover the implemented Unipile social and sales scope", (name) => {
+  it.each(CONTENT_LOCALES)("legal documents (%s) cover the implemented Unipile social and sales scope", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "dpa")}\n${legal(name, "subprocessors")}`;
 
     expect(text).toMatch(name === "en" ? /social posts.*comments.*reactions/i : /Beiträge.*Kommentare.*Reaktionen/i);
@@ -102,7 +101,7 @@ describe("legal documents describe only what the product does", () => {
     expect(text).toMatch(name === "en" ? /Sales Navigator.*search.*list/is : /Sales.Navigator.*Such.*Listen/is);
   });
 
-  it.each(LOCALES)("privacy and subprocessors (%s) track the current Neon contract chain", (name) => {
+  it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) track the current Neon contract chain", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
 
     expect(text).toContain("https://neon.com/platform-terms");
@@ -113,7 +112,7 @@ describe("legal documents describe only what the product does", () => {
 });
 
 describe("managed service and independent self-hosting stay separated", () => {
-  it.each(LOCALES)("all operative documents (%s) exclude independent self-hosting", (name) => {
+  it.each(CONTENT_LOCALES)("all operative documents (%s) exclude independent self-hosting", (name) => {
     const exclusions =
       name === "en"
         ? {
@@ -134,13 +133,15 @@ describe("managed service and independent self-hosting stay separated", () => {
       expect(legal(name, document), `${name}/${document} does not exclude independent self-hosting`).toMatch(exclusion);
   });
 
-  it.each(LOCALES)("terms (%s) preserve the previously agreed version for existing customers", (name) => {
+  it.each(CONTENT_LOCALES)("terms (%s) preserve the previously agreed version for existing customers", (name) => {
     expect(legal(name, "terms")).toMatch(
       name === "en" ? /does not by itself amend an existing contract/ : /ändert einen bestehenden Vertrag nicht/,
     );
   });
 
-  it.each(LOCALES)("legal documents (%s) describe Forward Email's hosted mailbox and narrow role", (name) => {
+  it.each(CONTENT_LOCALES)(
+    "legal documents (%s) describe Forward Email's hosted mailbox and narrow role",
+    (name) => {
     const privacy = legal(name, "privacy");
     const dpa = legal(name, "dpa");
     const subprocessors = legal(name, "subprocessors");
@@ -205,7 +206,9 @@ describe("managed service and independent self-hosting stay separated", () => {
     );
   });
 
-  it.each(LOCALES)("affiliate disclosure (%s) records the consent and current self-host behavior", (name) => {
+  it.each(CONTENT_LOCALES)(
+    "affiliate disclosure (%s) records the consent and current self-host behavior",
+    (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}`;
 
     expect(text).toMatch(
@@ -222,7 +225,7 @@ describe("managed service and independent self-hosting stay separated", () => {
 });
 
 describe("legal document versions stay coupled to the acceptance record", () => {
-  it.each(LOCALES)("all legal documents (%s) carry their version", (name) => {
+  it.each(CONTENT_LOCALES)("all legal documents (%s) carry their version", (name) => {
     expect(legal(name, "privacy")).toContain(LEGAL_DOCUMENT_VERSIONS.privacy);
     expect(legal(name, "terms")).toContain(LEGAL_DOCUMENT_VERSIONS.terms);
     expect(legal(name, "dpa")).toContain(LEGAL_DOCUMENT_VERSIONS.dpa);
@@ -231,7 +234,7 @@ describe("legal document versions stay coupled to the acceptance record", () => 
 });
 
 describe("registration legal copy covers the DPA", () => {
-  it.each(LOCALES)("legal-document messages (%s) link the DPA", (name) => {
+  it.each(CONTENT_LOCALES)("legal-document messages (%s) link the DPA", (name) => {
     const messages = locale(name);
 
     for (const [namespace, key] of LEGAL_COPY_MESSAGES)
@@ -246,7 +249,7 @@ describe("registration legal copy covers the DPA", () => {
       expect(richTags(de[namespace][key]), `${namespace}.${key} tag mismatch`).toEqual(richTags(en[namespace][key]));
   });
 
-  it.each(LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
+  it.each(CONTENT_LOCALES)("places assent at onboarding rather than sign-in or initial sign-up (%s)", (name) => {
     const messages = locale(name);
     const expected = name === "en"
       ? {

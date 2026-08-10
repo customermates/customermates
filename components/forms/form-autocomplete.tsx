@@ -66,7 +66,7 @@ export const FormAutocomplete = observer(
     id,
     label,
     labelEndAddon,
-    placeholder = "Select...",
+    placeholder,
     required,
     selectionMode = "single",
     value: controlledValue,
@@ -77,7 +77,7 @@ export const FormAutocomplete = observer(
     renderValue,
     onCreate,
     onChipClick,
-    emptyContent = "No results.",
+    emptyContent,
     disabled,
     readOnly,
     className,
@@ -88,6 +88,8 @@ export const FormAutocomplete = observer(
     const store = useAppForm();
     const navigateToHref = useNavigateToHref();
     const t = useTranslations();
+    const resolvedPlaceholder = placeholder ?? t("Common.ariaLabels.selectOption");
+    const resolvedEmptyContent = emptyContent ?? t("Common.inputs.emptyContent");
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState("");
@@ -203,7 +205,8 @@ export const FormAutocomplete = observer(
             ? React.cloneElement(el as React.ReactElement<{ endContent?: React.ReactNode }>, {
                 endContent: (
                   <span
-                    aria-label="Remove"
+                    data-remove-selection
+                    aria-label={t("Common.actions.remove")}
                     className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground transition-[color,transform] hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.97] motion-reduce:transition-none"
                     role="button"
                     tabIndex={-1}
@@ -243,7 +246,7 @@ export const FormAutocomplete = observer(
               className="relative inline-flex min-w-0 max-w-full cursor-pointer"
               href={href}
               onClick={(e) => {
-                if ((e.target as HTMLElement).closest('[aria-label="Remove"]')) {
+                if ((e.target as HTMLElement).closest("[data-remove-selection]")) {
                   e.preventDefault();
                   return;
                 }
@@ -266,7 +269,7 @@ export const FormAutocomplete = observer(
             role="button"
             tabIndex={0}
             onClick={(e) => {
-              if ((e.target as HTMLElement).closest('[aria-label="Remove"]')) return;
+              if ((e.target as HTMLElement).closest("[data-remove-selection]")) return;
               e.stopPropagation();
               onChipClick?.(itemKey);
             }}
@@ -278,7 +281,7 @@ export const FormAutocomplete = observer(
           </span>
         );
       });
-    }, [selectedKeys, allItems, selectionMode, renderValue, onChipClick, isReadOnly]);
+    }, [selectedKeys, allItems, selectionMode, renderValue, onChipClick, isReadOnly, t]);
 
     const showCreate = Boolean(onCreate) && input.trim() && filteredItems.length === 0;
 
@@ -315,7 +318,7 @@ export const FormAutocomplete = observer(
               variant="outline"
             >
               <span className="flex flex-wrap items-center gap-1 text-left flex-1 min-w-0">
-                {selectedKeys.length ? renderedSelection : placeholder}
+                {selectedKeys.length ? renderedSelection : resolvedPlaceholder}
               </span>
 
               {!isReadOnly && <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />}
@@ -346,9 +349,11 @@ export const FormAutocomplete = observer(
               />
 
               <CommandList>
-                {isLoading && <div className="py-3 text-center text-sm text-muted-foreground">Loading...</div>}
+                {isLoading && <div className="py-3 text-center text-sm text-muted-foreground">{t("Loading.text")}</div>}
 
-                {!isLoading && filteredItems.length === 0 && !showCreate && <CommandEmpty>{emptyContent}</CommandEmpty>}
+                {!isLoading && filteredItems.length === 0 && !showCreate && (
+                  <CommandEmpty>{resolvedEmptyContent}</CommandEmpty>
+                )}
 
                 {showCreate && (
                   <CommandGroup>

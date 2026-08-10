@@ -351,7 +351,7 @@ export class PrismaConnectedAccountRepo
         return [
           row.id,
           {
-            displayName: userName || row.displayName || "You",
+            displayName: userName || row.displayName || null,
             accountLabel: row.emailAddress ?? row.displayName,
             avatarUrl: row.ownerAvatarUrl ?? row.user.avatarUrl,
           },

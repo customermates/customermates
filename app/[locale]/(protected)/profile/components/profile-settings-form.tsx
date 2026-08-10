@@ -1,10 +1,9 @@
 "use client";
 
 import type { UserDetails } from "@/features/user/get/get-user-details.interactor";
-
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { Locale, Theme } from "@/generated/prisma";
 
@@ -19,22 +18,22 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
+import { APP_LOCALES, FORMATTING_LOCALES } from "@/i18n/locale-registry";
+import {
+  appLocaleCookie,
+  browserAppLocale,
+  displayLanguageNavigationTarget,
+  expiredAppLocaleCookie,
+} from "@/i18n/locale-preference";
 
 type Props = {
   userDetails: UserDetails;
   emailVerified: boolean;
 };
 
-function detectBrowserUiLocale(): Locale {
+function detectBrowserUiLocale() {
   const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
-
-  for (const language of languages) {
-    const base = language.toLowerCase().split("-")[0];
-    if (base === "de") return Locale.de;
-    if (base === "en") return Locale.en;
-  }
-
-  return Locale.en;
+  return browserAppLocale(languages);
 }
 
 function resolveFormattingLanguageName(uiLocale: string): string {
@@ -49,7 +48,6 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
   const pathname = usePathname();
   const currentLocale = useLocale();
   const { setTheme, systemTheme } = useTheme();
-  const formId = useId();
   const [mounted, setMounted] = useState(false);
   const { profileSettingsStore: store, userStore, navigationGuard } = useRootStore();
   const { savedState } = store;
@@ -81,7 +79,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
       displayLanguage: userDetails.displayLanguage,
       formattingLocale: userDetails.formattingLocale,
     });
-  }, [userDetails]);
+  }, [store, userDetails]);
 
   const systemThemeLabel =
     mounted && systemTheme
@@ -101,19 +99,18 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     label: key === Theme.system ? systemThemeLabel : t(`Common.themes.${key}`),
   }));
 
-  const displayLanguageItems = [Locale.de, Locale.en, Locale.system].map((key) => ({
+  const displayLanguageItems = [...APP_LOCALES, Locale.system].map((key) => ({
     value: key,
     label: key === Locale.system ? systemDisplayLanguageLabel : t(`Common.locales.${key}`),
   }));
 
-  const formattingLocaleItems = [Locale.de, Locale.en, Locale.system].map((key) => ({
+  const formattingLocaleItems = [...FORMATTING_LOCALES, Locale.system].map((key) => ({
     value: key,
     label: key === Locale.system ? systemFormattingLocaleLabel : t(`Common.locales.${key}`),
   }));
 
   return (
     <AppForm
-      id={formId}
       store={store}
       onSubmit={(event) => {
         const previousDisplayLanguage = store.savedState.displayLanguage;
@@ -122,9 +119,11 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;
           if (locale !== previousDisplayLanguage) {
-            const targetLocale = locale === Locale.system ? currentLocale : locale === Locale.de ? "de" : "en";
+            if (locale === Locale.system) document.cookie = expiredAppLocaleCookie();
+            else if (locale) document.cookie = appLocaleCookie(locale);
+            const target = displayLanguageNavigationTarget(locale, pathname);
             navigationGuard.tryNavigate(() => {
-              window.location.href = `/${targetLocale}${pathname}`;
+              window.location.href = target;
             });
           }
         });
@@ -137,6 +136,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           emailVerified={emailVerified}
           firstName={savedState.firstName || userDetails.firstName}
           lastName={savedState.lastName || userDetails.lastName}
+          roleIsSystemRole={userStore.user?.role?.isSystemRole ?? userDetails.roleIsSystemRole}
           roleName={userStore.user?.role?.name ?? userDetails.roleName ?? ""}
           status={userStore.user?.status ?? userDetails.status}
         />
@@ -171,7 +171,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           <FormSelect required id="theme" items={themeItems} label={t("Common.inputs.theme")} />
         </div>
 
-        <FormActions anchorScope="profile-settings" formId={formId} store={store} />
+        <FormActions anchorScope="profile-settings" store={store} />
       </div>
     </AppForm>
   );

@@ -3,16 +3,21 @@
 import * as React from "react";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DayPicker, getDefaultClassNames, type DayButton } from "react-day-picker";
+import { observer } from "mobx-react-lite";
 
 import { cn } from "@/core/utils/cn";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import { calendarDayKey, calendarIntlFormatters, dayPickerLocaleFor } from "./calendar-locales";
 
-function Calendar({
+const Calendar = observer(function Calendar({
   className,
   classNames,
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
+  locale,
   formatters,
   components,
   ...props
@@ -20,6 +25,11 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
+  const { intlStore, localeStore } = useRootStore();
+  const languageTag = intlStore.resolvedFormattingLanguageTag;
+  const displayLocale = appLocaleOrDefault(localeStore.locale);
+  const resolvedLocale = locale ?? dayPickerLocaleFor(displayLocale, languageTag);
+  const intlFormatters = React.useMemo(() => calendarIntlFormatters(languageTag), [languageTag]);
 
   return (
     <DayPicker
@@ -114,15 +124,13 @@ function Calendar({
         },
         ...components,
       }}
-      formatters={{
-        formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
-        ...formatters,
-      }}
+      formatters={{ ...intlFormatters, ...formatters }}
+      locale={resolvedLocale}
       showOutsideDays={showOutsideDays}
       {...props}
     />
   );
-}
+});
 
 function CalendarDayButton({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames();
@@ -140,7 +148,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
         defaultClassNames.day,
         className,
       )}
-      data-day={day.date.toLocaleDateString()}
+      data-day={calendarDayKey(day.date)}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       data-range-start={modifiers.range_start}

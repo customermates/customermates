@@ -6,6 +6,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { FormLabel } from "./form-label";
@@ -45,6 +46,7 @@ export const FormInputChips = observer(
     className,
     containerClassName,
   }: Props) => {
+    const t = useTranslations();
     const [inputValue, setInputValue] = useState("");
 
     const store = useAppForm();
@@ -146,7 +148,7 @@ export const FormInputChips = observer(
             const chipHasError = chipErrors[index] ?? false;
             const removeButton = isReadOnly ? undefined : (
               <button
-                aria-label="Remove"
+                aria-label={t("Common.actions.remove")}
                 className="text-muted-foreground transition-[color,background-color,transform] hover:bg-muted hover:text-foreground active:scale-[0.97] motion-reduce:transition-none"
                 tabIndex={-1}
                 type="button"

@@ -3,15 +3,16 @@
 import { Calendar } from "lucide-react";
 
 import { Icon } from "@/components/shared/icon";
+import { formattingTagFor, type ContentLocale } from "@/i18n/locale-registry";
 
 type Props = {
   date: string;
-  locale: string;
+  locale: ContentLocale;
 };
 
 export function PostCardDate({ date, locale }: Props) {
   const iso = new Date(date).toISOString();
-  const formatted = new Date(date).toLocaleDateString(locale, {
+  const formatted = new Date(date).toLocaleDateString(formattingTagFor(locale), {
     day: "numeric",
     month: "long",
     year: "numeric",

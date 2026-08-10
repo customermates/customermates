@@ -50,7 +50,7 @@ export const ROUTE_SOURCE_MAP: Record<
 > = {
   "/": {
     source: homepageSource,
-    path: [],
+    path: ["homepage"],
   },
   "/features": {
     source: featuresSource,

@@ -1,8 +1,9 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { FooterContent } from "./footer-content";
 
 import { blogPostsSource, comparePagesSource, featurePagesSource, forPagesSource } from "@/core/fumadocs/source";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 const FOOTER_COMPARE = new Set([
   "gohighlevel",
@@ -41,7 +42,8 @@ const FOOTER_BLOG_POSTS = new Set([
 ]);
 
 export async function Footer() {
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
+  const t = await getTranslations("ComparePage");
 
   const competitors = comparePagesSource
     .getPages(locale)
@@ -51,7 +53,8 @@ export async function Footer() {
       const competitor2 = page.data.comparison?.competitor2Name;
       let displayName = page.data.competitorName;
       if (slug.includes("-vs-") && competitor2) displayName = `${page.data.competitorName} vs ${competitor2}`;
-      else if (slug.endsWith("-alternative")) displayName = `${page.data.competitorName} alternative`;
+      else if (slug.endsWith("-alternative"))
+        displayName = t("alternativeTitle", { competitor: page.data.competitorName });
       return { slug, displayName };
     })
     .filter((item): item is { slug: string; displayName: string } => item !== null);

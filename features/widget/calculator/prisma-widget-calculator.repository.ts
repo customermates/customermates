@@ -30,8 +30,15 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
   private async calculateCount(widget: WidgetForCalculation): Promise<DiagramDataPoint[]> {
     const { entityType, entityFilters, groupByType, groupByCustomColumnId } = widget;
 
-    if (groupByType === WidgetGroupByType.none)
-      return [{ label: "Total", value: await getWidgetDataFetcher().getEntityCount(entityType, entityFilters) }];
+    if (groupByType === WidgetGroupByType.none) {
+      return [
+        {
+          labelKind: "system",
+          systemLabelKey: "total",
+          value: await getWidgetDataFetcher().getEntityCount(entityType, entityFilters),
+        },
+      ];
+    }
 
     if (groupByType === WidgetGroupByType.customColumn && groupByCustomColumnId) {
       const customColumn = await getCustomColumnRepo().findById(groupByCustomColumnId);
@@ -55,10 +62,16 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
           (sum, deal) => sum + (deal.services ?? []).reduce((s, sd) => s + sd.service.amount * sd.quantity, 0),
           0,
         );
-        return [{ label: "Total", value: totalValue }];
+        return [{ labelKind: "system", systemLabelKey: "total", value: totalValue }];
       }
 
-      return [{ label: "Total", value: await getWidgetDataFetcher().sumDealField(widget, "totalValue") }];
+      return [
+        {
+          labelKind: "system",
+          systemLabelKey: "total",
+          value: await getWidgetDataFetcher().sumDealField(widget, "totalValue"),
+        },
+      ];
     }
 
     const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
@@ -74,8 +87,15 @@ export class PrismaWidgetCalculatorRepo extends BaseRepository {
 
     if (entityType !== EntityType.service) return [];
 
-    if (groupByType === WidgetGroupByType.none)
-      return [{ label: "Total", value: await getWidgetDataFetcher().sumDealField(widget, "totalQuantity") }];
+    if (groupByType === WidgetGroupByType.none) {
+      return [
+        {
+          labelKind: "system",
+          systemLabelKey: "total",
+          value: await getWidgetDataFetcher().sumDealField(widget, "totalQuantity"),
+        },
+      ];
+    }
 
     const deals = await getWidgetDataFetcher().getDealsForEntityType(widget);
 

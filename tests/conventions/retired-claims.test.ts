@@ -61,7 +61,8 @@ const RETIRED_CLAIMS: RetiredClaim[] = [
   },
   {
     id: "german-hosting-location",
-    pattern: /(hosted|hosting|gehostet|stored|gespeichert)[^.\n]{0,30}(in germany|in deutschland|frankfurt)|(german|deutsche[nr]?)[ -](data cent(er|re)s?|rechenzentren)/i,
+    pattern:
+      /(hosted|hosting|gehostet|stored|gespeichert|géré|gestito|gestionado|hébergé|ospitato|alojado)[^.\n]{0,30}(in germany|in deutschland|frankfurt|francfort|francoforte|fráncfort|allemagne|germania|alemania)|(german|deutsche[nr]?)[ -](data cent(er|re)s?|rechenzentren)|\b(frankfurt|francfort|francoforte|fráncfort)\b/i,
     why: "the application is hosted by Vercel in the USA; only the managed database is in an EU region",
     authority: "content/legal/en/subprocessors.mdx",
   },
@@ -83,6 +84,7 @@ const PRODUCT_SURFACES = ["features", "features-all", "homepage", "pricing", "au
   join("content", section),
 );
 const SUBJECT = /customermates/i;
+const DENIAL_WINDOW = 60;
 const DENIAL = /(\b(no|not|never|without|nor|nie|noch nicht|yet|instead of|statt)\b|\bkein\w*\b|\bnicht\b|gibt es nicht|does not|do not|has no|hat kein)/i;
 
 const SCANNED = [
@@ -115,11 +117,12 @@ describe("retired claims stay retired", () => {
         .split("\n")
         .forEach((line, index, lines) => {
           if (!isAboutTheProduct(file, line)) return;
-          const context = `${line}\n${lines[index + 1] ?? ""}`;
           for (const claim of RETIRED_CLAIMS) {
             const match = line.match(claim.pattern);
             if (!match) continue;
-            if (DENIAL.test(context)) continue;
+            const start = Math.max(0, (match.index ?? 0) - DENIAL_WINDOW);
+            const nearby = `${line.slice(start, (match.index ?? 0) + match[0].length + DENIAL_WINDOW)}\n${lines[index + 1] ?? ""}`;
+            if (DENIAL.test(nearby)) continue;
             violations.push(`${file}:${index + 1} [${claim.id}] "${match[0].trim()}" — ${claim.why} (${claim.authority})`);
           }
         });

@@ -77,7 +77,7 @@ export function VoiceMessage({ src, durationSeconds }: Props) {
   return (
     <div className="flex w-60 max-w-full items-center gap-2.5 px-1 py-0.5">
       <Button
-        aria-label={playing ? "Pause" : "Play"}
+        aria-label={playing ? t("Inbox.voice.pause") : t("Inbox.voice.play")}
         className="rounded-full"
         size="icon"
         type="button"
@@ -88,7 +88,7 @@ export function VoiceMessage({ src, durationSeconds }: Props) {
       </Button>
 
       <button
-        aria-label="Seek"
+        aria-label={t("Inbox.voice.seek")}
         className="flex h-8 min-w-0 flex-1 cursor-pointer items-center justify-between"
         type="button"
         onClick={seek}

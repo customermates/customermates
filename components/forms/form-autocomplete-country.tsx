@@ -2,22 +2,24 @@
 
 import type { ComponentProps } from "react";
 
+import { useMemo } from "react";
+import { useLocale } from "next-intl";
+
 import { AppChip } from "@/components/chip/app-chip";
-import { COUNTRIES } from "@/constants/countries";
+import { countryOptionsForLocale } from "@/constants/countries";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { FormAutocomplete } from "./form-autocomplete";
 import { FormAutocompleteItem } from "./form-autocomplete-item";
 import { FormAutocompleteCountryItem } from "./form-autocomplete-country-item";
 
-type CountryItem = { key: string; value: { label: string } };
+type CountryItem = { key: string; label: string };
 
 type Props = Omit<ComponentProps<typeof FormAutocomplete<CountryItem>>, "renderValue" | "children" | "items">;
 
 export function FormAutocompleteCountry(props: Props) {
-  const items: CountryItem[] = Object.entries(COUNTRIES).map(([key, value]) => ({
-    key,
-    value,
-  }));
+  const locale = appLocaleOrDefault(useLocale());
+  const items: CountryItem[] = useMemo(() => countryOptionsForLocale(locale), [locale]);
 
   return (
     <FormAutocomplete<CountryItem>
@@ -27,7 +29,7 @@ export function FormAutocompleteCountry(props: Props) {
           <AppChip key={item.key}>
             <FormAutocompleteCountryItem
               countryKey={item.data?.key ?? item.key}
-              label={item.data?.value.label ?? ""}
+              label={item.data?.label ?? ""}
               size="sm"
             />
           </AppChip>
@@ -37,8 +39,8 @@ export function FormAutocompleteCountry(props: Props) {
     >
       {(country) =>
         FormAutocompleteItem({
-          textValue: country.value.label,
-          children: <FormAutocompleteCountryItem countryKey={country.key} label={country.value.label} />,
+          textValue: country.label,
+          children: <FormAutocompleteCountryItem countryKey={country.key} label={country.label} />,
         })
       }
     </FormAutocomplete>

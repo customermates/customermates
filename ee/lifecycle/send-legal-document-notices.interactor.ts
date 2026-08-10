@@ -2,8 +2,10 @@ import type { EmailService } from "@/features/email/email.service";
 import type { EventService } from "@/features/event/event.service";
 import type { LegalDocument, LegalDocumentVersions } from "@/constants/legal-documents";
 import type { Locale } from "@/generated/prisma";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import LegalDocumentNotice from "@/components/emails/legal-document-notice";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import {
   CONTRACT_LEGAL_DOCUMENTS,
@@ -17,7 +19,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { hasValidLegalNoticeEffectiveAt, type LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import { getTranslator } from "@/i18n/get-translator";
-import { resolveUserLocale } from "@/i18n/user-locale";
+import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 
 const DAY_IN_MS = 86_400_000;
@@ -29,6 +31,7 @@ export type LegalNoticeRecipient = {
   email: string;
   firstName: string;
   displayLanguage: Locale;
+  formattingLocale: Locale;
   isSystemAdministrator: boolean;
 };
 
@@ -140,7 +143,8 @@ export class SendLegalDocumentNoticesInteractor {
 
   private async sendNotice(plan: LegalNoticePlan): Promise<void> {
     const locale = resolveUserLocale(plan.recipient);
-    const email = await this.buildEmail(plan, locale);
+    const formattingTag = resolveUserFormattingTag(plan.recipient, locale);
+    const email = await this.buildEmail(plan, locale, formattingTag);
 
     await this.emailService.send(email, { throwOnProviderError: true });
 
@@ -266,15 +270,16 @@ export class SendLegalDocumentNoticesInteractor {
     };
   }
 
-  private async buildEmail(plan: LegalNoticePlan, locale: Exclude<Locale, "system">) {
+  private async buildEmail(plan: LegalNoticePlan, locale: AppLocale, formattingTag: string) {
     const t = await getTranslator(locale, "LegalDocumentNotice");
+    const layoutCopy = await getEmailLayoutCopy(locale);
     const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
     const documents = plan.changedDocuments.map((document) => ({
       name: t(`documents.${document}`),
       version: LEGAL_DOCUMENT_VERSIONS[document],
-      liveUrl: `${env.BASE_URL}/${locale}/${document}`,
+      liveUrl: `${env.BASE_URL}/${document}`,
     }));
-    const deadline = plan.effectiveAt ? this.formatDate(plan.effectiveAt, locale) : null;
+    const deadline = plan.effectiveAt ? this.formatDate(plan.effectiveAt, formattingTag) : null;
     const hasSubprocessorObjection = plan.changedDocuments.includes("subprocessors");
     const objections = [
       ...(plan.includesContract ? [t("contractObjection")] : []),
@@ -282,7 +287,7 @@ export class SendLegalDocumentNoticesInteractor {
         ? [
             plan.includesContract && plan.subprocessorEffectiveAt && plan.subprocessorEffectiveAt !== plan.effectiveAt
               ? t("subprocessorObjectionWithDeadline", {
-                  deadline: this.formatDate(plan.subprocessorEffectiveAt, locale),
+                  deadline: this.formatDate(plan.subprocessorEffectiveAt, formattingTag),
                 })
               : t("subprocessorObjection"),
           ]
@@ -299,6 +304,8 @@ export class SendLegalDocumentNoticesInteractor {
         documents,
         greeting: t("greeting", { firstName: plan.recipient.firstName }),
         liveLabel: t("liveLabel"),
+        locale,
+        layoutCopy,
         objections,
         signoff: t("signoff"),
         subject,
@@ -307,8 +314,8 @@ export class SendLegalDocumentNoticesInteractor {
     };
   }
 
-  private formatDate(value: string, locale: Exclude<Locale, "system">): string {
-    return new Intl.DateTimeFormat(locale, {
+  private formatDate(value: string, formattingTag: string): string {
+    return new Intl.DateTimeFormat(formattingTag, {
       dateStyle: "long",
       timeZone: "UTC",
     }).format(new Date(value));

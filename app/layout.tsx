@@ -30,8 +30,7 @@ import {
 } from "@/core/di";
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
-import { homepageSource } from "@/core/fumadocs/source";
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
+import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
 
 const latin = Inter({
   subsets: ["latin"],
@@ -55,55 +54,7 @@ const serif = Lora({
   variable: "--font-serif",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const page = homepageSource.getPage(["homepage"], locale);
-
-  if (!page) return {};
-
-  const { rootMetadata } = page.data;
-  const alternates: Record<string, string> = Object.fromEntries(
-    ROUTING_LOCALES.map((loc) => [loc, `${env.BASE_URL}/${loc}`]),
-  );
-  alternates["x-default"] = `${env.BASE_URL}/${ROUTING_DEFAULT_LOCALE}`;
-
-  const canonical = `${env.BASE_URL}/${locale}`;
-  const params = new URLSearchParams({
-    description: rootMetadata.defaultDescription,
-    title: rootMetadata.defaultTitle,
-  });
-  const defaultOgImageUrl = `/og/image.png?${params.toString()}`;
-
-  return {
-    title: {
-      default: rootMetadata.defaultTitle,
-      template: rootMetadata.titleTemplate,
-    },
-    description: rootMetadata.defaultDescription,
-    metadataBase: new URL(env.BASE_URL),
-    icons: {
-      icon: rootMetadata.icon,
-    },
-    openGraph: {
-      description: rootMetadata.defaultDescription,
-      images: [defaultOgImageUrl],
-      siteName: "Customermates",
-      title: rootMetadata.defaultTitle,
-      type: "website",
-      url: canonical,
-    },
-    alternates: {
-      canonical,
-      languages: alternates,
-    },
-    twitter: {
-      card: "summary_large_image",
-      description: rootMetadata.defaultDescription,
-      images: [defaultOgImageUrl],
-      title: rootMetadata.defaultTitle,
-    },
-  };
-}
+export const metadata: Metadata = GLOBAL_METADATA;
 
 export const viewport: Viewport = {
   width: "device-width",

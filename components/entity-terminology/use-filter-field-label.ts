@@ -1,23 +1,13 @@
 "use client";
 
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { TerminologyForm } from "@/features/entity-terminology/entity-terminology.types";
 
 import { useTranslations } from "next-intl";
-import { EntityType } from "@/generated/prisma";
 
 import { isCustomField } from "@/core/utils/custom-field";
+import { FILTER_FIELD_TERMINOLOGY } from "@/features/entity-terminology/entity-terminology.constants";
 
 import { useEntityTerminology } from "./use-entity-terminology";
-
-const FILTER_FIELD_TERMINOLOGY: Record<string, { entityType: EntityType; form: TerminologyForm }> = {
-  contactIds: { entityType: EntityType.contact, form: "singular" },
-  participantContactId: { entityType: EntityType.contact, form: "singular" },
-  organizationIds: { entityType: EntityType.organization, form: "singular" },
-  dealIds: { entityType: EntityType.deal, form: "singular" },
-  serviceIds: { entityType: EntityType.service, form: "singular" },
-  taskIds: { entityType: EntityType.task, form: "singular" },
-};
 
 export function useFilterFieldLabel() {
   const t = useTranslations();

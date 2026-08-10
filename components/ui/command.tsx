@@ -19,8 +19,8 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
 }
 
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
+  title,
+  description,
   children,
   className,
   commandProps,
@@ -30,8 +30,8 @@ function CommandDialog({
   open,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
-  title?: string;
-  description?: string;
+  title: string;
+  description: string;
   className?: string;
   commandProps?: React.ComponentProps<typeof Command>;
   showCloseButton?: boolean;

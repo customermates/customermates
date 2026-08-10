@@ -1,0 +1,1769 @@
+{
+  "AccountsRemovedNotice": {
+    "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
+    "cta": "Voir les comptes connectés",
+    "greeting": "Bonjour {firstName},",
+    "signoff": "Cordialement,\nBen",
+    "subject": "Certains de vos comptes connectés ont été supprimés",
+    "title": "Comptes connectés supprimés"
+  },
+  "AgplGithubBadge": {
+    "label": "AGPL · Open source"
+  },
+  "ApiKeyModal": {
+    "addDescription": "Créez une clé pour votre propre intégration ou choisissez un client d’IA pour une configuration guidée.",
+    "addTitle": "Ajouter une clé API",
+    "backToOptions": "Toutes les options de clé API",
+    "done": "Terminé",
+    "expiresIn": "Expire dans",
+    "expiresInPlaceholder": "Choisir une date",
+    "keyCreated": "Clé API créée",
+    "keyWarning": "Copiez cette clé maintenant. Vous ne pourrez plus la consulter ensuite. Utilisez-la avec prudence : si elle est perdue, quelqu'un pourrait se faire passer pour vous.",
+    "quickDescription": "Choisissez l’IA que vous utilisez et nous vous montrerons uniquement la configuration nécessaire.",
+    "quickTitle": "Connexions rapides",
+    "standardDescription": "Choisissez un nom et, facultativement, une date d’expiration.",
+    "standardTitle": "Clé API standard",
+    "title": "Créer une clé API"
+  },
+  "ApiKeysCard": {
+    "title": "API et connecteurs",
+    "unnamed": "Sans nom"
+  },
+  "AuditLogModal": {
+    "createdAt": "Créé le",
+    "deletedField": "Champ supprimé",
+    "deletedFieldChanged": "Valeur modifiée sur un champ supprimé depuis.",
+    "entity": "Élément",
+    "entityId": "ID de l'élément",
+    "event": "Évènement",
+    "eventAt": "{event} le {date}",
+    "eventData": "Données de l'évènement",
+    "noValue": "Aucune valeur",
+    "relationsAdded": "Ajouts : {field}",
+    "relationsDeleted": "Suppressions : {field}",
+    "title": "Détails du journal d'audit",
+    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}",
+    "userId": "Utilisateur"
+  },
+  "AuditLogsCard": {
+    "emptyBody": "Les modifications de l’espace de travail sont enregistrées ici au fur et à mesure.",
+    "emptyTitle": "Aucune activité pour le moment",
+    "searchTooltip": "Rechercher par ID d'élément",
+    "title": "Journaux d'audit"
+  },
+  "AuthSocialErrors": {
+    "accessDenied": "La connexion a été annulée chez le fournisseur.",
+    "accountAlreadyLinkedToDifferentUser": "Ce compte social est déjà lié à un autre utilisateur.",
+    "accountNotLinked": "Un compte existe déjà avec cette adresse e-mail, mais elle n'est pas encore vérifiée. Connectez-vous avec votre mot de passe et vérifiez votre adresse, puis vous pourrez utiliser la connexion sociale.",
+    "emailDoesNotMatch": "L'adresse e-mail renvoyée par le fournisseur ne correspond pas à celle de votre compte.",
+    "emailIsMissing": "Le fournisseur n'a renvoyé aucune adresse e-mail.",
+    "emailNotFound": "Aucune adresse e-mail n'a été trouvée pour ce compte social.",
+    "generic": "La connexion sociale n'a pas abouti. Veuillez réessayer.",
+    "idIsMissing": "La réponse du fournisseur était incomplète. Veuillez réessayer.",
+    "internalServerError": "Une erreur est survenue de notre côté. Veuillez réessayer.",
+    "invalidCallbackRequest": "La demande de connexion était invalide. Veuillez réessayer.",
+    "invalidCode": "La connexion n'a pas pu être vérifiée. Veuillez réessayer.",
+    "invalidPayload": "La réponse du fournisseur était invalide. Veuillez réessayer.",
+    "invalidProfile": "Le profil renvoyé par le fournisseur était invalide. Veuillez réessayer.",
+    "issuerMismatch": "La réponse du fournisseur n'a pas pu être considérée comme fiable. Veuillez réessayer.",
+    "issuerMissing": "La réponse du fournisseur n'a pas pu être vérifiée. Veuillez réessayer.",
+    "missingProfile": "Le fournisseur n'a renvoyé aucune donnée de profil. Veuillez réessayer.",
+    "nameIsMissing": "Le fournisseur n'a renvoyé aucun nom. Veuillez réessayer.",
+    "noCallbackUrl": "La demande de connexion était incomplète. Veuillez réessayer.",
+    "noCode": "Le fournisseur n'a pas terminé la connexion. Veuillez réessayer.",
+    "oauthCodeVerificationFailed": "La connexion n'a pas pu être vérifiée. Veuillez réessayer.",
+    "oauthProviderNotFound": "Ce fournisseur de connexion n'est pas disponible.",
+    "payloadExpired": "La connexion a pris trop de temps. Veuillez réessayer.",
+    "signupDisabled": "L'inscription avec ce fournisseur est désactivée.",
+    "stateMismatch": "La session de connexion ne correspondait pas. Veuillez réessayer.",
+    "unableToCreateSession": "Votre session n'a pas pu être créée. Veuillez réessayer.",
+    "unableToCreateUser": "Votre compte n'a pas pu être créé. Veuillez réessayer.",
+    "unableToGetUserInfo": "Votre profil n'a pas pu être chargé depuis le fournisseur. Veuillez réessayer.",
+    "unableToLinkAccount": "Le compte social n'a pas pu être lié à votre compte.",
+    "userCreationFailed": "Votre compte n'a pas pu être créé. Veuillez réessayer.",
+    "userInfoIsMissing": "Le fournisseur n'a pas renvoyé votre profil. Veuillez réessayer."
+  },
+  "BlogPostPage": {
+    "relatedArticles": "Articles associés"
+  },
+  "BrowserFrame": {
+    "live": "en direct",
+    "liveDemoTitle": "Démo en direct de Customermates",
+    "open": "Ouvrir"
+  },
+  "Common": {
+    "actions": {
+      "add": "Ajouter",
+      "addCustomField": "Ajouter un champ",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "clear": "Effacer",
+      "close": "Fermer",
+      "contact": "Contacter",
+      "continueSetup": "Poursuivre la configuration",
+      "copy": "Copier dans le presse-papiers",
+      "delete": "Supprimer",
+      "deleteCustomFields": "Supprimer le champ",
+      "discard": "Abandonner",
+      "editCustomFields": "Modifier le champ",
+      "labelData": "Données",
+      "labelHistory": "Historique",
+      "labelNotes": "Notes",
+      "loadMore": "Charger plus",
+      "open": "Ouvrir",
+      "openApp": "Ouvrir l'application",
+      "openList": "Ouvrir la liste",
+      "refresh": "Actualiser",
+      "remove": "Retirer",
+      "reset": "Réinitialiser",
+      "save": "Enregistrer",
+      "signIn": "Connexion"
+    },
+    "ariaLabels": {
+      "breadcrumb": "Fil d’Ariane",
+      "collapseSearch": "Réduire la recherche",
+      "hidePassword": "Masquer le mot de passe",
+      "selectOption": "Sélectionner une option",
+      "showPassword": "Afficher le mot de passe",
+      "switchToCardView": "Passer à la vue cartes",
+      "switchToKanbanView": "Passer à la vue kanban",
+      "switchToKanbanViewDisabled": "Ajoutez un champ personnalisé à choix unique pour activer la vue kanban",
+      "switchToTableView": "Passer à la vue tableau",
+      "themeSwitcher": "Sélecteur de thème",
+      "tooltipFields": "Apparence",
+      "tooltipFilters": "Filtres"
+    },
+    "avatarUrlDescription": "Vous pouvez indiquer le lien d'une image qui servira d'avatar. L'image doit être accessible publiquement.",
+    "colors": {
+      "default": "Bleu",
+      "destructive": "Rouge",
+      "info": "Ciel",
+      "secondary": "Gris",
+      "success": "Vert",
+      "warning": "Jaune"
+    },
+    "company": "Entreprise",
+    "customColumnTypes": {
+      "currency": "Devise",
+      "date": "Date",
+      "dateRange": "Plage de dates",
+      "dateTime": "Date et heure",
+      "dateTimeRange": "Plage de dates et heures",
+      "email": "E-mail",
+      "link": "Lien",
+      "phone": "Téléphone",
+      "plain": "Texte",
+      "singleSelect": "Choix unique"
+    },
+    "datePresets": {
+      "endTime": "Heure de fin",
+      "inAMonth": "Dans un mois",
+      "inAWeek": "Dans une semaine",
+      "inAYear": "Dans un an",
+      "next7Days": "7 prochains jours",
+      "next30Days": "30 prochains jours",
+      "nextMonth": "Mois prochain",
+      "startTime": "Heure de début",
+      "thisMonth": "Ce mois-ci",
+      "today": "Aujourd'hui"
+    },
+    "default": "Par défaut",
+    "defaultData": {
+      "contact": {
+        "columnLabel": "Pipeline commercial",
+        "options": {
+          "contact": "Contact",
+          "inProgress": "En cours",
+          "lost": "Perdu",
+          "new": "Nouveau",
+          "qualified": "Qualifié",
+          "won": "Gagné"
+        }
+      },
+      "deal": {
+        "columnLabel": "Statut",
+        "options": {
+          "abandoned": "Abandonnée",
+          "lost": "Perdue",
+          "open": "Ouverte",
+          "won": "Gagnée"
+        }
+      },
+      "task": {
+        "columnLabel": "Statut",
+        "options": {
+          "archived": "Archivée",
+          "blocked": "Bloquée",
+          "done": "Terminée",
+          "inProgress": "En cours",
+          "onHold": "En attente",
+          "open": "Ouverte"
+        }
+      }
+    },
+    "deleteConfirmation": {
+      "message": "Voulez-vous vraiment supprimer cet élément ? Cette action est irréversible.",
+      "messageWithName": "Voulez-vous vraiment supprimer \"{name}\" ? Cette action est irréversible.",
+      "title": "Confirmer la suppression"
+    },
+    "details": "Détails",
+    "email": "E-mail",
+    "emptyState": {
+      "body": "Commencez par ajouter votre premier élément « {singular} ».",
+      "clearFilters": "Effacer les filtres",
+      "cta": "Ajouter votre premier élément « {singular} »",
+      "dashboardBody": "Les graphiques et indicateurs apparaîtront ici à mesure que vous ajouterez des données.",
+      "dashboardTitle": "Rien à afficher pour le moment",
+      "filteredBody": "Aucun élément « {plural} » ne correspond à vos filtres.",
+      "filteredTitle": "Aucune correspondance",
+      "genericFilteredBody": "Aucun résultat ne correspond à vos filtres.",
+      "genericTitle": "Rien ici pour le moment",
+      "readOnlyBody": "Vous n’avez pas l’autorisation d’ajouter des éléments « {plural} ».",
+      "readOnlyTitle": "Aucun élément « {plural} » pour le moment",
+      "title": "Aucun élément « {plural} » pour le moment"
+    },
+    "errors": {
+      "activityScopeRequiresBoth": "entityType et entityId doivent être fournis ensemble pour cibler un seul enregistrement.",
+      "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
+      "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
+      "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
+      "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
+      "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
+      "contactNotFound": "ID de contact introuvable ou inaccessible.",
+      "contactRefRequired": "id doit être un UUID de contact, une adresse e-mail ou un numéro de téléphone, ou 'provider:value' pour un identifiant (par exemple 'linkedin:jdoe').",
+      "customColumnIdNotFound": "ID de colonne personnalisée introuvable ou inaccessible.",
+      "customColumnNotFound": "ID de colonne personnalisée introuvable ou inaccessible. Colonnes disponibles : {validValues}.",
+      "customColumnTypeMismatch": "Cette colonne personnalisée est de type {actualType}, pas {expectedType}. Définissez le type sur {actualType} pour la mettre à jour.",
+      "customFieldInvalidCurrency": "La valeur monétaire est invalide. Elle doit être un nombre valide.",
+      "customFieldInvalidDate": "La date est invalide. Elle doit être au format ISO 8601 (par exemple 2024-01-15) ou au format date-heure ISO 8601 (par exemple 2024-01-15T00:00:00Z).",
+      "customFieldInvalidDateRange": "La plage de dates est invalide. Elle doit contenir deux dates ISO 8601 séparées par une virgule, la date de début étant antérieure ou égale à la date de fin (par exemple 2024-01-15,2024-01-22).",
+      "customFieldInvalidDateTime": "La date-heure est invalide. Elle doit être au format date-heure ISO 8601 avec l'heure (par exemple 2024-01-15T10:30:00Z).",
+      "customFieldInvalidDateTimeRange": "La plage de dates-heures est invalide. Elle doit contenir deux dates-heures ISO 8601 séparées par une virgule, le début étant antérieur ou égal à la fin (par exemple 2024-01-15T09:00:00Z,2024-01-15T17:00:00Z).",
+      "customFieldInvalidEmail": "L'adresse e-mail est invalide. Elle doit respecter le format d'une adresse e-mail (par exemple user@example.com). Pour plusieurs adresses, séparez-les par une virgule (par exemple user1@example.com, user2@example.com).",
+      "customFieldInvalidPhone": "Le numéro de téléphone est invalide. Il doit être au format E.164 (par exemple +491234567890). Pour plusieurs numéros, séparez-les par une virgule (par exemple +491234567890, +499876543210).",
+      "customFieldInvalidSingleSelect": "La valeur du choix unique est invalide. Elle doit faire partie des options autorisées : {validValues}.",
+      "customFieldInvalidUrl": "L'URL est invalide. Elle doit respecter le format d'une URL (par exemple https://example.com). Pour plusieurs URL, séparez-les par une virgule (par exemple https://example.com, https://example.org).",
+      "dealNotFound": "ID d'affaire introuvable ou inaccessible.",
+      "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
+      "duplicateChannel": "Ce canal figure plusieurs fois. N’ajoutez chaque adresse e-mail, numéro de téléphone ou identifiant qu’une seule fois.",
+      "duplicateOutboundSuppressed": "Un message identique vient d'être envoyé dans cette conversation. Modifiez le texte ou attendez une minute avant de réessayer.",
+      "duplicateWebhookEvents": "Les évènements en double ne sont pas autorisés.",
+      "emailAlreadyExists": "Un compte existe déjà avec cette adresse e-mail.",
+      "emailMismatch": "Les adresses e-mail doivent correspondre.",
+      "emailNotVerified": "Adresse e-mail non vérifiée.",
+      "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
+      "generic": "Une erreur est survenue.",
+      "inmailSignatureRequired": "Ajoutez une signature pour l'InMail Recruiter.",
+      "inmailSubjectRequired": "Ajoutez un objet pour l'InMail.",
+      "invalidCallbackUrl": "Le lien de connexion n’est pas valide. Veuillez réessayer.",
+      "invalidChannelValue": "Ce n'est pas une adresse e-mail, un numéro de téléphone ou un identifiant valide.",
+      "invalidCredentials": "Adresse e-mail ou mot de passe invalide.",
+      "invalidEmail": "Saisissez une adresse e-mail valide.",
+      "invalidFilterField": "Champ de filtre introuvable ou inaccessible. Champs disponibles : {validValues}.",
+      "invalidFilterOperator": "L'opérateur '{operator}' n'est pas autorisé sur le champ '{field}'. Opérateurs autorisés : {validValues}.",
+      "invalidFilterValue": "Valeur de filtre invalide. La valeur doit correspondre au type du champ et à l'opérateur (par exemple un nombre pour gt/lt, une date ISO pour les champs de date, ou un id pour in/notIn).",
+      "invalidSortField": "Champ de tri introuvable ou inaccessible. Champs disponibles : {validValues}.",
+      "invalidUrl": "Saisissez une URL valide.",
+      "linkedinInboxUnavailable": "Ce compte LinkedIn n'a pas de boîte de réception {product}. Connectez le compte avec {product} associé pour l'utiliser.",
+      "linkedinProductRequiresLinkedin": "Les options InMail et produit LinkedIn nécessitent un compte LinkedIn.",
+      "linkedinProductUnavailable": "Ce compte LinkedIn n'a pas ce produit connecté.",
+      "messageContentRequired": "Ajoutez un message ou une pièce jointe.",
+      "mustNotBeBlank": "Ne doit pas être vide.",
+      "mustNotContainNullChars": "Ne doit pas contenir de caractères nuls.",
+      "notesExceedsMaxLength": "Le contenu des notes dépasse la longueur maximale.",
+      "notesInvalidFormat": "Format de notes invalide. Il doit s'agir de JSON Tiptap valide ou de texte markdown.",
+      "organizationNotFound": "ID d'organisation introuvable ou inaccessible.",
+      "passwordInvalid": "Le mot de passe doit comporter au moins 8 caractères et contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.",
+      "passwordMismatch": "Les mots de passe doivent correspondre.",
+      "relationNotAllowed": "La relation '{relation}' n'est pas autorisée sur {entity}. Relations autorisées : {allowed}.",
+      "roleNotFound": "ID de rôle introuvable ou inaccessible.",
+      "roleSystemRequired": "Au moins un utilisateur doit être administrateur système.",
+      "salesNavigatorNotAvailable": "Ce compte LinkedIn n'a pas Sales Navigator connecté.",
+      "salesNavigatorRequiresLinkedin": "Sales Navigator nécessite un compte LinkedIn connecté, or ce compte est {provider}.",
+      "sendEmailTargetRequired": "Sélectionnez une conversation ou un compte pour l'envoi.",
+      "serviceNotFound": "ID de service introuvable ou inaccessible.",
+      "socialActionRequiresSocialAccount": "Cette action nécessite un compte LinkedIn ou Instagram connecté, or ce compte est {provider}.",
+      "socialPostsRequireSocialAccount": "Les publications sociales nécessitent un compte LinkedIn ou Instagram connecté, or ce compte est {provider}.",
+      "subjectRequired": "Ajoutez un objet.",
+      "taskNameCannotBeChangedForSystemTasks": "Le nom des tâches système ne peut pas être modifié.",
+      "taskNotFound": "ID de tâche introuvable ou inaccessible.",
+      "taskOnlyCustomTasksCanBeDeleted": "Seules les tâches personnalisées peuvent être supprimées.",
+      "terminologyInvalidPreset": "Choisissez l’un des modèles de nom disponibles.",
+      "termsNotAgreed": "Vous devez accepter les conditions générales.",
+      "threadNotFound": "ID de conversation introuvable ou inaccessible.",
+      "unipileDisconnectedAccount": "Le canal est déconnecté. Reconnectez-le et réessayez.",
+      "unipileInvalidRequest": "Le fournisseur a rejeté la requête comme invalide. Vérifiez les identifiants du destinataire et les paramètres du message.",
+      "unipileProviderError": "Le fournisseur rencontre actuellement des problèmes. Réessayez dans un instant.",
+      "unipileRateLimit": "Ce canal a atteint sa limite pour le moment. Vous pouvez réessayer {retryAfter}. Plus d'informations sur https://customermates.com/docs/messaging-rate-limits.",
+      "unipileRequestTimeout": "La requête a expiré. L'action a peut-être tout de même abouti, vérifiez avant de réessayer.",
+      "unipileResourceNotFound": "Le destinataire ou la conversation est introuvable sur ce canal.",
+      "unipileServiceUnavailable": "Le service de messagerie est temporairement indisponible. Réessayez dans un instant.",
+      "unipileUnknown": "Le fournisseur a rejeté ce message. Réessayez ou contactez l'assistance.",
+      "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
+      "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",
+      "webhookEventsRequired": "Sélectionnez au moins un évènement.",
+      "webhookNotFound": "ID de webhook introuvable ou inaccessible.",
+      "widgetDealAggregationNotAllowedForTask": "Les types d'agrégation d'affaires ne sont pas autorisés pour le type d'élément Tâche.",
+      "widgetDealFiltersNotAllowedForDealEntityType": "Les filtres d'affaire ne sont pas autorisés lorsque le type d'élément est Affaire.",
+      "widgetDealQuantityOnlyForService": "L'agrégation de quantité d'affaire n'est autorisée que pour le type d'élément Service.",
+      "widgetGroupByCustomColumnIdRequired": "L'ID de colonne personnalisée est obligatoire lors d'un regroupement par colonne personnalisée.",
+      "widgetGroupByEntityTypeNotAllowedForCount": "Le regroupement par type d'élément n'est pas autorisé lorsque le type d'agrégation est le comptage.",
+      "widgetGroupByTypeMustMatchEntityType": "Le type de regroupement doit correspondre au type d'élément du graphique.",
+      "widgetNotFound": "ID de widget introuvable ou inaccessible.",
+      "widgetTaskCanOnlyGroupByCustomColumn": "Les tâches ne peuvent être regroupées que par colonnes personnalisées, pas par types d'élément."
+    },
+    "events": {
+      "company": {
+        "updated": "Entreprise mise à jour"
+      },
+      "connected_account": {
+        "created": "Compte connecté",
+        "deleted": "Compte déconnecté",
+        "reconnected": "Compte reconnecté",
+        "resynced": "Compte resynchronisé",
+        "updated": "Visibilité du compte modifiée"
+      },
+      "contact": {
+        "created": "Contact créé",
+        "deleted": "Contact supprimé",
+        "updated": "Contact mis à jour"
+      },
+      "custom_column": {
+        "created": "Colonne personnalisée créée",
+        "deleted": "Colonne personnalisée supprimée",
+        "updated": "Colonne personnalisée mise à jour"
+      },
+      "deal": {
+        "created": "Affaire créée",
+        "deleted": "Affaire supprimée",
+        "updated": "Affaire mise à jour"
+      },
+      "legal": {
+        "documents_accepted": "Documents juridiques acceptés",
+        "notice_sent": "Notification juridique envoyée"
+      },
+      "messaging": {
+        "calendar": {
+          "changed": "Agenda modifié"
+        },
+        "calendar_event": {
+          "changed": "Évènement d'agenda modifié"
+        },
+        "chat": {
+          "deleted": "Conversation supprimée",
+          "updated": "Conversation mise à jour"
+        },
+        "email": {
+          "deleted": "E-mail supprimé",
+          "received": "E-mail reçu"
+        },
+        "message": {
+          "deleted": "Message supprimé",
+          "reaction": "Réaction à un message",
+          "received": "Message reçu",
+          "updated": "Message mis à jour"
+        },
+        "relation": {
+          "created": "Relation créée"
+        }
+      },
+      "organization": {
+        "created": "Organisation créée",
+        "deleted": "Organisation supprimée",
+        "updated": "Organisation mise à jour"
+      },
+      "role": {
+        "created": "Rôle créé",
+        "deleted": "Rôle supprimé",
+        "updated": "Rôle mis à jour"
+      },
+      "service": {
+        "created": "Service créé",
+        "deleted": "Service supprimé",
+        "updated": "Service mis à jour"
+      },
+      "task": {
+        "created": "Tâche créée",
+        "deleted": "Tâche supprimée",
+        "updated": "Tâche mise à jour"
+      },
+      "user": {
+        "registered": "Utilisateur inscrit",
+        "updated": "Utilisateur mis à jour"
+      },
+      "webhook": {
+        "created": "Webhook créé",
+        "deleted": "Webhook supprimé",
+        "updated": "Webhook mis à jour"
+      }
+    },
+    "filters": {
+      "apply": "Appliquer",
+      "clearAll": "Tout effacer",
+      "clearSearch": "Effacer la recherche",
+      "daysPlaceholder": "Jours",
+      "daysPreset": "{count, plural, =1 {1 jour} other {# jours}}",
+      "daysSuffix": "jours",
+      "fields": {
+        "calendarId": "Calendrier",
+        "connectedAccountId": "Canal",
+        "createdAt": "Créé le",
+        "event": "Évènement",
+        "participants": "Participants",
+        "provider": "Fournisseur",
+        "startsAt": "Commence le",
+        "state": "État",
+        "status": "Statut",
+        "timelineKind": "Type",
+        "timelineThreadId": "Conversation",
+        "updatedAt": "Mis à jour le",
+        "url": "URL",
+        "userIds": "Assigné à"
+      },
+      "operators": {
+        "allSet": "entièrement lié",
+        "between": "entre",
+        "contains": "contient",
+        "equals": "=",
+        "gt": ">",
+        "gte": "≥",
+        "hasNone": "n'en a aucun",
+        "hasSome": "en a au moins un",
+        "hasUnset": "pas entièrement lié",
+        "in": "parmi",
+        "inLastDays": "au cours des",
+        "isNotNull": "n'est pas vide",
+        "isNull": "est vide",
+        "lt": "<",
+        "lte": "≤",
+        "notIn": "hors de"
+      },
+      "presets": {
+        "add": "Enregistrer comme préréglage…",
+        "label": "Préréglage",
+        "namePlaceholder": "Nom du préréglage",
+        "none": "Aucun préréglage"
+      },
+      "searchLabel": "Rechercher",
+      "selectOperator": "Sélectionner une condition…",
+      "unavailableValue": "Filtre non disponible"
+    },
+    "imageAlt": {
+      "countryFlag": "Drapeau de {country}",
+      "logo": "Logo Customermates"
+    },
+    "inputs": {
+      "addOption": "Ajouter \"{value}\"",
+      "aggregationType": "Indicateur",
+      "amount": "Montant",
+      "avatarUrl": "URL de l'avatar",
+      "company": "Entreprise",
+      "confirmEmail": "Confirmer l'e-mail",
+      "confirmPassword": "Confirmer le mot de passe",
+      "country": "Pays",
+      "currency": "Devise",
+      "datePlaceholder": "Choisir une date",
+      "dateRangePlaceholder": "Choisir une période",
+      "defaultOption": "Option {number}",
+      "description": "Description",
+      "displayLanguage": "Langue d'affichage",
+      "displayOptions": {
+        "barColors": "Couleurs des barres",
+        "displayType": "Type d'affichage",
+        "reverseXAxis": "Inverser l'axe X",
+        "reverseYAxis": "Inverser l'axe Y",
+        "showFilters": "Afficher les filtres",
+        "showLegend": "Afficher la légende",
+        "useGroupColors": "Utiliser les couleurs des options"
+      },
+      "email": "E-mail",
+      "emails": "E-mails",
+      "emptyContent": "Aucun résultat",
+      "entityType": "Élément",
+      "events": "Évènements",
+      "feedback": "Commentaires",
+      "firstName": "Prénom",
+      "formattingLocale": "Format régional",
+      "groupByValue": "Regroupement",
+      "isTemplate": "Partager comme modèle avec les autres utilisateurs de votre organisation",
+      "label": "Libellé",
+      "lastName": "Nom",
+      "message": "Message",
+      "name": "Nom",
+      "options": {
+        "allowMultiple": "Autoriser plusieurs valeurs",
+        "color": "Couleur",
+        "currency": "Devise",
+        "displayFormat": "Format"
+      },
+      "password": "Mot de passe",
+      "roleId": "Rôle",
+      "secret": "Secret",
+      "status": "Statut",
+      "template": "Modèle",
+      "theme": "Thème",
+      "type": "Type",
+      "url": "URL",
+      "userIds": "Assigné à"
+    },
+    "language": "Langue",
+    "locales": {
+      "de": "Allemand",
+      "en": "Anglais",
+      "es": "Espagnol",
+      "fr": "Français",
+      "it": "Italien",
+      "system": "Système"
+    },
+    "navigationGuard": {
+      "message": "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ? Vos modifications seront perdues.",
+      "title": "Modifications non enregistrées"
+    },
+    "never": "Jamais",
+    "none": "Aucun",
+    "notifications": {
+      "copiedToClipboard": "{value} copié dans le presse-papiers",
+      "copyFailed": "Échec de la copie dans le presse-papiers",
+      "deleted": "Supprimé",
+      "unexpectedError": "Une erreur est survenue. Veuillez réessayer.",
+      "updated": "Mis à jour"
+    },
+    "options": "Options",
+    "providers": {
+      "google": "Gmail",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "mail": "E-mail",
+      "outlook": "Outlook",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Affiche la barre latérale mobile.",
+      "title": "Barre latérale",
+      "toggle": "Afficher ou masquer la barre latérale"
+    },
+    "sort": {
+      "ascending": "Croissant",
+      "descending": "Décroissant",
+      "field": "Trier par"
+    },
+    "systemTasks": {
+      "userPendingAuthorization": {
+        "alert": "Il s'agit d'une tâche système qui ne peut pas être supprimée manuellement. Approuvez l'utilisateur dans les <link>paramètres de l'entreprise</link> pour résoudre cette tâche.",
+        "title": "Approuver l'utilisateur"
+      }
+    },
+    "table": {
+      "columns": {
+        "amount": "Montant",
+        "avatarUrl": "Avatar",
+        "channels": "Canaux",
+        "contacts": "Contacts",
+        "createdAt": "Créé le",
+        "deals": "Affaires",
+        "description": "Description",
+        "email": "E-mail",
+        "entity": "Élément",
+        "entityId": "ID de l'élément",
+        "event": "Évènement",
+        "events": "Évènements",
+        "expiresAt": "Expire le",
+        "firstName": "Prénom",
+        "identifiers": "Canaux",
+        "lastName": "Nom",
+        "lastRequest": "Dernière utilisation",
+        "name": "Nom",
+        "notes": "Notes",
+        "organizations": "Organisations",
+        "role": "Rôle",
+        "services": "Services",
+        "status": "Statut",
+        "statusCode": "Code de statut",
+        "tasks": "Tâches",
+        "totalQuantity": "Quantité de services",
+        "totalValue": "Valeur de l'affaire",
+        "type": "Type",
+        "updatedAt": "Mis à jour le",
+        "url": "URL",
+        "user": "Utilisateur",
+        "users": "Assigné à"
+      },
+      "emptyContent": "Aucune entrée",
+      "groupBy": "Grouper par",
+      "layout": "Disposition",
+      "nextPage": "Page suivante",
+      "paginationEmpty": "0 sur 0",
+      "paginationRange": "{from}-{to} sur {total}",
+      "previousPage": "Page précédente",
+      "search": "Rechercher..."
+    },
+    "tags": {
+      "feature": "Fonctionnalité",
+      "industry": "Secteur"
+    },
+    "themes": {
+      "dark": "Sombre",
+      "light": "Clair",
+      "system": "Système"
+    },
+    "userStatuses": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pendingAuthorization": "En attente d'approbation"
+    }
+  },
+  "CompanyInvite": {
+    "cta": "Accepter l'invitation",
+    "fallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "intro": "{inviterName} vous invite à rejoindre son équipe sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte.",
+    "preview": "{inviterName} vous invite à rejoindre son équipe sur Customermates",
+    "subject": "Rejoignez votre équipe sur Customermates"
+  },
+  "CompanyInviteModal": {
+    "description": "Partagez ce lien avec les utilisateurs que vous souhaitez inviter dans votre entreprise.",
+    "expiresAt": "Expire le {date}.",
+    "generating": "Génération du lien...",
+    "label": "Lien d'invitation",
+    "title": "Inviter un utilisateur"
+  },
+  "CompanySettings": {
+    "currencyDescription": "Utilisée pour toutes les valeurs monétaires du CRM, par exemple : {deals}, {services}."
+  },
+  "CompanyUserModal": {
+    "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
+    "title": "Utilisateur"
+  },
+  "ComparePage": {
+    "alternativeTitle": "Alternative à {competitor}",
+    "tags": {
+      "alternative": "Alternative",
+      "comparison": "Comparatif",
+      "review": "Avis"
+    }
+  },
+  "ConnectedAccountsCard": {
+    "accountLimitReached": "La formule Business inclut 3 comptes connectés par utilisateur. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
+    "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",
+    "alreadyExistsToastTitle": "Compte déjà connecté",
+    "channels": {
+      "imap": "IMAP",
+      "linkedinClassic": "LinkedIn (Classic)",
+      "linkedinRecruiter": "LinkedIn (Classic et Recruiter)",
+      "linkedinSalesNavigator": "LinkedIn (Classic et Sales Navigator)"
+    },
+    "checkpointToastDescription": "La vérification de sécurité n'a pas pu aboutir. Relancez la connexion et contactez l'assistance si le problème persiste.",
+    "checkpointToastTitle": "Échec de la vérification",
+    "connectAccount": "Connecter un canal",
+    "connectedAt": "Connecté",
+    "connectedToastDescription": "Votre historique est importé en arrière-plan. Cela peut prendre quelques minutes, vous pouvez continuer à travailler.",
+    "connectedToastTitle": "Canal connecté",
+    "description": "Connectez les canaux alimentant votre boîte de réception, comme l’e-mail, WhatsApp et LinkedIn. Les canaux sont privés par défaut et peuvent être partagés avec votre espace de travail. En connectant un canal, vous nous autorisez à traiter ses messages, contacts et son calendrier pour votre compte. Consultez notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>, nos <subprocessorsLink>sous-traitants</subprocessorsLink> et nos <termsOfServiceLink>conditions générales</termsOfServiceLink>.",
+    "disconnect": "Déconnecter",
+    "disconnectedToastDescription": "Ce compte n'est plus connecté chez le fournisseur. Reconnectez-le avec vos identifiants actuels.",
+    "disconnectedToastTitle": "Compte déconnecté",
+    "emptyState": "Vous n'avez encore connecté aucun canal.",
+    "expiredLinkToastDescription": "Ce lien de connexion a expiré. Générez-en un nouveau depuis cette page et réessayez.",
+    "expiredLinkToastTitle": "Lien expiré",
+    "failedToastDescription": "Une erreur est survenue. Réessayez ou contactez l'assistance si le problème persiste.",
+    "failedToastTitle": "Échec de la connexion du canal",
+    "folderHidden": "Masqué",
+    "folders": "Dossiers",
+    "foldersShown": "{shown} sur {total} synchronisés",
+    "foldersUpdateFailed": "Impossible de mettre à jour les dossiers",
+    "folderSynced": "Synchronisé",
+    "invalidCredentialsToastDescription": "Les identifiants n'ont pas été acceptés. Vérifiez-les et réessayez.",
+    "invalidCredentialsToastTitle": "Identifiants invalides",
+    "lastSynced": "Dernière synchronisation",
+    "messagingRequiresCloud": "La messagerie est disponible sur Customermates Cloud (formule Pro ou supérieure).",
+    "messagingRequiresPro": "La messagerie nécessite la formule Pro ou supérieure. Passez à une formule supérieure pour connecter un canal.",
+    "ownerLabel": "Propriétaire",
+    "paidSubscriptionRequired": "La connexion de canaux nécessite un abonnement actif ou un essai non expiré.",
+    "provider": "Fournisseur",
+    "reactivate": "Réactiver",
+    "resync": "Resynchroniser",
+    "resyncFailedDescription": "La resynchronisation n'a pas pu démarrer. Réessayez ou contactez l'assistance.",
+    "resyncFailedTitle": "Échec de la resynchronisation",
+    "resyncStartedDescription": "Réimportation de l'historique en arrière-plan. Cela prend généralement 1 à 3 minutes.",
+    "resyncStartedTitle": "Resynchronisation lancée",
+    "sharedAccountsRequiresBusiness": "Les comptes partagés nécessitent la formule Business ou supérieure.",
+    "sharedAccountsRequiresCloud": "Les comptes partagés sont disponibles sur Customermates Cloud (formule Business ou supérieure).",
+    "sharedOffToast": "Le compte est désormais privé",
+    "sharedOnToast": "Compte partagé avec votre espace de travail",
+    "status": "Statut",
+    "statusLabels": {
+      "connecting": "Connexion en cours",
+      "credentials": "Reconnexion nécessaire",
+      "deleted": "Supprimé",
+      "error": "Erreur",
+      "ok": "Connecté",
+      "permissions": "Problème d'autorisation",
+      "stopped": "Arrêté"
+    },
+    "subTypeBoth": "E-mail et agenda",
+    "subTypeCalendar": "Agenda",
+    "subTypeEmail": "E-mail",
+    "syncing": "Synchronisation en arrière-plan",
+    "syncingTooltip": "Les messages, e-mails et évènements d'agenda de ce compte sont importés en arrière-plan. Cela prend généralement quelques minutes, jusqu'à une heure pour les gros comptes. Vous pouvez continuer à travailler pendant ce temps ; les nouvelles activités apparaissent dès leur arrivée.",
+    "title": "Canaux",
+    "upgradeToBusinessForMoreAccounts": "Vous avez atteint le nombre de comptes connectés inclus dans la formule Pro. Passez à Business pour en connecter davantage.",
+    "upsellDialogTitle": "Passer à une formule supérieure pour connecter plus de comptes",
+    "viewPlansCta": "Voir les formules",
+    "visibility": "Visibilité",
+    "visibilityPrivate": "Privé",
+    "visibilityShared": "Partagé",
+    "visibilityUpdateFailed": "Impossible de mettre à jour la visibilité. Réessayez."
+  },
+  "ContactHistory": {
+    "ariaOpenInInbox": "Ouvrir dans la boîte de réception",
+    "calendarAllDay": "Toute la journée",
+    "calendarAttendees": "Participants",
+    "calendarCancelled": "Annulé",
+    "calendarJoinMeeting": "Rejoindre la réunion",
+    "calendarMeeting": "Réunion",
+    "calendarNoTitle": "Événement sans titre",
+    "calendarResponseMaybe": "Peut-être",
+    "calendarResponseNo": "Refusé",
+    "calendarResponseNoreply": "Sans réponse",
+    "calendarResponseYes": "Accepté",
+    "linkedinConnectionAccepted": "Invitation LinkedIn acceptée",
+    "linkedinOpenProfile": "Ouvrir le profil LinkedIn",
+    "noActivity": "Aucune activité pour ce contact."
+  },
+  "ContactModal": {
+    "title": "Contact"
+  },
+  "ContactPage": {
+    "description": "Une question, envie d'une démonstration ou d'explorer un partenariat ? Écrivez-moi et je vous réponds sous 24 heures.",
+    "form": {
+      "messagePlaceholder": "Sur quoi travaillez-vous et comment puis-je vous aider ?",
+      "submit": "Envoyer le message",
+      "successBody": "Je vous réponds à l'adresse indiquée, généralement sous 24 heures.",
+      "successCta": "Envoyer un autre message",
+      "successTitle": "Merci, message bien reçu.",
+      "successToast": "Merci, message bien reçu. Je vous réponds très vite."
+    },
+    "highlights": {
+      "direct": {
+        "body": "Vous préférez l'e-mail ? Écrivez directement. Votre demande arrive au même endroit.",
+        "title": "E-mail : mail@customermates.com"
+      },
+      "fast": {
+        "body": "Généralement sous 24 heures, souvent le jour même.",
+        "title": "Réponse rapide"
+      },
+      "personal": {
+        "body": "Pas de file d'attente. Je suis le fondateur et je réponds personnellement.",
+        "title": "Directement avec moi"
+      }
+    },
+    "title": "Discutons."
+  },
+  "Dashboard": {
+    "addCard": "Ajouter un graphique",
+    "aggregationTypes": {
+      "count": "Nombre de {entities}",
+      "dealQuantity": "Nombre de {services} dans les {deals}",
+      "dealValue": "Valeur de {deal}",
+      "dealValueRelated": "Valeur de {deal} liée à {entity}"
+    },
+    "displayTypes": {
+      "doughnutChart": "Graphique en anneau",
+      "horizontalBarChart": "Histogramme horizontal",
+      "horizontalBarChartWithLabels": "Histogramme horizontal avec étiquettes",
+      "radarChart": "Graphique radar",
+      "verticalBarChart": "Histogramme vertical",
+      "verticalBarChartWithLabels": "Histogramme vertical avec étiquettes"
+    },
+    "groupBys": {
+      "none": "Aucun regroupement"
+    },
+    "selectWidgetTemplateDescription": "Vous pouvez sélectionner des graphiques existants créés par des membres de vos organisations et les utiliser comme modèle pour votre nouveau graphique.",
+    "tabs": {
+      "config": "Configuration",
+      "dealFilters": "Filtres pour {deals}",
+      "display": "Affichage",
+      "filters": "Filtres {entityType}"
+    },
+    "widget": "Graphique"
+  },
+  "DataView": {
+    "dragToReorder": "Faire glisser pour réorganiser",
+    "editColumn": "Modifier la colonne",
+    "noValue": "Aucune valeur",
+    "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
+    "resizeHint": "Faites glisser pour redimensionner. Double-cliquez, touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
+    "selectAllRows": "Sélectionner toutes les lignes",
+    "selectGroupingColumn": "Sélectionnez une colonne de regroupement pour afficher la vue kanban.",
+    "selectRow": "Sélectionner la ligne {id}"
+  },
+  "DealModal": {
+    "noServicesAdded": "Aucun élément « {entity} » ajouté pour le moment",
+    "quantityLabel": "Quantité",
+    "title": "Affaire",
+    "totalLabel": "Total",
+    "valueLabel": "Valeur"
+  },
+  "Diagrams": {
+    "groups": "groupes",
+    "noData": "Aucune donnée disponible",
+    "noGroup": "Non assigné",
+    "total": "Total"
+  },
+  "DocsPage": {
+    "connectToChatGPT": "Connecter ChatGPT",
+    "connectToClaude": "Connecter Claude",
+    "connectToCursor": "Connecter Cursor",
+    "connectToVsCode": "Connecter VS Code",
+    "copyFailed": "Échec de la copie.",
+    "copyMcpCommand": "Copier la commande MCP",
+    "copyMcpConfig": "Copier la configuration MCP",
+    "copyPage": "Copier la page",
+    "englishOnlyAlert": "La documentation technique des points de terminaison de l'API n'est disponible qu'en anglais, car elle exige une terminologie technique précise et une cohérence avec les standards du secteur.",
+    "liveDataAlert": "Les opérations effectuées dans le playground de l'API affectent vos données réelles.",
+    "markdownCopied": "Page copiée dans le presse-papiers.",
+    "mcpCommandCopied": "Commande MCP copiée dans le presse-papiers.",
+    "mcpConfigCopied": "Configuration MCP copiée dans le presse-papiers.",
+    "mcpSectionLabel": "MCP",
+    "open": "Ouvrir",
+    "openInChatGPT": "Ouvrir dans ChatGPT",
+    "openInClaude": "Ouvrir dans Claude",
+    "status": {
+      "available": "Disponible",
+      "partial": "Partiellement disponible",
+      "unavailable": "Indisponible"
+    },
+    "viewAsMarkdown": "Afficher en Markdown"
+  },
+  "DocsSidebar": {
+    "apiKeys": "Clés API",
+    "appCompany": "Entreprise",
+    "appDashboard": "Tableau de bord",
+    "appGuide": "Guide de l'application",
+    "appInbox": "Boîte de réception",
+    "appProfile": "Profil",
+    "appRecords": "Enregistrements",
+    "architectureSecurity": "Architecture et sécurité",
+    "concepts": "Concepts clés",
+    "connectCli": "CLI et éditeurs",
+    "connectConnector": "Connecteur personnalisé",
+    "connectYourAi": "Connecter votre IA",
+    "filterSyntax": "Syntaxe des filtres",
+    "getStarted": "Démarrer",
+    "gettingStarted": "Premiers pas",
+    "goBack": "Retour",
+    "integrations": "Intégrations",
+    "introduction": "Introduction",
+    "mcp": "MCP",
+    "messagingRateLimits": "Limites de débit",
+    "n8n": "N8N",
+    "openapi": "OpenAPI 3.1.0",
+    "quickstart": "Démarrage rapide",
+    "selfHosting": "Auto-hébergement",
+    "webhooks": "Webhooks"
+  },
+  "Editor": {
+    "blockQuote": "Citation",
+    "bold": "Gras",
+    "bulletList": "Liste à puces",
+    "code": "Code",
+    "confirm": "Appliquer le lien",
+    "divider": "Séparateur",
+    "heading1": "Titre 1",
+    "heading2": "Titre 2",
+    "image": "Image",
+    "imageUrlPrompt": "Saisissez l'URL de l'image",
+    "italic": "Italique",
+    "link": "Lien",
+    "noResults": "Aucun résultat",
+    "normalText": "Texte normal",
+    "numberedList": "Liste numérotée",
+    "placeholder": "Tapez '/' pour les commandes...",
+    "removeLink": "Supprimer le lien",
+    "strikethrough": "Barré",
+    "table": "Tableau",
+    "tableAddColumn": "Ajouter une colonne",
+    "tableAddRow": "Ajouter une ligne",
+    "tableDelete": "Supprimer le tableau",
+    "tableDeleteColumn": "Supprimer la colonne",
+    "tableDeleteRow": "Supprimer la ligne",
+    "taskList": "Liste de tâches",
+    "underline": "Souligné",
+    "urlPlaceholder": "Saisissez une URL..."
+  },
+  "EmailLayout": {
+    "tagline": "Le CRM agentique open source"
+  },
+  "EmailVerification": {
+    "notVerified": "Adresse e-mail non vérifiée",
+    "resend": "Renvoyer l'e-mail de vérification",
+    "resendSuccess": "E-mail de vérification envoyé.",
+    "verified": "Adresse e-mail vérifiée"
+  },
+  "EntityChannels": {
+    "addChannel": {
+      "addAs": "Ajouter \"{value}\" comme {provider}",
+      "addAsLabel": "Ajouter comme",
+      "noResults": "Aucune correspondance.",
+      "searching": "Recherche…",
+      "searchPlaceholder": "Rechercher ou coller un e-mail, un téléphone ou un identifiant…",
+      "sourceContacts": "Contact existant",
+      "sourceConversations": "Depuis vos conversations",
+      "sourceLookup": "Trouvé par recherche",
+      "trigger": "Ajouter un canal"
+    },
+    "ariaCopy": "Copier",
+    "ariaStartThread": "Rédiger un message {provider}",
+    "ariaUnlink": "Dissocier le canal {provider}",
+    "compose": {
+      "noAccount": "Aucun compte {provider} utilisable n'est connecté. Connectez-en un dans Mon profil."
+    },
+    "emptyHint": "Aucun canal pour l'instant. Ajoutez un e-mail, LinkedIn, WhatsApp, …",
+    "heading": "Canaux",
+    "tooltipOpenInbox": "Aller à la boîte de réception",
+    "tooltipStartNewThread": "Nouveau message",
+    "tooltipUnlinkChannel": "Dissocier le canal",
+    "tooltipUnverified": "Ce profil n'a pas encore été confirmé. Il est vérifié automatiquement lors de l'envoi de votre premier message.",
+    "unverified": "Non vérifié"
+  },
+  "EntityTerminology": {
+    "presets": {
+      "contact": {
+        "client": {
+          "plural": "Clients",
+          "singular": "Client"
+        },
+        "contact": {
+          "plural": "Contacts",
+          "singular": "Contact"
+        },
+        "lead": {
+          "plural": "Prospects",
+          "singular": "Prospect"
+        },
+        "person": {
+          "plural": "Personnes",
+          "singular": "Personne"
+        }
+      },
+      "deal": {
+        "deal": {
+          "plural": "Affaires",
+          "singular": "Affaire"
+        },
+        "job": {
+          "plural": "Missions",
+          "singular": "Mission"
+        },
+        "opportunity": {
+          "plural": "Opportunités",
+          "singular": "Opportunité"
+        },
+        "project": {
+          "plural": "Projets",
+          "singular": "Projet"
+        }
+      },
+      "organization": {
+        "account": {
+          "plural": "Comptes",
+          "singular": "Compte"
+        },
+        "company": {
+          "plural": "Entreprises",
+          "singular": "Entreprise"
+        },
+        "organization": {
+          "plural": "Organisations",
+          "singular": "Organisation"
+        }
+      },
+      "service": {
+        "offering": {
+          "plural": "Offres",
+          "singular": "Offre"
+        },
+        "package": {
+          "plural": "Forfaits",
+          "singular": "Forfait"
+        },
+        "product": {
+          "plural": "Produits",
+          "singular": "Produit"
+        },
+        "service": {
+          "plural": "Services",
+          "singular": "Service"
+        }
+      },
+      "task": {
+        "actionItem": {
+          "plural": "Actions",
+          "singular": "Action"
+        },
+        "followUp": {
+          "plural": "Relances",
+          "singular": "Relance"
+        },
+        "task": {
+          "plural": "Tâches",
+          "singular": "Tâche"
+        },
+        "todo": {
+          "plural": "À faire",
+          "singular": "Élément à faire"
+        }
+      }
+    },
+    "relationships": {
+      "contactDealSummary": "Les éléments « {contacts} » participent aux éléments « {deals} ».",
+      "contactOrganizationSummary": "Les éléments « {contacts} » travaillent dans les éléments « {organizations} ».",
+      "dataModelLabel": "Votre modèle de données : choisissez les noms utilisés par votre équipe ; les relations restent inchangées.",
+      "dealServiceSummary": "Les éléments « {deals} » comprennent des éléments « {services} ».",
+      "howRecordsConnect": "Comment les enregistrements sont reliés",
+      "include": "comprennent",
+      "involvedIn": "participent à",
+      "linkedTo": "sont liés à",
+      "organizationDealSummary": "Les éléments « {organizations} » sont liés aux éléments « {deals} ».",
+      "selectLabel": "Nom pour {entity}",
+      "taskScope": "Les éléments « {tasks} » peuvent être liés à n’importe quel enregistrement de ce modèle.",
+      "workAt": "travaillent dans"
+    }
+  },
+  "EntityTimeline": {
+    "loadOlder": "Charger les plus anciens",
+    "types": {
+      "activities": "Activités",
+      "changes": "Modifications",
+      "messages": "Messages"
+    }
+  },
+  "ErrorCard": {
+    "contactSupport": "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d'aide immédiatement, n'hésitez pas à contacter notre assistance.",
+    "ctaLabel": "Retour à l'accueil",
+    "demoModeError": "L'enregistrement, la suppression et la modification de données ne sont pas disponibles en mode démo. <link>Commencez gratuitement</link> pour accéder à toutes les fonctionnalités.",
+    "inactiveUser": "Votre compte est actuellement inactif. Contactez votre administrateur pour le réactiver.",
+    "invalidInviteLink": "Le lien d'invitation utilisé n'est pas valide ou a peut-être été modifié. Contactez votre administrateur pour obtenir un nouveau lien valide et poursuivre votre inscription.",
+    "inviteLinkExpired": "Le lien d'invitation que vous avez utilisé a expiré et ne peut plus servir. Contactez votre administrateur pour qu'il vous génère un nouveau lien et terminez la configuration de votre compte.",
+    "retry": "Réessayer",
+    "subtitle": "Oups ! Une erreur est survenue",
+    "title": "Voilà qui est gênant",
+    "unexpectedError": "Une erreur inattendue est survenue. Pas d'inquiétude, nous avons été prévenus et nous nous en occupons."
+  },
+  "ErrorTestPage": {
+    "clientSideErrors": {
+      "description": "Exceptions non interceptées dans le code du navigateur. La superposition d'erreur Next.js les capte en développement ; en production elles remontent à Sentry via le gestionnaire global du SDK navigateur et l'UnexpectedErrorToaster.",
+      "title": "Côté client",
+      "triggerClientError": "Déclencher une erreur client non interceptée"
+    },
+    "serverSideError": {
+      "description": "Exception dans une action serveur, interceptée par onRequestError d'instrumentation.ts, puis remontée à Sentry.",
+      "title": "Action serveur",
+      "triggerServerError": "Déclencher une erreur d'action serveur"
+    },
+    "subtitle": "On casse tout exprès, pour la science !",
+    "title": "Test des erreurs",
+    "workflowError": {
+      "description": "Lance un workflow en arrière-plan qui échoue dans une étape. Le catch du workflow appelle reportFailure, qui remonte à Sentry. En développement, l'erreur est écrite dans la console serveur plutôt que dans Sentry.",
+      "dispatched": "Workflow lancé. Son échec est remonté à Sentry (ou dans la console serveur en développement).",
+      "title": "Workflow (tâche en arrière-plan)",
+      "triggerWorkflowError": "Lancer un workflow en échec"
+    }
+  },
+  "FAQSection": {
+    "contactCta": "Nous contacter →",
+    "contactIntro": "Vous ne trouvez pas ce que vous cherchez ?",
+    "label": "FAQ"
+  },
+  "feedback": {
+    "general": {
+      "description": "Vos retours nous aident à progresser. Partagez vos idées, signalez des problèmes ou dites-nous ce qui fonctionne bien pour que nous construisions un meilleur produit",
+      "title": "Partagez votre avis"
+    },
+    "success": "Retour bien reçu. Vous faites officiellement partie de l'équipe."
+  },
+  "Footer": {
+    "blogViewAll": "Voir tous les articles",
+    "compare": "Comparatifs",
+    "compareViewAll": "Voir tous les comparatifs",
+    "copyrightText": "© {year} Customermates. Tous droits réservés.",
+    "dpa": "DPA",
+    "featuredOn": "Présent sur",
+    "featuredOnPlatform": "Présent sur {platform}",
+    "features": "Fonctionnalités",
+    "featuresViewAll": "Voir toutes les fonctionnalités",
+    "helpAndFeedback": "Aide",
+    "imprint": "Mentions légales",
+    "legal": "Informations légales",
+    "privacy": "Confidentialité",
+    "product": "Produit",
+    "resources": "Ressources",
+    "reviewsOnPlatform": "Avis sur Customermates publiés sur {platform}",
+    "solutions": "Solutions",
+    "solutionsViewAll": "Voir tous les secteurs",
+    "subprocessors": "Sous-traitants",
+    "terms": "Conditions"
+  },
+  "ForgotPasswordForm": {
+    "backToSignIn": "Vous vous souvenez de votre mot de passe ? <backToSignInLink>Connectez-vous</backToSignInLink>",
+    "resetLinkInvalid": "Le lien de réinitialisation a expiré. Demandez-en un nouveau.",
+    "resetLinkSent": "Lien de réinitialisation envoyé par e-mail.",
+    "sendCta": "Envoyer le lien de réinitialisation",
+    "title": "Mot de passe oublié"
+  },
+  "GlobalSearch": {
+    "clearRecent": "Effacer",
+    "emptyPrompt": "Commencez à saisir pour rechercher dans : {contacts}, {organizations}, {deals} et {services}.",
+    "groupRecent": "Ouverts récemment",
+    "hintNavigate": "Naviguer",
+    "hintOpen": "Ouvrir",
+    "loading": "Recherche...",
+    "noResults": "Aucun résultat",
+    "placeholder": "Rechercher...",
+    "staleItem": "Cet élément n'existe plus et a été retiré de vos éléments récents."
+  },
+  "HomepageHowItWorks": {
+    "loopCaption": "▶ silencieux · en boucle · 10 s",
+    "tailCaption": "un extrait · votre IA"
+  },
+  "HomepagePricing": {
+    "cloud": {
+      "badge": "Populaire",
+      "compareText": "Comparer les formules",
+      "ctaText": "Commencer gratuitement",
+      "featureBusiness": "Business : 3 comptes par utilisateur, comptes partagés et assistance prioritaire",
+      "featurePro": "Pro : boîte de réception unifiée, 1 compte connecté par utilisateur",
+      "featureStarter": "Starter : le CRM complet",
+      "period": "/ utilisateur / mois",
+      "price": "à partir de 12 €",
+      "tag": "Géré pour vous, base de données en région UE. Commencez gratuitement, sans carte bancaire.",
+      "title": "Cloud"
+    },
+    "compare": {
+      "cancelAnytime": "Résiliable à tout moment",
+      "gdpr": "Conforme au RGPD",
+      "noLimits": "Formules transparentes",
+      "openSource": "Open core"
+    },
+    "eyebrow": "Tarifs",
+    "selfHosted": {
+      "ctaText": "Télécharger",
+      "featureApi": "API, MCP et webhooks complets",
+      "featureCommunity": "Assistance communautaire",
+      "featureN8n": "Intégrations n8n",
+      "featureRecords": "Enregistrements illimités",
+      "featureUsers": "Utilisateurs illimités",
+      "period": "pour toujours",
+      "price": "Gratuit",
+      "tag": "À exécuter sur votre serveur avec Docker Compose. Édition communautaire AGPL avec des composants à code source disponible.",
+      "title": "Auto-hébergé"
+    },
+    "subtitle": "Des formules transparentes, sans coûts cachés. Auto-hébergez gratuitement pour toujours, ou démarrez sur le Cloud sans carte bancaire.",
+    "title": "Simple, honnête, européen"
+  },
+  "HomepageStatsRow": {
+    "taglineMcp": "MCP",
+    "taglinePost": ", il fonctionne donc avec le modèle que vous payez déjà",
+    "taglinePre": "Apportez votre propre IA. Customermates parle"
+  },
+  "Inbox": {
+    "attachmentCount": "{count, plural, one {# pièce jointe :} other {# pièces jointes :}}",
+    "attachmentFile": "Fichier",
+    "attachmentImage": "Image",
+    "attachmentLinkedinPost": "Publication LinkedIn",
+    "attachmentSticker": "Autocollant",
+    "attachmentUnavailable": "Pièce jointe indisponible",
+    "attachmentUnknown": "Non pris en charge",
+    "attachmentUnsupported": "Ce type de message n'est pas pris en charge ici. Ouvrez-le dans l'application native.",
+    "compose": {
+      "attachFiles": "Joindre des fichiers",
+      "attachRemove": "Supprimer la pièce jointe",
+      "attachTooLarge": "Les pièces jointes dépassent la limite de {max}",
+      "bccLabel": "Cci",
+      "ccBccToggle": "Cc/Cci",
+      "ccLabel": "Cc",
+      "createContact": "Créer \"{query}\"",
+      "draftDiscard": "Abandonner",
+      "draftDiscardFailed": "Impossible d'abandonner le brouillon",
+      "draftEdit": "Modifier",
+      "draftSendNow": "Envoyer le brouillon",
+      "emailContent": "Contenu de l'e-mail",
+      "emojiPicker": "Insérer un émoji",
+      "from": "De",
+      "inmailSignaturePlaceholder": "Signature",
+      "inmailSubjectPlaceholder": "Objet de l'InMail",
+      "loadRemoteImages": "Charger les images distantes",
+      "moreSendOptions": "Plus d'options d'envoi",
+      "newThreadSent": "Message envoyé. La conversation apparaîtra sous peu.",
+      "noContacts": "Aucun contact.",
+      "retry": "Réessayer",
+      "saveDraft": "Enregistrer comme brouillon",
+      "send": "Envoyer",
+      "sendAs": "Envoyer en tant que",
+      "subjectPlaceholder": "Objet",
+      "toLabel": "À",
+      "typeMessage": "Écrivez un message...",
+      "unnamed": "Sans nom",
+      "updateDraft": "Mettre à jour le brouillon",
+      "writeReply": "Écrivez une réponse..."
+    },
+    "dateToday": "Aujourd'hui",
+    "dateYesterday": "Hier",
+    "edited": "(modifié)",
+    "emptyState": "Aucun message pour l'instant. Connectez un canal dans votre profil pour commencer à recevoir des messages.",
+    "fileTypeExcel": "Feuille de calcul Excel",
+    "fileTypeImage": "Fichier image",
+    "fileTypePdf": "Document PDF",
+    "fileTypePowerpoint": "Présentation PowerPoint",
+    "fileTypeWord": "Document Word",
+    "groupThread": "Groupe ({count, plural, one {# membre} other {# membres}})",
+    "hideQuotedText": "Masquer le texte cité",
+    "learnMore": "En savoir plus",
+    "linkedinContact": "Contact LinkedIn",
+    "loadMedia": "Charger le média",
+    "mediaUnavailable": "Média indisponible",
+    "messageDeleted": "Ce message a été supprimé",
+    "participants": {
+      "link": "Lier",
+      "linkUpdateFailed": "Impossible de mettre à jour le lien vers le contact",
+      "openContact": "Ouvrir le contact",
+      "unlink": "Dissocier le contact"
+    },
+    "previewAudio": "🎵 Audio",
+    "previewFile": "📄 Pièce jointe",
+    "previewGif": "🎞️ GIF",
+    "previewPhoto": "📷 Photo",
+    "previewPost": "🔗 A partagé une publication",
+    "previewSticker": "Autocollant",
+    "previewUnsupported": "💬 Message non pris en charge",
+    "previewVideo": "🎥 Vidéo",
+    "previewVoice": "🎙️ Message vocal",
+    "rateLimited": "Ce canal a atteint sa limite de débit. Vous pouvez réessayer {retryAfter}.",
+    "refresh": "Actualiser",
+    "refreshDone": "Boîte de réception actualisée.",
+    "refreshRateLimited": "Certains canaux ont atteint leur limite de débit. Réessayez dans quelques minutes.",
+    "resyncThread": "Resynchroniser la conversation",
+    "resyncThreadDone": "Conversation actualisée",
+    "resyncThreadFailed": "Impossible d'actualiser la conversation",
+    "selectThread": "Sélectionnez une conversation dans la boîte de réception",
+    "senderUnknown": "Inconnu",
+    "senderUnknownSender": "Expéditeur inconnu",
+    "senderYou": "Vous",
+    "settings": {
+      "people": "Personnes",
+      "title": "Paramètres de la conversation",
+      "tooltip": "Gérer la visibilité et les personnes",
+      "visibilityHint": "Les conversations privées ne sont visibles que par vous. Le partage vers le CRM rend uniquement cette conversation visible par toute votre équipe.",
+      "visibilityTitle": "Paramètres de visibilité"
+    },
+    "shareToCrmActive": "Partagée vers le CRM, visible par toute votre équipe",
+    "shareToCrmPrivate": "Conversation privée",
+    "shareToCrmPrivateToast": "La conversation est désormais privée",
+    "shareToCrmShared": "Conversation partagée",
+    "shareToCrmSharedToast": "Partagée vers le CRM",
+    "shareToCrmUpdateFailed": "Impossible de mettre à jour la visibilité",
+    "shareToCrmViaAccount": "Ce compte est partagé avec votre équipe, toutes ses conversations sont donc visibles",
+    "showQuotedText": "Afficher le texte cité",
+    "statusReceived": "Reçu",
+    "statusSent": "Envoyé",
+    "systemEvent": "Évènement système",
+    "threadStates": {
+      "closed": "Fermée",
+      "open": "Ouverte",
+      "spam": "Spam",
+      "unread": "Non lue"
+    },
+    "unlinkedParticipants": "Certains participants ne sont pas liés à un contact",
+    "voice": {
+      "pause": "Mettre en pause",
+      "play": "Lire",
+      "seek": "Modifier la position de lecture"
+    },
+    "youPrefix": "Vous :"
+  },
+  "LegalDocumentNotice": {
+    "contractBody": "Nous avons mis à jour les documents juridiques indiqués ci-dessous. Veuillez les examiner pour le client professionnel et faire procéder à leur acceptation électronique par un administrateur système habilité.",
+    "contractDeadlineLabel": "Date limite d’opposition et d’acceptation",
+    "contractObjection": "Veuillez envoyer toute opposition avant la date limite indiquée en répondant à cet e-mail. Le silence ou l’inactivité ne vaut pas acceptation. Si les documents contractuels mis à jour ne sont pas acceptés avant la date limite, l’accès à l’interface utilisateur du service géré peut être restreint jusqu’à leur acceptation par un administrateur habilité.",
+    "contractSubject": "Action requise : documents juridiques de Customermates mis à jour",
+    "contractTitle": "Documents juridiques mis à jour",
+    "documents": {
+      "dpa": "Accord de traitement des données",
+      "privacy": "Politique de confidentialité",
+      "subprocessors": "Sous-traitants",
+      "terms": "Conditions générales"
+    },
+    "greeting": "Bonjour {firstName},",
+    "informationBody": "Nous avons mis à jour les informations juridiques indiquées ci-dessous. Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
+    "informationSubject": "Informations juridiques de Customermates mises à jour",
+    "informationTitle": "Informations juridiques mises à jour",
+    "liveLabel": "Document en vigueur",
+    "signoff": "Cordialement,\nBen",
+    "subprocessorDeadlineLabel": "Date limite d’opposition au sous-traitant",
+    "subprocessorObjection": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et avant la date limite mentionnée, en exposant des motifs raisonnables liés à la protection des données.",
+    "subprocessorObjectionWithDeadline": "Aucune acceptation n’est requise. Si vous vous opposez au changement de sous-traitant indiqué, répondez sans délai indu et au plus tard le {deadline}, en exposant des motifs raisonnables liés à la protection des données. Cette échéance fournisseur est distincte de la date limite relative aux conditions générales et au DPA indiquée ci-dessus."
+  },
+  "LegalUpdateAlert": {
+    "adminDescription": "Acceptez au plus tard le {date}.",
+    "contractReview": "Examiner les conditions générales et le DPA",
+    "contractTitle": "Documents juridiques mis à jour",
+    "memberDescription": "Un administrateur de l’entreprise doit accepter au plus tard le {date}."
+  },
+  "LegalUpdateView": {
+    "accept": "Accepter et continuer",
+    "acceptance": "Je suis habilité à agir pour le client professionnel et j’accepte les conditions générales et le DPA en vigueur.",
+    "and": "et",
+    "description": "Examinez les documents en vigueur :",
+    "dpa": "DPA",
+    "memberWaiting": "Un administrateur de l’entreprise doit accepter les conditions générales et le DPA mis à jour. Vous pourrez réessayer après leur acceptation ou vous déconnecter.",
+    "privacy": "Politique de confidentialité",
+    "retry": "Réessayer",
+    "signOut": "Se déconnecter",
+    "subprocessors": "Sous-traitants",
+    "subtitle": "Un administrateur habilité de l’entreprise doit accepter au plus tard le {date}.",
+    "terms": "Conditions générales",
+    "title": "Documents juridiques mis à jour"
+  },
+  "Loading": {
+    "text": "Chargement..."
+  },
+  "MassActions": {
+    "delete": "Supprimer la sélection",
+    "noMatchingFields": "Aucun champ ne correspond à votre recherche.",
+    "searchFieldPlaceholder": "Rechercher des champs…",
+    "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}",
+    "update": "Mettre à jour"
+  },
+  "McpConsentCard": {
+    "approve": "Approuver",
+    "body": "{client} demande l'accès à votre compte Customermates. N'approuvez que si vous êtes à l'origine de cette connexion.",
+    "deny": "Refuser",
+    "destination": "Destination de la connexion : {host}",
+    "error": "Une erreur est survenue. Réessayez ou relancez la connexion depuis votre client.",
+    "scopes": {
+      "email": "Lire votre adresse e-mail",
+      "offlineAccess": "Rester connecté en votre absence",
+      "openid": "Confirmer votre identité",
+      "profile": "Lire votre profil de base"
+    },
+    "subtitle": "{client} souhaite se connecter à votre compte.",
+    "title": "Autoriser l'accès"
+  },
+  "MessagingUpsell": {
+    "cta": "Passer à une formule supérieure",
+    "description": "La messagerie est disponible à partir de la formule Pro. Passez à une formule supérieure pour connecter un canal et utiliser la boîte de réception unifiée.",
+    "title": "Passez à une formule supérieure pour débloquer la messagerie"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Workflow d’automatisation du CRM Customermates avec intégration n8n"
+  },
+  "NavigationBar": {
+    "addEntity": "Ajouter {entity}",
+    "addPickerDescription": "Choisissez le type d'enregistrement à créer.",
+    "addPickerTitle": "Créer…",
+    "affiliate": "Programme d'affiliation",
+    "automation": "Automatisation",
+    "connectedAccounts": "Canaux",
+    "crm": "CRM",
+    "dashboard": "Tableau de bord",
+    "docs": "Documentation",
+    "features": "Fonctionnalités",
+    "inbox": "Boîte de réception",
+    "members": "Membres",
+    "overview": "Aperçu",
+    "pricing": "Tarifs",
+    "search": "Rechercher",
+    "settings": "Paramètres",
+    "subscription": "Abonnement",
+    "workspace": "Espace de travail"
+  },
+  "NotFoundPage": {
+    "body": "Nous avons été automatiquement informés que cette page est partie en vacances. Nous allons la retrouver et la ramener bientôt.",
+    "ctaLabel": "Retour à l'accueil",
+    "subtitle": "Cette page est partie en vacances sans nous prévenir",
+    "title": "Oups ! Vous êtes entré dans le vide"
+  },
+  "OnboardingForm": {
+    "agreeToTerms": "Je suis habilité à agir pour le client professionnel et j’accepte les <termsOfServiceLink>conditions générales</termsOfServiceLink> et le <dpaLink>DPA</dpaLink>. J’ai lu la <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+    "invitedAgreeToTerms": "J’accepte de respecter les <termsOfServiceLink>conditions générales</termsOfServiceLink> et j’ai lu le <dpaLink>DPA</dpaLink> ainsi que la <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>."
+  },
+  "OnboardingWizard": {
+    "ai": {
+      "choices": {
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
+        "claudeCode": "Claude Code",
+        "claudeDesktop": "Claude Desktop",
+        "codex": "Codex",
+        "cursor": "Cursor",
+        "gemini": "Gemini",
+        "skip": "Passer pour l'instant"
+      },
+      "connector": {
+        "chatgptDescription": "Utilisez l’URL ci-dessous comme connecteur MCP personnalisé et choisissez l’authentification OAuth.",
+        "chatgptSteps": "Dans ChatGPT : Paramètres → Connecteurs → Ajouter un connecteur → Connecteur personnalisé (MCP). Collez l’URL, choisissez OAuth, enregistrez, puis connectez-vous à Customermates et autorisez l’accès.",
+        "chatgptTitle": "Ajouter le connecteur Customermates",
+        "claudeButton": "Ajouter à Claude",
+        "claudeDescription": "Ouvrez la boîte de dialogue préremplie de Claude pour les connecteurs personnalisés, puis connectez-vous à Customermates et autorisez l’accès.",
+        "claudeTitle": "Connecter votre compte Claude",
+        "externalNote": "Cette configuration s’effectue dans un nouvel onglet ou dans votre IA. Customermates ne vérifie pas automatiquement la connexion externe. <guide>Lire le guide de configuration complet</guide>.",
+        "paidPlan": "Les connecteurs personnalisés nécessitent une formule Claude ou ChatGPT payante.",
+        "urlLabel": "URL du serveur MCP"
+      },
+      "createKey": "Créer une clé API",
+      "createKeyIntro": "Générez une clé API pour cet agent. La clé n'est affichée qu'une fois et est intégrée à l'extrait d'installation ci-dessous.",
+      "errors": {
+        "createFailed": "Impossible de créer la clé API. Veuillez réessayer."
+      },
+      "install": {
+        "instruction": {
+          "claudeCode": "Exécutez ceci dans un terminal :",
+          "claudeDesktop": "Ouvrez Claude → Paramètres → Développeur → Modifier la configuration, fusionnez ceci, puis quittez et rouvrez Claude Desktop :",
+          "codex": "Ajoutez ceci à ~/.codex/config.toml :",
+          "cursor": "Dans Cursor, ouvrez Paramètres → Outils et MCP → Ajouter un serveur MCP, puis collez :",
+          "gemini": "Ajoutez ceci à ~/.gemini/settings.json (fusionnez dans mcpServers si la section existe déjà) :"
+        },
+        "keyNote": "Copiez cette configuration maintenant. La clé API n’est affichée qu’une seule fois et pourra être révoquée ultérieurement depuis votre profil. <guide>Lire le guide de configuration complet</guide>.",
+        "label": "Connecter Customermates à {tool}"
+      },
+      "local": {
+        "ariaLabel": "Application Claude locale",
+        "description": "Nous créerons une clé et afficherons uniquement l’extrait de configuration dont vous avez besoin.",
+        "title": "Choisissez votre application Claude locale"
+      },
+      "methods": {
+        "account": {
+          "description": "Pour Claude sur le Web, sur ordinateur et sur mobile. Connectez-vous une seule fois ; aucune clé API ni aucun fichier de configuration n’est nécessaire.",
+          "meta": "Connecteur personnalisé · OAuth",
+          "note": "Nécessite une formule Claude avec des connecteurs personnalisés.",
+          "recommended": "Recommandé",
+          "title": "Compte Claude"
+        },
+        "ariaLabel": "Méthodes de connexion à Claude",
+        "local": {
+          "description": "Créez une clé API et ajoutez un extrait de configuration locale.",
+          "meta": "Configuration locale · Clé API",
+          "note": "Idéal pour Claude Code ou Claude Desktop sans connecteurs personnalisés.",
+          "title": "Claude Code ou Desktop"
+        }
+      },
+      "providers": {
+        "ariaLabel": "Clients d’IA"
+      },
+      "screen": {
+        "back": "Tous les clients d’IA",
+        "claude": {
+          "subtitle": "Les deux options utilisent MCP et les mêmes outils Customermates. Choisissez la configuration correspondant à votre façon d’utiliser Claude.",
+          "title": "Comment utilisez-vous Claude ?"
+        },
+        "setup": {
+          "apiKeySubtitle": "Créez une clé API, puis suivez la configuration prévue pour {provider}.",
+          "connectorSubtitle": "Ajoutez Customermates comme connecteur personnalisé. Aucune clé API ni aucun fichier de configuration n’est nécessaire.",
+          "title": "Connecter {provider}"
+        },
+        "skip": {
+          "subtitle": "Vous pouvez terminer l’intégration maintenant et connecter une IA depuis votre profil lorsque vous serez prêt.",
+          "title": "Configurer une IA plus tard"
+        }
+      }
+    },
+    "back": "Retour",
+    "continue": "Continuer",
+    "finish": "Terminer",
+    "invite": {
+      "emailCount": "{current} sur {max} adresses · séparez-les par une virgule ou appuyez sur Entrée",
+      "emailPlaceholder": "collegue@example.com",
+      "linkDescription": "Toute personne disposant de ce lien peut rejoindre votre équipe. Le lien est valable pendant 7 jours.",
+      "linkFailed": "Impossible de créer le lien d'invitation.",
+      "loadingLink": "Génération du lien…",
+      "send": "Envoyer les invitations",
+      "sentSuccess": "{count, plural, one {# invitation envoyée.} other {# invitations envoyées.}}",
+      "tabs": {
+        "email": "Envoyer des e-mails",
+        "link": "Partager un lien"
+      }
+    },
+    "next": "Suivant",
+    "progress": "Étape {current} sur {total}",
+    "steps": {
+      "ai": {
+        "subtitle": "Choisissez l’IA à connecter maintenant. Vous pourrez en ajouter d’autres plus tard.",
+        "title": "Connecter votre IA"
+      },
+      "invite": {
+        "subtitle": "Partagez un lien ou envoyez des invitations par e-mail.",
+        "title": "Invitez votre équipe"
+      },
+      "profile": {
+        "subtitle": "Dites-nous qui vous êtes pour que nous configurions votre espace de travail.",
+        "title": "Votre profil"
+      }
+    }
+  },
+  "OrganizationModal": {
+    "title": "Organisation"
+  },
+  "PendingCard": {
+    "body": "Vous pourrez vous connecter dès que votre compte aura été approuvé par l'administrateur de votre entreprise.",
+    "subtitle": "Votre compte est en cours d'examen par l'administrateur de votre entreprise",
+    "title": "En attente d'approbation"
+  },
+  "ProfileSections": {
+    "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
+  },
+  "ResetPassword": {
+    "cta": "Réinitialiser le mot de passe",
+    "fallback": "Si le bouton ci-dessus ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "intro": "Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.",
+    "securityNotice": "Si vous n'avez pas demandé de réinitialisation de mot de passe, vous pouvez ignorer et supprimer ce message.",
+    "subject": "Réinitialisez votre mot de passe"
+  },
+  "ResetPasswordForm": {
+    "backToSignIn": "Vous vous souvenez de votre mot de passe ? <backToSignInLink>Connectez-vous</backToSignInLink>",
+    "resetPasswordCta": "Réinitialiser",
+    "title": "Réinitialisez votre mot de passe"
+  },
+  "RoleModal": {
+    "manageAccess": "Gérer",
+    "no": "Non",
+    "readAccess": "Accès en lecture",
+    "readAll": "Tous",
+    "readNone": "Aucun",
+    "readOwn": "Assignés",
+    "resourceHeader": "Ressource",
+    "resources": {
+      "api": "API et webhooks",
+      "auditLog": "Journal d'audit",
+      "company": "Entreprise",
+      "contacts": "Contacts",
+      "deals": "Affaires",
+      "inboxMessages": "Messages de la boîte de réception",
+      "organizations": "Organisations",
+      "services": "Services",
+      "tasks": "Tâches",
+      "users": "Utilisateurs et rôles"
+    },
+    "systemAlert": "Il s'agit d'un rôle système qui ne peut être ni modifié ni supprimé.",
+    "systemDescription": "Accès complet à toutes les fonctionnalités et à tous les paramètres. Ne peut être ni modifié ni supprimé.",
+    "systemName": "Administrateur",
+    "title": "Rôle",
+    "yes": "Oui"
+  },
+  "RolesCard": {
+    "custom": "Personnalisé",
+    "system": "Système",
+    "title": "Rôles"
+  },
+  "ServiceModal": {
+    "title": "Service"
+  },
+  "SignInForm": {
+    "agreeToTerms": "Consultez nos <termsOfServiceLink>conditions générales</termsOfServiceLink>, notre <dpaLink>DPA</dpaLink> et notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+    "buttonLabel": "Continuer avec {provider}",
+    "forgotPassword": "Mot de passe oublié ?",
+    "or": "OU",
+    "rememberMe": "Se souvenir de moi",
+    "signInCta": "Se connecter",
+    "signInTitle": "Connectez-vous à votre compte",
+    "switchToSignUp": "Vous n'avez pas de compte ? <registerLink>Inscrivez-vous</registerLink>"
+  },
+  "SignUpForm": {
+    "acceptInviteCta": "Accepter l'invitation",
+    "agreeToTerms": "Consultez nos <termsOfServiceLink>conditions générales</termsOfServiceLink>, notre <dpaLink>DPA</dpaLink> et notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
+    "buttonLabel": "S'inscrire avec {provider}",
+    "inviteSubtitle": "Vous avez été invité à rejoindre une équipe sur Customermates. Choisissez votre méthode de connexion pour accepter l'invitation.",
+    "inviteTitle": "Accepter l'invitation de l'entreprise",
+    "newCompanySubtitle": "Enregistrez une nouvelle entreprise et testez Customermates gratuitement pendant 7 jours. Sans carte bancaire.",
+    "or": "OU",
+    "signUpCta": "Créer un compte",
+    "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
+    "title": "Créer un compte Customermates"
+  },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "Toutes les fonctionnalités",
+      "blog": "Blog",
+      "compare": "Comparatifs",
+      "features": "Fonctionnalités",
+      "home": "Accueil",
+      "industries": "Secteurs"
+    }
+  },
+  "Subscription": {
+    "currentPeriodEnd": "Fin de la période en cours",
+    "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
+    "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
+    "picker": {
+      "features": {
+        "business": [
+          "Tout ce qui est inclus dans Pro",
+          "3 comptes connectés par utilisateur",
+          "Comptes partagés et assistance prioritaire"
+        ],
+        "pro": [
+          "Tout ce qui est inclus dans Starter",
+          "Boîte de réception unifiée",
+          "1 compte connecté par utilisateur"
+        ],
+        "starter": [
+          "CRM complet : contacts, affaires, organisations, tâches",
+          "Journal d'audit",
+          "Accès complet à l'API",
+          "Accès au serveur MCP"
+        ]
+      },
+      "mostPopular": "Le plus populaire",
+      "perUserMonth": "par utilisateur / mois",
+      "price": {
+        "business": "69 €",
+        "pro": "29 €",
+        "starter": "12 €"
+      }
+    },
+    "plan": "Formule",
+    "planNames": {
+      "business": "Business",
+      "enterprise": "Enterprise",
+      "pro": "Pro",
+      "starter": "Starter"
+    },
+    "planStatusLabel": "{plan} · {status}",
+    "quantity": "Sièges actifs",
+    "refresh": "Actualiser",
+    "refreshSuccess": "Abonnement actualisé",
+    "seatBillingNote": "Vous payez par utilisateur actif. Les changements de sièges sont calculés au prorata sur votre prochaine facture.",
+    "status": {
+      "active": "Actif",
+      "cancelled": "Résilié",
+      "expired": "Expiré",
+      "pastDue": "En retard de paiement",
+      "trial": "Essai",
+      "trialDaysLeft": "Essai · {days, plural, =0 {se termine aujourd'hui} one {# jour restant} other {# jours restants}}",
+      "unPaid": "Impayé"
+    },
+    "trialEnds": "Fin de l'essai"
+  },
+  "SubscriptionExpiredView": {
+    "contactSupportCta": "Contacter l'assistance",
+    "description": "Votre période d'essai est terminée et votre entreprise n'a pas d'abonnement actif. Abonnez-vous pour continuer à utiliser Customermates, ou contactez notre assistance si vous avez des questions.",
+    "subtitle": "Votre essai a expiré",
+    "supportEmailSubject": "Question sur l'abonnement",
+    "title": "Abonnement requis"
+  },
+  "SubscriptionInactivationNotice": {
+    "body": "Votre compte est désormais inactif car votre abonnement est impayé ou expiré depuis plus de 3 jours. Si vous souhaitez continuer, je peux vous aider à rétablir rapidement votre accès.",
+    "cta": "Prendre contact",
+    "dismiss": "Si cet e-mail vous parvient à un mauvais moment, répondez simplement quand vous serez disponible et je vous aiderai pour la suite.",
+    "greeting": "Bonjour {firstName},",
+    "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "signoff": "Cordialement,\nBen",
+    "subject": "Votre compte est inactif, nous pouvons vous aider à rétablir l'accès",
+    "title": "Abonnement désactivé"
+  },
+  "TaskModal": {
+    "title": "Tâche"
+  },
+  "TasksCard": {
+    "systemTaskTooltip": "Élément « {task} » géré par le système. Il ne peut pas être supprimé manuellement ; ouvrez-le pour plus d’informations."
+  },
+  "TrialExpiredOffer": {
+    "body": "Votre essai s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger votre essai et passer en revue votre configuration avec vous.",
+    "cta": "Prendre contact",
+    "greeting": "Bonjour {firstName},",
+    "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "signoff": "Cordialement,\nBen",
+    "subject": "Besoin de plus de temps ? Continuons ensemble",
+    "title": "Offre de prolongation d'essai"
+  },
+  "TrialInactivationNotice": {
+    "body": "Votre compte est désormais inactif car votre essai s'est terminé il y a plus de 6 jours. Si vous souhaitez toujours continuer, je peux vous aider à réactiver rapidement votre compte et vous guider pour la suite.",
+    "cta": "Prendre contact",
+    "dismiss": "Si cet e-mail vous parvient à un mauvais moment, aucun problème. Vous pouvez revenir quand vous voulez et je vous aiderai personnellement.",
+    "greeting": "Bonjour {firstName},",
+    "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "signoff": "Cordialement,\nBen",
+    "subject": "Votre compte est inactif — nous pouvons vous aider à repartir",
+    "title": "Compte désactivé"
+  },
+  "TrialInactivationReminder": {
+    "body": "Votre essai s'est terminé il y a quelques jours et votre compte deviendra inactif dans 3 jours. Si vous le souhaitez, je peux vous aider rapidement à finaliser la configuration et à tout garder actif.",
+    "cta": "Prendre contact",
+    "dismiss": "Si vous n'avez plus besoin de votre compte, aucune action n'est nécessaire.",
+    "greeting": "Bonjour {firstName},",
+    "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "signoff": "Cordialement,\nBen",
+    "subject": "3 jours avant la désactivation de votre compte",
+    "title": "Rappel de désactivation de l'essai"
+  },
+  "TrialWelcome": {
+    "body": "Ravi de vous compter parmi nous. Je suis Ben, fondateur de Customermates, et j'aimerais vous aider à démarrer rapidement et à simplifier vos premières étapes de configuration.",
+    "dismiss": "Si vous avez des questions ou souhaitez une présentation personnalisée, répondez simplement à cet e-mail. Il arrive directement dans ma boîte de réception.",
+    "greeting": "Bonjour {firstName},",
+    "planNote": "Votre essai comprend toutes les fonctionnalités de la formule Pro ; vous pouvez donc tester immédiatement l’expérience de messagerie complète.",
+    "signoff": "Cordialement,\nBen",
+    "subject": "Bienvenue chez Customermates",
+    "title": "Bienvenue dans votre essai"
+  },
+  "UserAvatar": {
+    "company": "Mon entreprise",
+    "darkMode": "Mode sombre",
+    "documentation": "Documentation",
+    "home": "Accueil",
+    "lightMode": "Mode clair",
+    "profile": "Mon profil",
+    "settings": "Paramètres",
+    "signOut": "Se déconnecter"
+  },
+  "UserSettingsForm": {
+    "displayLanguageHint": "Détermine la langue de l'interface : libellés, boutons, etc.",
+    "formattingLocaleHint": "Détermine le format des nombres, des dates et des devises."
+  },
+  "VerifyEmail": {
+    "cta": "Vérifier l'adresse e-mail",
+    "fallback": "Si le bouton ci-dessus ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "intro": "Confirmez votre adresse e-mail pour continuer.",
+    "securityNotice": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer et supprimer ce message.",
+    "subject": "Vérifiez votre adresse e-mail"
+  },
+  "VerifyEmailCard": {
+    "body": "Nous vous avons envoyé un e-mail de vérification. Consultez votre boîte de réception et cliquez sur le lien pour vérifier votre adresse.",
+    "ctaLabel": "Renvoyer l'e-mail de vérification",
+    "resendSuccess": "E-mail de vérification envoyé.",
+    "subtitle": "Vérifiez votre adresse e-mail pour continuer.",
+    "title": "Vérification de l'adresse e-mail"
+  },
+  "WebhookDeliveriesCard": {
+    "emptyBody": "Les tentatives de livraison apparaîtront ici dès qu’un webhook sera déclenché.",
+    "emptyTitle": "Aucune livraison pour le moment",
+    "title": "Livraisons récentes"
+  },
+  "WebhookDeliveryModal": {
+    "createdAt": "Créé le",
+    "deliveryStatus": {
+      "failed": "Échec",
+      "pending": "En attente",
+      "processing": "Envoi en cours",
+      "success": "Livré"
+    },
+    "entity": "Élément",
+    "event": "Évènement",
+    "requestBody": "Corps de la requête",
+    "resend": "Renvoyer",
+    "responseMessage": "Message de réponse",
+    "statusCode": "Code de statut",
+    "title": "Détails de l'évènement",
+    "url": "URL"
+  },
+  "WebhookModal": {
+    "disabled": "Désactivé",
+    "enabled": "Activé",
+    "secretDescription": "Secret facultatif utilisé pour générer une signature HMAC-SHA256 envoyée dans l'en-tête X-Webhook-Signature. Pour la vérifier, hachez le corps de la requête avec ce secret en HMAC-SHA256 et comparez le résultat à la valeur de l'en-tête.",
+    "title": "Webhook",
+    "urlDescription": "L'URL du point de terminaison vers lequel les évènements de webhook sont envoyés par requêtes POST."
+  },
+  "WebhooksCard": {
+    "emptyBody": "Ajoutez un webhook pour envoyer les événements de l’espace de travail à vos systèmes.",
+    "emptyTitle": "Aucun webhook pour le moment",
+    "title": "Webhooks"
+  }
+}

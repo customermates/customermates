@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import type { ContentLocale } from "@/i18n/locale-registry";
+
 import { getDocsPageTool, searchDocsTool } from "../docs.mcp-tools";
 import { GET_STARTED_PROMPT } from "../server-instructions";
 
-function search(args: { query: string; locale?: "en" | "de"; source?: "docs" | "api" | "all" }) {
+function search(args: { query: string; locale?: ContentLocale; source?: "docs" | "api" | "all" }) {
   return searchDocsTool.execute({ locale: "en", source: "docs", ...args });
 }
 
-function getPage(args: { slug: string; locale?: "en" | "de"; source?: "docs" | "api" }) {
+function getPage(args: { slug: string; locale?: ContentLocale; source?: "docs" | "api" }) {
   return getDocsPageTool.execute({ locale: "en", source: "docs", ...args });
 }
 

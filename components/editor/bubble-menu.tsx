@@ -5,6 +5,7 @@ import type { EditorAnchorRect } from "./use-editor-anchor";
 
 import { Bold, Italic, Strikethrough, Code, Heading1, Heading2, Underline } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
@@ -26,48 +27,49 @@ type FormatAction = {
 };
 
 export function BubbleMenu({ editor, anchorRect, onClose }: Props) {
+  const t = useTranslations();
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
 
   const actions: FormatAction[] = [
     {
       icon: Heading1,
-      label: "Heading 1",
+      label: t("Editor.heading1"),
       isActive: () => editor.isActive("heading", { level: 1 }),
       onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
     },
     {
       icon: Heading2,
-      label: "Heading 2",
+      label: t("Editor.heading2"),
       isActive: () => editor.isActive("heading", { level: 2 }),
       onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
     },
     {
       icon: Bold,
-      label: "Bold",
+      label: t("Editor.bold"),
       isActive: () => editor.isActive("bold"),
       onClick: () => editor.chain().focus().toggleBold().run(),
     },
     {
       icon: Italic,
-      label: "Italic",
+      label: t("Editor.italic"),
       isActive: () => editor.isActive("italic"),
       onClick: () => editor.chain().focus().toggleItalic().run(),
     },
     {
       icon: Underline,
-      label: "Underline",
+      label: t("Editor.underline"),
       isActive: () => editor.isActive("underline"),
       onClick: () => editor.chain().focus().toggleUnderline().run(),
     },
     {
       icon: Strikethrough,
-      label: "Strikethrough",
+      label: t("Editor.strikethrough"),
       isActive: () => editor.isActive("strike"),
       onClick: () => editor.chain().focus().toggleStrike().run(),
     },
     {
       icon: Code,
-      label: "Code",
+      label: t("Editor.code"),
       isActive: () => editor.isActive("code"),
       onClick: () => editor.chain().focus().toggleCode().run(),
     },

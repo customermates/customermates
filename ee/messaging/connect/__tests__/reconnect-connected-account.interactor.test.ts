@@ -27,6 +27,7 @@ vi.mock("next/headers", () => ({
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => key),
+  getLocale: () => Promise.resolve("en"),
 }));
 
 import { EntitlementService } from "@/ee/subscription/entitlement.service";

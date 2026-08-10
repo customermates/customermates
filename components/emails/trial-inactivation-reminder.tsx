@@ -1,14 +1,18 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailButton } from "@/components/emails/base/email-button";
 import { EmailLayout } from "@/components/emails/base/email-layout";
+import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
+import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 const CONTACT_HREF = `${env.BASE_URL}/contact`;
 
 type Props = {
+  locale: AppLocale;
+  layoutCopy: EmailLayoutCopy;
   greeting: string;
   body: string;
   cta: string;
@@ -21,6 +25,8 @@ type Props = {
 };
 
 export default function TrialInactivationReminder({
+  locale,
+  layoutCopy,
   greeting,
   body,
   cta,
@@ -34,7 +40,7 @@ export default function TrialInactivationReminder({
   const resolvedHref = href ?? CONTACT_HREF;
 
   return (
-    <EmailLayout preview={subject} title={title}>
+    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>
@@ -60,6 +66,8 @@ const t = enMessages.TrialInactivationReminder;
 const previewFirstName = "Sofia";
 
 TrialInactivationReminder.PreviewProps = {
+  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+  locale: DEFAULT_LOCALE,
   greeting: t.greeting.replace("{firstName}", previewFirstName),
   body: t.body,
   cta: t.cta,

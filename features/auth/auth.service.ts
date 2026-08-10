@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
+import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { auth } from "@/core/auth/better-auth";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
@@ -17,6 +18,8 @@ import { mustVerifyEmail } from "./email-verification-grace";
 import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 type AuthUser = {
   id: string;
@@ -139,11 +142,15 @@ export class AuthService {
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
+    const locale = await getRequestAppLocale();
+    const layoutCopy = await getEmailLayoutCopy(locale);
 
     await this.emailService.send({
       to: args.to,
       subject: t("VerifyEmail.subject"),
       react: React.createElement(VerifyEmail, {
+        locale,
+        layoutCopy,
         url: args.url,
         subject: t("VerifyEmail.subject"),
         intro: t("VerifyEmail.intro"),
@@ -156,11 +163,15 @@ export class AuthService {
 
   async sendResetPasswordEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
+    const locale = await getRequestAppLocale();
+    const layoutCopy = await getEmailLayoutCopy(locale);
 
     await this.emailService.send({
       to: args.to,
       subject: t("ResetPassword.subject"),
       react: React.createElement(ResetPassword, {
+        locale,
+        layoutCopy,
         url: args.url,
         subject: t("ResetPassword.subject"),
         intro: t("ResetPassword.intro"),
@@ -207,6 +218,8 @@ export class AuthService {
       subject: "New User Registration",
       react: React.createElement(NewUserNotification, {
         email: args.email,
+        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+        locale: DEFAULT_LOCALE,
         name: args.name,
         provider: args.provider,
       }),

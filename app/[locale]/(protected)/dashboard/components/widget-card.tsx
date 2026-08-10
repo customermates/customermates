@@ -1,6 +1,7 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
+import { widgetDataPointLabel } from "./widget-label";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { Filter } from "@/core/base/base-get.schema";
@@ -141,9 +142,10 @@ export const WidgetCard = observer(({ widget }: Props) => {
       const color = chartColors[colorKey];
       const labelColor = chartTextColors[colorKey];
       const strokeColor = chartStrokeColors[colorKey];
+      const label = widgetDataPointLabel(item, t);
 
       return {
-        label: item.label === "no-group" ? t("Diagrams.noGroup") : item.label,
+        label,
         value: Number(item.value) || 0,
         fill: color,
         color,

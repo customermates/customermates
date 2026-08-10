@@ -40,8 +40,6 @@ type Props<E extends HasCustomFieldValues> = {
   className?: string;
 };
 
-const EMPTY_GROUP_LABEL = "No value";
-
 function getGroupValue<E extends HasId>(
   item: E & { customFieldValues?: Array<{ columnId: string; value: unknown }> },
   groupingColumnId: string,
@@ -73,6 +71,7 @@ function KanbanCard({
   href?: string;
   className?: string;
 }) {
+  const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: itemId });
 
@@ -97,7 +96,7 @@ function KanbanCard({
     >
       {href && !isDragging && (
         <a
-          aria-label="Open"
+          aria-label={t("Common.actions.open")}
           className="absolute inset-0"
           href={href}
           tabIndex={-1}
@@ -215,13 +214,8 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (!groupingColumnId) {
-    return (
-      <div className="py-8 text-center text-sm text-muted-foreground">
-        Select a grouping column to see the Kanban view.
-      </div>
-    );
-  }
+  if (!groupingColumnId)
+    return <div className="py-8 text-center text-sm text-muted-foreground">{t("DataView.selectGroupingColumn")}</div>;
 
   const groups = new Map<string, E[]>();
 
@@ -272,7 +266,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         <div className="flex min-w-max flex-1 items-stretch gap-4 px-4">
           {Array.from(groups.entries()).map(([key, items]) => {
             const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
-            const label = key === KANBAN_EMPTY_GROUP_KEY ? EMPTY_GROUP_LABEL : (option?.label ?? key);
+            const label = key === KANBAN_EMPTY_GROUP_KEY ? t("DataView.noValue") : (option?.label ?? key);
             const total = store.groupCounts?.[key] ?? items.length;
             const loadMore =
               total > items.length

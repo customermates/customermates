@@ -186,7 +186,7 @@ export function deriveThreadDisplay(
 
 export function deriveMessageSender(
   message: { sender: MessagingAttendee; provider: MessagingProvider; direction: string },
-  accountOwner: { displayName: string; avatarUrl: string | null } | null,
+  accountOwner: { displayName: string | null; avatarUrl: string | null } | null,
   senderAvatarUrl: string | null | undefined,
   isMine: boolean,
   t: (key: string, values?: Record<string, string | number>) => string,

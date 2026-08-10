@@ -4,6 +4,7 @@ import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { FILTER_FIELD_TERMINOLOGY } from "@/features/entity-terminology/entity-terminology.constants";
 
 const TERMINOLOGY_SPECIFIERS = [
   "@/components/entity-terminology/use-entity-terminology",
@@ -29,7 +30,10 @@ const CANONICAL_SURFACES = [
   "app/api",
 ];
 
-const CANONICAL_FILES = ["features/messaging/activities/audit-detail.tsx", "features/messaging/activities/activities-panel.tsx"];
+const CANONICAL_FILES = [
+  "features/messaging/activities/audit-detail.tsx",
+  "features/messaging/activities/activities-panel.tsx",
+];
 
 const CANONICAL_FILTER_REPOSITORIES = [
   "features/audit-log/prisma-audit-log.repository.ts",
@@ -92,9 +96,7 @@ describe("audit and webhook surfaces stay canonical", () => {
   });
 
   it("gives every entity-reference filter field a workspace term in the working UI", () => {
-    const source = readFileSync(join(REPO_ROOT, "components/entity-terminology/use-filter-field-label.ts"), "utf8");
-
-    const unmapped = ENTITY_REFERENCE_FILTER_FIELDS.filter((field) => !new RegExp(`^\\s*${field}:`, "m").test(source));
+    const unmapped = ENTITY_REFERENCE_FILTER_FIELDS.filter((field) => !(field in FILTER_FIELD_TERMINOLOGY));
 
     expect(unmapped).toEqual([]);
   });

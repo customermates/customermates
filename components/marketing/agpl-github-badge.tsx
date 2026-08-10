@@ -1,7 +1,8 @@
 import { Github, Star } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { AppLink } from "@/components/shared/app-link";
+import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 type Props = {
   className?: string;
@@ -21,8 +22,8 @@ async function getStarCount(): Promise<number | null> {
 }
 
 export async function AgplGithubBadge({ className }: Props) {
-  const t = await getTranslations();
-  const starCount = await getStarCount();
+  const [t, starCount, locale] = await Promise.all([getTranslations(), getStarCount(), getLocale()]);
+  const formattingTag = formattingTagFor(contentLocaleOrDefault(locale));
 
   return (
     <div
@@ -42,7 +43,7 @@ export async function AgplGithubBadge({ className }: Props) {
         <span className="flex items-center gap-1">
           <Star aria-hidden className="size-3 fill-current text-yellow-400" />
 
-          <span>{starCount.toLocaleString("en-US")}</span>
+          <span>{starCount.toLocaleString(formattingTag)}</span>
         </span>
       )}
     </div>
