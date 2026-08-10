@@ -39,6 +39,18 @@ describe("localized number parsing", () => {
     expect(parseLocalizedNumber("1,234,567.89", "en-IN")).toBeUndefined();
   });
 
+  it("keeps System and explicit locale syntax isolated", () => {
+    const systemFormatted = formatLocalizedNumber(1234567.89, undefined, {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+      useGrouping: true,
+    });
+
+    expect(parseLocalizedNumber(systemFormatted, undefined)).toBe(1234567.89);
+    expect(parseLocalizedNumber("1.234,5", "de-DE")).toBe(1234.5);
+    expect(parseLocalizedNumber(systemFormatted, undefined)).toBe(1234567.89);
+  });
+
   it("round-trips localized digits and bidirectional sign marks in System formatting", () => {
     const formatted = formatLocalizedNumber(-1234.5, "ar-EG", {
       maximumFractionDigits: 1,

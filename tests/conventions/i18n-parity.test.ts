@@ -39,7 +39,6 @@ const PROTECTED_SOURCE_TERMS = ["open core"];
 
 const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly string[]>> = {
   de: {
-    "Common.errors.webhookCreateFieldsRequired": ["url", "events"],
     "HomepagePricing.cloud.tag": ["in frankfurt verwaltet"],
     "LegalDocumentNotice.contractObjection": ["vor ablauf"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["bis zum"],
@@ -48,7 +47,6 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["bis zum"],
   },
   fr: {
-    "Common.errors.webhookCreateFieldsRequired": ["url", "events"],
     "HomepagePricing.cloud.tag": ["géré à francfort"],
     "LegalDocumentNotice.contractObjection": ["avant la date limite"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["au plus tard"],
@@ -57,7 +55,6 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["au plus tard"],
   },
   it: {
-    "Common.errors.webhookCreateFieldsRequired": ["url", "events"],
     "HomepagePricing.cloud.tag": ["gestito a francoforte"],
     "LegalDocumentNotice.contractObjection": ["prima del termine"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["entro il"],
@@ -66,7 +63,6 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
     "LegalUpdateView.subtitle": ["entro il"],
   },
   es: {
-    "Common.errors.webhookCreateFieldsRequired": ["url", "events"],
     "HomepagePricing.cloud.tag": ["gestionado en fráncfort"],
     "LegalDocumentNotice.contractObjection": ["antes de la fecha límite"],
     "LegalDocumentNotice.subprocessorObjectionWithDeadline": ["a más tardar"],

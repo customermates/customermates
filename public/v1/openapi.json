@@ -26895,7 +26895,6 @@
                     ]
                   },
                   "events": {
-                    "minItems": 1,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -26927,7 +26926,8 @@
                         "messaging.calendar_event.changed",
                         "messaging.relation.created"
                       ]
-                    }
+                    },
+                    "minItems": 1
                   },
                   "secret": {
                     "anyOf": [

@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { createElement } from "react";
 import { headers } from "next/headers";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Resource, Action } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -18,7 +18,7 @@ import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
+import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 export const InviteUsersByEmailSchema = z.object({
   emails: z.array(z.email()).min(1).max(20),
@@ -55,7 +55,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();
-    const locale = appLocaleOrDefault(await getLocale());
+    const locale = await getRequestAppLocale();
     const subject = t("CompanyInvite.subject");
     const preview = t("CompanyInvite.preview", { inviterName });
     const intro = t("CompanyInvite.intro", { inviterName });

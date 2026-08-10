@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { CustomErrorCode } from "../validation.types";
+import type * as LocaleRegistry from "@/i18n/locale-registry";
 
 const registry = vi.hoisted(() => ({
   locale: "en",
@@ -16,12 +17,13 @@ vi.mock("next-intl/server", () => ({
   }),
 }));
 
-vi.mock("@/i18n/locale-registry", () => ({
-  appLocaleOrDefault: (locale: string) => locale,
-  validationTagFor: registry.validationTagFor,
-}));
+vi.mock("@/i18n/locale-registry", async (importOriginal) => {
+  const actual = await importOriginal<typeof LocaleRegistry>();
+  return { ...actual, validationTagFor: registry.validationTagFor };
+});
 
 import { getZodParseContext } from "../zod-error-map-server";
+import { APP_LOCALES } from "@/i18n/locale-registry";
 
 afterEach(() => {
   registry.locale = "en";
@@ -30,6 +32,19 @@ afterEach(() => {
 });
 
 describe("getZodParseContext", () => {
+  it.each(APP_LOCALES)("uses application copy for common %s format errors", async (locale) => {
+    registry.locale = locale;
+    const context = await getZodParseContext();
+
+    const email = z.email().safeParse("not-an-email", context);
+    const url = z.url().safeParse("://", context);
+
+    expect(email.success).toBe(false);
+    expect(url.success).toBe(false);
+    if (!email.success) expect(email.error.issues[0].message).toBe(`${locale}:Common.errors.invalidEmail`);
+    if (!url.success) expect(url.error.issues[0].message).toBe(`${locale}:Common.errors.invalidUrl`);
+  });
+
   it("loads the registry-selected Zod locale without mutating global configuration", async () => {
     registry.locale = "de";
     const context = await getZodParseContext();

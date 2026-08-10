@@ -67,4 +67,19 @@ describe("InviteUsersByEmailInteractor", () => {
       "https://customermates-git-feat-inbox-customermates.vercel.app/invitation/invite-token",
     );
   });
+
+  it("normalizes and deduplicates recipient addresses before sending", async () => {
+    const { emailService, interactor } = makeInteractor();
+
+    const result = await interactor.invoke({
+      emails: ["NEW.MEMBER@example.com", "new.member@example.com", "second.member@example.com"],
+    });
+
+    expect(result).toEqual({ ok: true, data: { sent: 2 } });
+    expect(emailService.send).toHaveBeenCalledTimes(2);
+    expect(emailService.send.mock.calls.map(([message]) => message.to)).toEqual([
+      "new.member@example.com",
+      "second.member@example.com",
+    ]);
+  });
 });

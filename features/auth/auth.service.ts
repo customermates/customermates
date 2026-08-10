@@ -5,7 +5,7 @@ import React from "react";
 import { APIError } from "better-auth";
 import { nanoid } from "nanoid";
 import { headers } from "next/headers";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
@@ -18,7 +18,8 @@ import { mustVerifyEmail } from "./email-verification-grace";
 import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
-import { appLocaleOrDefault, DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 type AuthUser = {
   id: string;
@@ -141,7 +142,7 @@ export class AuthService {
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
-    const locale = appLocaleOrDefault(await getLocale());
+    const locale = await getRequestAppLocale();
     const layoutCopy = await getEmailLayoutCopy(locale);
 
     await this.emailService.send({
@@ -162,7 +163,7 @@ export class AuthService {
 
   async sendResetPasswordEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
-    const locale = appLocaleOrDefault(await getLocale());
+    const locale = await getRequestAppLocale();
     const layoutCopy = await getEmailLayoutCopy(locale);
 
     await this.emailService.send({
