@@ -239,6 +239,16 @@ describe("page-state contract", () => {
     }
   });
 
+  it("serializes the Inbox CTA permission before hydration", () => {
+    const page = read("app/[locale]/(protected)/inbox/page.tsx");
+    const list = read("app/[locale]/(protected)/inbox/components/inbox-list.tsx");
+
+    expect(page).toContain("getUserService().hasPermission(Resource.inboxMessages, Action.create)");
+    expect(page).toContain("canConnect={!locked && canConnect}");
+    expect(list).toContain("canConnect: boolean");
+    expect(list).not.toContain("userStore.can(Resource.inboxMessages, Action.create)");
+  });
+
   it("never leaves a shared data view blank while readiness is pending", () => {
     const container = read("components/data-view/data-view-container.tsx");
 

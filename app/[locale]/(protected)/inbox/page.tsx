@@ -1,4 +1,4 @@
-import { Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import { InboxList } from "./components/inbox-list";
 import { ThreadPanel } from "./components/thread-panel";
@@ -7,6 +7,7 @@ import {
   getGetMessagingThreadInteractor,
   getGetMessagingThreadsInteractor,
   getGetSubscriptionInteractor,
+  getUserService,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { decodeGetParams } from "@/core/utils/get-params";
@@ -28,7 +29,10 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const subscriptionResult = await getGetSubscriptionInteractor().invoke();
+  const [subscriptionResult, canConnect] = await Promise.all([
+    getGetSubscriptionInteractor().invoke(),
+    getUserService().hasPermission(Resource.inboxMessages, Action.create),
+  ]);
   const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
@@ -50,7 +54,7 @@ export default async function InboxPage({ searchParams }: Props) {
   const content = (
     <div className="flex h-full min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
       <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
-        <InboxList locked={locked} selectedThreadId={threadId} threads={threads} />
+        <InboxList canConnect={!locked && canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
       </div>
 
       <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>

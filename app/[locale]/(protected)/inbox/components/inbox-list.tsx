@@ -22,12 +22,12 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState } from "@/components/data-view/data-view-state";
-import { Action, Resource } from "@/generated/prisma";
 import { PageSkeleton } from "@/components/page-state/page-skeleton";
 
 import { ThreadRow } from "./thread-row";
 
 type Props = {
+  canConnect: boolean;
   threads: GetResult<MessagingThread>;
   selectedThreadId: string | null;
   locked?: boolean;
@@ -36,12 +36,12 @@ type Props = {
 let didAutoScrollToThread = false;
 let savedListScrollTop = 0;
 
-export const InboxList = observer(({ threads, selectedThreadId, locked = false }: Props) => {
+export const InboxList = observer(({ canConnect, threads, selectedThreadId, locked = false }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { messagingThreadsStore, connectedAccountsStore, userStore } = useRootStore();
+  const { messagingThreadsStore, connectedAccountsStore } = useRootStore();
 
   useDataViewSync(messagingThreadsStore, threads);
 
@@ -64,8 +64,6 @@ export const InboxList = observer(({ threads, selectedThreadId, locked = false }
     itemCount: items.length,
     total: pagination?.total,
   });
-  const canConnect = !locked && userStore.can(Resource.inboxMessages, Action.create);
-
   const searchPlaceholder = t("Common.table.search");
   const topBarNode = useMemo(
     () =>
