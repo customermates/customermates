@@ -20,15 +20,22 @@ describe("public navigation preferences", () => {
     expect(footer).not.toContain("ThemeSwitcher");
   });
 
-  it("shows the locale code with navbar typography and country-style flags in its menu", () => {
+  it("shows the locale code with navbar typography and reuses the profile country options", () => {
     const languageSelector = readFileSync(join(REPO_ROOT, "components/shared/language-selector.tsx"), "utf8");
+    const countryItem = readFileSync(
+      join(REPO_ROOT, "components/forms/form-autocomplete-country-item.tsx"),
+      "utf8",
+    );
 
     expect(languageSelector).toContain("currentLocale.toUpperCase()");
     expect(languageSelector).toContain('className={cn("size-8 rounded-md p-0 text-subdued", className)}');
     expect(languageSelector).not.toContain("text-[11px]");
-    expect(languageSelector).toContain('<Avatar className="size-5">');
-    expect(languageSelector).toContain("flagCodeFor(locale)");
-    expect(languageSelector).toContain("flagcdn.com");
+    expect(languageSelector).toContain(
+      '<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />',
+    );
+    expect(languageSelector).not.toContain("AvatarImage");
+    expect(countryItem).toContain('<Avatar className={size === "sm" ? "size-3" : "size-5"}>');
+    expect(countryItem).toContain("flagcdn.com");
     expect(languageSelector).toContain('<DropdownMenuContent align="start"');
   });
 

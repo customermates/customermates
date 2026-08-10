@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,16 +61,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
               role="menuitemradio"
               onSelect={() => handleSelect(locale)}
             >
-              <Avatar className="size-5">
-                <AvatarImage
-                  alt={t("Common.imageAlt.countryFlag", { country: label })}
-                  src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
-                />
-
-                <AvatarFallback>{locale.toUpperCase()}</AvatarFallback>
-              </Avatar>
-
-              <span className="flex-1">{label}</span>
+              <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />
 
               <Check aria-hidden className={cn("size-3.5", !isSelected && "opacity-0")} />
             </DropdownMenuItem>
