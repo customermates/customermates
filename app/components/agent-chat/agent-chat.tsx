@@ -49,6 +49,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
@@ -209,12 +210,26 @@ export const AgentChat = observer(function AgentChat() {
         </Button>
       )}
 
-      {store.isOpen && <AgentChatPanel />}
+      {store.isOpen && (
+        <TooltipProvider>
+          <AgentChatPanel />
+        </TooltipProvider>
+      )}
 
       <AgentTourOverlay />
     </>
   );
 });
+
+function ActionTooltip({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 const AgentChatPanel = observer(function AgentChatPanel() {
   const { agentChatStore: store, agentUiControlStore } = useRootStore();
@@ -258,18 +273,19 @@ const AgentChatPanel = observer(function AgentChatPanel() {
     >
       <div className="flex items-center gap-1 border-b px-3 py-2">
         {store.isHistoryOpen ? (
-          <Button
-            aria-label={copy.back}
-            className="size-7"
-            disabled={Boolean(store.historyMutationPending)}
-            id="agent-history-back"
-            size="icon"
-            title={copy.back}
-            variant="ghost"
-            onClick={store.toggleHistory}
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
+          <ActionTooltip label={copy.back}>
+            <Button
+              aria-label={copy.back}
+              className="size-7"
+              disabled={Boolean(store.historyMutationPending)}
+              id="agent-history-back"
+              size="icon"
+              variant="ghost"
+              onClick={store.toggleHistory}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+          </ActionTooltip>
         ) : (
           <AppImage alt="" className="size-5 rounded-md" height={20} src="customermates-square.svg" width={20} />
         )}
@@ -277,51 +293,55 @@ const AgentChatPanel = observer(function AgentChatPanel() {
         <span className="mr-auto text-sm font-medium">{store.isHistoryOpen ? copy.chats : t("AgentChat.title")}</span>
 
         {!store.isHistoryOpen && (
-          <Button
-            aria-label={copy.history}
-            className="size-7"
-            size="icon"
-            title={copy.history}
-            variant="ghost"
-            onClick={store.toggleHistory}
-          >
-            <History className="size-4" />
-          </Button>
+          <ActionTooltip label={copy.history}>
+            <Button
+              aria-label={copy.history}
+              className="size-7"
+              size="icon"
+              variant="ghost"
+              onClick={store.toggleHistory}
+            >
+              <History className="size-4" />
+            </Button>
+          </ActionTooltip>
         )}
 
-        <Button
-          aria-label={copy.newChat}
-          className="size-7"
-          disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(store.historyMutationPending)}
-          size="icon"
-          title={copy.newChat}
-          variant="ghost"
-          onClick={store.newConversation}
-        >
-          <Plus className="size-4" />
-        </Button>
+        <ActionTooltip label={copy.newChat}>
+          <Button
+            aria-label={copy.newChat}
+            className="size-7"
+            disabled={store.isWorking || store.isWorkspaceSetupPending || Boolean(store.historyMutationPending)}
+            size="icon"
+            variant="ghost"
+            onClick={store.newConversation}
+          >
+            <Plus className="size-4" />
+          </Button>
+        </ActionTooltip>
 
-        <Button
-          aria-label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
-          className="size-8"
-          size="icon"
-          title={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
-          variant="ghost"
-          onClick={store.toggleExpanded}
-        >
-          {store.isExpanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-        </Button>
+        <ActionTooltip label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}>
+          <Button
+            aria-label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
+            className="size-8"
+            size="icon"
+            variant="ghost"
+            onClick={store.toggleExpanded}
+          >
+            {store.isExpanded ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+          </Button>
+        </ActionTooltip>
 
-        <Button
-          aria-label={t("Common.actions.close")}
-          className="size-8"
-          size="icon"
-          title={t("Common.actions.close")}
-          variant="ghost"
-          onClick={store.close}
-        >
-          <X className="size-4" />
-        </Button>
+        <ActionTooltip label={t("Common.actions.close")}>
+          <Button
+            aria-label={t("Common.actions.close")}
+            className="size-8"
+            size="icon"
+            variant="ghost"
+            onClick={store.close}
+          >
+            <X className="size-4" />
+          </Button>
+        </ActionTooltip>
       </div>
 
       {!store.isHistoryOpen && store.lastArchivedConversation && (
@@ -422,29 +442,31 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                 />
 
                 {store.isWorking ? (
-                  <Button
-                    aria-label={t("AgentChat.stop")}
-                    className="size-9 shrink-0 rounded-full"
-                    size="icon"
-                    title={t("AgentChat.stop")}
-                    variant="outline"
-                    onClick={() => void store.interrupt()}
-                  >
-                    <Square className="size-3.5" />
-                  </Button>
+                  <ActionTooltip label={t("AgentChat.stop")}>
+                    <Button
+                      aria-label={t("AgentChat.stop")}
+                      className="size-9 shrink-0 rounded-full"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => void store.interrupt()}
+                    >
+                      <Square className="size-3.5" />
+                    </Button>
+                  </ActionTooltip>
                 ) : (
-                  <Button
-                    aria-label={t("AgentChat.send")}
-                    className="size-9 shrink-0 rounded-full"
-                    disabled={
-                      store.isWorkspaceSetupPending || !store.composerDraft.trim() || Boolean(store.queuedPrompt)
-                    }
-                    size="icon"
-                    title={t("AgentChat.send")}
-                    onClick={submit}
-                  >
-                    <ArrowUp className="size-4" />
-                  </Button>
+                  <ActionTooltip label={t("AgentChat.send")}>
+                    <Button
+                      aria-label={t("AgentChat.send")}
+                      className="size-9 shrink-0 rounded-full"
+                      disabled={
+                        store.isWorkspaceSetupPending || !store.composerDraft.trim() || Boolean(store.queuedPrompt)
+                      }
+                      size="icon"
+                      onClick={submit}
+                    >
+                      <ArrowUp className="size-4" />
+                    </Button>
+                  </ActionTooltip>
                 )}
               </div>
             )}
@@ -1281,16 +1303,17 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
           </div>
 
           {!item.streaming && item.text.trim() && (
-            <Button
-              aria-label={t("Common.actions.copy")}
-              className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
-              size="icon"
-              title={t("Common.actions.copy")}
-              variant="ghost"
-              onClick={() => void copyToClipboard(item.text)}
-            >
-              <Copy className="size-3.5" />
-            </Button>
+            <ActionTooltip label={t("Common.actions.copy")}>
+              <Button
+                aria-label={t("Common.actions.copy")}
+                className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
+                size="icon"
+                variant="ghost"
+                onClick={() => void copyToClipboard(item.text)}
+              >
+                <Copy className="size-3.5" />
+              </Button>
+            </ActionTooltip>
           )}
 
           <ItemTime at={item.at} />
@@ -1337,7 +1360,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   const canAlwaysAllow = item.activity.kind === "records.create" || item.activity.kind === "records.update";
 
   return (
-    <div className="rounded-2xl border bg-card/60 px-4 py-3.5 text-sm" data-testid="agent-approval">
+    <div className="rounded-2xl border border-input bg-background/60 px-4 py-3.5 text-sm" data-testid="agent-approval">
       <p className="text-xs font-medium text-muted-foreground">{t("AgentChat.approval.title")}</p>
 
       <p className="mt-1 font-medium">{copy.running}</p>
