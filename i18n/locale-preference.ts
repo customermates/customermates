@@ -1,6 +1,12 @@
 import type { AppLocale } from "./locale-registry";
 
-import { DEFAULT_LOCALE, appLocaleFromLanguageTag, appLocaleOrDefault, isAppLocale } from "./locale-registry";
+import {
+  DEFAULT_LOCALE,
+  appLocaleFromLanguageTag,
+  appLocaleOrDefault,
+  isAppLocale,
+  stripLocalePrefix,
+} from "./locale-registry";
 
 export const APP_LOCALE_COOKIE_NAME = "APP_LOCALE";
 export const CONTENT_LOCALE_COOKIE_NAME = "CONTENT_LOCALE";
@@ -17,8 +23,15 @@ export function browserAppLocale(languages: readonly string[]): AppLocale {
 }
 
 export function displayLanguageNavigationTarget(locale: unknown, pathname: string): string {
-  if (locale === "system") return pathname;
-  return `/${appLocaleOrDefault(locale)}${pathname}`;
+  const suffixStart = pathname.search(/[?#]/);
+  const path = suffixStart === -1 ? pathname : pathname.slice(0, suffixStart);
+  const suffix = suffixStart === -1 ? "" : pathname.slice(suffixStart);
+  const unprefixedPath = stripLocalePrefix(path);
+  if (locale === "system") return `${unprefixedPath}${suffix}`;
+
+  const localizedPath =
+    unprefixedPath === "/" ? `/${appLocaleOrDefault(locale)}` : `/${appLocaleOrDefault(locale)}${unprefixedPath}`;
+  return `${localizedPath}${suffix}`;
 }
 
 export function appLocaleReconciliationTarget(

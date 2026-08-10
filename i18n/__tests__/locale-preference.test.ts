@@ -25,6 +25,13 @@ describe("locale preferences", () => {
   it("navigates System through locale negotiation and explicit preferences through their locale", () => {
     expect(displayLanguageNavigationTarget("system", "/profile/settings")).toBe("/profile/settings");
     expect(displayLanguageNavigationTarget("it", "/profile/settings")).toBe("/it/profile/settings");
+    expect(displayLanguageNavigationTarget("system", "/de/profile/settings?tab=mine#open")).toBe(
+      "/profile/settings?tab=mine#open",
+    );
+    expect(displayLanguageNavigationTarget("it", "/de/profile/settings?tab=mine#open")).toBe(
+      "/it/profile/settings?tab=mine#open",
+    );
+    expect(displayLanguageNavigationTarget("it", "/de?tab=mine#open")).toBe("/it?tab=mine#open");
   });
 
   it("reconciles a newly synchronized preference with the rendered app locale", () => {
@@ -34,6 +41,9 @@ describe("locale preferences", () => {
     expect(appLocaleReconciliationTarget("fr", "fr", "/dashboard", "en")).toBeNull();
     expect(appLocaleReconciliationTarget("system", "de", "/dashboard?tab=mine#open", "en")).toBe(
       "/en/dashboard?tab=mine#open",
+    );
+    expect(appLocaleReconciliationTarget("it", "en", "/it/dashboard?tab=mine#open", "en")).toBe(
+      "/it/dashboard?tab=mine#open",
     );
     expect(appLocaleReconciliationTarget("system", "de", "/dashboard", "de")).toBeNull();
     expect(appLocaleReconciliationTarget("retired", "de", "/dashboard", "en")).toBeNull();
