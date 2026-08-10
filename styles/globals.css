@@ -60,6 +60,18 @@
   --animate-accordion-down: collapsible-down 200ms ease-out;
   --animate-accordion-up: collapsible-up 200ms ease-out;
   --animate-fade-in: fade-in 300ms ease-out;
+  --animate-typing-dot: typing-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {

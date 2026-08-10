@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronLeft,
   Columns3,
+  Copy,
   Database,
   History,
   Loader2,
@@ -43,6 +44,7 @@ import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbo
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,7 +297,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
         <Button
           aria-label={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
-          className="size-7"
+          className="size-8"
           size="icon"
           title={t(store.isExpanded ? "Common.actions.collapse" : "Common.actions.expand")}
           variant="ghost"
@@ -306,7 +308,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
         <Button
           aria-label={t("Common.actions.close")}
-          className="size-7"
+          className="size-8"
           size="icon"
           title={t("Common.actions.close")}
           variant="ghost"
@@ -368,7 +370,15 @@ const AgentChatPanel = observer(function AgentChatPanel() {
             })}
 
             {store.isWorking && store.items[store.items.length - 1]?.kind !== "assistant" && (
-              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+              <div aria-label={copy.assistantWorking} className="flex items-center gap-1 py-1" role="status">
+                {[0, 1, 2].map((dot) => (
+                  <span
+                    key={dot}
+                    className="size-1.5 rounded-full bg-muted-foreground/60 animate-typing-dot motion-reduce:animate-none"
+                    style={{ animationDelay: `${dot * 160}ms` }}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </MessagesScrollContainer>
@@ -405,27 +415,29 @@ const AgentChatPanel = observer(function AgentChatPanel() {
                   }}
                 />
 
-                <Button
-                  aria-label={store.isWorking ? copy.queueAction : t("AgentChat.send")}
-                  className="size-8"
-                  disabled={store.isWorkspaceSetupPending || !store.composerDraft.trim() || Boolean(store.queuedPrompt)}
-                  size="icon"
-                  title={store.isWorking ? copy.queueAction : t("AgentChat.send")}
-                  onClick={submit}
-                >
-                  <ArrowUp className="size-4" />
-                </Button>
-
-                {store.isWorking && (
+                {store.isWorking ? (
                   <Button
                     aria-label={t("AgentChat.stop")}
-                    className="size-8"
+                    className="size-9 shrink-0 rounded-full"
                     size="icon"
                     title={t("AgentChat.stop")}
                     variant="outline"
                     onClick={() => void store.interrupt()}
                   >
-                    <Square className="size-4" />
+                    <Square className="size-3.5" />
+                  </Button>
+                ) : (
+                  <Button
+                    aria-label={t("AgentChat.send")}
+                    className="size-9 shrink-0 rounded-full"
+                    disabled={
+                      store.isWorkspaceSetupPending || !store.composerDraft.trim() || Boolean(store.queuedPrompt)
+                    }
+                    size="icon"
+                    title={t("AgentChat.send")}
+                    onClick={submit}
+                  >
+                    <ArrowUp className="size-4" />
                   </Button>
                 )}
               </div>
@@ -1081,7 +1093,7 @@ const UsageFooter = observer(function UsageFooter() {
   return (
     <details className="group w-full px-1 pb-2 text-xs text-muted-foreground" data-testid="agent-usage">
       <summary className="cursor-pointer list-none rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <div className="mb-1.5 flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <span>{t("AgentChat.credits.resetShort", { resetAt })}</span>
 
           <span className="flex items-center gap-1 tabular-nums">
@@ -1091,16 +1103,18 @@ const UsageFooter = observer(function UsageFooter() {
           </span>
         </div>
 
-        <div
-          aria-label={t("AgentChat.credits.usage", { pct })}
-          aria-valuemax={100}
-          aria-valuemin={0}
-          aria-valuenow={pct}
-          className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
-          role="progressbar"
-        >
-          <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} />
-        </div>
+        {pct >= 75 && (
+          <div
+            aria-label={t("AgentChat.credits.usage", { pct })}
+            aria-valuemax={100}
+            aria-valuemin={0}
+            aria-valuenow={pct}
+            className="h-1 w-full overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+          >
+            <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${pct}%` }} />
+          </div>
+        )}
       </summary>
 
       <div className="mt-2 space-y-1 rounded-lg bg-muted/40 px-2.5 py-2">
@@ -1209,6 +1223,7 @@ const ItemTime = observer(function ItemTime({ at }: { at?: Date }) {
 const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: AgentChatItem }) {
   const { agentChatStore: store } = useRootStore();
   const t = useTranslations();
+  const copyToClipboard = useCopyToClipboard();
   const locale = useLocale();
   const terminology = useAgentActivityTerminology();
   const decideApproval = async (
@@ -1237,7 +1252,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
     return (
       <article
         aria-label={t("AgentChat.support.badge")}
-        className="rounded-xl border border-info/40 bg-info/10 px-3 py-2 text-sm shadow-xs"
+        className="rounded-2xl border border-info/40 bg-info/10 px-4 py-3 text-sm"
         data-testid="agent-support-message"
       >
         <Badge className="mb-1" variant="info">
@@ -1258,6 +1273,19 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
             {item.streaming && <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />}
           </div>
+
+          {!item.streaming && item.text.trim() && (
+            <Button
+              aria-label={t("Common.actions.copy")}
+              className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
+              size="icon"
+              title={t("Common.actions.copy")}
+              variant="ghost"
+              onClick={() => void copyToClipboard(item.text)}
+            >
+              <Copy className="size-3.5" />
+            </Button>
+          )}
 
           <ItemTime at={item.at} />
         </div>
@@ -1863,7 +1891,7 @@ const AgentActivity = observer(function AgentActivity({
         <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
       </summary>
 
-      <div className="mt-3 space-y-3 border-l pl-4">
+      <div className="mt-3 space-y-3 border-l pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-1 [&>*]:animate-in [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, locale, terminology);
           const label =
