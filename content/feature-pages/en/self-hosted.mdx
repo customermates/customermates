@@ -36,7 +36,7 @@ Customermates is built as an [open-source CRM](/blog/open-source-crm) with Docke
 
 **Docker deployment.** Customermates ships as Docker containers, making deployment straightforward on any infrastructure that supports Docker. Whether you run bare-metal servers, virtual machines, or a Kubernetes cluster, the containerized architecture fits into your existing setup. A single `docker compose up` command gets you a running instance with the CRM, database, and all dependencies configured.
 
-**Full source code access.** Customermates is open core: the core CRM is open source under the AGPL-3.0 license, and the enterprise modules (the unified inbox and calendar sync) are source-available under a commercial license. You can inspect every line of code, audit the security model, verify data handling practices, and modify the AGPL core to fit your specific needs. There are no black boxes, no obfuscated modules, and no hidden telemetry. What you see in the repository is exactly what runs on your server.
+**Full source code access.** Customermates is open core: the core CRM is open source under the AGPL-3.0 license, and the enterprise modules (the unified inbox and the read-only calendar view) are source-available under a commercial license. You can inspect every line of code, audit the security model, verify data handling practices, and modify the AGPL core to fit your specific needs. There are no black boxes, no obfuscated modules, and no hidden telemetry. What you see in the repository is exactly what runs on your server.
 
 **Your data stays on your servers.** When you self-host Customermates, all customer data, files, attachments, notes, emails, and system logs remain on infrastructure you control. The application does not phone home, does not sync data to external services, and does not require an internet connection to function after initial setup. Your data never touches a server you do not own.
 
@@ -165,7 +165,7 @@ Updates are delivered as new Docker images. Pull the latest image, restart your 
 
 ### Is the self-hosted version secure?
 
-Customermates follows security best practices: encrypted connections, role-based access control, and no external telemetry. Since you control the infrastructure, you can add your own security layers including VPN access, firewall rules, and network segmentation. The open-source codebase means you can audit every component yourself. Note that the unified inbox and calendar sync are cloud features and not part of the self-hosted community edition.
+Customermates follows security best practices: encrypted connections, role-based access control, and no external telemetry. Since you control the infrastructure, you can add your own security layers including VPN access, firewall rules, and network segmentation. The open-source codebase means you can audit every component yourself. Note that the unified inbox and the read-only calendar view are cloud features and not part of the self-hosted community edition.
 
 ### Can I integrate self-hosted Customermates with other tools?
 

@@ -36,7 +36,7 @@ Customermates ist als [Open-Source-CRM](/blog/open-source-crm) mit Docker als pr
 
 **Docker-Deployment.** Customermates wird als Docker-Container ausgeliefert, was die Bereitstellung auf jeder Infrastruktur unkompliziert macht, die Docker unterstützt. Ob Sie Bare-Metal-Server, virtuelle Maschinen oder einen Kubernetes-Cluster betreiben, die containerisierte Architektur fügt sich in Ihr bestehendes Setup ein. Ein einziger `docker compose up`-Befehl startet eine laufende Instanz mit CRM, Datenbank und allen konfigurierten Abhängigkeiten.
 
-**Voller Quellcode-Zugang.** Customermates ist Open Core: Das Kern-CRM ist Open Source unter der AGPL-3.0-Lizenz, die Enterprise-Module (gemeinsames Postfach und Kalender-Sync) sind source-available unter einer kommerziellen Lizenz. Sie können jede Zeile Code einsehen, das Sicherheitsmodell auditieren, Datenverarbeitungspraktiken verifizieren und den AGPL-Kern an Ihre spezifischen Bedürfnisse anpassen. Es gibt keine Black Boxes, keine verschleierten Module und keine versteckte Telemetrie. Was Sie im Repository sehen, ist exakt das, was auf Ihrem Server läuft.
+**Voller Quellcode-Zugang.** Customermates ist Open Core: Das Kern-CRM ist Open Source unter der AGPL-3.0-Lizenz, die Enterprise-Module (gemeinsames Postfach und die nur lesende Kalender-Ansicht) sind source-available unter einer kommerziellen Lizenz. Sie können jede Zeile Code einsehen, das Sicherheitsmodell auditieren, Datenverarbeitungspraktiken verifizieren und den AGPL-Kern an Ihre spezifischen Bedürfnisse anpassen. Es gibt keine Black Boxes, keine verschleierten Module und keine versteckte Telemetrie. Was Sie im Repository sehen, ist exakt das, was auf Ihrem Server läuft.
 
 **Ihre Daten bleiben auf Ihren Servern.** Wenn Sie Customermates selbst hosten, verbleiben alle Kundendaten, Dateien, Anhänge, Notizen, E-Mails und Systemprotokolle auf Infrastruktur, die Sie kontrollieren. Die Anwendung telefoniert nicht nach Hause, synchronisiert keine Daten mit externen Diensten und benötigt nach der Ersteinrichtung keine Internetverbindung.
 
@@ -165,7 +165,7 @@ Updates werden als neue Docker-Images bereitgestellt. Laden Sie das neueste Imag
 
 ### Ist die Self-Hosted-Version sicher?
 
-Customermates folgt Security-Best-Practices: verschlüsselte Verbindungen, rollenbasierte Zugriffskontrolle und keine externe Telemetrie. Da Sie die Infrastruktur kontrollieren, können Sie eigene Sicherheitsebenen hinzufügen, einschließlich VPN-Zugang, Firewall-Regeln und Netzwerksegmentierung. Die Open-Source-Codebasis ermöglicht es Ihnen, jede Komponente selbst zu auditieren. Beachten Sie, dass das gemeinsame Postfach und Kalender-Sync Cloud-Funktionen sind und nicht Teil der selbst gehosteten Community-Edition.
+Customermates folgt Security-Best-Practices: verschlüsselte Verbindungen, rollenbasierte Zugriffskontrolle und keine externe Telemetrie. Da Sie die Infrastruktur kontrollieren, können Sie eigene Sicherheitsebenen hinzufügen, einschließlich VPN-Zugang, Firewall-Regeln und Netzwerksegmentierung. Die Open-Source-Codebasis ermöglicht es Ihnen, jede Komponente selbst zu auditieren. Beachten Sie, dass das gemeinsame Postfach und die nur lesende Kalender-Ansicht Cloud-Funktionen sind und nicht Teil der selbst gehosteten Community-Edition.
 
 ### Kann ich Self-Hosted Customermates mit anderen Tools integrieren?
 
