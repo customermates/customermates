@@ -1,11 +1,11 @@
 ---
 title: "CRM Workflow-Automatisierung: No-Code-Automatisierungen mit n8n"
-description: "CRM Workflow-Automatisierung mit integrierter n8n-Engine. No-Code-Workflows für Follow-ups, Deal-Trigger und 400+ Integrationen. Open-Source. Ab €12/Nutzer."
+description: "No-Code-n8n-Workflows aus CRM-Webhooks und der REST API steuern: Follow-ups, Deal-Trigger und 400+ Integrationen. Open Source, n8n bringen Sie selbst mit."
 featureName: Workflow-Automatisierung
 
 hero:
   title: CRM Workflow-Automatisierung, die für Sie arbeitet
-  description: Verbinden Sie Ihr CRM mit hunderten Tools dank integrierter n8n-Automatisierung. Erstellen Sie No-Code-Workflows für Follow-ups, Deal-Phasen-Trigger und wiederkehrende Aufgaben, damit Ihr Team sich aufs Abschließen konzentrieren kann.
+  description: Verbinden Sie Ihr CRM mit hunderten Tools, indem Sie Ihre eigene n8n-Instanz über CRM-Webhooks und die REST API steuern. Erstellen Sie No-Code-Workflows für Follow-ups, Deal-Phasen-Trigger und wiederkehrende Aufgaben, damit Ihr Team sich aufs Abschließen konzentrieren kann.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -32,11 +32,11 @@ CRM Workflow-Automatisierung eliminiert diesen Aufwand. Sie definieren den Trigg
 
 ## So funktioniert Workflow-Automatisierung in Customermates
 
-Customermates integriert [n8n](https://n8n.io/), eine leistungsstarke Open-Source-Workflow-Automatisierungs-Engine, direkt in die CRM-Plattform. Dies ist kein Drittanbieter-Add-on oder ein eingeschränkter Regel-Editor. Es ist eine vollwertige Automatisierungsplattform, die neben Ihren CRM-Daten läuft.
+Customermates liefert keine Automatisierungs-Engine aus. Es liefert die Oberflächen, die eine solche braucht: 26 Webhook-Events, eine versionierte REST API, einen MCP-Endpoint und eine veröffentlichte [Community-Node](https://github.com/customermates/n8n-nodes-crm) für [n8n](https://n8n.io/). n8n betreiben Sie selbst, self-hosted oder in n8ns Cloud, und es ist ein eigenes Produkt mit eigener Preisgestaltung. Dafür bekommen Sie eine vollwertige Automatisierungsplattform statt eines eingeschränkten Regel-Editors im CRM.
 
 **Visueller Workflow-Builder.** n8n bietet eine Drag-and-Drop-Oberfläche zum Erstellen von Automatisierungen. Sie verbinden Knoten visuell, die jeweils einen Trigger, eine Bedingung, eine Transformation oder eine Aktion repräsentieren. Es sind keine Programmierkenntnisse erforderlich. Wenn Sie ein Flussdiagramm zeichnen können, können Sie eine Automatisierung bauen.
 
-**CRM-Event-Trigger.** Workflows können durch Ereignisse in Customermates ausgelöst werden: ein neuer Kontakt wird erstellt, ein Deal wechselt in eine bestimmte Phase, eine Aufgabe wird abgeschlossen, ein Feldwert ändert sich oder eine Notiz wird hinzugefügt. Diese ereignisbasierten Trigger stellen sicher, dass Ihre Automatisierungen genau im richtigen Moment Ihres Geschäftsprozesses greifen.
+**CRM-Event-Trigger.** Workflows lassen sich über die 26 Webhook-Events auslösen, die Customermates sendet: Datensätze werden erstellt, aktualisiert oder gelöscht über Kontakte, Unternehmen, Deals, Services und Aufgaben, dazu Messaging- und Kalender-Events. Die Deal-Phase ist eine benutzerdefinierte Spalte, ein Phasenwechsel kommt also als `deal.updated` an, und Ihr Workflow verzweigt auf den Spaltenwert. Diese ereignisbasierten Trigger stellen sicher, dass Ihre Automatisierungen genau im richtigen Moment Ihres Geschäftsprozesses greifen.
 
 **400+ App-Integrationen.** n8n unterstützt Verbindungen zu über 400 externen Diensten ab Werk. Senden Sie Nachrichten an Slack oder Microsoft Teams, wenn Deals abgeschlossen werden. Erstellen Sie Rechnungen in Ihrer Buchhaltungssoftware, wenn ein Deal gewonnen wird. Synchronisieren Sie Kontakte mit Ihrer [E-Mail-Marketing-Plattform](/features/email-integration). Pushen Sie Daten an Google Sheets für Berichte.
 

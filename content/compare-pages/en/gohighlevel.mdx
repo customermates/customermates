@@ -134,7 +134,7 @@ For an agency that wants one vendor for everything, this is convenient. For a sm
 
 ## What is Customermates?
 
-Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), ten custom field types, and a full REST API. It is open-source under AGPL-3.0, free to self-host via Docker, and EU-hosted in the cloud from €12 per user per month (€10 on the yearly Starter plan), with the MCP server, REST API, and n8n automation included at every tier.
+Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), ten custom field types, and a full REST API. It is open-source under AGPL-3.0, free to self-host via Docker, and EU-hosted in the cloud from €12 per user per month (€10 on the yearly Starter plan), with the MCP server, REST API, and n8n automation supported at every tier.
 
 The mechanism that makes the AI integration work is a built-in MCP server with 46 tools, an n8n community node, 26 webhook events, and the OpenAPI 3.1 specification at `/api/v1/openapi`. You do not have to use any of that, but it is the reason the agent angle is real and not marketing.
 
@@ -176,7 +176,7 @@ This is the difference between "AI bolted on as a paid add-on" and "the CRM is b
 
 HighLevel is closed-source and US-hosted. There is no self-hosting path. Your data lives on their infrastructure under US data law. Migration off the platform means exporting what you can and rebuilding what you cannot.
 
-Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source is on [GitHub](https://github.com/customermates/customermates). You can self-host via `docker compose up -d`, which runs three containers (app on port 4000, PostgreSQL 16, webhook worker). The cloud version is hosted in Germany, GDPR-native by default. If the project ever stops, your data and the code are still yours.
+Customermates is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). The full source is on [GitHub](https://github.com/customermates/customermates). You can self-host via `docker compose up -d`, which runs three containers (app on port 4000, PostgreSQL 16, webhook worker). The cloud version is hosted in the EU region, GDPR-native by default. If the project ever stops, your data and the code are still yours.
 
 ## When HighLevel CRM is the better choice
 
