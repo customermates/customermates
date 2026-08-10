@@ -15,13 +15,16 @@ describe("public navigation preferences", () => {
     expect(navbar.match(/\{renderPreferenceButtons\(\)\}/g)).toHaveLength(2);
     expect(navbar).toContain('className="hidden items-center gap-2 md:flex"');
     expect(navbar).toContain('className="flex w-full items-center justify-between md:hidden"');
+    expect(navbar).toContain('className="my-1 py-3"');
+    expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
     expect(footer).not.toContain("LanguageSelector");
     expect(footer).not.toContain("ThemeSwitcher");
   });
 
-  it("shows the locale code with navbar typography and reuses the profile country options", () => {
+  it("shows the locale code with navbar typography and reuses the complete profile country option", () => {
     const languageSelector = readFileSync(join(REPO_ROOT, "components/shared/language-selector.tsx"), "utf8");
+    const countrySelector = readFileSync(join(REPO_ROOT, "components/forms/form-autocomplete-country.tsx"), "utf8");
     const countryItem = readFileSync(
       join(REPO_ROOT, "components/forms/form-autocomplete-country-item.tsx"),
       "utf8",
@@ -30,10 +33,14 @@ describe("public navigation preferences", () => {
     expect(languageSelector).toContain("currentLocale.toUpperCase()");
     expect(languageSelector).toContain('className={cn("size-8 rounded-md p-0 text-subdued", className)}');
     expect(languageSelector).not.toContain("text-[11px]");
-    expect(languageSelector).toContain(
-      '<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />',
-    );
+    expect(languageSelector).toContain("FormAutocompleteItem({");
+    expect(countrySelector).toContain("FormAutocompleteItem({");
+    expect(languageSelector).toContain("textValue: label");
+    expect(languageSelector).toContain('<FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />');
+    expect(languageSelector).toContain('className={cn(isSelected && "bg-accent")}');
+    expect(languageSelector).toContain("data-selected={isSelected}");
     expect(languageSelector).not.toContain("AvatarImage");
+    expect(languageSelector).not.toContain("Check");
     expect(countryItem).toContain('<Avatar className={size === "sm" ? "size-3" : "size-5"}>');
     expect(countryItem).toContain("flagcdn.com");
     expect(languageSelector).toContain('<DropdownMenuContent align="start"');

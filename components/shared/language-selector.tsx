@@ -1,10 +1,10 @@
 "use client";
 
-import { Check } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 
 import { FormAutocompleteCountryItem } from "@/components/forms/form-autocomplete-country-item";
+import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -57,13 +57,15 @@ export const LanguageSelector = observer(({ className }: Props) => {
             <DropdownMenuItem
               key={locale}
               aria-checked={isSelected}
-              className="gap-2.5"
+              className={cn(isSelected && "bg-accent")}
+              data-selected={isSelected}
               role="menuitemradio"
               onSelect={() => handleSelect(locale)}
             >
-              <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />
-
-              <Check aria-hidden className={cn("size-3.5", !isSelected && "opacity-0")} />
+              {FormAutocompleteItem({
+                textValue: label,
+                children: <FormAutocompleteCountryItem countryKey={flagCodeFor(locale)} label={label} />,
+              })}
             </DropdownMenuItem>
           );
         })}

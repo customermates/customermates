@@ -138,7 +138,7 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
                   </AppLink>
                 ))}
 
-                <div className="my-1 border-y py-3">{renderPreferenceButtons()}</div>
+                <div className="my-1 py-3">{renderPreferenceButtons()}</div>
 
                 {contactButton}
 
