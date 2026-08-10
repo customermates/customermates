@@ -85,6 +85,33 @@ describe("agent tools", () => {
     expect(inboxTools).toEqual(expect.arrayContaining(["get_messaging_threads", "send_chat_message", "send_email"]));
   });
 
+  it("recognises the everyday German phrasings for creating and editing records", () => {
+    const phrasings = [
+      'Lege einen Kontakt namens "Loeschtest Mueller" an.',
+      "Kannst du bitte eine Organisation anlegen?",
+      "Erfasse eine neue Aufgabe für morgen.",
+      "Trage einen Deal für Roche ein.",
+      "Speichere die Telefonnummer bei diesem Kontakt.",
+    ];
+
+    for (const text of phrasings) {
+      const tools = selectAgentToolNames({ pageRoute: "/de/dashboard", text });
+      const writeTools = tools.filter((name) => name.startsWith("create_") || name.startsWith("update_"));
+
+      expect(writeTools.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("does not read write intent into a plain German question", () => {
+    const tools = selectAgentToolNames({
+      pageRoute: "/de/contacts",
+      text: "Wie viele Kontakte habe ich?",
+    });
+
+    expect(tools).not.toContain("create_contacts");
+    expect(tools).not.toContain("update_contacts");
+  });
+
   it("keeps action tools available through bounded conversational follow-ups", () => {
     const contactTools = selectAgentToolNames({
       text: "Alice Smith",

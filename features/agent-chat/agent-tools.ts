@@ -108,6 +108,8 @@ function includesAny(value: string, hints: readonly string[]) {
   return hints.some((hint) => value.includes(hint));
 }
 
+const GERMAN_WRITE_VERB_STEM_PATTERN = /\b(leg|trag|füg|setz)/u;
+
 const AGENT_TOOL_INTENT_MESSAGE_LIMIT = 3;
 const AGENT_TOOL_INTENT_MESSAGE_MAX_CHARS = 1000;
 
@@ -122,20 +124,28 @@ export function selectAgentToolNames(args: {
   const request = [...priorIntent, args.text].join("\n").toLocaleLowerCase();
   const route = (args.pageRoute ?? "").toLocaleLowerCase();
   const selected = new Set<string>(CORE_AGENT_TOOL_NAMES);
-  const hasWriteIntent = includesAny(request, [
-    "create",
-    "add",
-    "new ",
-    "update",
-    "edit",
-    "change",
-    "set ",
-    "erstell",
-    "hinzufüg",
-    "neu ",
-    "aktualisier",
-    "änder",
-  ]);
+  const hasWriteIntent =
+    includesAny(request, [
+      "create",
+      "add",
+      "new ",
+      "update",
+      "edit",
+      "change",
+      "set ",
+      "erstell",
+      "hinzufüg",
+      "neu ",
+      "aktualisier",
+      "änder",
+      "anleg",
+      "angeleg",
+      "anzuleg",
+      "erfass",
+      "eintrag",
+      "speicher",
+      "pfleg",
+    ]) || GERMAN_WRITE_VERB_STEM_PATTERN.test(request);
 
   for (const [entity, hints] of Object.entries(ENTITY_HINTS) as Array<[keyof typeof ENTITY_HINTS, readonly string[]]>) {
     const routeHint = entity === "organization" ? "organizations" : `${entity}s`;

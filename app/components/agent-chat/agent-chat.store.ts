@@ -103,8 +103,23 @@ const nextItemId = () => `item-${++itemSeq}`;
 const UI_COMMAND_NAMES = ["navigate", "highlight_element", "start_tour", "open_workspace_setup"] as const;
 const AGENT_TURN_POLL_MAX_ATTEMPTS = 100;
 const AGENT_TURN_POLL_DELAY_MS = 1500;
+const AGENT_CONFIG_LOAD_TIMEOUT_MS = 15000;
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
 export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
+
+async function withDeadline<T>(work: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      work,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error("The assistant configuration request timed out.")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function appendDistinctConversations(
   existing: AgentConversationSummary[],
@@ -810,7 +825,7 @@ export class AgentChatStore extends BaseStore {
   private loadConfigOnce = async (): Promise<AgentConfigLoadStatus> => {
     const unreadVersion = this.unreadStateVersion;
     try {
-      const response = await getAgentConfigAction();
+      const response = await withDeadline(getAgentConfigAction(), AGENT_CONFIG_LOAD_TIMEOUT_MS);
       if (!response.enabled) {
         runInAction(() => {
           this.enabled = false;

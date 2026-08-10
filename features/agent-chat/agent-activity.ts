@@ -355,10 +355,14 @@ export function describeAgentTool(toolName: string, input: unknown): AgentActivi
     };
   }
   if (toolName === "delete_records") {
-    return descriptor("records.delete", resource, "sensitive", resource ? [resource] : [], {
-      action: "records.delete",
-      count: boundedCount(details.ids),
-    });
+    const count = boundedCount(details.ids);
+    return {
+      ...descriptor("records.delete", resource, "sensitive", resource ? [resource] : [], {
+        action: "records.delete",
+        count,
+      }),
+      ...(count ? { count } : {}),
+    };
   }
   if (toolName === "manage_record_links") {
     return descriptor("records.link", resource, "sensitive", resource ? [resource] : [], {
@@ -553,22 +557,26 @@ function agentUiTargetCopy(targetKey: string, language: "en" | "de") {
   return language === "de" ? `Zurücksetzen in ${target.de}` : `Reset in ${target.en}`;
 }
 
-function mutationTargetCopy(
+function countedResourceCopy(
+  count: number | undefined,
+  resourceKey: AgentActivityResource | undefined,
+  language: "en" | "de",
+  resource: string | undefined,
+  hasCustomTerminology: boolean,
+) {
+  if (count === undefined) return resource ?? (language === "de" ? "Datensätze" : "records");
+  if (count === 1 && resourceKey && !hasCustomTerminology) return `1 ${RESOURCE_SINGULAR_COPY[language][resourceKey]}`;
+  if (count === 1 && resource) return language === "de" ? `1 Datensatz für ${resource}` : `1 record in ${resource}`;
+
+  return `${count} ${resource ?? (language === "de" ? "Datensätze" : "records")}`;
+}
+
+function agentConsequenceDetail(
   activity: AgentActivityDescriptor,
   language: "en" | "de",
   resource: string | undefined,
   hasCustomTerminology: boolean,
 ) {
-  if (activity.count === undefined) return resource ?? (language === "de" ? "Datensätze" : "records");
-  if (activity.count === 1 && activity.resource && !hasCustomTerminology)
-    return `1 ${RESOURCE_SINGULAR_COPY[language][activity.resource]}`;
-  if (activity.count === 1 && resource)
-    return language === "de" ? `1 Datensatz für ${resource}` : `1 record in ${resource}`;
-
-  return `${activity.count} ${resource ?? (language === "de" ? "Datensätze" : "records")}`;
-}
-
-function agentConsequenceDetail(activity: AgentActivityDescriptor, language: "en" | "de", resource?: string) {
   const consequence = activity.consequence;
   if (!consequence) return undefined;
 
@@ -664,12 +672,13 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, language: "en
       return language === "de"
         ? "Webhook-Informationen oder Zustellungen abrufen"
         : "Inspect webhook information or deliveries";
-    case "records.delete":
-      return count === undefined
-        ? undefined
-        : language === "de"
-          ? `${count} ${resource ?? "Datensätze"} dauerhaft löschen`
-          : `Permanently delete ${count} ${resource ?? "records"}`;
+    case "records.delete": {
+      if (count === undefined) return undefined;
+
+      const target = countedResourceCopy(count, activity.resource, language, resource, hasCustomTerminology);
+
+      return language === "de" ? `${target} dauerhaft löschen` : `Permanently delete ${target}`;
+    }
     case "records.link":
       return compact([
         consequence.state === "remove"
@@ -705,16 +714,18 @@ export function agentActivityCopy(
   const resource = activity.resource
     ? (terminology[activity.resource] ?? RESOURCE_COPY[language][activity.resource])
     : undefined;
-  const mutationTarget = mutationTargetCopy(
-    activity,
+  const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
+  const mutationTarget = countedResourceCopy(
+    activity.count,
+    activity.resource,
     language,
     resource,
-    Boolean(activity.resource && terminology[activity.resource]),
+    hasCustomTerminology,
   );
   const mutationIsSingular = activity.count === 1;
   const uiTarget = activity.targetKey ? agentUiTargetCopy(activity.targetKey, language) : undefined;
   const detail =
-    agentConsequenceDetail(activity, language, resource) ??
+    agentConsequenceDetail(activity, language, resource, hasCustomTerminology) ??
     uiTarget ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
 
@@ -740,9 +751,9 @@ export function agentActivityCopy(
       error: `Couldn’t update ${mutationTarget}`,
     },
     "records.delete": {
-      running: `Removing ${resource ?? "records"}`,
-      done: `Removed ${resource ?? "records"}`,
-      error: `Couldn’t remove ${resource ?? "records"}`,
+      running: `Removing ${mutationTarget}`,
+      done: `Removed ${mutationTarget}`,
+      error: `Couldn’t remove ${mutationTarget}`,
     },
     "records.link": {
       running: "Connecting related records",
@@ -857,9 +868,9 @@ export function agentActivityCopy(
       error: `${mutationTarget} ${mutationIsSingular ? "konnte" : "konnten"} nicht aktualisiert werden`,
     },
     "records.delete": {
-      running: `${resource ?? "Datensätze"} werden entfernt`,
-      done: `${resource ?? "Datensätze"} wurden entfernt`,
-      error: `${resource ?? "Datensätze"} konnten nicht entfernt werden`,
+      running: `${mutationTarget} ${mutationIsSingular ? "wird" : "werden"} entfernt`,
+      done: `${mutationTarget} ${mutationIsSingular ? "wurde" : "wurden"} entfernt`,
+      error: `${mutationTarget} ${mutationIsSingular ? "konnte" : "konnten"} nicht entfernt werden`,
     },
     "records.link": {
       running: "Datensätze werden verknüpft",
