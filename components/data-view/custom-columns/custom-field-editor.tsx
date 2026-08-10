@@ -113,7 +113,6 @@ export const CustomFieldEditor = observer(({ column, value, onChange, id, label,
     case CustomColumnType.currency:
       return (
         <FormNumberInput
-          hideStepper
           endContent={
             column.options?.currency && (
               <span className="mr-1.5">
