@@ -29,8 +29,8 @@ function registeredToolNames(): Map<string, string> {
 }
 
 function routeToolBindings(): number {
-  const routeText = readFileSync(join(REPO_ROOT, "app", "api", "v1", "mcp", "route.ts"), "utf8");
-  const registration = routeText.slice(routeText.indexOf("const TOOL_GROUPS"));
+  const registryText = readFileSync(join(REPO_ROOT, "features", "mcp-tools", "tool-registry.ts"), "utf8");
+  const registration = registryText.slice(registryText.indexOf("export const MCP_TOOL_GROUPS"));
   const bindings = [...registration.matchAll(/\b[A-Za-z0-9]+Tool\b/g)]
     .map((match) => match[0])
     .filter((name) => name !== "McpTool");
@@ -62,7 +62,10 @@ describe("MCP tool catalog fidelity", () => {
       }
       total += nameCount;
     }
-    expect(routeToolBindings(), "route.ts TOOL_GROUPS + ALWAYS_ON must register every exported tool").toBe(total);
+    expect(
+      routeToolBindings(),
+      "tool-registry.ts MCP_TOOL_GROUPS + MCP_ALWAYS_ON_TOOLS must register every exported tool",
+    ).toBe(total);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every registered tool in both catalogs", () => {
