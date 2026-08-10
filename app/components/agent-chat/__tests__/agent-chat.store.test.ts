@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createTranslator } from "next-intl";
+
+import de from "@/i18n/locales/de.json";
 
 const actionsMock = vi.hoisted(() => ({
   applyAgentWorkspaceSetupAction: vi.fn(),
@@ -54,7 +57,7 @@ function root(uiOverrides: Record<string, unknown> = {}) {
     refresh: vi.fn().mockResolvedValue(undefined),
   });
   return {
-    localeStore: { locale: "en", getTranslation: (key: string) => key },
+    localeStore: { locale: "en", translation: null, getTranslation: (key: string) => key },
     contactsStore: refreshStore(),
     organizationsStore: refreshStore(),
     dealsStore: refreshStore(),
@@ -606,6 +609,7 @@ describe("AgentChatStore", () => {
   it("builds the setup review in the current German locale", async () => {
     const rootStore = root();
     rootStore.localeStore.locale = "de";
+    rootStore.localeStore.translation = createTranslator({ locale: "de", messages: de }) as never;
     const store = new AgentChatStore(rootStore as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
 
@@ -630,7 +634,6 @@ describe("AgentChatStore", () => {
         expect.objectContaining({
           kind: "workspace_setup",
           plan: expect.objectContaining({
-            locale: "de",
             columns: expect.arrayContaining([expect.objectContaining({ label: "Phase" })]),
           }),
         }),

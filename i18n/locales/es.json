@@ -8,192 +8,520 @@
     "title": "Cuentas conectadas eliminadas"
   },
   "AgentChat": {
+    "activity": {
+      "addWidget": "Añadir widget del dashboard",
+      "cancelled": "Detenido",
+      "consequence": {
+        "accountConnect": "Conectar un canal de mensajería",
+        "accountConnectTarget": "Conectar {target}",
+        "chatSend": "Enviar a la conversación seleccionada",
+        "draftDiscard": "Descartar de forma permanente el borrador guardado seleccionado",
+        "draftSave": "Guardar un borrador en la conversación seleccionada",
+        "emailSend": "Enviar un correo a los destinatarios seleccionados",
+        "recordsDelete": "Eliminar {target} de forma permanente",
+        "recordsLink": "Vincular registros",
+        "recordsUnlink": "Eliminar vínculos",
+        "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
+        "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
+        "teamUpdate": "Cambiar el rol o el estado del miembro del equipo seleccionado",
+        "threadUpdate": "Cambiar el estado de la conversación seleccionada",
+        "threadUpdateState": "Establecer el estado de la conversación en «{state}»",
+        "webhookCreate": "Crear un webhook",
+        "webhookDelete": "Eliminar de forma permanente el webhook seleccionado",
+        "webhookEvents": "{count} eventos",
+        "webhookInspect": "Consultar información o entregas de webhooks",
+        "webhookResend": "Reenviar la entrega de webhook seleccionada",
+        "webhookUpdate": "Modificar el webhook seleccionado"
+      },
+      "countedRecordInResource": "1 registro en {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "registros",
+      "label": {
+        "preview": "Vista previa",
+        "subject": "Asunto",
+        "to": "Para"
+      },
+      "navTarget": {
+        "nav-company": "Configuración de la empresa",
+        "nav-company-audit-logs": "Registros de auditoría",
+        "nav-company-members": "Miembros del equipo",
+        "nav-company-roles": "Roles",
+        "nav-company-settings": "Configuración de la empresa",
+        "nav-company-subscription": "Suscripción",
+        "nav-company-webhook-deliveries": "Entregas de webhook",
+        "nav-company-webhooks": "Webhooks",
+        "nav-contacts": "Contactos",
+        "nav-dashboard": "Dashboard",
+        "nav-deals": "Oportunidades",
+        "nav-documentation": "Documentación",
+        "nav-feedback": "Feedback",
+        "nav-inbox": "Bandeja de entrada",
+        "nav-organizations": "Organizaciones",
+        "nav-profile": "Configuración del perfil",
+        "nav-profile-api-keys": "Claves de API",
+        "nav-profile-connected-accounts": "Cuentas conectadas",
+        "nav-profile-settings": "Configuración del perfil",
+        "nav-search": "Búsqueda global",
+        "nav-services": "Servicios",
+        "nav-tasks": "Tareas"
+      },
+      "resource": {
+        "contacts": "contactos",
+        "deals": "oportunidades",
+        "messages": "conversaciones",
+        "organizations": "organizaciones",
+        "services": "servicios",
+        "tasks": "tareas",
+        "terminology": "terminología del espacio de trabajo",
+        "widgets": "widgets del Dashboard"
+      },
+      "resourceSingular": {
+        "contacts": "contacto",
+        "deals": "oportunidad",
+        "messages": "conversación",
+        "organizations": "organización",
+        "services": "servicio",
+        "tasks": "tarea",
+        "terminology": "término del espacio de trabajo",
+        "widgets": "widget del dashboard"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Enlace de conexión preparado",
+            "error": "No se pudo preparar el enlace de conexión",
+            "running": "Preparando un enlace de conexión seguro"
+          }
+        },
+        "generic": {
+          "done": "Paso completado",
+          "error": "Este paso requiere atención",
+          "running": "Procesando la solicitud"
+        },
+        "interface": {
+          "navigate": {
+            "done": "Vista correspondiente abierta",
+            "error": "No se pudo abrir esa vista",
+            "running": "Abriendo la vista correspondiente"
+          },
+          "tour": {
+            "done": "Tour iniciado",
+            "error": "No se pudo iniciar el tour",
+            "running": "Preparando la visita guiada"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Borrador descartado",
+            "error": "No se pudo descartar el borrador",
+            "running": "Listo para descartar el borrador"
+          },
+          "draft": {
+            "done": "Borrador guardado",
+            "error": "No se pudo guardar el borrador",
+            "running": "Listo para guardar un borrador"
+          },
+          "read": {
+            "done": "Conversaciones revisadas",
+            "error": "No se pudieron revisar las conversaciones",
+            "running": "Revisando las conversaciones"
+          },
+          "send": {
+            "done": "Mensaje enviado",
+            "error": "No se pudo enviar el mensaje",
+            "running": "Listo para enviar un mensaje real"
+          },
+          "triage": {
+            "done": "Estado de la conversación cambiado",
+            "error": "No se pudo cambiar el estado de la conversación",
+            "running": "Listo para cambiar el estado de la conversación"
+          },
+          "write": {
+            "done": "Acción de mensaje completada",
+            "error": "No se pudo completar la acción de mensaje",
+            "running": "Preparando el mensaje"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {Creación de {target} completada} other {Creación de {target} completada}}",
+            "error": "{count, plural, one {Error al crear {target}} other {Error al crear {target}}}",
+            "running": "{count, plural, one {Creando {target}} other {Creando {target}}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {Eliminación de {target} completada} other {Eliminación de {target} completada}}",
+            "error": "{count, plural, one {Error al eliminar {target}} other {Error al eliminar {target}}}",
+            "running": "{count, plural, one {Eliminando {target}} other {Eliminando {target}}}"
+          },
+          "link": {
+            "done": "Registros relacionados vinculados",
+            "error": "No se pudieron vincular los registros",
+            "running": "Vinculando registros relacionados"
+          },
+          "note": {
+            "done": "Notas actualizadas",
+            "error": "No se pudieron actualizar las notas",
+            "running": "Actualizando las notas"
+          },
+          "read": {
+            "done": "Revisión de {resource} completada",
+            "error": "Error al revisar {resource}",
+            "running": "Consultando {resource}"
+          },
+          "update": {
+            "done": "{count, plural, one {Actualización de {target} completada} other {Actualización de {target} completada}}",
+            "error": "{count, plural, one {Error al actualizar {target}} other {Error al actualizar {target}}}",
+            "running": "{count, plural, one {Actualizando {target}} other {Actualizando {target}}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Se ha contactado con el soporte",
+            "error": "No se pudo contactar con el soporte",
+            "running": "Contactando con el soporte de Customermates"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Acceso del equipo modificado",
+            "error": "No se pudo cambiar el acceso del equipo",
+            "running": "Listo para cambiar el acceso del equipo"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Acción de webhook completada",
+            "error": "No se pudo completar la acción de webhook",
+            "running": "Listo para cambiar la entrega del webhook"
+          }
+        },
+        "workspace": {
+          "cleanup": {
+            "done": "Limpieza de los registros iniciales completada",
+            "error": "No se pudo finalizar la limpieza",
+            "running": "Limpiando los registros iniciales"
+          },
+          "configure": {
+            "done": "Espacio de trabajo actualizado",
+            "error": "No se pudo actualizar su espacio de trabajo",
+            "running": "Actualizando el espacio de trabajo"
+          },
+          "read": {
+            "done": "Espacio de trabajo revisado",
+            "error": "No se pudo comprobar su espacio de trabajo",
+            "running": "Revisando el espacio de trabajo"
+          },
+          "setup": {
+            "done": "Configuración del espacio de trabajo lista",
+            "error": "No se pudo finalizar la configuración del espacio de trabajo",
+            "running": "Configurando el espacio de trabajo"
+          }
+        }
+      },
+      "targetAction": {
+        "add": "Añadir {target}",
+        "displayOptions": "Opciones de visualización de {target}",
+        "filter": "Filtros de {target}",
+        "reset": "Restablecer en {target}",
+        "save": "Guardar en {target}",
+        "search": "Búsqueda de {target}"
+      },
+      "targetFallback": "Elemento de la interfaz seleccionado",
+      "targetScope": {
+        "company-audit-logs": "registros de auditoría",
+        "company-members": "miembros del equipo",
+        "company-roles": "roles",
+        "company-settings": "configuración de la empresa",
+        "company-webhook-deliveries": "entregas de webhook",
+        "company-webhooks": "webhooks",
+        "contacts": "contactos",
+        "deals": "oportunidades",
+        "member-modal": "diálogo de miembro del equipo",
+        "organizations": "organizaciones",
+        "profile-settings": "configuración del perfil",
+        "services": "servicios",
+        "tasks": "tareas",
+        "webhook-modal": "diálogo del webhook",
+        "widget-modal": "diálogo de widget del Dashboard"
+      },
+      "targetScopeSingular": {
+        "company-audit-logs": "registro de auditoría",
+        "company-members": "miembro del equipo",
+        "company-roles": "rol",
+        "company-settings": "configuración de la empresa",
+        "company-webhook-deliveries": "entregas de webhook",
+        "company-webhooks": "webhook",
+        "contacts": "contacto",
+        "deals": "oportunidad",
+        "member-modal": "diálogo de miembro del equipo",
+        "organizations": "organización",
+        "profile-settings": "configuración del perfil",
+        "services": "servicio",
+        "tasks": "tarea",
+        "webhook-modal": "diálogo del webhook",
+        "widget-modal": "diálogo de widget del Dashboard"
+      },
+      "yourRecords": "sus registros"
+    },
     "approval": {
-      "always": "Approved (always allowed from now on)",
-      "alwaysAction": "Approve always",
-      "alwaysUnavailable": "This action asks every time.",
-      "approve": "Approved",
-      "approveOnceAction": "Approve once",
-      "reject": "Rejected",
-      "rejectAction": "Cancel",
-      "timeout": "Timed out without a response",
-      "title": "The assistant wants to run:"
+      "always": "Aprobado (permitido siempre a partir de ahora)",
+      "alwaysAction": "Aprobar siempre",
+      "alwaysUnavailable": "Esta acción pide confirmación cada vez.",
+      "approve": "Aprobado",
+      "approveOnceAction": "Aprobar una vez",
+      "reject": "Rechazado",
+      "rejectAction": "Cancelar",
+      "timeout": "Tiempo agotado sin respuesta",
+      "title": "El asistente quiere ejecutar:"
     },
     "credits": {
       "blocked": {
-        "configuration_unavailable": "The hosted Assistant is temporarily unavailable. Your history remains accessible.",
-        "credits_exhausted": "You have used this month's hosted AI credits. New requests resume on {resetAt}; your history remains accessible.",
-        "enterprise_allowance_missing": "Your Enterprise hosted AI allowance has not been configured yet. Contact Customermates to enable new requests.",
-        "self_hosted": "The hosted Assistant is cloud-only. Self-hosted workspaces can continue to use external MCP clients with their own AI provider.",
-        "subscription_unavailable": "A current cloud subscription is required for new hosted Assistant requests. Your history remains accessible."
+        "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
+        "credits_exhausted": "Ha agotado los créditos de IA alojada de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
+        "enterprise_allowance_missing": "Su cuota de IA alojada del plan Enterprise aún no está configurada. Póngase en contacto con Customermates para habilitar nuevas solicitudes.",
+        "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
+        "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
       },
-      "contact": "Contact us",
-      "planAndReset": "{plan} plan · resets {resetAt}",
-      "recentTurn": "{credits, plural, one {Last turn used # credit} other {Last turn used # credits}}",
-      "remaining": "{remaining, number} of {limit, number} credits remaining",
-      "resetShort": "Resets {resetAt}",
-      "usage": "{pct}% of monthly hosted AI credits used",
-      "usedPercent": "{pct}% used",
-      "viewPlans": "View plans"
+      "contact": "Contactar con nosotros",
+      "planAndReset": "Plan {plan} · se restablece {resetAt}",
+      "recentTurn": "{credits, plural, one {Última consulta: # crédito} other {Última consulta: # créditos}}",
+      "remaining": "Quedan {remaining, number} de {limit, number} créditos",
+      "resetShort": "Se restablece {resetAt}",
+      "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
+      "usedPercent": "{pct} % utilizado",
+      "viewPlans": "Ver planes"
     },
-    "empty": "Ask anything about your CRM. I can look things up, create and update records with your approval, and show you around the app.",
+    "empty": "Pregunte lo que quiera sobre su CRM. Puedo consultar datos, crear y actualizar registros con su aprobación y guiarle por la aplicación.",
     "errors": {
-      "approvalFailed": "The approval could not be delivered.",
-      "limitReached": "Your AI usage limit is reached.",
-      "sendFailed": "The assistant could not process your message.",
-      "turnFailed": "The assistant ran into an error."
+      "approvalFailed": "No se pudo enviar la aprobación.",
+      "limitReached": "Se ha alcanzado el límite de uso de IA.",
+      "sendFailed": "El asistente no ha podido procesar su mensaje.",
+      "turnFailed": "Se ha producido un error en el asistente."
     },
-    "placeholder": "Ask your CRM…",
-    "send": "Send",
+    "placeholder": "Pregunte a su CRM…",
+    "send": "Enviar",
     "setup": {
-      "actionFailed": "The action couldn’t be completed. You can try again.",
-      "applyPlan": "Apply setup",
-      "cancel": "Cancel",
-      "cleanupReasonDependent": "still linked",
-      "cleanupReasonEdited": "edited",
-      "cleanupSummary": "{deleted} removed · {retained} kept · {missing} already missing",
-      "cleanupSummaryReasons": "{deleted} removed · {retained} kept · {missing} already missing · Kept: {reasons}",
-      "confirmFullCleanup": "Remove permanently",
-      "contacts": "Contacts",
-      "deals": "Deals",
-      "description": "A small, connected starting point tailored to your use case.",
-      "dueInDays": "due in {days} days",
-      "editPlan": "Edit plan",
-      "editPrompt": "I’d like to change this workspace setup plan. Please ask me what I want to adjust.",
+      "actionFailed": "No se pudo completar la acción. Puede volver a intentarlo.",
+      "applyPlan": "Aplicar configuración",
+      "cancel": "Cancelar",
+      "cleanupReasonDependent": "aún vinculado",
+      "cleanupReasonEdited": "editado",
+      "cleanupSummary": "{deleted} eliminados · {retained} conservados · {missing} ya inexistentes",
+      "cleanupSummaryReasons": "{deleted} eliminados · {retained} conservados · {missing} ya no existían · Conservados: {reasons}",
+      "confirmFullCleanup": "Eliminar definitivamente",
+      "contacts": "Contactos",
+      "deals": "Oportunidades",
+      "description": "Un punto de partida pequeño y conectado, adaptado a su caso de uso.",
+      "dueInDays": "vence en {days} días",
+      "editPlan": "Editar plan",
+      "editPrompt": "Me gustaría cambiar este plan de configuración del espacio de trabajo. Pregúntame, por favor, qué quiero ajustar.",
       "entities": {
-        "contact": "Contact",
-        "deal": "Deal",
-        "organization": "Organization",
-        "service": "Service",
-        "task": "Task"
+        "contact": "Contacto",
+        "deal": "Oportunidad",
+        "organization": "Organización",
+        "service": "Servicio",
+        "task": "Tarea"
       },
-      "fields": "Fields",
-      "fullCleanup": "Some setup items were edited, so safe cleanup kept them. You can remove those too; still-linked items remain protected. This cannot be undone.",
-      "organizations": "Organizations",
+      "fields": "Campos",
+      "fullCleanup": "Algunos elementos de la configuración se editaron, por lo que la limpieza segura los conservó. También puede eliminarlos; los elementos que siguen vinculados permanecen protegidos. Esta acción no se puede deshacer.",
+      "organizations": "Organizaciones",
       "pending": {
         "apply": {
-          "description": "The reviewed workspace setup is being applied…",
-          "label": "Applying"
+          "description": "Se está aplicando la configuración revisada del espacio de trabajo…",
+          "label": "Aplicando"
         },
         "fullCleanup": {
-          "description": "Edited items created by this setup are being removed too…",
-          "label": "Removing edited items"
+          "description": "También se están eliminando los elementos editados creados por esta configuración…",
+          "label": "Eliminando los elementos editados"
         },
         "safeCleanup": {
-          "description": "Unchanged items created by this setup are being removed…",
-          "label": "Removing"
+          "description": "Se están eliminando los elementos sin cambios creados por esta configuración…",
+          "label": "Eliminando"
         }
       },
-      "records": "Records",
-      "removeEdited": "Remove edited items…",
-      "removeSetup": "Remove setup data",
-      "review": "Review plan",
-      "safeCleanup": "You can remove this setup later. Safe cleanup keeps anything you edited or that is still linked to other data.",
-      "safety": "Nothing has changed yet. Apply creates exactly the reviewed fields, linked starter records, and personal widgets.",
-      "sampleData": "Starter records",
-      "sampleDataDetail": "{organizations} organizations, {contacts} contacts, {services} services, {deals} deals and {tasks} tasks",
-      "services": "Services",
+      "records": "Registros",
+      "removeEdited": "Eliminar elementos editados…",
+      "removeSetup": "Eliminar los datos de configuración",
+      "review": "Revisar plan",
+      "safeCleanup": "Puede eliminar esta configuración más adelante. La limpieza segura conserva todo lo que haya editado o que siga vinculado a otros datos.",
+      "safety": "Aún no se ha cambiado nada. Al aplicar se crean exactamente los campos revisados, los registros iniciales vinculados y los widgets personales.",
+      "sampleData": "Registros iniciales",
+      "sampleDataDetail": "{organizations} organizaciones, {contacts} contactos, {services} servicios, {deals} oportunidades y {tasks} tareas",
+      "services": "Servicios",
       "status": {
         "applied": {
-          "description": "This setup is active in your workspace.",
-          "label": "Applied"
+          "description": "Esta configuración está activa en su espacio de trabajo.",
+          "label": "Aplicado"
         },
         "cleaned": {
-          "description": "Items created by this setup were removed.",
-          "label": "Removed"
+          "description": "Se han eliminado los elementos creados por esta configuración.",
+          "label": "Eliminado"
         },
         "failed": {
-          "description": "The workspace setup could not be completed.",
-          "label": "Failed"
+          "description": "No se ha podido completar la configuración del espacio de trabajo.",
+          "label": "Fallido"
         },
         "notEmpty": {
-          "description": "The workspace now contains data, so this starter plan was not applied.",
-          "label": "Not applied"
+          "description": "El espacio de trabajo ya contiene datos, por lo que este plan inicial no se aplicó.",
+          "label": "No aplicado"
         },
         "partiallyCleaned": {
-          "description": "Edited or linked items were safely kept.",
-          "label": "Partially removed"
+          "description": "Los elementos editados o vinculados se han conservado de forma segura.",
+          "label": "Eliminado parcialmente"
         },
         "preparing": {
-          "description": "The workspace setup plan is being prepared.",
-          "label": "Preparing"
+          "description": "Se está preparando el plan de configuración del espacio de trabajo.",
+          "label": "Preparando"
         },
         "ready": {
-          "description": "Review the plan before applying it.",
-          "label": "Ready to review"
+          "description": "Revise el plan antes de aplicarlo.",
+          "label": "Listo para revisar"
         },
         "superseded": {
-          "description": "A newer setup plan replaces this version.",
-          "label": "Replaced"
+          "description": "Un plan de configuración más reciente sustituye a esta versión.",
+          "label": "Sustituido"
         }
       },
-      "summary": "Workspace setup summary",
-      "tasks": "Tasks",
-      "terminology": "Terminology",
-      "title": "Set up your workspace",
+      "summary": "Resumen de la configuración del espacio de trabajo",
+      "tasks": "Tareas",
+      "terminology": "Terminología",
+      "text": {
+        "active": "Activo",
+        "advisorySession": "Sesión de asesoramiento",
+        "atRisk": "En riesgo",
+        "blocked": "Bloqueado",
+        "bookProjectKickoff": "Programar el kick-off del proyecto",
+        "brightpathRelaunch": "Relanzamiento de Brightpath",
+        "cedarIntroduction": "Primer contacto con Cedar",
+        "cedarPartnership": "Alianza con Cedar",
+        "clarifyRequirements": "Aclarar requisitos",
+        "collectProjectRequirements": "Recopilar requisitos del proyecto",
+        "commonGroundAdvisory": "Asesoramiento a Common Ground",
+        "confirmDiscoveryGoals": "Confirmar objetivos del discovery",
+        "confirmSeatRequirements": "Confirmar licencias necesarias",
+        "coreOffering": "Oferta principal",
+        "customerOpportunity": "Oportunidad de cliente",
+        "dealsByStage": "Deals por etapa",
+        "discoveryWorkshop": "Taller de discovery",
+        "done": "Hecho",
+        "draftPartnershipOutline": "Esbozar la propuesta de alianza",
+        "dueDate": "Fecha de vencimiento",
+        "enterprise": "Enterprise",
+        "enterprisePlan": "Plan Enterprise",
+        "exampleCustomer": "Cliente de ejemplo",
+        "examplePartner": "Socio de ejemplo",
+        "expandedOffering": "Oferta ampliada",
+        "growthRollout": "Despliegue de crecimiento",
+        "implementationProject": "Proyecto de implantación",
+        "inbound": "Entrante",
+        "inProgress": "En curso",
+        "juniperDiscovery": "Discovery de Juniper",
+        "juniperImplementation": "Implantación de Juniper",
+        "keyRelationship": "Relación clave",
+        "lindenExpansion": "Ampliación de Linden",
+        "midMarket": "Mediana empresa",
+        "new": "Nuevo",
+        "northstarPilot": "Piloto de Northstar",
+        "northstarRollout": "Despliegue de Northstar",
+        "oakFieldExpansion": "Ampliación de Oak & Field",
+        "oakFieldTeamPlan": "Plan Team de Oak & Field",
+        "onTrack": "Según lo previsto",
+        "outbound": "Saliente",
+        "partnerExpansion": "Ampliación de socios",
+        "partnerOpportunity": "Oportunidad de socio",
+        "partnershipProgram": "Programa de alianzas",
+        "pipelineValueByStage": "Valor del pipeline por etapa",
+        "prepareProductDemo": "Preparar la demo del producto",
+        "prepareRolloutProposal": "Preparar la propuesta de despliegue",
+        "prepareTheNextStep": "Preparar el siguiente paso",
+        "projectHealth": "Estado del proyecto",
+        "proposal": "Propuesta",
+        "qualified": "Cualificado",
+        "referral": "Recomendación",
+        "relationship": "Relación",
+        "reviewDeliveryPlan": "Revisar el plan de entrega",
+        "scheduleACheckIn": "Programar un check-in",
+        "scheduleAFollowUp": "Programar un seguimiento",
+        "scheduleStakeholderReview": "Programar revisión con stakeholders",
+        "segment": "Segmento",
+        "sendIntroductionNote": "Enviar nota de presentación",
+        "shareSecurityPackage": "Compartir documentación de seguridad",
+        "smallTeam": "Equipo pequeño",
+        "solarisEnterprisePlan": "Plan Enterprise de Solaris",
+        "source": "Origen",
+        "stage": "Fase",
+        "status": "Estado",
+        "strategySprint": "Sprint de estrategia",
+        "tasksByStatus": "Tareas por estado",
+        "teamPlan": "Plan Team",
+        "toDo": "Pendiente",
+        "won": "Ganado"
+      },
+      "title": "Configure su espacio de trabajo",
       "widgets": "Widgets"
     },
-    "stop": "Stop",
+    "stop": "Detener",
     "support": {
-      "badge": "Customermates · Support"
+      "badge": "Customermates · Soporte"
     },
-    "title": "Assistant",
+    "title": "Asistente",
     "tour": {
-      "done": "Done",
-      "next": "Next",
-      "skip": "Skip"
+      "done": "Finalizar",
+      "next": "Siguiente",
+      "skip": "Omitir"
     },
     "tourUi": {
-      "back": "Back",
-      "pause": "Pause",
-      "resume": "Resume tour",
-      "title": "Guided tour"
+      "back": "Atrás",
+      "pause": "Pausar",
+      "resume": "Reanudar el tour",
+      "title": "Visita guiada"
     },
     "ui": {
-      "activityCancelled": "{count} {count, plural, one {step} other {steps}} stopped",
-      "activityComplete": "{count} {count, plural, one {step} other {steps}} completed",
-      "activityError": "{count} {count, plural, one {step needs} other {steps need}} attention",
-      "activityRunning": "Running {count} {count, plural, one {step} other {steps}}…",
-      "archive": "Archive chat",
-      "archived": "Archived",
-      "archivedChats": "Archived chats",
-      "assistantWorking": "Assistant is responding",
-      "back": "Back to chat",
-      "cancel": "Cancel",
+      "activityCancelled": "{count} {count, plural, one {paso detenido} other {pasos detenidos}}",
+      "activityComplete": "{count} {count, plural, one {paso completado} other {pasos completados}}",
+      "activityError": "{count} {count, plural, one {paso requiere} other {pasos requieren}} atención",
+      "activityRunning": "Ejecutando {count} {count, plural, one {paso} other {pasos}}…",
+      "archive": "Archivar el chat",
+      "archived": "Archivado",
+      "archivedChats": "Chats archivados",
+      "assistantWorking": "El asistente está respondiendo",
+      "back": "Volver al chat",
+      "cancel": "Cancelar",
       "chats": "Chats",
-      "creditUnavailable": "Allowance unavailable",
-      "deleteChat": "Delete chat",
-      "deleteChatBody": "This permanently deletes the chat’s messages, approvals, assistant actions, and setup history. AI usage and billing records, CRM records created through the chat, and separately created support tickets remain.",
-      "deleteChatTitle": "Permanently delete this chat?",
-      "deletePermanently": "Delete permanently",
-      "editQueued": "Edit queued message",
-      "history": "Chat history",
-      "jumpToLatest": "Jump to latest",
-      "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
-      "loadingChat": "Loading chat…",
-      "loadingOlderMessages": "Loading older messages",
-      "loadMoreChats": "Load more chats",
-      "loadOlderMessages": "Load earlier messages",
-      "newChat": "New chat",
-      "noChatMatches": "No matching chats found.",
-      "noChats": "No chats yet",
-      "noChatsBody": "Start a chat to return to your questions and completed work later.",
-      "queueAction": "Queue message",
-      "queued": "Up next",
-      "refreshHistoryFailed": "Chat history couldn’t be refreshed. Your existing chats remain visible.",
-      "removeQueued": "Remove queued message",
-      "responseComplete": "Response complete",
-      "restore": "Restore",
-      "retryTurn": "Try again",
-      "searchChats": "Search chats",
-      "searchingChats": "Searching chats",
-      "thinking": "Thinking",
-      "thoughtFor": "Thought for {seconds}s",
-      "turnFailed": "This response couldn’t be completed.",
-      "undo": "Undo",
-      "unreadReplies": "{count} unread support {count, plural, one {reply} other {replies}}",
-      "unreadSupport": "Unread support replies",
-      "untitled": "New chat"
+      "creditUnavailable": "Cupo no disponible",
+      "deleteChat": "Eliminar chat",
+      "deleteChatBody": "Esto elimina de forma permanente los mensajes, las aprobaciones, las acciones del asistente y el historial de configuración de este chat. Se conservan los datos de uso de IA y de facturación, los registros del CRM creados a través del chat y los tickets de soporte creados por separado.",
+      "deleteChatTitle": "¿Eliminar este chat definitivamente?",
+      "deletePermanently": "Eliminar definitivamente",
+      "editQueued": "Editar el mensaje en cola",
+      "history": "Historial de chats",
+      "jumpToLatest": "Ir a lo más reciente",
+      "loadChatFailed": "No se pudo cargar el chat. Vuelva a seleccionarlo para reintentar.",
+      "loadingChat": "Cargando el chat…",
+      "loadingOlderMessages": "Cargando mensajes anteriores",
+      "loadMoreChats": "Cargar más chats",
+      "loadOlderMessages": "Cargar mensajes anteriores",
+      "newChat": "Nuevo chat",
+      "noChatMatches": "No se han encontrado chats que coincidan.",
+      "noChats": "Aún no hay chats",
+      "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
+      "queueAction": "Poner el mensaje en cola",
+      "queued": "A continuación",
+      "refreshHistoryFailed": "No se ha podido actualizar el historial de chats. Sus chats existentes siguen visibles.",
+      "removeQueued": "Quitar el mensaje en cola",
+      "responseComplete": "Respuesta completada",
+      "restore": "Restaurar",
+      "retryTurn": "Reintentar",
+      "searchChats": "Buscar chats",
+      "searchingChats": "Buscando en los chats",
+      "thinking": "Pensando",
+      "thoughtFor": "Ha pensado durante {seconds} s",
+      "turnFailed": "No se ha podido completar esta respuesta.",
+      "undo": "Deshacer",
+      "unreadReplies": "{count} {count, plural, one {respuesta de soporte sin leer} other {respuestas de soporte sin leer}}",
+      "unreadSupport": "Respuestas de soporte sin leer",
+      "untitled": "Nuevo chat"
     }
   },
   "AgplGithubBadge": {
@@ -729,7 +1057,7 @@
     },
     "scroll": {
       "backToTop": "Back to top",
-      "jumpToLatest": "Jump to latest"
+      "jumpToLatest": "Ir a lo más reciente"
     },
     "sidebar": {
       "description": "Muestra la barra lateral móvil.",
@@ -1324,9 +1652,9 @@
       "badge": "Popular",
       "compareText": "Comparar los planes",
       "ctaText": "Empieza gratis",
-      "featureBusiness": "Business: 3 cuentas por usuario, cuentas compartidas y soporte prioritario",
-      "featurePro": "Pro: bandeja de entrada unificada, 1 cuenta conectada por usuario",
-      "featureStarter": "Starter: el CRM completo",
+      "featureBusiness": "Business: 1.200 créditos de IA alojada, 3 cuentas y bandejas de entrada compartidas",
+      "featurePro": "Pro: 500 créditos de IA alojada y bandeja de entrada unificada",
+      "featureStarter": "Starter: el CRM completo y 200 créditos de IA alojada",
       "period": "/ usuario / mes",
       "price": "desde 12 €",
       "tag": "Gestionado en Fráncfort. Empieza gratis, sin tarjeta de crédito.",
@@ -1787,7 +2115,7 @@
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
-      "creditNote": "Hosted AI credits refresh monthly, even on annual billing. External MCP clients use your own AI provider and do not consume these credits.",
+      "creditNote": "Los créditos de IA alojada se renuevan cada mes, incluso con la facturación anual. Los clientes MCP externos utilizan tu propio proveedor de IA y no consumen estos créditos.",
       "features": {
         "business": ["Todo lo de Pro", "3 cuentas conectadas por usuario", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada", "1 cuenta conectada por usuario"],
@@ -1798,7 +2126,7 @@
           "Acceso al servidor MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} hosted AI credits per active user / month",
+      "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
       "mostPopular": "El más popular",
       "perUserMonth": "por usuario / mes",
       "price": {

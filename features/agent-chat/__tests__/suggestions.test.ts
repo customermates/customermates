@@ -5,6 +5,7 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 
 import { SUGGESTION_PAGE_IDS, suggestionPageId, suggestionVariant, type AgentDataCounts } from "../agent-chat.schema";
 import { agentPageActions, agentPageState } from "../agent-page-actions";
+import { APP_LOCALES } from "@/i18n/locale-registry";
 
 const NO_DATA: AgentDataCounts = {
   contacts: false,
@@ -60,22 +61,19 @@ describe("suggestionVariant", () => {
 });
 
 describe("suggestion catalogs", () => {
-  it.each(["en", "de"] as const)(
-    "%s catalog returns exactly three usable actions for every page and state",
-    (locale) => {
-      for (const pageId of SUGGESTION_PAGE_IDS) {
-        for (const state of ["data", "empty"] as const) {
-          const actions = agentPageActions(pageId, state, locale);
+  it.each(APP_LOCALES)("%s catalog returns exactly three usable actions for every page and state", (locale) => {
+    for (const pageId of SUGGESTION_PAGE_IDS) {
+      for (const state of ["data", "empty"] as const) {
+        const actions = agentPageActions(pageId, state, locale);
 
-          expect(actions, `${pageId}.${state}`).toHaveLength(3);
-          for (const action of actions) {
-            expect(action.label.length, `${pageId}.${state}.label`).toBeGreaterThan(0);
-            expect(action.prompt.length, `${pageId}.${state}.prompt`).toBeGreaterThan(0);
-          }
+        expect(actions, `${pageId}.${state}`).toHaveLength(3);
+        for (const action of actions) {
+          expect(action.label.length, `${pageId}.${state}.label`).toBeGreaterThan(0);
+          expect(action.prompt.length, `${pageId}.${state}.prompt`).toBeGreaterThan(0);
         }
       }
-    },
-  );
+    }
+  });
 
   it("derives the same page state the legacy variant helper reported", () => {
     const counts: AgentDataCounts = { ...NO_DATA, contacts: true, connectedAccounts: true };

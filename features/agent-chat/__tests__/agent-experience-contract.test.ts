@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { createTranslator } from "next-intl";
+
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
+import en from "@/i18n/locales/en.json";
+import de from "@/i18n/locales/de.json";
 
 import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
 import { agentActionPageFromPathname, agentPageActions, agentPageState } from "../agent-page-actions";
@@ -11,6 +17,15 @@ import {
 } from "../agent-workspace-setup";
 import { AGENT_UI_TARGET_IDS } from "../ui-targets";
 import { AgentVisibleTextStreamSanitizer, sanitizeAgentVisibleText } from "../agent-output-safety";
+
+const AGENT_CATALOGS = { de, en } as const;
+const translatorFor = (locale: keyof typeof AGENT_CATALOGS) => {
+  const translate = createTranslator({ locale, messages: AGENT_CATALOGS[locale] });
+  return (key: string, values?: Record<string, string | number>) =>
+    (translate as unknown as (key: string, values?: Record<string, string | number>) => string)(key, values);
+};
+const enT = translatorFor("en");
+const deT = translatorFor("de");
 
 const EMPTY_COUNTS = {
   contacts: false,
@@ -113,12 +128,12 @@ describe("agent experience contract", () => {
     });
     expect(JSON.stringify(activity)).not.toContain(input.id);
     expect(JSON.stringify(activity)).not.toContain(input.apiKey);
-    expect(agentActivityCopy(activity, "de").running).toContain("Kontakte");
+    expect(agentActivityCopy(activity, deT).running).toContain("Kontakte");
   });
 
   it("uses the workspace's custom entity terminology in safe activity copy", () => {
     const activity = describeAgentTool("create_contacts", [{ firstName: "Ada" }, { firstName: "Grace" }]);
-    const copy = agentActivityCopy(activity, "de", {
+    const copy = agentActivityCopy(activity, deT, {
       contacts: "Kundinnen und Kunden",
     });
 
@@ -152,10 +167,10 @@ describe("agent experience contract", () => {
       resource: "deals",
       count: 1,
     });
-    expect(agentActivityCopy(created, "en").running).toBe("Creating 2 contacts");
-    expect(agentActivityCopy(created, "de").done).toBe("2 Kontakte wurden erstellt");
-    expect(agentActivityCopy(updated, "en").done).toBe("Updated 1 deal");
-    expect(agentActivityCopy(updated, "de").running).toBe("1 Deal wird aktualisiert");
+    expect(agentActivityCopy(created, enT).running).toBe("Creating 2 contacts");
+    expect(agentActivityCopy(created, deT).done).toBe("2 Kontakte wurden erstellt");
+    expect(agentActivityCopy(updated, enT).done).toBe("Updated 1 deal");
+    expect(agentActivityCopy(updated, deT).running).toBe("1 Deal wird aktualisiert");
     expect(JSON.stringify([created, updated])).not.toMatch(/Ada|Grace|Private project|never-show|00000000/);
   });
 
@@ -180,10 +195,10 @@ describe("agent experience contract", () => {
     });
     expect(highlight).toMatchObject({ targetKey: "contacts-add" });
     expect(rejected).not.toHaveProperty("targetKey");
-    expect(agentActivityCopy(navigate, "en").detail).toBe("Contacts");
-    expect(agentActivityCopy(navigate, "de").detail).toBe("Kontakte");
-    expect(agentActivityCopy(highlight, "en").detail).toBe("Add contact");
-    expect(agentActivityCopy(highlight, "de").detail).toBe("Kontakt hinzufügen");
+    expect(agentActivityCopy(navigate, enT).detail).toBe("Contacts");
+    expect(agentActivityCopy(navigate, deT).detail).toBe("Kontakte");
+    expect(agentActivityCopy(highlight, enT).detail).toBe("Add contact");
+    expect(agentActivityCopy(highlight, deT).detail).toBe("Kontakt hinzufügen");
     expect(JSON.stringify([navigate, highlight, rejected])).not.toContain("00000000");
 
     const forged = AgentActivityDescriptorSchema.parse({
@@ -197,8 +212,8 @@ describe("agent experience contract", () => {
       const activity = describeAgentTool("highlight_element", {
         targetId: targetKey,
       });
-      const english = agentActivityCopy(activity, "en").detail;
-      const german = agentActivityCopy(activity, "de").detail;
+      const english = agentActivityCopy(activity, enT).detail;
+      const german = agentActivityCopy(activity, deT).detail;
       expect(english).toBeTruthy();
       expect(german).toBeTruthy();
       expect(english).not.toBe("Selected interface control");
@@ -259,10 +274,10 @@ describe("agent experience contract", () => {
     expect(email.kind).toBe("messages.send");
     expect(draft.kind).toBe("messages.draft");
     expect(discard.kind).toBe("messages.discard");
-    expect(agentActivityCopy(email, "en").detail).toContain("Ada");
-    expect(agentActivityCopy(draft, "en").running).not.toBe(agentActivityCopy(email, "en").running);
-    expect(agentActivityCopy(discard, "en").running).not.toBe(agentActivityCopy(draft, "en").running);
-    expect(agentActivityCopy(support, "en").detail).toContain("Import issue");
+    expect(agentActivityCopy(email, enT).detail).toContain("Ada");
+    expect(agentActivityCopy(draft, enT).running).not.toBe(agentActivityCopy(email, enT).running);
+    expect(agentActivityCopy(discard, enT).running).not.toBe(agentActivityCopy(draft, enT).running);
+    expect(agentActivityCopy(support, enT).detail).toContain("Import issue");
     expect(JSON.stringify([email, draft, discard, support])).not.toContain(internalId);
     expect(JSON.stringify(email)).not.toContain("never-show");
   });
@@ -321,10 +336,9 @@ describe("agent experience contract", () => {
         businessName: "Beispiel GmbH",
         goal: "Eine kleine Vertriebspipeline einrichten",
       },
-      "de-DE",
+      deT,
     );
 
-    expect(plan.locale).toBe("de");
     expect(plan.columns).toContainEqual(
       expect.objectContaining({
         label: "Phase",
@@ -357,7 +371,7 @@ describe("agent experience contract", () => {
       ],
     });
 
-    const plan = buildAgentWorkspaceSetupPlan(reviewed, "de-DE");
+    const plan = buildAgentWorkspaceSetupPlan(reviewed, deT);
 
     expect(plan.businessName).toBe("Stage");
     expect(plan.goal).toBe("Won");
@@ -442,7 +456,7 @@ describe("agent experience contract", () => {
   it("keeps every deterministic tour target inside the client allowlist", () => {
     const allowlist = new Set<string>(AGENT_UI_TARGET_IDS);
 
-    for (const locale of ["en", "de"]) {
+    for (const locale of APP_LOCALES) {
       const tour = agentGuidedTour("platform", locale);
       expect(tour.length).toBeGreaterThan(8);
       expect(tour.every((step) => allowlist.has(step.targetId))).toBe(true);
