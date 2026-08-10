@@ -7,6 +7,7 @@ import { useLocale } from "next-intl";
 
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import {
+  buildLocalePath,
   contentLocaleOrDefault,
   isContentLocale,
   routingLocaleFromPathname,
@@ -33,9 +34,8 @@ export function localizedContentHref(href: string, locale: unknown): string | nu
   const targetLocale = routingLocaleFromPathname(target.pathname);
   const contentLocale = isContentLocale(targetLocale) ? targetLocale : contentLocaleOrDefault(locale);
   const pathname = stripLocalePrefix(target.pathname);
-  const localizedPathname = pathname === "/" ? `/${contentLocale}` : `/${contentLocale}${pathname}`;
 
-  return `${localizedPathname}${target.search}${target.hash}`;
+  return `${buildLocalePath(contentLocale, pathname)}${target.search}${target.hash}`;
 }
 
 export function contentHrefForLocale(href: string, locale: unknown): string | null {

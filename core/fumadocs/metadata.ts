@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import type { ROUTE_SOURCE_MAP } from "./route-source-map";
 
-import { getSourceFromRoute } from "./route-source-map";
+import { ROUTE_SOURCE_MAP } from "./route-source-map";
 
 import { env } from "@/env";
-import { buildAlternateLanguages, buildLocalePath } from "@/core/seo/alternates";
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { buildAlternateLanguages } from "@/core/seo/alternates";
+import { CONTENT_LOCALES, buildLocalePath } from "@/i18n/locale-registry";
 
 type GenerateMetadataParams = {
   locale: string;
@@ -19,11 +18,8 @@ export function generateMetadataFromMeta({
   params = {},
   type = "website",
 }: GenerateMetadataParams): Metadata {
-  const routeMapping = getSourceFromRoute(route, params);
-
-  if (!routeMapping) return {};
-
-  const { source, path } = routeMapping;
+  const { source, path: mappedPath } = ROUTE_SOURCE_MAP[route];
+  const path = mappedPath.map((part) => (part.startsWith(":") ? (params[part.slice(1)] ?? part) : part));
   const page = source.getPage(path, locale);
 
   if (!page) return {};

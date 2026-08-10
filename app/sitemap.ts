@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import type { ContentLocale } from "@/i18n/locale-registry";
 import type { LocalizedRoute } from "@/core/seo/sitemap";
 
 import { env } from "@/env";
@@ -14,13 +13,12 @@ function getLastModified(lastModified: Date | number | undefined) {
   return isNaN(date.getTime()) ? undefined : date;
 }
 
-export function collectLocalizedRoutes(locales: readonly ContentLocale[] = CONTENT_LOCALES): LocalizedRoute[] {
+function collectLocalizedRoutes(): LocalizedRoute[] {
   const localizedRoutes: LocalizedRoute[] = [];
 
-  for (const locale of locales) {
+  for (const locale of CONTENT_LOCALES) {
     for (const route of PUBLIC_ROUTES_SEO) {
       const routeMapping = ROUTE_SOURCE_MAP[route];
-      if (!routeMapping) continue;
 
       if (route.includes(":")) {
         for (const page of routeMapping.source.getPages(locale)) {

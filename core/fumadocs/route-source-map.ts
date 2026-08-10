@@ -1,5 +1,4 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
-import type { apiOverviewSource } from "./source";
 
 import {
   affiliateSource,
@@ -21,33 +20,7 @@ import {
   pricingSource,
 } from "./source";
 
-type Loader =
-  | typeof affiliateSource
-  | typeof apiOverviewSource
-  | typeof authSource
-  | typeof automationSource
-  | typeof blogPostsSource
-  | typeof blogSource
-  | typeof comparePagesSource
-  | typeof compareSource
-  | typeof docsSource
-  | typeof featurePagesSource
-  | typeof featuresAllSource
-  | typeof featuresSource
-  | typeof forPagesSource
-  | typeof forSource
-  | typeof helpAndFeedbackSource
-  | typeof homepageSource
-  | typeof legalSource
-  | typeof pricingSource;
-
-export const ROUTE_SOURCE_MAP: Record<
-  (typeof PUBLIC_ROUTES_SEO)[number],
-  {
-    source: Loader;
-    path: string[];
-  }
-> = {
+export const ROUTE_SOURCE_MAP = {
   "/": {
     source: homepageSource,
     path: ["homepage"],
@@ -148,19 +121,4 @@ export const ROUTE_SOURCE_MAP: Record<
     source: docsSource,
     path: [":slug"],
   },
-};
-
-export function getSourceFromRoute(
-  route: keyof typeof ROUTE_SOURCE_MAP,
-  params: Record<string, string> = {},
-): { source: Loader; path: string[] } | null {
-  const mapping = ROUTE_SOURCE_MAP[route];
-  if (!mapping) return null;
-
-  if (Object.keys(params).length > 0) {
-    const path = mapping.path.map((part) => (part.startsWith(":") ? params[part.slice(1)] : part));
-    return { source: mapping.source, path };
-  }
-
-  return mapping;
-}
+} satisfies Record<(typeof PUBLIC_ROUTES_SEO)[number], { source: unknown; path: string[] }>;
