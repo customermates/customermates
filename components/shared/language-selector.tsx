@@ -1,23 +1,20 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { Check } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { ChevronDownIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import type { ContentLocale } from "@/i18n/locale-registry";
-
-import { usePathname } from "@/i18n/navigation";
-import { CONTENT_LOCALES, flagCodeFor } from "@/i18n/locale-registry";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
+import { usePathname } from "@/i18n/navigation";
 
 type Props = {
   className?: string;
@@ -41,46 +38,38 @@ export const LanguageSelector = observer(({ className }: Props) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          aria-label={t("Common.language")}
-          className={cn("min-w-32 h-8 justify-between gap-2", className)}
-          size="sm"
-          variant="outline"
+          aria-label={`${t("Common.language")}: ${currentLocaleLabel}`}
+          className={cn("size-8 rounded-md p-0 text-[11px] font-semibold tracking-wide text-subdued", className)}
+          size="icon-sm"
+          title={currentLocaleLabel}
+          variant="ghost"
         >
-          <span className="flex items-center gap-2">
-            <Avatar size="sm">
-              <AvatarImage
-                alt={t("Common.imageAlt.countryFlag", {
-                  country: currentLocaleLabel,
-                })}
-                loading="lazy"
-                src={`https://flagcdn.com/${flagCodeFor(currentLocale).toLowerCase()}.svg`}
-              />
-
-              <AvatarFallback>{currentLocale.toUpperCase()}</AvatarFallback>
-            </Avatar>
-
-            <span className="text-sm">{currentLocaleLabel}</span>
-          </span>
-
-          <ChevronDownIcon className="size-4 text-muted-foreground" />
+          <span aria-hidden>{currentLocale.toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="min-w-32">
+      <DropdownMenuContent align="start" className="min-w-40">
         {CONTENT_LOCALES.map((locale) => {
           const label = t(`Common.locales.${locale}`);
+          const isSelected = locale === currentLocale;
           return (
-            <DropdownMenuItem key={locale} onSelect={() => handleSelect(locale)}>
-              <Avatar size="sm">
-                <AvatarImage
-                  alt={t("Common.imageAlt.countryFlag", { country: label })}
-                  src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
-                />
+            <DropdownMenuItem
+              key={locale}
+              aria-checked={isSelected}
+              className="gap-2.5"
+              role="menuitemradio"
+              onSelect={() => handleSelect(locale)}
+            >
+              <span
+                aria-hidden
+                className="grid size-5 place-items-center rounded bg-foreground/10 text-[9px] font-semibold tracking-wide"
+              >
+                {locale.toUpperCase()}
+              </span>
 
-                <AvatarFallback>{locale.toUpperCase()}</AvatarFallback>
-              </Avatar>
+              <span className="flex-1">{label}</span>
 
-              <span>{label}</span>
+              <Check aria-hidden className={cn("size-3.5", !isSelected && "opacity-0")} />
             </DropdownMenuItem>
           );
         })}

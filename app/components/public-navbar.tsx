@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
@@ -10,7 +10,9 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
+import { LanguageSelector } from "@/components/shared/language-selector";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -40,20 +42,22 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
 
   const logoAlt = t("Common.imageAlt.logo");
   const homeLabel = t("UserAvatar.home");
-  const homeButton = (
-    <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
-      <AppImage
-        alt={logoAlt}
-        className="object-contain select-none"
-        height={24}
-        loading="eager"
-        src="customermates.svg"
-        width={156}
-      />
+  function renderHomeButton() {
+    return (
+      <AppLink aria-label={`${logoAlt} ${homeLabel}`} href="/" onClick={closeMenu}>
+        <AppImage
+          alt={logoAlt}
+          className="object-contain select-none"
+          height={24}
+          loading="eager"
+          src="customermates.svg"
+          width={156}
+        />
 
-      <span className="sr-only">{`${logoAlt} ${homeLabel}`}</span>
-    </AppLink>
-  );
+        <span className="sr-only">{`${logoAlt} ${homeLabel}`}</span>
+      </AppLink>
+    );
+  }
 
   const ctaTarget = !isAuthenticated ? "/auth/signin" : onboardingComplete ? "/dashboard" : "/onboarding/wizard";
   const ctaLabel = !isAuthenticated
@@ -76,24 +80,22 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
     </Button>
   );
 
-  const githubButton = (
-    <AppLink
-      external
-      aria-label="GitHub"
-      className="inline-flex size-8 items-center justify-center rounded-md text-subdued transition-colors hover:bg-muted hover:text-foreground"
-      href="https://github.com/customermates/customermates"
-      onClick={closeMenu}
-    >
-      <Github aria-hidden className="size-4" />
-    </AppLink>
-  );
+  function renderPreferenceButtons() {
+    return (
+      <div className="flex items-center gap-1">
+        <LanguageSelector />
+
+        <ThemeSwitcher />
+      </div>
+    );
+  }
 
   return (
     <div className="sticky top-0 z-40 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <div className="hidden md:flex items-center gap-3">{homeButton}</div>
+        <div className="hidden items-center gap-3 md:flex">{renderHomeButton()}</div>
 
-        <nav className="hidden md:flex items-center gap-3">
+        <nav className="hidden items-center gap-3 md:flex">
           {publicNavItems.map((item) => (
             <AppLink key={item.href} className={cn(!isNavItemActive(item.href) && "text-subdued")} href={item.href}>
               {item.title}
@@ -101,16 +103,16 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-2">
-          {githubButton}
+        <div className="hidden items-center gap-2 md:flex">
+          {renderPreferenceButtons()}
 
           {contactButton}
 
           {ctaButton}
         </div>
 
-        <div className="md:hidden flex items-center w-full justify-between">
-          {homeButton}
+        <div className="flex w-full items-center justify-between md:hidden">
+          {renderHomeButton()}
 
           <Sheet open={layoutStore.isMenuOpen} onOpenChange={layoutStore.setIsMenuOpen}>
             <SheetTrigger asChild>
@@ -136,7 +138,7 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
                   </AppLink>
                 ))}
 
-                {githubButton}
+                <div className="my-1 border-y py-3">{renderPreferenceButtons()}</div>
 
                 {contactButton}
 
