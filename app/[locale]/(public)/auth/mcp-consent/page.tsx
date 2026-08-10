@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { McpConsentCard } from "./mcp-consent-card";
 
 import { getAuthService } from "@/core/di";
-import { requireSession } from "@/features/auth/next/require";
+import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default async function McpConsentPage({ searchParams }: Props) {
-  await requireSession();
+  await requireAccountState("allowed");
 
   const params = await searchParams;
   const consentCode = typeof params.consent_code === "string" ? params.consent_code : undefined;
@@ -19,7 +19,10 @@ export default async function McpConsentPage({ searchParams }: Props) {
 
   if (!consentCode || !clientId) redirect("/");
 
-  const prompt = await getAuthService().getMcpConsentPrompt({ consentCode, clientId });
+  const prompt = await getAuthService().getMcpConsentPrompt({
+    consentCode,
+    clientId,
+  });
   if (!prompt) redirect("/");
 
   return (

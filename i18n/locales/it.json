@@ -530,6 +530,7 @@
       "updated": "Aggiornato"
     },
     "options": "Opzioni",
+    "productName": "Customermates",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1319,7 +1320,6 @@
     "memberWaiting": "Un amministratore dell’azienda deve accettare i Termini e il DPA aggiornati. Potrai riprovare dopo l’accettazione oppure uscire.",
     "privacy": "Informativa sulla privacy",
     "retry": "Riprova",
-    "signOut": "Esci",
     "subprocessors": "Sub-responsabili",
     "subtitle": "Un amministratore aziendale autorizzato deve accettare entro il {date}.",
     "terms": "Termini",
@@ -1647,8 +1647,11 @@
   },
   "SubscriptionExpiredView": {
     "contactSupportCta": "Contatta l'assistenza",
-    "description": "Il tuo periodo di prova è terminato e la tua azienda al momento non ha un abbonamento attivo. Abbonati per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
-    "subtitle": "La tua prova è scaduta",
+    "description": "Il tuo spazio di lavoro non ha più un abbonamento attivo. Scegli un piano per continuare a usare Customermates oppure contatta il nostro team di assistenza per qualsiasi domanda.",
+    "managedDescription": "Il tuo spazio di lavoro Enterprise viene fatturato manualmente. Contatta il nostro team di assistenza per ripristinare l’accesso, quindi riprova.",
+    "memberDescription": "Un amministratore dell’azienda deve ripristinare l’abbonamento. Riprova dopo che lo avrà fatto oppure contatta il nostro team di assistenza.",
+    "retry": "Riprova",
+    "subtitle": "L’accesso allo spazio di lavoro è sospeso",
     "supportEmailSubject": "Richiesta di informazioni sull'abbonamento",
     "title": "Abbonamento necessario"
   },

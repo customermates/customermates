@@ -348,7 +348,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
   "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
   "app/[locale]/(protected)/profile/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
-  "app/[locale]/(public)/auth/error/page.tsx :: t :: ErrorCard.${errorKey}",
+  "app/[locale]/(public)/auth/error/error-page-content.tsx :: t :: ErrorCard.${errorKey}",
   "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.${key}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.badgeKey}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.compareTextKey}",

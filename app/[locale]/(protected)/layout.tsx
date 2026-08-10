@@ -24,14 +24,20 @@ import { TranslationSync } from "@/components/shared/translation-sync";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { CustomColumnModal } from "@/components/data-view/custom-columns/custom-column-modal";
 import { TimelineDetailModal } from "@/features/messaging/activities/activities-detail-modal";
+import { useAccountState } from "@/app/components/navigation/account-state-context";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { closeAllModals, globalSearchModalStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { closeAllModals } = rootStore;
+  const { protectedEnhancementsAllowed } = useAccountState();
 
-  useEffect(() => closeAllModals(), [pathname, closeAllModals]);
+  useEffect(() => closeAllModals(), [pathname, closeAllModals, protectedEnhancementsAllowed]);
 
   useEffect(() => {
+    if (!protectedEnhancementsAllowed) return;
+    const { globalSearchModalStore } = rootStore;
+
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
@@ -44,7 +50,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [globalSearchModalStore]);
+  }, [protectedEnhancementsAllowed, rootStore]);
 
   return (
     <>
@@ -52,41 +58,45 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
       <Toaster />
 
-      <DeleteConfirmationModal />
-
-      <NavigationGuardModal />
-
       <LoadingOverlay />
 
       <UnexpectedErrorToaster />
 
       <TranslationSync />
 
-      <GlobalSearchModal />
+      {protectedEnhancementsAllowed ? (
+        <>
+          <DeleteConfirmationModal />
 
-      <CompanyUserModal />
+          <NavigationGuardModal />
 
-      <CompanyInviteModal />
+          <GlobalSearchModal />
 
-      <EntityDrawer />
+          <CompanyUserModal />
 
-      <FeedbackModal />
+          <CompanyInviteModal />
 
-      <CustomColumnModal />
+          <EntityDrawer />
 
-      <AuditLogModal />
+          <FeedbackModal />
 
-      <ApiKeyModal />
+          <CustomColumnModal />
 
-      <ConnectedAccountModal />
+          <AuditLogModal />
 
-      <ConnectUpsellModal />
+          <ApiKeyModal />
 
-      <TimelineDetailModal />
+          <ConnectedAccountModal />
 
-      <WebhookDeliveryModal />
+          <ConnectUpsellModal />
 
-      <WebhookModal />
+          <TimelineDetailModal />
+
+          <WebhookDeliveryModal />
+
+          <WebhookModal />
+        </>
+      ) : null}
     </>
   );
 }

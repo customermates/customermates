@@ -19,7 +19,7 @@ export class CompanyStore extends BaseStore {
     });
   }
 
-  setCompany = (company: Company) => {
+  setCompany = (company: Company | null) => {
     this.company = company;
   };
 

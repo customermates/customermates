@@ -7,30 +7,22 @@ import { getLocale, getMessages } from "next-intl/server";
 import { cookies } from "next/headers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
-import { Status } from "@/generated/prisma";
-
-import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-
-import type { Company } from "@/generated/prisma";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
-import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { Providers } from "./providers";
 import { NavigationSwitch } from "./components/navigation/navigation-switch";
+import { loadNavigationData } from "./components/navigation/navigation-data";
 
 import {
-  getAuthService,
-  getUserService,
   getGetCompanySettingsInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
   getGetMyConnectedAccountsInteractor,
-  getGetLegalStatusInteractor,
 } from "@/core/di";
 import { accountNeedsAction } from "@/ee/messaging/provider";
 import { env } from "@/env";
 import { GLOBAL_METADATA } from "@/core/seo/homepage-metadata";
+import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
 
 const latin = Inter({
   subsets: ["latin"],
@@ -72,63 +64,42 @@ type Props = {
 };
 
 export default async function RootLayout({ children }: Props) {
-  const [messages, displayLanguage, user, cookiesStore] = await Promise.all([
+  const [messages, displayLanguage, account, cookiesStore] = await Promise.all([
     getMessages(),
     getLocale(),
-    getUserService().getUser(),
+    resolveDefaultAccountState(),
     cookies(),
   ]);
+  const navigation = await loadNavigationData(account.state, {
+    company: async () => {
+      const result = await getGetCompanySettingsInteractor().invoke();
+      return {
+        company: result.data,
+        terminology: result.data.terminology.presets,
+      };
+    },
+    subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
+    systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
+    unreadThreadCount: async () => (await getGetUnreadThreadCountInteractor().invoke()).data,
+    channelsNeedingActionCount: async () => {
+      const result = await getGetMyConnectedAccountsInteractor().invoke();
+      return result.ok ? result.data.filter(accountNeedsAction).length : 0;
+    },
+  });
 
   const themeCookie = cookiesStore.get("theme")?.value;
-
   const sidebarCloseCookie = cookiesStore.get("sidebar-close")?.value;
   const initialSidebarOpen = sidebarCloseCookie !== undefined ? sidebarCloseCookie !== "true" : undefined;
-
-  const isRegistered = user?.email != null;
-  let systemTaskCount = 0;
-  let unreadThreadCount = 0;
-  let channelsNeedingActionCount = 0;
-  let company: Company | null = null;
-  let terminology: EntityTerminologyOverride[] = [];
-  let subscription: SubscriptionDto | null = null;
-  let trialDaysLeft: number | null = null;
-  let emailVerified: boolean | null = null;
-  let isAuthenticated = false;
-  let legalStatus: LegalUpdateStatus | null = null;
-  const onboardingComplete = user?.onboardingWizardCompletedAt != null;
-
-  if (isRegistered) {
-    isAuthenticated = user?.status === Status.active;
-    const authSession = await getAuthService().getSession();
-    emailVerified = authSession?.user?.emailVerified ?? false;
-
-    if (isAuthenticated) {
-      const [
-        companyResult,
-        systemTaskCountResult,
-        subscriptionResult,
-        unreadThreadCountResult,
-        accountsResult,
-        legalResult,
-      ] = await Promise.all([
-        getGetCompanySettingsInteractor().invoke(),
-        getCountSystemTasksInteractor().invoke(),
-        getGetSubscriptionInteractor().invoke(),
-        getGetUnreadThreadCountInteractor().invoke(),
-        getGetMyConnectedAccountsInteractor().invoke(),
-        getGetLegalStatusInteractor().invoke(),
-      ]);
-      company = companyResult.data;
-      terminology = companyResult.data.terminology.presets;
-      systemTaskCount = systemTaskCountResult.data;
-      unreadThreadCount = unreadThreadCountResult.data;
-      channelsNeedingActionCount = accountsResult.ok ? accountsResult.data.filter(accountNeedsAction).length : 0;
-      subscription = subscriptionResult.data;
-      legalStatus = legalResult;
-      const trialEndDate = subscriptionResult.data?.trialEndDate ?? null;
-      trialDaysLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000)) : null;
-    }
-  }
+  const accountAllowed = account.state === "allowed";
+  const appUser = accountAllowed ? account.user : null;
+  const accountMenuUser = account.user
+    ? {
+        firstName: account.user.firstName,
+        lastName: account.user.lastName,
+        email: account.user.email,
+        avatarUrl: account.user.avatarUrl,
+      }
+    : null;
 
   return (
     <html
@@ -144,19 +115,23 @@ export default async function RootLayout({ children }: Props) {
           messages={messages}
         >
           <NavigationSwitch
-            channelsNeedingActionCount={channelsNeedingActionCount}
-            company={company}
+            accountMenuUser={accountMenuUser}
+            accountState={account.state}
+            appUser={appUser}
+            channelsNeedingActionCount={navigation.channelsNeedingActionCount}
+            company={navigation.company}
             defaultSidebarOpen={initialSidebarOpen}
-            emailVerified={emailVerified}
-            isAuthenticated={isAuthenticated}
-            legalStatus={legalStatus}
-            onboardingComplete={onboardingComplete}
-            subscription={subscription}
-            systemTaskCount={systemTaskCount}
-            terminology={terminology}
-            trialDaysLeft={trialDaysLeft}
-            unreadThreadCount={unreadThreadCount}
-            user={user}
+            emailVerified={accountAllowed ? account.emailVerified : null}
+            hasValidSession={account.state !== "unauthenticated"}
+            isRegistered={account.user !== null}
+            legalStatus={accountAllowed ? account.legalStatus : null}
+            onboardingComplete={account.user?.onboardingWizardCompletedAt != null}
+            subscription={navigation.subscription}
+            systemTaskCount={navigation.systemTaskCount}
+            terminology={navigation.terminology}
+            trialDaysLeft={navigation.trialDaysLeft}
+            unreadThreadCount={navigation.unreadThreadCount}
+            userDisplayLanguage={account.user?.displayLanguage}
           >
             {children}
           </NavigationSwitch>

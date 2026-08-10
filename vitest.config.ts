@@ -33,6 +33,8 @@ export default defineConfig({
             "generated",
             "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
             "components/data-view/__tests__/data-view-url-sync.test.ts",
+            "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
+            "app/components/navigation/__tests__/account-state-refresh.test.ts",
           ],
           server: { deps: { inline: [/next-intl/] } },
         },
@@ -40,13 +42,15 @@ export default defineConfig({
       {
         resolve: { alias: aliases },
         test: {
-          name: "company-settings-dom",
+          name: "dom",
           globals: true,
           environment: "jsdom",
           env: testEnvironment,
           include: [
             "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
             "components/data-view/__tests__/data-view-url-sync.test.ts",
+            "app/[locale]/(protected)/__tests__/protected-layout.test.ts",
+            "app/components/navigation/__tests__/account-state-refresh.test.ts",
           ],
           exclude: ["node_modules", ".next", "generated"],
         },

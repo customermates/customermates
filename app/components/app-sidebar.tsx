@@ -6,6 +6,7 @@ import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.intera
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
+import type { AccountMenuUser } from "./navigation/nav-user";
 
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -50,8 +51,9 @@ import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { RestrictedAppSidebar } from "./navigation/restricted-app-sidebar";
 
-type Props = {
+type FullProps = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
@@ -62,7 +64,26 @@ type Props = {
   legalStatus: LegalUpdateStatus | null;
 };
 
-export const AppSidebar = observer(
+type Props = ({ mode: "full" } & FullProps) | { mode: "restricted"; homeHref: string; user: AccountMenuUser | null };
+
+export function AppSidebar(props: Props) {
+  if (props.mode === "restricted") return <RestrictedAppSidebar homeHref={props.homeHref} user={props.user} />;
+
+  return (
+    <FullAppSidebar
+      channelsNeedingActionCount={props.channelsNeedingActionCount}
+      emailVerified={props.emailVerified}
+      legalStatus={props.legalStatus}
+      subscription={props.subscription}
+      systemTaskCount={props.systemTaskCount}
+      trialDaysLeft={props.trialDaysLeft}
+      unreadThreadCount={props.unreadThreadCount}
+      user={props.user}
+    />
+  );
+}
+
+const FullAppSidebar = observer(
   ({
     user,
     systemTaskCount,
@@ -72,7 +93,7 @@ export const AppSidebar = observer(
     trialDaysLeft,
     emailVerified,
     legalStatus,
-  }: Props) => {
+  }: FullProps) => {
     const t = useTranslations();
     const pathname = usePathname();
     const intlPathname = useIntlPathname();
@@ -234,7 +255,10 @@ export const AppSidebar = observer(
         icon: MessageCircle,
         onSelect: (invoker) =>
           closeMobileSidebar(() => {
-            feedbackModalStore.onInitOrRefresh({ type: FeedbackType.general, feedback: "" });
+            feedbackModalStore.onInitOrRefresh({
+              type: FeedbackType.general,
+              feedback: "",
+            });
             feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
           }),
       },
@@ -244,31 +268,41 @@ export const AppSidebar = observer(
       {
         resource: Resource.contacts,
         key: "add_contact",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.contact) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.contact),
+        }),
         entity: EntityType.contact,
       },
       {
         resource: Resource.organizations,
         key: "add_organization",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.organization) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.organization),
+        }),
         entity: EntityType.organization,
       },
       {
         resource: Resource.deals,
         key: "add_deal",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.deal) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.deal),
+        }),
         entity: EntityType.deal,
       },
       {
         resource: Resource.services,
         key: "add_service",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.service) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.service),
+        }),
         entity: EntityType.service,
       },
       {
         resource: Resource.tasks,
         key: "add_task",
-        label: t("NavigationBar.addEntity", { entity: singular(EntityType.task) }),
+        label: t("NavigationBar.addEntity", {
+          entity: singular(EntityType.task),
+        }),
         entity: EntityType.task,
       },
     ];

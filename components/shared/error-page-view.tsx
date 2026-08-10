@@ -13,14 +13,15 @@ type Props = {
   title: string;
   subtitle: string;
   body: string;
-  backHref: string;
-  backLabel: string;
+  backHref?: string;
+  backLabel?: string;
   retryLabel?: string;
   onRetry?: () => void;
 };
 
 export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retryLabel, onRetry }: Props) {
   const showRetry = onRetry !== undefined && retryLabel !== undefined;
+  const showBack = backHref !== undefined && backLabel !== undefined;
 
   return (
     <CenteredCardPage>
@@ -51,18 +52,22 @@ export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retr
           <p className="text-x-sm text-center">{body}</p>
         </AppCardBody>
 
-        <AppCardFooter className="flex-col">
-          {showRetry && (
-            <Button className="w-full" variant="outline" onClick={onRetry}>
-              {retryLabel}
-            </Button>
-          )}
+        {showRetry || showBack ? (
+          <AppCardFooter className="flex-col">
+            {showRetry && (
+              <Button className="w-full" variant="outline" onClick={onRetry}>
+                {retryLabel}
+              </Button>
+            )}
 
-          <Button asChild className="w-full" variant="destructive">
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ErrorPageView renders without provider context (global-error) */}
-            <a href={backHref}>{backLabel}</a>
-          </Button>
-        </AppCardFooter>
+            {showBack ? (
+              <Button asChild className="w-full" variant="destructive">
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ErrorPageView renders without provider context (global-error) */}
+                <a href={backHref}>{backLabel}</a>
+              </Button>
+            ) : null}
+          </AppCardFooter>
+        ) : null}
       </AppCard>
     </CenteredCardPage>
   );

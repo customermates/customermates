@@ -323,11 +323,13 @@ describe("registration legal copy covers the DPA", () => {
       "utf8",
     );
     const routeGuard = readFileSync(join(REPO_ROOT, "features/auth/route-guard.service.ts"), "utf8");
+    const accountState = readFileSync(join(REPO_ROOT, "features/auth/account-state.ts"), "utf8");
 
     expect(navigation).not.toContain("isLegalUpdateRoute");
     expect(navigation).toContain("legalStatus={legalStatus}");
     expect(protectedLayout).not.toContain("isLegalUpdateRoute");
-    expect(routeGuard).toContain('return redirectTo("/legal-update")');
+    expect(routeGuard).toContain('state: "legal"');
+    expect(accountState).toContain('legal: "/legal-update"');
     expect(sidebar).toContain("<LegalUpdateAlert");
     expect(sidebar).toContain("<NavMain");
     expect(sidebar.indexOf("<LegalUpdateAlert")).toBeLessThan(sidebar.indexOf("<NavMain"));
@@ -351,7 +353,7 @@ describe("registration legal copy covers the DPA", () => {
     expect(view).toContain("<Label");
     expect(view).not.toContain("items-start gap-3 text-sm");
     expect(view).toContain('variant="outline"');
-    expect(view).toContain('t("LegalUpdateView.signOut")');
+    expect(view).not.toContain('t("LegalUpdateView.signOut")');
     expect(action).toContain("refresh()");
     expect(action).toContain('redirect("/")');
     expect(action).not.toContain("revalidatePath");

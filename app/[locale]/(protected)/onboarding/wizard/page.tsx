@@ -3,20 +3,21 @@ import { redirect } from "next/navigation";
 
 import { OnboardingWizard } from "./components/onboarding-wizard";
 
-import { getInviteTokenValidationInteractor, getUserService } from "@/core/di";
-import { requireSession } from "@/features/auth/next/require";
+import { getInviteTokenValidationInteractor } from "@/core/di";
+import { requireAccountState } from "@/features/auth/next/require";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 
 export default async function OnboardingWizardPage() {
-  const session = await requireSession();
-  const user = await getUserService().getUser();
+  const resolution = await requireAccountState(["unregistered", "onboarding"]);
+  const { sessionUser, user } = resolution;
+  if (!sessionUser) redirect("/auth/signin");
 
   if (user) {
     if (user.onboardingWizardCompletedAt) redirect("/");
     if (!user.role?.isSystemRole) redirect("/");
   }
 
-  let isInvited = Boolean(session.user.companyId);
+  let isInvited = Boolean(sessionUser.companyId);
   if (!user && !isInvited) {
     const cookieStore = await cookies();
     const inviteTokenValue = cookieStore.get("inviteToken")?.value;
@@ -28,7 +29,7 @@ export default async function OnboardingWizardPage() {
     }
   }
 
-  const sessionName = session.user?.name ?? "";
+  const sessionName = sessionUser.name ?? "";
   const isEmail = sessionName.includes("@");
   const spaceIndex = sessionName.indexOf(" ");
   const sessionFirstName = isEmail
@@ -37,7 +38,7 @@ export default async function OnboardingWizardPage() {
       ? sessionName || undefined
       : sessionName.slice(0, spaceIndex);
   const sessionLastName = isEmail ? undefined : spaceIndex === -1 ? undefined : sessionName.slice(spaceIndex + 1);
-  const sessionAvatarUrl = session.user?.image?.startsWith("https:") ? session.user.image : "";
+  const sessionAvatarUrl = sessionUser.image?.startsWith("https:") ? sessionUser.image : "";
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
@@ -45,7 +46,7 @@ export default async function OnboardingWizardPage() {
         isInvited={isInvited}
         profileCompleted={Boolean(user)}
         sessionAvatarUrl={sessionAvatarUrl}
-        sessionEmail={session.user?.email ?? ""}
+        sessionEmail={sessionUser.email}
         sessionFirstName={sessionFirstName}
         sessionLastName={sessionLastName}
       />

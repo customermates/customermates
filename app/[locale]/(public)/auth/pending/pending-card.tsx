@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
@@ -8,12 +7,9 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
-import { checkPendingStatusAndRedirect } from "@/app/[locale]/actions";
 
 export function PendingCard() {
   const t = useTranslations();
-
-  useEffect(() => void checkPendingStatusAndRedirect(), []);
 
   return (
     <AppCard className="max-w-md">
@@ -24,7 +20,7 @@ export function PendingCard() {
       </AppCardBody>
 
       <AppCardFooter>
-        <Button className="w-full" onClick={() => void checkPendingStatusAndRedirect()}>
+        <Button className="w-full" onClick={() => window.location.reload()}>
           {t("Common.actions.refresh")}
         </Button>
       </AppCardFooter>

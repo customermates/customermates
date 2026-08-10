@@ -1,24 +1,37 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
-import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { ErrorPageContent } from "./error-page-content";
 
-import { ErrorPageView } from "@/components/shared/error-page-view";
+import { isCanonicalInactiveErrorType, isRestrictedAccountState } from "@/features/auth/account-state";
+import { requireAccountState } from "@/features/auth/next/require";
+import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
 
-const ERROR_KEYS = new Set(["inactiveUser", "invalidInviteLink", "inviteLinkExpired"]);
+import type { ErrorPageKey } from "./error-page-content";
 
-export default function ErrorPage() {
-  const t = useTranslations();
-  const requestedErrorKey = useSearchParams().get("type");
-  const errorKey = requestedErrorKey && ERROR_KEYS.has(requestedErrorKey) ? requestedErrorKey : null;
+const ERROR_KEYS = new Set<ErrorPageKey>(["invalidInviteLink", "inviteLinkExpired"]);
 
-  return (
-    <ErrorPageView
-      backHref="/"
-      backLabel={t("ErrorCard.ctaLabel")}
-      body={errorKey ? t(`ErrorCard.${errorKey}`) : t("ErrorCard.contactSupport")}
-      subtitle={t("ErrorCard.subtitle")}
-      title={t("ErrorCard.title")}
-    />
-  );
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function ErrorPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const requestedErrorKey = typeof params.type === "string" ? params.type : null;
+  const resolution = await resolveDefaultAccountState();
+  const isInactive = resolution.state === "inactive";
+
+  if (isInactive && !isCanonicalInactiveErrorType(params.type))
+    redirect(`/${await getLocale()}/auth/error?type=inactiveUser`);
+
+  if (!isInactive && (requestedErrorKey === "inactiveUser" || isRestrictedAccountState(resolution.state)))
+    await requireAccountState("inactive");
+
+  const errorKey = isInactive
+    ? "inactiveUser"
+    : requestedErrorKey && ERROR_KEYS.has(requestedErrorKey as ErrorPageKey)
+      ? (requestedErrorKey as ErrorPageKey)
+      : null;
+
+  return <ErrorPageContent errorKey={errorKey} isInactive={isInactive} />;
 }

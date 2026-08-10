@@ -19,17 +19,18 @@ const config = {
   },
 };
 
-const ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
+const PRODUCTION_ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 
 type Props = PropsWithChildren<{
   preview?: string;
   title?: string;
   locale: AppLocale;
-  layoutCopy: EmailLayoutCopy;
+  layoutCopy: EmailLayoutCopy & { iconUrl?: string };
 }>;
 
 export function EmailLayout({ preview, title, locale, layoutCopy, children }: Props) {
   const year = new Date().getFullYear();
+  const iconUrl = layoutCopy.iconUrl ?? PRODUCTION_ICON_URL;
 
   return (
     <Html lang={locale}>
@@ -43,7 +44,7 @@ export function EmailLayout({ preview, title, locale, layoutCopy, children }: Pr
         <Body className="m-0 py-8 font-sans bg-content2">
           <Container className="mx-auto max-w-[600px] px-4">
             <Section className="pb-6">
-              <EmailImage alt="Customermates" height={56} src={ICON_URL} style={{ margin: "0 auto" }} width={56} />
+              <EmailImage alt="Customermates" height={56} src={iconUrl} style={{ margin: "0 auto" }} width={56} />
             </Section>
 
             <Section className="bg-content1 rounded-xl p-10">
