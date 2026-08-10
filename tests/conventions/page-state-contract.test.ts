@@ -62,15 +62,114 @@ describe("page-state contract", () => {
     expect(existsSync(join(PROTECTED_ROOT, "loading.tsx"))).toBe(true);
     expect(violations).toEqual([]);
     expect(read("app/[locale]/(protected)/layout.tsx")).toContain("{children}");
-    expect(read("app/[locale]/loading.tsx")).not.toContain("<main");
+
+    const localeFallback = read("app/[locale]/loading.tsx");
+    const protectedFallback = read("app/[locale]/(protected)/loading.tsx");
+    const genericFallback = read("components/page-state/generic-page-loading.tsx");
+
+    expect(localeFallback).toContain("GenericPageLoading");
+    expect(localeFallback).not.toMatch(
+      /components\/page-state\/page-state|PageSkeleton|kind: "settings"|min-h-svh|<main/,
+    );
+    expect(protectedFallback).toContain("GenericPageLoading");
+    expect(protectedFallback).not.toMatch(/RouteLoading|route="\/dashboard"/);
+    expect(genericFallback).toContain("flex min-h-0 w-full flex-1 items-center justify-center");
+    expect(genericFallback).toContain("Spinner");
+    expect(genericFallback).not.toMatch(/PageState|PageSkeleton|<main|<button|\bfixed\b/);
+    expect(read("components/ui/spinner.tsx")).toContain("motion-reduce:animate-none");
 
     const routeLoading = read("components/page-state/route-loading.tsx");
     expect(routeLoading).toContain('skeleton.kind === "detail"');
     expect(routeLoading).toContain('centered ? "h-full flex-1"');
     const pageSkeleton = read("components/page-state/page-skeleton.tsx");
-    expect(pageSkeleton).toContain('@container/detail h-full min-h-[34rem]');
+    expect(pageSkeleton).toContain('@container/detail flex h-full min-h-0');
     expect(pageSkeleton).toContain("@4xl/detail:grid-cols-");
     expect(pageSkeleton).toContain("@6xl/detail:grid-cols-");
+  });
+
+  it("shares exact data-view geometry with loaded cards, boards, and pagination", () => {
+    const geometryNames = [
+      "DATA_CARD_GRID_CLASS_NAME",
+      "DATA_KANBAN_TRACK_CLASS_NAME",
+      "DATA_KANBAN_COLUMN_CLASS_NAME",
+    ];
+    const skeleton = read("components/page-state/page-skeleton.tsx");
+    const cards = read("components/data-view/data-card-view.tsx");
+    const board = read("components/data-view/data-kanban-view.tsx");
+
+    expect(read("components/data-view/data-view-geometry.ts")).toContain(
+      "grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+    );
+    for (const name of geometryNames) expect(skeleton, name).toContain(name);
+    expect(cards).toContain("DATA_CARD_GRID_CLASS_NAME");
+    expect(board).toContain("DATA_KANBAN_TRACK_CLASS_NAME");
+    expect(board).toContain("DATA_KANBAN_COLUMN_CLASS_NAME");
+    expect(read("components/data-view/header/pagination.tsx")).toContain("DATA_VIEW_PAGINATION_RAIL_CLASS_NAME");
+    expect(skeleton).toContain("DATA_VIEW_PAGINATION_RAIL_CLASS_NAME");
+    expect(skeleton).toContain("grid h-8");
+    expect(skeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
+    expect(skeleton).toContain("size-6 shrink-0 rounded-md");
+    expect(skeleton).toContain('data-slot="kanban-root"');
+    expect(skeleton).not.toContain("min-h-[28rem]");
+  });
+
+  it("pins skeleton density and spacing to the loaded page owners", () => {
+    const skeleton = read("components/page-state/page-skeleton.tsx");
+    const table = read("components/ui/table.tsx");
+    const dashboard = read("app/[locale]/(protected)/dashboard/components/widgets-grid.tsx");
+    const cardHeader = read("components/card/app-card-header.tsx");
+    const cardBody = read("components/card/app-card-body.tsx");
+    const detail = read("components/entity-detail/entity-detail-layout.tsx");
+    const notes = read("components/entity-detail/entity-notes-panel.tsx");
+    const editor = read("components/editor/editor.tsx");
+    const activityPanel = read("features/messaging/activities/activities-panel.tsx");
+    const activityRow = read("features/messaging/activities/activities-row.tsx");
+    const inbox = read("app/[locale]/(protected)/inbox/page.tsx");
+    const thread = read("app/[locale]/(protected)/inbox/components/thread-row.tsx");
+    const message = read("app/[locale]/(protected)/inbox/components/message-item.tsx");
+    const composer = read("app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx");
+
+    expect(table).toContain("h-8 px-3");
+    expect(table).toContain("px-3 py-2");
+    expect(skeleton).toContain("grid h-8");
+    expect(skeleton).toContain('variant === "member" ? "h-[3.25rem]" : "h-10"');
+
+    expect(dashboard).toContain("margin={[16, 16]}");
+    expect(dashboard).toContain("rowHeight={124}");
+    expect(cardHeader).toContain("gap-4 p-6 pb-0");
+    expect(cardBody).toContain("gap-4 p-6");
+    expect(skeleton).toContain("h-[264px]");
+    expect(skeleton).toContain("grid-cols-1 gap-4 md:grid-cols-2");
+
+    expect(detail).toContain("@container/detail flex flex-col w-full flex-1 min-h-0 overflow-y-auto");
+    expect(detail).toContain("px-4 pt-3 pb-1 shrink-0 min-h-8");
+    expect(notes).toContain("px-4 pt-4 pb-1 shrink-0");
+    expect(editor).toContain("relative min-h-52");
+    expect(activityPanel).toContain("px-4 pt-4 pb-2");
+    expect(activityPanel).toContain("overflow-auto px-2 pt-2 pb-4");
+    expect(activityRow).toContain("items-start gap-3 rounded-md p-2");
+    for (const token of ["min-h-8 pt-3", "min-h-52", "px-2 pt-2 pb-4", "rounded-md p-2"])
+      expect(skeleton, token).toContain(token);
+
+    expect(inbox).toContain("lg:grid-cols-[380px_1fr]");
+    expect(thread).toContain("items-center gap-3 border-b border-border p-3");
+    expect(message).toContain("flex gap-2 px-4 py-2");
+    expect(composer).toContain("shrink-0 px-4 pt-2 pb-4");
+    for (const token of [
+      "lg:grid-cols-[380px_1fr]",
+      "items-center gap-3 border-b p-3",
+      "flex gap-2 px-4 py-2",
+      "shrink-0 bg-background px-4 pt-2 pb-4",
+    ])
+      expect(skeleton, token).toContain(token);
+
+    const settingsGeometry = read("components/page-state/page-state-geometry.ts");
+    expect(settingsGeometry).toContain("grid-cols-1 gap-4 sm:grid-cols-");
+    for (const settingsFile of [
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx",
+      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx",
+    ])
+      expect(read(settingsFile), settingsFile).toContain("SETTINGS_CARD_GRID_CLASS_NAME");
   });
 
   it("uses one placeholder token with reduced-motion support in both themes", () => {

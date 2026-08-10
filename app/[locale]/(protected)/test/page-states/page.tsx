@@ -7,14 +7,15 @@ import { Button } from "@/components/ui/button";
 import { requireAccess } from "@/features/auth/next/require";
 
 const ARCHETYPES = {
-  board: { kind: "data-view", view: "board" },
-  cards: { kind: "data-view", view: "cards" },
+  board: { identity: "text", kind: "data-view", view: "board" },
+  cards: { identity: "avatar", kind: "data-view", view: "cards" },
   dashboard: { kind: "dashboard" },
   detail: { kind: "detail" },
   inbox: { kind: "inbox" },
   settings: { kind: "settings" },
+  settingsCards: { card: "connected-accounts", kind: "settings", view: "cards" },
   special: { kind: "settings", view: "centered-card" },
-  table: { kind: "data-view", view: "table" },
+  table: { kind: "data-view", tableVariant: "contact", view: "table" },
 } as const satisfies Record<string, PageSkeletonSpec>;
 
 type Props = {

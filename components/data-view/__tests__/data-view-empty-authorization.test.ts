@@ -28,7 +28,7 @@ function render(canManage: boolean) {
       actionLabel: "Add record",
       descriptor: { body: "Empty description", title: "Empty title" },
       reason: "true-empty",
-      skeleton: { kind: "data-view", view: "table" },
+      skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
       store: store(canManage),
       onAdd: vi.fn(),
     }),

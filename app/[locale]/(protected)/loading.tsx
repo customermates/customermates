@@ -1,5 +1,9 @@
-import { RouteLoading } from "@/components/page-state/route-loading";
+import { getTranslations } from "next-intl/server";
 
-export default function Loading() {
-  return <RouteLoading route="/dashboard" />;
+import { GenericPageLoading } from "@/components/page-state/generic-page-loading";
+
+export default async function Loading() {
+  const t = await getTranslations("PageState");
+
+  return <GenericPageLoading label={t("loading")} />;
 }

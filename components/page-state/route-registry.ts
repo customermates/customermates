@@ -11,19 +11,19 @@ export type ProtectedRouteSpec = {
 
 export const PROTECTED_ROUTE_REGISTRY = {
   "/company/audit-logs": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
     loadingOwner: "/company/audit-logs",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
   "/company/members": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "member", view: "table" },
     loadingOwner: "/company/members",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
   "/company/roles": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
     loadingOwner: "/company/roles",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
@@ -41,13 +41,13 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "route-boundary",
   },
   "/company/webhook-deliveries": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
     loadingOwner: "/company/webhook-deliveries",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
   "/company/webhooks": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "plain", view: "table" },
     loadingOwner: "/company/webhooks",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
@@ -59,7 +59,7 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "detail-state-and-route-boundary",
   },
   "/contacts": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "contact", view: "table" },
     loadingOwner: "/contacts",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
@@ -77,7 +77,7 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "detail-state-and-route-boundary",
   },
   "/deals": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "entity", view: "table" },
     loadingOwner: "/deals",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
@@ -107,20 +107,20 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "detail-state-and-route-boundary",
   },
   "/organizations": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "entity", view: "table" },
     loadingOwner: "/organizations",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
   "/profile/api-keys": {
-    skeleton: { kind: "settings" },
-    loadingOwner: "/profile",
+    skeleton: { card: "api-keys", kind: "settings", view: "cards" },
+    loadingOwner: "/profile/api-keys",
     trueEmpty: true,
     errorOwner: "route-boundary",
   },
   "/profile/connected-accounts": {
-    skeleton: { kind: "settings" },
-    loadingOwner: "/profile",
+    skeleton: { card: "connected-accounts", kind: "settings", view: "cards" },
+    loadingOwner: "/profile/connected-accounts",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
@@ -137,13 +137,13 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "detail-state-and-route-boundary",
   },
   "/services": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "entity", view: "table" },
     loadingOwner: "/services",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",
   },
   "/subscription-expired": {
-    skeleton: { kind: "settings", view: "centered-card" },
+    skeleton: { kind: "settings", view: "centered-card", maxWidth: "3xl" },
     loadingOwner: "/subscription-expired",
     trueEmpty: false,
     errorOwner: "route-boundary",
@@ -155,7 +155,7 @@ export const PROTECTED_ROUTE_REGISTRY = {
     errorOwner: "detail-state-and-route-boundary",
   },
   "/tasks": {
-    skeleton: { kind: "data-view", view: "table" },
+    skeleton: { kind: "data-view", tableVariant: "entity", view: "table" },
     loadingOwner: "/tasks",
     trueEmpty: true,
     errorOwner: "route-boundary-and-refresh",

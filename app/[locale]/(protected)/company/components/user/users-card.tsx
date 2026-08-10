@@ -103,6 +103,7 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
       anchorScope="company-members"
       columns={columns}
       store={usersStore}
+      tableSkeletonVariant="member"
       onAdd={
         canManage
           ? () => {

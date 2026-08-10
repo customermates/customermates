@@ -26,6 +26,13 @@ import { KANBAN_EMPTY_GROUP_KEY } from "@/core/base/base-get.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
+import {
+  DATA_KANBAN_CARDS_CLASS_NAME,
+  DATA_KANBAN_COLUMN_CLASS_NAME,
+  DATA_KANBAN_HEADER_CLASS_NAME,
+  DATA_KANBAN_ROOT_CLASS_NAME,
+  DATA_KANBAN_TRACK_CLASS_NAME,
+} from "./data-view-geometry";
 import { cn } from "@/core/utils/cn";
 
 type HasCustomFieldValues = HasId & {
@@ -153,8 +160,8 @@ function KanbanColumn({
   );
 
   return (
-    <div ref={setNodeRef} className="flex w-72 shrink-0 flex-col rounded-lg p-0">
-      <div className="sticky top-0 z-10 -mx-2 mb-1 flex items-center gap-2 rounded-t-lg bg-background/80 px-3 py-2 backdrop-blur-md">
+    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME}>
+      <div className={DATA_KANBAN_HEADER_CLASS_NAME}>
         {onHeaderClick ? (
           <button
             className="inline-flex items-center rounded-md cursor-pointer transition-[background-color,transform] hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -168,7 +175,7 @@ function KanbanColumn({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 min-h-20">{children}</div>
+      <div className={DATA_KANBAN_CARDS_CLASS_NAME}>{children}</div>
 
       {loadMore && (
         <div className="my-2">
@@ -262,8 +269,8 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   return (
     <DndContext sensors={sensors} onDragEnd={(event) => void handleDragEnd(event)}>
-      <div className={cn("flex flex-col overflow-x-auto", className)} data-slot="kanban-root">
-        <div className="flex min-w-max flex-1 items-stretch gap-4 px-4">
+      <div className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root">
+        <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {Array.from(groups.entries()).map(([key, items]) => {
             const option = groupingCustomColumn?.options?.options.find((o) => o.value === key);
             const label = key === KANBAN_EMPTY_GROUP_KEY ? t("DataView.noValue") : (option?.label ?? key);

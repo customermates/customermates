@@ -33,15 +33,14 @@ export type PageStateProps =
 export function PageState(props: PageStateProps) {
   if (props.state === "loading") {
     return (
-      <section
-        aria-busy="true"
-        aria-live="polite"
-        className={cn("size-full min-h-0 flex-1", props.className)}
-        data-page-state="loading"
-      >
-        <span className="sr-only">{props.label}</span>
+      <section className={cn("size-full min-h-0 flex-1", props.className)} data-page-state="loading">
+        <span className="sr-only" role="status">
+          {props.label}
+        </span>
 
-        <PageSkeleton spec={props.skeleton} />
+        <div aria-busy="true" className="size-full min-h-0">
+          <PageSkeleton spec={props.skeleton} />
+        </div>
       </section>
     );
   }

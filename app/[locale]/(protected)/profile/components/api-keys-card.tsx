@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
 import { PageState } from "@/components/page-state/page-state";
 
 type Props = {
@@ -46,8 +47,15 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   );
   useSetTopBarActions(topBarActions);
 
-  if (!apiKeysStore.isReady)
-    return <PageState label={t("PageState.loading")} skeleton={{ kind: "settings" }} state="loading" />;
+  if (!apiKeysStore.isReady) {
+    return (
+      <PageState
+        label={t("PageState.loading")}
+        skeleton={{ card: "api-keys", kind: "settings", view: "cards" }}
+        state="loading"
+      />
+    );
+  }
 
   if (isTrueEmpty) {
     return (
@@ -60,7 +68,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
           ) : undefined
         }
         description={t("ProfileSections.apiKeysDescription")}
-        skeleton={{ kind: "settings" }}
+        skeleton={{ card: "api-keys", kind: "settings", view: "cards" }}
         state="empty"
         title={t("Common.emptyState.genericTitle")}
       />
@@ -71,7 +79,7 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
     <div className="flex w-full max-w-3xl flex-col gap-4">
       <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+      <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
         {apiKeysStore.items.map((key) => (
           <Card
             key={key.id}

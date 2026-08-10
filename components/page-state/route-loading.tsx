@@ -14,15 +14,16 @@ export async function RouteLoading({ route }: Props) {
   const { skeleton } = getProtectedRouteSpec(route);
   const centered = skeleton.kind === "settings" && skeleton.view === "centered-card";
   const flush = skeleton.kind === "data-view" || skeleton.kind === "detail" || skeleton.kind === "inbox";
-
-  return (
-    <PageContainer padded={!centered && !flush}>
-      <PageState
-        className={centered ? "h-full flex-1" : flush ? "h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]" : undefined}
-        label={t("loading")}
-        skeleton={skeleton}
-        state="loading"
-      />
-    </PageContainer>
+  const loading = (
+    <PageState
+      className={centered ? "h-full flex-1" : flush ? "h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]" : undefined}
+      label={t("loading")}
+      skeleton={skeleton}
+      state="loading"
+    />
   );
+
+  if (centered || skeleton.kind === "detail") return loading;
+
+  return <PageContainer padded={!flush}>{loading}</PageContainer>;
 }

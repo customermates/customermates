@@ -26,6 +26,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
 import { PageState } from "@/components/page-state/page-state";
 import { PageSkeleton } from "@/components/page-state/page-skeleton";
 
@@ -145,17 +146,25 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
   );
   useSetTopBarActions(topBarActions);
 
-  if (locked) return <PageSkeleton animated={false} spec={{ kind: "settings" }} />;
+  if (locked)
+    return <PageSkeleton animated={false} spec={{ card: "connected-accounts", kind: "settings", view: "cards" }} />;
 
-  if (!connectedAccountsStore.isReady)
-    return <PageState label={t("PageState.loading")} skeleton={{ kind: "settings" }} state="loading" />;
+  if (!connectedAccountsStore.isReady) {
+    return (
+      <PageState
+        label={t("PageState.loading")}
+        skeleton={{ card: "connected-accounts", kind: "settings", view: "cards" }}
+        state="loading"
+      />
+    );
+  }
 
   if (isTrueEmpty) {
     return (
       <PageState
         action={canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" /> : undefined}
         description={t("ConnectedAccountsCard.emptyState")}
-        skeleton={{ kind: "settings" }}
+        skeleton={{ card: "connected-accounts", kind: "settings", view: "cards" }}
         state="empty"
         title={t("ConnectedAccountsCard.title")}
       />
@@ -166,7 +175,7 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
     <div className="flex w-full max-w-3xl flex-col gap-4">
       <ConnectedAccountsAlert />
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+      <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
         {connectedAccountsStore.items.map((account) => {
           const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
           const ProviderIcon = getProviderIcon(account.provider);

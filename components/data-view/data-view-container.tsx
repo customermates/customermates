@@ -13,6 +13,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { PageState } from "@/components/page-state/page-state";
+import type { PageSkeletonSpec } from "@/components/page-state/page-skeleton";
 import { Button } from "@/components/ui/button";
 
 import { DataCardView } from "./data-card-view";
@@ -37,6 +38,7 @@ type Props<E extends HasId> = {
   searchPlaceholder?: string;
   anchorScope?: string;
   emptyState?: EmptyStateDescriptor;
+  tableSkeletonVariant?: "contact" | "entity" | "member" | "plain";
 };
 
 export const DataViewContainer = observer(function DataViewContainer<E extends HasId>({
@@ -49,16 +51,28 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   searchPlaceholder,
   anchorScope,
   emptyState,
+  tableSkeletonVariant,
 }: Props<E>) {
   const columnLabel = useColumnLabel();
   const { singular } = useEntityTerminology();
   const t = useTranslations();
   const { terminologyStore } = useRootStore();
 
-  const skeleton = {
-    kind: "data-view",
-    view: resolveDataViewSkeletonView(store.viewMode, store.groupingColumnId),
-  } as const;
+  const skeletonView = resolveDataViewSkeletonView(store.viewMode, store.groupingColumnId);
+  const skeleton: PageSkeletonSpec =
+    skeletonView === "table"
+      ? {
+          kind: "data-view",
+          tableVariant:
+            tableSkeletonVariant ??
+            (store.entityType === "contact" ? "contact" : store.entityType ? "entity" : "plain"),
+          view: "table",
+        }
+      : {
+          identity: store.entityType === "contact" ? "avatar" : "text",
+          kind: "data-view",
+          view: skeletonView,
+        };
   const hasActiveQuery = Boolean(store.searchTerm?.trim()) || (store.filters?.length ?? 0) > 0;
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,

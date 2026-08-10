@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { DataCardBody } from "./data-card-body";
+import { DATA_CARD_GRID_CLASS_NAME } from "./data-view-geometry";
 import { cn } from "@/core/utils/cn";
 
 import { isInteractiveClick } from "./is-interactive-click";
@@ -45,7 +46,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
 
   return (
     <div className={cn("", className)} data-slot="card-grid">
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 p-4">
+      <div className={DATA_CARD_GRID_CLASS_NAME}>
         {table.getRowModel().rows.map((row) => {
           const href = cardHref?.(row.original);
           return (
