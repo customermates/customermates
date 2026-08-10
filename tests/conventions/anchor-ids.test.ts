@@ -13,12 +13,14 @@ import { AGENT_UI_TARGETS } from "@/features/agent-chat/ui-targets";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 const ENFORCED = true;
 
 const DOCS_ID_PATTERN = /`#([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`/g;
 const LITERAL_ID_PATTERN = /\b(?:id|inputId)=["']([a-z][a-z0-9]*(?:-[a-z0-9]+)+)["']/g;
 const ANCHOR_SCOPE_PATTERN = /anchorScope=["']([a-z0-9-]+)["']/g;
-const DOCS_LOCALES = ["en", "de"] as const;
+const DOCS_LOCALES = CONTENT_LOCALES;
 
 const RESERVED_LITERAL_PREFIXES = [
   "nav-",

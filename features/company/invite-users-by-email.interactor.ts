@@ -17,6 +17,8 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
+import { getRequestAppLocale } from "@/i18n/request-app-locale";
 
 export const InviteUsersByEmailSchema = z.object({
   emails: z.array(z.email()).min(1).max(20),
@@ -53,11 +55,13 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();
+    const locale = await getRequestAppLocale();
     const subject = t("CompanyInvite.subject");
     const preview = t("CompanyInvite.preview", { inviterName });
     const intro = t("CompanyInvite.intro", { inviterName });
     const cta = t("CompanyInvite.cta");
     const fallback = t("CompanyInvite.fallback");
+    const layoutCopy = await getEmailLayoutCopy(locale);
 
     const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
 
@@ -67,6 +71,8 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
           to: email,
           subject,
           react: createElement(CompanyInvite, {
+            locale,
+            layoutCopy,
             inviteLink,
             subject,
             preview,

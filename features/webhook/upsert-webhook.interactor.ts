@@ -24,8 +24,10 @@ export const UpsertWebhookSchema = z
     description: z.string().max(500).nullable().optional(),
     events: z
       .array(WebhookEventSchema)
-      .min(1)
+      .meta({ minItems: 1 })
       .superRefine((events, ctx) => {
+        if (events.length === 0)
+          ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookEventsRequired } });
         if (new Set(events).size !== events.length)
           ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.duplicateWebhookEvents } });
       })
@@ -34,8 +36,11 @@ export const UpsertWebhookSchema = z
     enabled: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
-    if (!data.id && (!data.url || !data.events))
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookCreateFieldsRequired } });
+    if (data.id) return;
+    if (data.url === undefined)
+      ctx.addIssue({ code: "custom", path: ["url"], params: { error: CustomErrorCode.invalidUrl } });
+    if (data.events === undefined)
+      ctx.addIssue({ code: "custom", path: ["events"], params: { error: CustomErrorCode.webhookEventsRequired } });
   });
 export type UpsertWebhookData = Data<typeof UpsertWebhookSchema>;
 

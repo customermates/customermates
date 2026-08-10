@@ -355,4 +355,18 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(result.ok).toBe(true);
     expect(result.data).toEqual(expect.objectContaining({ firstName: "Janet", theme: "system" }));
   });
+
+  it("normalizes retired stored locale values while saving unrelated profile fields", async () => {
+    mockRepo.updateDetails.mockResolvedValue({
+      ...profileResult,
+      displayLanguage: "retired",
+      formattingLocale: "retired",
+    });
+
+    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(result.data.displayLanguage).toBe("system");
+    expect(result.data.formattingLocale).toBe("system");
+  });
 });

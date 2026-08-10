@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import z from "zod";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -14,13 +15,65 @@ vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
-import { UpsertWebhookInteractor } from "../upsert-webhook.interactor";
+import { UpsertWebhookInteractor, UpsertWebhookSchema } from "../upsert-webhook.interactor";
 import { DeleteWebhookInteractor } from "../delete-webhook.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { getWebhookRepo } from "@/core/di";
 
 const WEBHOOK_ID = "00000000-0000-4000-8000-000000000001";
+
+describe("UpsertWebhookSchema", () => {
+  it.each([
+    [
+      {},
+      [
+        { error: CustomErrorCode.invalidUrl, path: ["url"] },
+        { error: CustomErrorCode.webhookEventsRequired, path: ["events"] },
+      ],
+    ],
+    [{ url: "https://example.com/webhook" }, [{ error: CustomErrorCode.webhookEventsRequired, path: ["events"] }]],
+    [{ events: ["contact.created"] }, [{ error: CustomErrorCode.invalidUrl, path: ["url"] }]],
+    [
+      { url: "https://example.com/webhook", events: [] },
+      [{ error: CustomErrorCode.webhookEventsRequired, path: ["events"] }],
+    ],
+    [
+      { url: "", events: [] },
+      [
+        { error: undefined, path: ["url"] },
+        { error: CustomErrorCode.webhookEventsRequired, path: ["events"] },
+      ],
+    ],
+  ])("uses field-specific coded errors for an incomplete create payload", (input, expectedIssues) => {
+    const result = UpsertWebhookSchema.safeParse(input);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(
+        result.error.issues.map((issue) => ({
+          error: issue.code === "custom" ? issue.params?.error : undefined,
+          path: issue.path,
+        })),
+      ).toEqual(expectedIssues);
+    }
+  });
+
+  it("accepts a complete create payload", () => {
+    expect(
+      UpsertWebhookSchema.safeParse({ url: "https://example.com/webhook", events: ["contact.created"] }).success,
+    ).toBe(true);
+  });
+
+  it("preserves the event minimum in generated schemas", () => {
+    const schema = z.toJSONSchema(UpsertWebhookSchema) as {
+      properties?: { events?: { minItems?: number } };
+    };
+
+    expect(schema.properties?.events?.minItems).toBe(1);
+  });
+});
 
 function makeWebhookDto(overrides: Record<string, unknown> = {}) {
   return {

@@ -147,7 +147,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
     const currentOptions = this.form.options.options;
     const newOption = {
       value: crypto.randomUUID(),
-      label: "Option " + (currentOptions.length + 1),
+      label: this.t("Common.inputs.defaultOption", { number: currentOptions.length + 1 }),
       color: "secondary" as const,
       isDefault: currentOptions.length === 0,
       index: currentOptions.length,
@@ -289,7 +289,7 @@ export class CustomColumnModalStore extends BaseModalStore<UpsertCustomColumnDat
             : [
                 {
                   value: crypto.randomUUID(),
-                  label: "Option 1",
+                  label: this.t("Common.inputs.defaultOption", { number: 1 }),
                   color: "secondary" as const,
                   isDefault: true,
                   index: 0,

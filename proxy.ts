@@ -3,22 +3,52 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES, isPublicPage, routing } from "./i18n/routing";
+import {
+  DEFAULT_LOCALE,
+  isAppLocale,
+  isContentLocale,
+  routingLocaleFromPathname,
+  routingLocaleFromUrlSegment,
+  stripLocalePrefix,
+} from "./i18n/locale-registry";
+import { APP_LOCALE_COOKIE_NAME } from "./i18n/locale-preference";
+import { appRouting, contentRouting, isContentPage, isPublicPage } from "./i18n/routing";
 import { env } from "./env";
 import { auth } from "./core/auth/better-auth";
 import { resolveRequestOrigin } from "./core/config/environment";
 import { SYNTHETIC_SEED_USER } from "./core/config/synthetic-seed-user";
 
-const intlMiddlewareRaw = createMiddleware(routing);
+const intlAppMiddleware = createMiddleware(appRouting);
+const intlContentMiddleware = createMiddleware(contentRouting);
 
-function intlMiddleware(req: NextRequest) {
-  const response = intlMiddlewareRaw(req);
-  if (response.status !== 307) return response;
-  const location = response.headers.get("location");
-  if (!location) return response;
-  const permanent = NextResponse.redirect(location, 308);
-  for (const cookie of response.cookies.getAll()) permanent.cookies.set(cookie);
-  return permanent;
+const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
+
+function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
+  const useContentLocale = domain === "auto" && isContentPage(req);
+
+  if (!useContentLocale) {
+    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+    if (isAppLocale(preferredLocale)) {
+      const target = new URL(
+        req.nextUrl.pathname === "/" ? `/${preferredLocale}` : `/${preferredLocale}${req.nextUrl.pathname}`,
+        base,
+      );
+      target.search = req.nextUrl.search;
+      const response = NextResponse.redirect(target);
+      response.headers.set("vary", "accept-language, cookie");
+      return response;
+    }
+  }
+
+  const negotiateOverLocalesThatCanServeIt = useContentLocale ? intlContentMiddleware : intlAppMiddleware;
+  const response = negotiateOverLocalesThatCanServeIt(req);
+  if (response.headers.has("location")) response.headers.set("vary", "accept-language, cookie");
+  return response;
+}
+
+function isUnsupportedLocalePrefix(pathname: string): boolean {
+  const firstSegment = pathname.split("/")[1] ?? "";
+  return LOCALE_SHAPED_SEGMENT.test(firstSegment) && routingLocaleFromUrlSegment(firstSegment) === null;
 }
 
 function hasSessionCookie(req: NextRequest): boolean {
@@ -69,12 +99,6 @@ export default async function proxy(req: NextRequest) {
 
   if (isApiRoute) return NextResponse.next();
 
-  const currentLocale = ROUTING_LOCALES.find(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
-  );
-
-  if (!currentLocale) return intlMiddleware(req);
-
   let session;
   let isAuthenticated = false;
 
@@ -87,6 +111,13 @@ export default async function proxy(req: NextRequest) {
     } catch {
       isAuthenticated = false;
     }
+  }
+
+  const currentLocale = routingLocaleFromPathname(pathname);
+
+  if (currentLocale === null) {
+    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
+    return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
 
   if (env.APP_MODE === "demo") {
@@ -115,14 +146,49 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  const isRootOrLocaleOnly = ROUTING_LOCALES.some((locale) => pathname === `/${locale}`);
+  const isLocaleRootPage = pathname === `/${currentLocale}`;
 
-  if (isAuthenticated && isRootOrLocaleOnly) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
+  if (isAuthenticated && isLocaleRootPage) {
+    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+    const target = isAppLocale(preferredLocale)
+      ? new URL(`/${preferredLocale}/dashboard`, base)
+      : new URL("/dashboard", base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
 
-  if (isPublicPage(req)) return intlMiddleware(req);
+  if (isContentPage(req)) {
+    if (!isContentLocale(currentLocale)) {
+      const unprefixed = stripLocalePrefix(pathname);
+      const target = new URL(unprefixed === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${unprefixed}`, base);
+      target.search = req.nextUrl.search;
+      return NextResponse.redirect(target);
+    }
+
+    return intlContentMiddleware(req);
+  }
+
+  if (!isAppLocale(currentLocale)) {
+    const unprefixed = stripLocalePrefix(pathname);
+    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+    const appLocale = isAppLocale(preferredLocale) ? preferredLocale : DEFAULT_LOCALE;
+    const target = new URL(unprefixed === "/" ? `/${appLocale}` : `/${appLocale}${unprefixed}`, base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
+
+  if (isPublicPage(req)) return intlAppMiddleware(req);
+
+  const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+  if (isAuthenticated && isAppLocale(preferredLocale) && preferredLocale !== currentLocale) {
+    const unprefixed = stripLocalePrefix(pathname);
+    const target = new URL(unprefixed === "/" ? `/${preferredLocale}` : `/${preferredLocale}${unprefixed}`, base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
 
   if (!isAuthenticated) {
-    const redirectLocale = currentLocale !== undefined ? currentLocale : ROUTING_DEFAULT_LOCALE;
+    const redirectLocale = currentLocale ?? DEFAULT_LOCALE;
     const signInPath = `/${redirectLocale}/auth/signin`;
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
@@ -130,7 +196,7 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  return intlMiddleware(req);
+  return intlAppMiddleware(req);
 }
 
 export const config = {
@@ -150,7 +216,6 @@ export const config = {
        * - Requests with "next-router-prefetch" header
        * - Requests with "purpose: prefetch" header
        *
-       * Only requests that match the source pattern AND don't have prefetch headers will run middleware
        */
       source:
         "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.[a-z0-9]+$).*)",

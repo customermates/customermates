@@ -18,6 +18,7 @@ import { DocsSidebar } from "@/app/[locale]/(static)/docs/components/docs-sideba
 import { DocsTopBar } from "@/app/[locale]/(static)/docs/components/docs-topbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { AppLocalePreferenceSync } from "@/components/shared/app-locale-preference-sync";
 
 type Props = {
   isAuthenticated: boolean;
@@ -66,8 +67,9 @@ export function NavigationSwitch({
     subscriptionStore.setSubscription(subscription);
   }, [user, company, terminology, subscription]);
 
+  let shell: React.ReactNode;
   if (isDocsRoute) {
-    return (
+    shell = (
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
         <DocsSidebar />
 
@@ -78,10 +80,8 @@ export function NavigationSwitch({
         </SidebarInset>
       </SidebarProvider>
     );
-  }
-
-  if (hideAppShell) {
-    return (
+  } else if (hideAppShell) {
+    shell = (
       <div className="h-svh flex">
         <main className="flex flex-col relative flex-1 overflow-y-auto bg-background min-w-0">
           <header className="sticky top-0 z-30 bg-background/80 backdrop-blur flex flex-col">
@@ -92,28 +92,36 @@ export function NavigationSwitch({
         </main>
       </div>
     );
+  } else {
+    shell = (
+      <SidebarProvider defaultOpen={defaultSidebarOpen}>
+        <AppSidebar
+          channelsNeedingActionCount={channelsNeedingActionCount}
+          emailVerified={emailVerified}
+          legalStatus={legalStatus}
+          subscription={subscription}
+          systemTaskCount={systemTaskCount}
+          trialDaysLeft={trialDaysLeft}
+          unreadThreadCount={unreadThreadCount}
+          user={user}
+        />
+
+        <SidebarInset className="min-w-0 overflow-x-clip">
+          <TopBarActionsProvider>
+            <AppTopBar />
+
+            <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
+          </TopBarActionsProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    );
   }
 
   return (
-    <SidebarProvider defaultOpen={defaultSidebarOpen}>
-      <AppSidebar
-        channelsNeedingActionCount={channelsNeedingActionCount}
-        emailVerified={emailVerified}
-        legalStatus={legalStatus}
-        subscription={subscription}
-        systemTaskCount={systemTaskCount}
-        trialDaysLeft={trialDaysLeft}
-        unreadThreadCount={unreadThreadCount}
-        user={user}
-      />
+    <>
+      <AppLocalePreferenceSync displayLanguage={user?.displayLanguage} />
 
-      <SidebarInset className="min-w-0 overflow-x-clip">
-        <TopBarActionsProvider>
-          <AppTopBar />
-
-          <div className="flex flex-1 flex-col min-w-0 overflow-y-auto overflow-x-clip">{children}</div>
-        </TopBarActionsProvider>
-      </SidebarInset>
-    </SidebarProvider>
+      {shell}
+    </>
   );
 }

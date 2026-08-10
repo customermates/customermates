@@ -43,6 +43,7 @@ type FieldRowProps = {
 };
 
 function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) {
+  const t = useTranslations();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: uid,
     disabled: isPinned,
@@ -59,7 +60,7 @@ function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) 
       style={style}
     >
       <button
-        aria-label="Drag to reorder"
+        aria-label={t("DataView.dragToReorder")}
         className={cn(
           "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
           isPinned

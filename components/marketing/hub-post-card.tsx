@@ -1,5 +1,7 @@
 "use client";
 
+import type { ContentLocale } from "@/i18n/locale-registry";
+
 import { AppChip } from "@/components/chip/app-chip";
 
 import { PostCard } from "./post-card";
@@ -10,7 +12,7 @@ export type HubPostCardProps = {
   description: string;
   href: string;
   imageSrc?: string;
-  locale: string;
+  locale: ContentLocale;
   placeholderLabel?: string;
   tag?: string;
   title: string;

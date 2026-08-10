@@ -61,6 +61,7 @@ function recipient(
     email: `${id}@example.com`,
     firstName: id,
     displayLanguage: options.displayLanguage ?? "en",
+    formattingLocale: "system",
     isSystemAdministrator,
   };
 }
@@ -275,7 +276,7 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     await invoke();
 
     expect(emailService.send).toHaveBeenCalledTimes(1);
-    const props = mockLegalDocumentNotice.mock.calls[0][0] as {
+    const props = emailService.send.mock.calls[0][0].react.props as {
       deadline: string;
       objections: string[];
     };
@@ -366,6 +367,34 @@ describe("SendLegalDocumentNoticesInteractor", () => {
 
     expect(documentNames(emailService.send.mock.calls[0][0])).toEqual(["Data Processing Agreement", "Subprocessors"]);
     expect(eventService.publish.mock.calls[0][1].payload.changedDocuments).toEqual(["dpa", "subprocessors"]);
+  });
+
+  it("passes the resolved app locale and locale-less live links to the email", async () => {
+    recipients = [recipient("member-1", false, { displayLanguage: "fr" })];
+
+    await invoke();
+
+    const props = emailService.send.mock.calls[0][0].react.props as {
+      documents: Array<{ liveUrl: string }>;
+      locale: string;
+    };
+    expect(props.locale).toBe("fr");
+    expect(props.documents.map((document) => document.liveUrl)).toEqual(["https://customermates.com/privacy"]);
+  });
+
+  it("formats deadlines with the formatting preference independently of display language", async () => {
+    recipients = [
+      {
+        ...recipient("admin-1", true, { displayLanguage: "fr" }),
+        formattingLocale: "de",
+      },
+    ];
+
+    await invoke();
+
+    const props = emailService.send.mock.calls[0][0].react.props as { deadline: string; locale: string };
+    expect(props.locale).toBe("fr");
+    expect(props.deadline).toBe("21. August 2026");
   });
 
   it("treats initial onboarding as the creator's baseline for all current documents", async () => {

@@ -21,11 +21,12 @@ type Props<E extends HasId> = {
 
 export const DataViewSearch = observer(function DataViewSearch<E extends HasId>({
   store,
-  placeholder = "Search",
+  placeholder,
   className,
   id,
 }: Props<E>) {
   const t = useTranslations();
+  const resolvedPlaceholder = placeholder ?? t("Common.table.search");
   const [value, setValue] = useState(store.searchTerm ?? "");
   const [expandedMobile, setExpandedMobile] = useState(Boolean(store.searchTerm));
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +54,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
     <div className={cn("flex items-center", className)}>
       {!expandedMobile && (
         <Button
-          aria-label={placeholder}
+          aria-label={resolvedPlaceholder}
           className="lg:hidden size-8 relative"
           size="icon-sm"
           type="button"
@@ -82,7 +83,7 @@ export const DataViewSearch = observer(function DataViewSearch<E extends HasId>(
             value && "border-primary",
           )}
           id={id}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           type="search"
           value={value}
           onChange={(e) => setValue(e.target.value)}

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Write } from "../write.decorator";
 
 vi.mock("@/core/validation/zod-error-map-server", () => ({
-  configureZodLocale: vi.fn().mockResolvedValue(undefined),
+  getZodParseContext: vi.fn().mockResolvedValue(undefined),
 }));
 
 type Result = { ok: true; data: { n: number } } | { ok: false; error: z.ZodError };

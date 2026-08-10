@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { CalendarIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { addDays, addMonths, addWeeks, addYears, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
+import { addDays, addMonths, addWeeks, endOfMonth, startOfMonth } from "date-fns";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -34,17 +34,7 @@ type Props = {
   containerClassName?: string;
 };
 
-type PresetKey =
-  | "today"
-  | "inAWeek"
-  | "inAMonth"
-  | "inAYear"
-  | "thisWeek"
-  | "nextWeek"
-  | "thisMonth"
-  | "nextMonth"
-  | "next7Days"
-  | "next30Days";
+type PresetKey = "today" | "inAWeek" | "thisMonth" | "nextMonth" | "next7Days" | "next30Days";
 
 function rangeForPreset(key: PresetKey): { from: Date; to: Date } {
   const today = new Date();
@@ -56,26 +46,6 @@ function rangeForPreset(key: PresetKey): { from: Date; to: Date } {
     case "inAWeek": {
       const d = addWeeks(baseToday, 1);
       return { from: d, to: d };
-    }
-    case "inAMonth": {
-      const d = addMonths(baseToday, 1);
-      return { from: d, to: d };
-    }
-    case "inAYear": {
-      const d = addYears(baseToday, 1);
-      return { from: d, to: d };
-    }
-    case "thisWeek":
-      return {
-        from: startOfWeek(today, { weekStartsOn: 1 }),
-        to: endOfWeek(today, { weekStartsOn: 1 }),
-      };
-    case "nextWeek": {
-      const next = addDays(today, 7);
-      return {
-        from: startOfWeek(next, { weekStartsOn: 1 }),
-        to: endOfWeek(next, { weekStartsOn: 1 }),
-      };
     }
     case "thisMonth":
       return { from: startOfMonth(today), to: endOfMonth(today) };
@@ -96,7 +66,7 @@ export const FormIsoDateRangePicker = observer(
   ({
     id,
     label,
-    placeholder = "Pick a range",
+    placeholder,
     required,
     displayFormat = "descriptiveLong",
     dateOnly = true,
@@ -104,6 +74,7 @@ export const FormIsoDateRangePicker = observer(
     containerClassName,
   }: Props) => {
     const t = useTranslations();
+    const resolvedPlaceholder = placeholder ?? t("Common.inputs.dateRangePlaceholder");
     const store = useAppForm();
     const { intlStore } = useRootStore();
 
@@ -180,7 +151,9 @@ export const FormIsoDateRangePicker = observer(
     const fromTimeValue = parsedRange ? formatTime(parsedRange.from) : "";
     const toTimeValue = parsedRange ? formatTime(parsedRange.to) : "";
 
-    const triggerLabel = parsedRange ? `${formatter(parsedRange.from)} – ${formatter(parsedRange.to)}` : placeholder;
+    const triggerLabel = parsedRange
+      ? `${formatter(parsedRange.from)} – ${formatter(parsedRange.to)}`
+      : resolvedPlaceholder;
 
     const calendarSelected: DateRange | undefined = parsedRange
       ? { from: parsedRange.from, to: parsedRange.to }

@@ -1,6 +1,15 @@
 import { EntityType, Resource } from "@/generated/prisma";
 
-import type { EntityTerminologyOverride, TerminologySelectionMap } from "./entity-terminology.types";
+import type { EntityTerminologyOverride, TerminologyForm, TerminologySelectionMap } from "./entity-terminology.types";
+
+export const FILTER_FIELD_TERMINOLOGY: Record<string, { entityType: EntityType; form: TerminologyForm }> = {
+  contactIds: { entityType: EntityType.contact, form: "singular" },
+  participantContactId: { entityType: EntityType.contact, form: "singular" },
+  organizationIds: { entityType: EntityType.organization, form: "singular" },
+  dealIds: { entityType: EntityType.deal, form: "singular" },
+  serviceIds: { entityType: EntityType.service, form: "singular" },
+  taskIds: { entityType: EntityType.task, form: "singular" },
+};
 
 export const CONFIGURABLE_TERMINOLOGY_ENTITY_TYPES = [
   EntityType.contact,

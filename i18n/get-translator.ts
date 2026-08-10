@@ -1,11 +1,10 @@
 import { createTranslator } from "next-intl";
 
-import type { ROUTING_LOCALES } from "./routing";
+import type { AppLocale } from "./locale-registry";
 
-type Locale = (typeof ROUTING_LOCALES)[number];
 type NamespaceArg = Parameters<typeof createTranslator>[0]["namespace"];
 
-export async function getTranslator(locale: Locale, namespace?: NamespaceArg) {
+export async function getTranslator(locale: AppLocale, namespace?: NamespaceArg) {
   const messages = (await import(`./locales/${locale}.json`)).default;
   return createTranslator({ locale, namespace, messages });
 }

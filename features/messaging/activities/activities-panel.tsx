@@ -31,6 +31,7 @@ import {
   TimelineRow,
   TypeBadge,
 } from "@/features/messaging/activities/activities-row";
+import { calendarEventTitle } from "@/features/messaging/activities/activity-labels";
 
 const INLINE_FIELD_LIMIT = 3;
 
@@ -130,7 +131,7 @@ export const EntityTimelinePanel = observer(({ entityType, entityId, initial }: 
                       isLast={isLast}
                       subtitle={subtitleParts.join(" · ")}
                       time={time}
-                      title={ev.title}
+                      title={calendarEventTitle(ev.title, t("ContactHistory.calendarNoTitle"))}
                       titleIcon={
                         <CalendarProviderIcon
                           aria-label={t(`Common.providers.${ev.provider}`)}

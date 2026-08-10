@@ -29,7 +29,12 @@ export async function signInWithEmailAction(data: EmailSignInData) {
 
 export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
   const result = await getContinueWithSocialsInteractor().invoke({ provider: "google", callbackURL, errorCallbackURL });
-  return { ok: true as const, data: { url: isRedirect(result) ? result.redirect : null } };
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+
+  const serialized = await serializeResult(result);
+  if (!serialized.ok) return serialized;
+
+  return { ok: true as const, data: { url: null } };
 }
 
 export async function continueWithMicrosoftAction(callbackURL?: string, errorCallbackURL?: string) {
@@ -38,7 +43,12 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
     callbackURL,
     errorCallbackURL,
   });
-  return { ok: true as const, data: { url: isRedirect(result) ? result.redirect : null } };
+  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+
+  const serialized = await serializeResult(result);
+  if (!serialized.ok) return serialized;
+
+  return { ok: true as const, data: { url: null } };
 }
 
 export async function signUpWithEmailAction(data: EmailSignUpData) {

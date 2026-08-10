@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect } from "react";
 
+import { isRoutingLocale } from "@/i18n/locale-registry";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 export function TranslationSync() {
@@ -11,7 +12,7 @@ export function TranslationSync() {
   const { localeStore } = useRootStore();
 
   useEffect(() => {
-    if (locale === "en" || locale === "de") localeStore.setLocale(locale);
+    if (isRoutingLocale(locale)) localeStore.setLocale(locale);
     localeStore.setTranslation(t);
   }, [locale, t, localeStore]);
 

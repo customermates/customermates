@@ -4,7 +4,8 @@ import type { ROUTE_SOURCE_MAP } from "./route-source-map";
 import { getSourceFromRoute } from "./route-source-map";
 
 import { env } from "@/env";
-import { ROUTING_DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/routing";
+import { buildAlternateLanguages, buildLocalePath } from "@/core/seo/alternates";
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 type GenerateMetadataParams = {
   locale: string;
@@ -33,19 +34,10 @@ export function generateMetadataFromMeta({
   if (!title) return {};
 
   const routePath = buildRoutePath(route, params);
-  const alternates: Record<string, string> = {};
+  const translatedLocales = CONTENT_LOCALES.filter((loc) => source.getPage(path, loc) !== undefined);
+  const alternates = buildAlternateLanguages(routePath, translatedLocales, env.BASE_URL);
 
-  for (const loc of ROUTING_LOCALES) {
-    const localeRoute = routePath === "/" ? `/${loc}` : `/${loc}${routePath}`;
-    alternates[loc] = `${env.BASE_URL}${localeRoute}`;
-  }
-
-  const xDefaultLocaleRoute =
-    routePath === "/" ? `/${ROUTING_DEFAULT_LOCALE}` : `/${ROUTING_DEFAULT_LOCALE}${routePath}`;
-  alternates["x-default"] = `${env.BASE_URL}${xDefaultLocaleRoute}`;
-
-  const canonicalRoute = routePath === "/" ? `/${locale}` : `/${locale}${routePath}`;
-  const canonical = `${env.BASE_URL}${canonicalRoute}`;
+  const canonical = `${env.BASE_URL}${buildLocalePath(locale, routePath)}`;
   const ogImageParams = new URLSearchParams({ title });
 
   if (description) ogImageParams.set("description", description);
@@ -58,13 +50,7 @@ export function generateMetadataFromMeta({
   };
 
   const metadata: Metadata = {
-    alternates:
-      Object.keys(alternates).length > 0
-        ? {
-            canonical,
-            languages: alternates,
-          }
-        : { canonical },
+    alternates: alternates ? { canonical, languages: alternates } : { canonical },
     openGraph: {
       description,
       images: [image],

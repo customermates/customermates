@@ -140,6 +140,7 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
         email: "owner@example.com",
         firstName: "Owner",
         displayLanguage: "en",
+        formattingLocale: "de",
         role: { isSystemRole: true },
       },
     ]);
@@ -148,13 +149,14 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
       expect.objectContaining({
         id: "user-1",
         createdAt,
+        formattingLocale: "de",
         isSystemAdministrator: true,
       }),
     ]);
     expect(prismaMock.user.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { status: Status.active },
-        select: expect.objectContaining({ createdAt: true }),
+        select: expect.objectContaining({ createdAt: true, formattingLocale: true }),
       }),
     );
   });

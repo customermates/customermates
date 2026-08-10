@@ -12,7 +12,9 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import Feedback from "@/components/emails/feedback";
+import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
 import { env } from "@/env";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const SUBJECT_MAP: Record<FeedbackType, string> = {
   general: "General Feedback",
@@ -37,6 +39,8 @@ export class SendFeedbackInteractor extends AuthenticatedInteractor<SendFeedback
       subject: `${subject} from ${userName}`,
       react: React.createElement(Feedback, {
         feedback: data.feedback,
+        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+        locale: DEFAULT_LOCALE,
         userEmail: email,
         userName: userName,
         subject: subject,

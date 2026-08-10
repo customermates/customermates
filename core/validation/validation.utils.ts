@@ -8,8 +8,12 @@ export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
 
 export type Validated<T> = Promise<{ ok: true; data: T } | { ok: false; error: z.ZodError }>;
 
-export function createZodError<T = unknown>(message: string, path: (string | number)[] = []): z.ZodError<T> {
-  return new z.ZodError([{ code: "custom", path, message }]) as z.ZodError<T>;
+export function createZodError<T = unknown>(
+  message: string,
+  path: (string | number)[] = [],
+  params?: Record<string, unknown>,
+): z.ZodError<T> {
+  return new z.ZodError([{ code: "custom", path, message, params }]) as z.ZodError<T>;
 }
 
 export function createErrorHandler(errors: Record<string, string>): (issue: $ZodRawIssue) => string | undefined {
@@ -24,8 +28,7 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
     if (!Object.values(CustomErrorCode).includes(error))
       throw new Error(`Unknown validation error code: ${error}. Add it to CustomErrorCode enum in validation.types.ts`);
 
-    if (!errors[error])
-      throw new Error("Custom error translations not initialized. configureZodLocale() must be called first.");
+    if (!errors[error]) throw new Error("Custom error translations are missing from the request parse context.");
 
     let message = errors[error];
 
@@ -38,7 +41,7 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
         else if (value != null) param = String(value);
         else param = "";
 
-        message = message.replace(`{${key}}`, param);
+        message = message.replaceAll(`{${key}}`, param);
       }
     }
 

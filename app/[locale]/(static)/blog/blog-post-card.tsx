@@ -1,6 +1,7 @@
 "use client";
 
 import type { BlogPost } from "@/core/fumadocs/schemas/blog-posts";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { PostCard } from "@/components/marketing/post-card";
 import { PostCardDate } from "@/components/marketing/post-card-date";
@@ -9,7 +10,7 @@ import { AppImage } from "@/components/shared/app-image";
 
 type Props = BlogPost & {
   description?: string;
-  locale: string;
+  locale: ContentLocale;
   title: string;
   url: string;
 };

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
+import { useTranslations } from "next-intl";
 
 import { XIcon } from "lucide-react";
 
@@ -50,6 +51,8 @@ function DrawerContent({
 }: React.ComponentProps<typeof DrawerPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const t = useTranslations();
+
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
@@ -79,7 +82,7 @@ function DrawerContent({
           >
             <XIcon />
 
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("Common.actions.close")}</span>
           </DrawerPrimitive.Close>
         )}
       </DrawerPrimitive.Content>
