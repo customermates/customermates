@@ -9,11 +9,13 @@ import { Cable, Inbox, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
 import { Button } from "@/components/ui/button";
 import { useDataViewSync } from "@/components/data-view";
+import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
+import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewActiveFiltersBar } from "@/components/data-view/header/active-filters-bar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
@@ -105,6 +107,8 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
   const items = messagingThreadsStore.isReady ? messagingThreadsStore.items : threads.items;
 
   const listRef = useRef<HTMLDivElement>(null);
+  const getScrollElement = useCallback(() => listRef.current, []);
+  const { isAway, returnToAnchor } = useScrollReturn({ direction: "top", getScrollElement });
 
   useLayoutEffect(() => {
     const el = listRef.current;
@@ -132,23 +136,32 @@ export const InboxList = observer(({ threads, selectedThreadId }: Props) => {
     <div className="flex h-full flex-col">
       <DataViewActiveFiltersBar store={messagingThreadsStore} onEditFilters={clearSelectedThread} />
 
-      <div ref={listRef} className="flex-1 overflow-y-auto" id="inbox-thread-list">
-        {items.length === 0 ? (
-          <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-            <Inbox className="size-8 opacity-40" />
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div ref={listRef} className="flex-1 overflow-y-auto" id="inbox-thread-list">
+          {items.length === 0 ? (
+            <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+              <Inbox className="size-8 opacity-40" />
 
-            <p className="text-sm">{t("Inbox.emptyState")}</p>
-          </div>
-        ) : (
-          items.map((thread) => (
-            <ThreadRow
-              key={thread.id}
-              selected={thread.id === selectedThreadId}
-              thread={thread}
-              onClick={() => selectThread(thread.id)}
-            />
-          ))
-        )}
+              <p className="text-sm">{t("Inbox.emptyState")}</p>
+            </div>
+          ) : (
+            items.map((thread) => (
+              <ThreadRow
+                key={thread.id}
+                selected={thread.id === selectedThreadId}
+                thread={thread}
+                onClick={() => selectThread(thread.id)}
+              />
+            ))
+          )}
+        </div>
+
+        <ScrollReturnButton
+          direction="top"
+          isAway={isAway}
+          label={t("Common.scroll.backToTop")}
+          onReturn={returnToAnchor}
+        />
       </div>
 
       <DataViewPagination store={messagingThreadsStore} />

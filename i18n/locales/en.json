@@ -881,6 +881,10 @@
       "whatsapp": "WhatsApp"
     },
     "role": "Role",
+    "scroll": {
+      "backToTop": "Back to top",
+      "jumpToLatest": "Jump to latest"
+    },
     "single": "Single",
     "sort": {
       "ascending": "Ascending",

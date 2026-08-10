@@ -12,7 +12,7 @@ import { deriveReplyRecipients } from "@/ee/messaging/reply-recipients";
 
 import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
-import { MessagesScrollContainer } from "./messages-scroll-container";
+import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { ThreadAutoMarkRead } from "./thread-auto-mark-read";
 import { ThreadTopBar } from "./thread-topbar";
 import { ThreadReplyComposer } from "./thread-reply-composer";
@@ -56,7 +56,11 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
 
       <ThreadTopBar thread={thread} />
 
-      <MessagesScrollContainer scrollKey={`thread:${thread.id}`} onTopReach={store.loadOlderMessages}>
+      <MessagesScrollContainer
+        jumpToLatestLabel={t("Common.scroll.jumpToLatest")}
+        scrollKey={`thread:${thread.id}`}
+        onTopReach={store.loadOlderMessages}
+      >
         <div className="flex flex-col gap-1">
           {store.loadingOlder && (
             <div className="flex justify-center py-2">

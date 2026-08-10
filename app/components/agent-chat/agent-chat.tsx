@@ -39,7 +39,7 @@ import type { AgentUsageSummary } from "@/features/agent-chat/agent-usage.servic
 import type { AgentWorkspaceSetupPlan } from "@/features/agent-chat/agent-workspace-setup";
 
 import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
-import { MessagesScrollContainer } from "@/app/[locale]/(protected)/inbox/components/messages-scroll-container";
+import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Avatar } from "@/components/ui/avatar";

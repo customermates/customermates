@@ -4,12 +4,15 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
+import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 
 import { DataCardView } from "./data-card-view";
 import { DataKanbanView } from "./data-kanban-view";
@@ -46,7 +49,22 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   emptyState,
 }: Props<E>) {
   const columnLabel = useColumnLabel();
+  const t = useTranslations();
   const { terminologyStore } = useRootStore();
+  const scrollHostRef = useRef<HTMLDivElement>(null);
+  const getScrollElement = useCallback(
+    () =>
+      scrollHostRef.current?.querySelector<HTMLElement>(
+        "[data-slot=table-container],[data-slot=kanban-root],[data-slot=card-grid]",
+      ) ?? null,
+    [],
+  );
+  const hasItems = store.items.length > 0;
+  const { isAway, returnToAnchor } = useScrollReturn({
+    direction: "top",
+    enabled: hasItems,
+    getScrollElement,
+  });
 
   const resolvedColumns = useMemo<ColumnDef<E>[]>(() => {
     const byId = new Map(columns.map((c) => [c.id ?? "", c]));
@@ -99,10 +117,18 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
       <DataViewActiveFiltersBar store={store} />
 
       <div
-        className="flex min-h-0 flex-1 flex-col overflow-hidden *:data-[slot=table-container]:h-full *:data-[slot=table-container]:overflow-auto *:data-[slot=kanban-root]:h-full *:data-[slot=kanban-root]:overflow-auto *:data-[slot=card-grid]:h-full *:data-[slot=card-grid]:overflow-y-auto"
+        ref={scrollHostRef}
+        className="relative flex min-h-0 flex-1 flex-col overflow-hidden *:data-[slot=table-container]:h-full *:data-[slot=table-container]:overflow-auto *:data-[slot=kanban-root]:h-full *:data-[slot=kanban-root]:overflow-auto *:data-[slot=card-grid]:h-full *:data-[slot=card-grid]:overflow-y-auto"
         style={{ contain: "layout" }}
       >
         {body}
+
+        <ScrollReturnButton
+          direction="top"
+          isAway={isAway}
+          label={t("Common.scroll.backToTop")}
+          onReturn={returnToAnchor}
+        />
       </div>
 
       {!isKanban && !isEmpty && <DataViewPagination store={store} />}
