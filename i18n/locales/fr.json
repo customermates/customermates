@@ -589,7 +589,6 @@
         "user": "Utilisateur",
         "users": "Assigné à"
       },
-      "emptyContent": "Aucune entrée",
       "groupBy": "Grouper par",
       "layout": "Disposition",
       "nextPage": "Page suivante",
@@ -1502,6 +1501,11 @@
   },
   "OrganizationModal": {
     "title": "Organisation"
+  },
+  "PageState": {
+    "loading": "Chargement de la page",
+    "notFoundDescription": "Cet enregistrement a peut-être été supprimé ou vous n’y avez peut-être pas accès.",
+    "notFoundTitle": "Enregistrement introuvable"
   },
   "PendingCard": {
     "body": "Vous pourrez vous connecter dès que votre compte aura été approuvé par l'administrateur de votre entreprise.",

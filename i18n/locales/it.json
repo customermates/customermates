@@ -589,7 +589,6 @@
         "user": "Utente",
         "users": "Assegnato a"
       },
-      "emptyContent": "Nessuna voce",
       "groupBy": "Raggruppa per",
       "layout": "Disposizione",
       "nextPage": "Pagina successiva",
@@ -1502,6 +1501,11 @@
   },
   "OrganizationModal": {
     "title": "Organizzazione"
+  },
+  "PageState": {
+    "loading": "Caricamento della pagina",
+    "notFoundDescription": "Questo record potrebbe essere stato rimosso oppure potresti non avere accesso.",
+    "notFoundTitle": "Record non trovato"
   },
   "PendingCard": {
     "body": "Potrai accedere non appena il tuo account sarà approvato dall'amministratore della tua azienda.",

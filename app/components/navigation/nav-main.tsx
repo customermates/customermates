@@ -131,8 +131,8 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                     <NavRouteLink
                       href={sub.href}
                       id={`nav-${sub.key}`}
-                      pendingClassName={sub.badge ? "ml-0" : undefined}
                       pathname={pathname}
+                      pendingClassName={sub.badge ? "ml-0" : undefined}
                       onClick={() => onNavigate(sub.key)}
                     >
                       <span>{sub.title}</span>
@@ -188,8 +188,8 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
           <NavRouteLink
             href={item.href}
             id={`nav-${item.key}`}
-            pendingClassName={item.badge ? "ml-0" : undefined}
             pathname={pathname}
+            pendingClassName={item.badge ? "ml-0" : undefined}
             onClick={() => onNavigate(item.key)}
           >
             <Icon icon={item.icon} />
