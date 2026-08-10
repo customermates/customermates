@@ -5,10 +5,8 @@ import { useTranslations } from "next-intl";
 import { CompetitorLinks } from "./competitor-links";
 import { FooterBadges } from "./footer-badges";
 
-import { LanguageSelector } from "@/components/shared/language-selector";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
-import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 type LinkItem = {
   slug: string;
@@ -233,62 +231,52 @@ export function FooterContent({ blogPosts = [], competitors = [], featureLinks =
 
         <FooterBadges />
 
-        <div className="pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 md:gap-4">
-            <div className="text-xs text-subdued text-center md:text-left">
-              <span>{t("Footer.copyrightText", { year: new Date().getFullYear() })}</span>
+        <div className="pt-8 text-center text-xs text-subdued">
+          <span>{t("Footer.copyrightText", { year: new Date().getFullYear() })}</span>
 
-              {" · "}
+          {" · "}
 
-              <a
-                className="hover:text-foreground transition-colors"
-                href="https://viesearch.com/"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Viesearch - The Human-curated Search Engine
-              </a>
+          <a
+            className="transition-colors hover:text-foreground"
+            href="https://viesearch.com/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Viesearch - The Human-curated Search Engine
+          </a>
 
-              {" · "}
+          {" · "}
 
-              <a
-                className="hover:text-foreground transition-colors"
-                href="https://www.promotebusinessdirectory.com/"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                https://www.promotebusinessdirectory.com/
-              </a>
+          <a
+            className="transition-colors hover:text-foreground"
+            href="https://www.promotebusinessdirectory.com/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            https://www.promotebusinessdirectory.com/
+          </a>
 
-              {" · "}
+          {" · "}
 
-              <a
-                className="hover:text-foreground transition-colors"
-                href="http://www.usawebsitesdirectory.com/computers_and_internet/"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                http://www.usawebsitesdirectory.com/computers_and_internet/
-              </a>
+          <a
+            className="transition-colors hover:text-foreground"
+            href="http://www.usawebsitesdirectory.com/computers_and_internet/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            http://www.usawebsitesdirectory.com/computers_and_internet/
+          </a>
 
-              {" · "}
+          {" · "}
 
-              <a
-                className="hover:text-foreground transition-colors"
-                href="https://www.bestsitesindex.com/submit.php"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                https://www.bestsitesindex.com/submit.php
-              </a>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 md:gap-4">
-              <LanguageSelector className="w-32" />
-
-              <ThemeSwitcher />
-            </div>
-          </div>
+          <a
+            className="transition-colors hover:text-foreground"
+            href="https://www.bestsitesindex.com/submit.php"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            https://www.bestsitesindex.com/submit.php
+          </a>
         </div>
       </div>
     </footer>
