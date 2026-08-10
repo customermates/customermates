@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { BarChart3, Plus } from "lucide-react";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -138,12 +138,13 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
         <PageState
           action={
             canAddWidget ? (
-              <Button size="sm" onClick={() => void widgetModalStore.add()}>
+              <Button size="sm" variant="secondary" onClick={() => void widgetModalStore.add()}>
                 {t("Dashboard.addCard")}
               </Button>
             ) : undefined
           }
           description={t("Common.emptyState.dashboardBody")}
+          icon={BarChart3}
           skeleton={{ kind: "dashboard" }}
           state="empty"
           title={t("Common.emptyState.dashboardTitle")}

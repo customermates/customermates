@@ -4,7 +4,7 @@ import type { ApiKey } from "@/features/api-key/get-api-keys.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { KeyRound, Plus } from "lucide-react";
 import { useEffect, useMemo } from "react";
 
 import { Alert } from "@/components/shared/alert";
@@ -62,12 +62,13 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
       <PageState
         action={
           canManage ? (
-            <Button size="sm" onClick={() => void apiKeyModalStore.add()}>
+            <Button size="sm" variant="secondary" onClick={() => void apiKeyModalStore.add()}>
               {t("Common.actions.add")}
             </Button>
           ) : undefined
         }
         description={t("ProfileSections.apiKeysDescription")}
+        icon={KeyRound}
         skeleton={{ card: "api-keys", kind: "settings", view: "cards" }}
         state="empty"
         title={t("Common.emptyState.genericTitle")}

@@ -207,6 +207,32 @@ describe("page-state contract", () => {
     expect(read("components/page-state/page-skeleton.tsx")).toContain("Array.from({ length: 8 }");
   });
 
+  it("uses the quiet true-empty treatment with neutral secondary actions", () => {
+    const pageState = read("components/page-state/page-state.tsx");
+
+    expect(pageState).toContain("h-[calc(100svh-10rem)]");
+    expect(pageState).toContain("max-h-[34rem]");
+    expect(pageState).toContain("max-w-sm");
+    expect(pageState).toContain("before:bg-background/80");
+    expect(pageState).not.toContain("rounded-xl border bg-background/95");
+    expect(pageState).not.toContain("shadow-sm");
+
+    const secondaryActionOwners = {
+      "components/data-view/data-view-empty.tsx": '<Button size="sm" variant="secondary" onClick={() => onAdd?.()}>',
+      "app/[locale]/(protected)/dashboard/components/widgets-grid.tsx":
+        '<Button size="sm" variant="secondary" onClick={() => void widgetModalStore.add()}>',
+      "app/[locale]/(protected)/profile/components/api-keys-card.tsx":
+        '<Button size="sm" variant="secondary" onClick={() => void apiKeyModalStore.add()}>',
+      "app/[locale]/(protected)/profile/components/connected-accounts-card.tsx":
+        '<ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" />',
+      "app/[locale]/(protected)/inbox/components/inbox-list.tsx": '<Button asChild size="sm" variant="secondary">',
+    };
+
+    for (const [file, expectedAction] of Object.entries(secondaryActionOwners)) {
+      expect(read(file), file).toContain(expectedAction);
+    }
+  });
+
   it("never leaves a shared data view blank while readiness is pending", () => {
     const container = read("components/data-view/data-view-container.tsx");
 

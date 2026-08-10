@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { Fragment, useEffect } from "react";
@@ -40,6 +40,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
     return (
       <PageState
         className="h-full"
+        icon={MessageSquare}
         skeleton={{ kind: "inbox", view: "transcript" }}
         state="empty"
         title={t("Inbox.selectThread")}

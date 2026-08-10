@@ -41,7 +41,13 @@ export default async function PageStateGalleryPage({ searchParams }: Props) {
         <PageState label={t("PageState.loading")} skeleton={spec} state="loading" />
       ) : state === "empty" ? (
         <PageState
-          action={authorized ? <Button size="sm">{t("Common.actions.add")}</Button> : undefined}
+          action={
+            authorized ? (
+              <Button size="sm" variant="secondary">
+                {t("Common.actions.add")}
+              </Button>
+            ) : undefined
+          }
           skeleton={spec}
           state="empty"
           title={t("Common.emptyState.genericTitle")}

@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { BarChart3 } from "lucide-react";
 
 import type { PageSkeletonSpec } from "../page-skeleton";
 
@@ -13,6 +14,7 @@ import { GenericPageLoading } from "../generic-page-loading";
 import { SETTINGS_CARD_GRID_CLASS_NAME } from "../page-state-geometry";
 import { PageSkeleton } from "../page-skeleton";
 import { PageState } from "../page-state";
+import { Button } from "@/components/ui/button";
 
 const ARCHETYPES: PageSkeletonSpec[] = [
   { kind: "data-view", tableVariant: "contact", view: "table" },
@@ -59,8 +61,9 @@ describe("page state composition", () => {
   it("keeps true-empty geometry static, hidden, inert, and action-aware", () => {
     const html = renderToStaticMarkup(
       createElement(PageState, {
-        action: createElement("button", null, "Authorized action"),
+        action: createElement(Button, { size: "sm", variant: "secondary" }, "Authorized action"),
         description: "Empty description",
+        icon: BarChart3,
         skeleton: { kind: "dashboard" },
         state: "empty",
         title: "Empty title",
@@ -73,6 +76,17 @@ describe("page state composition", () => {
     expect(html).toContain("pointer-events-none");
     expect(html).toContain("data-page-state-background");
     expect(html).toContain("data-page-state-action");
+    expect(html).toContain('data-variant="secondary"');
+    expect(html).toContain("data-page-state-icon");
+    expect(html).toContain("size-6 text-muted-foreground");
+    expect(html).toContain("h-[calc(100svh-10rem)]");
+    expect(html).toContain("max-h-[34rem]");
+    expect(html).toContain("max-w-sm");
+    expect(html).toContain("before:bg-background/80");
+    expect(html).not.toContain("rounded-xl border bg-background/95");
+    expect(html).not.toContain("shadow-sm");
+    expect(html).toContain("pointer-events-none relative isolate");
+    expect(html).toContain('data-page-state-action="true" class="pointer-events-auto pt-1"');
     expect(html).not.toContain("pointer-events-none absolute inset-0 opacity-45");
     expect(html).toContain("Authorized action");
     expect(html).toContain("Empty title");

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 import { CircleAlert } from "lucide-react";
 
@@ -21,6 +22,7 @@ export type PageStateProps =
       skeleton: PageSkeletonSpec;
       title: string;
       description?: string;
+      icon?: LucideIcon;
       action?: ReactNode;
     })
   | (SharedProps & {
@@ -72,6 +74,8 @@ export function PageState(props: PageStateProps) {
     );
   }
 
+  const EmptyIcon = props.icon;
+
   return (
     <section className={cn("relative min-h-80 w-full flex-1 overflow-hidden", props.className)} data-page-state="empty">
       <PageSkeleton
@@ -81,8 +85,10 @@ export function PageState(props: PageStateProps) {
         spec={props.skeleton}
       />
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-6">
-        <div className="pointer-events-auto flex max-w-md flex-col items-center gap-3 rounded-xl border bg-background/95 px-6 py-5 text-center shadow-sm">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-[calc(100svh-10rem)] min-h-80 max-h-[34rem] items-center justify-center p-4 md:p-6">
+        <div className="pointer-events-none relative isolate flex w-full max-w-sm flex-col items-center gap-3 text-center before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-background/80 before:blur-2xl">
+          {EmptyIcon && <EmptyIcon data-page-state-icon aria-hidden="true" className="size-6 text-muted-foreground" />}
+
           <div className="flex flex-col gap-1">
             <h2 className="text-sm font-medium text-foreground">{props.title}</h2>
 
@@ -90,7 +96,7 @@ export function PageState(props: PageStateProps) {
           </div>
 
           {props.action && (
-            <div data-page-state-action className="pt-1">
+            <div data-page-state-action className="pointer-events-auto pt-1">
               {props.action}
             </div>
           )}

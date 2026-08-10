@@ -40,6 +40,7 @@ describe("DataViewEmpty authorization", () => {
     const html = render(true);
 
     expect(html).toContain("data-page-state-action");
+    expect(html).toContain('data-variant="secondary"');
     expect(html).toContain("Add record");
     expect(html).toContain("<button");
   });

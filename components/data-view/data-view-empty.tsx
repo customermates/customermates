@@ -52,7 +52,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   const { singular, plural } = useEntityTerminology();
 
   const entityType = store.entityType;
-  const icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
+  const Icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
   const singularLabel = entityType ? singular(entityType) : "";
   const pluralLabel = entityType ? plural(entityType) : "";
   const canCreate = Boolean(onAdd) && store.canManage;
@@ -65,7 +65,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
             ? t("Common.emptyState.filteredBody", { plural: pluralLabel })
             : t("Common.emptyState.genericFilteredBody")
         }
-        icon={icon}
+        icon={Icon}
         secondaryAction={{
           label: t("Common.emptyState.clearFilters"),
           onClick: () => store.setQueryOptions({ filters: [], searchTerm: "" }),
@@ -95,12 +95,13 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
     <PageState
       action={
         canCreate ? (
-          <Button size="sm" onClick={() => onAdd?.()}>
+          <Button size="sm" variant="secondary" onClick={() => onAdd?.()}>
             {resolvedActionLabel}
           </Button>
         ) : undefined
       }
       description={description}
+      icon={Icon}
       skeleton={skeleton}
       state="empty"
       title={title}

@@ -6,7 +6,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Info, Loader2 } from "lucide-react";
+import { Cable, Info, Loader2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
@@ -162,8 +162,11 @@ export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Pro
   if (isTrueEmpty) {
     return (
       <PageState
-        action={canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" /> : undefined}
+        action={
+          canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" /> : undefined
+        }
         description={t("ConnectedAccountsCard.emptyState")}
+        icon={Cable}
         skeleton={{ card: "connected-accounts", kind: "settings", view: "cards" }}
         state="empty"
         title={t("ConnectedAccountsCard.title")}

@@ -178,7 +178,7 @@ export const InboxList = observer(({ threads, selectedThreadId, locked = false }
           <PageState
             action={
               canConnect ? (
-                <Button asChild size="sm">
+                <Button asChild size="sm" variant="secondary">
                   <Link href="/profile/connected-accounts">
                     <Cable className="size-3.5" />
 
@@ -189,6 +189,7 @@ export const InboxList = observer(({ threads, selectedThreadId, locked = false }
             }
             className="h-full"
             description={t("Inbox.emptyState")}
+            icon={Cable}
             skeleton={{ kind: "inbox", view: "list" }}
             state="empty"
             title={t("Common.emptyState.genericTitle")}
