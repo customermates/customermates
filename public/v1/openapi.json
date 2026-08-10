@@ -26749,17 +26749,23 @@
                     "displayLanguage": {
                       "type": "string",
                       "enum": [
-                        "system",
+                        "en",
                         "de",
-                        "en"
+                        "fr",
+                        "it",
+                        "es",
+                        "system"
                       ]
                     },
                     "formattingLocale": {
                       "type": "string",
                       "enum": [
-                        "system",
+                        "en",
                         "de",
-                        "en"
+                        "fr",
+                        "it",
+                        "es",
+                        "system"
                       ]
                     },
                     "roleId": {
@@ -26781,6 +26787,9 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "roleIsSystemRole": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -26795,7 +26804,8 @@
                     "displayLanguage",
                     "formattingLocale",
                     "roleId",
-                    "roleName"
+                    "roleName",
+                    "roleIsSystemRole"
                   ],
                   "additionalProperties": false
                 }
@@ -26885,7 +26895,6 @@
                     ]
                   },
                   "events": {
-                    "minItems": 1,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -26917,7 +26926,8 @@
                         "messaging.calendar_event.changed",
                         "messaging.relation.created"
                       ]
-                    }
+                    },
+                    "minItems": 1
                   },
                   "secret": {
                     "anyOf": [
@@ -51803,7 +51813,14 @@
               "type": "object",
               "properties": {
                 "displayName": {
-                  "type": "string"
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "accountLabel": {
                   "anyOf": [

@@ -1,4 +1,6 @@
 import type { PropsWithChildren } from "react";
+import type { AppLocale } from "@/i18n/locale-registry";
+import type { EmailLayoutCopy } from "./email-layout-copy";
 
 import { Body, Container, Head, Heading, Html, Preview, Section, Tailwind, Text } from "@react-email/components";
 
@@ -22,13 +24,15 @@ const ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 type Props = PropsWithChildren<{
   preview?: string;
   title?: string;
+  locale: AppLocale;
+  layoutCopy: EmailLayoutCopy;
 }>;
 
-export function EmailLayout({ preview, title, children }: Props) {
+export function EmailLayout({ preview, title, locale, layoutCopy, children }: Props) {
   const year = new Date().getFullYear();
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Tailwind config={config}>
         <Head>
           <style>{`body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }`}</style>
@@ -52,12 +56,14 @@ export function EmailLayout({ preview, title, children }: Props) {
 
             <Section className="pt-6 text-center">
               <Text className="m-0 text-xs text-default-700">
-                © {year} Customermates · The agentic, open-source CRM
+                <span>© {year} Customermates · </span>
+
+                <span>{layoutCopy.tagline}</span>
               </Text>
 
               {env.NODE_ENV !== "production" || env.APP_MODE !== "self-hosted" ? (
                 <Text className="mt-2 text-xs text-default-700">
-                  <span>Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim, Germany · </span>
+                  <span>Benjamin Wagner · An den Kasernen 25 · 68167 Mannheim, {layoutCopy.country} · </span>
 
                   <a className="text-default-700 underline" href="mailto:mail@customermates.com">
                     mail@customermates.com

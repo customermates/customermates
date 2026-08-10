@@ -37,17 +37,17 @@ import { EntityType } from "@/generated/prisma";
 type Sibling = { slug: string; label: string };
 type Crumb = { label: string; href?: string; siblings?: Sibling[]; pictureUrl?: string | null; isEntity?: boolean };
 
-const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; label: string }> = {
-  dashboard: { group: "overview", label: "dashboard" },
-  inbox: { group: "overview", label: "inbox" },
-  tasks: { group: "overview", label: "tasks" },
-  contacts: { group: "crm", label: "contacts" },
-  organizations: { group: "crm", label: "organizations" },
-  deals: { group: "crm", label: "deals" },
-  services: { group: "crm", label: "services" },
-  settings: { group: "settings", label: "settings" },
-  profile: { group: "settings", label: "profile" },
-  company: { group: "settings", label: "company" },
+const GROUP_MAP: Record<string, { group: "overview" | "crm" | "settings" | null; labelKey: string }> = {
+  dashboard: { group: "overview", labelKey: "dashboard" },
+  inbox: { group: "overview", labelKey: "inbox" },
+  tasks: { group: "overview", labelKey: "tasks" },
+  contacts: { group: "crm", labelKey: "contacts" },
+  organizations: { group: "crm", labelKey: "organizations" },
+  deals: { group: "crm", labelKey: "deals" },
+  services: { group: "crm", labelKey: "services" },
+  settings: { group: "settings", labelKey: "settings" },
+  profile: { group: "settings", labelKey: "profile" },
+  company: { group: "settings", labelKey: "company" },
 };
 
 function isWorkspaceSection(segment: string): segment is WorkspaceSection {
@@ -98,7 +98,7 @@ export const AppTopBar = observer(() => {
 
   return (
     <ShellHeader actions={override ?? actions}>
-      <Breadcrumb className="min-w-0">
+      <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {
             const isLeaf = i === crumbs.length - 1;
@@ -175,7 +175,7 @@ function buildCrumbs(
   const sectionSubroutes = workspaceSection ? visibleSubroutes(workspaceSection, appMode, canAccess) : [];
 
   const crumbs: Crumb[] = [];
-  const leafKey = entry.group === "settings" ? `UserAvatar.${entry.label}` : `NavigationBar.${entry.label}`;
+  const leafKey = entry.group === "settings" ? `UserAvatar.${entry.labelKey}` : `NavigationBar.${entry.labelKey}`;
   const sectionHref = workspaceSection ? `/${first}/${sectionSubroutes[0]?.slug ?? "settings"}` : `/${first}`;
   crumbs.push({ label: entityLabels[first] ?? t(leafKey), href: sectionHref });
 

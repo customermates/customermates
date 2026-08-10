@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import { configureZodLocale } from "../validation/zod-error-map-server";
+import { getZodParseContext } from "../validation/zod-error-map-server";
 
 export function Validate<T>(schema: z.ZodSchema<T>) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -20,9 +20,8 @@ async function validate<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
 ): Promise<{ ok: false; error: z.ZodError<T> } | { ok: true; data: T }> {
-  await configureZodLocale();
-
-  const res = await schema.safeParseAsync(data);
+  const context = await getZodParseContext();
+  const res = await schema.safeParseAsync(data, context);
 
   if (!res.success) return { ok: false, error: res.error };
 

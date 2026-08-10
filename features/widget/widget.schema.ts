@@ -83,11 +83,23 @@ export const WidgetLayoutSchema = z.object({
 
 export type WidgetLayout = Data<typeof WidgetLayoutSchema>;
 
-export const DiagramDataPointSchema = z.object({
-  label: z.string(),
+export const DIAGRAM_SYSTEM_LABEL_KEYS = ["noGroup", "total"] as const;
+
+const DiagramDataPointFields = {
   value: z.number(),
   optionColor: z.enum(CHIP_COLORS).optional(),
-});
+};
+
+export const DiagramDataPointSchema = z.discriminatedUnion("labelKind", [
+  z.object({ labelKind: z.literal("literal"), label: z.string().min(1), ...DiagramDataPointFields }).strict(),
+  z
+    .object({
+      labelKind: z.literal("system"),
+      systemLabelKey: z.enum(DIAGRAM_SYSTEM_LABEL_KEYS),
+      ...DiagramDataPointFields,
+    })
+    .strict(),
+]);
 
 export type DiagramDataPoint = Data<typeof DiagramDataPointSchema>;
 

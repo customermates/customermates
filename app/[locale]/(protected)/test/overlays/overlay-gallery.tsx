@@ -205,7 +205,12 @@ export function OverlayGallery() {
         <>
           {trigger}
 
-          <CommandDialog open={open} title="Overlay command" onOpenChange={setOpen}>
+          <CommandDialog
+            description="Search the overlay fixture"
+            open={open}
+            title="Overlay command"
+            onOpenChange={setOpen}
+          >
             <CommandInput placeholder="Unterhaltungseinstellungen" />
 
             <CommandList>

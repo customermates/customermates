@@ -2,9 +2,11 @@
 
 import "@/styles/globals.css";
 
+import { useEffect, useState } from "react";
 import { Inter } from "next/font/google";
 
 import { ErrorPageView } from "@/components/shared/error-page-view";
+import { defaultGlobalErrorFallback, globalErrorFallback } from "@/i18n/global-error-copy";
 
 const latin = Inter({
   subsets: ["latin"],
@@ -19,16 +21,22 @@ type Props = {
 };
 
 export default function GlobalError({ reset }: Props) {
+  const [fallback, setFallback] = useState(defaultGlobalErrorFallback);
+
+  useEffect(() => setFallback(globalErrorFallback()), []);
+
+  const { copy, locale } = fallback;
+
   return (
-    <html className={`${latin.variable} ${latin.className} dark`} lang="en">
+    <html className={`${latin.variable} ${latin.className} dark`} lang={locale}>
       <body className="h-svh flex flex-col font-sans antialiased">
         <ErrorPageView
           backHref="/"
-          backLabel="Back to home"
-          body="Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team."
-          retryLabel="Try again"
-          subtitle="Oops! Something went wrong"
-          title="Well, that's awkward"
+          backLabel={copy.backLabel}
+          body={copy.body}
+          retryLabel={copy.retryLabel}
+          subtitle={copy.subtitle}
+          title={copy.title}
           onRetry={() => reset()}
         />
       </body>

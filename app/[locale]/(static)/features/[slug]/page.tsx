@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
 import { PageHero } from "@/components/marketing/page-hero";
@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function FeaturePage({ params }: Props) {
   const locale = await getLocale();
+  const t = await getTranslations("StructuredData.breadcrumb");
   const { slug } = await params;
   const page = featurePagesSource.getPage([slug], locale);
 
@@ -46,8 +47,8 @@ export default async function FeaturePage({ params }: Props) {
     <div className="relative flex flex-col items-center justify-center pt-16 md:pt-24">
       <JsonLd
         schema={breadcrumbListSchema([
-          { name: "Home", path: `/${locale}` },
-          { name: "Features", path: `/${locale}/features` },
+          { name: t("home"), path: `/${locale}` },
+          { name: t("features"), path: `/${locale}/features` },
           { name: page.data.featureName, path: `/${locale}/features/${slug}` },
         ])}
       />

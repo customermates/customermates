@@ -94,7 +94,7 @@ export function createMockDiModule(getMockUser: () => TenantUser) {
 // @/core/validation/zod-error-map-server
 // ---------------------------------------------------------------------------
 export const MOCK_ZOD_MODULE = {
-  configureZodLocale: vi.fn().mockResolvedValue(undefined),
+  getZodParseContext: vi.fn().mockResolvedValue(undefined),
 };
 
 // ---------------------------------------------------------------------------

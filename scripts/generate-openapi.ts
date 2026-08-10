@@ -8,6 +8,7 @@ import { createOpenAPI } from "fumadocs-openapi/server";
 
 import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
+import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const spec = generateOpenApiSpec();
 const specDir = join(process.cwd(), "public", "v1");
@@ -20,15 +21,13 @@ const buildOpenapi = createOpenAPI({
   input: [specPath],
 });
 
-const apiEnDir = join(process.cwd(), "content", "api", "en");
-const apiDeDir = join(process.cwd(), "content", "api", "de");
+const apiSourceDir = join(process.cwd(), "content", "api", DEFAULT_LOCALE);
 
-mkdirSync(apiEnDir, { recursive: true });
-mkdirSync(apiDeDir, { recursive: true });
+mkdirSync(apiSourceDir, { recursive: true });
 
 await generateFiles({
   input: buildOpenapi,
-  output: "./content/api/en",
+  output: `./content/api/${DEFAULT_LOCALE}`,
   includeDescription: true,
   frontmatter: (title, description) => ({
     title,
@@ -37,10 +36,10 @@ await generateFiles({
   }),
 });
 
-const files = readdirSync(apiEnDir).filter((file) => file.endsWith(".mdx"));
+const files = readdirSync(apiSourceDir).filter((file) => file.endsWith(".mdx"));
 
 for (const file of files) {
-  const filePath = join(apiEnDir, file);
+  const filePath = join(apiSourceDir, file);
   let content = readFileSync(filePath, "utf-8");
   content = content.replace(
     /document=\{"[^"]*\/public\/v1\/openapi\.json"\}/g,
@@ -49,7 +48,11 @@ for (const file of files) {
   writeFileSync(filePath, content, "utf-8");
 }
 
-rmSync(apiDeDir, { recursive: true, force: true });
-cpSync(apiEnDir, apiDeDir, { recursive: true });
+for (const locale of CONTENT_LOCALES) {
+  if (locale === DEFAULT_LOCALE) continue;
+  const localeDir = join(process.cwd(), "content", "api", locale);
+  rmSync(localeDir, { recursive: true, force: true });
+  cpSync(apiSourceDir, localeDir, { recursive: true });
+}
 
 process.exit(0);

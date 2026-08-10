@@ -1,15 +1,18 @@
 "use client";
 
 import { XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Props = {
   onClear: () => void;
 };
 
 export function InputClearButton({ onClear }: Props) {
+  const t = useTranslations();
+
   return (
     <span
-      aria-label="Clear"
+      aria-label={t("Common.actions.clear")}
       className="ml-2 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-[color,transform] hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.97] motion-reduce:transition-none"
       role="button"
       tabIndex={-1}

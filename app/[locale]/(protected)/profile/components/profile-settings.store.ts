@@ -17,8 +17,8 @@ export class ProfileSettingsStore extends BaseFormStore<UpdateUserDetailsData> {
       country: CountryCode.de,
       avatarUrl: "",
       theme: Theme.system,
-      displayLanguage: Locale.en,
-      formattingLocale: Locale.en,
+      displayLanguage: Locale.system,
+      formattingLocale: Locale.system,
     });
 
     makeObservable(this, {

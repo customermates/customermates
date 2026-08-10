@@ -8,6 +8,7 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowClick,
   onRowHref,
 }: Props<E>) {
+  const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
   const activeResizeRef = useRef<{ handle: HTMLButtonElement; session: ColumnResizeSession }>();
@@ -188,7 +190,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         const someSelected = !allSelected && selectable.some((item) => store.selectedIds.has(item.id));
         return (
           <Checkbox
-            aria-label="Select all rows"
+            aria-label={t("DataView.selectAllRows")}
             checked={allSelected ? true : someSelected ? "indeterminate" : false}
             onCheckedChange={(checked) => {
               if (checked) store.setSelectedIds("all");
@@ -203,7 +205,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         const id = row.original.id;
         return (
           <Checkbox
-            aria-label={`Select row ${id}`}
+            aria-label={t("DataView.selectRow", { id })}
             checked={store.selectedIds.has(id)}
             onCheckedChange={(checked) => {
               if (checked) store.selectedIds.add(id);
@@ -214,7 +216,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
         );
       },
     }),
-    [store],
+    [store, t],
   );
 
   const canBulkAct = Boolean(store.entityType);
@@ -322,11 +324,11 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   {canResize && (
                     <button
                       aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"
-                      aria-label={`Resize ${accessibleColumnLabel} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.`}
+                      aria-label={t("DataView.resizeColumn", { column: accessibleColumnLabel })}
                       className="group/resize-handle absolute inset-y-0 right-0 z-10 flex w-3 translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 opacity-0 outline-none group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[state=resizing]:opacity-100 any-pointer-coarse:w-6 any-pointer-coarse:opacity-100"
                       data-slot="column-resize-handle"
                       data-state={isResizing ? "resizing" : undefined}
-                      title="Drag to resize. Double-click, double-tap, or press Enter to reset."
+                      title={t("DataView.resizeHint")}
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();

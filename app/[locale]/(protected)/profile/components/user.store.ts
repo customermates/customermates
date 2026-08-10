@@ -11,6 +11,7 @@ import { Action, CountryCode, Resource } from "@/generated/prisma";
 import { updateThemeAction } from "@/app/[locale]/(protected)/dashboard/actions";
 import { resendVerificationEmailFromAppAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { normalizeStoredDisplayLanguage, normalizeStoredFormattingLocale } from "@/i18n/user-locale";
 
 export class UserStore extends BaseStore {
   public user: TenantUser | null = null;
@@ -66,20 +67,28 @@ export class UserStore extends BaseStore {
   };
 
   setUser = (user: TenantUser | null) => {
-    this.user = user;
+    const normalizedUser = user
+      ? {
+          ...user,
+          displayLanguage: normalizeStoredDisplayLanguage(user.displayLanguage),
+          formattingLocale: normalizeStoredFormattingLocale(user.formattingLocale),
+        }
+      : null;
 
-    if (user) this.permissions = this.createPermissionsMap(user);
+    this.user = normalizedUser;
+
+    if (normalizedUser) this.permissions = this.createPermissionsMap(normalizedUser);
     else this.permissions.clear();
 
-    if (user) {
+    if (normalizedUser) {
       this.rootStore.profileSettingsStore.onInitOrRefresh({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        country: user.country ?? CountryCode.de,
-        avatarUrl: user.avatarUrl,
-        theme: user.theme,
-        displayLanguage: user.displayLanguage,
-        formattingLocale: user.formattingLocale,
+        firstName: normalizedUser.firstName,
+        lastName: normalizedUser.lastName,
+        country: normalizedUser.country ?? CountryCode.de,
+        avatarUrl: normalizedUser.avatarUrl,
+        theme: normalizedUser.theme,
+        displayLanguage: normalizedUser.displayLanguage,
+        formattingLocale: normalizedUser.formattingLocale,
       });
     }
   };

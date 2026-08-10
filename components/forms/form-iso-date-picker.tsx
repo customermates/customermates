@@ -43,7 +43,7 @@ export const FormIsoDatePicker = observer(
   ({
     id,
     label,
-    placeholder = "Pick a date",
+    placeholder,
     required,
     displayFormat = "descriptiveLong",
     dateOnly = true,
@@ -51,6 +51,7 @@ export const FormIsoDatePicker = observer(
     containerClassName,
   }: Props) => {
     const t = useTranslations();
+    const resolvedPlaceholder = placeholder ?? t("Common.inputs.datePlaceholder");
     const store = useAppForm();
     const { intlStore } = useRootStore();
 
@@ -137,7 +138,7 @@ export const FormIsoDatePicker = observer(
             >
               <CalendarIcon className="mr-2 size-4 shrink-0" />
 
-              <span className="truncate flex-1">{parsed ? formatter(parsed) : placeholder}</span>
+              <span className="truncate flex-1">{parsed ? formatter(parsed) : resolvedPlaceholder}</span>
 
               {parsed && !store?.isDisabled ? <InputClearButton onClear={() => commit(undefined)} /> : null}
             </Button>

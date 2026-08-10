@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render } from "@react-email/render";
 
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
@@ -108,7 +109,12 @@ describe("DeleteAccountsForPlanInteractor", () => {
   });
 
   it("emails every company admin once accounts were removed", async () => {
-    const newest = account({ id: "acc-newest", createdAt: new Date("2026-03-01") });
+    const newest = account({
+      id: "acc-newest",
+      createdAt: new Date("2026-03-01"),
+      provider: "mail",
+      displayName: "Inbox",
+    });
     const middle = account({ id: "acc-middle", createdAt: new Date("2026-02-01") });
     const connectedAccountRepo = makeConnectedAccountRepo({
       listActiveAccountsForCompanyUnscoped: vi.fn().mockResolvedValue([middle, newest]),
@@ -133,5 +139,12 @@ describe("DeleteAccountsForPlanInteractor", () => {
     expect(emailService.send).toHaveBeenCalledTimes(2);
     expect(emailService.send.mock.calls[0][0].to).toBe("admin1@x.com");
     expect(emailService.send.mock.calls[1][0].to).toBe("admin2@x.com");
+
+    const englishHtml = await render(emailService.send.mock.calls[0][0].react);
+    const germanHtml = await render(emailService.send.mock.calls[1][0].react);
+    expect(englishHtml).toContain("Email (Inbox)");
+    expect(germanHtml).toContain("E-Mail (Inbox)");
+    expect(germanHtml).toContain("Dein Plan wurde auf Starter umgestellt");
+    expect(germanHtml).not.toContain("mail (Inbox)");
   });
 });

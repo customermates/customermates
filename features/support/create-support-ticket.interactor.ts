@@ -10,6 +10,8 @@ import { getTenantUser } from "@/core/decorators/tenant-context";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import { env } from "@/env";
 import SupportEscalation from "@/components/emails/support-escalation";
+import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import type { EmailService } from "@/features/email/email.service";
 
@@ -48,7 +50,9 @@ export class CreateSupportTicketInteractor extends AuthenticatedInteractor<Creat
         userEmail: user.email,
         companyName: user.companyId,
         conversationTitle: `#${ticket.number}: ${data.subject}`,
+        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
         lastMessages: data.body,
+        locale: DEFAULT_LOCALE,
       }),
     });
 

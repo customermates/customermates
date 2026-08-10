@@ -36,7 +36,7 @@ export function DocsTopBar() {
 
   return (
     <ShellHeader>
-      <Breadcrumb className="min-w-0">
+      <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           <BreadcrumbItem className="shrink-0">
             {activeTitle ? (

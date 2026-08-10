@@ -2,16 +2,28 @@ import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 
 import type { SubscriptionPlan } from "@/generated/prisma";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import enMessages from "@/i18n/locales/en.json";
 import deMessages from "@/i18n/locales/de.json";
+import esMessages from "@/i18n/locales/es.json";
+import frMessages from "@/i18n/locales/fr.json";
+import itMessages from "@/i18n/locales/it.json";
 
 import { resolvePlanChip, SUBSCRIPTION_PAGE_HREF } from "../plan-subtitle";
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
-function makeTranslate(locale: "en" | "de"): Translate {
-  const t = createTranslator({ locale, messages: locale === "en" ? enMessages : deMessages });
+const MESSAGES = {
+  de: deMessages,
+  en: enMessages,
+  es: esMessages,
+  fr: frMessages,
+  it: itMessages,
+} satisfies Record<AppLocale, typeof enMessages>;
+
+function makeTranslate(locale: AppLocale): Translate {
+  const t = createTranslator({ locale, messages: MESSAGES[locale] });
   return (key, values) => (t as unknown as Translate)(key, values);
 }
 

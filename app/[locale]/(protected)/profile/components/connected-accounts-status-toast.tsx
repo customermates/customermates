@@ -8,28 +8,28 @@ import { toast } from "sonner";
 const RESULT_PARAMS = ["account_id", "provider", "state", "status", "error_type", "error_detail", "error_title"];
 
 const ALREADY_EXISTS = {
-  title: "ConnectedAccountsCard.alreadyExistsToastTitle",
-  description: "ConnectedAccountsCard.alreadyExistsToastDescription",
+  titleKey: "ConnectedAccountsCard.alreadyExistsToastTitle",
+  descriptionKey: "ConnectedAccountsCard.alreadyExistsToastDescription",
 } as const;
 const INVALID_CREDENTIALS = {
-  title: "ConnectedAccountsCard.invalidCredentialsToastTitle",
-  description: "ConnectedAccountsCard.invalidCredentialsToastDescription",
+  titleKey: "ConnectedAccountsCard.invalidCredentialsToastTitle",
+  descriptionKey: "ConnectedAccountsCard.invalidCredentialsToastDescription",
 } as const;
 const EXPIRED_LINK = {
-  title: "ConnectedAccountsCard.expiredLinkToastTitle",
-  description: "ConnectedAccountsCard.expiredLinkToastDescription",
+  titleKey: "ConnectedAccountsCard.expiredLinkToastTitle",
+  descriptionKey: "ConnectedAccountsCard.expiredLinkToastDescription",
 } as const;
 const CHECKPOINT = {
-  title: "ConnectedAccountsCard.checkpointToastTitle",
-  description: "ConnectedAccountsCard.checkpointToastDescription",
+  titleKey: "ConnectedAccountsCard.checkpointToastTitle",
+  descriptionKey: "ConnectedAccountsCard.checkpointToastDescription",
 } as const;
 const DISCONNECTED = {
-  title: "ConnectedAccountsCard.disconnectedToastTitle",
-  description: "ConnectedAccountsCard.disconnectedToastDescription",
+  titleKey: "ConnectedAccountsCard.disconnectedToastTitle",
+  descriptionKey: "ConnectedAccountsCard.disconnectedToastDescription",
 } as const;
 const FAILED = {
-  title: "ConnectedAccountsCard.failedToastTitle",
-  description: "ConnectedAccountsCard.failedToastDescription",
+  titleKey: "ConnectedAccountsCard.failedToastTitle",
+  descriptionKey: "ConnectedAccountsCard.failedToastDescription",
 } as const;
 
 function connectErrorKeys(errorType: string | null, errorTitle: string | null) {
@@ -74,8 +74,8 @@ export function ConnectedAccountsStatusToast() {
         });
       } else {
         const keys = connectErrorKeys(errorType, errorTitle);
-        toast.error(t(keys.title), {
-          description: t(keys.description),
+        toast.error(t(keys.titleKey), {
+          description: t(keys.descriptionKey),
         });
       }
     }, 0);

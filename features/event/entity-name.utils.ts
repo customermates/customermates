@@ -1,3 +1,4 @@
+import type { MessagingProvider } from "@/generated/prisma";
 import type { DomainEventMap } from "./domain-events";
 
 import { TaskType } from "@/generated/prisma";
@@ -6,12 +7,20 @@ import { getSystemTaskNameTranslationKey } from "@/app/[locale]/(protected)/task
 
 import { DomainEvent } from "./domain-events";
 
-function connectedAccountName(account: {
-  displayName: string | null;
-  emailAddress: string | null;
-  provider: string;
-}): string {
-  return account.displayName || account.emailAddress || account.provider;
+function connectedAccountName(
+  account: {
+    displayName: string | null;
+    emailAddress: string | null;
+    provider: MessagingProvider;
+  },
+  translate?: (key: string) => string,
+): string {
+  return (
+    account.displayName ||
+    account.emailAddress ||
+    translate?.(`Common.providers.${account.provider}`) ||
+    account.provider
+  );
 }
 
 function getTaskName(task: { name: string; type: TaskType }, translate?: (key: string) => string): string {
@@ -53,11 +62,14 @@ const entityNameExtractors: {
   [DomainEvent.CUSTOM_COLUMN_CREATED]: (eventData) => eventData.payload.label,
   [DomainEvent.CUSTOM_COLUMN_UPDATED]: (eventData) => eventData.payload.customColumn.label,
   [DomainEvent.CUSTOM_COLUMN_DELETED]: (eventData) => eventData.payload.label,
-  [DomainEvent.CONNECTED_ACCOUNT_CREATED]: (eventData) => connectedAccountName(eventData.payload),
-  [DomainEvent.CONNECTED_ACCOUNT_DELETED]: (eventData) => connectedAccountName(eventData.payload),
-  [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: (eventData) => connectedAccountName(eventData.payload.connectedAccount),
-  [DomainEvent.CONNECTED_ACCOUNT_RECONNECTED]: (eventData) => connectedAccountName(eventData.payload),
-  [DomainEvent.CONNECTED_ACCOUNT_RESYNCED]: (eventData) => connectedAccountName(eventData.payload),
+  [DomainEvent.CONNECTED_ACCOUNT_CREATED]: (eventData, translate) => connectedAccountName(eventData.payload, translate),
+  [DomainEvent.CONNECTED_ACCOUNT_DELETED]: (eventData, translate) => connectedAccountName(eventData.payload, translate),
+  [DomainEvent.CONNECTED_ACCOUNT_UPDATED]: (eventData, translate) =>
+    connectedAccountName(eventData.payload.connectedAccount, translate),
+  [DomainEvent.CONNECTED_ACCOUNT_RECONNECTED]: (eventData, translate) =>
+    connectedAccountName(eventData.payload, translate),
+  [DomainEvent.CONNECTED_ACCOUNT_RESYNCED]: (eventData, translate) =>
+    connectedAccountName(eventData.payload, translate),
   [DomainEvent.MESSAGING_MESSAGE_RECEIVED]: (eventData) => eventData.payload.connectedAccountId,
   [DomainEvent.MESSAGING_MESSAGE_UPDATED]: (eventData) => eventData.payload.connectedAccountId,
   [DomainEvent.MESSAGING_MESSAGE_DELETED]: (eventData) => eventData.payload.connectedAccountId,

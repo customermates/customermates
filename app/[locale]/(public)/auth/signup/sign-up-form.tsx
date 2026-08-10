@@ -8,6 +8,7 @@ import { useEffect } from "react";
 
 import SignInProviderButton from "../signin/sign-in-provider-button";
 import { continueWithGoogleAction, continueWithMicrosoftAction } from "../actions";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { SocialErrorToast } from "../social-error-toast";
 
 import { AppLink } from "@/components/shared/app-link";
@@ -73,6 +74,10 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
                     providerId="google"
                     onClick={() =>
                       void continueWithGoogleAction(undefined, "/auth/signup").then((res) => {
+                        if (!res.ok) {
+                          toastZodErrorTree(res.error);
+                          return;
+                        }
                         if (res.data.url) window.location.assign(res.data.url);
                       })
                     }
@@ -88,6 +93,10 @@ export const SignUpForm = observer(({ isInvited, socialProviders }: Props) => {
                     providerId="microsoft"
                     onClick={() =>
                       void continueWithMicrosoftAction(undefined, "/auth/signup").then((res) => {
+                        if (!res.ok) {
+                          toastZodErrorTree(res.error);
+                          return;
+                        }
                         if (res.data.url) window.location.assign(res.data.url);
                       })
                     }
