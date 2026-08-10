@@ -42,6 +42,7 @@ describe("public navigation preferences", () => {
     expect(languageSelector).not.toContain("AvatarImage");
     expect(languageSelector).not.toContain("Check");
     expect(countryItem).toContain('<Avatar className={size === "sm" ? "size-3" : "size-5"}>');
+    expect(countryItem).toContain('className="rounded-[inherit] object-cover"');
     expect(countryItem).toContain("flagcdn.com");
     expect(languageSelector).toContain('<DropdownMenuContent align="start"');
   });
