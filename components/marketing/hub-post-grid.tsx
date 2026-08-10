@@ -1,4 +1,5 @@
 import type { Hero } from "@/core/fumadocs/schemas/common";
+import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { HubPostCard, type HubPostCardProps } from "./hub-post-card";
 import { PostGridShell } from "./post-grid-shell";
@@ -8,7 +9,7 @@ export type HubPostGridItem = Omit<HubPostCardProps, "locale">;
 type Props = {
   hero: Hero;
   items: HubPostGridItem[];
-  locale: string;
+  locale: ContentLocale;
 };
 
 export function HubPostGrid({ hero, items, locale }: Props) {

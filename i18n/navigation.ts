@@ -4,26 +4,19 @@ import { createNavigation } from "next-intl/navigation";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { ROUTING_LOCALES, routing } from "./routing";
+import { stripLocalePrefix } from "./locale-registry";
+import { routing } from "./routing";
 
 const nav = createNavigation(routing);
 
 export const { redirect, usePathname, Link: IntlLink } = nav;
-
-function stripLocale(pathname: string): string {
-  for (const locale of ROUTING_LOCALES) {
-    if (pathname === `/${locale}`) return "/";
-    if (pathname.startsWith(`/${locale}/`)) return pathname.slice(`/${locale}`.length);
-  }
-  return pathname;
-}
 
 function isSamePathnameNav(href: unknown): boolean {
   if (typeof window === "undefined" || typeof href !== "string") return false;
   try {
     const target = new URL(href, window.location.href);
     if (target.origin !== window.location.origin) return false;
-    return stripLocale(target.pathname) === stripLocale(window.location.pathname);
+    return stripLocalePrefix(target.pathname) === stripLocalePrefix(window.location.pathname);
   } catch {
     return false;
   }

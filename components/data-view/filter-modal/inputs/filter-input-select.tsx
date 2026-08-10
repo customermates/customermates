@@ -5,6 +5,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 
 import { useFilterSelectItems } from "./use-filter-select-items";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export const FilterInputSelect = observer(({ customColumns, filter, id, isValidFilter }: Props) => {
+  const t = useTranslations();
   const store = useAppForm();
   const { items, getItems, isLoading } = useFilterSelectItems(filter, customColumns);
 
@@ -104,7 +106,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                     key={k}
                     endContent={
                       <span
-                        aria-label="Remove"
+                        aria-label={t("Common.actions.delete")}
                         className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
                         role="button"
                         tabIndex={-1}
@@ -131,7 +133,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 );
               })
             ) : (
-              <span className="text-muted-foreground">Select…</span>
+              <span className="text-muted-foreground">{t("Common.ariaLabels.selectOption")}</span>
             )}
           </span>
 
@@ -141,12 +143,12 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
 
       <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search..." value={input} onValueChange={setInput} />
+          <CommandInput placeholder={t("Common.table.search")} value={input} onValueChange={setInput} />
 
           <CommandList>
-            {loading && <div className="py-3 text-center text-sm text-muted-foreground">Loading...</div>}
+            {loading && <div className="py-3 text-center text-sm text-muted-foreground">{t("Loading.text")}</div>}
 
-            {!loading && filteredItems.length === 0 && <CommandEmpty>No results.</CommandEmpty>}
+            {!loading && filteredItems.length === 0 && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
 
             {filteredItems.length > 0 && (
               <CommandGroup>

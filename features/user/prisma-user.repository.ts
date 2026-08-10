@@ -483,6 +483,7 @@ export class PrismaUserRepo
         email: true,
         firstName: true,
         displayLanguage: true,
+        formattingLocale: true,
         role: { select: { isSystemRole: true } },
       },
     });
@@ -494,6 +495,7 @@ export class PrismaUserRepo
       email: user.email,
       firstName: user.firstName,
       displayLanguage: user.displayLanguage,
+      formattingLocale: user.formattingLocale,
       isSystemAdministrator: user.role?.isSystemRole === true,
     }));
   }

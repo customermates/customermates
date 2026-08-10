@@ -9,6 +9,7 @@ import { Ban, Loader2, RotateCw } from "lucide-react";
 
 import { formatRetryAfter } from "@/ee/messaging/retry-after";
 import { cn } from "@/core/utils/cn";
+import { localizedContentHref } from "@/components/shared/app-link";
 
 export const MESSAGING_RATE_LIMITS_DOCS_PATH = "/docs/messaging-rate-limits";
 
@@ -26,7 +27,10 @@ export function useClassifyMediaLoadError() {
           id: "media-rate-limited",
           action: {
             label: t("Inbox.learnMore"),
-            onClick: () => window.open(`/${locale}${MESSAGING_RATE_LIMITS_DOCS_PATH}`, "_blank", "noopener,noreferrer"),
+            onClick: () => {
+              const docsHref = localizedContentHref(MESSAGING_RATE_LIMITS_DOCS_PATH, locale);
+              if (docsHref) window.open(docsHref, "_blank", "noopener,noreferrer");
+            },
           },
         });
         return "rateLimited";

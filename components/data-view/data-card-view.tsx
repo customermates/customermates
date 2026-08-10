@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
@@ -28,6 +29,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
   cardHref,
   className,
 }: Props<E>) {
+  const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const hidden = new Set(store.hiddenColumns);
   const visibleColumns = columns.filter((c) => !hidden.has((c as { id?: string }).id ?? ""));
@@ -57,7 +59,7 @@ export const DataCardView = observer(function DataCardView<E extends HasId>({
             >
               {href && (
                 <a
-                  aria-label="Open"
+                  aria-label={t("Common.actions.open")}
                   className="absolute inset-0"
                   href={href}
                   tabIndex={-1}

@@ -1,16 +1,15 @@
 import type { RootStore } from "./root.store";
-import type { ROUTING_LOCALES } from "@/i18n/routing";
+import type { RoutingLocale } from "@/i18n/locale-registry";
 
 import { action, observable } from "mobx";
 import { makeObservable } from "mobx";
 
-import { ROUTING_DEFAULT_LOCALE } from "@/i18n/routing";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-type Locale = (typeof ROUTING_LOCALES)[number];
 type TranslationFunction = ((key: string, values?: Record<string, any>) => string) | null;
 
 export class LocaleStore {
-  public locale: Locale = ROUTING_DEFAULT_LOCALE;
+  public locale: RoutingLocale = DEFAULT_LOCALE;
   public translation: TranslationFunction = null;
 
   constructor(public readonly rootStore: RootStore) {
@@ -22,7 +21,7 @@ export class LocaleStore {
     });
   }
 
-  setLocale = (locale: Locale) => {
+  setLocale = (locale: RoutingLocale) => {
     this.locale = locale;
   };
 

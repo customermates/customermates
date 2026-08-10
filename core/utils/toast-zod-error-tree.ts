@@ -3,55 +3,27 @@ import { toast } from "sonner";
 
 type ErrorNode = { errors?: string[]; properties?: Record<string, unknown>; items?: unknown[] };
 
-type FlattenedError = { path: string; message: string };
+type FlattenedError = { message: string };
 
-function flattenZodErrorTree(tree: unknown, prefix: string = ""): FlattenedError[] {
+function flattenZodErrorTree(tree: unknown): FlattenedError[] {
   const out: FlattenedError[] = [];
   if (!tree || typeof tree !== "object") return out;
   const node = tree as ErrorNode;
 
-  if (Array.isArray(node.errors)) for (const message of node.errors) out.push({ path: prefix, message });
+  if (Array.isArray(node.errors)) for (const message of node.errors) out.push({ message });
 
-  if (node.properties) {
-    for (const [key, child] of Object.entries(node.properties)) {
-      const childPrefix = prefix ? `${prefix}.${key}` : key;
-      out.push(...flattenZodErrorTree(child, childPrefix));
-    }
-  }
+  if (node.properties) for (const child of Object.values(node.properties)) out.push(...flattenZodErrorTree(child));
 
-  if (Array.isArray(node.items)) {
-    node.items.forEach((child, i) => {
-      const childPrefix = prefix ? `${prefix}[${i}]` : `[${i}]`;
-      out.push(...flattenZodErrorTree(child, childPrefix));
-    });
-  }
+  if (Array.isArray(node.items)) for (const child of node.items) out.push(...flattenZodErrorTree(child));
 
   return out;
-}
-
-function getZodErrorFieldLabel(path: string): string {
-  if (!path) return "";
-  const leaf =
-    path
-      .split(".")
-      .pop()
-      ?.replace(/\[\d+\]$/, "") ?? path;
-  return leaf
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (c) => c.toUpperCase())
-    .trim();
 }
 
 export function toastZodErrorTree(tree: unknown): boolean {
   const messages = flattenZodErrorTree(tree);
   if (messages.length === 0) return false;
 
-  const items = messages.map((e) => {
-    const label = getZodErrorFieldLabel(e.path);
-    return label ? `${label}: ${e.message}` : e.message;
-  });
-
-  const unique = Array.from(new Set(items));
+  const unique = Array.from(new Set(messages.map(({ message }) => message)));
 
   if (unique.length === 1) toast.error(unique[0]);
   else {

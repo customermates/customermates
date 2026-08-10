@@ -151,7 +151,8 @@ export const manageWidgetsTool = {
   description:
     "Use this when you need to create, update, delete, or read dashboard widgets. " +
     "action list returns { id, name } pairs. " +
-    "action get takes ids and returns each widget's full configuration INCLUDING its computed data points (label and value per group), so it answers questions like total pipeline value by stage in one call. " +
+    "action get takes ids and returns each widget's full configuration INCLUDING its computed data points. " +
+    "Each point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }, so it answers questions like total pipeline value by stage in one call. " +
     "action create requires name, entityType, displayType, groupByType, aggregationType. " +
     "action update requires id; only provided fields change, but entityFilters and dealFilters REPLACE the existing arrays. " +
     "action delete is IRREVERSIBLE.",

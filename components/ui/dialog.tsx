@@ -3,6 +3,7 @@
 import * as React from "react";
 import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
 import { OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
@@ -45,6 +46,8 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
 }) {
+  const t = useTranslations();
+
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -68,7 +71,7 @@ function DialogContent({
           >
             <XIcon />
 
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("Common.actions.close")}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>
@@ -94,6 +97,8 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
 }) {
+  const t = useTranslations();
+
   return (
     <div
       className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
@@ -104,7 +109,7 @@ function DialogFooter({
 
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="outline">Close</Button>
+          <Button variant="outline">{t("Common.actions.close")}</Button>
         </DialogPrimitive.Close>
       )}
     </div>

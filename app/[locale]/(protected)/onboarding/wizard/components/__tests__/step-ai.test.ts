@@ -15,6 +15,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: "a",
+  usePathname: () => "/onboarding/wizard",
 }));
 
 vi.mock("next-intl", () => ({

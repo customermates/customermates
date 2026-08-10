@@ -56,7 +56,7 @@ export function buildCalendarEvent(raw: UnipileCalendarEvent): CalendarEventCore
 
   return {
     unipileEventId: raw.id,
-    title: raw.title?.trim() || "(no title)",
+    title: raw.title?.trim() ?? "",
     description: raw.body ?? null,
     location: raw.location ?? null,
     conferenceUrl:

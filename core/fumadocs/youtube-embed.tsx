@@ -2,10 +2,10 @@
 
 type Props = {
   id: string;
-  title?: string;
+  title: string;
 };
 
-export function YouTube({ id, title = "YouTube video" }: Props) {
+export function YouTube({ id, title }: Props) {
   return (
     <div className="relative w-full my-6 rounded-xl overflow-hidden" style={{ paddingBottom: "56.25%" }}>
       <iframe

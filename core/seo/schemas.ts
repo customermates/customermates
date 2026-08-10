@@ -21,7 +21,25 @@ export function organizationSchema() {
   };
 }
 
-export function softwareApplicationSchema(params: { description: string; locale: string }) {
+const OFFER_CURRENCY = "EUR";
+
+export function aggregateOfferSchema(params: { prices: readonly string[]; locale: string }) {
+  const amounts = params.prices.map(Number).filter((price) => Number.isFinite(price) && price > 0);
+  if (amounts.length === 0) return undefined;
+
+  return {
+    "@type": "AggregateOffer",
+    lowPrice: String(Math.min(...amounts)),
+    highPrice: String(Math.max(...amounts)),
+    priceCurrency: OFFER_CURRENCY,
+    offerCount: String(amounts.length),
+    url: `${env.BASE_URL}/${params.locale}/pricing`,
+  };
+}
+
+export function softwareApplicationSchema(params: { description: string; locale: string; prices: readonly string[] }) {
+  const offers = aggregateOfferSchema({ prices: params.prices, locale: params.locale });
+
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -30,14 +48,7 @@ export function softwareApplicationSchema(params: { description: string; locale:
     description: params.description,
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, macOS, Windows, Linux",
-    offers: {
-      "@type": "AggregateOffer",
-      lowPrice: "12",
-      highPrice: "59",
-      priceCurrency: "EUR",
-      offerCount: "3",
-      url: `${env.BASE_URL}/${params.locale}/pricing`,
-    },
+    ...(offers ? { offers } : {}),
     publisher: {
       "@type": "Organization",
       name: ORGANIZATION_NAME,

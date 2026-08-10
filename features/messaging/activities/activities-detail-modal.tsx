@@ -21,6 +21,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { AuditDetail } from "./audit-detail";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { cn } from "@/core/utils/cn";
+import { calendarEventTitle } from "./activity-labels";
 
 const RESPONSE_LABEL_KEYS: Record<string, string> = {
   yes: "ContactHistory.calendarResponseYes",
@@ -108,6 +109,7 @@ const CalendarEventDetail = observer(
       ? `${intlStore.formatNumericalShortDateTime(event.startsAt)} · ${t("ContactHistory.calendarAllDay")}`
       : `${intlStore.formatNumericalShortDateTime(event.startsAt)} – ${intlStore.formatTime(event.endsAt)}`;
     const description = event.description?.trim() || null;
+    const eventTitle = calendarEventTitle(event.title, t("ContactHistory.calendarNoTitle"));
     const calendarBadge = (
       <TypeBadge icon={CalendarIcon} label={t("EntityTimeline.types.activities")} tone="calendar" />
     );
@@ -131,7 +133,7 @@ const CalendarEventDetail = observer(
           provider={event.provider}
           providerLabel={t(`Common.providers.${event.provider}`)}
           subtitle={`${t("ContactHistory.calendarMeeting")} · ${timeRange}`}
-          title={event.title}
+          title={eventTitle}
         />
 
         <AppCardBody className="space-y-4">
@@ -237,7 +239,7 @@ export const TimelineDetailModal = observer(() => {
         messageSenderName(entry.message) ??
         (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
-        ? entry.event.title
+        ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
         : entry.kind === "audit"
           ? t("AuditLogModal.eventAt", {
               event: t(`Common.events.${entry.event}`),

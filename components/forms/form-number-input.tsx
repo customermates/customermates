@@ -2,7 +2,7 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { Input } from "@/components/ui/input";
@@ -30,16 +30,6 @@ type Props = Omit<
   hideStepper?: boolean;
   size?: "sm" | "md" | "lg";
 };
-
-function parseDecimalString(raw: string): number | undefined {
-  let s = raw.trim().replace(/\s/g, "");
-  if (!s || s === "-" || s === ".") return undefined;
-  const c = s.lastIndexOf(",");
-  const d = s.lastIndexOf(".");
-  s = c > d ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
-  const n = Number.parseFloat(s);
-  return Number.isFinite(n) ? n : undefined;
-}
 
 export const FormNumberInput = observer(
   ({
@@ -71,19 +61,16 @@ export const FormNumberInput = observer(
 
     const effectiveLocale = locale ?? intlStore.formattingLocale;
 
-    const format = useMemo(
-      () =>
-        new Intl.NumberFormat(effectiveLocale, {
-          maximumFractionDigits: 2,
-          useGrouping: true,
-          ...formatOptions,
-        }),
-      [effectiveLocale, formatOptions],
-    );
-
     const fmt = useCallback(
-      (n: number | undefined) => (n == null || Number.isNaN(n) ? "" : format.format(n)),
-      [format],
+      (n: number | undefined) =>
+        n == null
+          ? ""
+          : new Intl.NumberFormat(effectiveLocale, {
+              maximumFractionDigits: 2,
+              useGrouping: true,
+              ...formatOptions,
+            }).format(n),
+      [effectiveLocale, formatOptions],
     );
 
     const storeNumber = store?.getValue(id) as number | undefined;
@@ -125,7 +112,7 @@ export const FormNumberInput = observer(
             {...props}
             onBlur={(e) => {
               setFocused(false);
-              const parsed = parseDecimalString(text);
+              const parsed = intlStore.parseNumber(text, effectiveLocale);
               setText(fmt(parsed));
               commit(parsed);
               onBlur?.(e);
@@ -133,10 +120,10 @@ export const FormNumberInput = observer(
             onChange={(e) => {
               const next = e.target.value;
               setText(next);
-              commit(parseDecimalString(next));
+              commit(intlStore.parseNumber(next, effectiveLocale));
             }}
             onFocus={(e) => {
-              setText(activeNumber === undefined ? "" : String(activeNumber));
+              setText(intlStore.formatNumberForEditing(activeNumber, effectiveLocale));
               setFocused(true);
               onFocus?.(e);
             }}

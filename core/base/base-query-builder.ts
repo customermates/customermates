@@ -513,6 +513,7 @@ export function compareCustomFieldValues(
   b: string | null | undefined,
   direction: "asc" | "desc",
   columnType: CustomColumnDto["type"],
+  collator: Pick<Intl.Collator, "compare">,
 ): number {
   const isMissing = (v: typeof a) => v === null || v === undefined || v === "";
   if (isMissing(a)) return isMissing(b) ? 0 : 1;
@@ -523,7 +524,7 @@ export function compareCustomFieldValues(
       ? Number(a) - Number(b)
       : columnType === "date" || columnType === "dateTime"
         ? new Date(a).getTime() - new Date(b).getTime()
-        : a.localeCompare(b);
+        : collator.compare(a, b);
   return direction === "asc" ? cmp : -cmp;
 }
 

@@ -33,28 +33,15 @@ export async function customErrorMessage(code: CustomErrorCode, values?: Record<
   return `${VALIDATION_ERROR_PREFIX} ${message}`;
 }
 
-function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  if (isNaN(d.getTime())) return String(date);
-  return d.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-}
-
 function formatDatesRecursively(value: unknown): unknown {
   if (value === null || value === undefined) return value;
 
-  if (value instanceof Date) return formatDate(value);
+  if (value instanceof Date) return isNaN(value.getTime()) ? String(value) : value.toISOString();
 
   if (typeof value === "string") {
     const dateTimeResult = z.iso.datetime().safeParse(value);
     const dateResult = z.iso.date().safeParse(value);
-    if (dateTimeResult.success || dateResult.success) return formatDate(value);
+    if (dateTimeResult.success || dateResult.success) return value;
   }
 
   if (Array.isArray(value)) return value.map(formatDatesRecursively);
@@ -69,8 +56,16 @@ function formatDatesRecursively(value: unknown): unknown {
   return value;
 }
 
-export function formatDatesInResponse<T>(data: T): T {
-  return formatDatesRecursively(data) as T;
+export type SerializedDates<T> = T extends Date
+  ? string
+  : T extends readonly unknown[]
+    ? { [Index in keyof T]: SerializedDates<T[Index]> }
+    : T extends object
+      ? { [Key in keyof T]: SerializedDates<T[Key]> }
+      : T;
+
+export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
+  return formatDatesRecursively(data) as SerializedDates<T>;
 }
 
 export const FILTER_SYNTAX = {

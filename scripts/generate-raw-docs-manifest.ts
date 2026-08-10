@@ -1,8 +1,10 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+
 const SOURCES = ["docs", "api"] as const;
-const LOCALES = ["en", "de"] as const;
+const LOCALES = CONTENT_LOCALES;
 
 type ManifestPage = { title: string; description: string; content: string };
 

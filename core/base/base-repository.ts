@@ -11,6 +11,7 @@ import { isTenantGuardBypassed, getTenantUser } from "../decorators/tenant-conte
 
 import { BaseQueryBuilder, compareCustomFieldValues } from "@/core/base/base-query-builder";
 import { prisma, type AppPrismaClient } from "@/prisma/db";
+import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale";
 
 export type ModelWhereInputMap = {
   contact: Prisma.ContactWhereInput;
@@ -145,8 +146,16 @@ export abstract class BaseRepository<
       }>;
 
       const { direction, columnType } = args.customSort;
+      const formattingTag = resolveUserFormattingTag(this.user, resolveUserLocale(this.user));
+      const collator = new Intl.Collator(formattingTag);
       candidates.sort((a, b) =>
-        compareCustomFieldValues(a.customFieldValues[0]?.value, b.customFieldValues[0]?.value, direction, columnType),
+        compareCustomFieldValues(
+          a.customFieldValues[0]?.value,
+          b.customFieldValues[0]?.value,
+          direction,
+          columnType,
+          collator,
+        ),
       );
 
       const sortedIds = candidates.slice(args.skip, args.skip + args.take).map((c) => c.id);

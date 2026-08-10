@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Minus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Icon } from "@/components/shared/icon";
 
@@ -23,13 +24,16 @@ export function StatusIcon({ label, status }: Props) {
 }
 
 export function StatusAvailable() {
-  return <StatusIcon label="Available" status="available" />;
+  const t = useTranslations();
+  return <StatusIcon label={t("DocsPage.status.available")} status="available" />;
 }
 
 export function StatusPartial() {
-  return <StatusIcon label="Partial" status="partial" />;
+  const t = useTranslations();
+  return <StatusIcon label={t("DocsPage.status.partial")} status="partial" />;
 }
 
 export function StatusUnavailable() {
-  return <StatusIcon label="Unavailable" status="unavailable" />;
+  const t = useTranslations();
+  return <StatusIcon label={t("DocsPage.status.unavailable")} status="unavailable" />;
 }

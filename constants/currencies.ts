@@ -1,7 +1,7 @@
 import { Currency } from "@/generated/prisma";
 
 export const CURRENCIES: ReadonlyArray<{ key: Currency }> = Object.values(Currency)
-  .sort((left, right) => left.localeCompare(right))
+  .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
   .map((key) => ({ key }));
 
 export function getCurrencyLabel(currency: string, locale: string): string {

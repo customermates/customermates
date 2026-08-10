@@ -67,7 +67,7 @@ function legacyRow(overrides: Record<string, unknown> = {}) {
 describe("PrismaWidgetRepo.toDto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    calculateWidgetData.mockResolvedValue([{ label: "Total", value: 3 }]);
+    calculateWidgetData.mockResolvedValue([{ labelKind: "system", systemLabelKey: "total", value: 3 }]);
   });
 
   it("normalizes null filter columns to empty arrays so the DTO gate cannot throw", async () => {
@@ -105,7 +105,7 @@ describe("PrismaWidgetRepo.toDto", () => {
 
     const widgets = await runWithTenant(mockUser, () => new PrismaWidgetRepo().getWidgets());
 
-    expect(widgets[0].data).toEqual([{ label: "Total", value: 3 }]);
+    expect(widgets[0].data).toEqual([{ labelKind: "system", systemLabelKey: "total", value: 3 }]);
   });
 
   it("reads through the explicit select, scoped to the tenant", async () => {
@@ -164,6 +164,6 @@ describe("PrismaWidgetRepo.toDto", () => {
 
     expect(widget?.entityFilters).toEqual([]);
     expect(widget?.displayOptions).toBeNull();
-    expect(widget?.data).toEqual([{ label: "Total", value: 3 }]);
+    expect(widget?.data).toEqual([{ labelKind: "system", systemLabelKey: "total", value: 3 }]);
   });
 });

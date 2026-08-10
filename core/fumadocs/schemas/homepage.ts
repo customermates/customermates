@@ -79,9 +79,8 @@ export type PricingTitle = z.infer<typeof pricingTitleSchema>;
 const rootMetadataSchema = z.object({
   defaultDescription: z.string(),
   defaultTitle: z.string(),
-  icon: z.string(),
-  titleTemplate: z.string(),
 });
+export type HomepageRootMetadata = z.infer<typeof rootMetadataSchema>;
 
 export const homepageSchema = frontmatterSchema.extend({
   automationExplanation: automationExplanationSchema,

@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Icon } from "@/components/shared/icon";
-import { IntlLink } from "@/i18n/navigation";
+import { AppLink } from "@/components/shared/app-link";
 
 export type NavSecondaryItem = {
   key: string;
@@ -31,11 +31,15 @@ export function NavSecondary({ items, ...props }: Props) {
             <SidebarMenuItem key={item.key}>
               {item.href ? (
                 <SidebarMenuButton asChild size="sm" tooltip={item.title}>
-                  <IntlLink href={item.href} id={`nav-${item.key}`}>
+                  <AppLink
+                    className="text-foreground no-underline hover:no-underline"
+                    href={item.href}
+                    id={`nav-${item.key}`}
+                  >
                     <Icon icon={item.icon} />
 
                     <span>{item.title}</span>
-                  </IntlLink>
+                  </AppLink>
                 </SidebarMenuButton>
               ) : (
                 <SidebarMenuButton

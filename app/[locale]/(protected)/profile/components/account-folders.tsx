@@ -4,10 +4,12 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 
 import { useTranslations } from "next-intl";
 import { Folder } from "lucide-react";
+import { observer } from "mobx-react-lite";
 
 import { Switch } from "@/components/ui/switch";
 import { Icon } from "@/components/shared/icon";
 import { cn } from "@/core/utils/cn";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = {
   account: ConnectedAccountDto;
@@ -15,12 +17,14 @@ type Props = {
   onToggle?: (folderId: string, on: boolean) => void;
 };
 
-export function AccountFolders({ account, editable = false, onToggle }: Props) {
+export const AccountFolders = observer(({ account, editable = false, onToggle }: Props) => {
   const t = useTranslations();
+  const { intlStore } = useRootStore();
 
   if (account.folders.length === 0) return null;
 
-  const folders = [...account.folders].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
+  const collator = intlStore.collator;
+  const folders = [...account.folders].sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
   const selected = new Set(account.selectedFolderIds);
 
   return (
@@ -46,4 +50,4 @@ export function AccountFolders({ account, editable = false, onToggle }: Props) {
       })}
     </ul>
   );
-}
+});

@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import { Plus, Search } from "lucide-react";
 
 import { AppImage } from "@/components/shared/app-image";
+import { AppLink } from "@/components/shared/app-link";
 import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { IntlLink } from "@/i18n/navigation";
 
 type Props = {
   homeHref: string;
@@ -34,7 +34,7 @@ export function NavHeader({
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton asChild size="lg">
-            <IntlLink href={homeHref}>
+            <AppLink appearance="unstyled" href={homeHref}>
               <AppImage
                 alt={logoAlt}
                 className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
@@ -51,7 +51,7 @@ export function NavHeader({
                   {brandSubtitle}
                 </span>
               </span>
-            </IntlLink>
+            </AppLink>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

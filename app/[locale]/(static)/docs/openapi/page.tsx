@@ -11,6 +11,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppChip } from "@/components/chip/app-chip";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 const GROUPS_ORDER = ["contact", "organization", "deal", "service", "task", "user"] as const;
 
@@ -26,7 +27,7 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
     const indexA = GROUPS_ORDER.indexOf(groupA as (typeof GROUPS_ORDER)[number]);
     const indexB = GROUPS_ORDER.indexOf(groupB as (typeof GROUPS_ORDER)[number]);
 
-    if (indexA === -1 && indexB === -1) return groupA.localeCompare(groupB);
+    if (indexA === -1 && indexB === -1) return groupA < groupB ? -1 : groupA > groupB ? 1 : 0;
     if (indexA === -1) return 1;
     if (indexB === -1) return -1;
     return indexA - indexB;
@@ -71,7 +72,7 @@ export default async function OpenApiOverviewPage() {
         <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>
       </Alert>
 
-      {locale !== "en" && (
+      {locale !== DEFAULT_LOCALE && (
         <Alert color="primary">
           <p className="text-x-sm">{t("DocsPage.englishOnlyAlert")}</p>
         </Alert>

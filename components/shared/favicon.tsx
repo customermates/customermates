@@ -26,7 +26,7 @@ export function Favicon({ value, size = 16, className }: Props) {
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        alt="favicon"
+        alt=""
         className={className}
         height={size}
         src={`${new URL(value).origin}/favicon.ico`}

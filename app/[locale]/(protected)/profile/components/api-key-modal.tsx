@@ -178,14 +178,20 @@ export const ApiKeyModal = observer(() => {
           <AppCardBody>
             {isView && viewingKey ? (
               <div className="flex flex-col gap-2">
-                <InfoRow label="Created at">{intlStore.formatNumericalShortDateTime(viewingKey.createdAt)}</InfoRow>
+                <InfoRow label={t("Common.table.columns.createdAt")}>
+                  {intlStore.formatNumericalShortDateTime(viewingKey.createdAt)}
+                </InfoRow>
 
                 {viewingKey.expiresAt ? (
-                  <InfoRow label="Expires at">{intlStore.formatNumericalShortDateTime(viewingKey.expiresAt)}</InfoRow>
+                  <InfoRow label={t("Common.table.columns.expiresAt")}>
+                    {intlStore.formatNumericalShortDateTime(viewingKey.expiresAt)}
+                  </InfoRow>
                 ) : null}
 
                 {viewingKey.lastRequest ? (
-                  <InfoRow label="Last used">{intlStore.formatNumericalShortDateTime(viewingKey.lastRequest)}</InfoRow>
+                  <InfoRow label={t("Common.table.columns.lastRequest")}>
+                    {intlStore.formatNumericalShortDateTime(viewingKey.lastRequest)}
+                  </InfoRow>
                 ) : null}
               </div>
             ) : createdKey ? (

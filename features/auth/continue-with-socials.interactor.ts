@@ -1,12 +1,12 @@
 import type { FindUserRepo } from "../user/user.service";
 import type { AuthService } from "./auth.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { Redirect } from "./auth-outcome";
 
 import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
 
@@ -26,8 +26,8 @@ export class ContinueWithSocialsInteractor {
     private readonly findUserRepo: FindUserRepo,
   ) {}
 
-  @Enforce(Schema)
-  async invoke(data: ContinueWithSocialsData): Promise<{ ok: true; data: null } | Redirect> {
+  @Validate(Schema)
+  async invoke(data: ContinueWithSocialsData): Promise<Awaited<Validated<null>> | Redirect> {
     const res = await this.authService.continueWithSocials(data);
 
     if ("user" in res && res.user) {
