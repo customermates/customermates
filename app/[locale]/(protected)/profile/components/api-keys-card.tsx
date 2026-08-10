@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { PageState } from "@/components/page-state/page-state";
 
 type Props = {
   apiKeys: ApiKey[];
@@ -22,29 +23,47 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
   const t = useTranslations();
   const { apiKeyModalStore, apiKeysStore, intlStore } = useRootStore();
   const { canManage } = apiKeysStore;
+  const isTrueEmpty = apiKeysStore.isReady && apiKeysStore.items.length === 0;
 
   useEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
 
   const topBarActions = useMemo(
     () =>
-      canManage ? (
-        <Button className="h-8" id="profile-api-keys-generate" size="sm" onClick={() => void apiKeyModalStore.add()}>
+      apiKeysStore.isReady && canManage ? (
+        <Button
+          className="h-8"
+          id="profile-api-keys-generate"
+          size="sm"
+          variant={isTrueEmpty ? "secondary" : "default"}
+          onClick={() => void apiKeyModalStore.add()}
+        >
           <Plus className="size-3.5" />
 
           <span className="hidden sm:inline">{t("Common.actions.add")}</span>
         </Button>
       ) : null,
-    [apiKeyModalStore, t, canManage],
+    [apiKeyModalStore, apiKeysStore.isReady, t, canManage, isTrueEmpty],
   );
   useSetTopBarActions(topBarActions);
 
-  if (apiKeysStore.items.length === 0) {
-    return (
-      <div className="flex w-full max-w-3xl flex-col gap-4">
-        <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
+  if (!apiKeysStore.isReady)
+    return <PageState label={t("PageState.loading")} skeleton={{ kind: "settings" }} state="loading" />;
 
-        <p className="text-subdued text-x-md">{t("Common.table.emptyContent")}</p>
-      </div>
+  if (isTrueEmpty) {
+    return (
+      <PageState
+        action={
+          canManage ? (
+            <Button size="sm" onClick={() => void apiKeyModalStore.add()}>
+              {t("Common.actions.add")}
+            </Button>
+          ) : undefined
+        }
+        description={t("ProfileSections.apiKeysDescription")}
+        skeleton={{ kind: "settings" }}
+        state="empty"
+        title={t("Common.emptyState.genericTitle")}
+      />
     );
   }
 

@@ -14,10 +14,10 @@ import {
   getDeleteDealInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getDealsAction(params?: GetQueryParams) {
-  const result = await getGetDealsInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetDealsInteractor().invoke(params));
 }
 
 export async function createDealAction(data: CreateDealData) {
@@ -33,10 +33,8 @@ export async function deleteDealAction(data: DeleteDealData) {
 }
 
 export async function getDealByIdAction(data: GetDealByIdData) {
-  const result = await getGetDealByIdInteractor().invoke(data);
-  return result.ok
-    ? { entity: result.data.deal, customColumns: result.data.customColumns }
-    : { entity: null, customColumns: [] };
+  const result = await unwrapValidated(getGetDealByIdInteractor().invoke(data));
+  return { entity: result.deal, customColumns: result.customColumns };
 }
 
 export async function createDealByNameAction(name: string, userId: string | null | undefined) {

@@ -12,6 +12,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export default async function ConnectedAccountsPage() {
   await requireAccess({ resource: Resource.inboxMessages });
@@ -21,14 +22,14 @@ export default async function ConnectedAccountsPage() {
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
   const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
 
-  const result = locked ? null : await getGetMyConnectedAccountsInteractor().invoke();
+  const accounts = locked ? [] : await unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
 
   if (!locked) {
     return (
       <PageContainer>
         <ConnectedAccountsStatusToast />
 
-        <ConnectedAccountsCard accounts={result?.ok ? result.data : []} />
+        <ConnectedAccountsCard accounts={accounts} />
       </PageContainer>
     );
   }
@@ -44,7 +45,7 @@ export default async function ConnectedAccountsPage() {
         title={t("MessagingUpsell.title")}
       >
         <div className="flex flex-col gap-6 p-4 md:p-6">
-          <ConnectedAccountsCard accounts={[]} />
+          <ConnectedAccountsCard locked accounts={[]} />
         </div>
       </LockedFeatureOverlay>
     </PageContainer>

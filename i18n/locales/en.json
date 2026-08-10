@@ -1503,6 +1503,11 @@
   "OrganizationModal": {
     "title": "Organization"
   },
+  "PageState": {
+    "loading": "Loading page",
+    "notFoundDescription": "This record may have been removed or you may not have access to it.",
+    "notFoundTitle": "Record not found"
+  },
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",
     "subtitle": "Your account is currently being reviewed by your company's administrator",

@@ -10,6 +10,8 @@ import {
 import { Icon } from "@/components/shared/icon";
 import { AppLink } from "@/components/shared/app-link";
 
+import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
+
 export type NavSecondaryItem = {
   key: string;
   title: string;
@@ -39,6 +41,8 @@ export function NavSecondary({ items, ...props }: Props) {
                     <Icon icon={item.icon} />
 
                     <span>{item.title}</span>
+
+                    <NavLinkPendingIndicator />
                   </AppLink>
                 </SidebarMenuButton>
               ) : (

@@ -9,6 +9,10 @@ import { useTranslations } from "next-intl";
 import { EntityType } from "@/generated/prisma";
 
 import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { Button } from "@/components/ui/button";
+import { PageState } from "@/components/page-state/page-state";
+
+import type { PageSkeletonSpec } from "@/components/page-state/page-skeleton";
 
 import { DataViewEmptyState } from "./data-view-empty-state";
 
@@ -31,9 +35,19 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   descriptor?: EmptyStateDescriptor;
+  reason: "filtered" | "true-empty";
+  skeleton: PageSkeletonSpec;
+  actionLabel?: string;
 };
 
-export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ store, onAdd, descriptor }: Props<E>) {
+export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
+  store,
+  onAdd,
+  descriptor,
+  reason,
+  skeleton,
+  actionLabel,
+}: Props<E>) {
   const t = useTranslations();
   const { singular, plural } = useEntityTerminology();
 
@@ -41,10 +55,9 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ 
   const icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
   const singularLabel = entityType ? singular(entityType) : "";
   const pluralLabel = entityType ? plural(entityType) : "";
-  const hasActiveQuery = Boolean(store.searchTerm) || (store.filters?.length ?? 0) > 0;
   const canCreate = Boolean(onAdd) && store.canManage;
 
-  if (hasActiveQuery) {
+  if (reason === "filtered") {
     return (
       <DataViewEmptyState
         body={
@@ -62,53 +75,35 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({ 
     );
   }
 
-  if (!store.canManage) {
-    return (
-      <DataViewEmptyState
-        body={entityType ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel }) : descriptor?.body}
-        icon={icon}
-        title={
-          entityType
-            ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
-            : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
-        }
-      />
-    );
-  }
-
-  if (descriptor) {
-    return (
-      <DataViewEmptyState
-        body={descriptor.body}
-        icon={icon}
-        primaryAction={
-          canCreate ? { label: descriptor.ctaLabel ?? t("Common.actions.add"), onClick: () => onAdd?.() } : undefined
-        }
-        title={descriptor.title}
-      />
-    );
-  }
-
-  if (!entityType) {
-    return (
-      <DataViewEmptyState
-        icon={icon}
-        primaryAction={canCreate ? { label: t("Common.actions.add"), onClick: () => onAdd?.() } : undefined}
-        title={t("Common.emptyState.genericTitle")}
-      />
-    );
-  }
+  const title = !store.canManage
+    ? entityType
+      ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
+      : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
+    : (descriptor?.title ??
+      (entityType ? t("Common.emptyState.title", { plural: pluralLabel }) : t("Common.emptyState.genericTitle")));
+  const description = !store.canManage
+    ? entityType
+      ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel })
+      : descriptor?.body
+    : (descriptor?.body ?? (entityType ? t("Common.emptyState.body", { singular: singularLabel }) : undefined));
+  const resolvedActionLabel =
+    actionLabel ??
+    descriptor?.ctaLabel ??
+    (entityType ? t("Common.emptyState.cta", { singular: singularLabel }) : t("Common.actions.add"));
 
   return (
-    <DataViewEmptyState
-      body={t("Common.emptyState.body", { singular: singularLabel })}
-      icon={icon}
-      primaryAction={
-        canCreate
-          ? { label: t("Common.emptyState.cta", { singular: singularLabel }), onClick: () => onAdd?.() }
-          : undefined
+    <PageState
+      action={
+        canCreate ? (
+          <Button size="sm" onClick={() => onAdd?.()}>
+            {resolvedActionLabel}
+          </Button>
+        ) : undefined
       }
-      title={t("Common.emptyState.title", { plural: pluralLabel })}
+      description={description}
+      skeleton={skeleton}
+      state="empty"
+      title={title}
     />
   );
 });

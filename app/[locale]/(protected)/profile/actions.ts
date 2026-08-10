@@ -12,6 +12,7 @@ import {
   getResendVerificationEmailInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function updateUserAction(data: UpdateUserDetailsData) {
   return serializeResult(getUpdateUserDetailsInteractor().invoke(data));
@@ -26,8 +27,7 @@ export async function deleteApiKeyAction(data: DeleteApiKeyData) {
 }
 
 export async function refreshApiKeysAction() {
-  const result = await getGetApiKeysInteractor().invoke();
-  return result.data;
+  return unwrapValidated(getGetApiKeysInteractor().invoke());
 }
 
 export async function resendVerificationEmailFromAppAction(): Promise<{ ok: boolean }> {

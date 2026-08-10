@@ -28,6 +28,8 @@ export type FormEntityDto = {
 
 type EntityActionResult<T> = { ok: true; data: T } | { ok: false; error: unknown };
 
+export type EntityLoadState = "idle" | "loading" | "ready" | "not-found" | "error";
+
 type EntityActions<TForm, TDto extends EntityDto> = {
   getById: (data: { id: string }) => Promise<{ entity: TDto | null; customColumns: CustomColumnDto[] }>;
   create: (data: TForm) => Promise<EntityActionResult<TDto>>;
@@ -41,6 +43,8 @@ export abstract class BaseCustomColumnEntityModalStore<
 > extends BaseModalStore<TForm> {
   public fetchedEntity: TDto | null = null;
   public lastCreatedId: string | null = null;
+  public requestedEntityId: string | null = null;
+  public entityLoadState: EntityLoadState = "idle";
 
   constructor(
     rootStore: RootStore,
@@ -54,6 +58,8 @@ export abstract class BaseCustomColumnEntityModalStore<
     makeObservable(this, {
       fetchedEntity: observable,
       lastCreatedId: observable,
+      requestedEntityId: observable,
+      entityLoadState: observable,
 
       add: action,
       delete: action,
@@ -140,6 +146,8 @@ export abstract class BaseCustomColumnEntityModalStore<
 
   loadById = async (id: string) => {
     this.fetchedEntity = null;
+    this.requestedEntityId = id;
+    this.entityLoadState = "loading";
     this.initialize();
     this.setIsLoading(true);
 
@@ -150,8 +158,12 @@ export abstract class BaseCustomColumnEntityModalStore<
         this.recordRecentItem(result.entity);
       } else {
         this.entityStore.setCustomColumns(result.customColumns);
+        this.entityLoadState = "not-found";
         this.close();
       }
+    } catch (error) {
+      this.entityLoadState = "error";
+      throw error;
     } finally {
       this.setIsLoading(false);
     }
@@ -164,6 +176,7 @@ export abstract class BaseCustomColumnEntityModalStore<
       customColumns.every((column) => currentIds.has(column.id));
     if (!columnsUnchanged) this.entityStore.setCustomColumns(customColumns);
     this.fetchedEntity = entity;
+    this.entityLoadState = "ready";
     this.setError(undefined);
     const formData = this.initFormWithCustomFieldValues(entity);
     this.onInitOrRefresh(formData);

@@ -17,6 +17,7 @@ import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -38,20 +39,22 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (threadResult && !threadResult.ok) redirect("/inbox");
 
-  const listResult = locked
-    ? null
-    : await getGetMessagingThreadsInteractor().invoke({ ...threadParams, p13nId: "messaging-threads-card-store" });
+  const threads = locked
+    ? { items: [] }
+    : await unwrapValidated(
+        getGetMessagingThreadsInteractor().invoke({ ...threadParams, p13nId: "messaging-threads-card-store" }),
+      );
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   const content = (
     <div className="flex h-full min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
       <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
-        <InboxList selectedThreadId={threadId} threads={listResult?.ok ? listResult.data : { items: [] }} />
+        <InboxList locked={locked} selectedThreadId={threadId} threads={threads} />
       </div>
 
       <div className={cn("min-h-0 min-w-0 flex-1", !threadId && "hidden lg:block")}>
-        <ThreadPanel threadDetail={threadDetail} />
+        <ThreadPanel locked={locked} threadDetail={threadDetail} />
       </div>
     </div>
   );

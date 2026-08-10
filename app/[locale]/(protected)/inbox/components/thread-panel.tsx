@@ -1,6 +1,6 @@
 "use client";
 
-import { Inbox, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { Fragment, useEffect } from "react";
@@ -9,6 +9,8 @@ import type { ThreadDetail } from "./messaging-thread-detail.store";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { deriveReplyRecipients } from "@/ee/messaging/reply-recipients";
+import { PageState } from "@/components/page-state/page-state";
+import { PageSkeleton } from "@/components/page-state/page-skeleton";
 
 import { MessageItem } from "./message-item";
 import { MessageDateSeparator, isSameDay } from "./message-date-separator";
@@ -19,9 +21,10 @@ import { ThreadReplyComposer } from "./thread-reply-composer";
 
 type Props = {
   threadDetail: ThreadDetail | null;
+  locked?: boolean;
 };
 
-export const ThreadPanel = observer(({ threadDetail }: Props) => {
+export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) => {
   const t = useTranslations();
   const { messagingThreadDetailStore: store } = useRootStore();
 
@@ -31,13 +34,16 @@ export const ThreadPanel = observer(({ threadDetail }: Props) => {
 
   const thread = store.thread;
 
+  if (locked) return <PageSkeleton animated={false} spec={{ kind: "inbox", view: "transcript" }} />;
+
   if (!thread) {
     return (
-      <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-        <Inbox className="size-10 opacity-40" />
-
-        <p className="text-sm">{t("Inbox.selectThread")}</p>
-      </div>
+      <PageState
+        className="h-full"
+        skeleton={{ kind: "inbox", view: "transcript" }}
+        state="empty"
+        title={t("Inbox.selectThread")}
+      />
     );
   }
 

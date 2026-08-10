@@ -1503,6 +1503,11 @@
   "OrganizationModal": {
     "title": "Organisation"
   },
+  "PageState": {
+    "loading": "Seite wird geladen",
+    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder Sie haben keinen Zugriff darauf.",
+    "notFoundTitle": "Datensatz nicht gefunden"
+  },
   "PendingCard": {
     "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",
     "subtitle": "Dein Konto wird derzeit von einem Administrator deines Unternehmens geprüft",

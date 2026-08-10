@@ -18,12 +18,12 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { PageState } from "@/components/page-state/page-state";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
@@ -80,7 +80,12 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
   const showDeleteAction = canManage && hasId && canDelete && !isEditingCustomField;
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
-  const showLoading = store.isLoading && !store.fetchedEntity;
+  const hasCurrentEntity = store.fetchedEntity?.id === entityId;
+  const requestMatches = store.requestedEntityId === entityId;
+  const showLoading =
+    !hasCurrentEntity && (!requestMatches || store.entityLoadState === "idle" || store.entityLoadState === "loading");
+  const showLoadError =
+    !hasCurrentEntity && requestMatches && (store.entityLoadState === "error" || store.entityLoadState === "not-found");
   const showEditFieldsAction = canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
 
@@ -99,7 +104,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   const topBarActions = useMemo(
     () =>
-      showLoading ? null : (
+      showLoading || showLoadError ? null : (
         <TooltipProvider>
           <div className="flex items-center gap-1">
             {showDeleteAction && (
@@ -183,6 +188,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       ),
     [
       showLoading,
+      showLoadError,
       t,
       canManage,
       showDeleteAction,
@@ -201,11 +207,23 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   useSetTopBarActions(topBarActions);
 
-  if (showLoading) {
+  if (showLoading) return <PageState label={t("PageState.loading")} skeleton={{ kind: "detail" }} state="loading" />;
+
+  if (showLoadError) {
+    const notFound = store.entityLoadState === "not-found";
     return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner aria-label={t("Loading.text")} size="lg" />
-      </div>
+      <PageState
+        action={
+          notFound ? undefined : (
+            <Button size="sm" variant="outline" onClick={() => void store.loadById(entityId)}>
+              {t("ErrorCard.retry")}
+            </Button>
+          )
+        }
+        description={notFound ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
+        state="error"
+        title={notFound ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
+      />
     );
   }
 

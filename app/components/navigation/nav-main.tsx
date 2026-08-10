@@ -2,7 +2,6 @@
 
 import type { AnchorHTMLAttributes, ComponentProps, ReactNode, SVGProps } from "react";
 
-import { useLinkStatus } from "next/link";
 import { ChevronRight } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
@@ -20,10 +19,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
-import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 import { protectedHrefFromContent } from "@/components/shared/app-link";
+
+import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
 
 type NavItem = {
   key: string;
@@ -56,28 +56,17 @@ type NavMainParentProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-function NavLinkOverlayBridge() {
-  const { pending } = useLinkStatus();
-  const { loadingOverlayStore } = useRootStore();
-
-  useEffect(() => {
-    if (!pending) return;
-    loadingOverlayStore.setIsLoading(true);
-    return () => loadingOverlayStore.setIsLoading(false);
-  }, [pending, loadingOverlayStore]);
-
-  return null;
-}
-
 function NavRouteLink({
   children,
   href,
   pathname,
+  pendingClassName,
   ...props
 }: Omit<ComponentProps<typeof IntlLink>, "href"> & {
   children: ReactNode;
   href: string;
   pathname: string | null;
+  pendingClassName?: string;
 }) {
   const hardNavigationHref = protectedHrefFromContent(href, pathname ?? "");
   if (hardNavigationHref) {
@@ -90,9 +79,9 @@ function NavRouteLink({
 
   return (
     <IntlLink href={href} {...props}>
-      <NavLinkOverlayBridge />
-
       {children}
+
+      <NavLinkPendingIndicator className={pendingClassName} />
     </IntlLink>
   );
 }
@@ -142,6 +131,7 @@ function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMa
                     <NavRouteLink
                       href={sub.href}
                       id={`nav-${sub.key}`}
+                      pendingClassName={sub.badge ? "ml-0" : undefined}
                       pathname={pathname}
                       onClick={() => onNavigate(sub.key)}
                     >
@@ -198,6 +188,7 @@ export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: 
           <NavRouteLink
             href={item.href}
             id={`nav-${item.key}`}
+            pendingClassName={item.badge ? "ml-0" : undefined}
             pathname={pathname}
             onClick={() => onNavigate(item.key)}
           >

@@ -1,12 +1,13 @@
-import { Spinner } from "@/components/ui/spinner";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function Loading() {
-  const t = useTranslations();
+import { Spinner } from "@/components/ui/spinner";
+
+export default async function Loading() {
+  const t = await getTranslations();
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
-      <Spinner aria-label={t("Loading.text")} className="text-primary" size="lg" />
+    <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+      <Spinner aria-label={t("Loading.text")} className="text-muted-foreground motion-reduce:animate-none" size="lg" />
     </div>
   );
 }

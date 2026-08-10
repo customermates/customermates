@@ -26,11 +26,14 @@ import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { PageState } from "@/components/page-state/page-state";
+import { PageSkeleton } from "@/components/page-state/page-skeleton";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 
 type Props = {
   accounts: ConnectedAccountDto[];
+  locked?: boolean;
 };
 
 const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; labelKey: string }[] = [
@@ -51,7 +54,7 @@ const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; l
 
 const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
 
-const ConnectAction = observer(() => {
+const ConnectAction = observer(({ id, variant = "default" }: { id: string; variant?: "default" | "secondary" }) => {
   const t = useTranslations();
   const { connectedAccountsStore } = useRootStore();
   const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
@@ -59,7 +62,7 @@ const ConnectAction = observer(() => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-8" id="profile-connected-accounts-connect" size="sm">
+        <Button className="h-8" id={id} size="sm" variant={variant}>
           <span className="-space-x-1.5 flex items-center">
             {FEATURED_PROVIDERS.map((provider) => {
               const ChannelIcon = getProviderIcon(provider);
@@ -120,10 +123,11 @@ const ConnectedAccountsAlert = () => {
   );
 };
 
-export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
+export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Props) => {
   const t = useTranslations();
   const { connectedAccountsStore, connectedAccountModalStore, intlStore, userStore } = useRootStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
+  const isTrueEmpty = connectedAccountsStore.isReady && connectedAccountsStore.items.length === 0;
 
   useEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 
@@ -132,16 +136,29 @@ export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
     return () => connectedAccountsStore.stopSyncPolling();
   }, [connectedAccountsStore]);
 
-  const topBarActions = useMemo(() => (canConnect ? <ConnectAction /> : null), [canConnect]);
+  const topBarActions = useMemo(
+    () =>
+      !locked && connectedAccountsStore.isReady && canConnect ? (
+        <ConnectAction id="profile-connected-accounts-connect" variant={isTrueEmpty ? "secondary" : "default"} />
+      ) : null,
+    [canConnect, connectedAccountsStore.isReady, isTrueEmpty, locked],
+  );
   useSetTopBarActions(topBarActions);
 
-  if (connectedAccountsStore.items.length === 0) {
-    return (
-      <div className="flex w-full max-w-3xl flex-col gap-4">
-        <ConnectedAccountsAlert />
+  if (locked) return <PageSkeleton animated={false} spec={{ kind: "settings" }} />;
 
-        <p className="text-subdued text-x-md">{t("ConnectedAccountsCard.emptyState")}</p>
-      </div>
+  if (!connectedAccountsStore.isReady)
+    return <PageState label={t("PageState.loading")} skeleton={{ kind: "settings" }} state="loading" />;
+
+  if (isTrueEmpty) {
+    return (
+      <PageState
+        action={canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" /> : undefined}
+        description={t("ConnectedAccountsCard.emptyState")}
+        skeleton={{ kind: "settings" }}
+        state="empty"
+        title={t("ConnectedAccountsCard.title")}
+      />
     );
   }
 
