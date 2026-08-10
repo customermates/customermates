@@ -153,11 +153,13 @@ export default async function proxy(req: NextRequest) {
     }
   }
 
-  const isLocaleRootPage = pathname === `/${currentLocale}`;
+  const isLocaleRootPage = pathname === buildLocalePath(currentLocale, "/");
 
   if (isAuthenticated && isLocaleRootPage) {
     const preferredLocale = preferredAppLocale(req);
-    const target = preferredLocale ? new URL(`/${preferredLocale}/dashboard`, base) : new URL("/dashboard", base);
+    const target = preferredLocale
+      ? new URL(buildLocalePath(preferredLocale, "/dashboard"), base)
+      : new URL("/dashboard", base);
     target.search = req.nextUrl.search;
     return NextResponse.redirect(target);
   }
@@ -181,7 +183,7 @@ export default async function proxy(req: NextRequest) {
     return localeRedirect(preferredLocale, stripLocalePrefix(pathname), base, req.nextUrl.search);
 
   if (!isAuthenticated) {
-    const signInPath = `/${currentLocale}/auth/signin`;
+    const signInPath = buildLocalePath(currentLocale, "/auth/signin");
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
 

@@ -20,32 +20,7 @@ import {
   pricingSource,
 } from "./source";
 
-type Loader =
-  | typeof affiliateSource
-  | typeof authSource
-  | typeof automationSource
-  | typeof blogPostsSource
-  | typeof blogSource
-  | typeof comparePagesSource
-  | typeof compareSource
-  | typeof docsSource
-  | typeof featurePagesSource
-  | typeof featuresAllSource
-  | typeof featuresSource
-  | typeof forPagesSource
-  | typeof forSource
-  | typeof helpAndFeedbackSource
-  | typeof homepageSource
-  | typeof legalSource
-  | typeof pricingSource;
-
-export const ROUTE_SOURCE_MAP: Record<
-  (typeof PUBLIC_ROUTES_SEO)[number],
-  {
-    source: Loader;
-    path: string[];
-  }
-> = {
+export const ROUTE_SOURCE_MAP = {
   "/": {
     source: homepageSource,
     path: ["homepage"],
@@ -146,4 +121,4 @@ export const ROUTE_SOURCE_MAP: Record<
     source: docsSource,
     path: [":slug"],
   },
-};
+} satisfies Record<(typeof PUBLIC_ROUTES_SEO)[number], { source: unknown; path: string[] }>;
