@@ -24,10 +24,14 @@ export function AppLocalePreferenceSync({ displayLanguage }: Props) {
     const target = appLocaleReconciliationTarget(
       displayLanguage,
       currentLocale,
-      `${pathname}${window.location.search}${window.location.hash}`,
+      pathname,
       browserAppLocale(navigator.languages),
     );
-    if (target) window.location.replace(target);
+    if (target) {
+      const targetUrl = new URL(window.location.href);
+      targetUrl.pathname = target;
+      window.location.replace(targetUrl);
+    }
   }, [currentLocale, displayLanguage, pathname]);
 
   return null;
