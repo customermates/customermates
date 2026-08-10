@@ -38,11 +38,11 @@ features:
         title: Notizen
         description: Freier Kontext auf jedem Datensatz.
       - icon: Tag
-        title: Tags
-        description: Leichte Labels für schnelle Segmentierung.
-      - icon: Paperclip
-        title: Dateianhänge
-        description: Verträge, Decks und E-Mails am Datensatz.
+        title: Einfachauswahl-Felder
+        description: Typisierte Optionslisten für Phasen, Status und Segmente.
+      - icon: Share2
+        title: Verknüpfte Datensätze
+        description: Kontakte, Unternehmen, Deals, Services und Aufgaben verbinden.
 
   - title: Zentraler Posteingang
     subtitle: Jede Kundenkonversation an einem Ort (ab Pro)
@@ -60,8 +60,11 @@ features:
         title: LinkedIn & Sales Navigator
         description: LinkedIn-Nachrichten plus Sales-Navigator-Suche, verbunden mit Ihren Datensätzen.
       - icon: Calendar
-        title: Kalender-Synchronisation
-        description: Termine und Ereignisse laufen synchron zu Ihren Konversationen.
+        title: Kalender-Ansicht
+        description: Kalender und Termine aus einem verbundenen Konto, nur lesend, für Sie und Ihre Agenten.
+      - icon: Paperclip
+        title: Nachrichten-Anhänge
+        description: Dateien aus E-Mails und Chats bleiben am Thread.
       - icon: Share2
         title: Geteilte Konten
         description: Teamweite Posteingangs-Sichtbarkeit und ein Verlauf über jeden Kanal (ab Business).
@@ -72,10 +75,10 @@ features:
     features:
       - icon: Bell
         title: Aufgaben & Follow-ups
-        description: Verankern Sie Arbeit am Datensatz und behalten Sie den Überblick. Weisen Sie Follow-ups zu, sehen Sie, was als Nächstes ansteht, und bleiben Sie bei Kundenzusagen am Ball, ohne Tabellen oder verstreute To-Do-Listen.
+        description: Verankern Sie Arbeit am Datensatz und behalten Sie den Überblick. Weisen Sie Follow-ups zu, verknüpfen Sie sie mit dem passenden Kontakt, Unternehmen, Deal oder Service und bleiben Sie bei Kundenzusagen am Ball, ohne Tabellen oder verstreute To-Do-Listen.
       - icon: Clock
-        title: Erinnerungen
-        description: Pünktliche Hinweise, damit nichts liegen bleibt.
+        title: Selbst definierte Fristen
+        description: Datumsspalte an Aufgaben hängen, danach filtern und sortieren.
       - icon: List
         title: Aktivitätsübersicht
         description: Offene Arbeit und Fortschritt auf einen Blick.
@@ -90,24 +93,24 @@ features:
         description: Datensätze anlegen, ohne die Seite zu verlassen.
 
   - title: Datenverwaltung
-    subtitle: Datenimport, Export, Reporting, Logs
+    subtitle: Daten rein und raus, Reporting, Logs
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: BarChart3
         title: Reports & Dashboards
         description: Aus CRM-Daten werden Entscheidungen. Bauen Sie Dashboards für Pipeline-Wert, Zykluszeit und Team-Auslastung. Gruppieren Sie nach beliebigen Feldern, auch eigenen, und teilen Sie Sichten gezielt im Team.
       - icon: Upload
-        title: CSV-Import
-        description: Datensätze aus dem alten CRM, mit Feld-Mapping.
+        title: Massenanlage
+        description: Datensätze über die REST API oder einen KI-Agenten per MCP anlegen. Einen CSV-Import gibt es noch nicht.
       - icon: Download
         title: Export
-        description: Daten jederzeit per CSV oder API herausholen.
+        description: Jeden Datensatz jederzeit über die REST API auslesen.
       - icon: FileText
         title: Audit-Log
         description: Jede Änderung, jeder Akteur, lückenlos abfragbar.
 
   - title: Zusammenarbeit im Team
-    subtitle: Mehrbenutzerfähigkeit und Zusammenarbeit
+    subtitle: Mehrbenutzerfähigkeit, Rechte, Einladungen
     hasSecondaryBackground: true
     features:
       - icon: Users
@@ -119,9 +122,9 @@ features:
       - icon: ShieldCheck
         title: Rollen & Rechte
         description: Zugriff pro Objekt und Feld für Sales, Ops, Support.
-      - icon: Bell
-        title: Benachrichtigungen
-        description: Stage-Wechsel, Zuweisungen, Erwähnungen. Nur das Wichtige.
+      - icon: Mail
+        title: Einladungen
+        description: Kolleginnen und Kollegen per E-Mail einladen und die Rolle direkt vergeben.
 
   - title: Automatisierung & Integrationen
     subtitle: Flexible Erweiterbarkeit mit APIs, Webhooks und n8n
@@ -131,8 +134,8 @@ features:
         title: Native KI-Agenten
         description: Hängen Sie Claude, ChatGPT oder Gemini per MCP direkt an Ihr CRM (46 Tools). Die KI liest Pipelines, schreibt Notizen, formuliert Follow-ups und aktualisiert Deals, ohne SDK, ohne Glue Code, ohne Zwischenschicht.
       - icon: Zap
-        title: n8n-Integration
-        description: Hunderte Tools verbinden, Workflows individuell bauen.
+        title: Funktioniert mit n8n
+        description: Steuern Sie Ihr eigenes n8n über CRM-Webhooks und die REST API. n8n ist ein eigenes Produkt, das Sie selbst betreiben oder abonnieren.
       - icon: Play
         title: Webhooks & Events
         description: Nachgelagerte Systeme bei jedem Datensatz- und Messaging-Event auslösen.
@@ -147,7 +150,7 @@ features:
     features:
       - icon: Rocket
         title: In Minuten produktiv
-        description: Anmelden, Daten importieren, loslegen. Keine wochenlange Einführung, keine Admin-Hürden, keine Schulung fürs Team.
+        description: Anmelden, erste Datensätze anlegen, loslegen. Keine wochenlange Einführung, keine Admin-Hürden, keine Schulung fürs Team.
       - icon: Monitor
         title: Klare Oberfläche
         description: Auf fokussierte tägliche Arbeit ausgelegt.
@@ -160,11 +163,11 @@ features:
     gridCols: grid-cols-1 md:grid-cols-2
     features:
       - icon: Server
-        title: Hosting in Deutschland
-        description: Daten gespeichert und verarbeitet in Frankfurt. Keine US-Subdienstleister. Self-Hosting unter AGPL möglich. Datenresidenz ist Standard, kein Aufpreis.
+        title: Datenbank-Region EU
+        description: Die verwaltete Datenbank des gehosteten Dienstes läuft in der EU (AWS eu-central-1). Application-Hosting und weitere Anbieter stehen in unserer [Subdienstleisterliste](/subprocessors).
       - icon: ShieldCheck
-        title: DSGVO ab Werk
-        description: DSGVO-freundliche Verarbeitung im Datenmodell verankert.
+        title: Self-Hosting unter AGPL
+        description: Betreiben Sie alles auf eigener Infrastruktur mit Docker Compose und entscheiden Sie selbst, wo die Daten liegen.
 
 why:
   title: Warum Customermates?
@@ -172,16 +175,16 @@ why:
   features:
     - icon: Rocket
       title: Schnelles Setup
-      description: Customermates funktioniert ohne Setup oder Schulung. Anmelden, Daten importieren und direkt produktiv arbeiten. Ideal für Teams, die keine Zeit für komplexe Implementierungen haben.
+      description: Customermates funktioniert ohne Setup oder Schulung. Anmelden und direkt produktiv arbeiten. Ideal für Teams, die keine Zeit für komplexe Implementierungen haben.
     - icon: LayoutGrid
       title: Starker Funktionsumfang
       description: Das System enthält nur Funktionen, die Teams im Alltag wirklich benötigen. Keine überladenen Module, keine unnötigen Menüs und keine Funktionstiefe, die niemand nutzt.
     - icon: Zap
       title: Automationen mit n8n
-      description: Über n8n lässt sich Customermates mit hunderten Tools verbinden. Workflows können komplett individuell aufgebaut werden, vom Lead-Eingang bis zur Service-Abwicklung.
+      description: Webhooks und die REST API verbinden Customermates mit Ihrer eigenen n8n-Instanz und von dort mit hunderten Tools. Workflows können komplett individuell aufgebaut werden, vom Lead-Eingang bis zur Service-Abwicklung.
     - icon: ShieldCheck
-      title: Sichere Daten
-      description: Alle Daten werden DSGVO-konform in deutschen Rechenzentren gespeichert. Die Infrastruktur ist transparent, nachvollziehbar und auf langfristige Sicherheit ausgelegt.
+      title: Offene Infrastruktur
+      description: Die Datenbank des gehosteten Dienstes läuft in der EU, jeder eingesetzte Anbieter steht in der Subdienstleisterliste, und die gesamte Anwendung lässt sich unter AGPL selbst hosten, wenn die Daten auf Ihren Servern liegen sollen.
     - icon: Sparkles
       title: Einfache Bedienbarkeit
       description: Die Oberfläche ist bewusst reduziert und logisch aufgebaut. Nutzer finden alle wichtigen Funktionen sofort und können ohne Einarbeitung effizient arbeiten.

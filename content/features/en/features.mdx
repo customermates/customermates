@@ -38,11 +38,11 @@ features:
         title: Notes
         description: Freeform context on any record.
       - icon: Tag
-        title: Tags
-        description: Lightweight labels for quick segmentation.
-      - icon: Paperclip
-        title: File Attachments
-        description: Pin contracts, decks, and emails to records.
+        title: Single-select Fields
+        description: Typed option lists for stages, statuses, and segments.
+      - icon: Share2
+        title: Linked Records
+        description: Connect contacts, organizations, deals, services, and tasks.
 
   - title: Unified Inbox
     subtitle: Every customer conversation in one place (Pro and up)
@@ -60,8 +60,11 @@ features:
         title: LinkedIn & Sales Navigator
         description: LinkedIn messaging plus Sales Navigator search, connected to your records.
       - icon: Calendar
-        title: Calendar Sync
-        description: Keep meetings and events in sync alongside your conversations.
+        title: Calendar Read-out
+        description: Calendars and events from a connected account, read-only, for you and your agents.
+      - icon: Paperclip
+        title: Message Attachments
+        description: Files that arrive on an email or chat stay with the thread.
       - icon: Share2
         title: Shared Accounts
         description: Team-wide inbox visibility and one timeline across every channel (Business and up).
@@ -72,10 +75,10 @@ features:
     features:
       - icon: Bell
         title: Tasks & Follow-ups
-        description: Anchor work to records and own it. Assign follow-ups, surface what's due, and stay on top of customer commitments without spreadsheets or scattered to-dos.
+        description: Anchor work to records and own it. Assign follow-ups, link them to the contact, organization, deal, or service they belong to, and stay on top of customer commitments without spreadsheets or scattered to-dos.
       - icon: Clock
-        title: Reminders
-        description: Timely nudges so deadlines never slip.
+        title: Due Dates You Define
+        description: Add a date column to tasks, then filter and sort on what is next.
       - icon: List
         title: Activity Overview
         description: Open work and operational progress at a glance.
@@ -90,24 +93,24 @@ features:
         description: Add records without leaving the page.
 
   - title: Data Management
-    subtitle: Data import, export, reporting, logs
+    subtitle: Getting data in and out, reporting, logs
     gridCols: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
     features:
       - icon: BarChart3
         title: Reports & Dashboards
         description: Turn CRM data into decisions. Build dashboards for pipeline value, cycle time, and team load. Group by anything, including custom fields, and share scoped views with your team.
       - icon: Upload
-        title: CSV Import
-        description: Bring records in from your old CRM with field mapping.
+        title: Bulk Create
+        description: Load records through the REST API or an AI agent over MCP. There is no CSV importer yet.
       - icon: Download
         title: Export
-        description: Get your data out via CSV or API, anytime.
+        description: Read every record back out through the REST API, anytime.
       - icon: FileText
         title: Audit Log
         description: Every change, every actor, kept and queryable.
 
   - title: Team & Collaboration
-    subtitle: Team features, permissions, notifications
+    subtitle: Team features, permissions, invitations
     hasSecondaryBackground: true
     features:
       - icon: Users
@@ -119,9 +122,9 @@ features:
       - icon: ShieldCheck
         title: Roles & Permissions
         description: Per-object, per-field access for sales, ops, support.
-      - icon: Bell
-        title: Notifications
-        description: Stage changes, assignments, and mentions. Only what matters.
+      - icon: Mail
+        title: Invitations
+        description: Invite colleagues by email and assign their role on the way in.
 
   - title: Automation & Integrations
     subtitle: Flexible extensibility with APIs, webhooks, and n8n
@@ -131,8 +134,8 @@ features:
         title: Native AI Agents
         description: Plug Claude, ChatGPT, or Gemini straight into your CRM via MCP (46 tools). Your AI reads pipelines, logs notes, drafts follow-ups, and updates deals, with no SDK, no glue code, and no extra integration layer.
       - icon: Zap
-        title: n8n Integration
-        description: Connect to hundreds of tools and build custom workflows.
+        title: Works with n8n
+        description: Drive your own n8n from CRM webhooks and the REST API. n8n is a separate product you run or subscribe to.
       - icon: Play
         title: Webhooks & Events
         description: Fire downstream systems on any of 26 webhook events across records and messaging.
@@ -147,7 +150,7 @@ features:
     features:
       - icon: Rocket
         title: Productive in Minutes
-        description: Sign up, import your data, start working. No multi-week implementation, no admin walls, no training required for your team.
+        description: Sign up, create your first records, start working. No multi-week implementation, no admin walls, no training required for your team.
       - icon: Monitor
         title: Clean Interface
         description: Built for focused daily work.
@@ -160,11 +163,11 @@ features:
     gridCols: grid-cols-1 md:grid-cols-2
     features:
       - icon: Server
-        title: Hosted in Germany
-        description: Data stored and processed in Frankfurt. No US sub-processors. Self-hosting available under AGPL. Data residency is the default, not an upsell.
+        title: EU Database Region
+        description: The managed database for the hosted service runs in the EU (AWS eu-central-1). Application hosting and other providers are named in our [subprocessor list](/subprocessors).
       - icon: ShieldCheck
-        title: GDPR by Default
-        description: GDPR-friendly handling of customer data baked into the model.
+        title: Self-Hosting Under AGPL
+        description: Run the whole thing on your own infrastructure with Docker Compose and choose where the data lives.
 
 why:
   title: Why Customermates?
@@ -172,16 +175,16 @@ why:
   features:
     - icon: Rocket
       title: Quick setup
-      description: Customermates works without setup or training. Sign up, import data and start working productively right away. Ideal for teams that don't have time for complex implementations.
+      description: Customermates works without setup or training. Sign up and start working productively right away. Ideal for teams that don't have time for complex implementations.
     - icon: LayoutGrid
       title: Strong feature set
       description: The system only includes the features teams actually need in everyday work. No bloated modules, no unnecessary menus, and no feature depth nobody uses.
     - icon: Zap
       title: Automation with n8n
-      description: Customermates can be connected to hundreds of tools via n8n. Workflows can be built completely individually, from lead capture to service delivery.
+      description: Webhooks and the REST API connect Customermates to your own n8n instance, and from there to hundreds of tools. Workflows can be built completely individually, from lead capture to service delivery.
     - icon: ShieldCheck
-      title: Secure data
-      description: All data is stored in German data centers in compliance with GDPR. The infrastructure is transparent, traceable and designed for long-term security.
+      title: Open infrastructure
+      description: The hosted database runs in the EU, every provider we use is named in the subprocessor list, and the whole application can be self-hosted under AGPL if you want the data on your own servers.
     - icon: Sparkles
       title: Easy usability
       description: The interface is deliberately streamlined and logically structured. Users find all important features immediately and can work efficiently without training.
