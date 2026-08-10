@@ -4,27 +4,28 @@ import { observer } from "mobx-react-lite";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
-  Sparkles,
-  X,
-  Maximize2,
-  Minimize2,
-  ArrowUp,
-  Loader2,
-  Check,
-  Square,
-  History,
-  Plus,
   Archive,
+  ArrowUp,
+  BarChart3,
+  Check,
   ChevronDown,
   ChevronLeft,
-  WandSparkles,
   Columns3,
   Database,
-  BarChart3,
+  History,
+  Loader2,
+  Maximize2,
+  MessageCircle,
+  Minimize2,
   Pencil,
+  Plus,
   RotateCcw,
   Search,
+  Sparkles,
+  Square,
   Trash2,
+  WandSparkles,
+  X,
 } from "lucide-react";
 import { Action, EntityType, Resource } from "@/generated/prisma";
 
@@ -42,7 +43,6 @@ import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbo
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,7 +188,7 @@ export const AgentChat = observer(function AgentChat() {
           }}
           onClick={store.open}
         >
-          <AppImage alt="" className="size-7 rounded-lg" height={28} src="customermates-square.svg" width={28} />
+          <MessageCircle className="size-5" />
 
           {store.unreadSupport > 0 && (
             <span
@@ -233,7 +233,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
     <div
       aria-label={t("AgentChat.title")}
       className={cn(
-        "fixed z-40 flex flex-col overflow-hidden rounded-xl border bg-background shadow-xl",
+        "fixed z-40 flex flex-col overflow-hidden rounded-2xl border bg-card shadow-xl",
         store.isExpanded
           ? "h-[85dvh] w-[720px] max-w-[calc(100dvw-2rem)]"
           : "h-[560px] max-h-[calc(100dvh-2rem)] w-[400px] max-w-[calc(100dvw-2rem)]",
@@ -980,6 +980,8 @@ function chatUiCopy(t: ChatTranslator) {
     untitled: t("AgentChat.ui.untitled"),
     activitySummary: (status: "running" | "error" | "cancelled" | "complete", count: number) =>
       t(`AgentChat.ui.activity${status.charAt(0).toUpperCase()}${status.slice(1)}`, { count }),
+    thinking: t("AgentChat.ui.thinking"),
+    thoughtFor: (seconds: number) => t("AgentChat.ui.thoughtFor", { seconds }),
     unreadReplies: (count: number) => t("AgentChat.ui.unreadReplies", { count }),
   };
 }
@@ -1221,7 +1223,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
     return (
       <article aria-label={t("Inbox.senderYou")} className="group/message flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
-          <div className="w-fit rounded-xl rounded-br-md bg-card px-3 py-2 text-sm whitespace-pre-wrap shadow-xs">
+          <div className="w-fit rounded-3xl bg-muted px-4 py-2.5 text-sm whitespace-pre-wrap dark:bg-accent">
             {item.text}
           </div>
 
@@ -1249,13 +1251,9 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
   if (item.kind === "assistant") {
     return (
-      <article aria-label={t("AgentChat.title")} className="group/message flex gap-2">
-        <Avatar className="self-end" size="lg">
-          <AppImage alt="" className="size-full" height={32} src="customermates-square.svg" width={32} />
-        </Avatar>
-
-        <div className="flex min-w-0 max-w-[85%] flex-col items-start gap-1">
-          <div className="w-full p-1 text-sm [&_pre]:overflow-x-auto">
+      <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col items-start gap-1.5">
+          <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse>{item.text}</MessageResponse>
 
             {item.streaming && <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />}
@@ -1302,61 +1300,63 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   if (item.kind === "activity") return <AgentActivity items={[item]} />;
 
   const copy = agentActivityCopy(item.activity, locale, terminology);
+  const canAlwaysAllow = item.activity.kind === "records.create" || item.activity.kind === "records.update";
 
   return (
-    <div
-      className="rounded-xl border border-warning/50 bg-warning/10 px-3 py-2 text-sm shadow-xs"
-      data-testid="agent-approval"
-    >
-      <div className="flex items-center gap-2">
-        <Badge variant="warning">{t("AgentChat.approval.title")}</Badge>
+    <div className="rounded-2xl border bg-card/60 px-4 py-3.5 text-sm" data-testid="agent-approval">
+      <p className="text-xs font-medium text-muted-foreground">{t("AgentChat.approval.title")}</p>
 
-        <span className="text-xs font-medium">{copy.running}</span>
-      </div>
+      <p className="mt-1 font-medium">{copy.running}</p>
 
-      {copy.detail && <p className="mt-2 text-xs text-muted-foreground">{copy.detail}</p>}
+      {copy.detail && <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>}
 
       {item.resolution ? (
-        <p className="mt-2 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
+        <p className="mt-3 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
       ) : (
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Button
-            aria-busy={item.pendingDecision === "approve"}
-            disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
-            size="sm"
-            onClick={() => void decideApproval(item, "approve")}
-          >
-            {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
-
-            {t("AgentChat.approval.approveAction")}
-          </Button>
-
-          <Button
-            aria-busy={item.pendingDecision === "reject"}
-            disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
-            size="sm"
-            variant="outline"
-            onClick={() => void decideApproval(item, "reject")}
-          >
-            {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
-
-            {t("AgentChat.approval.rejectAction")}
-          </Button>
-
-          {(item.activity.kind === "records.create" || item.activity.kind === "records.update") && (
+        <>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button
-              aria-busy={item.pendingDecision === "always"}
+              aria-busy={item.pendingDecision === "approve"}
+              disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
+              size="sm"
+              onClick={() => void decideApproval(item, "approve")}
+            >
+              {item.pendingDecision === "approve" && <Loader2 className="size-3.5 animate-spin" />}
+
+              {t("AgentChat.approval.approveOnceAction")}
+            </Button>
+
+            {canAlwaysAllow && (
+              <Button
+                aria-busy={item.pendingDecision === "always"}
+                disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
+                size="sm"
+                variant="outline"
+                onClick={() => void decideApproval(item, "always")}
+              >
+                {item.pendingDecision === "always" && <Loader2 className="size-3.5 animate-spin" />}
+
+                {t("AgentChat.approval.alwaysAction")}
+              </Button>
+            )}
+
+            <Button
+              aria-busy={item.pendingDecision === "reject"}
               disabled={Boolean(item.pendingDecision) || store.isWorkspaceSetupPending}
               size="sm"
               variant="ghost"
-              onClick={() => void decideApproval(item, "always")}
+              onClick={() => void decideApproval(item, "reject")}
             >
-              {item.pendingDecision === "always" && <Loader2 className="size-3.5 animate-spin" />}
+              {item.pendingDecision === "reject" && <Loader2 className="size-3.5 animate-spin" />}
 
-              {t("AgentChat.approval.alwaysAction")}
+              {t("AgentChat.approval.rejectAction")}
             </Button>
+          </div>
+
+          {!canAlwaysAllow && (
+            <p className="mt-2 text-xs text-muted-foreground">{t("AgentChat.approval.alwaysUnavailable")}</p>
           )}
-        </div>
+        </>
       )}
     </div>
   );
@@ -1807,33 +1807,42 @@ const AgentActivity = observer(function AgentActivity({
   const hasError = items.some((item) => item.status === "error");
   const hasCancelled = items.some((item) => item.status === "cancelled");
   const wasRunning = useRef(hasRunning);
+  const startedAt = useRef<number | null>(null);
   const [open, setOpen] = useState(hasRunning);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number | null>(null);
 
   useEffect(() => {
     if (hasRunning || hasError) setOpen(true);
     else if (wasRunning.current) setOpen(false);
+
+    if (hasRunning && startedAt.current === null) startedAt.current = Date.now();
+    if (!hasRunning && wasRunning.current && startedAt.current !== null) {
+      setElapsedSeconds(Math.max(1, Math.round((Date.now() - startedAt.current) / 1000)));
+      startedAt.current = null;
+    }
+
     wasRunning.current = hasRunning;
   }, [hasError, hasRunning]);
 
   const firstCopy = items[0] ? agentActivityCopy(items[0].activity, locale, terminology) : null;
-  const summary =
+  const settledSummary =
     items.length === 1 && firstCopy
-      ? hasRunning
-        ? firstCopy.running
-        : hasError
-          ? firstCopy.error
-          : hasCancelled
-            ? firstCopy.cancelled
-            : firstCopy.done
-      : uiCopy.activitySummary(
-          hasRunning ? "running" : hasError ? "error" : hasCancelled ? "cancelled" : "complete",
-          items.length,
-        );
+      ? hasError
+        ? firstCopy.error
+        : hasCancelled
+          ? firstCopy.cancelled
+          : firstCopy.done
+      : uiCopy.activitySummary(hasError ? "error" : hasCancelled ? "cancelled" : "complete", items.length);
+  const summary = hasRunning
+    ? uiCopy.thinking
+    : !hasError && !hasCancelled && elapsedSeconds !== null
+      ? uiCopy.thoughtFor(elapsedSeconds)
+      : settledSummary;
 
   return (
     <details
       aria-live="off"
-      className="group rounded-lg bg-muted/30 px-3 py-2"
+      className="group py-1"
       data-testid="agent-activity"
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
@@ -1854,7 +1863,7 @@ const AgentActivity = observer(function AgentActivity({
         <ChevronDown aria-hidden="true" className="size-3.5 transition-transform group-open:rotate-180" />
       </summary>
 
-      <div className="mt-3 space-y-3 border-l pl-3">
+      <div className="mt-3 space-y-3 border-l pl-4">
         {items.map((item) => {
           const copy = agentActivityCopy(item.activity, locale, terminology);
           const label =
