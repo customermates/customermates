@@ -210,12 +210,18 @@ describe("page-state contract", () => {
   it("uses the quiet true-empty treatment with neutral secondary actions", () => {
     const pageState = read("components/page-state/page-state.tsx");
 
-    expect(pageState).toContain("h-[calc(100svh-10rem)]");
-    expect(pageState).toContain("max-h-[34rem]");
+    expect(pageState).toContain("absolute inset-0");
+    expect(pageState).toContain("items-center justify-center");
+    expect(pageState).toContain("relative min-h-0 w-full flex-1 overflow-hidden");
+    expect(pageState).not.toContain("max-h-[34rem]");
+    expect(pageState).not.toContain("h-[calc(100svh-10rem)]");
     expect(pageState).toContain("max-w-sm");
     expect(pageState).toContain("before:bg-background/80");
     expect(pageState).not.toContain("rounded-xl border bg-background/95");
     expect(pageState).not.toContain("shadow-sm");
+    expect(read("app/[locale]/(protected)/dashboard/page.tsx")).toContain(
+      "relative flex min-h-0 w-full flex-1 flex-col",
+    );
 
     const secondaryActionOwners = {
       "components/data-view/data-view-empty.tsx": '<Button size="sm" variant="secondary" onClick={() => onAdd?.()}>',

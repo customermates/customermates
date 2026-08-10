@@ -77,7 +77,7 @@ export function PageState(props: PageStateProps) {
   const EmptyIcon = props.icon;
 
   return (
-    <section className={cn("relative min-h-80 w-full flex-1 overflow-hidden", props.className)} data-page-state="empty">
+    <section className={cn("relative min-h-0 w-full flex-1 overflow-hidden", props.className)} data-page-state="empty">
       <PageSkeleton
         data-page-state-background
         animated={false}
@@ -85,8 +85,14 @@ export function PageState(props: PageStateProps) {
         spec={props.skeleton}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-[calc(100svh-10rem)] min-h-80 max-h-[34rem] items-center justify-center p-4 md:p-6">
-        <div className="pointer-events-none relative isolate flex w-full max-w-sm flex-col items-center gap-3 text-center before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-background/80 before:blur-2xl">
+      <div
+        data-page-state-overlay
+        className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-4 md:p-6"
+      >
+        <div
+          data-page-state-content
+          className="pointer-events-none relative isolate flex w-full max-w-sm flex-col items-center gap-3 text-center before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-background/80 before:blur-2xl"
+        >
           {EmptyIcon && <EmptyIcon data-page-state-icon aria-hidden="true" className="size-6 text-muted-foreground" />}
 
           <div className="flex flex-col gap-1">
