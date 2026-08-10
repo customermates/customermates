@@ -5,18 +5,29 @@ import type { Status } from "@/generated/prisma";
 import { Avatar } from "@/components/ui/avatar";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { AppChip } from "@/components/chip/app-chip";
+import { roleDisplayName } from "@/features/role/role-display-name";
 
 type Props = {
   email: string;
   firstName: string;
   lastName: string;
   roleName?: string;
+  roleIsSystemRole?: boolean;
   status: Status;
   avatarUrl?: string;
   emailVerified?: boolean;
 };
 
-export function UserDetailsAvatar({ email, firstName, lastName, roleName, status, avatarUrl, emailVerified }: Props) {
+export function UserDetailsAvatar({
+  email,
+  firstName,
+  lastName,
+  roleName,
+  roleIsSystemRole = false,
+  status,
+  avatarUrl,
+  emailVerified,
+}: Props) {
   const t = useTranslations();
   const displayName = `${firstName} ${lastName}`.trim();
 
@@ -39,7 +50,11 @@ export function UserDetailsAvatar({ email, firstName, lastName, roleName, status
 
             <AppChip variant={USER_STATUS_COLORS_MAP[status]}>{t(`Common.userStatuses.${status}`)}</AppChip>
 
-            {roleName && <AppChip>{roleName}</AppChip>}
+            {roleName && (
+              <AppChip>
+                {roleDisplayName({ isSystemRole: roleIsSystemRole, name: roleName }, t("RoleModal.systemName"))}
+              </AppChip>
+            )}
           </div>
         </div>
       </div>

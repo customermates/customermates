@@ -67,11 +67,11 @@ export const ApiKeysCard = observer(({ apiKeys }: Props) => {
               </InfoRow>
 
               <InfoRow label={t("Common.table.columns.expiresAt")}>
-                {key.expiresAt ? intlStore.formatNumericalShortDateTime(key.expiresAt) : "Never"}
+                {key.expiresAt ? intlStore.formatNumericalShortDateTime(key.expiresAt) : t("Common.never")}
               </InfoRow>
 
               <InfoRow label={t("Common.table.columns.lastRequest")}>
-                {key.lastRequest ? intlStore.formatNumericalShortDateTime(key.lastRequest) : "Never"}
+                {key.lastRequest ? intlStore.formatNumericalShortDateTime(key.lastRequest) : t("Common.never")}
               </InfoRow>
             </CardContent>
           </Card>

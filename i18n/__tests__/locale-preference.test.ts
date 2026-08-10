@@ -28,10 +28,15 @@ describe("locale preferences", () => {
   });
 
   it("reconciles a newly synchronized preference with the rendered app locale", () => {
-    expect(appLocaleReconciliationTarget("fr", "de", "/dashboard?tab=mine#open")).toBe("/fr/dashboard?tab=mine#open");
-    expect(appLocaleReconciliationTarget("fr", "fr", "/dashboard")).toBeNull();
-    expect(appLocaleReconciliationTarget("system", "de", "/dashboard?tab=mine#open")).toBe("/dashboard?tab=mine#open");
-    expect(appLocaleReconciliationTarget("retired", "de", "/dashboard")).toBeNull();
+    expect(appLocaleReconciliationTarget("fr", "de", "/dashboard?tab=mine#open", "en")).toBe(
+      "/fr/dashboard?tab=mine#open",
+    );
+    expect(appLocaleReconciliationTarget("fr", "fr", "/dashboard", "en")).toBeNull();
+    expect(appLocaleReconciliationTarget("system", "de", "/dashboard?tab=mine#open", "en")).toBe(
+      "/en/dashboard?tab=mine#open",
+    );
+    expect(appLocaleReconciliationTarget("system", "de", "/dashboard", "de")).toBeNull();
+    expect(appLocaleReconciliationTarget("retired", "de", "/dashboard", "en")).toBeNull();
   });
 
   it("writes, preserves, replaces, and removes the dedicated application preference cookie", () => {

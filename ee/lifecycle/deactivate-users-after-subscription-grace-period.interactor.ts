@@ -5,6 +5,7 @@ import type { User } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 import TrialInactivationNotice from "@/components/emails/trial-inactivation-notice";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
@@ -30,12 +31,14 @@ export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "SubscriptionInactivationNotice");
+      const layoutCopy = await getEmailLayoutCopy(locale);
 
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),
         react: TrialInactivationNotice({
           locale,
+          layoutCopy,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

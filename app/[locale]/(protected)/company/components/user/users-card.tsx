@@ -14,6 +14,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { DataViewContainer } from "@/components/data-view";
+import { roleDisplayName } from "@/features/role/role-display-name";
 
 type Props = {
   initialUsers: GetResult<UserDto>;
@@ -66,7 +67,7 @@ export const UsersCard = observer(({ initialUsers, initialRoles }: Props) => {
         header: t("Common.table.columns.role"),
         cell: ({ row }) => {
           const role = roles.find((r) => r.id === row.original.roleId);
-          return role ? <AppChip>{role.name}</AppChip> : <></>;
+          return role ? <AppChip>{roleDisplayName(role, t("RoleModal.systemName"))}</AppChip> : <></>;
         },
       },
       {

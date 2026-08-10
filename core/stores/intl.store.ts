@@ -12,7 +12,8 @@ import { Currency } from "@/generated/prisma";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
-import { formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
+import { formatLocalizedNumber, parseLocalizedNumber } from "./intl-number";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
@@ -30,11 +31,17 @@ export class IntlStore {
   get formattingLocale() {
     const user = this.rootStore.userStore.user;
 
-    if (!user) return undefined;
+    if (!user) return formattingTagFor(DEFAULT_LOCALE);
 
     const locale = user.formattingLocale;
 
     return isFormattingLocale(locale) ? formattingTagFor(locale) : undefined;
+  }
+
+  get resolvedFormattingLanguageTag(): string {
+    const explicitOrDefault = this.formattingLocale;
+    if (explicitOrDefault) return explicitOrDefault;
+    return typeof navigator === "undefined" ? formattingTagFor(DEFAULT_LOCALE) : navigator.language;
   }
 
   get use12Hour(): boolean {
@@ -95,7 +102,19 @@ export class IntlStore {
       maximumFractionDigits: options?.maximumFractionDigits ?? numberFormatOptions.maximumFractionDigits,
     };
 
-    return new Intl.NumberFormat(this.formattingLocale, formatOptions).format(value);
+    return formatLocalizedNumber(value, this.formattingLocale, formatOptions);
+  }
+
+  formatNumberForEditing(value: number | undefined, locale = this.formattingLocale): string {
+    return formatLocalizedNumber(value, locale, { maximumFractionDigits: 20, useGrouping: false });
+  }
+
+  parseNumber(value: string, locale = this.formattingLocale): number | undefined {
+    return parseLocalizedNumber(value, locale);
+  }
+
+  get collator(): Intl.Collator {
+    return new Intl.Collator(this.formattingLocale);
   }
 
   formatNumericalLongDate(date: Date | undefined): string {

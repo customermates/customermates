@@ -1,10 +1,10 @@
 {
   "AccountsRemovedNotice": {
-    "body": "Ihr Plan wurde auf {plan} umgestellt. Um das Limit Ihres Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Ihre Nachrichten und Kontakte sind weiterhin vorhanden. Eine erneute Verbindung ist jederzeit auf der Seite „Verbundene Konten“ möglich.",
+    "body": "Dein Plan wurde auf {plan} umgestellt. Um das Limit deines Plans einzuhalten, habe ich die erforderliche Anzahl verbundener Konten entfernt: {accounts}. Deine Nachrichten und Kontakte sind weiterhin vorhanden. Du kannst die Konten jederzeit auf der Seite „Verbundene Konten“ erneut verbinden.",
     "cta": "Verbundene Konten ansehen",
     "greeting": "Hallo {firstName},",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Einige Ihrer verbundenen Konten wurden entfernt",
+    "subject": "Einige deiner verbundenen Konten wurden entfernt",
     "title": "Verbundene Konten entfernt"
   },
   "AgplGithubBadge": {
@@ -88,6 +88,7 @@
   },
   "BrowserFrame": {
     "live": "live",
+    "liveDemoTitle": "Customermates-Live-Demo",
     "open": "Öffnen"
   },
   "Common": {
@@ -97,6 +98,7 @@
       "back": "Zurück",
       "cancel": "Abbrechen",
       "clear": "Leeren",
+      "close": "Schließen",
       "contact": "Kontakt",
       "continueSetup": "Einrichtung fortsetzen",
       "copy": "In die Zwischenablage kopieren",
@@ -108,16 +110,21 @@
       "labelHistory": "Verlauf",
       "labelNotes": "Notizen",
       "loadMore": "Mehr laden",
+      "open": "Öffnen",
       "openApp": "App öffnen",
       "openList": "Liste öffnen",
       "refresh": "Aktualisieren",
+      "remove": "Entfernen",
       "reset": "Zurücksetzen",
       "save": "Speichern",
       "signIn": "Login"
     },
     "ariaLabels": {
+      "breadcrumb": "Brotkrümelnavigation",
       "collapseSearch": "Suche einklappen",
+      "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
+      "showPassword": "Passwort anzeigen",
       "switchToCardView": "Zur Kartenansicht wechseln",
       "switchToKanbanView": "Zur Kanban-Ansicht wechseln",
       "switchToKanbanViewDisabled": "Füge ein Einzelauswahl-Feld hinzu, um die Kanban-Ansicht zu aktivieren",
@@ -199,6 +206,7 @@
       "messageWithName": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "title": "Löschung bestätigen"
     },
+    "details": "Details",
     "email": "E-Mail",
     "emptyState": {
       "body": "Füge deinen ersten Datensatz vom Typ „{singular}“ hinzu, um loszulegen.",
@@ -247,6 +255,7 @@
       "generic": "Ein Fehler ist aufgetreten.",
       "inmailSignatureRequired": "Füge eine Signatur für die Recruiter-InMail hinzu.",
       "inmailSubjectRequired": "Füge einen Betreff für die InMail hinzu.",
+      "invalidCallbackUrl": "Der Anmeldelink ist ungültig. Bitte versuche es erneut.",
       "invalidChannelValue": "Das ist keine gültige E-Mail-Adresse, keine Telefonnummer und kein gültiges Handle.",
       "invalidCredentials": "Ungültige E-Mail-Adresse oder ungültiges Passwort.",
       "invalidFilterField": "Filterfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
@@ -451,6 +460,9 @@
       "confirmPassword": "Passwort bestätigen",
       "country": "Land",
       "currency": "Währung",
+      "datePlaceholder": "Datum auswählen",
+      "dateRangePlaceholder": "Zeitraum auswählen",
+      "defaultOption": "Option {number}",
       "description": "Beschreibung",
       "displayLanguage": "Anzeigesprache",
       "displayOptions": {
@@ -505,6 +517,7 @@
       "message": "Du hast nicht gespeicherte Änderungen. \nMöchtest du diese Seite wirklich verlassen? \nDeine Änderungen gehen verloren.",
       "title": "Nicht gespeicherte Änderungen"
     },
+    "never": "Nie",
     "none": "Keine",
     "notifications": {
       "copiedToClipboard": "{value} in die Zwischenablage kopiert",
@@ -522,6 +535,11 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Zeigt die mobile Seitenleiste an.",
+      "title": "Seitenleiste",
+      "toggle": "Seitenleiste ein-/ausblenden"
     },
     "sort": {
       "ascending": "Aufsteigend",
@@ -614,6 +632,14 @@
     "activeUserWarning": "Du kannst dein eigenes Benutzerkonto in deinen <settingsLink>Einstellungen</settingsLink> bearbeiten.",
     "title": "Benutzer"
   },
+  "ComparePage": {
+    "alternativeTitle": "Alternative zu {competitor}",
+    "tags": {
+      "alternative": "Alternative",
+      "comparison": "Vergleich",
+      "review": "Bewertung"
+    }
+  },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Business umfasst 3 verbundene Konten pro Nutzer. Kontaktiere uns für unbegrenzte Konten im Enterprise-Tarif.",
     "alreadyExistsToastDescription": "Dieses Konto wurde bereits von einem Mitglied deines Workspace verbunden. Bitte sie oder ihn, es mit dem Workspace zu teilen, damit im Posteingang keine doppelten Nachrichten erscheinen.",
@@ -693,6 +719,7 @@
     "calendarCancelled": "Abgesagt",
     "calendarJoinMeeting": "Meeting beitreten",
     "calendarMeeting": "Termin",
+    "calendarNoTitle": "Termin ohne Titel",
     "calendarResponseMaybe": "Vielleicht",
     "calendarResponseNo": "Abgelehnt",
     "calendarResponseNoreply": "Keine Antwort",
@@ -758,6 +785,16 @@
     },
     "widget": "Diagramm"
   },
+  "DataView": {
+    "dragToReorder": "Zum Neuanordnen ziehen",
+    "editColumn": "Spalte bearbeiten",
+    "noValue": "Kein Wert",
+    "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
+    "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken, doppeltippen oder die Eingabetaste drücken.",
+    "selectAllRows": "Alle Zeilen auswählen",
+    "selectGroupingColumn": "Wähle eine Gruppierungsspalte aus, um die Kanban-Ansicht anzuzeigen.",
+    "selectRow": "Zeile {id} auswählen"
+  },
   "DealModal": {
     "noServicesAdded": "Noch keine {entity} hinzugefügt",
     "quantityLabel": "Anzahl",
@@ -789,6 +826,11 @@
     "open": "Öffnen",
     "openInChatGPT": "In ChatGPT öffnen",
     "openInClaude": "In Claude öffnen",
+    "status": {
+      "available": "Verfügbar",
+      "partial": "Teilweise verfügbar",
+      "unavailable": "Nicht verfügbar"
+    },
     "viewAsMarkdown": "Als Markdown ansehen"
   },
   "DocsSidebar": {
@@ -820,19 +862,23 @@
   },
   "Editor": {
     "blockQuote": "Blockzitat",
+    "bold": "Fett",
     "bulletList": "Aufzählungsliste",
+    "code": "Code",
     "confirm": "Link anwenden",
     "divider": "Trennlinie",
     "heading1": "Überschrift 1",
     "heading2": "Überschrift 2",
     "image": "Bild",
     "imageUrlPrompt": "Bild-URL eingeben",
+    "italic": "Kursiv",
     "link": "Link",
     "noResults": "Keine Ergebnisse",
     "normalText": "Normaler Text",
     "numberedList": "Nummerierte Liste",
     "placeholder": "Gib '/' für Befehle ein...",
     "removeLink": "Link entfernen",
+    "strikethrough": "Durchgestrichen",
     "table": "Tabelle",
     "tableAddColumn": "Spalte hinzufügen",
     "tableAddRow": "Zeile hinzufügen",
@@ -840,7 +886,11 @@
     "tableDeleteColumn": "Spalte löschen",
     "tableDeleteRow": "Zeile löschen",
     "taskList": "Aufgabenliste",
+    "underline": "Unterstrichen",
     "urlPlaceholder": "URL eingeben..."
+  },
+  "EmailLayout": {
+    "tagline": "Das agentische Open-Source-CRM"
   },
   "EmailVerification": {
     "notVerified": "E-Mail nicht verifiziert",
@@ -1036,6 +1086,8 @@
     "compareViewAll": "Alle Vergleiche ansehen",
     "copyrightText": "© {year} Customermates. Alle Rechte vorbehalten.",
     "dpa": "AVV",
+    "featuredOn": "Vorgestellt auf",
+    "featuredOnPlatform": "Vorgestellt auf {platform}",
     "features": "Features",
     "featuresViewAll": "Alle Features ansehen",
     "helpAndFeedback": "Hilfe",
@@ -1044,6 +1096,7 @@
     "privacy": "Datenschutz",
     "product": "Produkt",
     "resources": "Ressourcen",
+    "reviewsOnPlatform": "Customermates-Bewertungen auf {platform}",
     "solutions": "Lösungen",
     "solutionsViewAll": "Alle Branchen ansehen",
     "subprocessors": "Unterauftragsverarbeiter",
@@ -1219,6 +1272,11 @@
       "unread": "Ungelesen"
     },
     "unlinkedParticipants": "Einige Teilnehmer sind nicht mit einem Kontakt verknüpft",
+    "voice": {
+      "pause": "Pausieren",
+      "play": "Abspielen",
+      "seek": "Wiedergabeposition ändern"
+    },
     "youPrefix": "Du:"
   },
   "LegalDocumentNotice": {
@@ -1293,6 +1351,9 @@
     "cta": "Tarif upgraden",
     "description": "Messaging ist ab dem Pro-Tarif verfügbar. Mit einem Upgrade verbindest du einen Kanal und nutzt den zentralen Posteingang.",
     "title": "Upgrade nötig, um Messaging freizuschalten"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Customermates-CRM-Automatisierungsworkflow mit n8n-Integration"
   },
   "NavigationBar": {
     "addEntity": "{entity} hinzufügen",
@@ -1516,6 +1577,16 @@
     "switchToSignIn": "Bereits ein Konto? <signInLink>Anmelden</signInLink>",
     "title": "Customermates-Konto erstellen"
   },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "Alle Features",
+      "blog": "Blog",
+      "compare": "Vergleich",
+      "features": "Features",
+      "home": "Startseite",
+      "industries": "Branchen"
+    }
+  },
   "Subscription": {
     "currentPeriodEnd": "Ende des aktuellen Abrechnungszeitraums",
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
@@ -1570,13 +1641,13 @@
     "title": "Abonnement erforderlich"
   },
   "SubscriptionInactivationNotice": {
-    "body": "Ihr Konto ist jetzt inaktiv, weil Ihr Abonnement seit mehr als 3 Tagen unbezahlt oder abgelaufen ist. Wenn Sie weitermachen möchten, helfe ich Ihnen gerne dabei, den Zugang schnell wiederherzustellen.",
+    "body": "Dein Konto ist jetzt inaktiv, weil dein Abonnement seit mehr als 3 Tagen unbezahlt oder abgelaufen ist. Wenn du weitermachen möchtest, helfe ich dir gerne dabei, den Zugang schnell wiederherzustellen.",
     "cta": "Kontakt aufnehmen",
-    "dismiss": "Falls diese E-Mail Sie gerade zu einem ungünstigen Zeitpunkt erreicht, antworten Sie einfach später und ich helfe Ihnen bei den nächsten Schritten.",
+    "dismiss": "Falls dich diese E-Mail gerade zu einem ungünstigen Zeitpunkt erreicht, antworte einfach später und ich helfe dir bei den nächsten Schritten.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Ihr Konto ist inaktiv - wir helfen bei der Wiederherstellung",
+    "subject": "Dein Konto ist inaktiv – wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
   },
   "TaskModal": {
@@ -1586,42 +1657,42 @@
     "systemTaskTooltip": "Vom System verwaltet: {task}. Der Eintrag kann nicht manuell gelöscht werden. Öffne ihn für weitere Informationen."
   },
   "TrialExpiredOffer": {
-    "body": "Ihre Testphase ist vor Kurzem abgelaufen, aber ich helfe Ihnen gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn Sie möchten, verlängere ich Ihre Testphase und gehe Ihr Setup gemeinsam mit Ihnen Schritt für Schritt durch.",
+    "body": "Deine Testphase ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich deine Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",
     "cta": "Kontakt aufnehmen",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Mehr Zeit nötig? Wir machen gemeinsam weiter",
     "title": "Angebot zur Testverlängerung"
   },
   "TrialInactivationNotice": {
-    "body": "Ihr Konto ist jetzt inaktiv, weil Ihr Testzeitraum vor mehr als 6 Tagen abgelaufen ist. Wenn Sie doch noch weitermachen möchten, helfe ich Ihnen gerne bei der schnellen Reaktivierung und begleite Sie bei den nächsten Schritten.",
+    "body": "Dein Konto ist jetzt inaktiv, weil dein Testzeitraum vor mehr als 6 Tagen abgelaufen ist. Wenn du doch noch weitermachen möchtest, helfe ich dir gerne bei der schnellen Reaktivierung und begleite dich bei den nächsten Schritten.",
     "cta": "Kontakt aufnehmen",
-    "dismiss": "Falls es gerade nicht passt, kein Problem. Sie können jederzeit zurückkommen und ich helfe Ihnen persönlich.",
+    "dismiss": "Falls es gerade nicht passt, kein Problem. Du kannst jederzeit zurückkommen und ich helfe dir persönlich.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Ihr Konto ist inaktiv – wir helfen Ihnen beim Wiedereinstieg",
+    "subject": "Dein Konto ist inaktiv – wir helfen dir beim Wiedereinstieg",
     "title": "Konto inaktiv gesetzt"
   },
   "TrialInactivationReminder": {
-    "body": "Ihr Testzeitraum ist vor einigen Tagen abgelaufen und Ihr Konto wird in 3 Tagen inaktiv. Wenn Sie möchten, unterstütze ich Sie kurz beim Setup, damit alles aktiv bleibt.",
+    "body": "Dein Testzeitraum ist vor einigen Tagen abgelaufen und dein Konto wird in 3 Tagen inaktiv. Wenn du möchtest, unterstütze ich dich kurz beim Setup, damit alles aktiv bleibt.",
     "cta": "Kontakt aufnehmen",
-    "dismiss": "Wenn Sie Ihr Konto nicht mehr benötigen, ist keine Aktion erforderlich.",
+    "dismiss": "Wenn du dein Konto nicht mehr benötigst, ist keine Aktion erforderlich.",
     "greeting": "Hallo {firstName},",
-    "scheduleFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein: ",
+    "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
-    "subject": "Noch 3 Tage bis zur Inaktivierung Ihres Kontos",
+    "subject": "Noch 3 Tage bis zur Inaktivierung deines Kontos",
     "title": "Erinnerung zur Inaktivierung"
   },
   "TrialWelcome": {
-    "body": "Schön, dass Sie da sind. Ich bin Ben, Gründer von Customermates, und helfe Ihnen gerne dabei, schnell loszulegen und die ersten Schritte so einfach wie möglich zu machen.",
-    "dismiss": "Wenn Sie Fragen oder Interesse an einem persönlichen Gespräch haben, antworten Sie einfach auf diese E-Mail. Sie landet direkt in meinem Postfach.",
+    "body": "Schön, dass du da bist. Ich bin Ben, Gründer von Customermates, und helfe dir gerne dabei, schnell loszulegen und die ersten Schritte so einfach wie möglich zu machen.",
+    "dismiss": "Wenn du Fragen oder Interesse an einem persönlichen Gespräch hast, antworte einfach auf diese E-Mail. Deine Antwort landet direkt in meinem Postfach.",
     "greeting": "Hallo {firstName},",
-    "planNote": "Ihre Testphase umfasst alle Funktionen des Pro-Tarifs, sodass Sie die komplette Messaging-Erfahrung von Anfang an testen können.",
+    "planNote": "Deine Testphase umfasst alle Funktionen des Pro-Tarifs, sodass du die komplette Messaging-Erfahrung von Anfang an testen kannst.",
     "signoff": "Viele Grüße\nBen",
     "subject": "Willkommen bei Customermates",
-    "title": "Willkommen in Ihrer Testphase"
+    "title": "Willkommen in deiner Testphase"
   },
   "UserAvatar": {
     "company": "Mein Unternehmen",

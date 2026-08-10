@@ -17,10 +17,15 @@ const spinnerVariants = cva("animate-spin", {
   },
 });
 
-function Spinner({ className, size, ...props }: React.ComponentProps<"svg"> & VariantProps<typeof spinnerVariants>) {
+function Spinner({
+  className,
+  size,
+  "aria-label": ariaLabel,
+  ...props
+}: React.ComponentProps<"svg"> & VariantProps<typeof spinnerVariants> & { "aria-label": string }) {
   return (
     <Loader2Icon
-      aria-label="Loading"
+      aria-label={ariaLabel}
       className={cn(spinnerVariants({ size }), className)}
       data-slot="spinner"
       role="status"

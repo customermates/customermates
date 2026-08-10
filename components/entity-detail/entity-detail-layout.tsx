@@ -204,7 +204,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
   if (showLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Spinner size="lg" />
+        <Spinner aria-label={t("Loading.text")} size="lg" />
       </div>
     );
   }

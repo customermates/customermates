@@ -136,6 +136,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           emailVerified={emailVerified}
           firstName={savedState.firstName || userDetails.firstName}
           lastName={savedState.lastName || userDetails.lastName}
+          roleIsSystemRole={userStore.user?.role?.isSystemRole ?? userDetails.roleIsSystemRole}
           roleName={userStore.user?.role?.name ?? userDetails.roleName ?? ""}
           status={userStore.user?.status ?? userDetails.status}
         />

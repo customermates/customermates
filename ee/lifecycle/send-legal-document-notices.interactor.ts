@@ -5,6 +5,7 @@ import type { Locale } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
 
 import LegalDocumentNotice from "@/components/emails/legal-document-notice";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import {
   CONTRACT_LEGAL_DOCUMENTS,
@@ -271,6 +272,7 @@ export class SendLegalDocumentNoticesInteractor {
 
   private async buildEmail(plan: LegalNoticePlan, locale: AppLocale, formattingTag: string) {
     const t = await getTranslator(locale, "LegalDocumentNotice");
+    const layoutCopy = await getEmailLayoutCopy(locale);
     const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
     const documents = plan.changedDocuments.map((document) => ({
       name: t(`documents.${document}`),
@@ -303,6 +305,7 @@ export class SendLegalDocumentNoticesInteractor {
         greeting: t("greeting", { firstName: plan.recipient.firstName }),
         liveLabel: t("liveLabel"),
         locale,
+        layoutCopy,
         objections,
         signoff: t("signoff"),
         subject,

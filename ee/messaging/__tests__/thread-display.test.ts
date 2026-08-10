@@ -3,7 +3,7 @@ import type { MessagingProvider, MessagingThreadType } from "@/generated/prisma"
 
 import { describe, expect, it } from "vitest";
 
-import { deriveThreadDisplay } from "../thread-display";
+import { deriveMessageSender, deriveThreadDisplay } from "../thread-display";
 
 const t = (key: string) => key;
 
@@ -161,5 +161,32 @@ describe("deriveThreadDisplay self-chat ownership", () => {
     });
 
     expect(view.displayName).toBe("Inbox.senderUnknown");
+  });
+});
+
+describe("deriveMessageSender owner fallback", () => {
+  const message = {
+    direction: "outbound" as const,
+    provider: "google" as const,
+    sender: {
+      ...attendee(""),
+      displayName: null,
+      identifier: "",
+      isSelf: true,
+    },
+  };
+
+  it("uses the localized You label only for the current user's outbound message", () => {
+    const view = deriveMessageSender(message, { displayName: null, avatarUrl: null }, null, true, t);
+
+    expect(view.resolvedName).toBe("Inbox.senderYou");
+    expect(view.avatarName).toBe("Inbox.senderUnknown");
+  });
+
+  it("uses the localized unknown label for a shared account with no owner name", () => {
+    const view = deriveMessageSender(message, { displayName: null, avatarUrl: null }, null, false, t);
+
+    expect(view.resolvedName).toBe("Inbox.senderUnknown");
+    expect(view.avatarName).toBe("Inbox.senderUnknown");
   });
 });

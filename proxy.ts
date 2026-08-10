@@ -23,8 +23,10 @@ const intlContentMiddleware = createMiddleware(contentRouting);
 
 const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
 
-function negotiateLocale(req: NextRequest, base: string | URL) {
-  if (!isContentPage(req)) {
+function negotiateLocale(req: NextRequest, base: string | URL, domain: "app" | "auto" = "auto") {
+  const useContentLocale = domain === "auto" && isContentPage(req);
+
+  if (!useContentLocale) {
     const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
     if (isAppLocale(preferredLocale)) {
       const target = new URL(
@@ -38,7 +40,7 @@ function negotiateLocale(req: NextRequest, base: string | URL) {
     }
   }
 
-  const negotiateOverLocalesThatCanServeIt = isContentPage(req) ? intlContentMiddleware : intlAppMiddleware;
+  const negotiateOverLocalesThatCanServeIt = useContentLocale ? intlContentMiddleware : intlAppMiddleware;
   const response = negotiateOverLocalesThatCanServeIt(req);
   if (response.headers.has("location")) response.headers.set("vary", "accept-language, cookie");
   return response;
@@ -97,13 +99,6 @@ export default async function proxy(req: NextRequest) {
 
   if (isApiRoute) return NextResponse.next();
 
-  const currentLocale = routingLocaleFromPathname(pathname);
-
-  if (currentLocale === null) {
-    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
-    return negotiateLocale(req, base);
-  }
-
   let session;
   let isAuthenticated = false;
 
@@ -116,6 +111,13 @@ export default async function proxy(req: NextRequest) {
     } catch {
       isAuthenticated = false;
     }
+  }
+
+  const currentLocale = routingLocaleFromPathname(pathname);
+
+  if (currentLocale === null) {
+    if (isUnsupportedLocalePrefix(pathname)) return NextResponse.next();
+    return negotiateLocale(req, base, isAuthenticated && pathname === "/" ? "app" : "auto");
   }
 
   if (env.APP_MODE === "demo") {
@@ -146,7 +148,14 @@ export default async function proxy(req: NextRequest) {
 
   const isLocaleRootPage = pathname === `/${currentLocale}`;
 
-  if (isAuthenticated && isLocaleRootPage) return NextResponse.redirect(new URL(`${pathname}/dashboard`, base));
+  if (isAuthenticated && isLocaleRootPage) {
+    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+    const target = isAppLocale(preferredLocale)
+      ? new URL(`/${preferredLocale}/dashboard`, base)
+      : new URL("/dashboard", base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
 
   if (isContentPage(req)) {
     if (!isContentLocale(currentLocale)) {
@@ -161,12 +170,22 @@ export default async function proxy(req: NextRequest) {
 
   if (!isAppLocale(currentLocale)) {
     const unprefixed = stripLocalePrefix(pathname);
-    const target = new URL(unprefixed === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${unprefixed}`, base);
+    const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+    const appLocale = isAppLocale(preferredLocale) ? preferredLocale : DEFAULT_LOCALE;
+    const target = new URL(unprefixed === "/" ? `/${appLocale}` : `/${appLocale}${unprefixed}`, base);
     target.search = req.nextUrl.search;
     return NextResponse.redirect(target);
   }
 
   if (isPublicPage(req)) return intlAppMiddleware(req);
+
+  const preferredLocale = req.cookies.get(APP_LOCALE_COOKIE_NAME)?.value;
+  if (isAuthenticated && isAppLocale(preferredLocale) && preferredLocale !== currentLocale) {
+    const unprefixed = stripLocalePrefix(pathname);
+    const target = new URL(unprefixed === "/" ? `/${preferredLocale}` : `/${preferredLocale}${unprefixed}`, base);
+    target.search = req.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
 
   if (!isAuthenticated) {
     const redirectLocale = currentLocale ?? DEFAULT_LOCALE;

@@ -5,6 +5,7 @@ import type { User } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 import TrialExpiredOffer from "@/components/emails/trial-expired-offer";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
@@ -31,12 +32,14 @@ export class SendTrialExtensionOfferInteractor {
       const locale = resolveUserLocale(user);
       const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "TrialExpiredOffer");
+      const layoutCopy = await getEmailLayoutCopy(locale);
 
       await this.emailService.send({
         to: user.email,
         subject: t("subject"),
         react: TrialExpiredOffer({
           locale,
+          layoutCopy,
           greeting: t("greeting", { firstName: user.firstName }),
           body: t("body"),
           cta: t("cta"),

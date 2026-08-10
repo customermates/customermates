@@ -120,7 +120,7 @@ export const DocsSidebar = observer(() => {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Customermates</span>
 
-                  <span className="truncate text-xs text-muted-foreground">Documentation</span>
+                  <span className="truncate text-xs text-muted-foreground">{t("NavigationBar.docs")}</span>
                 </div>
               </IntlLink>
             </SidebarMenuButton>

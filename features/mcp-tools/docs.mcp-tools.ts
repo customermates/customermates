@@ -129,7 +129,7 @@ export function searchDocsRaw(
     .flatMap((s) => buildIndex(s, locale))
     .map((entry) => ({ entry, score: scoreEntry(entry, tokens, phrase) }))
     .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score || a.entry.slug.localeCompare(b.entry.slug));
+    .sort((a, b) => b.score - a.score || (a.entry.slug < b.entry.slug ? -1 : a.entry.slug > b.entry.slug ? 1 : 0));
 
   const results = scored.slice(0, 5).map(({ entry }) => ({
     slug: entry.slug,

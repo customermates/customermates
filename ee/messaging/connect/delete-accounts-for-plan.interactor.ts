@@ -3,6 +3,7 @@ import type { EmailService } from "@/features/email/email.service";
 import type { Locale, MessagingProvider, SubscriptionPlan } from "@/generated/prisma";
 
 import AccountsRemovedNotice from "@/components/emails/accounts-removed-notice";
+import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { getTranslator } from "@/i18n/get-translator";
@@ -73,25 +74,35 @@ export class DeleteAccountsForPlanInteractor {
     const admins = await this.userRepo.findCompanyAdminsUnscoped(companyId);
     if (admins.length === 0) return;
 
-    const accountsLabel = removedAccounts
-      .map((account) => `${account.provider} (${account.displayName ?? account.emailAddress ?? account.id})`)
-      .join(", ");
     for (const admin of admins) {
       const locale = resolveUserLocale(admin);
       const href = `${env.BASE_URL}/profile/connected-accounts`;
-      const t = await getTranslator(locale, "AccountsRemovedNotice");
+      const t = await getTranslator(locale);
+      const layoutCopy = await getEmailLayoutCopy(locale);
+      const accountsLabel = removedAccounts
+        .map(
+          (account) =>
+            `${t(`Common.providers.${account.provider}`)} (${account.displayName ?? account.emailAddress ?? account.id})`,
+        )
+        .join(", ");
 
       await this.emailService.send({
         to: admin.email,
-        subject: t("subject"),
+        subject: t("AccountsRemovedNotice.subject"),
         react: AccountsRemovedNotice({
           locale,
-          greeting: t("greeting", { firstName: admin.firstName }),
-          body: t("body", { accounts: accountsLabel, plan: plan.charAt(0).toUpperCase() + plan.slice(1) }),
-          cta: t("cta"),
-          signoff: t("signoff"),
-          subject: t("subject"),
-          title: t("title"),
+          layoutCopy,
+          greeting: t("AccountsRemovedNotice.greeting", {
+            firstName: admin.firstName,
+          }),
+          body: t("AccountsRemovedNotice.body", {
+            accounts: accountsLabel,
+            plan: t(`Subscription.planNames.${plan}`),
+          }),
+          cta: t("AccountsRemovedNotice.cta"),
+          signoff: t("AccountsRemovedNotice.signoff"),
+          subject: t("AccountsRemovedNotice.subject"),
+          title: t("AccountsRemovedNotice.title"),
           href,
         }),
       });

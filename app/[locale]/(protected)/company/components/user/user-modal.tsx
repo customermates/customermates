@@ -20,6 +20,7 @@ import { USER_STATUS_OPTIONS } from "@/constants/user-statuses";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppLink } from "@/components/shared/app-link";
 import { Alert } from "@/components/shared/alert";
+import { roleDisplayName } from "@/features/role/role-display-name";
 
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
@@ -54,7 +55,10 @@ export const CompanyUserModal = observer(() => {
             <FormSelect
               required
               id="roleId"
-              items={rolesStore.items.map((item) => ({ value: item.id, label: item.name }))}
+              items={rolesStore.items.map((item) => ({
+                value: item.id,
+                label: roleDisplayName(item, t("RoleModal.systemName")),
+              }))}
             />
 
             <FormInput description={t("Common.avatarUrlDescription")} id="avatarUrl" />

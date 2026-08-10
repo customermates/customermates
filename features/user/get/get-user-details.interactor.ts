@@ -29,6 +29,7 @@ export const UserDetailsDtoSchema = z.object({
   formattingLocale: z.enum([firstFormattingLocale, ...otherFormattingLocales]),
   roleId: z.string().nullable(),
   roleName: z.string().nullable(),
+  roleIsSystemRole: z.boolean(),
 });
 
 export type UserDetails = z.infer<typeof UserDetailsDtoSchema>;
@@ -75,6 +76,7 @@ export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, User
         formattingLocale: normalizeStoredFormattingLocale(formattingLocale),
         roleId,
         roleName: role?.name ?? null,
+        roleIsSystemRole: role?.isSystemRole ?? false,
       },
     };
   }

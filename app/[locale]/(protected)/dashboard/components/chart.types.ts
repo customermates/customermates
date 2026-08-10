@@ -1,6 +1,6 @@
-import type { DiagramDataPoint } from "@/features/widget/widget.schema";
-
-export type ChartDataPoint = DiagramDataPoint & {
+export type ChartDataPoint = {
+  label: string;
+  value: number;
   fill: string;
   color: string;
   labelColor: string;

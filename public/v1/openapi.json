@@ -26787,6 +26787,9 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "roleIsSystemRole": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -26801,7 +26804,8 @@
                     "displayLanguage",
                     "formattingLocale",
                     "roleId",
-                    "roleName"
+                    "roleName",
+                    "roleIsSystemRole"
                   ],
                   "additionalProperties": false
                 }
@@ -51809,7 +51813,14 @@
               "type": "object",
               "properties": {
                 "displayName": {
-                  "type": "string"
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "accountLabel": {
                   "anyOf": [

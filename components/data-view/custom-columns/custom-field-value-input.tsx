@@ -2,6 +2,7 @@ import type { CustomColumnDto } from "@/features/custom-column/custom-column.sch
 
 import { Pencil } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
 import { CustomFieldEditor } from "./custom-field-editor";
 
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export const CustomFieldValueInput = observer(({ isEditing, column, index }: Props) => {
+  const t = useTranslations();
   const store = useAppForm();
   const { customColumnModalStore } = useRootStore();
 
@@ -54,7 +56,7 @@ export const CustomFieldValueInput = observer(({ isEditing, column, index }: Pro
         </div>
 
         <Button
-          aria-label="Edit column"
+          aria-label={t("DataView.editColumn")}
           className="size-9 shrink-0"
           size="icon"
           type="button"

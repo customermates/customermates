@@ -1,6 +1,6 @@
 {
   "AccountsRemovedNotice": {
-    "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez les reconnecter à tout moment depuis la page de vos comptes connectés.",
+    "body": "Votre formule est passée à {plan}, j'ai donc supprimé le ou les comptes connectés suivants afin de respecter la limite de votre formule : {accounts}. Vos messages et vos contacts sont toujours là. Vous pouvez reconnecter ces comptes à tout moment depuis la page de vos comptes connectés.",
     "cta": "Voir les comptes connectés",
     "greeting": "Bonjour {firstName},",
     "signoff": "Cordialement,\nBen",
@@ -88,6 +88,7 @@
   },
   "BrowserFrame": {
     "live": "en direct",
+    "liveDemoTitle": "Démo en direct de Customermates",
     "open": "Ouvrir"
   },
   "Common": {
@@ -97,6 +98,7 @@
       "back": "Retour",
       "cancel": "Annuler",
       "clear": "Effacer",
+      "close": "Fermer",
       "contact": "Contacter",
       "continueSetup": "Poursuivre la configuration",
       "copy": "Copier dans le presse-papiers",
@@ -108,16 +110,21 @@
       "labelHistory": "Historique",
       "labelNotes": "Notes",
       "loadMore": "Charger plus",
+      "open": "Ouvrir",
       "openApp": "Ouvrir l'application",
       "openList": "Ouvrir la liste",
       "refresh": "Actualiser",
+      "remove": "Retirer",
       "reset": "Réinitialiser",
       "save": "Enregistrer",
       "signIn": "Connexion"
     },
     "ariaLabels": {
+      "breadcrumb": "Fil d’Ariane",
       "collapseSearch": "Réduire la recherche",
+      "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
+      "showPassword": "Afficher le mot de passe",
       "switchToCardView": "Passer à la vue cartes",
       "switchToKanbanView": "Passer à la vue kanban",
       "switchToKanbanViewDisabled": "Ajoutez un champ personnalisé à choix unique pour activer la vue kanban",
@@ -199,6 +206,7 @@
       "messageWithName": "Voulez-vous vraiment supprimer \"{name}\" ? Cette action est irréversible.",
       "title": "Confirmer la suppression"
     },
+    "details": "Détails",
     "email": "E-mail",
     "emptyState": {
       "body": "Commencez par ajouter votre premier élément « {singular} ».",
@@ -247,6 +255,7 @@
       "generic": "Une erreur est survenue.",
       "inmailSignatureRequired": "Ajoutez une signature pour l'InMail Recruiter.",
       "inmailSubjectRequired": "Ajoutez un objet pour l'InMail.",
+      "invalidCallbackUrl": "Le lien de connexion n’est pas valide. Veuillez réessayer.",
       "invalidChannelValue": "Ce n'est pas une adresse e-mail, un numéro de téléphone ou un identifiant valide.",
       "invalidCredentials": "Adresse e-mail ou mot de passe invalide.",
       "invalidFilterField": "Champ de filtre introuvable ou inaccessible. Champs disponibles : {validValues}.",
@@ -451,6 +460,9 @@
       "confirmPassword": "Confirmer le mot de passe",
       "country": "Pays",
       "currency": "Devise",
+      "datePlaceholder": "Choisir une date",
+      "dateRangePlaceholder": "Choisir une période",
+      "defaultOption": "Option {number}",
       "description": "Description",
       "displayLanguage": "Langue d'affichage",
       "displayOptions": {
@@ -505,6 +517,7 @@
       "message": "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter cette page ? Vos modifications seront perdues.",
       "title": "Modifications non enregistrées"
     },
+    "never": "Jamais",
     "none": "Aucun",
     "notifications": {
       "copiedToClipboard": "{value} copié dans le presse-papiers",
@@ -522,6 +535,11 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Affiche la barre latérale mobile.",
+      "title": "Barre latérale",
+      "toggle": "Afficher ou masquer la barre latérale"
     },
     "sort": {
       "ascending": "Croissant",
@@ -614,6 +632,14 @@
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
     "title": "Utilisateur"
   },
+  "ComparePage": {
+    "alternativeTitle": "Alternative à {competitor}",
+    "tags": {
+      "alternative": "Alternative",
+      "comparison": "Comparatif",
+      "review": "Avis"
+    }
+  },
   "ConnectedAccountsCard": {
     "accountLimitReached": "La formule Business inclut 3 comptes connectés par utilisateur. Contactez-nous au sujet de la formule Enterprise pour un nombre illimité de comptes.",
     "alreadyExistsToastDescription": "Ce compte est déjà connecté par un membre de votre espace de travail. Demandez-lui de le partager avec l'espace de travail pour éviter les messages en double dans la boîte de réception.",
@@ -693,6 +719,7 @@
     "calendarCancelled": "Annulé",
     "calendarJoinMeeting": "Rejoindre la réunion",
     "calendarMeeting": "Réunion",
+    "calendarNoTitle": "Événement sans titre",
     "calendarResponseMaybe": "Peut-être",
     "calendarResponseNo": "Refusé",
     "calendarResponseNoreply": "Sans réponse",
@@ -758,6 +785,16 @@
     },
     "widget": "Graphique"
   },
+  "DataView": {
+    "dragToReorder": "Faire glisser pour réorganiser",
+    "editColumn": "Modifier la colonne",
+    "noValue": "Aucune valeur",
+    "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
+    "resizeHint": "Faites glisser pour redimensionner. Double-cliquez, touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
+    "selectAllRows": "Sélectionner toutes les lignes",
+    "selectGroupingColumn": "Sélectionnez une colonne de regroupement pour afficher la vue kanban.",
+    "selectRow": "Sélectionner la ligne {id}"
+  },
   "DealModal": {
     "noServicesAdded": "Aucun élément « {entity} » ajouté pour le moment",
     "quantityLabel": "Quantité",
@@ -789,6 +826,11 @@
     "open": "Ouvrir",
     "openInChatGPT": "Ouvrir dans ChatGPT",
     "openInClaude": "Ouvrir dans Claude",
+    "status": {
+      "available": "Disponible",
+      "partial": "Partiellement disponible",
+      "unavailable": "Indisponible"
+    },
     "viewAsMarkdown": "Afficher en Markdown"
   },
   "DocsSidebar": {
@@ -820,19 +862,23 @@
   },
   "Editor": {
     "blockQuote": "Citation",
+    "bold": "Gras",
     "bulletList": "Liste à puces",
+    "code": "Code",
     "confirm": "Appliquer le lien",
     "divider": "Séparateur",
     "heading1": "Titre 1",
     "heading2": "Titre 2",
     "image": "Image",
     "imageUrlPrompt": "Saisissez l'URL de l'image",
+    "italic": "Italique",
     "link": "Lien",
     "noResults": "Aucun résultat",
     "normalText": "Texte normal",
     "numberedList": "Liste numérotée",
     "placeholder": "Tapez '/' pour les commandes...",
     "removeLink": "Supprimer le lien",
+    "strikethrough": "Barré",
     "table": "Tableau",
     "tableAddColumn": "Ajouter une colonne",
     "tableAddRow": "Ajouter une ligne",
@@ -840,7 +886,11 @@
     "tableDeleteColumn": "Supprimer la colonne",
     "tableDeleteRow": "Supprimer la ligne",
     "taskList": "Liste de tâches",
+    "underline": "Souligné",
     "urlPlaceholder": "Saisissez une URL..."
+  },
+  "EmailLayout": {
+    "tagline": "Le CRM agentique open source"
   },
   "EmailVerification": {
     "notVerified": "Adresse e-mail non vérifiée",
@@ -1036,6 +1086,8 @@
     "compareViewAll": "Voir tous les comparatifs",
     "copyrightText": "© {year} Customermates. Tous droits réservés.",
     "dpa": "DPA",
+    "featuredOn": "Présent sur",
+    "featuredOnPlatform": "Présent sur {platform}",
     "features": "Fonctionnalités",
     "featuresViewAll": "Voir toutes les fonctionnalités",
     "helpAndFeedback": "Aide",
@@ -1044,6 +1096,7 @@
     "privacy": "Confidentialité",
     "product": "Produit",
     "resources": "Ressources",
+    "reviewsOnPlatform": "Avis sur Customermates publiés sur {platform}",
     "solutions": "Solutions",
     "solutionsViewAll": "Voir tous les secteurs",
     "subprocessors": "Sous-traitants",
@@ -1219,6 +1272,11 @@
       "unread": "Non lue"
     },
     "unlinkedParticipants": "Certains participants ne sont pas liés à un contact",
+    "voice": {
+      "pause": "Mettre en pause",
+      "play": "Lire",
+      "seek": "Modifier la position de lecture"
+    },
     "youPrefix": "Vous :"
   },
   "LegalDocumentNotice": {
@@ -1293,6 +1351,9 @@
     "cta": "Passer à une formule supérieure",
     "description": "La messagerie est disponible à partir de la formule Pro. Passez à une formule supérieure pour connecter un canal et utiliser la boîte de réception unifiée.",
     "title": "Passez à une formule supérieure pour débloquer la messagerie"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Workflow d’automatisation du CRM Customermates avec intégration n8n"
   },
   "NavigationBar": {
     "addEntity": "Ajouter {entity}",
@@ -1516,6 +1577,16 @@
     "switchToSignIn": "Vous avez déjà un compte ? <signInLink>Connectez-vous</signInLink>",
     "title": "Créer un compte Customermates"
   },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "Toutes les fonctionnalités",
+      "blog": "Blog",
+      "compare": "Comparatifs",
+      "features": "Fonctionnalités",
+      "home": "Accueil",
+      "industries": "Secteurs"
+    }
+  },
   "Subscription": {
     "currentPeriodEnd": "Fin de la période en cours",
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
@@ -1603,7 +1674,7 @@
     "title": "Offre de prolongation d'essai"
   },
   "TrialInactivationNotice": {
-    "body": "Votre compte est désormais inactif car votre essai s'est terminé il y a plus de 6 jours. Si vous souhaitez toujours continuer, je peux vous aider à le réactiver rapidement et vous guider pour la suite.",
+    "body": "Votre compte est désormais inactif car votre essai s'est terminé il y a plus de 6 jours. Si vous souhaitez toujours continuer, je peux vous aider à réactiver rapidement votre compte et vous guider pour la suite.",
     "cta": "Prendre contact",
     "dismiss": "Si cet e-mail vous parvient à un mauvais moment, aucun problème. Vous pouvez revenir quand vous voulez et je vous aiderai personnellement.",
     "greeting": "Bonjour {firstName},",

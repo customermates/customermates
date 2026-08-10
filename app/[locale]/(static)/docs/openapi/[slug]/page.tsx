@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { cn } from "@/core/utils/cn";
 
 import { getDocMethod, getDocMethodColor, toLocaleRelativeHref } from "../../docs.utils";
@@ -8,13 +8,16 @@ import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { PageContainer } from "@/components/shared/page-container";
 import { AppLink } from "@/components/shared/app-link";
 import { AppChip } from "@/components/chip/app-chip";
+import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 export default async function OpenApiDocPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const locale = await getLocale();
+  const t = await getTranslations();
   const page = apiDocsSource.getPage([slug], locale);
+  const collator = new Intl.Collator(formattingTagFor(contentLocaleOrDefault(locale)));
   const apiDocs = [...apiDocsSource.getPages(locale)].sort((a, b) =>
-    (a.data.title ?? "").localeCompare(b.data.title ?? ""),
+    collator.compare(a.data.title ?? "", b.data.title ?? ""),
   );
 
   if (!page) notFound();
@@ -31,7 +34,7 @@ export default async function OpenApiDocPage({ params }: { params: Promise<{ slu
               className="block rounded-md px-2 py-1.5 transition-colors text-subdued hover:text-foreground hover:bg-muted no-underline"
               href="/docs/openapi"
             >
-              <span className="truncate text-sm">Overview</span>
+              <span className="truncate text-sm">{t("NavigationBar.overview")}</span>
             </AppLink>
 
             {apiDocs.map((doc) => {

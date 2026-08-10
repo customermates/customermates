@@ -1,13 +1,15 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailButton } from "@/components/emails/base/email-button";
 import { EmailLayout } from "@/components/emails/base/email-layout";
+import { DEFAULT_EMAIL_LAYOUT_COPY, type EmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
-import type { AppLocale } from "@/i18n/locale-registry";
+import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 type Props = {
   locale: AppLocale;
+  layoutCopy: EmailLayoutCopy;
   url: string;
   subject: string;
   intro: string;
@@ -16,9 +18,18 @@ type Props = {
   securityNotice: string;
 };
 
-export default function ResetPassword({ locale, url, subject, intro, cta, fallback, securityNotice }: Props) {
+export default function ResetPassword({
+  locale,
+  layoutCopy,
+  url,
+  subject,
+  intro,
+  cta,
+  fallback,
+  securityNotice,
+}: Props) {
   return (
-    <EmailLayout locale={locale} preview={subject} title={subject}>
+    <EmailLayout layoutCopy={layoutCopy} locale={locale} preview={subject} title={subject}>
       <EmailText>{intro}</EmailText>
 
       <EmailSection>
@@ -39,6 +50,8 @@ export default function ResetPassword({ locale, url, subject, intro, cta, fallba
 const t = enMessages.ResetPassword;
 
 ResetPassword.PreviewProps = {
+  layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+  locale: DEFAULT_LOCALE,
   url: "https://example.com/auth/reset?token=TEST",
   subject: t.subject,
   intro: t.intro,

@@ -88,6 +88,7 @@
   },
   "BrowserFrame": {
     "live": "live",
+    "liveDemoTitle": "Customermates live demo",
     "open": "Open"
   },
   "Common": {
@@ -97,6 +98,7 @@
       "back": "Back",
       "cancel": "Cancel",
       "clear": "Clear",
+      "close": "Close",
       "contact": "Contact",
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
@@ -108,16 +110,21 @@
       "labelHistory": "History",
       "labelNotes": "Notes",
       "loadMore": "Load more",
+      "open": "Open",
       "openApp": "Open app",
       "openList": "Open list",
       "refresh": "Refresh",
+      "remove": "Remove",
       "reset": "Reset",
       "save": "Save",
       "signIn": "Login"
     },
     "ariaLabels": {
+      "breadcrumb": "Breadcrumb",
       "collapseSearch": "Collapse search",
+      "hidePassword": "Hide password",
       "selectOption": "Select an option",
+      "showPassword": "Show password",
       "switchToCardView": "Switch to card view",
       "switchToKanbanView": "Switch to kanban view",
       "switchToKanbanViewDisabled": "Add a single-select custom field to enable kanban view",
@@ -199,6 +206,7 @@
       "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "title": "Confirm Deletion"
     },
+    "details": "Details",
     "email": "E-Mail",
     "emptyState": {
       "body": "Get started by adding your first {singular}.",
@@ -247,6 +255,7 @@
       "generic": "An error occurred.",
       "inmailSignatureRequired": "Add a signature for the Recruiter InMail.",
       "inmailSubjectRequired": "Add a subject for the InMail.",
+      "invalidCallbackUrl": "The sign-in link is invalid. Please try again.",
       "invalidChannelValue": "This isn't a valid email address, phone number, or handle.",
       "invalidCredentials": "Invalid email or password.",
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
@@ -451,6 +460,9 @@
       "confirmPassword": "Confirm Password",
       "country": "Country",
       "currency": "Currency",
+      "datePlaceholder": "Pick a date",
+      "dateRangePlaceholder": "Pick a range",
+      "defaultOption": "Option {number}",
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
@@ -505,6 +517,7 @@
       "message": "You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.",
       "title": "Unsaved Changes"
     },
+    "never": "Never",
     "none": "None",
     "notifications": {
       "copiedToClipboard": "{value} copied to clipboard",
@@ -522,6 +535,11 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Displays the mobile sidebar.",
+      "title": "Sidebar",
+      "toggle": "Toggle sidebar"
     },
     "sort": {
       "ascending": "Ascending",
@@ -614,6 +632,14 @@
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
     "title": "User"
   },
+  "ComparePage": {
+    "alternativeTitle": "{competitor} alternative",
+    "tags": {
+      "alternative": "Alternative",
+      "comparison": "Comparison",
+      "review": "Review"
+    }
+  },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Business includes 3 connected accounts per user. Contact us about Enterprise for unlimited accounts.",
     "alreadyExistsToastDescription": "This account is already connected by a member of your workspace. Ask them to share it with the workspace so the inbox does not show duplicate messages.",
@@ -693,6 +719,7 @@
     "calendarCancelled": "Cancelled",
     "calendarJoinMeeting": "Join meeting",
     "calendarMeeting": "Meeting",
+    "calendarNoTitle": "Untitled event",
     "calendarResponseMaybe": "Maybe",
     "calendarResponseNo": "Declined",
     "calendarResponseNoreply": "No reply",
@@ -758,6 +785,16 @@
     },
     "widget": "Chart"
   },
+  "DataView": {
+    "dragToReorder": "Drag to reorder",
+    "editColumn": "Edit column",
+    "noValue": "No value",
+    "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
+    "resizeHint": "Drag to resize. Double-click, double-tap, or press Enter to reset.",
+    "selectAllRows": "Select all rows",
+    "selectGroupingColumn": "Select a grouping column to see the Kanban view.",
+    "selectRow": "Select row {id}"
+  },
   "DealModal": {
     "noServicesAdded": "No {entity} added yet",
     "quantityLabel": "Quantity",
@@ -789,6 +826,11 @@
     "open": "Open",
     "openInChatGPT": "Open in ChatGPT",
     "openInClaude": "Open in Claude",
+    "status": {
+      "available": "Available",
+      "partial": "Partially available",
+      "unavailable": "Unavailable"
+    },
     "viewAsMarkdown": "View as Markdown"
   },
   "DocsSidebar": {
@@ -820,19 +862,23 @@
   },
   "Editor": {
     "blockQuote": "Block Quote",
+    "bold": "Bold",
     "bulletList": "Bullet List",
+    "code": "Code",
     "confirm": "Apply Link",
     "divider": "Divider",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
     "image": "Image",
     "imageUrlPrompt": "Enter image URL",
+    "italic": "Italic",
     "link": "Link",
     "noResults": "No results",
     "normalText": "Normal Text",
     "numberedList": "Numbered List",
     "placeholder": "Type '/' for commands...",
     "removeLink": "Remove Link",
+    "strikethrough": "Strikethrough",
     "table": "Table",
     "tableAddColumn": "Add column",
     "tableAddRow": "Add row",
@@ -840,7 +886,11 @@
     "tableDeleteColumn": "Delete column",
     "tableDeleteRow": "Delete row",
     "taskList": "Task List",
+    "underline": "Underline",
     "urlPlaceholder": "Enter URL..."
+  },
+  "EmailLayout": {
+    "tagline": "The agentic, open-source CRM"
   },
   "EmailVerification": {
     "notVerified": "Email not verified",
@@ -1036,6 +1086,8 @@
     "compareViewAll": "View all comparisons",
     "copyrightText": "© {year} Customermates. All rights reserved.",
     "dpa": "DPA",
+    "featuredOn": "Featured on",
+    "featuredOnPlatform": "Featured on {platform}",
     "features": "Features",
     "featuresViewAll": "View all features",
     "helpAndFeedback": "Help",
@@ -1044,6 +1096,7 @@
     "privacy": "Privacy",
     "product": "Product",
     "resources": "Resources",
+    "reviewsOnPlatform": "Customermates reviews on {platform}",
     "solutions": "Solutions",
     "solutionsViewAll": "View all industries",
     "subprocessors": "Subprocessors",
@@ -1219,6 +1272,11 @@
       "unread": "Unread"
     },
     "unlinkedParticipants": "Some participants not linked to a contact",
+    "voice": {
+      "pause": "Pause",
+      "play": "Play",
+      "seek": "Change playback position"
+    },
     "youPrefix": "You:"
   },
   "LegalDocumentNotice": {
@@ -1293,6 +1351,9 @@
     "cta": "Upgrade your plan",
     "description": "Messaging is available on the Pro plan and higher. Upgrade to connect a channel and use the unified inbox.",
     "title": "Upgrade to unlock messaging"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Customermates CRM automation workflow with n8n integration"
   },
   "NavigationBar": {
     "addEntity": "Add {entity}",
@@ -1515,6 +1576,16 @@
     "signUpCta": "Create account",
     "switchToSignIn": "Already have an account? <signInLink>Sign in</signInLink>",
     "title": "Create a Customermates Account"
+  },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "All Features",
+      "blog": "Blog",
+      "compare": "Compare",
+      "features": "Features",
+      "home": "Home",
+      "industries": "Industries"
+    }
   },
   "Subscription": {
     "currentPeriodEnd": "Current period ends",

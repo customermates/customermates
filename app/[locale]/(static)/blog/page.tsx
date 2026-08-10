@@ -9,6 +9,7 @@ import { Footer } from "@/app/components/footer";
 import { PostGridShell } from "@/components/marketing/post-grid-shell";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { blogPostsSource, blogSource } from "@/core/fumadocs/source";
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function BlogPage() {
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
   const page = blogSource.getPage(["blog"], locale);
   const posts = blogPostsSource.getPages(locale);
 

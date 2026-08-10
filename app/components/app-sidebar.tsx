@@ -292,7 +292,7 @@ export const AppSidebar = observer(
             addLabel={t("Common.actions.add")}
             brandName="Customermates"
             brandSubtitle={planSubtitle}
-            homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/"}
+            homeHref={rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"}
             logoAlt={t("Common.imageAlt.logo")}
             searchLabel={t("NavigationBar.search")}
             onAdd={(invoker) =>

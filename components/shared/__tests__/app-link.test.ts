@@ -2,10 +2,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-const localeState = vi.hoisted(() => ({ current: "en" }));
+const routeState = vi.hoisted(() => ({ locale: "en", pathname: "/dashboard" }));
 
 vi.mock("next-intl", () => ({
-  useLocale: () => localeState.current,
+  useLocale: () => routeState.locale,
 }));
 
 vi.mock("@/i18n/navigation", async () => {
@@ -14,10 +14,11 @@ vi.mock("@/i18n/navigation", async () => {
   return {
     IntlLink: ({ children, href }: { children?: React.ReactNode; href: string }) =>
       createElement("span", { "data-href": href, "data-intl-link": "true" }, children),
+    usePathname: () => routeState.pathname,
   };
 });
 
-import { AppLink, contentHrefForLocale } from "../app-link";
+import { AppLink, contentHrefForLocale, protectedHrefFromContent } from "../app-link";
 
 describe("contentHrefForLocale", () => {
   it("forces a document navigation to the default content locale from an app-only locale", () => {
@@ -40,7 +41,8 @@ describe("contentHrefForLocale", () => {
   });
 
   it("renders a native anchor only when changing from an app-only locale to content", () => {
-    localeState.current = "it";
+    routeState.locale = "it";
+    routeState.pathname = "/dashboard";
     const hardNavigation = renderToStaticMarkup(
       createElement(AppLink, { href: "/docs?tab=api#oauth", prefetch: true }, "Docs"),
     );
@@ -49,9 +51,32 @@ describe("contentHrefForLocale", () => {
     expect(hardNavigation).not.toContain("data-intl-link");
     expect(hardNavigation).not.toContain("prefetch");
 
-    localeState.current = "de";
+    routeState.locale = "de";
     const clientNavigation = renderToStaticMarkup(createElement(AppLink, { href: "/docs" }, "Docs"));
     expect(clientNavigation).toContain('data-intl-link="true"');
     expect(clientNavigation).toContain('data-href="/docs"');
+  });
+});
+
+describe("protectedHrefFromContent", () => {
+  it("forces a locale-less document navigation from public content into protected application routes", () => {
+    expect(protectedHrefFromContent("/dashboard?tab=sales#pipeline", "/pricing")).toBe("/dashboard?tab=sales#pipeline");
+    expect(protectedHrefFromContent("/de/company/settings", "/de/pricing")).toBe("/company/settings");
+  });
+
+  it("does not rewrite links from application pages, public targets, or external origins", () => {
+    expect(protectedHrefFromContent("/dashboard", "/profile/settings")).toBeNull();
+    expect(protectedHrefFromContent("/contact", "/pricing")).toBeNull();
+    expect(protectedHrefFromContent("https://example.com/dashboard", "/pricing")).toBeNull();
+  });
+
+  it("renders a native anchor for protected links on content pages", () => {
+    routeState.locale = "de";
+    routeState.pathname = "/pricing";
+    const hardNavigation = renderToStaticMarkup(
+      createElement(AppLink, { appearance: "unstyled", href: "/dashboard?tab=sales#pipeline" }, "Dashboard"),
+    );
+
+    expect(hardNavigation).toBe('<a href="/dashboard?tab=sales#pipeline">Dashboard</a>');
   });
 });

@@ -9,7 +9,9 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { Validated } from "@/core/validation/validation.utils";
 import ContactInquiry from "@/components/emails/contact-inquiry";
+import { DEFAULT_EMAIL_LAYOUT_COPY } from "@/components/emails/base/email-layout-copy";
 import { env } from "@/env";
+import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 @SystemInteractor
 export class SendContactInquiryInteractor {
@@ -25,6 +27,8 @@ export class SendContactInquiryInteractor {
         name: data.name,
         email: data.email,
         company: data.company,
+        layoutCopy: DEFAULT_EMAIL_LAYOUT_COPY,
+        locale: DEFAULT_LOCALE,
         message: data.message,
       }),
     });

@@ -46,6 +46,7 @@ describe("SignInWithEmailInteractor", () => {
     });
 
     expect(result).toMatchObject({ ok: false });
+    if ("ok" in result && !result.ok) expect(result.error.issues[0].message).toBe("Common.errors.invalidCallbackUrl");
     expect(signInWithEmail).not.toHaveBeenCalled();
   });
 });

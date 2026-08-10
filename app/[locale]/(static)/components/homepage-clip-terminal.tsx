@@ -2,7 +2,11 @@
 
 import type { ClipTerminal } from "@/core/fumadocs/schemas/homepage";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale } from "next-intl";
+
+import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { homepageTerminalFormatters } from "./homepage-terminal-format";
 
 const DURATION_MS = 10_000;
 
@@ -20,9 +24,9 @@ const BEAT_KEYS = Object.keys(BEATS) as Array<keyof typeof BEATS>;
 const TOOL_CALL = "customermates.deals.list({ idle_gt: 14 })";
 
 const DEALS = [
-  { org: "Pinecraft", val: "€4,800", days: 21 },
-  { org: "Fold", val: "€18,000", days: 18 },
-  { org: "Orbit", val: "€9,200", days: 16 },
+  { org: "Pinecraft", value: 4_800, days: 21 },
+  { org: "Fold", value: 18_000, days: 18 },
+  { org: "Orbit", value: 9_200, days: 16 },
 ];
 
 const CONFIG_LINES = [
@@ -89,6 +93,8 @@ function Equalizer({ t, count = 14 }: { t: number; count?: number }) {
 }
 
 export function HomepageClipTerminal({ strings }: { strings: ClipTerminal }) {
+  const locale = contentLocaleOrDefault(useLocale());
+  const formatters = useMemo(() => homepageTerminalFormatters(locale), [locale]);
   const t = useClipClock(DURATION_MS);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -182,9 +188,9 @@ export function HomepageClipTerminal({ strings }: { strings: ClipTerminal }) {
                 <span key={d.org} className="contents">
                   <span>· {d.org}</span>
 
-                  <span className="text-[#a78bfa]">{d.val}</span>
+                  <span className="text-[#a78bfa]">{formatters.currency.format(d.value)}</span>
 
-                  <span className="text-[#ff9500]">{d.days}d</span>
+                  <span className="text-[#ff9500]">{formatters.days.format(d.days)}</span>
                 </span>
               ))}
             </div>

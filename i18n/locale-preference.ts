@@ -25,10 +25,11 @@ export function appLocaleReconciliationTarget(
   displayLanguage: unknown,
   currentLocale: string,
   pathname: string,
+  systemLocale: AppLocale,
 ): string | null {
-  if (displayLanguage === "system") return pathname;
-  if (!isAppLocale(displayLanguage) || currentLocale === displayLanguage) return null;
-  return displayLanguageNavigationTarget(displayLanguage, pathname);
+  const desiredLocale = displayLanguage === "system" ? systemLocale : displayLanguage;
+  if (!isAppLocale(desiredLocale) || currentLocale === desiredLocale) return null;
+  return displayLanguageNavigationTarget(desiredLocale, pathname);
 }
 
 export function expiredAppLocaleCookie(): string {

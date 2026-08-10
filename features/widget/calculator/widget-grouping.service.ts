@@ -19,12 +19,17 @@ export class WidgetGroupingService extends BaseRepository {
           const contacts = deal.contacts ?? [];
           if (contacts.length === 0) {
             const existing = acc.get("no-group");
-            acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + dealValue });
+            acc.set("no-group", {
+              labelKind: "system",
+              systemLabelKey: "noGroup",
+              value: (existing?.value ?? 0) + dealValue,
+            });
           } else {
             contacts.forEach((contact) => {
-              const label = `${contact.contact.firstName ?? ""} ${contact.contact.lastName ?? ""}`.trim();
+              const label =
+                `${contact.contact.firstName ?? ""} ${contact.contact.lastName ?? ""}`.trim() || contact.contact.id;
               const existing = acc.get(contact.contact.id);
-              acc.set(contact.contact.id, { label, value: (existing?.value ?? 0) + dealValue });
+              acc.set(contact.contact.id, { labelKind: "literal", label, value: (existing?.value ?? 0) + dealValue });
             });
           }
         }
@@ -36,12 +41,20 @@ export class WidgetGroupingService extends BaseRepository {
           const organizations = deal.organizations ?? [];
           if (organizations.length === 0) {
             const existing = acc.get("no-group");
-            acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + dealValue });
+            acc.set("no-group", {
+              labelKind: "system",
+              systemLabelKey: "noGroup",
+              value: (existing?.value ?? 0) + dealValue,
+            });
           } else {
             organizations.forEach((organization) => {
               const label = organization.organization.name || organization.organization.id;
               const existing = acc.get(organization.organization.id);
-              acc.set(organization.organization.id, { label, value: (existing?.value ?? 0) + dealValue });
+              acc.set(organization.organization.id, {
+                labelKind: "literal",
+                label,
+                value: (existing?.value ?? 0) + dealValue,
+              });
             });
           }
         }
@@ -52,7 +65,7 @@ export class WidgetGroupingService extends BaseRepository {
           const dealValue = this.getDealValue(deal, aggregationType);
           const label = deal.name || deal.id;
           const existing = acc.get(deal.id);
-          acc.set(deal.id, { label, value: (existing?.value ?? 0) + dealValue });
+          acc.set(deal.id, { labelKind: "literal", label, value: (existing?.value ?? 0) + dealValue });
         }
         break;
 
@@ -62,7 +75,11 @@ export class WidgetGroupingService extends BaseRepository {
             const serviceValue = this.getServiceValue(service, aggregationType);
             const label = service.service.name || service.service.id;
             const existing = acc.get(service.service.id);
-            acc.set(service.service.id, { label, value: (existing?.value ?? 0) + serviceValue });
+            acc.set(service.service.id, {
+              labelKind: "literal",
+              label,
+              value: (existing?.value ?? 0) + serviceValue,
+            });
           }
         }
         break;
@@ -209,7 +226,11 @@ export class WidgetGroupingService extends BaseRepository {
       const customValueId = valueById.get(item.id);
       if (!customValueId) {
         const existing = acc.get("no-group");
-        acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + item.value });
+        acc.set("no-group", {
+          labelKind: "system",
+          systemLabelKey: "noGroup",
+          value: (existing?.value ?? 0) + item.value,
+        });
         continue;
       }
 
@@ -217,6 +238,7 @@ export class WidgetGroupingService extends BaseRepository {
       const label = option?.label ?? customValueId;
       const existing = acc.get(customValueId);
       acc.set(customValueId, {
+        labelKind: "literal",
         label,
         value: (existing?.value ?? 0) + item.value,
         optionColor: option?.color,
@@ -239,13 +261,18 @@ export class WidgetGroupingService extends BaseRepository {
     for (const { value, count } of counts) {
       if (!value) {
         const existing = acc.get("no-group");
-        acc.set("no-group", { label: "No Group", value: (existing?.value ?? 0) + count });
+        acc.set("no-group", {
+          labelKind: "system",
+          systemLabelKey: "noGroup",
+          value: (existing?.value ?? 0) + count,
+        });
         continue;
       }
 
       const option = optionsMap.get(value);
       const existing = acc.get(value);
       acc.set(value, {
+        labelKind: "literal",
         label: option?.label ?? value,
         value: (existing?.value ?? 0) + count,
         optionColor: option?.color,
@@ -272,7 +299,7 @@ export class WidgetGroupingService extends BaseRepository {
     for (const entity of entities) {
       const label = this.getEntityLabel(entity, entityType);
       const existing = acc.get(entity.id);
-      acc.set(entity.id, { label, value: (existing?.value ?? 0) + 1 });
+      acc.set(entity.id, { labelKind: "literal", label, value: (existing?.value ?? 0) + 1 });
     }
 
     return Array.from(acc.values());
@@ -281,7 +308,7 @@ export class WidgetGroupingService extends BaseRepository {
   private getEntityLabel(entity: EntityForGrouping, entityType: EntityType): string {
     switch (entityType) {
       case EntityType.contact:
-        return `${entity.firstName ?? ""} ${entity.lastName ?? ""}`.trim();
+        return `${entity.firstName ?? ""} ${entity.lastName ?? ""}`.trim() || entity.id;
       case EntityType.organization:
         return entity.name || entity.id;
       case EntityType.deal:

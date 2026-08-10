@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import LegalDocumentNotice from "../legal-document-notice";
+import { getEmailLayoutCopy } from "../base/email-layout-copy";
 
 import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
 
@@ -30,7 +31,8 @@ const COPY = {
 describe("LegalDocumentNotice", () => {
   it.each(CONTENT_LOCALES.map((locale) => ({ locale, ...COPY[locale] })))(
     "renders the visible $locale copy and current live-document link",
-    (copy) => {
+    async (copy) => {
+      const layoutCopy = await getEmailLayoutCopy(copy.locale);
       const html = renderToStaticMarkup(
         createElement(LegalDocumentNotice, {
           body: copy.body,
@@ -46,6 +48,7 @@ describe("LegalDocumentNotice", () => {
           greeting: copy.greeting,
           liveLabel: copy.liveLabel,
           locale: copy.locale,
+          layoutCopy,
           objections: [copy.body],
           signoff: copy.signoff,
           subject: copy.title,

@@ -27,7 +27,7 @@ function sortDocGroupEntries<T>(entries: [string, T][]): [string, T][] {
     const indexA = GROUPS_ORDER.indexOf(groupA as (typeof GROUPS_ORDER)[number]);
     const indexB = GROUPS_ORDER.indexOf(groupB as (typeof GROUPS_ORDER)[number]);
 
-    if (indexA === -1 && indexB === -1) return groupA.localeCompare(groupB);
+    if (indexA === -1 && indexB === -1) return groupA < groupB ? -1 : groupA > groupB ? 1 : 0;
     if (indexA === -1) return 1;
     if (indexB === -1) return -1;
     return indexA - indexB;

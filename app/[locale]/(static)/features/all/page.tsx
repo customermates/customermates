@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource, featuresAllSource } from "@/core/fumadocs/source";
 import { breadcrumbListSchema } from "@/core/seo/schemas";
+import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -16,13 +17,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function FeaturesAllHubPage() {
-  const locale = await getLocale();
+  const locale = contentLocaleOrDefault(await getLocale());
   const page = featuresAllSource.getPage(["all"], locale);
 
   if (!page) notFound();
 
   const t = await getTranslations();
   const tagLabel = t("Common.tags.feature");
+  const collator = new Intl.Collator(formattingTagFor(locale));
 
   const items: HubPostGridItem[] = featurePagesSource
     .getPages(locale)
@@ -39,15 +41,15 @@ export default async function FeaturesAllHubPage() {
       };
     })
     .filter((item): item is HubPostGridItem => item !== null)
-    .sort((a, b) => a.title.localeCompare(b.title));
+    .sort((a, b) => collator.compare(a.title, b.title));
 
   return (
     <div className="flex flex-col items-center justify-center">
       <JsonLd
         schema={breadcrumbListSchema([
-          { name: "Home", path: `/${locale}` },
-          { name: "Features", path: `/${locale}/features` },
-          { name: "All Features", path: `/${locale}/features/all` },
+          { name: t("StructuredData.breadcrumb.home"), path: `/${locale}` },
+          { name: t("StructuredData.breadcrumb.features"), path: `/${locale}/features` },
+          { name: t("StructuredData.breadcrumb.allFeatures"), path: `/${locale}/features/all` },
         ])}
       />
 

@@ -88,6 +88,7 @@
   },
   "BrowserFrame": {
     "live": "en directo",
+    "liveDemoTitle": "Demo en directo de Customermates",
     "open": "Abrir"
   },
   "Common": {
@@ -97,6 +98,7 @@
       "back": "Atrás",
       "cancel": "Cancelar",
       "clear": "Borrar",
+      "close": "Cerrar",
       "contact": "Contactar",
       "continueSetup": "Continuar con la configuración",
       "copy": "Copiar al portapapeles",
@@ -108,16 +110,21 @@
       "labelHistory": "Historial",
       "labelNotes": "Notas",
       "loadMore": "Cargar más",
+      "open": "Abrir",
       "openApp": "Abrir la aplicación",
       "openList": "Abrir la lista",
       "refresh": "Actualizar",
+      "remove": "Quitar",
       "reset": "Restablecer",
       "save": "Guardar",
       "signIn": "Iniciar sesión"
     },
     "ariaLabels": {
+      "breadcrumb": "Ruta de navegación",
       "collapseSearch": "Contraer la búsqueda",
+      "hidePassword": "Ocultar contraseña",
       "selectOption": "Selecciona una opción",
+      "showPassword": "Mostrar contraseña",
       "switchToCardView": "Cambiar a la vista de tarjetas",
       "switchToKanbanView": "Cambiar a la vista kanban",
       "switchToKanbanViewDisabled": "Añade un campo personalizado de selección única para activar la vista kanban",
@@ -199,6 +206,7 @@
       "messageWithName": "¿Seguro que quieres eliminar \"{name}\"? Esta acción no se puede deshacer.",
       "title": "Confirmar la eliminación"
     },
+    "details": "Detalles",
     "email": "Correo electrónico",
     "emptyState": {
       "body": "Empieza añadiendo tu primer elemento «{singular}».",
@@ -247,6 +255,7 @@
       "generic": "Se ha producido un error.",
       "inmailSignatureRequired": "Añade una firma para el InMail de Recruiter.",
       "inmailSubjectRequired": "Añade un asunto para el InMail.",
+      "invalidCallbackUrl": "El enlace de inicio de sesión no es válido. Inténtalo de nuevo.",
       "invalidChannelValue": "Esto no es una dirección de correo, un número de teléfono ni un identificador válido.",
       "invalidCredentials": "Correo o contraseña no válidos.",
       "invalidFilterField": "Campo de filtro no encontrado o no accesible. Campos disponibles: {validValues}.",
@@ -451,6 +460,9 @@
       "confirmPassword": "Confirmar la contraseña",
       "country": "País",
       "currency": "Moneda",
+      "datePlaceholder": "Seleccionar una fecha",
+      "dateRangePlaceholder": "Seleccionar un intervalo",
+      "defaultOption": "Opción {number}",
       "description": "Descripción",
       "displayLanguage": "Idioma de la interfaz",
       "displayOptions": {
@@ -505,6 +517,7 @@
       "message": "Tienes cambios sin guardar. ¿Seguro que quieres salir de esta página? Se perderán los cambios.",
       "title": "Cambios sin guardar"
     },
+    "never": "Nunca",
     "none": "Ninguno",
     "notifications": {
       "copiedToClipboard": "Se ha copiado {value} al portapapeles",
@@ -522,6 +535,11 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Muestra la barra lateral móvil.",
+      "title": "Barra lateral",
+      "toggle": "Mostrar u ocultar la barra lateral"
     },
     "sort": {
       "ascending": "Ascendente",
@@ -614,6 +632,14 @@
     "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",
     "title": "Usuario"
   },
+  "ComparePage": {
+    "alternativeTitle": "Alternativa a {competitor}",
+    "tags": {
+      "alternative": "Alternativa",
+      "comparison": "Comparativa",
+      "review": "Reseña"
+    }
+  },
   "ConnectedAccountsCard": {
     "accountLimitReached": "El plan Business incluye 3 cuentas conectadas por usuario. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
@@ -693,6 +719,7 @@
     "calendarCancelled": "Cancelado",
     "calendarJoinMeeting": "Unirse a la reunión",
     "calendarMeeting": "Reunión",
+    "calendarNoTitle": "Evento sin título",
     "calendarResponseMaybe": "Quizá",
     "calendarResponseNo": "Rechazado",
     "calendarResponseNoreply": "Sin respuesta",
@@ -758,6 +785,16 @@
     },
     "widget": "Gráfico"
   },
+  "DataView": {
+    "dragToReorder": "Arrastrar para reordenar",
+    "editColumn": "Editar columna",
+    "noValue": "Sin valor",
+    "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
+    "resizeHint": "Arrastra para redimensionar. Haz doble clic, toca dos veces o pulsa Intro para restablecer.",
+    "selectAllRows": "Seleccionar todas las filas",
+    "selectGroupingColumn": "Selecciona una columna de agrupación para ver la vista kanban.",
+    "selectRow": "Seleccionar fila {id}"
+  },
   "DealModal": {
     "noServicesAdded": "Aún no se ha añadido ningún elemento «{entity}»",
     "quantityLabel": "Cantidad",
@@ -789,6 +826,11 @@
     "open": "Abrir",
     "openInChatGPT": "Abrir en ChatGPT",
     "openInClaude": "Abrir en Claude",
+    "status": {
+      "available": "Disponible",
+      "partial": "Parcialmente disponible",
+      "unavailable": "No disponible"
+    },
     "viewAsMarkdown": "Ver como Markdown"
   },
   "DocsSidebar": {
@@ -820,19 +862,23 @@
   },
   "Editor": {
     "blockQuote": "Cita",
+    "bold": "Negrita",
     "bulletList": "Lista con viñetas",
+    "code": "Código",
     "confirm": "Aplicar el enlace",
     "divider": "Separador",
     "heading1": "Título 1",
     "heading2": "Título 2",
     "image": "Imagen",
     "imageUrlPrompt": "Introduce la URL de la imagen",
+    "italic": "Cursiva",
     "link": "Enlace",
     "noResults": "Sin resultados",
     "normalText": "Texto normal",
     "numberedList": "Lista numerada",
     "placeholder": "Escribe '/' para los comandos...",
     "removeLink": "Quitar el enlace",
+    "strikethrough": "Tachado",
     "table": "Tabla",
     "tableAddColumn": "Añadir columna",
     "tableAddRow": "Añadir fila",
@@ -840,7 +886,11 @@
     "tableDeleteColumn": "Eliminar columna",
     "tableDeleteRow": "Eliminar fila",
     "taskList": "Lista de tareas",
+    "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
+  },
+  "EmailLayout": {
+    "tagline": "El CRM agéntico de código abierto"
   },
   "EmailVerification": {
     "notVerified": "Correo no verificado",
@@ -1036,6 +1086,8 @@
     "compareViewAll": "Ver todas las comparativas",
     "copyrightText": "© {year} Customermates. Todos los derechos reservados.",
     "dpa": "DPA",
+    "featuredOn": "Destacado en",
+    "featuredOnPlatform": "Destacado en {platform}",
     "features": "Funciones",
     "featuresViewAll": "Ver todas las funciones",
     "helpAndFeedback": "Ayuda",
@@ -1044,6 +1096,7 @@
     "privacy": "Privacidad",
     "product": "Producto",
     "resources": "Recursos",
+    "reviewsOnPlatform": "Reseñas de Customermates en {platform}",
     "solutions": "Soluciones",
     "solutionsViewAll": "Ver todos los sectores",
     "subprocessors": "Subencargados",
@@ -1219,6 +1272,11 @@
       "unread": "Sin leer"
     },
     "unlinkedParticipants": "Algunos participantes no están vinculados a un contacto",
+    "voice": {
+      "pause": "Pausar",
+      "play": "Reproducir",
+      "seek": "Cambiar la posición de reproducción"
+    },
     "youPrefix": "Tú:"
   },
   "LegalDocumentNotice": {
@@ -1293,6 +1351,9 @@
     "cta": "Mejora tu plan",
     "description": "La mensajería está disponible a partir del plan Pro. Mejora tu plan para conectar un canal y usar la bandeja de entrada unificada.",
     "title": "Mejora tu plan para usar la mensajería"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Flujo de automatización del CRM Customermates con integración de n8n"
   },
   "NavigationBar": {
     "addEntity": "Añadir {entity}",
@@ -1516,6 +1577,16 @@
     "switchToSignIn": "¿Ya tienes una cuenta? <signInLink>Inicia sesión</signInLink>",
     "title": "Crea una cuenta de Customermates"
   },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "Todas las funciones",
+      "blog": "Blog",
+      "compare": "Comparativas",
+      "features": "Funciones",
+      "home": "Inicio",
+      "industries": "Sectores"
+    }
+  },
   "Subscription": {
     "currentPeriodEnd": "El periodo actual termina el",
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
@@ -1595,7 +1666,7 @@
     "title": "Oferta de ampliación de la prueba"
   },
   "TrialInactivationNotice": {
-    "body": "Tu cuenta está ahora inactiva porque tu prueba terminó hace más de 6 días. Si todavía quieres continuar, puedo ayudarte a reactivarla rápidamente y guiarte en los siguientes pasos.",
+    "body": "Tu cuenta está ahora inactiva porque tu prueba terminó hace más de 6 días. Si todavía quieres continuar, puedo ayudarte a reactivar tu cuenta rápidamente y guiarte en los siguientes pasos.",
     "cta": "Ponte en contacto",
     "dismiss": "Si este correo te ha llegado en un momento de mucho trabajo, no pasa nada. Puedes volver cuando quieras y te ayudaré personalmente.",
     "greeting": "Hola {firstName}:",

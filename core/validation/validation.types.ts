@@ -8,6 +8,7 @@ export enum CustomErrorCode {
   passwordInvalid = "passwordInvalid",
   emailNotVerified = "emailNotVerified",
   invalidCredentials = "invalidCredentials",
+  invalidCallbackUrl = "invalidCallbackUrl",
   emailAlreadyExists = "emailAlreadyExists",
   termsNotAgreed = "termsNotAgreed",
   customColumnNotFound = "customColumnNotFound",

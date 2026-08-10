@@ -1,6 +1,6 @@
 {
   "AccountsRemovedNotice": {
-    "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegarli quando vuoi dalla pagina degli account collegati.",
+    "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",
     "cta": "Vedi gli account collegati",
     "greeting": "Ciao {firstName},",
     "signoff": "Cordiali saluti,\nBen",
@@ -88,6 +88,7 @@
   },
   "BrowserFrame": {
     "live": "in diretta",
+    "liveDemoTitle": "Demo live di Customermates",
     "open": "Apri"
   },
   "Common": {
@@ -97,6 +98,7 @@
       "back": "Indietro",
       "cancel": "Annulla",
       "clear": "Cancella",
+      "close": "Chiudi",
       "contact": "Contatta",
       "continueSetup": "Prosegui la configurazione",
       "copy": "Copia negli appunti",
@@ -108,16 +110,21 @@
       "labelHistory": "Cronologia",
       "labelNotes": "Note",
       "loadMore": "Carica altro",
+      "open": "Apri",
       "openApp": "Apri l'applicazione",
       "openList": "Apri l'elenco",
       "refresh": "Aggiorna",
+      "remove": "Rimuovi",
       "reset": "Reimposta",
       "save": "Salva",
       "signIn": "Accedi"
     },
     "ariaLabels": {
+      "breadcrumb": "Percorso di navigazione",
       "collapseSearch": "Comprimi la ricerca",
+      "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
+      "showPassword": "Mostra password",
       "switchToCardView": "Passa alla vista schede",
       "switchToKanbanView": "Passa alla vista kanban",
       "switchToKanbanViewDisabled": "Aggiungi un campo personalizzato a scelta singola per attivare la vista kanban",
@@ -199,6 +206,7 @@
       "messageWithName": "Vuoi davvero eliminare \"{name}\"? L'azione non può essere annullata.",
       "title": "Conferma l'eliminazione"
     },
+    "details": "Dettagli",
     "email": "E-mail",
     "emptyState": {
       "body": "Inizia aggiungendo la tua prima voce «{singular}».",
@@ -247,6 +255,7 @@
       "generic": "Si è verificato un errore.",
       "inmailSignatureRequired": "Aggiungi una firma per l'InMail di Recruiter.",
       "inmailSubjectRequired": "Aggiungi un oggetto per l'InMail.",
+      "invalidCallbackUrl": "Il link di accesso non è valido. Riprova.",
       "invalidChannelValue": "Questo non è un indirizzo e-mail, un numero di telefono o un identificativo valido.",
       "invalidCredentials": "E-mail o password non validi.",
       "invalidFilterField": "Campo del filtro non trovato o non accessibile. Campi disponibili: {validValues}.",
@@ -451,6 +460,9 @@
       "confirmPassword": "Conferma la password",
       "country": "Paese",
       "currency": "Valuta",
+      "datePlaceholder": "Seleziona una data",
+      "dateRangePlaceholder": "Seleziona un intervallo",
+      "defaultOption": "Opzione {number}",
       "description": "Descrizione",
       "displayLanguage": "Lingua dell'interfaccia",
       "displayOptions": {
@@ -505,6 +517,7 @@
       "message": "Hai modifiche non salvate. Vuoi davvero lasciare questa pagina? Le modifiche andranno perse.",
       "title": "Modifiche non salvate"
     },
+    "never": "Mai",
     "none": "Nessuno",
     "notifications": {
       "copiedToClipboard": "{value} copiato negli appunti",
@@ -522,6 +535,11 @@
       "outlook": "Outlook",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
+    },
+    "sidebar": {
+      "description": "Mostra la barra laterale per dispositivi mobili.",
+      "title": "Barra laterale",
+      "toggle": "Mostra o nascondi la barra laterale"
     },
     "sort": {
       "ascending": "Crescente",
@@ -614,6 +632,14 @@
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",
     "title": "Utente"
   },
+  "ComparePage": {
+    "alternativeTitle": "Alternativa a {competitor}",
+    "tags": {
+      "alternative": "Alternativa",
+      "comparison": "Confronto",
+      "review": "Recensione"
+    }
+  },
   "ConnectedAccountsCard": {
     "accountLimitReached": "Il piano Business include 3 account collegati per utente. Contattaci per il piano Enterprise per avere account illimitati.",
     "alreadyExistsToastDescription": "Questo account è già collegato da un membro del tuo spazio di lavoro. Chiedigli di condividerlo con lo spazio di lavoro per evitare messaggi duplicati nella posta in arrivo.",
@@ -693,6 +719,7 @@
     "calendarCancelled": "Annullato",
     "calendarJoinMeeting": "Partecipa alla riunione",
     "calendarMeeting": "Riunione",
+    "calendarNoTitle": "Evento senza titolo",
     "calendarResponseMaybe": "Forse",
     "calendarResponseNo": "Rifiutato",
     "calendarResponseNoreply": "Nessuna risposta",
@@ -758,6 +785,16 @@
     },
     "widget": "Grafico"
   },
+  "DataView": {
+    "dragToReorder": "Trascina per riordinare",
+    "editColumn": "Modifica colonna",
+    "noValue": "Nessun valore",
+    "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
+    "resizeHint": "Trascina per ridimensionare. Fai doppio clic, tocca due volte o premi Invio per ripristinare.",
+    "selectAllRows": "Seleziona tutte le righe",
+    "selectGroupingColumn": "Seleziona una colonna di raggruppamento per visualizzare la vista kanban.",
+    "selectRow": "Seleziona la riga {id}"
+  },
   "DealModal": {
     "noServicesAdded": "Ancora nessuna voce «{entity}» aggiunta",
     "quantityLabel": "Quantità",
@@ -789,6 +826,11 @@
     "open": "Apri",
     "openInChatGPT": "Apri in ChatGPT",
     "openInClaude": "Apri in Claude",
+    "status": {
+      "available": "Disponibile",
+      "partial": "Parzialmente disponibile",
+      "unavailable": "Non disponibile"
+    },
     "viewAsMarkdown": "Visualizza come Markdown"
   },
   "DocsSidebar": {
@@ -820,19 +862,23 @@
   },
   "Editor": {
     "blockQuote": "Citazione",
+    "bold": "Grassetto",
     "bulletList": "Elenco puntato",
+    "code": "Codice",
     "confirm": "Applica il link",
     "divider": "Separatore",
     "heading1": "Titolo 1",
     "heading2": "Titolo 2",
     "image": "Immagine",
     "imageUrlPrompt": "Inserisci l'URL dell'immagine",
+    "italic": "Corsivo",
     "link": "Link",
     "noResults": "Nessun risultato",
     "normalText": "Testo normale",
     "numberedList": "Elenco numerato",
     "placeholder": "Digita '/' per i comandi...",
     "removeLink": "Rimuovi il link",
+    "strikethrough": "Barrato",
     "table": "Tabella",
     "tableAddColumn": "Aggiungi colonna",
     "tableAddRow": "Aggiungi riga",
@@ -840,7 +886,11 @@
     "tableDeleteColumn": "Elimina colonna",
     "tableDeleteRow": "Elimina riga",
     "taskList": "Elenco di attività",
+    "underline": "Sottolineato",
     "urlPlaceholder": "Inserisci un URL..."
+  },
+  "EmailLayout": {
+    "tagline": "Il CRM agentico open source"
   },
   "EmailVerification": {
     "notVerified": "E-mail non verificata",
@@ -1036,6 +1086,8 @@
     "compareViewAll": "Vedi tutti i confronti",
     "copyrightText": "© {year} Customermates. Tutti i diritti riservati.",
     "dpa": "DPA",
+    "featuredOn": "In evidenza su",
+    "featuredOnPlatform": "In evidenza su {platform}",
     "features": "Funzionalità",
     "featuresViewAll": "Vedi tutte le funzionalità",
     "helpAndFeedback": "Aiuto",
@@ -1044,6 +1096,7 @@
     "privacy": "Privacy",
     "product": "Prodotto",
     "resources": "Risorse",
+    "reviewsOnPlatform": "Recensioni di Customermates su {platform}",
     "solutions": "Soluzioni",
     "solutionsViewAll": "Vedi tutti i settori",
     "subprocessors": "Sub-responsabili",
@@ -1219,6 +1272,11 @@
       "unread": "Non letta"
     },
     "unlinkedParticipants": "Alcuni partecipanti non sono collegati a un contatto",
+    "voice": {
+      "pause": "Metti in pausa",
+      "play": "Riproduci",
+      "seek": "Modifica la posizione di riproduzione"
+    },
     "youPrefix": "Tu:"
   },
   "LegalDocumentNotice": {
@@ -1293,6 +1351,9 @@
     "cta": "Passa a un piano superiore",
     "description": "La messaggistica è disponibile dal piano Pro in su. Passa a un piano superiore per collegare un canale e usare la posta in arrivo unificata.",
     "title": "Passa a un piano superiore per la messaggistica"
+  },
+  "N8nPage": {
+    "automationImageAlt": "Flusso di automazione del CRM Customermates con integrazione n8n"
   },
   "NavigationBar": {
     "addEntity": "Aggiungi {entity}",
@@ -1515,6 +1576,16 @@
     "signUpCta": "Crea un account",
     "switchToSignIn": "Hai già un account? <signInLink>Accedi</signInLink>",
     "title": "Crea un account Customermates"
+  },
+  "StructuredData": {
+    "breadcrumb": {
+      "allFeatures": "Tutte le funzionalità",
+      "blog": "Blog",
+      "compare": "Confronti",
+      "features": "Funzionalità",
+      "home": "Home",
+      "industries": "Settori"
+    }
   },
   "Subscription": {
     "currentPeriodEnd": "Il periodo attuale termina il",

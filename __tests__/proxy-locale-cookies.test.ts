@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest as NextRequestValue } from "next/server";
 
 const mockEnv = vi.hoisted(() => ({
@@ -8,11 +8,12 @@ const mockEnv = vi.hoisted(() => ({
   AUTH_ALLOWED_HOSTS: ["localhost:4000"],
   BASE_URL: "http://localhost:4000",
 }));
+const authMocks = vi.hoisted(() => ({ getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() }));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
 
 vi.mock("@/core/auth/better-auth", () => ({
-  auth: { api: { getSession: vi.fn(), signInEmail: vi.fn(), signOut: vi.fn() } },
+  auth: { api: authMocks },
 }));
 
 import proxy from "@/proxy";
@@ -39,6 +40,11 @@ async function call(pathname: string, options: { acceptLanguage?: string; cookie
 }
 
 describe("proxy locale preference cookies", () => {
+  beforeEach(() => {
+    authMocks.getSession.mockReset();
+    authMocks.getSession.mockResolvedValue(null);
+  });
+
   it("keeps application and content preference storage independent", () => {
     expect(appRouting.localeCookie).toBe(false);
     expect(contentRouting.localeCookie).toMatchObject({ name: CONTENT_LOCALE_COOKIE_NAME });
@@ -54,6 +60,26 @@ describe("proxy locale preference cookies", () => {
     expect(result.status).toBe(307);
     expect(result.location).toBe("http://localhost:4000/it/company/subscription?tab=billing");
     expect(result.response.headers.get("vary")).toBe("accept-language, cookie");
+  });
+
+  it("uses the persisted app preference when an authenticated user crosses into the app", async () => {
+    authMocks.getSession.mockResolvedValue({
+      session: { expiresAt: new Date(Date.now() + 60_000) },
+      user: { email: "locale-test@example.com" },
+    });
+    const cookie = `app.session_token=session; ${APP_LOCALE_COOKIE_NAME}=it; ${CONTENT_LOCALE_COOKIE_NAME}=de`;
+
+    const bareRoot = await call("/", { acceptLanguage: "de-DE,de;q=0.9", cookie });
+    expect(bareRoot.location).toBe("http://localhost:4000/it");
+
+    const contentRoot = await call("/de", { acceptLanguage: "de-DE,de;q=0.9", cookie });
+    expect(contentRoot.location).toBe("http://localhost:4000/it/dashboard");
+
+    const protectedRoute = await call("/de/company/settings?tab=general", {
+      acceptLanguage: "de-DE,de;q=0.9",
+      cookie,
+    });
+    expect(protectedRoute.location).toBe("http://localhost:4000/it/company/settings?tab=general");
   });
 
   it("renegotiates System from the current browser language instead of sticking", async () => {

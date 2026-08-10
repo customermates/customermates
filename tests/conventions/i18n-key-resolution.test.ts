@@ -30,7 +30,7 @@ import {
   ENTITY_TERMINOLOGY_PRESETS,
   FILTER_FIELD_TERMINOLOGY,
 } from "@/features/entity-terminology/entity-terminology.constants";
-import { DisplayType } from "@/features/widget/widget.schema";
+import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
@@ -48,6 +48,7 @@ const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
   .map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
+const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
 const AGGREGATION_TYPE_KEYS = [
   ...Object.values(AggregationType).map((aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`),
   "Dashboard.aggregationTypes.dealValueRelated",
@@ -422,6 +423,8 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/language-selector.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.${document}",
+  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Common.providers.${account.provider}",
+  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Subscription.planNames.${plan}",
   "ee/messaging/outbound/resolve-provider-profile.interactor.ts :: t :: Common.errors.${res.error}",
   "ee/messaging/outbound/send-chat-message.interactor.ts :: t :: Common.errors.${res.error}",
   "ee/messaging/outbound/send-email.interactor.ts :: t :: Common.errors.${res.error}",
@@ -472,8 +475,8 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["app/[locale]/(protected)/organizations/components/organizations-card.tsx :: t :: nameKey", 1],
   ["app/[locale]/(protected)/profile/components/connected-accounts-card.tsx :: t :: option.labelKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.description", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.title", 1],
+  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
+  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],
   ["app/[locale]/(protected)/services/components/services-card.tsx :: t :: nameKey", 1],
   [
     "app/[locale]/(protected)/tasks/components/task-detail-view.tsx :: t.rich :: systemTaskAlertConfig.translationKey",
@@ -566,6 +569,19 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     },
   },
   {
+    file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",
+    keys: DIAGRAM_SYSTEM_KEYS,
+    evidence: Object.fromEntries(
+      DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => [
+        `Diagrams.${key}`,
+        [
+          { kind: "template" as const, value: "`Diagrams.${item.systemLabelKey}`" },
+          { file: "features/widget/widget.schema.ts", kind: "literal" as const, value: key },
+        ],
+      ]),
+    ),
+  },
+  {
     file: "features/messaging/activities/activities-detail-modal.tsx",
     keys: [
       "ContactHistory.calendarResponseMaybe",
@@ -607,8 +623,8 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["UserAvatar.settings"],
     evidence: {
       "UserAvatar.settings": [
-        { kind: "template", value: "`UserAvatar.${entry.label}`" },
-        { kind: "property", value: 'settings: { group: "settings", label: "settings" }' },
+        { kind: "template", value: "`UserAvatar.${entry.labelKey}`" },
+        { kind: "property", value: 'settings: { group: "settings", labelKey: "settings" }' },
       ],
     },
   },

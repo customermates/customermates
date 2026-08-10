@@ -55,7 +55,7 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
     </AppLink>
   );
 
-  const ctaTarget = !isAuthenticated ? "/auth/signin" : onboardingComplete ? "/" : "/onboarding/wizard";
+  const ctaTarget = !isAuthenticated ? "/auth/signin" : onboardingComplete ? "/dashboard" : "/onboarding/wizard";
   const ctaLabel = !isAuthenticated
     ? t("Common.actions.signIn")
     : onboardingComplete
@@ -64,7 +64,9 @@ export const PublicNavbar = observer(({ isAuthenticated, onboardingComplete }: P
   const showCta = pathname !== ctaTarget;
   const ctaButton = showCta ? (
     <Button asChild size="sm" variant="softPrimary" onClick={closeMenu}>
-      <IntlLink href={ctaTarget}>{ctaLabel}</IntlLink>
+      <AppLink appearance="unstyled" href={ctaTarget}>
+        {ctaLabel}
+      </AppLink>
     </Button>
   ) : null;
 

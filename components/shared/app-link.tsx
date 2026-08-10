@@ -5,18 +5,18 @@ import type { AnchorHTMLAttributes, ComponentProps } from "react";
 import NextLink from "next/link";
 import { useLocale } from "next-intl";
 
-import { IntlLink } from "@/i18n/navigation";
+import { IntlLink, usePathname } from "@/i18n/navigation";
 import {
   contentLocaleOrDefault,
   isContentLocale,
   routingLocaleFromPathname,
   stripLocalePrefix,
 } from "@/i18n/locale-registry";
-import { isContentPathname } from "@/i18n/routing";
+import { isContentPathname, isPublicPathname } from "@/i18n/routing";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
-  appearance?: "default" | "inline";
+  appearance?: "default" | "inline" | "unstyled";
   external?: boolean;
   inheritSize?: boolean;
   className?: string;
@@ -47,15 +47,32 @@ export function contentHrefForLocale(href: string, locale: unknown): string | nu
   return isContentLocale(targetLocale) && targetLocale !== locale ? localizedHref : null;
 }
 
+export function protectedHrefFromContent(href: string, pathname: string): string | null {
+  if (!isContentPathname(pathname)) return null;
+
+  const base = "https://internal.invalid";
+  const target = new URL(href, base);
+  if (target.origin !== base || isPublicPathname(target.pathname)) return null;
+
+  const targetPathname = stripLocalePrefix(target.pathname);
+  return `${targetPathname}${target.search}${target.hash}`;
+}
+
 export function AppLink(props: Props) {
   const { appearance = "default", external = false, inheritSize = false, className, ...rest } = props;
   const locale = useLocale();
+  const pathname = usePathname();
 
-  const mergedClassName = cn(
-    appearance === "inline" ? "inline-link" : "text-primary underline-offset-4 hover:underline transition-colors",
-    inheritSize && "[font-size:inherit]",
-    className,
-  );
+  const mergedClassName =
+    cn(
+      appearance === "unstyled"
+        ? undefined
+        : appearance === "inline"
+          ? "inline-link"
+          : "text-primary underline-offset-4 hover:underline transition-colors",
+      inheritSize && "[font-size:inherit]",
+      className,
+    ) || undefined;
 
   if (external) {
     return (
@@ -70,7 +87,9 @@ export function AppLink(props: Props) {
 
   const internalProps = rest as ComponentProps<typeof IntlLink>;
   const hardNavigationHref =
-    typeof internalProps.href === "string" ? contentHrefForLocale(internalProps.href, locale) : null;
+    typeof internalProps.href === "string"
+      ? (contentHrefForLocale(internalProps.href, locale) ?? protectedHrefFromContent(internalProps.href, pathname))
+      : null;
 
   if (hardNavigationHref) {
     const anchorProps = { ...internalProps } as Record<string, unknown>;
