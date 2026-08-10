@@ -136,6 +136,7 @@ function isUiCommandName(value: string): value is UiCommandName {
 export class AgentChatStore extends BaseStore {
   isOpen = false;
   isExpanded = false;
+  composerFocusRequested = false;
   enabled: boolean | null = null;
   usage: AgentUsageSummary | null = null;
   counts: AgentDataCounts | null = null;
@@ -209,8 +210,10 @@ export class AgentChatStore extends BaseStore {
       queuedPrompt: observable,
       isWorking: observable,
       unreadSupport: observable,
+      composerFocusRequested: observable,
       isWorkspaceSetupPending: computed,
       open: action,
+      consumeComposerFocus: action,
       close: action,
       toggleExpanded: action,
       setComposerDraft: action,
@@ -227,7 +230,12 @@ export class AgentChatStore extends BaseStore {
 
   open = () => {
     this.isOpen = true;
+    this.composerFocusRequested = true;
     void this.revalidateSupportReplies();
+  };
+
+  consumeComposerFocus = () => {
+    this.composerFocusRequested = false;
   };
 
   get isWorkspaceSetupPending() {

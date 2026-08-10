@@ -95,6 +95,12 @@ export const AgentChat = observer(function AgentChat() {
   }, [store]);
 
   useEffect(() => {
+    if (!store.isOpen || !store.composerFocusRequested) return;
+    document.getElementById("agent-composer")?.focus();
+    store.consumeComposerFocus();
+  }, [store, store.isOpen, store.composerFocusRequested]);
+
+  useEffect(() => {
     const revalidate = () => {
       if (document.visibilityState === "visible") void store.revalidateSupportReplies();
     };
