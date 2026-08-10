@@ -554,7 +554,8 @@ const SuggestedQuestions = observer(function SuggestedQuestions() {
 const ConversationHistory = observer(function ConversationHistory() {
   const { agentChatStore: store } = useRootStore();
   const locale = useLocale();
-  const copy = chatUiCopy(useTranslations());
+  const t = useTranslations();
+  const copy = chatUiCopy(t);
   const [query, setQuery] = useState(store.historyQuery);
   const firstSearchRender = useRef(true);
   const hasHistory = store.conversations.length + store.archivedConversations.length > 0;
@@ -1205,8 +1206,8 @@ function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
 
 const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
   const { agentChatStore: store } = useRootStore();
-  const locale = useLocale();
-  const copy = chatUiCopy(useTranslations());
+  const t = useTranslations();
+  const copy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
   if (store.isHistoryOpen) return null;
 
@@ -1217,11 +1218,11 @@ const AgentStatusAnnouncer = observer(function AgentStatusAnnouncer() {
     .findLast((item): item is Extract<AgentChatItem, { kind: "activity" }> => item.kind === "activity");
   let status = "";
   if (store.isWorking && latestTurnActivity?.status === "running") {
-    const activity = agentActivityCopy(latestTurnActivity.activity, locale, terminology);
+    const activity = agentActivityCopy(latestTurnActivity.activity, t, terminology);
     status = activity.running;
   } else if (store.isWorking) status = copy.assistantWorking;
   else if (latestItem?.kind === "activity") {
-    const activity = agentActivityCopy(latestItem.activity, locale, terminology);
+    const activity = agentActivityCopy(latestItem.activity, t, terminology);
     status =
       latestItem.status === "error"
         ? activity.error
@@ -1252,7 +1253,6 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
   const { agentChatStore: store } = useRootStore();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
-  const locale = useLocale();
   const terminology = useAgentActivityTerminology();
   const decideApproval = async (
     approval: Extract<AgentChatItem, { kind: "approval" }>,
@@ -1356,7 +1356,7 @@ const AgentChatItemView = observer(function AgentChatItemView({ item }: { item: 
 
   if (item.kind === "activity") return <AgentActivity items={[item]} />;
 
-  const copy = agentActivityCopy(item.activity, locale, terminology);
+  const copy = agentActivityCopy(item.activity, t, terminology);
   const canAlwaysAllow = item.activity.kind === "records.create" || item.activity.kind === "records.update";
 
   return (
@@ -1857,8 +1857,8 @@ const AgentActivity = observer(function AgentActivity({
 }: {
   items: Extract<AgentChatItem, { kind: "activity" }>[];
 }) {
-  const locale = useLocale();
-  const uiCopy = chatUiCopy(useTranslations());
+  const t = useTranslations();
+  const uiCopy = chatUiCopy(t);
   const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
   const hasError = items.some((item) => item.status === "error");
@@ -1881,7 +1881,7 @@ const AgentActivity = observer(function AgentActivity({
     wasRunning.current = hasRunning;
   }, [hasError, hasRunning]);
 
-  const firstCopy = items[0] ? agentActivityCopy(items[0].activity, locale, terminology) : null;
+  const firstCopy = items[0] ? agentActivityCopy(items[0].activity, t, terminology) : null;
   const settledSummary =
     items.length === 1 && firstCopy
       ? hasError
@@ -1922,7 +1922,7 @@ const AgentActivity = observer(function AgentActivity({
 
       <div className="mt-3 space-y-3 border-l pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-1 [&>*]:animate-in [&>*]:motion-reduce:animate-none">
         {items.map((item) => {
-          const copy = agentActivityCopy(item.activity, locale, terminology);
+          const copy = agentActivityCopy(item.activity, t, terminology);
           const label =
             item.status === "running"
               ? copy.running

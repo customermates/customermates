@@ -35,6 +35,7 @@ import {
 } from "./agent-budget-policy";
 import { isAgentTurnTerminalError, type AgentTurnTerminalCode } from "./agent-turn-request";
 import { buildAgentProviderContext } from "./agent-provider-context";
+import { agentSetupTranslator } from "./agent-setup-translator";
 
 function agentRunnerCopy(locale: string) {
   if (locale.toLowerCase().startsWith("de")) {
@@ -361,7 +362,7 @@ export function runAgentLane(ctx: AgentRunContext, requestSignal: AbortSignal): 
             if (part.toolName === "open_workspace_setup") {
               const setup = PrepareAgentWorkspaceSetupSchema.safeParse(part.input);
               if (setup.success) {
-                const plan = buildAgentWorkspaceSetupPlan(setup.data, ctx.locale);
+                const plan = buildAgentWorkspaceSetupPlan(setup.data, agentSetupTranslator(ctx.locale));
                 const setupPart: Extract<AgentMessagePart, { type: "workspace_setup" }> = {
                   type: "workspace_setup",
                   id: part.toolCallId,

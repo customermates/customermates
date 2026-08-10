@@ -387,193 +387,103 @@ type ActivityCopy = {
   cancelled: string;
   detail?: string;
 };
-type ActivityStateCopy = Omit<ActivityCopy, "detail" | "cancelled">;
 
-const RESOURCE_COPY: Record<"en" | "de", Record<AgentActivityResource, string>> = {
-  en: {
-    contacts: "contacts",
-    organizations: "organizations",
-    deals: "deals",
-    services: "services",
-    tasks: "tasks",
-    widgets: "dashboard widgets",
-    terminology: "workspace terminology",
-    messages: "conversations",
-  },
-  de: {
-    contacts: "Kontakte",
-    organizations: "Organisationen",
-    deals: "Deals",
-    services: "Leistungen",
-    tasks: "Aufgaben",
-    widgets: "Dashboard-Widgets",
-    terminology: "Workspace-Begriffe",
-    messages: "Unterhaltungen",
-  },
-};
+const NAV_TARGET_IDS = new Set<string>([
+  "nav-company",
+  "nav-company-audit-logs",
+  "nav-company-members",
+  "nav-company-roles",
+  "nav-company-settings",
+  "nav-company-subscription",
+  "nav-company-webhook-deliveries",
+  "nav-company-webhooks",
+  "nav-contacts",
+  "nav-dashboard",
+  "nav-deals",
+  "nav-documentation",
+  "nav-feedback",
+  "nav-inbox",
+  "nav-organizations",
+  "nav-profile",
+  "nav-profile-api-keys",
+  "nav-profile-connected-accounts",
+  "nav-profile-settings",
+  "nav-search",
+  "nav-services",
+  "nav-tasks",
+]);
 
-const RESOURCE_SINGULAR_COPY: Record<"en" | "de", Record<AgentActivityResource, string>> = {
-  en: {
-    contacts: "contact",
-    organizations: "organization",
-    deals: "deal",
-    services: "service",
-    tasks: "task",
-    widgets: "dashboard widget",
-    terminology: "workspace term",
-    messages: "conversation",
-  },
-  de: {
-    contacts: "Kontakt",
-    organizations: "Organisation",
-    deals: "Deal",
-    services: "Leistung",
-    tasks: "Aufgabe",
-    widgets: "Dashboard-Widget",
-    terminology: "Workspace-Begriff",
-    messages: "Unterhaltung",
-  },
-};
-
-type LocalizedTargetCopy = { en: string; de: string };
-
-const NAV_TARGET_COPY: Record<string, LocalizedTargetCopy> = {
-  "nav-dashboard": { en: "Dashboard", de: "Dashboard" },
-  "nav-inbox": { en: "Inbox", de: "Posteingang" },
-  "nav-tasks": { en: "Tasks", de: "Aufgaben" },
-  "nav-contacts": { en: "Contacts", de: "Kontakte" },
-  "nav-organizations": { en: "Organizations", de: "Organisationen" },
-  "nav-deals": { en: "Deals", de: "Deals" },
-  "nav-services": { en: "Services", de: "Leistungen" },
-  "nav-search": { en: "Global search", de: "Globale Suche" },
-  "nav-profile": { en: "Profile settings", de: "Profileinstellungen" },
-  "nav-profile-settings": { en: "Profile settings", de: "Profileinstellungen" },
-  "nav-profile-api-keys": { en: "API keys", de: "API-Schlüssel" },
-  "nav-profile-connected-accounts": {
-    en: "Connected accounts",
-    de: "Verbundene Konten",
-  },
-  "nav-company": { en: "Company settings", de: "Unternehmenseinstellungen" },
-  "nav-company-subscription": { en: "Subscription", de: "Abonnement" },
-  "nav-company-settings": {
-    en: "Company settings",
-    de: "Unternehmenseinstellungen",
-  },
-  "nav-company-members": { en: "Team members", de: "Teammitglieder" },
-  "nav-company-roles": { en: "Roles", de: "Rollen" },
-  "nav-company-audit-logs": { en: "Audit logs", de: "Auditprotokoll" },
-  "nav-company-webhooks": { en: "Webhooks", de: "Webhooks" },
-  "nav-company-webhook-deliveries": {
-    en: "Webhook deliveries",
-    de: "Webhook-Zustellungen",
-  },
-  "nav-documentation": { en: "Documentation", de: "Dokumentation" },
-  "nav-feedback": { en: "Feedback", de: "Feedback" },
-};
-
-const TARGET_SCOPE_COPY: Record<string, LocalizedTargetCopy & { enSingle?: string; deSingle?: string }> = {
-  contacts: {
-    en: "contacts",
-    de: "Kontakte",
-    enSingle: "contact",
-    deSingle: "Kontakt",
-  },
-  organizations: {
-    en: "organizations",
-    de: "Organisationen",
-    enSingle: "organization",
-    deSingle: "Organisation",
-  },
-  deals: { en: "deals", de: "Deals", enSingle: "deal", deSingle: "Deal" },
-  services: {
-    en: "services",
-    de: "Leistungen",
-    enSingle: "service",
-    deSingle: "Leistung",
-  },
-  tasks: { en: "tasks", de: "Aufgaben", enSingle: "task", deSingle: "Aufgabe" },
-  "company-members": {
-    en: "team members",
-    de: "Teammitglieder",
-    enSingle: "team member",
-    deSingle: "Teammitglied",
-  },
-  "company-webhooks": {
-    en: "webhooks",
-    de: "Webhooks",
-    enSingle: "webhook",
-    deSingle: "Webhook",
-  },
-  "company-roles": {
-    en: "roles",
-    de: "Rollen",
-    enSingle: "role",
-    deSingle: "Rolle",
-  },
-  "company-audit-logs": { en: "audit logs", de: "Auditprotokoll" },
-  "company-webhook-deliveries": {
-    en: "webhook deliveries",
-    de: "Webhook-Zustellungen",
-  },
-  "profile-settings": { en: "profile settings", de: "Profileinstellungen" },
-  "company-settings": {
-    en: "company settings",
-    de: "Unternehmenseinstellungen",
-  },
-  "member-modal": { en: "team member dialog", de: "Teammitglieder-Dialog" },
-  "webhook-modal": { en: "webhook dialog", de: "Webhook-Dialog" },
-  "widget-modal": {
-    en: "dashboard widget dialog",
-    de: "Dashboard-Widget-Dialog",
-  },
-};
+const TARGET_SCOPE_IDS = new Set<string>([
+  "company-audit-logs",
+  "company-members",
+  "company-roles",
+  "company-settings",
+  "company-webhook-deliveries",
+  "company-webhooks",
+  "contacts",
+  "deals",
+  "member-modal",
+  "organizations",
+  "profile-settings",
+  "services",
+  "tasks",
+  "webhook-modal",
+  "widget-modal",
+]);
 
 const TARGET_ACTIONS = ["display-options", "add", "search", "filter", "save", "reset"] as const;
+const TARGET_ACTION_KEYS: Record<(typeof TARGET_ACTIONS)[number], string> = {
+  "display-options": "displayOptions",
+  add: "add",
+  filter: "filter",
+  reset: "reset",
+  save: "save",
+  search: "search",
+};
 
-function agentUiTargetCopy(targetKey: string, language: "en" | "de") {
+export type AgentActivityTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+function agentUiTargetCopy(targetKey: string, t: AgentActivityTranslator) {
   if (!findAgentUiTarget(targetKey)) return undefined;
-
-  const navigation = NAV_TARGET_COPY[targetKey];
-  if (navigation) return navigation[language];
-  if (targetKey === "dashboard-add-widget")
-    return language === "de" ? "Dashboard-Widget hinzufügen" : "Add dashboard widget";
+  if (NAV_TARGET_IDS.has(targetKey)) return t(`AgentChat.activity.navTarget.${targetKey}`);
+  if (targetKey === "dashboard-add-widget") return t("AgentChat.activity.addWidget");
 
   const action = TARGET_ACTIONS.find((candidate) => targetKey.endsWith(`-${candidate}`));
-  if (!action) return language === "de" ? "Ausgewähltes Bedienelement" : "Selected interface control";
+  if (!action) return t("AgentChat.activity.targetFallback");
 
   const scope = targetKey.slice(0, -(action.length + 1));
-  const target = TARGET_SCOPE_COPY[scope];
-  if (!target) return language === "de" ? "Ausgewähltes Bedienelement" : "Selected interface control";
+  if (!TARGET_SCOPE_IDS.has(scope)) return t("AgentChat.activity.targetFallback");
 
-  if (action === "add")
-    return language === "de" ? `${target.deSingle ?? target.de} hinzufügen` : `Add ${target.enSingle ?? target.en}`;
+  const target =
+    action === "add"
+      ? t(`AgentChat.activity.targetScopeSingular.${scope}`)
+      : t(`AgentChat.activity.targetScope.${scope}`);
 
-  if (action === "search") return language === "de" ? `Suche für ${target.de}` : `${target.en} search`;
-  if (action === "filter") return language === "de" ? `Filter für ${target.de}` : `${target.en} filters`;
-  if (action === "display-options")
-    return language === "de" ? `Anzeigeoptionen für ${target.de}` : `${target.en} display options`;
-
-  if (action === "save") return language === "de" ? `Speichern in ${target.de}` : `Save in ${target.en}`;
-  return language === "de" ? `Zurücksetzen in ${target.de}` : `Reset in ${target.en}`;
+  return t(`AgentChat.activity.targetAction.${TARGET_ACTION_KEYS[action]}`, { target });
 }
 
 function countedResourceCopy(
   count: number | undefined,
   resourceKey: AgentActivityResource | undefined,
-  language: "en" | "de",
+  t: AgentActivityTranslator,
   resource: string | undefined,
   hasCustomTerminology: boolean,
 ) {
-  if (count === undefined) return resource ?? (language === "de" ? "Datensätze" : "records");
-  if (count === 1 && resourceKey && !hasCustomTerminology) return `1 ${RESOURCE_SINGULAR_COPY[language][resourceKey]}`;
-  if (count === 1 && resource) return language === "de" ? `1 Datensatz für ${resource}` : `1 record in ${resource}`;
+  const fallback = resource ?? t("AgentChat.activity.defaultRecords");
+  if (count === undefined) return fallback;
+  if (count === 1 && resourceKey && !hasCustomTerminology) {
+    return t("AgentChat.activity.countedSingular", {
+      resource: t(`AgentChat.activity.resourceSingular.${resourceKey}`),
+    });
+  }
+  if (count === 1 && resource) return t("AgentChat.activity.countedRecordInResource", { resource });
 
-  return `${count} ${resource ?? (language === "de" ? "Datensätze" : "records")}`;
+  return t("AgentChat.activity.countedResource", { count, resource: fallback });
 }
 
 function agentConsequenceDetail(
   activity: AgentActivityDescriptor,
-  language: "en" | "de",
+  t: AgentActivityTranslator,
   resource: string | undefined,
   hasCustomTerminology: boolean,
 ) {
@@ -583,111 +493,59 @@ function agentConsequenceDetail(
   const compact = (values: Array<string | undefined>) =>
     values.filter((value): value is string => Boolean(value)).join(" · ");
   const count = consequence.count;
-  const preview = consequence.preview
-    ? `${language === "de" ? "Vorschau" : "Preview"}: ${consequence.preview}`
-    : undefined;
-  const subject = consequence.subject
-    ? `${language === "de" ? "Betreff" : "Subject"}: ${consequence.subject}`
-    : undefined;
+  const labelled = (name: string, value: string | undefined) =>
+    value ? `${t(`AgentChat.activity.label.${name}`)}: ${value}` : undefined;
+  const preview = labelled("preview", consequence.preview);
+  const subject = labelled("subject", consequence.subject);
+  const recipient = labelled("to", consequence.target);
 
   switch (consequence.action) {
     case "email.send":
-      return compact([
-        consequence.target
-          ? `${language === "de" ? "An" : "To"}: ${consequence.target}`
-          : language === "de"
-            ? "E-Mail an die ausgewählten Empfänger senden"
-            : "Send an email to the selected recipients",
-        subject,
-        preview,
-      ]);
+      return compact([recipient ?? t("AgentChat.activity.consequence.emailSend"), subject, preview]);
     case "chat.send":
-      return compact([
-        consequence.target
-          ? `${language === "de" ? "An" : "To"}: ${consequence.target}`
-          : language === "de"
-            ? "Nachricht in der ausgewählten Unterhaltung senden"
-            : "Send to the selected conversation",
-        subject,
-        preview,
-      ]);
+      return compact([recipient ?? t("AgentChat.activity.consequence.chatSend"), subject, preview]);
     case "draft.save":
-      return compact([
-        language === "de"
-          ? "Entwurf in der ausgewählten Unterhaltung speichern"
-          : "Save a draft in the selected conversation",
-        subject,
-        preview,
-      ]);
+      return compact([t("AgentChat.activity.consequence.draftSave"), subject, preview]);
     case "draft.discard":
-      return language === "de"
-        ? "Den ausgewählten gespeicherten Entwurf dauerhaft verwerfen"
-        : "Permanently discard the selected saved draft";
+      return t("AgentChat.activity.consequence.draftDiscard");
     case "thread.update":
       return consequence.state
-        ? language === "de"
-          ? `Unterhaltungsstatus auf „${consequence.state}“ setzen`
-          : `Set conversation state to “${consequence.state}”`
-        : language === "de"
-          ? "Status der ausgewählten Unterhaltung ändern"
-          : "Change the selected conversation state";
+        ? t("AgentChat.activity.consequence.threadUpdateState", { state: consequence.state })
+        : t("AgentChat.activity.consequence.threadUpdate");
     case "support.request":
       return compact([subject, preview]);
     case "team.invite":
       return consequence.target
-        ? language === "de"
-          ? `${count ?? 1} Einladung(en) per E-Mail senden an: ${consequence.target}`
-          : `Send ${count ?? 1} invitation email(s) to: ${consequence.target}`
-        : language === "de"
-          ? "Einladungs-E-Mails an die ausgewählten Personen senden"
-          : "Send invitation emails to the selected people";
+        ? t("AgentChat.activity.consequence.teamInviteTarget", { count: count ?? 1, target: consequence.target })
+        : t("AgentChat.activity.consequence.teamInvite");
     case "team.update":
-      return compact([
-        language === "de"
-          ? "Rolle oder Status des ausgewählten Teammitglieds ändern"
-          : "Change the selected team member’s role or status",
-        consequence.state,
-      ]);
+      return compact([t("AgentChat.activity.consequence.teamUpdate"), consequence.state]);
     case "webhook.create":
       return compact([
-        language === "de" ? "Webhook erstellen" : "Create a webhook",
+        t("AgentChat.activity.consequence.webhookCreate"),
         consequence.target,
-        count === undefined ? undefined : language === "de" ? `${count} Ereignisse` : `${count} events`,
+        count === undefined ? undefined : t("AgentChat.activity.consequence.webhookEvents", { count }),
       ]);
     case "webhook.update":
-      return compact([
-        language === "de" ? "Ausgewählten Webhook ändern" : "Change the selected webhook",
-        consequence.target,
-        consequence.state,
-      ]);
+      return compact([t("AgentChat.activity.consequence.webhookUpdate"), consequence.target, consequence.state]);
     case "webhook.delete":
-      return language === "de"
-        ? "Den ausgewählten Webhook dauerhaft löschen"
-        : "Permanently delete the selected webhook";
+      return t("AgentChat.activity.consequence.webhookDelete");
     case "webhook.resend":
-      return language === "de"
-        ? "Die ausgewählte Webhook-Zustellung erneut senden"
-        : "Resend the selected webhook delivery";
+      return t("AgentChat.activity.consequence.webhookResend");
     case "webhook.inspect":
-      return language === "de"
-        ? "Webhook-Informationen oder Zustellungen abrufen"
-        : "Inspect webhook information or deliveries";
+      return t("AgentChat.activity.consequence.webhookInspect");
     case "records.delete": {
       if (count === undefined) return undefined;
 
-      const target = countedResourceCopy(count, activity.resource, language, resource, hasCustomTerminology);
-
-      return language === "de" ? `${target} dauerhaft löschen` : `Permanently delete ${target}`;
+      return t("AgentChat.activity.consequence.recordsDelete", {
+        target: countedResourceCopy(count, activity.resource, t, resource, hasCustomTerminology),
+      });
     }
     case "records.link":
       return compact([
         consequence.state === "remove"
-          ? language === "de"
-            ? "Verknüpfungen entfernen"
-            : "Remove relationships"
-          : language === "de"
-            ? "Datensätze verknüpfen"
-            : "Link records",
+          ? t("AgentChat.activity.consequence.recordsUnlink")
+          : t("AgentChat.activity.consequence.recordsLink"),
         count === undefined ? undefined : String(count),
       ]);
     case "workspace.configure":
@@ -696,277 +554,38 @@ function agentConsequenceDetail(
       return consequence.state;
     case "account.connect":
       return consequence.target
-        ? language === "de"
-          ? `${consequence.target} verbinden`
-          : `Connect ${consequence.target}`
-        : language === "de"
-          ? "Einen Nachrichtenkanal verbinden"
-          : "Connect a messaging channel";
+        ? t("AgentChat.activity.consequence.accountConnectTarget", { target: consequence.target })
+        : t("AgentChat.activity.consequence.accountConnect");
   }
 }
 
 export function agentActivityCopy(
   activity: AgentActivityDescriptor,
-  locale: string,
+  t: AgentActivityTranslator,
   terminology: Partial<Record<AgentActivityResource, string>> = {},
 ): ActivityCopy {
-  const language: "en" | "de" = locale.toLowerCase().startsWith("de") ? "de" : "en";
   const resource = activity.resource
-    ? (terminology[activity.resource] ?? RESOURCE_COPY[language][activity.resource])
+    ? (terminology[activity.resource] ?? t(`AgentChat.activity.resource.${activity.resource}`))
     : undefined;
   const hasCustomTerminology = Boolean(activity.resource && terminology[activity.resource]);
-  const mutationTarget = countedResourceCopy(
-    activity.count,
-    activity.resource,
-    language,
-    resource,
-    hasCustomTerminology,
-  );
-  const mutationIsSingular = activity.count === 1;
-  const uiTarget = activity.targetKey ? agentUiTargetCopy(activity.targetKey, language) : undefined;
+  const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource, hasCustomTerminology);
+  const uiTarget = activity.targetKey ? agentUiTargetCopy(activity.targetKey, t) : undefined;
   const detail =
-    agentConsequenceDetail(activity, language, resource, hasCustomTerminology) ??
+    agentConsequenceDetail(activity, t, resource, hasCustomTerminology) ??
     uiTarget ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
-
-  const en: Record<AgentActivityKind, ActivityStateCopy> = {
-    "workspace.read": {
-      running: "Checking your workspace",
-      done: "Checked your workspace",
-      error: "Couldn’t check your workspace",
-    },
-    "records.read": {
-      running: `Looking through ${resource ?? "your records"}`,
-      done: `Reviewed ${resource ?? "your records"}`,
-      error: `Couldn’t review ${resource ?? "your records"}`,
-    },
-    "records.create": {
-      running: `Creating ${mutationTarget}`,
-      done: `Created ${mutationTarget}`,
-      error: `Couldn’t create ${mutationTarget}`,
-    },
-    "records.update": {
-      running: `Updating ${mutationTarget}`,
-      done: `Updated ${mutationTarget}`,
-      error: `Couldn’t update ${mutationTarget}`,
-    },
-    "records.delete": {
-      running: `Removing ${mutationTarget}`,
-      done: `Removed ${mutationTarget}`,
-      error: `Couldn’t remove ${mutationTarget}`,
-    },
-    "records.link": {
-      running: "Connecting related records",
-      done: "Connected related records",
-      error: "Couldn’t connect the records",
-    },
-    "records.note": {
-      running: "Updating notes",
-      done: "Updated notes",
-      error: "Couldn’t update the notes",
-    },
-    "messages.read": {
-      running: "Checking conversations",
-      done: "Checked conversations",
-      error: "Couldn’t check conversations",
-    },
-    "messages.write": {
-      running: "Preparing the message",
-      done: "Message action completed",
-      error: "Couldn’t complete the message action",
-    },
-    "messages.send": {
-      running: "Ready to send a real message",
-      done: "Sent the message",
-      error: "Couldn’t send the message",
-    },
-    "messages.draft": {
-      running: "Ready to save a draft",
-      done: "Saved the draft",
-      error: "Couldn’t save the draft",
-    },
-    "messages.discard": {
-      running: "Ready to discard the draft",
-      done: "Discarded the draft",
-      error: "Couldn’t discard the draft",
-    },
-    "messages.triage": {
-      running: "Ready to change the conversation state",
-      done: "Changed the conversation state",
-      error: "Couldn’t change the conversation state",
-    },
-    "team.manage": {
-      running: "Ready to change team access",
-      done: "Changed team access",
-      error: "Couldn’t change team access",
-    },
-    "webhooks.manage": {
-      running: "Ready to change webhook delivery",
-      done: "Completed the webhook action",
-      error: "Couldn’t complete the webhook action",
-    },
-    "accounts.connect": {
-      running: "Preparing a secure connection link",
-      done: "Prepared the connection link",
-      error: "Couldn’t prepare the connection link",
-    },
-    "workspace.configure": {
-      running: "Updating your workspace",
-      done: "Updated your workspace",
-      error: "Couldn’t update your workspace",
-    },
-    "workspace.setup": {
-      running: "Setting up your workspace",
-      done: "Workspace setup is ready",
-      error: "Couldn’t finish the workspace setup",
-    },
-    "workspace.cleanup": {
-      running: "Cleaning up starter records",
-      done: "Starter-record cleanup is complete",
-      error: "Couldn’t finish the cleanup",
-    },
-    "interface.navigate": {
-      running: "Opening the right place",
-      done: "Opened the right place",
-      error: "Couldn’t open that view",
-    },
-    "interface.tour": {
-      running: "Preparing your tour",
-      done: "Started your tour",
-      error: "Couldn’t start the tour",
-    },
-    "support.escalate": {
-      running: "Contacting Customermates support",
-      done: "Support has been contacted",
-      error: "Couldn’t contact support",
-    },
-    generic: {
-      running: "Working on your request",
-      done: "Finished this step",
-      error: "This step needs attention",
-    },
-  };
-  const de: Record<AgentActivityKind, ActivityStateCopy> = {
-    "workspace.read": {
-      running: "Workspace wird geprüft",
-      done: "Workspace wurde geprüft",
-      error: "Workspace konnte nicht geprüft werden",
-    },
-    "records.read": {
-      running: `${resource ?? "Datensätze"} werden durchsucht`,
-      done: `${resource ?? "Datensätze"} wurden geprüft`,
-      error: `${resource ?? "Datensätze"} konnten nicht geprüft werden`,
-    },
-    "records.create": {
-      running: `${mutationTarget} ${mutationIsSingular ? "wird" : "werden"} erstellt`,
-      done: `${mutationTarget} ${mutationIsSingular ? "wurde" : "wurden"} erstellt`,
-      error: `${mutationTarget} ${mutationIsSingular ? "konnte" : "konnten"} nicht erstellt werden`,
-    },
-    "records.update": {
-      running: `${mutationTarget} ${mutationIsSingular ? "wird" : "werden"} aktualisiert`,
-      done: `${mutationTarget} ${mutationIsSingular ? "wurde" : "wurden"} aktualisiert`,
-      error: `${mutationTarget} ${mutationIsSingular ? "konnte" : "konnten"} nicht aktualisiert werden`,
-    },
-    "records.delete": {
-      running: `${mutationTarget} ${mutationIsSingular ? "wird" : "werden"} entfernt`,
-      done: `${mutationTarget} ${mutationIsSingular ? "wurde" : "wurden"} entfernt`,
-      error: `${mutationTarget} ${mutationIsSingular ? "konnte" : "konnten"} nicht entfernt werden`,
-    },
-    "records.link": {
-      running: "Datensätze werden verknüpft",
-      done: "Datensätze wurden verknüpft",
-      error: "Datensätze konnten nicht verknüpft werden",
-    },
-    "records.note": {
-      running: "Notizen werden aktualisiert",
-      done: "Notizen wurden aktualisiert",
-      error: "Notizen konnten nicht aktualisiert werden",
-    },
-    "messages.read": {
-      running: "Unterhaltungen werden geprüft",
-      done: "Unterhaltungen wurden geprüft",
-      error: "Unterhaltungen konnten nicht geprüft werden",
-    },
-    "messages.write": {
-      running: "Nachricht wird vorbereitet",
-      done: "Nachrichtenaktion abgeschlossen",
-      error: "Nachrichtenaktion fehlgeschlagen",
-    },
-    "messages.send": {
-      running: "Eine echte Nachricht ist zum Senden bereit",
-      done: "Nachricht wurde gesendet",
-      error: "Nachricht konnte nicht gesendet werden",
-    },
-    "messages.draft": {
-      running: "Entwurf ist zum Speichern bereit",
-      done: "Entwurf wurde gespeichert",
-      error: "Entwurf konnte nicht gespeichert werden",
-    },
-    "messages.discard": {
-      running: "Entwurf ist zum Verwerfen bereit",
-      done: "Entwurf wurde verworfen",
-      error: "Entwurf konnte nicht verworfen werden",
-    },
-    "messages.triage": {
-      running: "Unterhaltungsstatus ist zum Ändern bereit",
-      done: "Unterhaltungsstatus wurde geändert",
-      error: "Unterhaltungsstatus konnte nicht geändert werden",
-    },
-    "team.manage": {
-      running: "Teamzugriff ist zum Ändern bereit",
-      done: "Teamzugriff wurde geändert",
-      error: "Teamzugriff konnte nicht geändert werden",
-    },
-    "webhooks.manage": {
-      running: "Webhook-Aktion ist bereit",
-      done: "Webhook-Aktion abgeschlossen",
-      error: "Webhook-Aktion fehlgeschlagen",
-    },
-    "accounts.connect": {
-      running: "Sicherer Verbindungslink wird vorbereitet",
-      done: "Verbindungslink wurde vorbereitet",
-      error: "Verbindungslink konnte nicht vorbereitet werden",
-    },
-    "workspace.configure": {
-      running: "Workspace wird aktualisiert",
-      done: "Workspace wurde aktualisiert",
-      error: "Workspace konnte nicht aktualisiert werden",
-    },
-    "workspace.setup": {
-      running: "Workspace wird eingerichtet",
-      done: "Workspace-Einrichtung ist fertig",
-      error: "Workspace-Einrichtung fehlgeschlagen",
-    },
-    "workspace.cleanup": {
-      running: "Starteinträge werden bereinigt",
-      done: "Starteinträge wurden bereinigt",
-      error: "Bereinigung fehlgeschlagen",
-    },
-    "interface.navigate": {
-      running: "Die passende Ansicht wird geöffnet",
-      done: "Passende Ansicht wurde geöffnet",
-      error: "Ansicht konnte nicht geöffnet werden",
-    },
-    "interface.tour": {
-      running: "Tour wird vorbereitet",
-      done: "Tour wurde gestartet",
-      error: "Tour konnte nicht gestartet werden",
-    },
-    "support.escalate": {
-      running: "Customermates Support wird kontaktiert",
-      done: "Support wurde kontaktiert",
-      error: "Support konnte nicht kontaktiert werden",
-    },
-    generic: {
-      running: "Anfrage wird bearbeitet",
-      done: "Schritt abgeschlossen",
-      error: "Dieser Schritt benötigt Aufmerksamkeit",
-    },
-  };
+  const state = (name: "running" | "done" | "error") =>
+    t(`AgentChat.activity.state.${activity.kind}.${name}`, {
+      count: activity.count ?? 0,
+      resource: resource ?? t("AgentChat.activity.yourRecords"),
+      target: mutationTarget,
+    });
 
   return {
-    ...(language === "de" ? de[activity.kind] : en[activity.kind]),
-    cancelled: language === "de" ? "Gestoppt" : "Stopped",
-    detail,
+    running: state("running"),
+    done: state("done"),
+    error: state("error"),
+    cancelled: t("AgentChat.activity.cancelled"),
+    ...(detail ? { detail } : {}),
   };
 }

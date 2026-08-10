@@ -8,6 +8,262 @@
     "title": "Verbundene Konten entfernt"
   },
   "AgentChat": {
+    "activity": {
+      "addWidget": "Dashboard-Widget hinzufügen",
+      "cancelled": "Gestoppt",
+      "consequence": {
+        "accountConnect": "Einen Nachrichtenkanal verbinden",
+        "accountConnectTarget": "{target} verbinden",
+        "chatSend": "Nachricht in der ausgewählten Unterhaltung senden",
+        "draftDiscard": "Den ausgewählten gespeicherten Entwurf dauerhaft verwerfen",
+        "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
+        "emailSend": "E-Mail an die ausgewählten Empfänger senden",
+        "recordsDelete": "{target} dauerhaft löschen",
+        "recordsLink": "Datensätze verknüpfen",
+        "recordsUnlink": "Verknüpfungen entfernen",
+        "teamInvite": "Einladungs-E-Mails an die ausgewählten Personen senden",
+        "teamInviteTarget": "{count} Einladung(en) per E-Mail senden an: {target}",
+        "teamUpdate": "Rolle oder Status des ausgewählten Teammitglieds ändern",
+        "threadUpdate": "Status der ausgewählten Unterhaltung ändern",
+        "threadUpdateState": "Unterhaltungsstatus auf „{state}“ setzen",
+        "webhookCreate": "Webhook erstellen",
+        "webhookDelete": "Den ausgewählten Webhook dauerhaft löschen",
+        "webhookEvents": "{count} Ereignisse",
+        "webhookInspect": "Webhook-Informationen oder Zustellungen abrufen",
+        "webhookResend": "Die ausgewählte Webhook-Zustellung erneut senden",
+        "webhookUpdate": "Ausgewählten Webhook ändern"
+      },
+      "countedRecordInResource": "1 Datensatz für {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "Datensätze",
+      "label": {
+        "preview": "Vorschau",
+        "subject": "Betreff",
+        "to": "An"
+      },
+      "navTarget": {
+        "nav-company": "Unternehmenseinstellungen",
+        "nav-company-audit-logs": "Auditprotokoll",
+        "nav-company-members": "Teammitglieder",
+        "nav-company-roles": "Rollen",
+        "nav-company-settings": "Unternehmenseinstellungen",
+        "nav-company-subscription": "Abonnement",
+        "nav-company-webhook-deliveries": "Webhook-Zustellungen",
+        "nav-company-webhooks": "Webhooks",
+        "nav-contacts": "Kontakte",
+        "nav-dashboard": "Dashboard",
+        "nav-deals": "Deals",
+        "nav-documentation": "Dokumentation",
+        "nav-feedback": "Feedback",
+        "nav-inbox": "Posteingang",
+        "nav-organizations": "Organisationen",
+        "nav-profile": "Profileinstellungen",
+        "nav-profile-api-keys": "API-Schlüssel",
+        "nav-profile-connected-accounts": "Verbundene Konten",
+        "nav-profile-settings": "Profileinstellungen",
+        "nav-search": "Globale Suche",
+        "nav-services": "Leistungen",
+        "nav-tasks": "Aufgaben"
+      },
+      "resource": {
+        "contacts": "Kontakte",
+        "deals": "Deals",
+        "messages": "Unterhaltungen",
+        "organizations": "Organisationen",
+        "services": "Leistungen",
+        "tasks": "Aufgaben",
+        "terminology": "Workspace-Begriffe",
+        "widgets": "Dashboard-Widgets"
+      },
+      "resourceSingular": {
+        "contacts": "Kontakt",
+        "deals": "Deal",
+        "messages": "Unterhaltung",
+        "organizations": "Organisation",
+        "services": "Leistung",
+        "tasks": "Aufgabe",
+        "terminology": "Workspace-Begriff",
+        "widgets": "Dashboard-Widget"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Verbindungslink wurde vorbereitet",
+            "error": "Verbindungslink konnte nicht vorbereitet werden",
+            "running": "Sicherer Verbindungslink wird vorbereitet"
+          }
+        },
+        "generic": {
+          "done": "Schritt abgeschlossen",
+          "error": "Dieser Schritt benötigt Aufmerksamkeit",
+          "running": "Anfrage wird bearbeitet"
+        },
+        "interface": {
+          "navigate": {
+            "done": "Passende Ansicht wurde geöffnet",
+            "error": "Ansicht konnte nicht geöffnet werden",
+            "running": "Die passende Ansicht wird geöffnet"
+          },
+          "tour": {
+            "done": "Tour wurde gestartet",
+            "error": "Tour konnte nicht gestartet werden",
+            "running": "Tour wird vorbereitet"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Entwurf wurde verworfen",
+            "error": "Entwurf konnte nicht verworfen werden",
+            "running": "Entwurf ist zum Verwerfen bereit"
+          },
+          "draft": {
+            "done": "Entwurf wurde gespeichert",
+            "error": "Entwurf konnte nicht gespeichert werden",
+            "running": "Entwurf ist zum Speichern bereit"
+          },
+          "read": {
+            "done": "Unterhaltungen wurden geprüft",
+            "error": "Unterhaltungen konnten nicht geprüft werden",
+            "running": "Unterhaltungen werden geprüft"
+          },
+          "send": {
+            "done": "Nachricht wurde gesendet",
+            "error": "Nachricht konnte nicht gesendet werden",
+            "running": "Eine echte Nachricht ist zum Senden bereit"
+          },
+          "triage": {
+            "done": "Unterhaltungsstatus wurde geändert",
+            "error": "Unterhaltungsstatus konnte nicht geändert werden",
+            "running": "Unterhaltungsstatus ist zum Ändern bereit"
+          },
+          "write": {
+            "done": "Nachrichtenaktion abgeschlossen",
+            "error": "Nachrichtenaktion fehlgeschlagen",
+            "running": "Nachricht wird vorbereitet"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {{target} wurde erstellt} other {{target} wurden erstellt}}",
+            "error": "{count, plural, one {{target} konnte nicht erstellt werden} other {{target} konnten nicht erstellt werden}}",
+            "running": "{count, plural, one {{target} wird erstellt} other {{target} werden erstellt}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {{target} wurde entfernt} other {{target} wurden entfernt}}",
+            "error": "{count, plural, one {{target} konnte nicht entfernt werden} other {{target} konnten nicht entfernt werden}}",
+            "running": "{count, plural, one {{target} wird entfernt} other {{target} werden entfernt}}"
+          },
+          "link": {
+            "done": "Datensätze wurden verknüpft",
+            "error": "Datensätze konnten nicht verknüpft werden",
+            "running": "Datensätze werden verknüpft"
+          },
+          "note": {
+            "done": "Notizen wurden aktualisiert",
+            "error": "Notizen konnten nicht aktualisiert werden",
+            "running": "Notizen werden aktualisiert"
+          },
+          "read": {
+            "done": "{resource} wurden geprüft",
+            "error": "{resource} konnten nicht geprüft werden",
+            "running": "{resource} werden durchsucht"
+          },
+          "update": {
+            "done": "{count, plural, one {{target} wurde aktualisiert} other {{target} wurden aktualisiert}}",
+            "error": "{count, plural, one {{target} konnte nicht aktualisiert werden} other {{target} konnten nicht aktualisiert werden}}",
+            "running": "{count, plural, one {{target} wird aktualisiert} other {{target} werden aktualisiert}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Support wurde kontaktiert",
+            "error": "Support konnte nicht kontaktiert werden",
+            "running": "Customermates Support wird kontaktiert"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Teamzugriff wurde geändert",
+            "error": "Teamzugriff konnte nicht geändert werden",
+            "running": "Teamzugriff ist zum Ändern bereit"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Webhook-Aktion abgeschlossen",
+            "error": "Webhook-Aktion fehlgeschlagen",
+            "running": "Webhook-Aktion ist bereit"
+          }
+        },
+        "workspace": {
+          "cleanup": {
+            "done": "Starteinträge wurden bereinigt",
+            "error": "Bereinigung fehlgeschlagen",
+            "running": "Starteinträge werden bereinigt"
+          },
+          "configure": {
+            "done": "Workspace wurde aktualisiert",
+            "error": "Workspace konnte nicht aktualisiert werden",
+            "running": "Workspace wird aktualisiert"
+          },
+          "read": {
+            "done": "Workspace wurde geprüft",
+            "error": "Workspace konnte nicht geprüft werden",
+            "running": "Workspace wird geprüft"
+          },
+          "setup": {
+            "done": "Workspace-Einrichtung ist fertig",
+            "error": "Workspace-Einrichtung fehlgeschlagen",
+            "running": "Workspace wird eingerichtet"
+          }
+        }
+      },
+      "targetAction": {
+        "add": "{target} hinzufügen",
+        "displayOptions": "Anzeigeoptionen für {target}",
+        "filter": "Filter für {target}",
+        "reset": "Zurücksetzen in {target}",
+        "save": "Speichern in {target}",
+        "search": "Suche für {target}"
+      },
+      "targetFallback": "Ausgewähltes Bedienelement",
+      "targetScope": {
+        "company-audit-logs": "Auditprotokoll",
+        "company-members": "Teammitglieder",
+        "company-roles": "Rollen",
+        "company-settings": "Unternehmenseinstellungen",
+        "company-webhook-deliveries": "Webhook-Zustellungen",
+        "company-webhooks": "Webhooks",
+        "contacts": "Kontakte",
+        "deals": "Deals",
+        "member-modal": "Teammitglieder-Dialog",
+        "organizations": "Organisationen",
+        "profile-settings": "Profileinstellungen",
+        "services": "Leistungen",
+        "tasks": "Aufgaben",
+        "webhook-modal": "Webhook-Dialog",
+        "widget-modal": "Dashboard-Widget-Dialog"
+      },
+      "targetScopeSingular": {
+        "company-audit-logs": "Auditprotokoll",
+        "company-members": "Teammitglied",
+        "company-roles": "Rolle",
+        "company-settings": "Unternehmenseinstellungen",
+        "company-webhook-deliveries": "Webhook-Zustellungen",
+        "company-webhooks": "Webhook",
+        "contacts": "Kontakt",
+        "deals": "Deal",
+        "member-modal": "Teammitglieder-Dialog",
+        "organizations": "Organisation",
+        "profile-settings": "Profileinstellungen",
+        "services": "Leistung",
+        "tasks": "Aufgabe",
+        "webhook-modal": "Webhook-Dialog",
+        "widget-modal": "Dashboard-Widget-Dialog"
+      },
+      "yourRecords": "Datensätze"
+    },
     "approval": {
       "always": "Freigegeben (ab jetzt immer erlaubt)",
       "alwaysAction": "Immer freigeben",
@@ -130,6 +386,78 @@
       "summary": "Zusammenfassung der Einrichtung",
       "tasks": "Aufgaben",
       "terminology": "Begriffe",
+      "text": {
+        "active": "Aktiv",
+        "advisorySession": "Beratungstermin",
+        "atRisk": "Gefährdet",
+        "blocked": "Blockiert",
+        "bookProjectKickoff": "Projekt-Kick-off terminieren",
+        "brightpathRelaunch": "Brightpath-Relaunch",
+        "cedarIntroduction": "Cedar-Erstgespräch",
+        "cedarPartnership": "Cedar-Partnerschaft",
+        "clarifyRequirements": "Anforderungen klären",
+        "collectProjectRequirements": "Projektanforderungen sammeln",
+        "commonGroundAdvisory": "Common Ground Beratung",
+        "confirmDiscoveryGoals": "Discovery-Ziele abstimmen",
+        "confirmSeatRequirements": "Nutzerbedarf abstimmen",
+        "coreOffering": "Kernangebot",
+        "customerOpportunity": "Kundenchance",
+        "dealsByStage": "Deals nach Phase",
+        "discoveryWorkshop": "Discovery-Workshop",
+        "done": "Erledigt",
+        "draftPartnershipOutline": "Partnerschaftskonzept entwerfen",
+        "dueDate": "Fälligkeitsdatum",
+        "enterprise": "Enterprise",
+        "enterprisePlan": "Enterprise-Tarif",
+        "exampleCustomer": "Beispielkunde",
+        "examplePartner": "Beispielpartner",
+        "expandedOffering": "Erweitertes Angebot",
+        "growthRollout": "Wachstums-Rollout",
+        "implementationProject": "Umsetzungsprojekt",
+        "inbound": "Inbound",
+        "inProgress": "In Bearbeitung",
+        "juniperDiscovery": "Juniper-Discovery",
+        "juniperImplementation": "Juniper-Umsetzung",
+        "keyRelationship": "Schlüsselbeziehung",
+        "lindenExpansion": "Linden-Erweiterung",
+        "midMarket": "Mittelstand",
+        "new": "Neu",
+        "northstarPilot": "Northstar-Pilot",
+        "northstarRollout": "Northstar-Rollout",
+        "oakFieldExpansion": "Oak & Field Erweiterung",
+        "oakFieldTeamPlan": "Oak & Field Team-Tarif",
+        "onTrack": "Im Plan",
+        "outbound": "Outbound",
+        "partnerExpansion": "Partnererweiterung",
+        "partnerOpportunity": "Partnerchance",
+        "partnershipProgram": "Partnerschaftsprogramm",
+        "pipelineValueByStage": "Pipeline-Wert nach Phase",
+        "prepareProductDemo": "Produktdemo vorbereiten",
+        "prepareRolloutProposal": "Rollout-Angebot vorbereiten",
+        "prepareTheNextStep": "Nächsten Schritt vorbereiten",
+        "projectHealth": "Projektstatus",
+        "proposal": "Angebot",
+        "qualified": "Qualifiziert",
+        "referral": "Empfehlung",
+        "relationship": "Beziehung",
+        "reviewDeliveryPlan": "Umsetzungsplan prüfen",
+        "scheduleACheckIn": "Check-in terminieren",
+        "scheduleAFollowUp": "Folgetermin vereinbaren",
+        "scheduleStakeholderReview": "Stakeholder-Review terminieren",
+        "segment": "Segment",
+        "sendIntroductionNote": "Vorstellungsnachricht senden",
+        "shareSecurityPackage": "Sicherheitsunterlagen senden",
+        "smallTeam": "Kleines Team",
+        "solarisEnterprisePlan": "Solaris Enterprise-Tarif",
+        "source": "Quelle",
+        "stage": "Phase",
+        "status": "Status",
+        "strategySprint": "Strategie-Sprint",
+        "tasksByStatus": "Aufgaben nach Status",
+        "teamPlan": "Team-Tarif",
+        "toDo": "Offen",
+        "won": "Gewonnen"
+      },
       "title": "Arbeitsbereich einrichten",
       "widgets": "Widgets"
     },
@@ -150,10 +478,10 @@
       "title": "Geführte Tour"
     },
     "ui": {
-      "activityCancelled": "{count} Arbeitsschritte gestoppt",
-      "activityComplete": "{count} Arbeitsschritte abgeschlossen",
-      "activityError": "{count} Arbeitsschritte benötigen Aufmerksamkeit",
-      "activityRunning": "{count} Arbeitsschritte werden ausgeführt …",
+      "activityCancelled": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} gestoppt",
+      "activityComplete": "{count} {count, plural, one {Arbeitsschritt} other {Arbeitsschritte}} abgeschlossen",
+      "activityError": "{count} {count, plural, one {Arbeitsschritt benötigt} other {Arbeitsschritte benötigen}} Aufmerksamkeit",
+      "activityRunning": "{count} {count, plural, one {Arbeitsschritt wird} other {Arbeitsschritte werden}} ausgeführt …",
       "archive": "Chat archivieren",
       "archived": "Archiviert",
       "archivedChats": "Archivierte Chats",

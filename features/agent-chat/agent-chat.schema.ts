@@ -1,3 +1,5 @@
+import { APP_LOCALES } from "@/i18n/locale-registry";
+
 import { z } from "zod";
 
 import { type Data } from "@/core/validation/validation.utils";
@@ -17,12 +19,15 @@ export const AgentPageContextSchema = z.object({
   route: z.string().max(500),
 });
 
+const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
+const AgentAppLocaleSchema = z.enum([firstAppLocale, ...otherAppLocales]);
+
 export const SendAgentMessageSchema = z.object({
   conversationId: z.uuid().optional(),
   clientRequestId: z.uuid(),
   text: z.string().min(1).max(20000),
   pageContext: AgentPageContextSchema.optional(),
-  locale: z.enum(["en", "de"]).optional(),
+  locale: AgentAppLocaleSchema.optional(),
   retry: z.boolean().default(false),
 });
 

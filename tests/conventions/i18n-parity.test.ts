@@ -33,7 +33,10 @@ const PRODUCT_NAMES = [
   "WhatsApp",
 ];
 
-const ALLOWED_LOCALIZED_NUMBERS = new Set(["fr:ContactPage.description"]);
+const ALLOWED_LOCALIZED_NUMBERS = new Set([
+  "fr:ContactPage.description",
+  "fr:HomepagePricing.cloud.featureBusiness",
+]);
 
 const PROTECTED_SOURCE_TERMS = ["open core"];
 
@@ -73,6 +76,20 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  "fr:AgentChat.activity.navTarget.nav-documentation",
+  "de:AgentChat.activity.countedResource",
+  "es:AgentChat.activity.countedResource",
+  "fr:AgentChat.activity.countedResource",
+  "it:AgentChat.activity.countedResource",
+  "de:AgentChat.activity.countedSingular",
+  "es:AgentChat.activity.countedSingular",
+  "fr:AgentChat.activity.countedSingular",
+  "it:AgentChat.activity.countedSingular",
+  "it:AgentChat.activity.countedRecordInResource",
+  "de:AgentChat.support.badge",
+  "fr:AgentChat.support.badge",
+  "fr:AgentChat.activity.resource.messages",
+  "fr:AgentChat.activity.resourceSingular.messages",
   "de:ConnectedAccountsCard.channels.linkedinClassic",
   "de:ConnectedAccountsCard.channels.linkedinRecruiter",
   "de:ConnectedAccountsCard.channels.linkedinSalesNavigator",

@@ -162,7 +162,6 @@ export type AgentSetupWidgetPlan = {
 export type AgentWorkspaceSetupPlan = {
   schemaVersion: 1;
   revision: 1;
-  locale?: "en" | "de";
   useCase: AgentWorkspaceUseCase;
   businessName: string | null;
   goal: string | null;
@@ -181,7 +180,6 @@ export const AgentWorkspaceSetupPlanSchema = z
   .object({
     schemaVersion: z.literal(1),
     revision: z.literal(1),
-    locale: z.enum(["en", "de"]).optional(),
     useCase: AgentWorkspaceUseCaseSchema,
     businessName: visibleText(80).nullable(),
     goal: visibleText(500).nullable(),
@@ -564,88 +562,92 @@ const TERMINOLOGY: Record<AgentWorkspaceUseCase, AgentWorkspaceSetupPlan["termin
   },
 };
 
-const GERMAN_SETUP_TEXT: Record<string, string> = {
-  Stage: "Phase",
-  New: "Neu",
-  Qualified: "Qualifiziert",
-  Proposal: "Angebot",
-  Won: "Gewonnen",
-  Status: "Status",
-  "To do": "Offen",
-  "In progress": "In Bearbeitung",
-  Done: "Erledigt",
-  "Due date": "Fälligkeitsdatum",
-  "Pipeline value by stage": "Pipeline-Wert nach Phase",
-  "Deals by stage": "Deals nach Phase",
-  "Tasks by status": "Aufgaben nach Status",
-  Source: "Quelle",
-  Referral: "Empfehlung",
-  Inbound: "Inbound",
-  Outbound: "Outbound",
-  "Project health": "Projektstatus",
-  "On track": "Im Plan",
-  "At risk": "Gefährdet",
-  Blocked: "Blockiert",
-  Segment: "Segment",
-  "Small team": "Kleines Team",
-  "Mid-market": "Mittelstand",
-  Enterprise: "Enterprise",
-  Relationship: "Beziehung",
-  Active: "Aktiv",
-  "Key relationship": "Schlüsselbeziehung",
-  "Discovery workshop": "Discovery-Workshop",
-  "Growth rollout": "Wachstums-Rollout",
-  "Northstar pilot": "Northstar-Pilot",
-  "Northstar rollout": "Northstar-Rollout",
-  "Linden expansion": "Linden-Erweiterung",
-  "Confirm discovery goals": "Discovery-Ziele abstimmen",
-  "Prepare rollout proposal": "Rollout-Angebot vorbereiten",
-  "Schedule stakeholder review": "Stakeholder-Review terminieren",
-  "Strategy sprint": "Strategie-Sprint",
-  "Implementation project": "Umsetzungsprojekt",
-  "Juniper discovery": "Juniper-Discovery",
-  "Juniper implementation": "Juniper-Umsetzung",
-  "Brightpath relaunch": "Brightpath-Relaunch",
-  "Collect project requirements": "Projektanforderungen sammeln",
-  "Review delivery plan": "Umsetzungsplan prüfen",
-  "Book project kickoff": "Projekt-Kick-off terminieren",
-  "Team plan": "Team-Tarif",
-  "Enterprise plan": "Enterprise-Tarif",
-  "Oak & Field team plan": "Oak & Field Team-Tarif",
-  "Oak & Field expansion": "Oak & Field Erweiterung",
-  "Solaris enterprise plan": "Solaris Enterprise-Tarif",
-  "Confirm seat requirements": "Nutzerbedarf abstimmen",
-  "Share security package": "Sicherheitsunterlagen senden",
-  "Prepare product demo": "Produktdemo vorbereiten",
-  "Advisory session": "Beratungstermin",
-  "Partnership program": "Partnerschaftsprogramm",
-  "Cedar introduction": "Cedar-Erstgespräch",
-  "Cedar partnership": "Cedar-Partnerschaft",
-  "Common Ground advisory": "Common Ground Beratung",
-  "Send introduction note": "Vorstellungsnachricht senden",
-  "Draft partnership outline": "Partnerschaftskonzept entwerfen",
-  "Schedule a check-in": "Check-in terminieren",
-  "Example Partner": "Beispielpartner",
-  "Example Customer": "Beispielkunde",
-  "Core offering": "Kernangebot",
-  "Expanded offering": "Erweitertes Angebot",
-  "Partner opportunity": "Partnerchance",
-  "Partner expansion": "Partnererweiterung",
-  "Customer opportunity": "Kundenchance",
-  "Clarify requirements": "Anforderungen klären",
-  "Prepare the next step": "Nächsten Schritt vorbereiten",
-  "Schedule a follow-up": "Folgetermin vereinbaren",
+const SETUP_TEXT_KEYS: Record<string, string> = {
+  "To do": "toDo",
+  "In progress": "inProgress",
+  "Due date": "dueDate",
+  "Pipeline value by stage": "pipelineValueByStage",
+  "Deals by stage": "dealsByStage",
+  "Tasks by status": "tasksByStatus",
+  "Project health": "projectHealth",
+  "On track": "onTrack",
+  "At risk": "atRisk",
+  "Small team": "smallTeam",
+  "Mid-market": "midMarket",
+  "Key relationship": "keyRelationship",
+  "Discovery workshop": "discoveryWorkshop",
+  "Growth rollout": "growthRollout",
+  "Northstar pilot": "northstarPilot",
+  "Northstar rollout": "northstarRollout",
+  "Linden expansion": "lindenExpansion",
+  "Confirm discovery goals": "confirmDiscoveryGoals",
+  "Prepare rollout proposal": "prepareRolloutProposal",
+  "Schedule stakeholder review": "scheduleStakeholderReview",
+  "Strategy sprint": "strategySprint",
+  "Implementation project": "implementationProject",
+  "Juniper discovery": "juniperDiscovery",
+  "Juniper implementation": "juniperImplementation",
+  "Brightpath relaunch": "brightpathRelaunch",
+  "Collect project requirements": "collectProjectRequirements",
+  "Review delivery plan": "reviewDeliveryPlan",
+  "Book project kickoff": "bookProjectKickoff",
+  "Team plan": "teamPlan",
+  "Enterprise plan": "enterprisePlan",
+  "Oak & Field team plan": "oakFieldTeamPlan",
+  "Oak & Field expansion": "oakFieldExpansion",
+  "Solaris enterprise plan": "solarisEnterprisePlan",
+  "Confirm seat requirements": "confirmSeatRequirements",
+  "Share security package": "shareSecurityPackage",
+  "Prepare product demo": "prepareProductDemo",
+  "Advisory session": "advisorySession",
+  "Partnership program": "partnershipProgram",
+  "Cedar introduction": "cedarIntroduction",
+  "Cedar partnership": "cedarPartnership",
+  "Common Ground advisory": "commonGroundAdvisory",
+  "Send introduction note": "sendIntroductionNote",
+  "Draft partnership outline": "draftPartnershipOutline",
+  "Schedule a check-in": "scheduleACheckIn",
+  "Example Partner": "examplePartner",
+  "Example Customer": "exampleCustomer",
+  "Core offering": "coreOffering",
+  "Expanded offering": "expandedOffering",
+  "Partner opportunity": "partnerOpportunity",
+  "Partner expansion": "partnerExpansion",
+  "Customer opportunity": "customerOpportunity",
+  "Clarify requirements": "clarifyRequirements",
+  "Prepare the next step": "prepareTheNextStep",
+  "Schedule a follow-up": "scheduleAFollowUp",
+  Stage: "stage",
+  New: "new",
+  Qualified: "qualified",
+  Proposal: "proposal",
+  Won: "won",
+  Status: "status",
+  Done: "done",
+  Source: "source",
+  Referral: "referral",
+  Inbound: "inbound",
+  Outbound: "outbound",
+  Blocked: "blocked",
+  Segment: "segment",
+  Enterprise: "enterprise",
+  Relationship: "relationship",
+  Active: "active",
 };
 
-function localizeSetupText(value: string, language: "en" | "de") {
-  return language === "de" ? (GERMAN_SETUP_TEXT[value] ?? value) : value;
+export type AgentSetupTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+function localizeSetupText(value: string, t: AgentSetupTranslator) {
+  const key = SETUP_TEXT_KEYS[value];
+  if (!key) return value;
+
+  return t(`AgentChat.setup.text.${key}`) || value;
 }
 
 export function buildAgentWorkspaceSetupPlan(
   data: PrepareAgentWorkspaceSetupData,
-  locale = "en",
+  translate: AgentSetupTranslator = (_key) => "",
 ): AgentWorkspaceSetupPlan {
-  const language: "en" | "de" = locale.toLowerCase().startsWith("de") ? "de" : "en";
   const requestedColumns: AgentSetupColumnPlan[] = (data.customFields ?? []).map((field, index) => ({
     semanticKey: `custom-field-${index + 1}`,
     entityType: field.entityType,
@@ -657,8 +659,8 @@ export function buildAgentWorkspaceSetupPlan(
   const deterministicExtraColumns = requestedColumns.length ? [] : templateColumn ? [templateColumn] : [];
   const columns = [...SHARED_COLUMNS, ...deterministicExtraColumns].map((column) => ({
     ...column,
-    label: localizeSetupText(column.label, language),
-    options: column.options.map((option) => localizeSetupText(option, language)),
+    label: localizeSetupText(column.label, translate),
+    options: column.options.map((option) => localizeSetupText(option, translate)),
   }));
   columns.push(
     ...requestedColumns.map((column) => ({
@@ -668,26 +670,25 @@ export function buildAgentWorkspaceSetupPlan(
   );
   const sourceRecords = RECORDS[data.useCase];
   const records: AgentSetupRecordPlan = {
-    organizations: sourceRecords.organizations.map((name) => localizeSetupText(name, language)),
+    organizations: sourceRecords.organizations.map((name) => localizeSetupText(name, translate)),
     contacts: sourceRecords.contacts.map((contact) => ({ ...contact })),
     services: sourceRecords.services.map((service) => ({
       ...service,
-      name: localizeSetupText(service.name, language),
+      name: localizeSetupText(service.name, translate),
     })),
     deals: sourceRecords.deals.map((deal) => ({
       ...deal,
-      name: localizeSetupText(deal.name, language),
+      name: localizeSetupText(deal.name, translate),
       contactIndexes: [...deal.contactIndexes],
     })),
     tasks: sourceRecords.tasks.map((task) => ({
       ...task,
-      name: localizeSetupText(task.name, language),
+      name: localizeSetupText(task.name, translate),
     })),
   };
   return {
     schemaVersion: 1,
     revision: 1,
-    locale: language,
     useCase: data.useCase,
     businessName: data.businessName,
     goal: data.goal,
@@ -696,7 +697,7 @@ export function buildAgentWorkspaceSetupPlan(
     records,
     widgets: SHARED_WIDGETS.map((widget) => ({
       ...widget,
-      name: localizeSetupText(widget.name, language),
+      name: localizeSetupText(widget.name, translate),
     })),
   };
 }
@@ -705,7 +706,7 @@ function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value && typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>)
-      .sort(([left], [right]) => left.localeCompare(right))
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
       .map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`);
     return `{${entries.join(",")}}`;
   }

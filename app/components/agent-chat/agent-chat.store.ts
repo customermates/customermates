@@ -1561,7 +1561,7 @@ export class AgentChatStore extends BaseStore {
       const input = PrepareAgentWorkspaceSetupSchema.safeParse(command.input);
       if (!input.success) return { ok: false, result: "The workspace setup plan was invalid." };
 
-      const plan = buildAgentWorkspaceSetupPlan(input.data, this.rootStore.localeStore.locale);
+      const plan = buildAgentWorkspaceSetupPlan(input.data, this.rootStore.localeStore.translation ?? undefined);
       const planHash = await hashAgentWorkspaceSetupPlan(plan);
       const counts = agentWorkspaceSetupCounts(plan);
       runInAction(() => {

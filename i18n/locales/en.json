@@ -8,6 +8,262 @@
     "title": "Connected accounts removed"
   },
   "AgentChat": {
+    "activity": {
+      "addWidget": "Add dashboard widget",
+      "cancelled": "Stopped",
+      "consequence": {
+        "accountConnect": "Connect a messaging channel",
+        "accountConnectTarget": "Connect {target}",
+        "chatSend": "Send to the selected conversation",
+        "draftDiscard": "Permanently discard the selected saved draft",
+        "draftSave": "Save a draft in the selected conversation",
+        "emailSend": "Send an email to the selected recipients",
+        "recordsDelete": "Permanently delete {target}",
+        "recordsLink": "Link records",
+        "recordsUnlink": "Remove relationships",
+        "teamInvite": "Send invitation emails to the selected people",
+        "teamInviteTarget": "Send {count} invitation email(s) to: {target}",
+        "teamUpdate": "Change the selected team member’s role or status",
+        "threadUpdate": "Change the selected conversation state",
+        "threadUpdateState": "Set conversation state to “{state}”",
+        "webhookCreate": "Create a webhook",
+        "webhookDelete": "Permanently delete the selected webhook",
+        "webhookEvents": "{count} events",
+        "webhookInspect": "Inspect webhook information or deliveries",
+        "webhookResend": "Resend the selected webhook delivery",
+        "webhookUpdate": "Change the selected webhook"
+      },
+      "countedRecordInResource": "1 record in {resource}",
+      "countedResource": "{count} {resource}",
+      "countedSingular": "1 {resource}",
+      "defaultRecords": "records",
+      "label": {
+        "preview": "Preview",
+        "subject": "Subject",
+        "to": "To"
+      },
+      "navTarget": {
+        "nav-company": "Company settings",
+        "nav-company-audit-logs": "Audit logs",
+        "nav-company-members": "Team members",
+        "nav-company-roles": "Roles",
+        "nav-company-settings": "Company settings",
+        "nav-company-subscription": "Subscription",
+        "nav-company-webhook-deliveries": "Webhook deliveries",
+        "nav-company-webhooks": "Webhooks",
+        "nav-contacts": "Contacts",
+        "nav-dashboard": "Dashboard",
+        "nav-deals": "Deals",
+        "nav-documentation": "Documentation",
+        "nav-feedback": "Feedback",
+        "nav-inbox": "Inbox",
+        "nav-organizations": "Organizations",
+        "nav-profile": "Profile settings",
+        "nav-profile-api-keys": "API keys",
+        "nav-profile-connected-accounts": "Connected accounts",
+        "nav-profile-settings": "Profile settings",
+        "nav-search": "Global search",
+        "nav-services": "Services",
+        "nav-tasks": "Tasks"
+      },
+      "resource": {
+        "contacts": "contacts",
+        "deals": "deals",
+        "messages": "conversations",
+        "organizations": "organizations",
+        "services": "services",
+        "tasks": "tasks",
+        "terminology": "workspace terminology",
+        "widgets": "dashboard widgets"
+      },
+      "resourceSingular": {
+        "contacts": "contact",
+        "deals": "deal",
+        "messages": "conversation",
+        "organizations": "organization",
+        "services": "service",
+        "tasks": "task",
+        "terminology": "workspace term",
+        "widgets": "dashboard widget"
+      },
+      "state": {
+        "accounts": {
+          "connect": {
+            "done": "Prepared the connection link",
+            "error": "Couldn’t prepare the connection link",
+            "running": "Preparing a secure connection link"
+          }
+        },
+        "generic": {
+          "done": "Finished this step",
+          "error": "This step needs attention",
+          "running": "Working on your request"
+        },
+        "interface": {
+          "navigate": {
+            "done": "Opened the right place",
+            "error": "Couldn’t open that view",
+            "running": "Opening the right place"
+          },
+          "tour": {
+            "done": "Started your tour",
+            "error": "Couldn’t start the tour",
+            "running": "Preparing your tour"
+          }
+        },
+        "messages": {
+          "discard": {
+            "done": "Discarded the draft",
+            "error": "Couldn’t discard the draft",
+            "running": "Ready to discard the draft"
+          },
+          "draft": {
+            "done": "Saved the draft",
+            "error": "Couldn’t save the draft",
+            "running": "Ready to save a draft"
+          },
+          "read": {
+            "done": "Checked conversations",
+            "error": "Couldn’t check conversations",
+            "running": "Checking conversations"
+          },
+          "send": {
+            "done": "Sent the message",
+            "error": "Couldn’t send the message",
+            "running": "Ready to send a real message"
+          },
+          "triage": {
+            "done": "Changed the conversation state",
+            "error": "Couldn’t change the conversation state",
+            "running": "Ready to change the conversation state"
+          },
+          "write": {
+            "done": "Message action completed",
+            "error": "Couldn’t complete the message action",
+            "running": "Preparing the message"
+          }
+        },
+        "records": {
+          "create": {
+            "done": "{count, plural, one {Created {target}} other {Created {target}}}",
+            "error": "{count, plural, one {Couldn’t create {target}} other {Couldn’t create {target}}}",
+            "running": "{count, plural, one {Creating {target}} other {Creating {target}}}"
+          },
+          "delete": {
+            "done": "{count, plural, one {Removed {target}} other {Removed {target}}}",
+            "error": "{count, plural, one {Couldn’t remove {target}} other {Couldn’t remove {target}}}",
+            "running": "{count, plural, one {Removing {target}} other {Removing {target}}}"
+          },
+          "link": {
+            "done": "Connected related records",
+            "error": "Couldn’t connect the records",
+            "running": "Connecting related records"
+          },
+          "note": {
+            "done": "Updated notes",
+            "error": "Couldn’t update the notes",
+            "running": "Updating notes"
+          },
+          "read": {
+            "done": "Reviewed {resource}",
+            "error": "Couldn’t review {resource}",
+            "running": "Looking through {resource}"
+          },
+          "update": {
+            "done": "{count, plural, one {Updated {target}} other {Updated {target}}}",
+            "error": "{count, plural, one {Couldn’t update {target}} other {Couldn’t update {target}}}",
+            "running": "{count, plural, one {Updating {target}} other {Updating {target}}}"
+          }
+        },
+        "support": {
+          "escalate": {
+            "done": "Support has been contacted",
+            "error": "Couldn’t contact support",
+            "running": "Contacting Customermates support"
+          }
+        },
+        "team": {
+          "manage": {
+            "done": "Changed team access",
+            "error": "Couldn’t change team access",
+            "running": "Ready to change team access"
+          }
+        },
+        "webhooks": {
+          "manage": {
+            "done": "Completed the webhook action",
+            "error": "Couldn’t complete the webhook action",
+            "running": "Ready to change webhook delivery"
+          }
+        },
+        "workspace": {
+          "cleanup": {
+            "done": "Starter-record cleanup is complete",
+            "error": "Couldn’t finish the cleanup",
+            "running": "Cleaning up starter records"
+          },
+          "configure": {
+            "done": "Updated your workspace",
+            "error": "Couldn’t update your workspace",
+            "running": "Updating your workspace"
+          },
+          "read": {
+            "done": "Checked your workspace",
+            "error": "Couldn’t check your workspace",
+            "running": "Checking your workspace"
+          },
+          "setup": {
+            "done": "Workspace setup is ready",
+            "error": "Couldn’t finish the workspace setup",
+            "running": "Setting up your workspace"
+          }
+        }
+      },
+      "targetAction": {
+        "add": "Add {target}",
+        "displayOptions": "{target} display options",
+        "filter": "{target} filters",
+        "reset": "Reset in {target}",
+        "save": "Save in {target}",
+        "search": "{target} search"
+      },
+      "targetFallback": "Selected interface control",
+      "targetScope": {
+        "company-audit-logs": "audit logs",
+        "company-members": "team members",
+        "company-roles": "roles",
+        "company-settings": "company settings",
+        "company-webhook-deliveries": "webhook deliveries",
+        "company-webhooks": "webhooks",
+        "contacts": "contacts",
+        "deals": "deals",
+        "member-modal": "team member dialog",
+        "organizations": "organizations",
+        "profile-settings": "profile settings",
+        "services": "services",
+        "tasks": "tasks",
+        "webhook-modal": "webhook dialog",
+        "widget-modal": "dashboard widget dialog"
+      },
+      "targetScopeSingular": {
+        "company-audit-logs": "audit logs",
+        "company-members": "team member",
+        "company-roles": "role",
+        "company-settings": "company settings",
+        "company-webhook-deliveries": "webhook deliveries",
+        "company-webhooks": "webhook",
+        "contacts": "contact",
+        "deals": "deal",
+        "member-modal": "team member dialog",
+        "organizations": "organization",
+        "profile-settings": "profile settings",
+        "services": "service",
+        "tasks": "task",
+        "webhook-modal": "webhook dialog",
+        "widget-modal": "dashboard widget dialog"
+      },
+      "yourRecords": "your records"
+    },
     "approval": {
       "always": "Approved (always allowed from now on)",
       "alwaysAction": "Approve always",
@@ -130,6 +386,78 @@
       "summary": "Workspace setup summary",
       "tasks": "Tasks",
       "terminology": "Terminology",
+      "text": {
+        "active": "Active",
+        "advisorySession": "Advisory session",
+        "atRisk": "At risk",
+        "blocked": "Blocked",
+        "bookProjectKickoff": "Book project kickoff",
+        "brightpathRelaunch": "Brightpath relaunch",
+        "cedarIntroduction": "Cedar introduction",
+        "cedarPartnership": "Cedar partnership",
+        "clarifyRequirements": "Clarify requirements",
+        "collectProjectRequirements": "Collect project requirements",
+        "commonGroundAdvisory": "Common Ground advisory",
+        "confirmDiscoveryGoals": "Confirm discovery goals",
+        "confirmSeatRequirements": "Confirm seat requirements",
+        "coreOffering": "Core offering",
+        "customerOpportunity": "Customer opportunity",
+        "dealsByStage": "Deals by stage",
+        "discoveryWorkshop": "Discovery workshop",
+        "done": "Done",
+        "draftPartnershipOutline": "Draft partnership outline",
+        "dueDate": "Due date",
+        "enterprise": "Enterprise",
+        "enterprisePlan": "Enterprise plan",
+        "exampleCustomer": "Example Customer",
+        "examplePartner": "Example Partner",
+        "expandedOffering": "Expanded offering",
+        "growthRollout": "Growth rollout",
+        "implementationProject": "Implementation project",
+        "inbound": "Inbound",
+        "inProgress": "In progress",
+        "juniperDiscovery": "Juniper discovery",
+        "juniperImplementation": "Juniper implementation",
+        "keyRelationship": "Key relationship",
+        "lindenExpansion": "Linden expansion",
+        "midMarket": "Mid-market",
+        "new": "New",
+        "northstarPilot": "Northstar pilot",
+        "northstarRollout": "Northstar rollout",
+        "oakFieldExpansion": "Oak & Field expansion",
+        "oakFieldTeamPlan": "Oak & Field team plan",
+        "onTrack": "On track",
+        "outbound": "Outbound",
+        "partnerExpansion": "Partner expansion",
+        "partnerOpportunity": "Partner opportunity",
+        "partnershipProgram": "Partnership program",
+        "pipelineValueByStage": "Pipeline value by stage",
+        "prepareProductDemo": "Prepare product demo",
+        "prepareRolloutProposal": "Prepare rollout proposal",
+        "prepareTheNextStep": "Prepare the next step",
+        "projectHealth": "Project health",
+        "proposal": "Proposal",
+        "qualified": "Qualified",
+        "referral": "Referral",
+        "relationship": "Relationship",
+        "reviewDeliveryPlan": "Review delivery plan",
+        "scheduleACheckIn": "Schedule a check-in",
+        "scheduleAFollowUp": "Schedule a follow-up",
+        "scheduleStakeholderReview": "Schedule stakeholder review",
+        "segment": "Segment",
+        "sendIntroductionNote": "Send introduction note",
+        "shareSecurityPackage": "Share security package",
+        "smallTeam": "Small team",
+        "solarisEnterprisePlan": "Solaris enterprise plan",
+        "source": "Source",
+        "stage": "Stage",
+        "status": "Status",
+        "strategySprint": "Strategy sprint",
+        "tasksByStatus": "Tasks by status",
+        "teamPlan": "Team plan",
+        "toDo": "To do",
+        "won": "Won"
+      },
       "title": "Set up your workspace",
       "widgets": "Widgets"
     },
