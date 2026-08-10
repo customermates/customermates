@@ -394,7 +394,7 @@ const AgentChatPanel = observer(function AgentChatPanel() {
 
       {!store.isHistoryOpen && (
         <div className="px-3 pt-2 pb-3">
-          <div className="rounded-xl bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
+          <div className="rounded-xl border border-input bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:ring-[3px] focus-within:ring-ring/50 focus-within:ring-inset">
             <UsageFooter />
 
             {store.queuedPrompt && <QueuedPrompt />}
