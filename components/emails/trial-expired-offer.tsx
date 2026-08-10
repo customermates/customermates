@@ -4,12 +4,13 @@ import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
+import type { AppLocale } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 const CONTACT_HREF = `${env.BASE_URL}/contact`;
 
 type Props = {
-  locale: string;
+  locale: AppLocale;
   greeting: string;
   body: string;
   cta: string;

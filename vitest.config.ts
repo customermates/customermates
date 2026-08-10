@@ -5,6 +5,7 @@ import { defineConfig } from "vitest/config";
 const aliases = {
   "@": path.resolve(__dirname, "."),
   "@api": path.resolve(__dirname, "./app/api"),
+  "server-only": path.resolve(__dirname, "./tests/helpers/server-only.ts"),
 };
 const testEnvironment = {
   APP_MODE: "self-hosted",
@@ -32,6 +33,7 @@ export default defineConfig({
             "generated",
             "app/[locale]/(protected)/company/components/company-settings/__tests__/company-settings-form.test.ts",
           ],
+          server: { deps: { inline: [/next-intl/] } },
         },
       },
       {

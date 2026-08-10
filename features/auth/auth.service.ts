@@ -17,6 +17,7 @@ import { mustVerifyEmail } from "./email-verification-grace";
 import { redirectTo } from "./auth-outcome";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
+import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 type AuthUser = {
   id: string;
@@ -139,7 +140,7 @@ export class AuthService {
 
   async sendVerificationEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
-    const locale = await getLocale();
+    const locale = appLocaleOrDefault(await getLocale());
 
     await this.emailService.send({
       to: args.to,
@@ -158,7 +159,7 @@ export class AuthService {
 
   async sendResetPasswordEmail(args: { to: string; url: string }): Promise<void> {
     const t = await getTranslations();
-    const locale = await getLocale();
+    const locale = appLocaleOrDefault(await getLocale());
 
     await this.emailService.send({
       to: args.to,

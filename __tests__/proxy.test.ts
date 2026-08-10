@@ -31,9 +31,9 @@ vi.mock("next-intl/middleware", () => ({
 }));
 
 vi.mock("@/i18n/routing", () => ({
+  appRouting: {},
   isPublicPage: mocks.isPublicPage,
   isContentPage: mocks.isContentPage,
-  routing: {},
   contentRouting: {},
 }));
 

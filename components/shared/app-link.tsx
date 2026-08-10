@@ -1,10 +1,18 @@
 "use client";
 
-import type { ComponentProps } from "react";
+import type { AnchorHTMLAttributes, ComponentProps } from "react";
 
 import NextLink from "next/link";
+import { useLocale } from "next-intl";
 
 import { IntlLink } from "@/i18n/navigation";
+import {
+  contentLocaleOrDefault,
+  isContentLocale,
+  routingLocaleFromPathname,
+  stripLocalePrefix,
+} from "@/i18n/locale-registry";
+import { isContentPathname } from "@/i18n/routing";
 import { cn } from "@/core/utils/cn";
 
 type BaseProps = {
@@ -17,8 +25,31 @@ type BaseProps = {
 type Props = BaseProps &
   (({ external: true } & ComponentProps<typeof NextLink>) | ({ external?: false } & ComponentProps<typeof IntlLink>));
 
+export function localizedContentHref(href: string, locale: unknown): string | null {
+  const base = "https://internal.invalid";
+  const target = new URL(href, base);
+  if (target.origin !== base || !isContentPathname(target.pathname)) return null;
+
+  const targetLocale = routingLocaleFromPathname(target.pathname);
+  const contentLocale = isContentLocale(targetLocale) ? targetLocale : contentLocaleOrDefault(locale);
+  const pathname = stripLocalePrefix(target.pathname);
+  const localizedPathname = pathname === "/" ? `/${contentLocale}` : `/${contentLocale}${pathname}`;
+
+  return `${localizedPathname}${target.search}${target.hash}`;
+}
+
+export function contentHrefForLocale(href: string, locale: unknown): string | null {
+  const localizedHref = localizedContentHref(href, locale);
+  if (!localizedHref) return null;
+  if (!isContentLocale(locale)) return localizedHref;
+
+  const targetLocale = routingLocaleFromPathname(new URL(href, "https://internal.invalid").pathname);
+  return isContentLocale(targetLocale) && targetLocale !== locale ? localizedHref : null;
+}
+
 export function AppLink(props: Props) {
   const { appearance = "default", external = false, inheritSize = false, className, ...rest } = props;
+  const locale = useLocale();
 
   const mergedClassName = cn(
     appearance === "inline" ? "inline-link" : "text-primary underline-offset-4 hover:underline transition-colors",
@@ -37,5 +68,34 @@ export function AppLink(props: Props) {
     );
   }
 
-  return <IntlLink className={mergedClassName} {...(rest as ComponentProps<typeof IntlLink>)} />;
+  const internalProps = rest as ComponentProps<typeof IntlLink>;
+  const hardNavigationHref =
+    typeof internalProps.href === "string" ? contentHrefForLocale(internalProps.href, locale) : null;
+
+  if (hardNavigationHref) {
+    const anchorProps = { ...internalProps } as Record<string, unknown>;
+    delete anchorProps.as;
+    delete anchorProps.children;
+    delete anchorProps.href;
+    delete anchorProps.legacyBehavior;
+    delete anchorProps.locale;
+    delete anchorProps.onNavigate;
+    delete anchorProps.passHref;
+    delete anchorProps.prefetch;
+    delete anchorProps.replace;
+    delete anchorProps.scroll;
+    delete anchorProps.shallow;
+
+    return (
+      <a
+        className={mergedClassName}
+        href={hardNavigationHref}
+        {...(anchorProps as AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
+        {internalProps.children}
+      </a>
+    );
+  }
+
+  return <IntlLink className={mergedClassName} {...internalProps} />;
 }

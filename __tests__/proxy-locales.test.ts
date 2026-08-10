@@ -12,16 +12,51 @@ const mockEnv = vi.hoisted(() => ({
 vi.mock("@/i18n/locale-registry", () => {
   type Capabilities = {
     offeredAsDisplayLanguage: boolean;
+    offeredAsFormattingLocale: boolean;
     hasPublishedContent: boolean;
     formattingTag: string;
     flagCode: string;
+    validationTag: string;
+    lowercaseEntityLabelsInSentences: boolean;
   };
 
   const registry: Record<string, Capabilities> = {
-    en: { offeredAsDisplayLanguage: true, hasPublishedContent: true, formattingTag: "en-US", flagCode: "us" },
-    de: { offeredAsDisplayLanguage: true, hasPublishedContent: true, formattingTag: "de-DE", flagCode: "de" },
-    fr: { offeredAsDisplayLanguage: true, hasPublishedContent: false, formattingTag: "fr-FR", flagCode: "fr" },
-    nl: { offeredAsDisplayLanguage: false, hasPublishedContent: true, formattingTag: "nl-NL", flagCode: "nl" },
+    en: {
+      offeredAsDisplayLanguage: true,
+      offeredAsFormattingLocale: true,
+      hasPublishedContent: true,
+      formattingTag: "en-US",
+      flagCode: "us",
+      validationTag: "en",
+      lowercaseEntityLabelsInSentences: true,
+    },
+    de: {
+      offeredAsDisplayLanguage: true,
+      offeredAsFormattingLocale: true,
+      hasPublishedContent: true,
+      formattingTag: "de-DE",
+      flagCode: "de",
+      validationTag: "de",
+      lowercaseEntityLabelsInSentences: false,
+    },
+    fr: {
+      offeredAsDisplayLanguage: true,
+      offeredAsFormattingLocale: true,
+      hasPublishedContent: false,
+      formattingTag: "fr-FR",
+      flagCode: "fr",
+      validationTag: "fr",
+      lowercaseEntityLabelsInSentences: true,
+    },
+    nl: {
+      offeredAsDisplayLanguage: false,
+      offeredAsFormattingLocale: false,
+      hasPublishedContent: true,
+      formattingTag: "nl-NL",
+      flagCode: "nl",
+      validationTag: "nl",
+      lowercaseEntityLabelsInSentences: true,
+    },
   };
 
   const isRoutingLocale = (value: unknown): value is string =>
@@ -41,11 +76,17 @@ vi.mock("@/i18n/locale-registry", () => {
     isContentLocale,
     appLocaleOrDefault: (value: unknown) => (isAppLocale(value) ? value : "en"),
     contentLocaleOrDefault: (value: unknown) => (isContentLocale(value) ? value : "en"),
+    appLocaleFromLanguageTag: (value: string) => {
+      const base = value.toLowerCase().split("-")[0];
+      return ROUTING_LOCALES.find((locale) => isAppLocale(locale) && locale === base) ?? null;
+    },
     formattingTagFor: (locale: string) => registry[locale].formattingTag,
     flagCodeFor: (locale: string) => registry[locale].flagCode,
+    routingLocaleFromUrlSegment: (value: string) =>
+      ROUTING_LOCALES.find((locale) => locale.toLowerCase() === value.toLowerCase()) ?? null,
     routingLocaleFromPathname: (pathname: string) => {
       const segment = pathname.split("/")[1];
-      return isRoutingLocale(segment) ? segment : null;
+      return ROUTING_LOCALES.find((locale) => locale.toLowerCase() === segment?.toLowerCase()) ?? null;
     },
     stripLocalePrefix: (pathname: string) => {
       const segment = pathname.split("/")[1];
@@ -90,7 +131,7 @@ vi.mock("next-intl/middleware", async () => {
 });
 
 import proxy from "@/proxy";
-import { contentRouting, routing } from "@/i18n/routing";
+import { appRouting, contentRouting, routing } from "@/i18n/routing";
 
 function request(pathname: string, acceptLanguage?: string): NextRequest {
   return new NextRequestValue(`http://localhost:4000${pathname}`, {
@@ -136,6 +177,11 @@ describe("locale routing configuration", () => {
     ).not.toContain("fr");
   });
 
+  it("routes application pages only through application locales", () => {
+    expect([...appRouting.locales].sort()).toEqual(["de", "en", "fr"]);
+    expect(appRouting.locales).not.toContain("nl");
+  });
+
   it("leaves alternate-language headers to the html metadata", () => {
     expect(routing.alternateLinks).toBe(false);
     expect(contentRouting.alternateLinks).toBe(false);
@@ -152,7 +198,7 @@ describe("proxy locale routing", () => {
   });
 
   it("404s an unsupported locale prefix instead of redirecting", async () => {
-    for (const path of ["/es/pricing", "/zz", "/pt-br/pricing"]) {
+    for (const path of ["/es/pricing", "/zz", "/pt-br/pricing", "/en-US/pricing"]) {
       const { status, location } = await call(path);
       expect(location, `${path} must not redirect into a URL we may later serve`).toBeNull();
       expect(status, `${path} should fall through to the app router`).toBe(200);
@@ -209,12 +255,17 @@ describe("proxy locale routing", () => {
     }
   });
 
-  it("keeps protected routes reachable in every routing locale", async () => {
-    for (const locale of ["en", "de", "fr", "nl"]) {
+  it("keeps protected routes reachable in every application locale", async () => {
+    for (const locale of ["en", "de", "fr"]) {
       const { status, location } = await call(`/${locale}/dashboard`);
       expect(status, `/${locale}/dashboard should redirect an anonymous visitor to sign-in`).toBe(307);
       expect(location).toContain(`/${locale}/auth/signin`);
     }
+
+    const contentOnly = await call("/nl/dashboard");
+    expect(contentOnly.status).toBe(307);
+    expect(contentOnly.location).toContain("/en/dashboard");
+    expect(contentOnly.location).not.toContain("/nl/auth/signin");
   });
 
   it("terminates within a bounded number of hops", async () => {

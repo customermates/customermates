@@ -2,7 +2,7 @@ import { Github, Star } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { AppLink } from "@/components/shared/app-link";
-import { appLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
+import { contentLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
 
 type Props = {
   className?: string;
@@ -22,9 +22,8 @@ async function getStarCount(): Promise<number | null> {
 }
 
 export async function AgplGithubBadge({ className }: Props) {
-  const t = await getTranslations();
-  const starCount = await getStarCount();
-  const formattingTag = formattingTagFor(appLocaleOrDefault(await getLocale()));
+  const [t, starCount, locale] = await Promise.all([getTranslations(), getStarCount(), getLocale()]);
+  const formattingTag = formattingTagFor(contentLocaleOrDefault(locale));
 
   return (
     <div

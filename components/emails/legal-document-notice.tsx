@@ -5,6 +5,7 @@ import { Section, Text } from "@react-email/components";
 import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailLink } from "@/components/emails/base/email-link";
 import { EmailText } from "@/components/emails/base/email-text";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 type DocumentLink = {
   name: string;
@@ -19,6 +20,7 @@ type Props = {
   documents: DocumentLink[];
   greeting: string;
   liveLabel: string;
+  locale: AppLocale;
   objections: string[];
   signoff: string;
   subject: string;
@@ -32,13 +34,14 @@ export default function LegalDocumentNotice({
   documents,
   greeting,
   liveLabel,
+  locale,
   objections,
   signoff,
   subject,
   title,
 }: Props) {
   return (
-    <EmailLayout preview={subject} title={title}>
+    <EmailLayout locale={locale} preview={subject} title={title}>
       <EmailText>{greeting}</EmailText>
 
       <EmailText>{body}</EmailText>

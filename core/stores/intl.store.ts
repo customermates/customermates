@@ -10,11 +10,11 @@ import fr from "timeago.js/lib/lang/fr";
 import it from "timeago.js/lib/lang/it";
 import { Currency } from "@/generated/prisma";
 
-import type { RoutingLocale } from "@/i18n/locale-registry";
+import type { AppLocale } from "@/i18n/locale-registry";
 
-import { formattingTagFor, isRoutingLocale } from "@/i18n/locale-registry";
+import { formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
 
-const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<RoutingLocale, Parameters<typeof register>[1]>;
+const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
 
 for (const [locale, definition] of Object.entries(TIMEAGO_LOCALES)) register(locale, definition);
 
@@ -34,7 +34,7 @@ export class IntlStore {
 
     const locale = user.formattingLocale;
 
-    return isRoutingLocale(locale) ? formattingTagFor(locale) : undefined;
+    return isFormattingLocale(locale) ? formattingTagFor(locale) : undefined;
   }
 
   get use12Hour(): boolean {

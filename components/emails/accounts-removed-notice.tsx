@@ -3,12 +3,13 @@ import { EmailButton } from "@/components/emails/base/email-button";
 import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
+import type { AppLocale } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
 const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}/profile/connected-accounts`;
 
 type Props = {
-  locale: string;
+  locale: AppLocale;
   greeting: string;
   body: string;
   cta: string;

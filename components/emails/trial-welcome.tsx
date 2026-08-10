@@ -1,9 +1,10 @@
 import enMessages from "@/i18n/locales/en.json";
 import { EmailLayout } from "@/components/emails/base/email-layout";
 import { EmailText } from "@/components/emails/base/email-text";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 type Props = {
-  locale: string;
+  locale: AppLocale;
   greeting: string;
   body: string;
   planNote: string;

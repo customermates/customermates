@@ -1,8 +1,6 @@
 "use client";
 
 import type { UserDetails } from "@/features/user/get/get-user-details.interactor";
-import type { AppLocale } from "@/i18n/locale-registry";
-
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -20,22 +18,22 @@ import { FormActions } from "@/components/card/form-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
-import { APP_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, appLocaleOrDefault, isAppLocale } from "@/i18n/locale-registry";
+import { APP_LOCALES, FORMATTING_LOCALES } from "@/i18n/locale-registry";
+import {
+  appLocaleCookie,
+  browserAppLocale,
+  displayLanguageNavigationTarget,
+  expiredAppLocaleCookie,
+} from "@/i18n/locale-preference";
 
 type Props = {
   userDetails: UserDetails;
   emailVerified: boolean;
 };
 
-function detectBrowserUiLocale(): AppLocale {
+function detectBrowserUiLocale() {
   const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
-
-  for (const language of languages) {
-    const base = language.toLowerCase().split("-")[0];
-    if (isAppLocale(base)) return base;
-  }
-
-  return DEFAULT_LOCALE;
+  return browserAppLocale(languages);
 }
 
 function resolveFormattingLanguageName(uiLocale: string): string {
@@ -81,7 +79,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
       displayLanguage: userDetails.displayLanguage,
       formattingLocale: userDetails.formattingLocale,
     });
-  }, [userDetails]);
+  }, [store, userDetails]);
 
   const systemThemeLabel =
     mounted && systemTheme
@@ -106,7 +104,7 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
     label: key === Locale.system ? systemDisplayLanguageLabel : t(`Common.locales.${key}`),
   }));
 
-  const formattingLocaleItems = [...ROUTING_LOCALES, Locale.system].map((key) => ({
+  const formattingLocaleItems = [...FORMATTING_LOCALES, Locale.system].map((key) => ({
     value: key,
     label: key === Locale.system ? systemFormattingLocaleLabel : t(`Common.locales.${key}`),
   }));
@@ -121,9 +119,11 @@ export const ProfileSettingsForm = observer(({ userDetails, emailVerified }: Pro
           setTheme(store.form.theme ?? Theme.system);
           const locale = store.form.displayLanguage;
           if (locale !== previousDisplayLanguage) {
-            const targetLocale = locale === Locale.system ? detectBrowserUiLocale() : appLocaleOrDefault(locale);
+            if (locale === Locale.system) document.cookie = expiredAppLocaleCookie();
+            else if (locale) document.cookie = appLocaleCookie(locale);
+            const target = displayLanguageNavigationTarget(locale, pathname);
             navigationGuard.tryNavigate(() => {
-              window.location.href = `/${targetLocale}${pathname}`;
+              window.location.href = target;
             });
           }
         });

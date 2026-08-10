@@ -40,11 +40,12 @@ describe("LegalDocumentNotice", () => {
             {
               name: copy.documentName,
               version: "2026-08-07",
-              liveUrl: `https://customermates.com/${copy.locale}/terms`,
+              liveUrl: "https://customermates.com/terms",
             },
           ],
           greeting: copy.greeting,
           liveLabel: copy.liveLabel,
+          locale: copy.locale,
           objections: [copy.body],
           signoff: copy.signoff,
           subject: copy.title,
@@ -56,7 +57,7 @@ describe("LegalDocumentNotice", () => {
       expect(html).toContain(copy.deadlineLabel);
       expect(html).toContain(copy.documentName);
       expect(html).toContain("2026-08-07");
-      expect(html).toContain(`https://customermates.com/${copy.locale}/terms`);
+      expect(html).toContain("https://customermates.com/terms");
       expect(html).toContain(copy.liveLabel);
       expect(html).not.toContain("github.com/customermates/customermates/blob");
     },

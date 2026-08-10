@@ -26749,23 +26749,23 @@
                     "displayLanguage": {
                       "type": "string",
                       "enum": [
-                        "system",
-                        "de",
                         "en",
-                        "es",
+                        "de",
                         "fr",
-                        "it"
+                        "it",
+                        "es",
+                        "system"
                       ]
                     },
                     "formattingLocale": {
                       "type": "string",
                       "enum": [
-                        "system",
-                        "de",
                         "en",
-                        "es",
+                        "de",
                         "fr",
-                        "it"
+                        "it",
+                        "es",
+                        "system"
                       ]
                     },
                     "roleId": {

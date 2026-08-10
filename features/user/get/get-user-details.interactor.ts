@@ -1,11 +1,20 @@
 import { z } from "zod";
-import { Resource, Action, CountryCode as CountryCodeEnum, Locale, Status, Theme } from "@/generated/prisma";
+import { Resource, Action, CountryCode as CountryCodeEnum, Status, Theme } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { getTenantUser } from "@/core/decorators/tenant-context";
+import {
+  DISPLAY_LANGUAGE_VALUES,
+  FORMATTING_LOCALE_VALUES,
+  normalizeStoredDisplayLanguage,
+  normalizeStoredFormattingLocale,
+} from "@/i18n/user-locale";
+
+const [firstDisplayLanguage, ...otherDisplayLanguages] = DISPLAY_LANGUAGE_VALUES;
+const [firstFormattingLocale, ...otherFormattingLocales] = FORMATTING_LOCALE_VALUES;
 
 export const UserDetailsDtoSchema = z.object({
   id: z.string(),
@@ -16,8 +25,8 @@ export const UserDetailsDtoSchema = z.object({
   country: z.enum(CountryCodeEnum),
   avatarUrl: z.string().nullable(),
   theme: z.enum(Theme),
-  displayLanguage: z.enum(Locale),
-  formattingLocale: z.enum(Locale),
+  displayLanguage: z.enum([firstDisplayLanguage, ...otherDisplayLanguages]),
+  formattingLocale: z.enum([firstFormattingLocale, ...otherFormattingLocales]),
   roleId: z.string().nullable(),
   roleName: z.string().nullable(),
 });
@@ -62,8 +71,8 @@ export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, User
         country,
         avatarUrl,
         theme,
-        displayLanguage,
-        formattingLocale,
+        displayLanguage: normalizeStoredDisplayLanguage(displayLanguage),
+        formattingLocale: normalizeStoredFormattingLocale(formattingLocale),
         roleId,
         roleName: role?.name ?? null,
       },

@@ -9,11 +9,16 @@ import {
   APP_LOCALES,
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
+  FORMATTING_LOCALES,
   LOCALE_REGISTRY,
   ROUTING_LOCALES,
+  appLocaleFromLanguageTag,
   isAppLocale,
   isContentLocale,
+  isFormattingLocale,
   isRoutingLocale,
+  routingLocaleFromUrlSegment,
+  validationTagFor,
 } from "@/i18n/locale-registry";
 
 const ENFORCED = true;
@@ -44,6 +49,7 @@ describe("locale registry", () => {
   it.skipIf(!ENFORCED)("keeps the default locale in both domains", () => {
     expect(isAppLocale(DEFAULT_LOCALE)).toBe(true);
     expect(isContentLocale(DEFAULT_LOCALE)).toBe(true);
+    expect(isFormattingLocale(DEFAULT_LOCALE)).toBe(true);
   });
 
   it.skipIf(!ENFORCED)("uses well-formed language tags", () => {
@@ -68,7 +74,7 @@ describe("locale registry", () => {
       const messages = localeMessages(bundleLocale) as { Common?: { locales?: Record<string, string> } };
       const names = messages.Common?.locales ?? {};
 
-      for (const named of [...ROUTING_LOCALES, "system"]) {
+      for (const named of [...new Set([...ROUTING_LOCALES, ...FORMATTING_LOCALES]), "system"]) {
         if (!names[named]) problems.push(`${bundleLocale}.json is missing Common.locales.${named}`);
       }
     }
@@ -84,6 +90,25 @@ describe("locale registry", () => {
       `app locales absent from the Prisma Locale enum (add an ALTER TYPE migration):\n${missing.join("\n")}`,
     ).toEqual([]);
     expect(enumValues, "the Prisma Locale enum must keep the 'system' member").toContain("system");
+  });
+
+  it.skipIf(!ENFORCED)("keeps every formatting locale representable in the persisted formatting column", () => {
+    const enumValues = prismaLocaleEnumValues();
+    const missing = FORMATTING_LOCALES.filter((locale) => !enumValues.includes(locale));
+    expect(
+      missing,
+      `formatting locales absent from the Prisma Locale enum (add an ALTER TYPE migration):\n${missing.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it.skipIf(!ENFORCED)("resolves every app locale's browser and validation adapters", async () => {
+    for (const locale of APP_LOCALES) {
+      expect(appLocaleFromLanguageTag(LOCALE_REGISTRY[locale].formattingTag), `${locale} browser tag`).toBe(locale);
+      await expect(import(`zod/v4/locales/${validationTagFor(locale)}.js`), `${locale} Zod locale`).resolves.toBeTruthy();
+    }
+
+    expect(routingLocaleFromUrlSegment("en-US")).toBeNull();
+    expect(routingLocaleFromUrlSegment("EN")).toBe("en");
   });
 
   it.skipIf(!ENFORCED)("keeps route segments distinguishable from locale prefixes", () => {

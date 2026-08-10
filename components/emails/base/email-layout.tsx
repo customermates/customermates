@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import type { AppLocale } from "@/i18n/locale-registry";
 
 import { Body, Container, Head, Heading, Html, Preview, Section, Tailwind, Text } from "@react-email/components";
 
@@ -23,7 +24,7 @@ const ICON_URL = `${env.BASE_URL}/images/email/customermates-icon@2x.png`;
 type Props = PropsWithChildren<{
   preview?: string;
   title?: string;
-  locale?: string;
+  locale?: AppLocale;
 }>;
 
 export function EmailLayout({ preview, title, locale = DEFAULT_LOCALE, children }: Props) {
