@@ -1,5 +1,4 @@
 import type { PUBLIC_ROUTES_SEO } from "@/i18n/routing";
-import type { apiOverviewSource } from "./source";
 
 import {
   affiliateSource,
@@ -23,7 +22,6 @@ import {
 
 type Loader =
   | typeof affiliateSource
-  | typeof apiOverviewSource
   | typeof authSource
   | typeof automationSource
   | typeof blogPostsSource
@@ -149,18 +147,3 @@ export const ROUTE_SOURCE_MAP: Record<
     path: [":slug"],
   },
 };
-
-export function getSourceFromRoute(
-  route: keyof typeof ROUTE_SOURCE_MAP,
-  params: Record<string, string> = {},
-): { source: Loader; path: string[] } | null {
-  const mapping = ROUTE_SOURCE_MAP[route];
-  if (!mapping) return null;
-
-  if (Object.keys(params).length > 0) {
-    const path = mapping.path.map((part) => (part.startsWith(":") ? params[part.slice(1)] : part));
-    return { source: mapping.source, path };
-  }
-
-  return mapping;
-}

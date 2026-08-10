@@ -13,11 +13,13 @@ import {
   LOCALE_REGISTRY,
   ROUTING_LOCALES,
   appLocaleFromLanguageTag,
+  buildLocalePath,
   isAppLocale,
   isContentLocale,
   isFormattingLocale,
   isRoutingLocale,
   routingLocaleFromUrlSegment,
+  stripLocalePrefix,
   validationTagFor,
 } from "@/i18n/locale-registry";
 
@@ -109,6 +111,17 @@ describe("locale registry", () => {
 
     expect(routingLocaleFromUrlSegment("en-US")).toBeNull();
     expect(routingLocaleFromUrlSegment("EN")).toBe("en");
+  });
+
+  it.skipIf(!ENFORCED)("round-trips locale-prefixed paths through buildLocalePath and stripLocalePrefix", () => {
+    const paths = ["/", "/pricing", "/blog/best-crm-software", "/docs/openapi/create-contact", "/auth/signin"];
+
+    for (const locale of ROUTING_LOCALES) {
+      for (const path of paths) {
+        expect(stripLocalePrefix(buildLocalePath(locale, path)), `${locale} ${path}`).toBe(path);
+      }
+      expect(buildLocalePath(locale, "/")).toBe(`/${locale}`);
+    }
   });
 
   it.skipIf(!ENFORCED)("keeps route segments distinguishable from locale prefixes", () => {
