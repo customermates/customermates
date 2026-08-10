@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { buildAlternateLanguages, buildLocalePath } from "./alternates";
+import { buildLocalePath } from "@/i18n/locale-registry";
+
+import { buildAlternateLanguages } from "./alternates";
 
 export type LocalizedRoute = {
   locale: ContentLocale;

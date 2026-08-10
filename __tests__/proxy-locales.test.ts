@@ -94,6 +94,8 @@ vi.mock("@/i18n/locale-registry", () => {
       const remainder = pathname.slice(segment.length + 1);
       return remainder === "" ? "/" : remainder;
     },
+    buildLocalePath: (locale: string, routePath: string) =>
+      routePath === "/" ? `/${locale}` : `/${locale}${routePath}`,
   };
 });
 

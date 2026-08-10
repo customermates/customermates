@@ -35,10 +35,12 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
   { file: "core/fumadocs/metadata.ts", imports: "CONTENT_LOCALES" },
   { file: "components/shared/language-selector.tsx", imports: "CONTENT_LOCALES" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
-  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "APP_LOCALES" },
-  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "FORMATTING_LOCALES" },
-  { file: "features/user/upsert/update-user-details.interactor.ts", imports: "DISPLAY_LANGUAGE_VALUES" },
-  { file: "features/user/upsert/update-user-details.interactor.ts", imports: "FORMATTING_LOCALE_VALUES" },
+  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
+  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "FORMATTING_LOCALE_VALUES" },
+  { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
+  { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredFormattingLocaleSchema" },
+  { file: "features/user/get/get-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
+  { file: "features/user/get/get-user-details.interactor.ts", imports: "StoredFormattingLocaleSchema" },
   { file: "core/stores/intl.store.ts", imports: "isFormattingLocale" },
 ];
 

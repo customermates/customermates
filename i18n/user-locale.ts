@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Locale } from "@/generated/prisma";
 import type { AppLocale, FormattingLocale } from "@/i18n/locale-registry";
 
@@ -15,6 +16,12 @@ export type StoredFormattingLocale = FormattingLocale | "system";
 
 export const DISPLAY_LANGUAGE_VALUES = [...APP_LOCALES, "system"] as const;
 export const FORMATTING_LOCALE_VALUES = [...FORMATTING_LOCALES, "system"] as const;
+
+const [firstDisplayLanguage, ...otherDisplayLanguages] = DISPLAY_LANGUAGE_VALUES;
+const [firstFormattingLocale, ...otherFormattingLocales] = FORMATTING_LOCALE_VALUES;
+
+export const StoredDisplayLanguageSchema = z.enum([firstDisplayLanguage, ...otherDisplayLanguages]);
+export const StoredFormattingLocaleSchema = z.enum([firstFormattingLocale, ...otherFormattingLocales]);
 
 export function resolveUserLocale(user: { displayLanguage: Locale | null }): AppLocale {
   return appLocaleOrDefault(user.displayLanguage);
