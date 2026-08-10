@@ -97,3 +97,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
 };
 
 export const MCP_ALWAYS_ON_TOOLS: McpTool[] = [searchTool, fetchTool];
+
+export const MCP_TOOL_COUNT: number = new Set(
+  [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS].map((tool) => tool.name),
+).size;
