@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useLocale, useTranslations } from "next-intl";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
-import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, flagCodeFor, type ContentLocale } from "@/i18n/locale-registry";
 import { usePathname } from "@/i18n/navigation";
 
 type Props = {
@@ -39,7 +40,7 @@ export const LanguageSelector = observer(({ className }: Props) => {
       <DropdownMenuTrigger asChild>
         <Button
           aria-label={`${t("Common.language")}: ${currentLocaleLabel}`}
-          className={cn("size-8 rounded-md p-0 text-[11px] font-semibold tracking-wide text-subdued", className)}
+          className={cn("size-8 rounded-md p-0 text-subdued", className)}
           size="icon-sm"
           title={currentLocaleLabel}
           variant="ghost"
@@ -60,12 +61,14 @@ export const LanguageSelector = observer(({ className }: Props) => {
               role="menuitemradio"
               onSelect={() => handleSelect(locale)}
             >
-              <span
-                aria-hidden
-                className="grid size-5 place-items-center rounded bg-foreground/10 text-[9px] font-semibold tracking-wide"
-              >
-                {locale.toUpperCase()}
-              </span>
+              <Avatar className="size-5">
+                <AvatarImage
+                  alt={t("Common.imageAlt.countryFlag", { country: label })}
+                  src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
+                />
+
+                <AvatarFallback>{locale.toUpperCase()}</AvatarFallback>
+              </Avatar>
 
               <span className="flex-1">{label}</span>
 

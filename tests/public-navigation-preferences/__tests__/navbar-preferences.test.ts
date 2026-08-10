@@ -20,13 +20,21 @@ describe("public navigation preferences", () => {
     expect(footer).not.toContain("ThemeSwitcher");
   });
 
-  it("shows the locale code and toggles directly between the resolved light and dark themes", () => {
+  it("shows the locale code with navbar typography and country-style flags in its menu", () => {
     const languageSelector = readFileSync(join(REPO_ROOT, "components/shared/language-selector.tsx"), "utf8");
-    const themeSwitcher = readFileSync(join(REPO_ROOT, "components/shared/theme-switcher.tsx"), "utf8");
 
     expect(languageSelector).toContain("currentLocale.toUpperCase()");
+    expect(languageSelector).toContain('className={cn("size-8 rounded-md p-0 text-subdued", className)}');
+    expect(languageSelector).not.toContain("text-[11px]");
+    expect(languageSelector).toContain('<Avatar className="size-5">');
+    expect(languageSelector).toContain("flagCodeFor(locale)");
+    expect(languageSelector).toContain("flagcdn.com");
     expect(languageSelector).toContain('<DropdownMenuContent align="start"');
-    expect(languageSelector).not.toContain("flagcdn.com");
+  });
+
+  it("toggles directly between the resolved light and dark themes", () => {
+    const themeSwitcher = readFileSync(join(REPO_ROOT, "components/shared/theme-switcher.tsx"), "utf8");
+
     expect(themeSwitcher).toContain("resolvedTheme === Theme.dark ? Theme.dark : Theme.light");
     expect(themeSwitcher).toContain("selectedTheme === Theme.dark ? Theme.light : Theme.dark");
     expect(themeSwitcher).toContain('${t("Common.ariaLabels.themeSwitcher")}: ${selectedThemeLabel}');
