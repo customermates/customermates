@@ -1,5 +1,6 @@
 import rawManifest from "@/generated/raw-docs-manifest.json";
 
+import { MCP_TOOL_COUNT } from "@/app/api/v1/mcp/route";
 import { env } from "@/env";
 import { DOC_NAV_GROUPS } from "@/features/docs/docs-nav";
 import { CONTENT_LOCALES, DEFAULT_LOCALE } from "@/i18n/locale-registry";
@@ -22,7 +23,7 @@ export function GET() {
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (44 tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>.${translationNote}`,
+    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>.${translationNote}`,
     "",
   ];
 
