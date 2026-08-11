@@ -6,6 +6,7 @@ import { ErrorPageContent } from "./error-page-content";
 import { isCanonicalInactiveErrorType, isRestrictedAccountState } from "@/features/auth/account-state";
 import { requireAccountState } from "@/features/auth/next/require";
 import { resolveDefaultAccountState } from "@/features/auth/next/resolve-account-state";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
 import type { ErrorPageKey } from "./error-page-content";
 
@@ -22,7 +23,7 @@ export default async function ErrorPage({ searchParams }: Props) {
   const isInactive = resolution.state === "inactive";
 
   if (isInactive && !isCanonicalInactiveErrorType(params.type))
-    redirect(`/${await getLocale()}/auth/error?type=inactiveUser`);
+    redirect(buildLocalePath(await getLocale(), "/auth/error?type=inactiveUser"));
 
   if (!isInactive && (requestedErrorKey === "inactiveUser" || isRestrictedAccountState(resolution.state)))
     await requireAccountState("inactive");
