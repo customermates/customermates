@@ -29,6 +29,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
 import { PageState } from "@/components/page-state/page-state";
 import { PageSkeleton } from "@/components/page-state/page-skeleton";
+import { cn } from "@/core/utils/cn";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 
@@ -59,6 +60,7 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
   const t = useTranslations();
   const { connectedAccountsStore } = useRootStore();
   const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
+  const isSecondary = variant === "secondary";
 
   return (
     <DropdownMenu>
@@ -67,11 +69,23 @@ const ConnectAction = observer(({ id, variant = "default" }: { id: string; varia
           <span className="-space-x-1.5 flex items-center">
             {FEATURED_PROVIDERS.map((provider) => {
               const ChannelIcon = getProviderIcon(provider);
-              return <ChannelIcon key={provider} className="ring-primary size-5 rounded-full ring-2" />;
+              return (
+                <ChannelIcon
+                  key={provider}
+                  className={cn("size-5 rounded-full ring-2", isSecondary ? "ring-secondary" : "ring-primary")}
+                />
+              );
             })}
 
             {overflowCount > 0 && (
-              <span className="bg-primary-foreground text-primary ring-primary flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2">
+              <span
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2",
+                  isSecondary
+                    ? "bg-background text-muted-foreground ring-secondary"
+                    : "bg-primary-foreground text-primary ring-primary",
+                )}
+              >
                 +{overflowCount}
               </span>
             )}

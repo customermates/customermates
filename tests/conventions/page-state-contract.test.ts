@@ -371,6 +371,9 @@ describe("page-state contract", () => {
 
     const connectedAccounts = read("app/[locale]/(protected)/profile/components/connected-accounts-card.tsx");
     expect(connectedAccounts).toContain('<ConnectAction id="profile-connected-accounts-connect" />');
+    expect(connectedAccounts).toContain('isSecondary ? "ring-secondary" : "ring-primary"');
+    expect(connectedAccounts).toContain('"bg-background text-muted-foreground ring-secondary"');
+    expect(connectedAccounts).toContain('"bg-primary-foreground text-primary ring-primary"');
 
     const secondaryActionOwners = {
       "components/data-view/data-view-empty.tsx": "canCreate ? (",
