@@ -68,12 +68,28 @@ describe("zx.secureUrl", () => {
   describe("with allowRelativePath", () => {
     const schema = () => zx.secureUrl({ allowRelativePath: true });
 
-    it.each([["/demo/avatars/photos/max-bergmann.png"], ["/evil"], ["/a/b/c.png?v=2"], ["//example.com/x.png"]])(
-      "preserves the relative reference %j verbatim",
+    it.each([["/demo/avatars/photos/max-bergmann.png"], ["/evil"], ["/a/b/c.png?v=2"]])(
+      "preserves the same-origin path %j verbatim",
       (input) => {
         expect(schema().safeParse(input)).toMatchObject({ success: true, data: input });
       },
     );
+
+    it("preserves a protocol-relative URL verbatim, which resolves cross-origin exactly as it did before", () => {
+      expect(schema().safeParse("//example.com/x.png")).toMatchObject({
+        success: true,
+        data: "//example.com/x.png",
+      });
+      expect(new URL("//example.com/x.png", "https://app.example.test/page").href).toBe("https://example.com/x.png");
+    });
+
+    it.each([
+      ["/with space.png"],
+      [`/with${String.fromCharCode(0)}nul.png`],
+      [`/with${String.fromCharCode(10)}newline.png`],
+    ])("rejects the unstorable path %j rather than persisting it", (input) => {
+      expect(schema().safeParse(input).success).toBe(false);
+    });
 
     it.each([
       ["example.com", "https://example.com"],

@@ -38,7 +38,7 @@ const UpdateWorkspaceSettingsSchema = z.object({
     `profile target: ISO country code ${enumHint(countryValues)}. Omit to keep existing.`,
   ),
   avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
-    "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
+    "profile target: absolute https URL or a same-origin path starting with '/', or '' / null to clear. Omit to keep existing.",
   ),
   currency: UpdateCompanySettingsSchema.shape.currency
     .optional()

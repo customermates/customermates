@@ -56,6 +56,10 @@ function inferHttpsForBareHost(val: unknown) {
   return `https://${trimmed}`;
 }
 
+function isStorableRelativePath(value: string) {
+  return value.startsWith("/") && !/[\u0000-\u0020]/.test(value);
+}
+
 function secureUrlSchema(options?: { allowRelativePath?: boolean }) {
   const absoluteUrl = z.url({ protocol: /^(https?|mailto|tel)$/ });
 
@@ -64,7 +68,7 @@ function secureUrlSchema(options?: { allowRelativePath?: boolean }) {
   return z.preprocess(
     inferHttpsForBareHost,
     z.string().superRefine((value, ctx) => {
-      if (value.startsWith("/")) return;
+      if (isStorableRelativePath(value)) return;
       if (!absoluteUrl.safeParse(value).success)
         ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidUrl } });
     }),
