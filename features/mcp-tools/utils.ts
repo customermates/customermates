@@ -38,12 +38,6 @@ function formatDatesRecursively(value: unknown): unknown {
 
   if (value instanceof Date) return isNaN(value.getTime()) ? String(value) : value.toISOString();
 
-  if (typeof value === "string") {
-    const dateTimeResult = z.iso.datetime().safeParse(value);
-    const dateResult = z.iso.date().safeParse(value);
-    if (dateTimeResult.success || dateResult.success) return value;
-  }
-
   if (Array.isArray(value)) return value.map(formatDatesRecursively);
 
   if (typeof value === "object") {
