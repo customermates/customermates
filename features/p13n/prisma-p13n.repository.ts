@@ -38,10 +38,11 @@ function normalizeStoredFilters(value: unknown): Filter[] | undefined {
 function normalizeStoredFilterPresets(value: unknown): SavedFilterPreset[] | undefined {
   if (!Array.isArray(value)) return undefined;
 
-  return (value as unknown as SavedFilterPreset[]).map((preset) => ({
-    ...preset,
-    filters: normalizeStoredFilters(preset.filters) ?? preset.filters,
-  }));
+  return (value as unknown as SavedFilterPreset[]).map((preset) => {
+    if (!preset || typeof preset !== "object") return preset;
+
+    return { ...preset, filters: normalizeStoredFilters(preset.filters) ?? preset.filters };
+  });
 }
 
 export class PrismaP13nRepo

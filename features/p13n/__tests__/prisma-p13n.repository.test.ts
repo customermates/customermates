@@ -88,4 +88,27 @@ describe("PrismaP13nRepo legacy filter normalization", () => {
       },
     ]);
   });
+
+  it("reads personalization holding a malformed preset entry without throwing", async () => {
+    p13nFindUnique.mockResolvedValue({
+      companyId: mockUser.companyId,
+      userId: mockUser.id,
+      p13nId: "organizations",
+      filters: null,
+      savedFilterPresets: [null, { id: "p1", name: "Mine", filters: [] }],
+      searchTerm: null,
+      sortDescriptor: null,
+      pagination: null,
+      columnOrder: [],
+      columnWidths: null,
+      hiddenColumns: [],
+      viewMode: null,
+      groupingColumnId: null,
+    });
+
+    const result = await runWithTenant(mockUser, () => new PrismaP13nRepo().getP13n("organizations"));
+
+    expect(result?.savedFilterPresets).toHaveLength(2);
+    expect(result?.savedFilterPresets?.[1].id).toBe("p1");
+  });
 });
