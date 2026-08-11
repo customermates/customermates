@@ -49,15 +49,25 @@ export function createErrorHandler(errors: Record<string, string>): (issue: $Zod
   };
 }
 
-function secureUrlSchema() {
+function inferHttpsForBareHost(val: unknown) {
+  if (typeof val !== "string") return val;
+  const trimmed = val.trim();
+  if (!trimmed || trimmed.startsWith("/") || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function secureUrlSchema(options?: { allowRelativePath?: boolean }) {
+  const absoluteUrl = z.url({ protocol: /^(https?|mailto|tel)$/ });
+
+  if (!options?.allowRelativePath) return z.preprocess(inferHttpsForBareHost, absoluteUrl);
+
   return z.preprocess(
-    (val) => {
-      if (typeof val !== "string") return val;
-      const trimmed = val.trim();
-      if (!trimmed || trimmed.includes("://") || /^(mailto|tel):/i.test(trimmed)) return trimmed;
-      return `https://${trimmed}`;
-    },
-    z.url({ protocol: /^(https?|mailto|tel)$/ }),
+    inferHttpsForBareHost,
+    z.string().superRefine((value, ctx) => {
+      if (value.startsWith("/")) return;
+      if (!absoluteUrl.safeParse(value).success)
+        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.invalidUrl } });
+    }),
   );
 }
 

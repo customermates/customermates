@@ -123,7 +123,8 @@ export const CustomFieldValue = observer(
               })}
               size="sm"
               onChipClick={(item) => {
-                if (zx.secureUrl().safeParse(item.id).success) window.open(item.id, "_blank", "noreferrer");
+                if (zx.secureUrl({ allowRelativePath: true }).safeParse(item.id).success)
+                  window.open(item.id, "_blank", "noreferrer");
               }}
             />
           ) : (

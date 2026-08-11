@@ -27,7 +27,7 @@ const Schema = z
     firstName: z.string().min(1),
     lastName: z.string().min(1),
     country: z.enum(CountryCode),
-    avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
+    avatarUrl: zx.secureUrl({ allowRelativePath: true }).or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
   })
   .superRefine((data, ctx) => {

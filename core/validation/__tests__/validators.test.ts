@@ -144,6 +144,15 @@ describe("validateCustomFieldLink", () => {
     validateCustomFieldLink("https://a.com, https://b.com", ctx, ["value"], true);
     expect(ctx.addIssue).not.toHaveBeenCalled();
   });
+
+  it.each([["/internal/report.pdf"], ["//cdn.example.com/report.pdf"]])(
+    "passes for the same-origin reference %j, which is opened as entered",
+    (value) => {
+      const ctx = createMockCtx();
+      validateCustomFieldLink(value, ctx, ["value"]);
+      expect(ctx.addIssue).not.toHaveBeenCalled();
+    },
+  );
 });
 
 describe("validateCustomFieldDate", () => {

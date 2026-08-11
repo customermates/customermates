@@ -24,7 +24,7 @@ export const UpdateUserDetailsSchema = z.object({
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   country: z.enum(CountryCode).optional(),
-  avatarUrl: zx.secureUrl().or(z.literal("")).nullable().optional(),
+  avatarUrl: zx.secureUrl({ allowRelativePath: true }).or(z.literal("")).nullable().optional(),
   theme: z.enum(Theme).optional(),
   displayLanguage: StoredDisplayLanguageSchema.optional(),
   formattingLocale: StoredFormattingLocaleSchema.optional(),
