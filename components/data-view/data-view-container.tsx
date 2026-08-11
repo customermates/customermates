@@ -5,11 +5,16 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { observer } from "mobx-react-lite";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
+import { PageState } from "@/components/page-state/page-state";
+import type { PageSkeletonSpec } from "@/components/page-state/page-skeleton";
+import { Button } from "@/components/ui/button";
 
 import { DataCardView } from "./data-card-view";
 import { DataKanbanView } from "./data-kanban-view";
@@ -19,6 +24,7 @@ import { DataViewActiveFiltersBar } from "./header/active-filters-bar";
 import { DataViewPagination } from "./header/pagination";
 import { DataViewToolbar } from "./data-view-toolbar";
 import { MassActionsBar } from "./mass-actions-bar";
+import { resolveDataViewPageState, resolveDataViewSkeletonView } from "./data-view-state";
 
 import type { EmptyStateDescriptor } from "./data-view-empty";
 
@@ -32,6 +38,7 @@ type Props<E extends HasId> = {
   searchPlaceholder?: string;
   anchorScope?: string;
   emptyState?: EmptyStateDescriptor;
+  tableSkeletonVariant?: "contact" | "entity" | "member" | "plain";
 };
 
 export const DataViewContainer = observer(function DataViewContainer<E extends HasId>({
@@ -44,9 +51,42 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   searchPlaceholder,
   anchorScope,
   emptyState,
+  tableSkeletonVariant,
 }: Props<E>) {
   const columnLabel = useColumnLabel();
+  const { singular } = useEntityTerminology();
+  const t = useTranslations();
   const { terminologyStore } = useRootStore();
+
+  const skeletonView = resolveDataViewSkeletonView(store.viewMode, store.groupingColumnId);
+  const skeleton: PageSkeletonSpec =
+    skeletonView === "table"
+      ? {
+          kind: "data-view",
+          tableVariant:
+            tableSkeletonVariant ??
+            (store.entityType === "contact" ? "contact" : store.entityType ? "entity" : "plain"),
+          view: "table",
+        }
+      : {
+          identity: store.entityType === "contact" ? "avatar" : "text",
+          kind: "data-view",
+          view: skeletonView,
+        };
+  const hasActiveQuery = Boolean(store.searchTerm?.trim()) || (store.filters?.length ?? 0) > 0;
+  const pageState = resolveDataViewPageState({
+    explicitlyUnpaginated: false,
+    failure: store.refreshError !== null,
+    hasActiveQuery,
+    hasUsableContent: store.isReady,
+    isReady: store.isReady,
+    isRefreshing: store.isRefreshing,
+    itemCount: store.items.length,
+    total: store.pagination?.total,
+  });
+  const trueEmptyActionLabel =
+    emptyState?.ctaLabel ??
+    (store.entityType ? t("Common.emptyState.cta", { singular: singular(store.entityType) }) : t("Common.actions.add"));
 
   const resolvedColumns = useMemo<ColumnDef<E>[]>(() => {
     const byId = new Map(columns.map((c) => [c.id ?? "", c]));
@@ -64,6 +104,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
+        addLabel={pageState === "true-empty" ? trueEmptyActionLabel : undefined}
         anchorScope={anchorScope}
         isSearchable={isSearchable}
         searchPlaceholder={searchPlaceholder}
@@ -71,26 +112,63 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         onAdd={onAdd}
       />
     ),
-    [anchorScope, isSearchable, searchPlaceholder, store, onAdd],
+    [anchorScope, isSearchable, searchPlaceholder, store, pageState, trueEmptyActionLabel, onAdd],
   );
 
   useSetTopBarActions(topBarNode);
 
-  if (!store.isReady) return null;
-
   const isTable = store.viewMode === ViewMode.table;
   const isKanban = store.viewMode === ViewMode.card && Boolean(store.groupingColumnId);
-  const isEmpty = store.items.length === 0;
+  const isEmpty = pageState === "filtered-empty" || pageState === "true-empty";
 
-  const body = isEmpty ? (
-    <DataViewEmpty descriptor={emptyState} store={store} onAdd={onAdd} />
-  ) : isTable ? (
-    <DataTable columns={resolvedColumns} store={store} onRowClick={onRowClick} onRowHref={rowHref} />
-  ) : isKanban ? (
-    <DataKanbanView cardHref={rowHref} columns={resolvedColumns} store={store} onCardClick={onRowClick} />
-  ) : (
-    <DataCardView cardHref={rowHref} columns={resolvedColumns} store={store} onCardClick={onRowClick} />
-  );
+  const body =
+    pageState === "error" ? (
+      <PageState
+        action={
+          <Button size="sm" variant="outline" onClick={() => store.setQueryOptions({ forceRefresh: true })}>
+            {t("ErrorCard.retry")}
+          </Button>
+        }
+        description={t("ErrorCard.contactSupport")}
+        state="error"
+        title={t("ErrorCard.title")}
+      />
+    ) : pageState === "loading" ? (
+      <PageState label={t("PageState.loading")} skeleton={skeleton} state="loading" />
+    ) : isEmpty ? (
+      <DataViewEmpty
+        actionLabel={trueEmptyActionLabel}
+        descriptor={emptyState}
+        reason={pageState === "filtered-empty" ? "filtered" : "true-empty"}
+        skeleton={skeleton}
+        store={store}
+        onAdd={onAdd}
+      />
+    ) : isTable ? (
+      <DataTable
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onRowClick={onRowClick}
+        onRowHref={rowHref}
+      />
+    ) : isKanban ? (
+      <DataKanbanView
+        cardHref={rowHref}
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onCardClick={onRowClick}
+      />
+    ) : (
+      <DataCardView
+        cardHref={rowHref}
+        className="animate-page-result-in motion-reduce:animate-none"
+        columns={resolvedColumns}
+        store={store}
+        onCardClick={onRowClick}
+      />
+    );
 
   return (
     <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
@@ -105,7 +183,7 @@ export const DataViewContainer = observer(function DataViewContainer<E extends H
         {body}
       </div>
 
-      {!isKanban && !isEmpty && <DataViewPagination store={store} />}
+      {!isKanban && pageState === "content" && <DataViewPagination store={store} />}
     </div>
   );
 });

@@ -503,6 +503,7 @@
       "template": "Modèle",
       "theme": "Thème",
       "type": "Type",
+      "unavailableSelection": "Sélection indisponible",
       "url": "URL",
       "userIds": "Assigné à"
     },
@@ -589,7 +590,6 @@
         "user": "Utilisateur",
         "users": "Assigné à"
       },
-      "emptyContent": "Aucune entrée",
       "groupBy": "Grouper par",
       "layout": "Disposition",
       "nextPage": "Page suivante",
@@ -607,6 +607,7 @@
       "light": "Clair",
       "system": "Système"
     },
+    "unnamed": "Sans nom",
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",
@@ -1502,6 +1503,11 @@
   },
   "OrganizationModal": {
     "title": "Organisation"
+  },
+  "PageState": {
+    "loading": "Chargement de la page",
+    "notFoundDescription": "Cet enregistrement a peut-être été supprimé ou vous n’y avez peut-être pas accès.",
+    "notFoundTitle": "Enregistrement introuvable"
   },
   "PendingCard": {
     "body": "Vous pourrez vous connecter dès que votre compte aura été approuvé par l'administrateur de votre entreprise.",

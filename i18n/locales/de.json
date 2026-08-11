@@ -503,6 +503,7 @@
       "template": "Vorlage",
       "theme": "Darstellung",
       "type": "Typ",
+      "unavailableSelection": "Auswahl nicht verfügbar",
       "url": "URL",
       "userIds": "Zugewiesen"
     },
@@ -589,7 +590,6 @@
         "user": "Benutzer",
         "users": "Zugewiesen"
       },
-      "emptyContent": "Keine Einträge gefunden",
       "groupBy": "Gruppieren nach",
       "layout": "Ansicht",
       "nextPage": "Nächste Seite",
@@ -607,6 +607,7 @@
       "light": "Hell",
       "system": "System"
     },
+    "unnamed": "Unbenannt",
     "userStatuses": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
@@ -1502,6 +1503,11 @@
   },
   "OrganizationModal": {
     "title": "Organisation"
+  },
+  "PageState": {
+    "loading": "Seite wird geladen",
+    "notFoundDescription": "Dieser Datensatz wurde möglicherweise entfernt oder Sie haben keinen Zugriff darauf.",
+    "notFoundTitle": "Datensatz nicht gefunden"
   },
   "PendingCard": {
     "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",

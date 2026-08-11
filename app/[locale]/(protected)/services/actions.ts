@@ -14,10 +14,10 @@ import {
   getDeleteServiceInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getServicesAction(params?: GetQueryParams) {
-  const result = await getGetServicesInteractor().invoke(params);
-  return result.ok ? result.data : { items: [] };
+  return unwrapValidated(getGetServicesInteractor().invoke(params));
 }
 
 export async function createServiceAction(data: CreateServiceData) {
@@ -33,10 +33,8 @@ export async function deleteServiceAction(data: DeleteServiceData) {
 }
 
 export async function getServiceByIdAction(data: GetServiceByIdData) {
-  const result = await getGetServiceByIdInteractor().invoke(data);
-  return result.ok
-    ? { entity: result.data.service, customColumns: result.data.customColumns }
-    : { entity: null, customColumns: [] };
+  const result = await unwrapValidated(getGetServiceByIdInteractor().invoke(data));
+  return { entity: result.service, customColumns: result.customColumns };
 }
 
 export async function createServiceByNameAction(name: string, userId: string | null | undefined) {

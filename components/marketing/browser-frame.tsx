@@ -86,7 +86,7 @@ export function BrowserFrame({ src, title }: Props) {
         </div>
 
         <div className="relative h-[600px] md:h-[700px] lg:h-[750px]">
-          {!loaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
+          {!loaded && <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />}
 
           {shouldMount && (
             <iframe

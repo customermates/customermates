@@ -1,7 +1,17 @@
 import { cn } from "@/core/utils/cn";
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("animate-pulse rounded-md bg-accent", className)} data-slot="skeleton" {...props} />;
+type Props = React.ComponentProps<"div"> & {
+  animated?: boolean;
+};
+
+function Skeleton({ animated = true, className, ...props }: Props) {
+  return (
+    <div
+      className={cn("rounded-md bg-placeholder", animated && "animate-pulse motion-reduce:animate-none", className)}
+      data-slot="skeleton"
+      {...props}
+    />
+  );
 }
 
 export { Skeleton };

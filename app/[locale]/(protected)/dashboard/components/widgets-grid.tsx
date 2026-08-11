@@ -6,11 +6,11 @@ import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterableField } from "@/core/base/base-get.schema";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { LayoutGrid, Plus } from "lucide-react";
+import { BarChart3, Plus } from "lucide-react";
 
 import type { EntityType } from "@/generated/prisma";
 
@@ -20,11 +20,10 @@ import { WidgetCard } from "./widget-card";
 import { WidgetModal } from "./widget-modal";
 import { GRID_COLS, GRID_BREAKPOINTS } from "./grid.constants";
 
-import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
-
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
+import { PageState } from "@/components/page-state/page-state";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
 
@@ -47,10 +46,12 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   const t = useTranslations();
   const { widgetsStore, widgetModalStore } = useRootStore();
   const { items, layouts } = widgetsStore;
+  const isTrueEmpty = widgetsStore.isReady && items.length === 0;
+  const canAddWidget = widgetModalStore.availableEntityTypes.length > 0;
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{ id: string; x: number; y: number } | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     widgetsStore.setItems({ items: widgets, customColumns });
   }, [widgets, customColumns]);
 
@@ -84,27 +85,36 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
   }, []);
 
   const topBarActions = useMemo(
-    () => (
-      <div className="flex items-center gap-1">
-        <Button id="dashboard-add-widget" size="sm" onClick={() => void widgetModalStore.add()}>
-          <Icon icon={Plus} />
+    () =>
+      widgetsStore.isReady && canAddWidget ? (
+        <div className="flex items-center gap-1">
+          <Button id="dashboard-add-widget" size="sm" variant="default" onClick={() => void widgetModalStore.add()}>
+            <Icon icon={Plus} />
 
-          <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
-        </Button>
-      </div>
-    ),
-    [t, widgetModalStore],
+            <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
+          </Button>
+        </div>
+      ) : null,
+    [t, widgetModalStore, widgetsStore.isReady, canAddWidget],
   );
 
   useSetTopBarActions(topBarActions);
 
   return (
     <>
-      {items.length > 0 && (
+      {!widgetsStore.isReady && (
+        <PageState label={t("PageState.loading")} skeleton={{ kind: "dashboard" }} state="loading" />
+      )}
+
+      {widgetsStore.isReady && items.length > 0 && (
         <ResponsiveGridLayout
           isResizable
           breakpoints={GRID_BREAKPOINTS}
-          className={isTouchDevice ? "layout touch-scrollable" : "layout"}
+          className={
+            isTouchDevice
+              ? "layout touch-scrollable animate-page-result-in motion-reduce:animate-none"
+              : "layout animate-page-result-in motion-reduce:animate-none"
+          }
           cols={GRID_COLS}
           compactType="vertical"
           containerPadding={[0, 0]}
@@ -123,11 +133,19 @@ export const WidgetsGrid = observer(({ widgets, customColumns, filterableFields 
         </ResponsiveGridLayout>
       )}
 
-      {items.length === 0 && (
-        <DataViewEmptyState
-          body={t("Common.emptyState.dashboardBody")}
-          icon={LayoutGrid}
-          primaryAction={{ label: t("Dashboard.addCard"), onClick: () => void widgetModalStore.add() }}
+      {isTrueEmpty && (
+        <PageState
+          action={
+            canAddWidget ? (
+              <Button size="sm" variant="secondary" onClick={() => void widgetModalStore.add()}>
+                {t("Dashboard.addCard")}
+              </Button>
+            ) : undefined
+          }
+          description={t("Common.emptyState.dashboardBody")}
+          icon={BarChart3}
+          skeleton={{ kind: "dashboard" }}
+          state="empty"
           title={t("Common.emptyState.dashboardTitle")}
         />
       )}

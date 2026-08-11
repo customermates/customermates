@@ -18,12 +18,13 @@ import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { AppForm } from "@/components/forms/form-context";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
-import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { PageState } from "@/components/page-state/page-state";
+import { useEntityDrawerStack } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 
 import { EntityNotesPanel } from "./entity-notes-panel";
 import { ENTITY_URL_SEGMENT } from "./entity-relations";
@@ -39,6 +40,7 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
   store: BaseCustomColumnEntityModalStore<Form, Dto>;
   masterData: ReactNode;
   identity: IdentityProps;
+  fallbackTitle: string;
   canDelete?: boolean;
   historyPanel: ReactNode;
 };
@@ -46,43 +48,87 @@ type Props<Form extends FormEntityDto, Dto extends EntityDto> = {
 export const EntityDetailLayout = observer(function EntityDetailLayout<
   Form extends FormEntityDto,
   Dto extends EntityDto,
->({ entityId, entityType, store, masterData, identity, canDelete = true, historyPanel }: Props<Form, Dto>) {
+>({
+  entityId,
+  entityType,
+  store,
+  masterData,
+  identity,
+  fallbackTitle,
+  canDelete = true,
+  historyPanel,
+}: Props<Form, Dto>) {
   const t = useTranslations();
   const router = useRouter();
   const { layoutStore, customColumnModalStore, userStore } = useRootStore();
+  const { stack: entityDrawerStack } = useEntityDrawerStack();
   const { showDeleteConfirmation } = useDeleteConfirmation();
   const [hasMounted, setHasMounted] = useState(false);
   const formId = useId();
+  const drawerWasOpenRef = useRef(entityDrawerStack.length > 0);
 
   useEffect(() => {
     void store.loadById(entityId);
   }, [entityId, store]);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
+    const drawerIsOpen = entityDrawerStack.length > 0;
+    const drawerWasOpen = drawerWasOpenRef.current;
+    drawerWasOpenRef.current = drawerIsOpen;
+
+    if (drawerWasOpen && !drawerIsOpen && store.fetchedEntity?.id !== entityId) void store.loadById(entityId);
+  }, [entityDrawerStack.length, entityId, store]);
 
   useEffect(() => {
-    const avatarKind =
-      entityType === EntityType.contact ? "contact" : entityType === EntityType.organization ? "organization" : null;
-    layoutStore.setRuntimeTitle(identity.name);
-    layoutStore.setRuntimePictureUrl(avatarKind ? (identity.pictureUrl ?? null) : null);
-    layoutStore.setRuntimeAvatarKind(avatarKind);
-    return () => {
-      layoutStore.setRuntimeTitle(null);
-      layoutStore.setRuntimePictureUrl(null);
-      layoutStore.setRuntimeAvatarKind(null);
-    };
-  }, [identity.name, identity.pictureUrl, entityType, layoutStore]);
+    setHasMounted(true);
+  }, []);
 
   const { canManage, isLoading, isEditingCustomField, toggleEditingCustomField, form } = store;
   const hasId = form && typeof form === "object" && "id" in form && Boolean(form.id);
   const canSeeHistory = userStore.can(Resource.auditLog, Action.readAll);
   const showDeleteAction = canManage && hasId && canDelete && !isEditingCustomField;
   const saveDisabled = isLoading || !store.hasUnsavedChanges || store.isDisabled;
-  const showLoading = store.isLoading && !store.fetchedEntity;
+  const hasCurrentEntity = store.fetchedEntity?.id === entityId;
+  const requestMatches = store.requestedEntityId === entityId;
+  const showLoadError =
+    !hasCurrentEntity && requestMatches && (store.entityLoadState === "error" || store.entityLoadState === "not-found");
+  const showLoading = !hasCurrentEntity && !showLoadError;
   const showEditFieldsAction = canManage && !isEditingCustomField;
   const showEditFieldsActiveActions = canManage && isEditingCustomField;
+
+  useEffect(() => {
+    const key = `${ENTITY_URL_SEGMENT[entityType]}:${entityId}`;
+    if (hasCurrentEntity) {
+      const avatarKind =
+        entityType === EntityType.contact ? "contact" : entityType === EntityType.organization ? "organization" : null;
+      layoutStore.setRuntimeIdentity({
+        scope: "entity",
+        key,
+        title: identity.name,
+        pictureUrl: avatarKind ? (identity.pictureUrl ?? null) : null,
+        avatarKind,
+      });
+    } else if (showLoadError) {
+      layoutStore.setRuntimeIdentity({
+        scope: "entity",
+        key,
+        title: fallbackTitle,
+        pictureUrl: null,
+        avatarKind: null,
+      });
+    }
+
+    return () => layoutStore.clearRuntimeIdentity("entity", key);
+  }, [
+    entityId,
+    identity.name,
+    identity.pictureUrl,
+    entityType,
+    fallbackTitle,
+    hasCurrentEntity,
+    layoutStore,
+    showLoadError,
+  ]);
 
   const deleteConfirmationRef = useRef(showDeleteConfirmation);
   deleteConfirmationRef.current = showDeleteConfirmation;
@@ -99,7 +145,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   const topBarActions = useMemo(
     () =>
-      showLoading ? null : (
+      showLoading || showLoadError ? null : (
         <TooltipProvider>
           <div className="flex items-center gap-1">
             {showDeleteAction && (
@@ -183,6 +229,7 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
       ),
     [
       showLoading,
+      showLoadError,
       t,
       canManage,
       showDeleteAction,
@@ -201,17 +248,29 @@ export const EntityDetailLayout = observer(function EntityDetailLayout<
 
   useSetTopBarActions(topBarActions);
 
-  if (showLoading) {
+  if (showLoading) return <PageState label={t("PageState.loading")} skeleton={{ kind: "detail" }} state="loading" />;
+
+  if (showLoadError) {
+    const notFound = store.entityLoadState === "not-found";
     return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner aria-label={t("Loading.text")} size="lg" />
-      </div>
+      <PageState
+        action={
+          notFound ? undefined : (
+            <Button size="sm" variant="outline" onClick={() => void store.loadById(entityId)}>
+              {t("ErrorCard.retry")}
+            </Button>
+          )
+        }
+        description={notFound ? t("PageState.notFoundDescription") : t("ErrorCard.contactSupport")}
+        state="error"
+        title={notFound ? t("PageState.notFoundTitle") : t("ErrorCard.title")}
+      />
     );
   }
 
   return (
     <AppForm id={formId} store={store as unknown as BaseFormStore}>
-      <div className="@container/detail flex flex-col w-full flex-1 min-h-0 overflow-y-auto @4xl/detail:overflow-y-visible">
+      <div className="@container/detail animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @4xl/detail:overflow-y-visible">
         <div
           className={cn(
             "grid grid-cols-1 gap-px bg-border contain-[layout]",

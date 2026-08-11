@@ -6,8 +6,8 @@ import type { MessagingProvider } from "@/generated/prisma";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Info, Loader2 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { Cable, Info, Loader2 } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { Action, Resource } from "@/generated/prisma";
 
 import { Alert } from "@/components/shared/alert";
@@ -26,11 +26,16 @@ import { AppLink } from "@/components/shared/app-link";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { SETTINGS_CARD_GRID_CLASS_NAME } from "@/components/page-state/page-state-geometry";
+import { PageState } from "@/components/page-state/page-state";
+import { PageSkeleton } from "@/components/page-state/page-skeleton";
+import { cn } from "@/core/utils/cn";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 
 type Props = {
   accounts: ConnectedAccountDto[];
+  locked?: boolean;
 };
 
 const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; labelKey: string }[] = [
@@ -51,23 +56,36 @@ const CONNECT_CHANNEL_OPTIONS: { key: ConnectChannel; icon: MessagingProvider; l
 
 const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
 
-const ConnectAction = observer(() => {
+const ConnectAction = observer(({ id, variant = "default" }: { id: string; variant?: "default" | "secondary" }) => {
   const t = useTranslations();
   const { connectedAccountsStore } = useRootStore();
   const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
+  const isSecondary = variant === "secondary";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="h-8" id="profile-connected-accounts-connect" size="sm">
+        <Button className="h-8" id={id} size="sm" variant={variant}>
           <span className="-space-x-1.5 flex items-center">
             {FEATURED_PROVIDERS.map((provider) => {
               const ChannelIcon = getProviderIcon(provider);
-              return <ChannelIcon key={provider} className="ring-primary size-5 rounded-full ring-2" />;
+              return (
+                <ChannelIcon
+                  key={provider}
+                  className={cn("size-5 rounded-full ring-2", isSecondary ? "ring-secondary" : "ring-primary")}
+                />
+              );
             })}
 
             {overflowCount > 0 && (
-              <span className="bg-primary-foreground text-primary ring-primary flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2">
+              <span
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2",
+                  isSecondary
+                    ? "bg-background text-muted-foreground ring-secondary"
+                    : "bg-primary-foreground text-primary ring-primary",
+                )}
+              >
                 +{overflowCount}
               </span>
             )}
@@ -120,36 +138,61 @@ const ConnectedAccountsAlert = () => {
   );
 };
 
-export const ConnectedAccountsCard = observer(({ accounts }: Props) => {
+export const ConnectedAccountsCard = observer(({ accounts, locked = false }: Props) => {
   const t = useTranslations();
   const { connectedAccountsStore, connectedAccountModalStore, intlStore, userStore } = useRootStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
+  const isTrueEmpty = connectedAccountsStore.isReady && connectedAccountsStore.items.length === 0;
 
-  useEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
+  useLayoutEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 
   useEffect(() => {
     connectedAccountsStore.startSyncPolling();
     return () => connectedAccountsStore.stopSyncPolling();
   }, [connectedAccountsStore]);
 
-  const topBarActions = useMemo(() => (canConnect ? <ConnectAction /> : null), [canConnect]);
+  const topBarActions = useMemo(
+    () =>
+      !locked && connectedAccountsStore.isReady && canConnect ? (
+        <ConnectAction id="profile-connected-accounts-connect" />
+      ) : null,
+    [canConnect, connectedAccountsStore.isReady, locked],
+  );
   useSetTopBarActions(topBarActions);
 
-  if (connectedAccountsStore.items.length === 0) {
-    return (
-      <div className="flex w-full max-w-3xl flex-col gap-4">
-        <ConnectedAccountsAlert />
+  if (locked)
+    return <PageSkeleton animated={false} spec={{ card: "connected-accounts", kind: "settings", view: "cards" }} />;
 
-        <p className="text-subdued text-x-md">{t("ConnectedAccountsCard.emptyState")}</p>
-      </div>
+  if (!connectedAccountsStore.isReady) {
+    return (
+      <PageState
+        label={t("PageState.loading")}
+        skeleton={{ card: "connected-accounts", kind: "settings", view: "cards" }}
+        state="loading"
+      />
+    );
+  }
+
+  if (isTrueEmpty) {
+    return (
+      <PageState
+        action={
+          canConnect ? <ConnectAction id="profile-connected-accounts-connect-empty" variant="secondary" /> : undefined
+        }
+        description={t("ConnectedAccountsCard.emptyState")}
+        icon={Cable}
+        skeleton={{ card: "connected-accounts", kind: "settings", view: "cards" }}
+        state="empty"
+        title={t("ConnectedAccountsCard.title")}
+      />
     );
   }
 
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-4">
+    <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
       <ConnectedAccountsAlert />
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+      <div className={SETTINGS_CARD_GRID_CLASS_NAME}>
         {connectedAccountsStore.items.map((account) => {
           const statusLabel = t(`ConnectedAccountsCard.statusLabels.${account.status}`);
           const ProviderIcon = getProviderIcon(account.provider);

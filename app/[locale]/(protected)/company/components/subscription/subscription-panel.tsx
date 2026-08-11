@@ -6,7 +6,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -58,7 +58,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
   const t = useTranslations();
   const { subscriptionStore, intlStore, loadingOverlayStore } = useRootStore();
 
-  useEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
+  useLayoutEffect(() => subscriptionStore.setSubscription(initialSubscription), [initialSubscription]);
 
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;

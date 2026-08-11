@@ -8,6 +8,12 @@ export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
 
 export type Validated<T> = Promise<{ ok: true; data: T } | { ok: false; error: z.ZodError }>;
 
+export async function unwrapValidated<T>(result: Validated<T>): Promise<T> {
+  const resolved = await result;
+  if (!resolved.ok) throw resolved.error;
+  return resolved.data;
+}
+
 export function createZodError<T = unknown>(
   message: string,
   path: (string | number)[] = [],
